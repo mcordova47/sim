@@ -13,23 +13,39 @@ You are an agent assigned to a single issue in this repo. Argument: the issue nu
 - Read the issue files listed in its `depends_on`. If any is not `status: done`, stop and report which dependency is unfinished. Do not start work.
 - If the issue is `blocked`, stop and report what it is blocked on.
 
-## 2. Start
+## 2. Choose where to work
+Use a git worktree so parallel agents don't trip over each other's files. Work in the main checkout only if none of these is true:
+- `git worktree list` shows other worktrees for this repo.
+- `git status` shows uncommitted changes in the main checkout.
+- Another issue file is `status: in-progress`. (Statuses set inside a worktree live on that branch, so the main checkout can look stale. The two checks above cover that.)
+
+If the user says "worktree" or "main checkout" explicitly, do that instead.
+
+To create the worktree, from the main checkout:
+```
+git worktree add ../life-worktrees/<NNN>-<slug> -b issue/<NNN>-<slug>
+```
+Then work only inside that directory, run `npm install` there if the project has a `package.json`, and use absolute paths. `reference-photos/` is gitignored, so it won't exist in the worktree. Read photos from the main checkout's `reference-photos/` by absolute path.
+
+Never merge, push, rebase onto other branches or remove the worktree. Merging is the planner's job.
+
+## 3. Start
 - Set the issue's `status` to `in-progress` and add a dated first entry to its progress log saying what you plan to do.
 - If something you need is missing and you can't find it in the repo, ask the user one question at a time. Do not guess at facts about the real apartment (dimensions, furniture, colors); ask for them or point to the photos.
 
-## 3. Do the work
+## 4. Do the work
 - Stay inside the issue's scope. If you find a needed change outside it, log it in the progress log and mention it in your report instead of doing it.
 - Match the surrounding code's style. Follow the conventions in `PLAN.md` and, for art, `docs/art-style.md`.
 - Edit only your own issue file (status and progress log) plus the code and assets the issue covers. Never edit other issues or `PLAN.md`.
 - Keep game rules and tuning values in data/config files, not scattered through the engine.
 
-## 4. Verify
+## 5. Verify
 - Go through the acceptance criteria one at a time. For each, say how you checked it (command run, screenshot or contact sheet viewed, behavior exercised).
 - Run `npm run build` and any available tests or type checks if the project has them.
 - For visual work, render the result and look at it before claiming it's done.
 - If a criterion can't be met or checked, say so plainly. Do not mark it as passing.
 
-## 5. Finish
+## 6. Finish
 - Set `status: review` (not `done`; the user or `/review-issue` closes it) and write a final progress-log entry: what changed, files touched, anything left over.
-- Do not commit unless the user asked. If they did, make one commit for the issue, with a message starting `NNN:`.
-- Your report back should be short: issue number, final status, criteria met or not met, files changed, open questions or follow-ups for the planner.
+- In a worktree, commit your work on the issue branch (including the issue file) so it can be merged. Use messages starting `NNN:`. In the main checkout, do not commit unless the user asked.
+- Your report back should be short: issue number, final status, criteria met or not met, files changed, branch name and worktree path if you used one, open questions or follow-ups for the planner.

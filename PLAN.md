@@ -20,6 +20,7 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 - **An agent edits only its own issue file** (status and progress log) plus the code it was assigned. Do not edit other issues or this file. Report back instead.
 - When an issue is done, set `status: done` and update the table below.
 - Keep commits small and one per issue where possible.
+- **Parallel work uses git worktrees**, one per issue, at `../life-worktrees/NNN-slug` on branch `issue/NNN-slug`. Agents commit on their branch and never merge. The planner merges approved branches and updates the table below. Status in an issue file is only current on its branch until merged.
 
 ## Milestones and issues
 

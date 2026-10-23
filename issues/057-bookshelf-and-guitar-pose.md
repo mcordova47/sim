@@ -1,7 +1,7 @@
 ---
 id: 057
 title: Bookshelf top order; guitar pose shows the neck
-status: review
+status: done
 owner: agent
 depends_on: []
 ---
@@ -26,3 +26,11 @@ From Marc's playtest (2026-10-23):
   - **Checked:** `npm run sprites`, `npm test` (1033 pass), `npm run build` all pass. Rendered the real `Game` (throwaway harness page with headless Chrome, kept outside the repo) at 1x, 4x and a 12x crop with the guitar task running: neck, headstock and body show and sit over the doorway tile and the sofa arm correctly; bookshelf top viewed at 6x and in the 4x room (flowers north, plant south).
   - **Not checked:** feel in a live browser; the doing-guitar view at 1x is small (the neck is 2 px thick); Marc to judge. Marc plays right-handed or left-handed is unknown: the neck goes west per the issue, which on a front-facing figure puts the neck on the viewer's left.
   - Files: `art/src/bookshelf.sprite`, `art/src/player-guitar.sprite`, `public/sprites/bookshelf.png`, `public/sprites/player-guitar.png`, `src/game/poses.ts`, `src/game/poses.test.ts`, `scripts/sprite-lib.test.mjs`, `docs/art-style.md`.
+
+- 2026-10-23 (reviewer): Review. Verdict: **approve**.
+  - **Bookshelf top reversed, items intact: pass.** Compared the sprite against main row by row: same 64 rows (sorted multiset equal), front slice rows 53-63 identical. Rendered the real `Game` at 4x: north to south is dried flowers, bowl, books on tray, plant. Matches the left-to-right order in `east-facing-view-of-bookshelf` (vase, bowl, books, plant) and Marc's stated order.
+  - **Guitar pose, neck shows, body in lap, west, works from col 1 row 4: pass.** Started the `guitar` task in the real `Game` from col 1 row 4 and rendered at 1x, 4x and an 8x crop. The neck runs out west over col 0 with a headstock; the body sits in front of the player. It draws over the wall and the doorway tile and nothing hides it; the wall guitar is hidden while the pose plays (replacesPiece kept); no doubled held-guitar overlay. Needs col 0 row 4 only. `poses.ts` and its test are updated.
+  - **Render at 1x and 4x, `npm run sprites`, `npm test`, `npm run build`: pass.** 1033 tests pass; `npm run sprites` leaves the tree clean (committed PNGs match the sources); build ok.
+  - **Scope/conventions/privacy: pass.** Only the bookshelf and guitar sprites and PNGs, `poses.ts`, two tests, `docs/art-style.md` and the issue file changed. No PLAN.md edits, nothing copied from reference photos.
+  - **Unverified:** feel in a live browser; whether Marc likes the look. Observations for Marc: at 1x the neck is a thin 2 px line and the body reads as a plain cream blob with no visible arms; the neck emerges near the chin. Acceptable but he may want a polish pass.
+  - PLAN.md table needs updating by the planner.

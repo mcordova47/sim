@@ -118,8 +118,11 @@ describe("NotesActivity", () => {
     expect(new NotesActivity([]).done).toBe(true);
   });
 
-  it("isn't something you can back out of with Escape (it is short)", () => {
-    expect(new NotesActivity(["up"]).cancellable).toBe(false);
+  it("can be backed out of with Escape", () => {
+    const a = new NotesActivity(["up"]);
+    expect(a.cancellable).toBe(true);
+    a.cancel();
+    expect(a.result).toEqual({ completed: false });
   });
 
   it("has a character for every direction in the pixel font", () => {

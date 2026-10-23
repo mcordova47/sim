@@ -273,6 +273,12 @@ export class DialogRunner {
     this.cursor = saved.cursor;
   }
 
+  // Closes whatever is open as cancelled, from any menu level (Escape during an
+  // action backs out of the whole action, not one menu).
+  abort(): void {
+    if (this.node) this.close(true);
+  }
+
   private close(cancelled = false): void {
     const result: DialogResult = { path: [...this.path], cancelled };
     const onDone = this.onDone;

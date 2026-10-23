@@ -39,16 +39,33 @@ In a task (in `tasks.ts`, or in a tile-map legend):
 
 `goto` and `back` plan their own route (breadth first over the room's walkable tiles, from wherever the player is when the step starts), so a scene works from any tile it can be started from. A tile with no way to it skips the step, so a scene never sticks. Use `face` after a `goto` to look at something.
 
-The answer of the last `ask` is passed on as the result's `data` (and in the completion event). Every step is checked when the level is built. A `set` step must name a state variable the game knows (an unknown one is rejected at load, naming the task), so it cannot fail halfway through a scene. `set` steps apply as they run and stay applied if the scene is skipped with Escape; they are not rolled back.
+The answer of the last `ask` is passed on as the result's `data` (and in the completion event). Every step is checked when the level is built. A `set` step must name a state variable the game knows (an unknown one is rejected at load, naming the task), so it cannot fail halfway through a scene. `set` steps apply as they run and stay applied if the scene is cancelled with Escape; they are not rolled back. (Only the task's own `effects`, points and cooldown are held back.)
 
 A `walk` that ends on or crosses a door tile enters the door (the player is moved to the other room) and the remaining steps, including later steps of the scene, run in the new room, from where the door put the player. The walk does not stop at doors. A test pins this.
 
-Steps that take no time (a cue, a turn) run in the same update as the next step. Escape skips the rest of the scene, which still counts as finishing it.
+Steps that take no time (a cue, a turn) run in the same update as the next step. Escape cancels the scene (see "Escape" below).
+
+## Escape
+
+Escape cancels a running action at any time, with or without text up: no points, no `effects`, no cooldown, the dialog closed, the input lock released, any `view` picture gone, and the combo untouched. `ESC TO STOP` is drawn at the top of the screen (between the score and the clock) while a cancellable action runs. X is not Escape (it is a letter in the typing game).
+
+What happened before and after issue 046 (reproduced on the real `Game`; `src/game/escape.test.ts` holds the table as tests and also tries every real task with Escape at seven different moments):
+
+| action | state | before 046 | now |
+|---|---|---|---|
+| wait | running | ignored | cancels |
+| dialog task (menu or say) | dialog up | Escape went back one menu level, then cancelled at the top | cancels the whole task at once |
+| cutscene | waiting step, walking | skipped, and still paid | cancels, pays nothing |
+| cutscene | `say` up (typing out or fully shown) | ignored by the activity; the dialog took Escape and closed that one line, the scene carried on | cancels |
+| cutscene | `ask` menu up | Escape closed the menu (a cancelled answer) and the scene carried on | cancels |
+| cutscene | `view` picture and `say` | same as `say` | cancels, picture cleared |
+| typing | running | cancels | cancels |
+| notes | running | ignored | cancels (made cancellable at Marc's request; no points, effects or cooldown, and a buffered E cannot restart it) |
 
 ## How it scores
 
 - **Quality.** A mini-game reports how well it went, from 0 to 1. That scales the task's points between `ACTIVITY.minQualityFactor` (0.5) and `maxQualityFactor` (1.5) in `config.ts`; the award popup shows `NICE X1.30` or `SLOPPY X0.80` (two decimals). A NaN quality counts as 0. An activity with no quality (a wait, a cutscene, a dialog) pays its usual points.
-- **Backing out.** `cancel()` is called by the interaction system only when Escape is pressed and the activity is `cancellable` (the typing game and cutscenes are; waits and notes are not). It is not called when an activity ends by itself. A cutscene's cancel is a skip: it still counts as completed. A task that is backed out of scores nothing, changes nothing in the apartment and starts no cooldown, so it can be tried again at once. `completed: false` means exactly this: no points, no effects, no cooldown, `taskCancelled` fires, the combo is untouched. The press that backs out never starts a task again (the buffered interact press is dropped). An activity that throws (in its factory, `start`, `update` or `cancel`) is treated the same way: it is reported to the console, cancelled, and the game carries on.
+- **Backing out.** `cancel()` is called by the interaction system only when Escape is pressed and the activity is `cancellable` (everything is). It is not called when an activity ends by itself. A cutscene's cancel is a plain cancel, not a skip that pays. A task that is backed out of scores nothing, changes nothing in the apartment and starts no cooldown, so it can be tried again at once. `completed: false` means exactly this: no points, no effects, no cooldown, `taskCancelled` fires, the combo is untouched. The press that backs out never starts a task again (the buffered interact press is dropped). An activity that throws (in its factory, `start`, `update` or `cancel`) is treated the same way: it is reported to the console, cancelled, and the game carries on.
 - Points bonuses, repeat penalties and the variety combo apply on top, as for any task.
 - The task's `effects` (dishes, energy, the clock) apply when it completes, never when it is cancelled.
 
@@ -86,6 +103,6 @@ Import it from `src/game/activities/index.ts` so it is registered. Rules:
 - Settings must be the right type: `count` and `lines` must be numbers, not text like `"3"`.
 - `fakeHost()` in `activities/fake-host.ts` lets you test an activity without a game.
 
-While a dialog is open (for example one a cutscene opened), the running activity's `update` is not called and the game clock stands still (`DIALOG.pauseClock`, true by default; if set false, `update` is called with no input), so a cutscene's text can't be skipped past by timing and a mini-game doesn't run behind a dialog. The dialog owns Escape: Escape inside a cutscene's own dialog closes that dialog and the scene goes on to its next step; Escape skips the scene only while no dialog is open.
+While a dialog is open (for example one a cutscene opened), the running activity's `update` is not called and the game clock stands still (`DIALOG.pauseClock`, true by default; if set false, `update` is called with no input), so a cutscene's text can't be skipped past by timing and a mini-game doesn't run behind a dialog. Escape still works while a dialog an action opened is up: the game cancels the action and closes the dialog (from any menu level) in one go. A dialog with no action behind it keeps its own Escape (back one menu level, then close).
 
 `start()` runs right after `taskStart`, in the same frame as the opening press; `update` is first called on the next frame, so the opening press is not seen by the activity.

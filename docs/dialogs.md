@@ -17,7 +17,7 @@ menu("Contemplate what?", [           // a list of choices, with an optional pro
 ```
 
 - A `say` is wrapped to the box and split into pages of three lines. The interact key (E) finishes a page that is still typing, then moves on to the next page, then to `next` (or closes).
-- A `menu` moves with the arrow keys or W and S, one entry per press (it wraps around), E chooses, and Escape or X goes back one level (or closes, from the top menu).
+- A `menu` moves with the arrow keys or W and S, one entry per press (it wraps around), E chooses, and Escape or X goes back one level (or closes, from the top menu). While a task's action is running, Escape instead cancels the whole action and closes the dialog (see `docs/activities.md`).
 - A choice's `next` can be another `menu`, so submenus are just nesting. Cancel goes back to the menu you came from, with the cursor where you left it.
 - A menu reached after a reply is a fresh start, even if it looks like a submenu of the one before: for A, a choice, a reply, then B, Escape at B closes the dialog (`cancelled` is true and the path still has what was chosen before) and does not return to A. To get "back to A", lead the choice straight to B with no reply, or put the reply text in B's prompt.
 - Cancel goes back only within a run of menus. Once the player has read a reply, going on to the next node starts afresh, so cancel at a menu reached after a reply closes the dialog (or backs out of menus opened after that reply), never back across it.

@@ -36,7 +36,7 @@ const WALK_TIMEOUT = 1;
 
 // A short scripted scene. It runs its steps in order; steps that wait (text,
 // a menu, a pause, a walk) hold it up until they are done. Escape skips what
-// is left, which still counts as finishing the task.
+// is left and cancels the task (nothing is paid or applied).
 export class CutsceneActivity extends BaseActivity {
   cancellable = true;
 
@@ -65,9 +65,13 @@ export class CutsceneActivity extends BaseActivity {
     if (steps.length === 0) this.end();
   }
 
-  // A cutscene that is skipped still happened.
+  // Escape stops the scene like any other action: no points, no effects, no
+  // cooldown. The view, the lock and the walk are let go (`finish` clears the
+  // walk; the game closes a dialog the scene had open). `set` steps that already
+  // ran stay applied.
   cancel(): void {
-    this.end();
+    this.viewSprite = null;
+    this.finish({ completed: false });
   }
 
   private end(): void {

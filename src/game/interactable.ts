@@ -18,6 +18,10 @@ export interface Interactable {
   points: number;
   // Seconds before it can be done again; defaults to DEFAULT_TASK_COOLDOWN.
   cooldown?: number;
+  // Tasks that share this name are variants of one thing (the mirror at
+  // different hours): only the first one that can start is offered, so the
+  // player never cycles through two of the same.
+  exclusive?: string;
   // One-line joke shown on completion.
   flavor?: string;
   // Must all hold for the task to start. Otherwise the prompt shows the reason.

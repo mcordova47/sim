@@ -84,4 +84,19 @@ describe("the bathroom mirror", () => {
     for (let i = 0; i < 30; i++) game.update(dt, NO_INPUT);
     expect(game.interaction.scoreboard.score).toBe(before);
   });
+
+  it("never lists two mirror variants in the choice cycle", () => {
+    for (let hour = 0; hour < 24; hour += 0.25) {
+      for (const energy of [10, 25, 26, 80]) {
+        const game = bathGame(hour, energy);
+        offered(game);
+        const mirrors = game.interaction.choices.filter((c) => c.id.startsWith("mirror-"));
+        expect(mirrors.length, `hour ${hour} energy ${energy}`).toBeLessThanOrEqual(1);
+      }
+    }
+  });
+
+  it("offers the worn-out variant first when it is also daytime", () => {
+    expect(offered(bathGame(14, 10))).toBe("mirror-tired");
+  });
 });

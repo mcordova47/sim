@@ -216,9 +216,11 @@ const STATE_RULES: Record<string, Partial<Task>> = {
 // Looking in the mirror (issue 041): one task per variant, all on the vanity.
 // The vanity offers the first that can start, so being worn out wins, and
 // otherwise the hour decides. Each has its own cooldown, which also lets the
-// vanity go back to brushing teeth in between.
+// vanity go back to brushing teeth in between. They share an `exclusive` name,
+// so when two could start (worn out in the daytime) only the first is offered
+// and the choice cycle never lists the mirror twice.
 const mirror = (id: string, name: string, dialog: Task["dialog"], requires: Requirement[]): Task => ({
-  id, name, prompt: "Look in mirror", duration: 0, points: 15, cooldown: 60, dialog, requires,
+  id, name, prompt: "Look in mirror", duration: 0, points: 15, cooldown: 60, dialog, requires, exclusive: "mirror",
 });
 const MIRRORS: Task[] = [
   mirror("mirror-tired", "Look in mirror", MIRROR_TIRED, [

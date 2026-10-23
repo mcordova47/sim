@@ -176,7 +176,13 @@ export class InteractionSystem {
     // Walking away, or facing another object, forgets the pick.
     if (reach !== this.reach) this.selectedId = null;
     this.reach = reach;
-    const available = inReach.filter((i) => this.canStart(i));
+    const taken = new Set<string>();
+    const available = inReach.filter((i) => this.canStart(i)).filter((i) => {
+      if (!i.exclusive) return true;
+      if (taken.has(i.exclusive)) return false;
+      taken.add(i.exclusive);
+      return true;
+    });
     // A task that stopped being available gives the pick back to the first.
     let index = Math.max(0, available.findIndex((i) => i.id === this.selectedId));
     // The cycle key, but not the frame a task just ended (that press may have

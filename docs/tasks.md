@@ -82,3 +82,6 @@ No per-object setting. An object offers the tasks that **can start right now** (
 - The good-hour icon and the "why not" messages follow the shown task. The sound feature's record-stand check follows it too.
 - The key is read from the pressed-key list (`Controls.keys`, with Shift from `keysDown`) inside `InteractionSystem.update`. It does nothing while a task runs (and not the frame one ends, so a Tab typed in the typing game cannot cycle), while a dialog is open, or while input is locked: all of those hand the system `NO_INPUT` or return before the check.
 - Code: `InteractionSystem.choices` (the offered tasks when two or more), `nearby` (the shown one), `choiceIndex`; the prompt count is drawn by `drawPrompt` in `src/render/world-ui.ts`. Tests: `src/game/task-choice.test.ts`, `src/render/choice-prompt.test.ts`.
+
+## Variants of one task (`exclusive`)
+Tasks that are variants of one thing share an `exclusive` name on the task (the four mirror tasks use `"mirror"`). When more than one could start, only the first is offered, so the choice cycle never lists the same thing twice. Order in the task list decides which wins (worn out beats the hour).

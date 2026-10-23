@@ -1,5 +1,5 @@
 import type { Controls } from "../input/controls";
-import { PLAYER } from "./config";
+import { PLAYER, TIMESTEP } from "./config";
 import { overlaps, type Solid } from "./world";
 
 const JUMP_SPEED = Math.sqrt(2 * PLAYER.gravity * PLAYER.jumpHeight);
@@ -9,6 +9,11 @@ function approach(value: number, target: number, step: number): number {
   if (value < target) return Math.min(value + step, target);
   return Math.max(value - step, target);
 }
+
+// Largest slice simulated in one go. Longer updates are split into slices of
+// at most this, so speed never carries the player through a thin solid.
+const MAX_SUBSTEP = TIMESTEP;
+const EPSILON = 1e-9;
 
 export class Player {
   x: number;
@@ -36,6 +41,17 @@ export class Player {
     this.prevX = this.x;
     this.prevY = this.y;
 
+    this.resolveOverlaps(solids);
+
+    const steps = Math.max(1, Math.ceil(dt / MAX_SUBSTEP - EPSILON));
+    const step = dt / steps;
+    for (let i = 0; i < steps; i++) {
+      // A press is a single-frame event, so only the first slice sees it.
+      this.step(step, i === 0 ? controls : { ...controls, jumpPressed: false }, solids);
+    }
+  }
+
+  private step(dt: number, controls: Controls, solids: Solid[]): void {
     this.applyHorizontalInput(dt, controls.moveX);
     this.applyJump(dt, controls);
 
@@ -43,6 +59,39 @@ export class Player {
 
     this.moveX(dt, solids);
     this.moveY(dt, solids);
+  }
+
+  // If we start inside a solid (bad spawn, a future moving platform), push out
+  // along the axis with the least penetration. Ties prefer up, then sideways.
+  private resolveOverlaps(solids: Solid[]): void {
+    // A push can land us in a neighbouring solid, so settle over a few passes.
+    for (let pass = 0; pass < 4; pass++) {
+      let moved = false;
+      for (const s of solids) {
+        if (s.oneWay || !overlaps(this, s)) continue;
+        const up = this.y + this.h - s.y;
+        const left = this.x + this.w - s.x;
+        const right = s.x + s.w - this.x;
+        const down = s.y + s.h - this.y;
+        const least = Math.min(up, left, right, down);
+        if (least === up) {
+          this.y = s.y - this.h;
+          if (this.vy > 0) this.vy = 0;
+          this.grounded = true;
+        } else if (least === left) {
+          this.x = s.x - this.w;
+          if (this.vx > 0) this.vx = 0;
+        } else if (least === right) {
+          this.x = s.x + s.w;
+          if (this.vx < 0) this.vx = 0;
+        } else {
+          this.y = s.y + s.h;
+          if (this.vy < 0) this.vy = 0;
+        }
+        moved = true;
+      }
+      if (!moved) return;
+    }
   }
 
   private applyHorizontalInput(dt: number, moveX: number): void {

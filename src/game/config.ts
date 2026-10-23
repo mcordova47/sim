@@ -51,7 +51,8 @@ export const PLAYER = {
   gravity: 900,
   maxFallSpeed: 320,
 
-  // Peak height of a full-hold jump; the launch speed is derived from it.
+  // Peak height of a full-hold jump; the launch speed is derived from it. The
+  // 60 Hz integration costs a little, so the real apex is about 37.8px.
   jumpHeight: 40,
   // Releasing jump while rising scales upward speed by this, for short hops.
   jumpCutFactor: 0.45,

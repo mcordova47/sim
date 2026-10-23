@@ -1,7 +1,7 @@
 ---
 id: 061
 title: Admire the art: zoom in on a piece and comment very seriously
-status: review
+status: in-progress
 owner: marc + claude
 depends_on: []
 ---
@@ -29,3 +29,14 @@ Marc's gag ideas (2026-10-23): (1) the Ferris Bueller painting zoom: the view pu
   - Rendered in the real game headless (dev server, puppeteer-core with Chrome for Testing, outside the repo; Tab x3 at the sofa, E) at 1x and 4x: wall, 2x, 4x and 8x for the landscape (piece 0), and 2x and 8x for the wolf (piece 6); looked at them. The dialog box covers the bottom of each; the "ESC TO STOP" hint is over the top. Looks right.
   - Not checked: how it feels in a real browser (the push timing, reading speed of the lines); the other eight pieces rendered (only checked by geometry in tests); the night tint (the view is drawn above it, as 060 noted). Marc plays it and reads the lines.
   - Files: src/game/art-pieces.ts (new), src/game/view-zoom.ts (new), src/game/art-zoom.test.ts (new), src/game/activities/cutscene.ts, src/game/activity.ts, src/game/game.ts, src/game/tasks.ts, src/game/state-vars.ts, src/render/sprites.ts, docs/activities.md, docs/tasks.md. Likely conflicts with issue 059: `src/game/tasks.ts` (imports, STATE_RULES near `admire-art`) and `src/game/state-vars.ts` (list end).
+
+- 2026-10-23: Review (independent reviewer): verdict CHANGES NEEDED (small, text only).
+  - Ran: `npm test` 1327 pass, `npm run build` pass. My own checks (outside the repo): Escape and held-Escape at every frame of the whole scene (and 3 frames past the end) in a real `Game`: always ends not busy, dialog closed, view not drawn, input lock released, no `artPiece` change (so Escape replays the same piece, the next full run advances), no mood gain; lock taken mid-scene handled by the game. No names or artist words in any line; every line font-safe and at most 123 chars (fits the dialog box, up to 3 lines, no overflow seen). Rendered every one of the ten pieces in the real game headless (dev server on port 5290, stopped afterwards; the served `state-vars.ts` was rewritten in the request only, to start at each piece): wall, 2x, 4x, 8x and the return to the room, at 2x browser scale. Pixels stay crisp and square, the dialog covers only the bottom, "ESC TO STOP" is clear of the dialog, and the room comes back every time.
+  - Criteria: (1) pass. (2) pass for mechanism: ten pieces in turn, wraps, one data file, font-safe, no names; FAIL on accuracy of some lines, below. (3) pass: last line at 8x, then room; points and mood unchanged. (4) pass (scaled; reason given; the scaled look is not empty). (5) pass (validation at load, integer scales, Escape at any step).
+  - Failures (the narration describes things the screen does not show, which breaks the deadpan: the joke needs the lines to describe what you see):
+    - [ ] Piece 5 `pale-mat`: lines 2 and 3 say a blue mark and a yellow mark, "one blue and one yellow". At 4x and 8x the mark is green, slate blue and tan on a brown base. No yellow.
+    - [ ] Piece 7 `green-still-life`: line 2 says "the shadow under the object is a darker green" and line 3 "Green, and a slightly different green". The 4x/8x frames show an orange block, a white block, a yellow block, navy and brown; the green is only the top band. Rewrite to what is there.
+    - [ ] Piece 2 `white-building`: line 3 is about the checks, but at 8x the window (centre 38% down) shows only the red and yellow figure; the checks are below the dialog. Either reword line 3 to the red and yellow squares or shift the 8x focus for this piece.
+    - [ ] Worth a look while there (softer): piece 8 `gold-narrow` says "dark upright ... dark squares" but the upright is two greens; piece 4 `oak-box` says red and brown fields but the 4x/8x shows red, orange and yellow on brown; piece 2 line 1 says red is the only warm note but yellow is warm too. The 8x window shows only 25% to 30% of pieces 0, 2 and 6 (landscape, building, animal), so those lines 3 should talk about the part shown.
+  - Not verified (as the author said): how it feels in a real browser (push timing, reading speed; my frames are screenshots at set delays, not a real-time feel check); the night tint (view draws above it). Rendering of the other eight pieces: now checked by me (frames viewed), listed above.
+  - Out of scope: none. Changes are inside the issue's files; PLAN.md and other issues untouched. Conflict risk with 059 in `tasks.ts` and `state-vars.ts` as the author noted.

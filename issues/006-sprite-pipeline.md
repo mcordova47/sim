@@ -1,7 +1,7 @@
 ---
 id: 006
 title: Sprite pipeline and style guide
-status: review
+status: done
 owner: agent
 depends_on: [001]
 ---
@@ -25,3 +25,11 @@ Define the art rules and build the tooling that turns sprite source data into PN
   - Checked: `npm run sprites` renders both; contact sheet viewed; bad sprites (unknown color, wrong row width, non-tile size, wrong row count) make it exit 1 and write nothing; `npm run build` passes and copies sprites into `dist/`.
   - Not checked: the loader's fallback rectangle in a real browser (no browser available here); it is type-checked only.
   - Notes: the script only overwrites PNGs that have a source, so hand-made PNGs can coexist. `public/sprites/` and the contact sheet are committed so the game works without running the script first. The demo in `src/main.ts` should be removed when issue 002/003 replace the placeholder scene.
+- 2026-10-22: Review (approve).
+  - Style guide: pass (16px tile, 20 named colors, outline, top-left light, naming all in docs/art-style.md).
+  - Source format: pass (text grids, one file per sprite in art/src/).
+  - `npm run sprites`: pass (renders both PNGs, contact sheet viewed, rerun is idempotent, no git diff).
+  - Validation: pass (unknown color, short rows, non-tile size each exit 1 and write nothing; tested with a temporary bad sprite, removed).
+  - Loader: can't fully verify in a browser; code reviewed, falls back to labeled red rectangle on error, type-checks. `npm run build` passes.
+  - Two examples: pass (coffee-mug, couch).
+  - Scope/privacy: only own issue plus assigned code; demo in main.ts is flagged for removal. No reference-photos content.

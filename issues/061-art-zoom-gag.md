@@ -1,7 +1,7 @@
 ---
 id: 061
 title: Admire the art: zoom in on a piece and comment very seriously
-status: in-progress
+status: review
 owner: marc + claude
 depends_on: []
 ---
@@ -40,3 +40,5 @@ Marc's gag ideas (2026-10-23): (1) the Ferris Bueller painting zoom: the view pu
     - [ ] Worth a look while there (softer): piece 8 `gold-narrow` says "dark upright ... dark squares" but the upright is two greens; piece 4 `oak-box` says red and brown fields but the 4x/8x shows red, orange and yellow on brown; piece 2 line 1 says red is the only warm note but yellow is warm too. The 8x window shows only 25% to 30% of pieces 0, 2 and 6 (landscape, building, animal), so those lines 3 should talk about the part shown.
   - Not verified (as the author said): how it feels in a real browser (push timing, reading speed; my frames are screenshots at set delays, not a real-time feel check); the night tint (view draws above it). Rendering of the other eight pieces: now checked by me (frames viewed), listed above.
   - Out of scope: none. Changes are inside the issue's files; PLAN.md and other issues untouched. Conflict risk with 059 in `tasks.ts` and `state-vars.ts` as the author noted.
+
+- 2026-10-23: round 2 fixes after the review. Reworded the lines that did not match the pictures (colours checked against the reviewer's frames): pale-mat (green, slate, tan), green-still-life (orange, white, navy, brown), white-building line 3 (the 8x window shows the red and yellow block, not the checks), gold-narrow (green, not dark), oak-box (red, orange, yellow on brown), small-blue (pink and purple marks). Only `src/game/art-pieces.ts` changed; `npm test` (1327) and `tsc` pass. Not re-rendered by the author.

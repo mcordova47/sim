@@ -44,7 +44,7 @@ export const ART_PIECES: ArtPiece[] = [
     lines: [
       "A building, centered in the frame. The red element is the only warm note, and the whole piece is arranged around it.",
       "The checked pattern below is handled with care. Every square is committed to its color.",
-      "The checks are now the size of coins. They are still in good order.",
+      "Up close it is a red block and a yellow block, side by side. Everything around them is white.",
     ],
   },
   {
@@ -52,26 +52,26 @@ export const ART_PIECES: ArtPiece[] = [
     at: { x: 231, y: 28, w: 25, h: 20 },
     lines: [
       "A small blue piece. Small pieces ask you to come closer, and this one rewards it.",
-      "The blue is flat and confident. There is one pale mark, placed exactly where it needs to be.",
-      "A grid of blues with one lighter square. The lighter square carries the composition.",
+      "The blue is flat and confident. A pink mark and a purple mark are placed exactly where they need to be.",
+      "A grid of blues with a few lighter squares. They carry the composition.",
     ],
   },
   {
     id: "oak-box",
     at: { x: 228, y: 53, w: 31, h: 37 },
     lines: [
-      "A shallow box frame in oak. The red and brown fields press against each other without apology.",
-      "The edges between the fields are firm. Nothing bleeds into anything else.",
-      "Red squares meet brown squares along a straight line. That line is the entire argument.",
+      "A shallow box frame in oak. The red, orange and yellow blocks press against the brown without apology.",
+      "The edges between the blocks are firm. Nothing bleeds into anything else.",
+      "Red, orange and yellow squares on brown. The straight edges are the entire argument.",
     ],
   },
   {
     id: "pale-mat",
     at: { x: 68, y: 63, w: 35, h: 42 },
     lines: [
-      "A small piece in a pale mat. The mat does most of the talking, and the picture lets it.",
-      "A blue mark and a yellow mark sit near each other, and each seems aware of the other.",
-      "Two kinds of square, one blue and one yellow. Neither has moved.",
+      "A small picture in a wide pale mat. The mat does most of the talking, and the picture lets it.",
+      "A green mark, a slate mark and a tan mark sit close together, each aware of the others.",
+      "Three kinds of square: green, slate and tan. The rest is mat.",
     ],
   },
   {
@@ -87,9 +87,9 @@ export const ART_PIECES: ArtPiece[] = [
     id: "green-still-life",
     at: { x: 168, y: 92, w: 38, h: 38 },
     lines: [
-      "A still life in a green frame. A single object, set slightly off center and left to be itself.",
-      "The shadow under the object is a darker green, applied once and not revisited.",
-      "Green, and a slightly different green. The object is a few squares of something paler.",
+      "A still life in a green frame. A few objects, set off center and left to be themselves.",
+      "An orange shape, a white shape and a navy shape share the table. None of them crowds another.",
+      "Orange, white, navy and brown squares, stacked. The brown is the table, and it holds.",
     ],
   },
   {
@@ -98,7 +98,7 @@ export const ART_PIECES: ArtPiece[] = [
     lines: [
       "A narrow piece in a gold frame. A pale field with one dark upright, which works like a pause.",
       "The dark upright is a single stroke, a little softer at the top. It looks deliberate.",
-      "One column of dark squares on a field of pale ones. It is a good column.",
+      "One column of green squares on a field of pale ones. It is a good column.",
     ],
   },
   {

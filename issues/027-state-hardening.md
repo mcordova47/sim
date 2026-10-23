@@ -1,7 +1,7 @@
 ---
 id: 027
 title: State hardening
-status: review
+status: in-progress
 owner: claude
 depends_on: [021]
 ---

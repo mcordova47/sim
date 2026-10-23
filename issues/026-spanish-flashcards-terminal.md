@@ -25,14 +25,37 @@ Not a commitment. Do this only after the core game is playable and fun. It may n
 - 023 (dialog and menus): the "study Spanish" choice on the computer, and the card UI is a custom screen.
 - 021 (apartment state): the score and the clock; maybe points scale with real cards answered correctly.
 
-## Open questions (answer when this is picked up)
-- What does the flashcard app expose today? Is there an API to read due cards and post reviews, or does one need adding? What is the auth model (the game is a static Vite app, so a token in the browser is the obvious but awkward answer)?
-- CORS: the server would need to allow the game's origin, or the game would go through a small proxy.
-- Offline and failure: what happens when the server is down or the answer fails to post? Probably fall back to a "the computer is broken" message and no points. Never lose a real review silently.
-- Card content in the pixel font: needs accents and punctuation (`á é í ó ú ñ ¿ ¡`), which ties into the open question about the font's character set in 023. Spanish makes this a hard requirement, not a nicety.
-- Input: typing answers needs a text input mode, or multiple choice instead.
-- How faithful should the pixel UI be to the real app's UI? Probably a loose homage, not a replica.
-- Points: does a real correct answer pay more than a mini-game? Guard against farming if the points matter.
+## Research findings (2026-10-22, from the sibling repo `../flashcards`)
+The app is "Mil Palabras" (palabras.mcord.dev): PureScript, Netlify, spaced repetition over the 1000 most common Spanish words. Its README says "no backend", but it does have a small one for sync, documented in its `README.md` (Sync section) and `SYNC.md`.
+
+**The server is a dumb blob store.** Two Netlify Functions over Netlify Blobs:
+- `GET/PUT /api/progress/<key>/<lang>` (`netlify/functions/progress.mjs`): one JSON blob per language (`es`, `de`) plus `verbs` for the drills. 500 KB cap, no merge on the server.
+- `PUT /api/notes/<key>`: write-only note delivery. Not relevant here.
+- **Auth is the key only**: 32 chars of `[a-z0-9]` (about 165 bits), "unlisted link" model. Marc's key is whatever his devices were paired with (`?pair=<key>`, QR or pasted link). The game must treat it as a secret: never committed, never in the bundle.
+
+**The blob** (`Flashcards.Types.Progress`): `{ version: 5, language, deck, cards: [{ slug, box, due (ms epoch), seen, lapses, missed, direction }] }`. Only cards ever seen are in it. Slugs are frozen ids (`yo`, `querer`), not ranks. `direction` is `recognition` or `production`.
+
+**All the learning logic lives in the client, in PureScript** (`src/Flashcards/Scheduler.purs`, `Types/Progress.purs`). The server knows nothing about cards. So the game cannot just "ask the server for due cards". It has to do what the app does: GET, merge, build a session, grade, merge again, PUT. The pieces:
+- `merge`: per card, higher `seen` wins, ties keep the left side. Order-insensitive on purpose, so a lost write race self-heals (documented in SYNC.md).
+- `buildSession`: due cards first (most overdue first), then new cards in deck order, session of 20. Variant `buildSessionBy` round-robins across kinds (only matters for the drills, not vocabulary).
+- `applyGrade` with two grades only (`Again`, `GotIt`): Leitner boxes 0 to 5, intervals 1, 3, 7, 21 and 60 days, first-sighting right answer jumps to box 3, graduation from recognition to production at box 4 (restarts at box 1) unless the card shares its English gloss with others. Due dates for intervals of 7 days or more are fuzzed by up to 15 percent using a deterministic hash of slug and `seen` (Park-Miller scramble), so two devices compute the same date. **A port must match this bit for bit**, or the game and the phone will disagree about due dates.
+- Missed cards are requeued 5 places later in the same session.
+- The deck is `data/es-1000.csv` (`Order,English,Español,Slug`), compiled into the app, not served. Longest Spanish text is 15 chars and longest English 31. Accented and special characters in use: `ó í ñ é á ú`, plus `, ( ) / - . ? ;`. No `¿ ¡` in the vocabulary deck (those would only appear in sentence prompts for the drills).
+
+**CORS is not set anywhere** in the functions. A browser game on another origin cannot call them (and a JSON `PUT` triggers a preflight). Either a dev proxy (Vite `server.proxy`, fine if the game only runs locally) or a small change to the functions (CORS headers and an `OPTIONS` handler) if the game is ever hosted.
+
+**Other kinds of question exist** (`Flashcards.Exercise`): typed answers (`Checked`), self-graded (`SelfGraded`) and tap-one-of-few (`Choice`) for verb conjugation, tense shifts, paraphrase and por/para drills, stored under the `verbs` blob. Vocabulary cards are self-graded (flip, then Got it or Again).
+
+### Decisions I can make without Marc
+- **v1 is vocabulary cards only** (the `es` blob), flip and self-grade, two buttons. The drills are a later extension; they need typed input and accents.
+- **Port, do not embed.** Port `merge`, `intervalFor`, `fuzzed`, `applyGrade`, `buildSession` and the codec to TypeScript in the game (about 150 lines), and prove parity with a shared test-vector file generated from the PureScript side (slug and `seen` to due date, grade sequences to resulting cards). That keeps the game dependency-free and fast to test. Compiling the PureScript scheduler into the game is possible but drags in a second toolchain for 150 lines.
+- **Sync like the app does:** GET and merge at the start of the activity, grade locally as you go, then GET again, merge and PUT at the end (and on leaving mid-session). If the server is unreachable the activity says the computer has no connection and awards no points. It never keeps answers it cannot deliver, so the real schedule is never silently wrong.
+- **Never overwrite what cannot be read:** an unparseable or newer-version blob is left alone, exactly as the app does.
+- **Key handling:** read from `.env.local` or a localStorage field entered once, accepting the app's pairing link or a bare key (the app's parser accepts both). Not committed.
+- **Card text in the pixel font:** the vocabulary deck needs only `áéíóúñ` plus basic punctuation, so the font requirement is much smaller than I first wrote. `¿` and `¡` are not needed for v1.
+
+### Still needs Marc
+See the questions in the progress log entry below.
 
 ## Acceptance criteria (draft, to refine later)
 - A "study Spanish" interaction on the computer starts a `flashcards` activity.
@@ -42,4 +65,5 @@ Not a commitment. Do this only after the core game is playable and fun. It may n
 - No secrets committed; the server URL and token come from local config.
 
 ## Progress log
+- 2026-10-22: Researched the flashcards repo; findings above. Open questions for Marc: (1) is the game ever hosted or local only, (2) modify the flashcards app or leave it untouched, (3) where the deck comes from, (4) points rules, (5) how faithful the card UI should be.
 - 2026-10-22: Recorded as an idea by Marc. Status is blocked until 021 to 023 exist and the core game has passed its decision gate.

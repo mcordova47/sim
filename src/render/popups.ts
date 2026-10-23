@@ -36,16 +36,22 @@ export class Popups {
     return this.items.length;
   }
 
-  draw(ctx: CanvasRenderingContext2D, viewWidth: number): void {
+  // Popups live at world positions; `origin` is the world position of the
+  // top-left of the view, so they are drawn where the camera sees them.
+  draw(
+    ctx: CanvasRenderingContext2D,
+    viewWidth: number,
+    origin: { x: number; y: number } = { x: 0, y: 0 },
+  ): void {
     for (const p of this.items) {
       // Ease out: fast at first, settling at the top.
       const t = p.age / LIFETIME;
       const rise = RISE * (1 - (1 - t) * (1 - t));
       const alpha = Math.min(1, (LIFETIME - p.age) / FADE_TIME);
-      const x = Math.min(Math.max(p.x, 20), viewWidth - 20);
+      const x = Math.min(Math.max(p.x - origin.x, 20), viewWidth - 20);
 
       ctx.globalAlpha = alpha;
-      let y = p.y - rise;
+      let y = p.y - origin.y - rise;
       for (const line of p.lines) {
         const scale = line.scale ?? 1;
         drawText(ctx, line.text, x, y, { color: line.color, align: "center", scale });

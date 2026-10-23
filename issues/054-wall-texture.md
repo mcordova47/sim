@@ -1,7 +1,7 @@
 ---
 id: 054
 title: Wall texture from the new photo
-status: done
+status: review
 owner: marc + agent
 depends_on: []
 ---

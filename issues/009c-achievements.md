@@ -30,6 +30,9 @@ Keep it all testable without a browser: put the logic in plain functions and cla
 - Score persistence is optional in the original polish issue; here it means the best score and the unlocks. The running score still starts at 0 each visit.
 - Marc will read these names, so make them good. They can be a little silly.
 
+## Note: persistence now includes the apartment state
+The apartment state system (issue 021, merged) holds dishes, the bed, energy and the clock as values in `ApartmentState`. Per the persistence decision in `PLAN.md`, saving progress between sessions must include those values (and restore them on load, validating them against `state-vars.ts` so a stale or corrupt saved value is ignored), as well as the score, achievements and settings. Keep the storage wrapped in try/catch, as decided.
+
 ## Blocked on the top-down switch
 On 2026-10-22 the game changed direction from a side-view platformer to a top-down, Pokemon-style game (issues 019 onward). Do not start this issue yet. It needs revisiting once the foundation (019) is in: the `jump` and `land` events no longer exist (they become `step` and `bump`), the particles and sounds the issue describes need to suit walking, and the day and night cycle should build on the clock from the apartment state (021). The planner will rewrite the affected criteria before releasing it.
 

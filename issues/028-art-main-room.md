@@ -1,7 +1,7 @@
 ---
 id: 028
 title: Top-down art: main room
-status: review
+status: done
 owner: agent
 depends_on: [020, 025]
 ---

@@ -1,7 +1,7 @@
 ---
 id: 036
 title: Art: more accurate paintings, the gallery wall, blinds states
-status: review
+status: done
 owner: agent
 depends_on: []
 ---
@@ -28,3 +28,11 @@ From Marc's playtest of the sprite build (2026-10-23): the paintings are generic
   - **Checks:** `npm run sprites` passes (75 sprites); `npm test` 553 pass; `npm run build` passes. Viewed the contact sheet, an 8x zoom of each new sprite, and `art/main-room-mockup*.png` (gitignored; run `node scripts/main-room-mockup.mjs`).
   - **Not checked:** how it looks in the running game at real scale (the sprites are not placed in data yet beyond the desk painting); whether Marc finds the impressions recognisable. A straight-on photo of the desk print, the barn drawing and the gallery wall would let me sharpen details.
   - Files: `art/src/{painting,painting-desk,painting-wide,gallery-wall,window-blinds-open,window-blinds-closed}.sprite`, matching `public/sprites/*.png`, `src/game/apartment.ts`, `src/game/apartment.test.ts`, `scripts/main-room-mockup.mjs`, `docs/art-style.md`.
+
+- 2026-10-23 (independent reviewer): **Review: approve.**
+  - **Paintings: pass.** `painting` (32x16), `painting-desk` (32x16) and `painting-wide` (48x16) match the sizes of the pieces in `MAIN_MAP` (`pp`, `qq`, `uuu`) and the old sprites; all three sprites differ and a test pins it. Compared with IMG_4647 (barn pencil drawing in a cream frame and mat; gold-matted orange/pale-disc/navy abstract in a walnut frame) and IMG_4654 (small green print in a wide mat, pale oak frame): palette, framing and composition read as the real pieces. No text, glyphs or signatures reproduced; nothing copied from photos.
+  - **Gallery wall: pass.** 96x16 (6x1). Its top and bottom rows match `wall-front` (ink, paper, mist, dusk, ink), so it can replace six `wall-front` tiles. Map row 7 cols 1-6 are all `#` with open floor north, so the spot fits the floor plan (which has no gallery entry, as the author said; the proposal is stated in the log). Not placed in game data, as allowed. Mockup shows it reading as a frame strip on the south wall face.
+  - **Blinds: pass.** `window-blinds-open` and `-closed` are both 16x32, same as `window-blinds`, which is untouched and still used. `window` has no alternation in the data, unchanged.
+  - **Docs/sprites: pass.** `art-style.md` audit rows added. My own check of every changed sprite: all glyphs in `art/palette.json`, every row the declared width, row count equals declared height. `npm run sprites` renders 75 sprites and leaves the tree clean (PNGs match source). `npm test` 553 pass; `npm run build` passes.
+  - **Scope: pass.** The only game-data change is piece `q` to `painting-desk` (and its test). No other issues or `PLAN.md` touched; only `reference-photos/README.md` is tracked from that folder.
+  - **Unverified (not passed):** how the sprites look in the running game at real scale (only the static mockup was viewed); whether Marc finds the paintings recognisable. Minor notes for Marc: the nightstand print is portrait in real life but the 3x1 slot forces a landscape mat; the desk print is a gold-and-orange impression without its glyphs; the robin linocut has no slot; the gallery strip starts one tile west of the sofa body (sofa is cols 2-7, strip cols 1-6).

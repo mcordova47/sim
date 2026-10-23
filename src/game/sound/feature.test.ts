@@ -587,3 +587,11 @@ describe("removing the feature", () => {
     expect(game.interaction.scoreboard.score).toBeGreaterThanOrEqual(0);
   });
 });
+
+describe("modifier keys", () => {
+  it("ignores Ctrl+M, Cmd+M and Alt+M", () => {
+    const s = setup();
+    for (const mod of ["ctrlKey", "metaKey", "altKey"]) for (const fn of s.keys.fns) fn({ code: SOUND.muteKey, [mod]: true });
+    expect(s.feature.muted).toBe(false);
+  });
+});

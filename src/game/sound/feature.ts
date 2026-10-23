@@ -16,6 +16,9 @@ import { SettingsStore } from "./settings";
 export interface KeyEventLike {
   code: string;
   repeat?: boolean;
+  ctrlKey?: boolean;
+  metaKey?: boolean;
+  altKey?: boolean;
 }
 export interface Listenable<E> {
   addEventListener(type: string, listener: (event: E) => void): void;
@@ -157,6 +160,8 @@ export class SoundFeature implements Layer {
     // The first key press is what lets the browser start audio.
     this.engine.unlock();
     if (e.repeat) return;
+    // Browser shortcuts (Ctrl+M and the like) are not for the game.
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
     const task = this.game.interaction.active;
     const activity = task?.item.activity?.type;
     // The typing game reads every letter, so M is a letter there, not a mute key.
@@ -219,15 +224,20 @@ export class SoundFeature implements Layer {
     return this.selected ? `NOW PLAYING: ${this.selected.title}` : "NOTHING PLAYING";
   }
 
+  // Both tags sit along the bottom edge, clear of the score and status panels,
+  // the toasts and the "ESC TO STOP" hint: the mute tag at the right, the
+  // now-playing line at the left (cut to fit beside it).
   drawHud(ctx: CanvasRenderingContext2D): void {
+    const y = VIEW.height - 13;
     const tag = this.indicatorText();
-    if (tag) this.drawTag(ctx, tag, Math.round((VIEW.width - textWidth(tag)) / 2) - 3, 2);
-    const line = this.nowPlayingText();
-    if (line) {
-      const text = fit(line, VIEW.width - 8);
-      const w = textWidth(text) + 6;
-      this.drawTag(ctx, text, Math.round((VIEW.width - w) / 2), VIEW.height - 13);
+    let room = VIEW.width - 4;
+    if (tag) {
+      const w = textWidth(tag) + 6;
+      this.drawTag(ctx, tag, VIEW.width - w - 2, y);
+      room -= w + 4;
     }
+    const line = this.nowPlayingText();
+    if (line) this.drawTag(ctx, fit(line, room - 6), 2, y);
   }
 
   private drawTag(ctx: CanvasRenderingContext2D, text: string, x: number, y: number): void {

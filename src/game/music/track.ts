@@ -56,11 +56,13 @@ export class TrackError extends Error {
 const SEMITONE: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
 const DRUMS = new Set(["K", "S", "H"]);
 export const MAX_NOTE_BEATS = 64;
+// The shortest note (a 32nd of a beat), so a typo can't ask for thousands of notes a second.
+export const MIN_NOTE_BEATS = 1 / 32;
 export const TEMPO_RANGE = { min: 30, max: 300, default: 100 };
 
 // Frequency in Hz of a note name such as "C4", "F#3" or "Bb2", or null if it is not one.
 export function noteFrequency(name: string): number | null {
-  const m = /^([A-Ga-g])([#b]?)(\d)$/.exec(name);
+  const m = /^([A-Ga-g])([#b]?)([0-8])$/.exec(name);
   if (!m) return null;
   const semitone = SEMITONE[m[1].toUpperCase()] + (m[2] === "#" ? 1 : m[2] === "b" ? -1 : 0);
   const midi = (Number(m[3]) + 1) * 12 + semitone;
@@ -74,7 +76,7 @@ export function parseBeats(text: string): number | null {
   if (fraction) value = Number(fraction[1]) / Number(fraction[2]);
   else if (/^(\d+\.?\d*|\.\d+)$/.test(text)) value = Number(text);
   else return null;
-  return Number.isFinite(value) && value > 0 && value <= MAX_NOTE_BEATS ? value : null;
+  return Number.isFinite(value) && value >= MIN_NOTE_BEATS && value <= MAX_NOTE_BEATS ? value : null;
 }
 
 // Reads a track. `source` names it in error messages (a file name). Throws a

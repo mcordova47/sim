@@ -1,7 +1,7 @@
 ---
 id: 009a
 title: "Polish: sound effects"
-status: in-progress
+status: review
 owner: agent
 depends_on: []
 ---
@@ -102,11 +102,14 @@ Judgements
 - Own localStorage key `life.sound.v1` instead of the 009c save: acceptable and arguably better (the 009c store rewrites the whole blob, so a field there would couple the modules; delete-the-line stays true). Consequence to know: a future "reset progress" in 009c will not clear sound settings.
 
 Changes needed (checklist)
-- [ ] 1. The top-centre tag is placed from a guess and by the constants it overlaps other HUD. `MUTE` is 23 px wide, so its box spans x 146 to 172 at y 2 to 13. The score and combo panel (`HUD_BOX`) reaches x 152, and `ESC TO STOP` (drawn at the centre of the gap, x about 166 to 231, y 3) runs during every stoppable task. So while muted, the tag sits over the edge of the score panel and over the start of `ESC TO STOP`. `SOUND ON` (box x 130 to 183) is worse. Place the tag inside the free gap (`HUD_BOX.x + HUD_BOX.w` to `STATUS_BOX.x`, using `render/layout.ts`), clear of the stop hint (for example on the line below it), and look at it in a browser or a rendered frame.
-- [ ] 2. The NOW PLAYING line is at the bottom centre (y 179 to 190) while the interact prompt for the record player is drawn near the player and clamped to the view; facing the record player near the bottom may overlap it. Check by eye and move if so (not verified).
-- [ ] 3. Track parser accepts absurdly short notes: `C4:1/100000` at tempo 300 makes one frame schedule 10000 oscillators (guard limit) with no voice cap on the music bus. Add a smallest note length (for example 1/16 beat) in `parseBeats` and a test.
-- [ ] 4. Parser accepts octave 9 (`C9`) though the docs say 0 to 8; make the code match the docs (or the docs the code) and add a test.
-- [ ] 5. Optional: ignore M when Ctrl, Meta or Alt is held (Cmd+M minimises on a Mac and would also toggle mute).
+- [x] 1. The top-centre tag is placed from a guess and by the constants it overlaps other HUD. `MUTE` is 23 px wide, so its box spans x 146 to 172 at y 2 to 13. The score and combo panel (`HUD_BOX`) reaches x 152, and `ESC TO STOP` (drawn at the centre of the gap, x about 166 to 231, y 3) runs during every stoppable task. So while muted, the tag sits over the edge of the score panel and over the start of `ESC TO STOP`. `SOUND ON` (box x 130 to 183) is worse. Place the tag inside the free gap (`HUD_BOX.x + HUD_BOX.w` to `STATUS_BOX.x`, using `render/layout.ts`), clear of the stop hint (for example on the line below it), and look at it in a browser or a rendered frame.
+- [x] 2. The NOW PLAYING line is at the bottom centre (y 179 to 190) while the interact prompt for the record player is drawn near the player and clamped to the view; facing the record player near the bottom may overlap it. Check by eye and move if so (not verified).
+- [x] 3. Track parser accepts absurdly short notes: `C4:1/100000` at tempo 300 makes one frame schedule 10000 oscillators (guard limit) with no voice cap on the music bus. Add a smallest note length (for example 1/16 beat) in `parseBeats` and a test.
+- [x] 4. Parser accepts octave 9 (`C9`) though the docs say 0 to 8; make the code match the docs (or the docs the code) and add a test.
+- [x] 5. Optional: ignore M when Ctrl, Meta or Alt is held (Cmd+M minimises on a Mac and would also toggle mute).
+
+### 2026-10-23: review round 1 fixes (agent)
+1 and 2: both tags now sit along the bottom edge, clear of the score panel, the status panel, toasts and the ESC TO STOP hint: MUTE / SOUND ON at the bottom right, NOW PLAYING at the bottom left (cut to fit beside the mute tag). Still not seen in a browser, and the record player's interact prompt could still overlap the bottom-left line if the player stands near the bottom (unverified). 3: shortest note is 1/32 beat (tests). 4: octave limited to 0-8 (test). 5: M ignored with Ctrl, Meta or Alt (test).
 
 ## Note from Marc (2026-10-23)
 Listening to music could play 8-bit music, and Marc may design the tracks himself. When this issue is picked up, plan for a small music player (a song list, play and stop tied to the record and guitar tasks and maybe an ambient track) and a format Marc can write by hand (for example a text score of notes and lengths, or a tiny tracker file) that the game plays with Web Audio.

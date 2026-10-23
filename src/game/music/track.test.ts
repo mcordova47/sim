@@ -24,7 +24,7 @@ describe("noteFrequency", () => {
     expect(noteFrequency("Cb4")).toBeCloseTo(noteFrequency("B3")!, 6);
   });
   it("rejects things that are not notes", () => {
-    for (const bad of ["H4", "C", "C44", "4C", "", "R", "C##4"]) expect(noteFrequency(bad)).toBeNull();
+    for (const bad of ["H4", "C", "C9", "C44", "4C", "", "R", "C##4"]) expect(noteFrequency(bad)).toBeNull();
   });
 });
 
@@ -37,7 +37,7 @@ describe("parseBeats", () => {
     expect(parseBeats("3/2")).toBe(1.5);
   });
   it("refuses zero, negatives, junk, division by zero and absurd lengths", () => {
-    for (const bad of ["0", "-1", "x", "1/0", "", "1.2.3", "0/4", "65", "Infinity", "1e3"]) expect(parseBeats(bad)).toBeNull();
+    for (const bad of ["0", "-1", "x", "1/0", "", "1.2.3", "0/4", "1/100000", "0.001", "65", "Infinity", "1e3"]) expect(parseBeats(bad)).toBeNull();
   });
 });
 

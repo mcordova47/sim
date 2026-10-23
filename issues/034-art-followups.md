@@ -1,7 +1,7 @@
 ---
 id: 034
 title: Art follow-ups from 028 to 030
-status: review
+status: done
 owner: agent
 depends_on: []
 ---
@@ -70,3 +70,19 @@ Art plus small data only. Rendered real frames of each room in headless Chrome (
 
 **Play it:** `cd /Users/marccordova/Dev/repos/mcordova47/life-worktrees/034-art-followups && npm run dev`, walk through the kitchen passage and the bath door, look at the front door, lamp, guitar, table and fridge.
 
+
+### 2026-10-23, agent: independent review (verdict: approve)
+Checked in the worktree, branch `issue/034-art-followups`.
+- **Build and tests:** `npm run sprites` (127 sprites; regenerating left the tree clean, so `public/sprites` matches `art/src`), `npm test` (628 pass) and `npm run build` pass. Pass.
+- **Own sprite checks (all clean):** every `.sprite` parses with the right row widths; no colour outside the palette; every source has a PNG and no orphan PNGs; `dishes-1..3` have 0 transparent pixels; the four `doorway*` have 0 transparent pixels; `sofa-arm` and `spice-rack` are gone from `art/src` and `public/sprites` and nothing in `src` names them; all 36 outfit frames (casual, out, pajamas x 4 directions x idle, walk-1, walk-2) and all 16 `held-*` overlays exist at 16x16; the outfit silhouettes differ from the home outfit by 6 pixels or fewer per frame; pose sizes match `docs/art-style.md` (sit-sofa 16x32, read-sofa 32x32, type-desk 16x32, eat-table 16x32, guitar 16x48, sleep-bed 80x96).
+- **Criterion 1 (judge at 1x in game):** rendered the real `Game` from `APARTMENT` (main, kitchen, bath) in headless Chrome and looked at 3x to 8x frames. Open passages read as gaps in the wall; front door reads white; lamp reads top-down; guitar hangs; fridge, table and bookshelf read. Pass for what a still frame shows.
+- **Criterion 2 (dishes corners):** pass (0 transparent pixels).
+- **Criterion 3 (leftover pieces, reuse table):** pass (`sofa-arm`, `spice-rack` deleted; `mic-stand`, `gallery-wall` redrawn; table updated).
+- **Criterion 4 (poses):** sizes correct and the contact sheet looks sane; **can't verify in the game** because nothing draws poses.
+- **Criterion 5 (character):** nose fixed; down-facing eyes deliberately left as is. **Marc's taste call, not decided here.**
+- **Criterion 6 (outfits and overlays):** present for every frame and direction. **Can't verify in motion** (nothing draws them yet).
+- **Criterion 7:** pass.
+- **Marc's notes:** 1, 3 (guitar redrawn but its two tiles are still blocked in the map), 4, 5, 6 done; 2 supplied; 7 deferred to 042.
+- **Scope:** changed files are `art/src`, `public/sprites`, `docs/art-style.md`, the issue file and `scripts/sprite-lib.test.mjs` (pose sizes updated and outfit and overlay tests added, justified). No `PLAN.md`, map, engine or other issue changes. Privacy: no photo content or readable text in the repo.
+- **Unverified, for Marc:** how it feels in a browser in motion; poses, outfits and held items in motion; whether the open passages read for Marc at his own window size; whether the redrawn paintings and `gallery-wall` are good impressions of the real pieces (not compared against the photos here); down-facing eyes; the guitar hung on a floor tile instead of the wall; overlays are small rough icons (taste).
+- **Follow-ups for the planner (not blockers):** wiring for outfits, poses and overlays; map slots proposed in the 2026-10-23 log (`painting-robin` at north col 5, `gallery-wall`, `mic-stand` at col 5 row 1, `stool`); guitar tiles; desk clutter for 042.

@@ -277,4 +277,57 @@ describe("goto and back", () => {
     expect(check({ back: false })).toThrow(/back must be true/);
     expect(check({ back: true, wait: 1 })).toThrow(/exactly one/);
   });
+
+  describe("view and unview", () => {
+    function viewHost(f: ReturnType<typeof fakeHost>) {
+      const drawn: string[] = [];
+      (f.host as { sprites?: unknown }).sprites = { has: () => true, draw: (_c: unknown, n: string) => void drawn.push(n) };
+      return drawn;
+    }
+    const ctx = {} as CanvasRenderingContext2D;
+    const screen = { width: 320, height: 192 };
+
+    it("shows a picture while later steps run, until unview", () => {
+      const { f, a, tick } = scene([{ view: "view-x" }, { say: "Look." }, { unview: true }, { say: "Done." }]);
+      const drawn = viewHost(f);
+      tick();
+      a.draw(ctx, screen);
+      expect(drawn).toEqual(["view-x"]);
+      f.closeDialog();
+      tick();
+      drawn.length = 0;
+      a.draw(ctx, screen);
+      expect(drawn).toEqual([]);
+    });
+
+    it("stops showing it when skipped with Escape, and when it ends", () => {
+      const { f, a, tick } = scene([{ view: "view-x" }, { say: "Look." }]);
+      const drawn = viewHost(f);
+      tick();
+      a.cancel();
+      a.draw(ctx, screen);
+      expect(drawn).toEqual([]);
+      expect(a.done).toBe(true);
+      const s2 = scene([{ view: "view-y" }, { wait: 0.1 }]);
+      const d2 = viewHost(s2.f);
+      s2.tick(0.5);
+      s2.a.draw(ctx, screen);
+      expect(d2).toEqual([]); // ended without an unview
+    });
+
+    it("moves nobody", () => {
+      const { f, tick } = scene([{ view: "view-x" }, { wait: 0.2 }, { unview: true }]);
+      tick(1);
+      expect(f.player).toMatchObject({ col: 5, row: 5 });
+    });
+
+    it("is checked when the task is loaded", () => {
+      const bad = (steps: unknown[]) => () =>
+        validateActivity({ id: "t", name: "t", prompt: "t", duration: 0, points: 1, zones: [], activity: { type: "cutscene", steps } });
+      expect(bad([{ view: 3 }])).toThrow(/sprite name/);
+      expect(bad([{ view: "Bad Name" }])).toThrow(/sprite name/);
+      expect(bad([{ unview: false }])).toThrow(/unview/);
+      expect(bad([{ view: "ok-name" }, { unview: true }])).not.toThrow();
+    });
+  });
 });

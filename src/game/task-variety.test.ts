@@ -1,11 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { NO_INPUT } from "../input/controls";
 import { textWidth, unsupportedChars } from "../render/font";
 import { createActivity } from "./activity";
 import { TypingActivity } from "./activities";
 import { fakeHost } from "./activities/fake-host";
 import { APARTMENT } from "./apartment";
-import { GALLERY, NAP, TYPING } from "./config";
+import { NAP, TYPING } from "./config";
 import { Game } from "./game";
 import { taskSpots } from "./plan-checks";
 import { TASKS } from "./tasks";
@@ -14,6 +14,12 @@ import { CODE_LINES, EMAIL_LINES, MIXED_LINES } from "./typing-text";
 // Issue 035: tasks that match what they say, alternate by state, and cycle.
 
 const dt = 1 / 60;
+
+afterEach(() => vi.unstubAllGlobals());
+const stubDocument = () =>
+  vi.stubGlobal("document", {
+    createElement: () => ({ width: 0, height: 0, getContext: () => new Proxy({}, { get: () => () => {}, set: () => true }) }),
+  });
 const press = { ...NO_INPUT, interactPressed: true };
 const rooms = APARTMENT.rooms;
 
@@ -191,33 +197,65 @@ describe("the desk and the sofa", () => {
     expect(game.state.get("clock")).toBeGreaterThanOrEqual(13 + NAP.hours);
   });
 
-  it("walks to the gallery wall, says something and comes back, whichever sofa tile it starts from", () => {
+  it("shows the gallery wall view in place, with the player not moving, then restores the normal view", () => {
     const sofaSpots = taskSpots(rooms.main).filter((s) => s.id === "admire-art");
     expect(sofaSpots.length).toBeGreaterThan(1);
     for (const spot of sofaSpots) {
-      const game = onlyGame("admire-art");
+      stubDocument();
+      const drawn: string[] = [];
+      const sprites = { has: () => true, draw: (_c: unknown, name: string) => void drawn.push(name) };
+      const main = { ...rooms.main, interactables: rooms.main.interactables.filter((i) => i.id === "admire-art") };
+      const game = new Game(main, { rooms: { ...rooms, main }, random: () => 0.5, sprites });
+      const ctx = new Proxy({}, { get: () => () => {}, set: () => true }) as unknown as CanvasRenderingContext2D;
       game.player.placeAt(spot.stand.col, spot.stand.row, spot.face);
       game.update(dt, NO_INPUT);
       game.update(dt, press);
-      expect(game.interaction.active?.item.id, `${spot.stand.col},${spot.stand.row}`).toBe("admire-art");
-      let atWall = false;
-      let said = false;
+      expect(game.interaction.active?.item.id).toBe("admire-art");
+      let shown = false;
       for (let i = 0; i < 60 * 40 && game.interaction.busy; i++) {
-        if (game.player.col === GALLERY.col && game.player.row === GALLERY.row && !game.player.stepping) {
-          atWall = true;
-          if (game.dialogOpen) said = game.player.facing === GALLERY.face;
+        expect({ c: game.player.col, r: game.player.row, f: game.player.facing }).toEqual({ c: spot.stand.col, r: spot.stand.row, f: spot.face });
+        if (game.dialogOpen) {
+          drawn.length = 0;
+          game.render(ctx, 1);
+          if (drawn.includes("view-gallery-wall")) shown = true;
         }
         game.update(dt, game.dialogOpen && i % 20 === 0 ? press : NO_INPUT);
       }
+      expect(shown).toBe(true);
       expect(game.interaction.busy).toBe(false);
-      expect(atWall && said).toBe(true);
-      expect({ col: game.player.col, row: game.player.row, facing: game.player.facing }).toEqual({
-        col: spot.stand.col,
-        row: spot.stand.row,
-        facing: spot.face,
-      });
+      drawn.length = 0;
+      game.render(ctx, 1);
+      expect(drawn).not.toContain("view-gallery-wall");
+      expect(game.inputLocked).toBe(false);
       expect(game.state.get("bedMade")).toBe(0);
     }
+  });
+
+  it("puts the normal view back when Escape skips the scene", () => {
+    stubDocument();
+    const spot = taskSpots(rooms.main).find((s) => s.id === "admire-art")!;
+    const drawn: string[] = [];
+    const sprites = { has: () => true, draw: (_c: unknown, name: string) => void drawn.push(name) };
+    const main = { ...rooms.main, interactables: rooms.main.interactables.filter((i) => i.id === "admire-art") };
+    const game = new Game(main, { rooms: { ...rooms, main }, random: () => 0.5, sprites });
+    const ctx = new Proxy({}, { get: () => () => {}, set: () => true }) as unknown as CanvasRenderingContext2D;
+    game.player.placeAt(spot.stand.col, spot.stand.row, spot.face);
+    game.update(dt, NO_INPUT);
+    game.update(dt, press);
+    run(game, 0.2);
+    expect(game.interaction.busy).toBe(true);
+    game.render(ctx, 1);
+    expect(drawn).toContain("view-gallery-wall");
+    game.update(dt, { ...NO_INPUT, keys: ["Escape"] });
+    // The dialog has the controls first; close it, then skip.
+    for (let i = 0; i < 600 && game.interaction.busy; i++) {
+      game.update(dt, game.dialogOpen ? press : { ...NO_INPUT, keys: ["Escape"] });
+    }
+    expect(game.interaction.busy).toBe(false);
+    drawn.length = 0;
+    game.render(ctx, 1);
+    expect(drawn).not.toContain("view-gallery-wall");
+    expect(game.inputLocked).toBe(false);
   });
 });
 

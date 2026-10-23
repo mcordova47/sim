@@ -80,11 +80,6 @@ export const NAP = {
   hours: 1,
 };
 
-// Where the gallery wall is, for the "admire the art" scene: the floor tile to
-// stand on in the main room and the way to face it. Issue 036 draws the piece;
-// when it is placed on the map, point this at it.
-export const GALLERY = { col: 5, row: 1, face: "up" as const };
-
 // Activities (issue 022): what a task can be besides waiting.
 export const ACTIVITY = {
   // How well a mini-game went (quality 0 to 1) scales the task's points between

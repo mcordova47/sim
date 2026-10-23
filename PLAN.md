@@ -86,10 +86,11 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 047 | [Art round 2 from the 034 playtest](issues/047-art-round-2.md) | agent | done | |
 | 048 | [Status panel space (and a phone battery?)](issues/048-status-panel-space.md) | marc + claude | todo | |
 | 049 | [Mobile (explore)](issues/049-mobile.md) | marc + claude | todo | |
-| 050 | [Guitar redraw (Marc's tweaks)](issues/050-guitar-redraw.md) | marc + agent | todo | |
+| 050 | [Guitar redraw (Marc's tweaks)](issues/050-guitar-redraw.md) | agent | todo | |
 | 051 | [The meta side project](issues/051-meta-side-project.md) | marc + claude | todo | |
 | 052 | [Fix the sleeping and sofa-sitting poses](issues/052-pose-fixes.md) | agent | done | |
 | 053 | [Sleeping on an unmade bed shows a made bed](issues/053-sleep-on-unmade-bed.md) | agent | done | 052 |
+| 054 | [Wall texture from the new photo](issues/054-wall-texture.md) | marc + agent | todo | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

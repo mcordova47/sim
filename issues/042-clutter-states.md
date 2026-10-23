@@ -15,4 +15,6 @@ From Marc's playtest: once the assets exist, "clean the desk" should cycle throu
 - `tidy-desk` advances the desk arrangement; add dirty-clothes and mail tasks on the same pattern.
 - Tests; `npm test` and `npm run build` pass.
 
+- Marc's idea (2026-10-23): the floor tiles could have clean and dirty states too (dust, crumbs, a spill), cleaned by a sweep task. Same pattern: a wrapping or two-state variable and tile variants for each floor material. Include it, or split it out if it is large.
+
 ## Progress log

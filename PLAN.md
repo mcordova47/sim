@@ -82,7 +82,10 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 043 | [Random encounters (explore the idea)](issues/043-random-encounters.md) | marc + claude | todo | |
 | 044 | [Place the new art on the map](issues/044-place-new-art.md) | claude | todo | 034 |
 | 045 | [Draw the doing poses, outfits and held items](issues/045-draw-poses-outfits-items.md) | claude | todo | 034 |
-| 046 | [Escape during a cutscene's text](issues/046-cutscene-escape.md) | claude | todo | |
+| 046 | [Escape during any action (and a cutscene's text)](issues/046-cutscene-escape.md) | claude | todo | |
+| 047 | [Art round 2 from the 034 playtest](issues/047-art-round-2.md) | agent | todo | |
+| 048 | [Status panel space (and a phone battery?)](issues/048-status-panel-space.md) | marc + claude | todo | |
+| 049 | [Mobile (explore)](issues/049-mobile.md) | marc + claude | todo | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

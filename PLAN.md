@@ -96,6 +96,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 057 | [Bookshelf top order; guitar pose shows the neck](issues/057-bookshelf-and-guitar-pose.md) | agent | done | |
 | 058 | [Add warm greys to the palette; re-tint the plaster and kitchen walls](issues/058-warm-grey.md) | agent | done | |
 | 059 | [Make your own tracks in the game](issues/059-make-your-own-tracks.md) | marc + claude | todo | |
+| 060 | [Draw the gallery wall view](issues/060-gallery-wall-view.md) | agent | todo | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

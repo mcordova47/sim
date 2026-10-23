@@ -1,7 +1,7 @@
 ---
 id: 007d
 title: "Furniture sprites: Kitchen, east half, and the bathroom"
-status: in-progress
+status: review
 owner: agent
 depends_on: [005, 006]
 ---
@@ -63,6 +63,8 @@ Own checks: decoded each PNG in `public/sprites/` with a separate script (not `n
 - Do not commit contact sheet or edit style guide, palette, room.ts or other sprites: **pass**.
 
 Checklist for the author:
-- [ ] `spice-rack`: redraw so the base reaches row 63 (legs or wire frame to the bottom edge, still open under the top slab), or, if a floating wall-hung rack is the intent, say so in the log and have Marc confirm. Also remove the 2 empty top rows (or start the tea boxes at row 0) so the collision top matches what the player visually stands on.
+- [x] `spice-rack`: redraw so the base reaches row 63 (legs or wire frame to the bottom edge, still open under the top slab), or, if a floating wall-hung rack is the intent, say so in the log and have Marc confirm. Also remove the 2 empty top rows (or start the tea boxes at row 0) so the collision top matches what the player visually stands on.
 
 Unverified, for Marc: game scene look, look next to other batches, likeness to the photos. Toilet: the 32px collision box is wider than the 22px tank (author already noted).
+
+- 2026-10-22 (round 2): Redrew `spice-rack`: tea boxes now start at row 0, legs run to row 63 with a bottom wire shelf on the bottom edge, still open under the top slab. Rerun `npm run sprites`: passes. Only `spice-rack` changed.

@@ -49,7 +49,7 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 | 013 | [Physics robustness](issues/013-physics-robustness.md) | claude | done | |
 | 014 | [HUD polish](issues/014-hud-polish.md) | claude | done | 010, 011 |
 | 015 | [Extract the game scene from main.ts](issues/015-extract-game-scene.md) | claude | done | |
-| 016 | [Draw the level and player with sprites](issues/016-draw-level-with-sprites.md) | agent | todo | 007, 008, 010, 011 |
+| 016 | [Draw the level and player with sprites](issues/016-draw-level-with-sprites.md) | agent | done | 007, 008, 010, 011 |
 | 017 | [Game events and drawing layers](issues/017-game-events-and-layers.md) | claude | todo | |
 
 ## Order of work

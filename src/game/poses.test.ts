@@ -31,9 +31,10 @@ class Recorder implements SpriteDrawer {
 
 const ctx = new Proxy({}, { get: () => () => {}, set: () => true }) as unknown as CanvasRenderingContext2D;
 
-function setup(sprites: SpriteDrawer, state: Record<string, number> = {}) {
+function setup(sprites: SpriteDrawer, state: Record<string, number> = {}, skip: string[] = []) {
   vi.stubGlobal("document", { createElement: () => ({ width: 0, height: 0, getContext: () => ctx }) });
-  const game = new Game(APARTMENT.rooms.main, { rooms: APARTMENT.rooms, sprites });
+  const main = { ...APARTMENT.rooms.main, interactables: APARTMENT.rooms.main.interactables.filter((i) => !skip.includes(i.id)) };
+  const game = new Game(main, { rooms: { ...APARTMENT.rooms, main }, sprites });
   game.state.applyEffects(Object.entries(state).map(([v, n]) => ({ var: v, set: n })));
   return game;
 }
@@ -81,6 +82,33 @@ describe("doing poses", () => {
     frame(game, sprites);
     expect(sprites.at(pose)).toEqual([[x, y]]);
     expect(plain(sprites.names())).toEqual([]);
+  });
+
+  it("sleeps in the made-bed picture on a made bed and the unmade-bed picture on an unmade one", () => {
+    for (const [bedMade, pose, other] of [
+      [1, "player-sleep-bed", "player-sleep-bed-unmade"],
+      [0, "player-sleep-bed-unmade", "player-sleep-bed"],
+    ] as const) {
+      const sprites = new Recorder();
+      const game = setup(sprites, { bedMade, energy: 10 }, ["make-bed"]);
+      start(game, 11, 4, "right", "sleep");
+      frame(game, sprites);
+      expect(sprites.at(pose)).toEqual([[192, 32]]);
+      expect(sprites.names()).not.toContain(other);
+      // The choice is made when the task starts, so a change mid-task does not swap it.
+      game.state.applyEffects([{ var: "bedMade", set: 1 - bedMade }]);
+      frame(game, sprites);
+      expect(sprites.at(pose)).toEqual([[192, 32]]);
+    }
+  });
+
+  it("falls back to the plain player if the unmade-bed picture is missing", () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const sprites = new Recorder((n) => n !== "player-sleep-bed-unmade");
+    const game = setup(sprites, { bedMade: 0, energy: 10 }, ["make-bed"]);
+    start(game, 11, 4, "right", "sleep");
+    frame(game, sprites);
+    expect(plain(sprites.names())).toHaveLength(1);
   });
 
   it("draws the pose after the furniture it overlaps (the desk chair, the bed)", () => {

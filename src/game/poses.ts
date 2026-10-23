@@ -1,3 +1,5 @@
+import type { Check } from "./state";
+
 // The doing poses and held items (issue 045). A task names a `pose` and/or a
 // `held` item in tasks.ts; what they mean is here, as data.
 //
@@ -10,7 +12,10 @@
 // piece. `replacesPiece` hides the piece's own sprite while the pose plays (the
 // pose draws the whole thing).
 export interface PoseDef {
+  // The sprite to draw, unless one of `variants` fits the state when the task
+  // starts (the first whose `when` holds is used, as for a piece's looks).
   sprite: string;
+  variants?: { sprite: string; when: Check[] }[];
   on: string;
   at: { x: number; y: number };
   // The sprite's size, to draw it in front of whatever it overlaps.
@@ -33,8 +38,16 @@ export const POSES: Record<string, PoseDef> = {
   // Standing north of the guitar's wall hanger, holding it across the body: the
   // pose draws the guitar, so the hanging one is hidden.
   guitar: { sprite: "player-guitar", size: { w: 16, h: 48 }, on: "guitar", at: { x: 0, y: -16 }, replacesPiece: true },
-  // The whole bed.
-  "sleep-bed": { sprite: "player-sleep-bed", size: { w: 80, h: 96 }, on: "bed-made", at: { x: 0, y: 0 } },
+  // The whole bed, with the sleeper in it. The bed looks different made and
+  // unmade, so there is one sprite for each, picked when the task starts (the
+  // covers are part of the picture, so they can't be one overlay for both).
+  "sleep-bed": {
+    sprite: "player-sleep-bed",
+    variants: [{ sprite: "player-sleep-bed-unmade", when: [{ var: "bedMade", max: 0 }] }],
+    size: { w: 80, h: 96 },
+    on: "bed-made",
+    at: { x: 0, y: 0 },
+  },
 };
 
 // A small overlay drawn over the plain player, one file for each way they face:

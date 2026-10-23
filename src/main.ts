@@ -2,10 +2,12 @@ import { TILE, VIEW } from "./game/config";
 import { startLoop } from "./game/loop";
 import { Keyboard } from "./input/keyboard";
 import { createScreen } from "./render/canvas";
+import { Sprites } from "./render/sprites";
 
 const canvas = document.getElementById("game") as HTMLCanvasElement;
 const { ctx } = createScreen(canvas);
 const keyboard = new Keyboard();
+const sprites = new Sprites();
 
 // Placeholder scene: proves the loop, input and scaling work. Replaced in issue 002.
 let heldLabel = "";
@@ -31,6 +33,11 @@ function render(_alpha: number) {
   ctx.fillStyle = "#edf2f4";
   ctx.font = "8px monospace";
   ctx.fillText(`keys: ${heldLabel}`, 4, 10);
+
+  // Sprite pipeline demo: two real sprites and one missing (shows the fallback). Removed when scenes land.
+  sprites.draw(ctx, "couch", 16, 160);
+  sprites.draw(ctx, "coffee-mug", 80, 144);
+  sprites.draw(ctx, "missing-sprite", 112, 144);
 }
 
-startLoop({ update, render });
+sprites.load(["couch", "coffee-mug", "missing-sprite"]).then(() => startLoop({ update, render }));

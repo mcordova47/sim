@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sprites": "node scripts/sprites.mjs"
   },
   "devDependencies": {
     "typescript": "^5.6.0",

@@ -1,7 +1,7 @@
 ---
 id: 021
 title: Apartment state and tasks that change it
-status: review
+status: done
 owner: claude
 depends_on: [019]
 ---
@@ -41,3 +41,18 @@ Make doing things matter: eating makes dirty dishes, washing them removes them, 
   - **Not done:** the `bump` latch reset after a task. Nothing audible exists yet, and a fix means `Game` has to stop calling `player.update` while busy and clear the per-update flags; left for the sound issue (009a). The yawn is a popup; a dialog line waits on 023.
   - **Not checked:** how it looks and feels in a browser (status panel layout, placeholder labels fitting in 1 to 2 tile objects, tired step speed, clock pace of 2 game minutes per second).
   - Files: `game/{state,state-vars,appearance}.ts` (new), `game/{config,events,game,grid,interactable,interaction,level,placeholder-level,player,tilemap,world}.ts`, `render/{hud,layout,world-ui}.ts`, tests.
+
+- 2026-10-23: **Review (reviewer, independent). Verdict: approve.** `npm run build` passes; `npm test` 165 of 165 pass. I also ran 20 throwaway checks outside the repo (state wrap and clamping, set-over-add, unknown variables, `anyOf`, reason ordering, points bonus before effects, a pile that blocks while the player stands on it or is mid-step, several tasks on one object, event order, yawn once per crossing, reasons and prompts against the font and view width, every variable the placeholder level uses exists in `STATE_VARS`). Everything matched the criteria; the two failed probes are minor notes 1 and 4 below.
+  - Pass: state variables in one data file (`state-vars.ts`) with id, initial, range, meaning.
+  - Pass: `requires` / `effects` on tasks; washing needs dishes and clears them, snack adds one, bed make and sleep (sleep restores energy, unmakes the bed, moves the clock on 7 hours), work costs energy.
+  - Pass: unmet reason in the prompt ("NO DIRTY DISHES"), data-driven, font characters checked; `taskBlocked` carries the message.
+  - Pass: points hook (`pointsBonus`), counted before effects: 4 dishes gave 60 for a task worth 20 plus 10 each.
+  - Pass: sprite variants by rule chosen each frame; placeholder shows label and colour.
+  - Pass: energy falls with clock and work, HUD meter, low energy slows steps (fixed per step, so no mid-step jump) and yawns once per crossing; tuned in `config.ts`; sleeping restores it.
+  - Pass: clock in state, pace in `config.ts`, wraps at 24 (also for negative and exactly 24).
+  - Pass: `stateChanged` event. Walkability: `Grid.setSolids` rebuild on state change; a player standing on a tile that becomes blocked can still walk off it, and a step already in progress finishes (no stuck state).
+  - Can't verify (no browser): status panel layout, placeholder labels fitting 1 to 2 tile objects, tired step speed feel, clock pace of 2 game minutes per second.
+  - Not done, accepted: the `bump` latch reset after a task. The issue says to fix it "if sound makes it audible"; no sound exists yet, so it should be picked up in 009a. Dialog yawn line waits on 023, as the criterion allows.
+  - Out-of-scope check: only files named in the log, plus this issue file, changed; `PLAN.md` and other issues untouched; nothing from `reference-photos/`.
+  - Minor notes (not blocking): (1) The clock `stateChanged` fires at x:30 (rounding), not on the hour, with an extra event at midnight (`0` then `0.5`), so 25 events a day; 009d should not rely on it for exact hours and may want floor instead of round. (2) A task's effects emit one `stateChanged` per variable as they apply, so a listener on the first sees later effects not yet applied (sleep: energy 100 while the bed is still made). (3) In the placeholder room, with the bed unmade and the character tired, "Make the bed" is offered first, so sleeping needs the bed made first (and sleep unmakes it again); fine as a placeholder, revisit with 024. (4) A variable with `min == max` and `wrap` goes NaN; the constructor could reject it. (5) Requirement and effect variable names are only checked when read; a typo throws at run time, not at load. The placeholder-level test covers current data only.
+  - PLAN.md table needs updating by the planner. Branch to merge: `issue/021-apartment-state`.

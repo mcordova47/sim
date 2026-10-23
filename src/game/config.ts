@@ -160,3 +160,30 @@ export const DEBUG = {
   // Outline the task zones.
   zones: false,
 };
+
+// Achievements, toasts and saved progress (issue 009c). Times are in seconds.
+export const ACHIEVEMENTS_UI = {
+  // The saved progress lives under this localStorage key. Bump the number to
+  // start everyone's progress afresh (an old save under the old key is left alone).
+  storageKey: "life.progress.v1",
+  // How the player opens the list of achievements (a KeyboardEvent.code). Not Tab,
+  // Escape, E, X or the arrows, which other features use.
+  listKey: "KeyL",
+  // Progress is saved this often as well as when a task finishes, an achievement
+  // unlocks and the page is hidden.
+  saveEvery: 10,
+  // Achievements are checked this often for the ones that depend on time played.
+  checkEvery: 1,
+  // A toast shows this long in total, including sliding in and out.
+  toastSeconds: 4,
+  toastSlide: 0.35,
+  // At most this many toasts are shown at once; the rest wait their turn.
+  maxToasts: 2,
+  // Pixels a toast travels while it slides (it fades as it goes and always stays on screen).
+  slideDistance: 24,
+  // Toast box: width, padding, the gap between stacked toasts and from the screen edge.
+  toastWidth: 150,
+  toastPadding: 4,
+  toastGap: 3,
+  toastMargin: 2,
+};

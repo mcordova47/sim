@@ -1,7 +1,7 @@
 ---
 id: 057
 title: Bookshelf top order; guitar pose shows the neck
-status: review
+status: done
 owner: agent
 depends_on: []
 ---
@@ -35,3 +35,12 @@ From Marc's playtest (2026-10-23):
   - **Unverified:** feel in a live browser; whether Marc likes the look. Observations for Marc: at 1x the neck is a thin 2 px line and the body reads as a plain cream blob with no visible arms; the neck emerges near the chin. Acceptable but he may want a polish pass.
   - PLAN.md table needs updating by the planner.
 - 2026-10-23 (agent, round 2 after Marc's playtest note): bookshelf top is kept. Marc is right-handed, so `player-guitar` is mirrored across the vertical axis: the player is now on the left 16 px (col 1, row 4) and the neck, hand and headstock run east over col 2, row 4 (floor above the sofa's west arm, which starts one row lower). `poses.ts`: `at` x 0, y -16 (size 32x48 unchanged); `poses.test.ts` now expects x 16, y 64; `docs/art-style.md` and the sprite header updated. Rendered the real game at 1x, 4x and 12x: the neck, headstock and the hand on the neck show, are drawn in front of the floor and clear of the sofa; the plain player and held-guitar overlay are not drawn while the pose plays (no double). I did not reuse the mirrored hanging `guitar` sprite: the lap-held body already reads as a guitar and the earlier look stays consistent with it. `npm test` and `npm run build` pass. Needs a fresh review (the earlier approval was for the west-facing neck).
+- 2026-10-23 (reviewer, round 2): Review of c7f98f8. Verdict: **approve**.
+  - **Mirror: pass.** Pixel-diffed `art/src/player-guitar.sprite` against 2ebc801: all 48 rows are the exact horizontal reverse of the round-1 sprite (0 differing rows), still 32x48, rows 32 wide, palette keys only (`npm run sprites` renders 139 sprites and leaves the tree clean). The "hand on the neck" is the existing round-1 hand, mirrored, not a new detail.
+  - **Placement: pass.** `poses.ts` guitar is size 32x48, `at` x 0, y -16, `replacesPiece` kept; the guitar piece is col 1 row 5, so the pose lands at x 16, y 64, which `poses.test.ts` now expects. In `MAIN_MAP` row 4 is `2....@....`: col 1 (player) and col 2 (neck) are floor; the sofa starts at col 2 row 5, one row below the neck, so nothing hides it. No wall or doorway tile is under the neck now (the doorway is col 0, no longer used).
+  - **No double-draw: pass.** In the real game the plain player and held-guitar overlay are not drawn while the pose plays (`poses.test.ts` covers it) and the wall guitar is hidden; the render shows one guitar only.
+  - **Bookshelf: pass.** `git diff 2ebc801 HEAD` does not touch `art/src/bookshelf.sprite` or `public/sprites/bookshelf.png`; the first approval stands.
+  - **Build/tests: pass.** `npm test` 1033 pass, `npm run build` ok, `npm run sprites` clean.
+  - **Render, 1x and 4x, real `Game` with the guitar task running from col 1 row 4 (headless Chrome, harness outside the repo): pass.** The player sits at the left, the cream body is in front of them and the neck runs up and to the right (east), with the hand on it and a headstock with tuners at the end, drawn over the floor and clear of the sofa. For a right-handed player facing the viewer, the neck on the viewer's right is correct. Honest notes: the body is a plain cream blob without visible arms, the neck rises fairly steeply from the body and crosses the chest, and at 1x the neck is a thin 2 px line, so it reads as a guitar mainly by context. Fine for now; a polish pass is optional.
+  - **Scope/privacy: pass.** Round 2 touched only the sprite, its PNG, `poses.ts`, its test, `docs/art-style.md` and this file. No PLAN.md edit; nothing from reference photos.
+  - PLAN.md table needs updating by the planner.

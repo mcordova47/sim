@@ -1,7 +1,7 @@
 ---
 id: 057
 title: Bookshelf top order; guitar pose shows the neck
-status: review
+status: done
 owner: agent
 depends_on: []
 ---

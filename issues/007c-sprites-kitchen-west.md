@@ -1,7 +1,7 @@
 ---
 id: 007c
 title: "Furniture sprites: Kitchen, west half: entry step, bin, stove and counter"
-status: todo
+status: done
 owner: agent
 depends_on: [005, 006]
 ---
@@ -40,3 +40,15 @@ The sprites should look like Marc's real pieces, so work from the photos in `ref
 - Scale: the player is about 14px tall at 1 tile = 16px, so the player is tiny next to a 96px fridge. That is intended.
 
 ## Progress log
+
+- 2026-10-22: Started. Plan: draw the six sprites from the kitchen photos, validate with `npm run sprites`, check the contact sheet.
+- 2026-10-22: Done, ready for review. Drew `tote`, `bin`, `stove`, `counter`, `window-curtain`, `hood` (art/src/*.sprite + public/sprites/*.png). Palette only, ink outline, top-left light, Materials table followed (steel 5/6/4 on the stove, black plastic 3/4/2 for bin, tote and granite, light wood 9/a/8 for cabinets). Palette notes: granite top uses black-plastic tones (3/4/2); the dish towel uses `a` (cream), the paper cup `a`, the bin bag `5/6/4`; none needed a new colour. Counter top slab is at row 6 with the dish pile and faucet rising above it; stove and bin tops sit near the top edge so the player stands on the visible surface. Checked: `npm run sprites` (no errors), contact sheet viewed at 4x, `npm run build` passes. Not checked: how they look in-game next to other batches (none merged) or in a browser.
+- 2026-10-22: Review (independent), verdict **approve**.
+  - Sizes/names/files: pass. A script parsing all six .sprite files and PNGs confirmed exact sizes (16x16, 16x32, 48x48, 32x48, 32x64, 48x32), only palette keys, PNG pixels match the source, no semi-transparent pixels, each sprite one connected shape.
+  - Art style: pass, with nits. Palette only; outline is `1` everywhere except a few spots: counter faucet/dish pile top (5 px of `5`), curtain rod top edge (30 px of `4`), hood lower edge corners (2 px of `6`). Materials table followed (steel stove, black plastic bin/tote/granite, light wood cabinets). Light from the top-left looks right on the contact sheet.
+  - Recognisable: pass. Checked against the kitchen photos: black stove with steel sides and towel, orange-brown cabinets, granite top with dish pile and cups, gray curtain over the window. The sink basin is hard to see on the counter (front view), minor.
+  - One-way: n/a, all six are solid/decor, none one-way.
+  - Base on bottom edge: pass for tote (row 15), bin (row 31), stove, counter (full bottom row). Decor `hood` and `window-curtain` are wall pieces, so not applicable; curtain touches the left/right/top box edges (meets neighbours/wall).
+  - `npm run sprites`: pass, no errors. `npm run build`: pass. Contact sheet viewed; `art/contact-sheet.png` is not tracked.
+  - Scope: pass. Diff is only the six .sprite files, six PNGs and this issue file. No edits to art-style, palette, room.ts, other batches or PLAN.md. No photos or personal details committed.
+  - Unverified: how the sprites look in-game in a browser and next to the other batches (none merged); left for Marc's final approval of the full set.

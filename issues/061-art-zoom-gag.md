@@ -1,7 +1,7 @@
 ---
 id: 061
 title: Admire the art: zoom in on a piece and comment very seriously
-status: review
+status: done
 owner: marc + claude
 depends_on: []
 ---
@@ -42,3 +42,13 @@ Marc's gag ideas (2026-10-23): (1) the Ferris Bueller painting zoom: the view pu
   - Out of scope: none. Changes are inside the issue's files; PLAN.md and other issues untouched. Conflict risk with 059 in `tasks.ts` and `state-vars.ts` as the author noted.
 
 - 2026-10-23: round 2 fixes after the review. Reworded the lines that did not match the pictures (colours checked against the reviewer's frames): pale-mat (green, slate, tan), green-still-life (orange, white, navy, brown), white-building line 3 (the 8x window shows the red and yellow block, not the checks), gold-narrow (green, not dark), oak-box (red, orange, yellow on brown), small-blue (pink and purple marks). Only `src/game/art-pieces.ts` changed; `npm test` (1327) and `tsc` pass. Not re-rendered by the author.
+
+- 2026-10-23: Review round 2 (independent reviewer): verdict APPROVE.
+  - Ran: `npm test` 1327 pass, `npm run build` pass. Since round 1 only `src/game/art-pieces.ts` (text) and this file changed; scope clean. Rendered all ten pieces in the real game headless (own dev server, stopped; fresh browser context per piece, 2x browser scale; wall, 2x, 4x, 8x, return to room) and compared every line with the frame.
+  - Round 1 items now match the screen: pale-mat (green, slate, tan: yes), green-still-life (orange, white, navy, brown, green band: yes), white-building line 3 (8x window shows the red and yellow block, white around: yes), oak-box (red, orange, yellow on brown: yes), small-blue (pink and purple marks, blues: yes), gold-narrow line 3 (column of green on pale: yes). Pieces 0, 3, 5, 7, 9 all fit what is on screen at each level. Crisp square pixels, dialog covers only the bottom, room returns every time.
+  - Small leftovers, not blocking, for the text pass (037) or a quick tidy:
+    - [ ] Piece 1 `tall-brown` line 2 says "thin vertical bands" of orange; at 4x the bands are horizontal brown/orange stripes, and the vertical element is the yellow/white/black column. Line 3 "brown squares and orange squares" is also mostly stripes plus yellow.
+    - [ ] Piece 8 `gold-narrow` lines 1 and 2 still say "dark upright"; the mark is green (mid-dark) with a slate edge.
+    - [ ] Piece 6 `dark-animal` line 1 says "against pale green"; behind the animal is white inside a green frame.
+    - [ ] Piece 2 `white-building` line 1 still says red is "the only warm note" (yellow is warm too).
+  - Not verified: browser feel (push timing, reading speed; my frames are screenshots at set delays), night tint. Marc plays it and reads the lines. PLAN.md table needs updating by the planner.

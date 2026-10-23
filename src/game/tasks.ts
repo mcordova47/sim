@@ -1,5 +1,6 @@
-import { CLOCK, ENERGY, GALLERY, NAP } from "./config";
-import { CONTEMPLATE } from "./dialog-data";
+import { CLOCK, ENERGY, GALLERY, MIRROR, NAP } from "./config";
+import { CONTEMPLATE, MIRROR_DAY, MIRROR_MORNING, MIRROR_NIGHT, MIRROR_TIRED } from "./dialog-data";
+import type { Requirement } from "./state";
 import type { Interactable } from "./interactable";
 import { CODE_LINES, EMAIL_LINES, MIXED_LINES } from "./typing-text";
 
@@ -200,6 +201,31 @@ const STATE_RULES: Record<string, Partial<Task>> = {
   },
 };
 
+// Looking in the mirror (issue 041): one task per variant, all on the vanity.
+// The vanity offers the first that can start, so being worn out wins, and
+// otherwise the hour decides. Each has its own cooldown, which also lets the
+// vanity go back to brushing teeth in between.
+const mirror = (id: string, name: string, dialog: Task["dialog"], requires: Requirement[]): Task => ({
+  id, name, prompt: "Look in mirror", duration: 0, points: 15, cooldown: 60, dialog, requires,
+});
+const MIRRORS: Task[] = [
+  mirror("mirror-tired", "Look in mirror", MIRROR_TIRED, [
+    { var: "energy", max: MIRROR.tiredBelow, reason: "NOT WORN OUT" },
+  ]),
+  mirror("mirror-morning", "Look in mirror", MIRROR_MORNING, [
+    { var: "clock", min: MIRROR.morningFrom, max: MIRROR.dayFrom, reason: "NOT MORNING" },
+  ]),
+  mirror("mirror-day", "Look in mirror", MIRROR_DAY, [
+    { var: "clock", min: MIRROR.dayFrom, max: MIRROR.nightFrom, reason: "NOT DAYTIME" },
+  ]),
+  mirror("mirror-night", "Look in mirror", MIRROR_NIGHT, [
+    {
+      anyOf: [{ var: "clock", min: MIRROR.nightFrom }, { var: "clock", max: MIRROR.morningFrom }],
+      reason: "NOT NIGHT",
+    },
+  ]),
+];
+
 // Tasks that need the state or a dialog, so they are not in the content list above.
 const EXTRA: Task[] = [
   {
@@ -227,6 +253,7 @@ const EXTRA: Task[] = [
       { var: "clock", add: 7 },
     ],
   },
+  ...MIRRORS,
   {
     id: "contemplate",
     name: "Contemplate",

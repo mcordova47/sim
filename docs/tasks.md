@@ -26,3 +26,15 @@ Lists: `src/game/typing-text.ts`.
 ## Notes
 - The blinds sprites for each state are drawn in issue 036 (`window-blinds-open`, `window-blinds-closed`). Until then both states use `window-blinds`.
 - The gallery wall's place on the map is not set yet; `GALLERY` is a stand-in floor tile on the north wall.
+
+## Mirror (issue 041)
+On the bath vanity, ahead of Brush teeth. **Look in mirror** is four tasks with the same prompt, each a short two-line dialog (`dialog-data.ts`, `MIRROR_*`); the vanity offers the first that can start:
+
+| Task | When | Thresholds (`MIRROR`, config.ts) |
+|---|---|---|
+| `mirror-tired` | energy is low, any hour | energy at or below `tiredBelow` |
+| `mirror-morning` | clock from `morningFrom` to `dayFrom` | 5 to 12 |
+| `mirror-day` | `dayFrom` to `nightFrom` | 12 to 21 |
+| `mirror-night` | from `nightFrom` to `morningFrom`, past midnight | 21 to 5 |
+
+15 points, no state change, 60 s cooldown each. After one, the vanity falls through to Brush teeth. No mood change: mood (038) is not merged. Wording is a draft for the text pass (037).

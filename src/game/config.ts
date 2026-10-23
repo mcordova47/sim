@@ -51,6 +51,16 @@ export const WALK = {
 };
 
 // The game clock. The day starts at the `initial` clock value in state-vars.ts.
+// Which mirror line you get (issue 041): worn out beats the hour; otherwise
+// morning, day and night by the clock (hours; the edges are shared, and the
+// first task listed that can start wins).
+export const MIRROR = {
+  tiredBelow: 25,
+  morningFrom: 5,
+  dayFrom: 12,
+  nightFrom: 21,
+};
+
 export const CLOCK = {
   // Game minutes that pass per second of play (2 makes a day last 12 minutes).
   minutesPerSecond: 2,

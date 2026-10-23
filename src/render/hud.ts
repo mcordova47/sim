@@ -1,12 +1,13 @@
 import { SCORING } from "../game/config";
 import type { Scoreboard } from "../game/scoring";
+import { COLOR, withAlpha } from "./colors";
 import { drawText } from "./font";
 import { HUD_BOX } from "./layout";
 
-const PANEL = "rgba(0, 0, 0, 0.55)";
-const LABEL = "#8d99ae";
-const TEXT = "#edf2f4";
-const GOLD = "#ffd166";
+const PANEL = withAlpha(COLOR.ink, 0.6);
+const LABEL = COLOR.mist;
+const TEXT = COLOR.paper;
+const GOLD = COLOR.butter;
 
 // Screen-space HUD: score on the left, variety combo beside it.
 export class Hud {
@@ -41,7 +42,7 @@ export class Hud {
     if (active) {
       const barWidth = 46;
       const filled = Math.round(barWidth * (scoreboard.comboTimeLeft(now) / SCORING.comboWindow));
-      ctx.fillStyle = "#000000";
+      ctx.fillStyle = COLOR.ink;
       ctx.fillRect(96, 33, barWidth, 2);
       ctx.fillStyle = GOLD;
       ctx.fillRect(96, 33, filled, 2);

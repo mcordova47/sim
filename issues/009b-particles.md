@@ -1,7 +1,7 @@
 ---
 id: 009b
 title: "Polish: particles"
-status: todo
+status: blocked
 owner: agent
 depends_on: [017]
 ---
@@ -25,5 +25,8 @@ Keep it all testable without a browser: put the logic in plain functions and cla
 - Particles pause when the game does and use game time, like the popups.
 - Amounts, speeds, gravity, lifetimes and colours live in `config.ts`.
 - A recording-canvas test shows particles draw inside the camera transform and never draw once expired.
+
+## Blocked on the top-down switch
+On 2026-10-22 the game changed direction from a side-view platformer to a top-down, Pokemon-style game (issues 019 onward). Do not start this issue yet. It needs revisiting once the foundation (019) is in: the `jump` and `land` events no longer exist (they become `step` and `bump`), the particles and sounds the issue describes need to suit walking, and the day and night cycle should build on the clock from the apartment state (021). The planner will rewrite the affected criteria before releasing it.
 
 ## Progress log

@@ -1,7 +1,7 @@
 ---
 id: 009
 title: "Polish: sound, particles, achievements, time of day"
-status: todo
+status: blocked
 owner: marc + claude
 depends_on: [009a, 009b, 009c, 009d]
 ---
@@ -17,5 +17,8 @@ This is the umbrella issue. The work is split into four parallel pieces, each in
 - Achievements with funny names (e.g. "Doomscrolled three times"), shown as toasts.
 - Time-of-day cycle that changes lighting and which tasks score best.
 - Optional: score persisted in localStorage.
+
+## Blocked on the top-down switch
+On 2026-10-22 the game changed direction from a side-view platformer to a top-down, Pokemon-style game (issues 019 onward). Do not start this issue yet. It needs revisiting once the foundation (019) is in: the `jump` and `land` events no longer exist (they become `step` and `bump`), the particles and sounds the issue describes need to suit walking, and the day and night cycle should build on the clock from the apartment state (021). The planner will rewrite the affected criteria before releasing it.
 
 ## Progress log

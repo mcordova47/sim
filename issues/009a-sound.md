@@ -1,7 +1,7 @@
 ---
 id: 009a
 title: "Polish: sound effects"
-status: todo
+status: blocked
 owner: agent
 depends_on: [017]
 ---
@@ -27,5 +27,8 @@ Keep it all testable without a browser: put the logic in plain functions and cla
 
 ## Notes
 - Marc will listen and tune. Keep the volume modest by default, and make every effect easy to change in one place.
+
+## Blocked on the top-down switch
+On 2026-10-22 the game changed direction from a side-view platformer to a top-down, Pokemon-style game (issues 019 onward). Do not start this issue yet. It needs revisiting once the foundation (019) is in: the `jump` and `land` events no longer exist (they become `step` and `bump`), the particles and sounds the issue describes need to suit walking, and the day and night cycle should build on the clock from the apartment state (021). The planner will rewrite the affected criteria before releasing it.
 
 ## Progress log

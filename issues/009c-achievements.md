@@ -1,7 +1,7 @@
 ---
 id: 009c
 title: "Polish: achievements and saved progress"
-status: todo
+status: blocked
 owner: agent
 depends_on: [017]
 ---
@@ -29,5 +29,8 @@ Keep it all testable without a browser: put the logic in plain functions and cla
 ## Notes
 - Score persistence is optional in the original polish issue; here it means the best score and the unlocks. The running score still starts at 0 each visit.
 - Marc will read these names, so make them good. They can be a little silly.
+
+## Blocked on the top-down switch
+On 2026-10-22 the game changed direction from a side-view platformer to a top-down, Pokemon-style game (issues 019 onward). Do not start this issue yet. It needs revisiting once the foundation (019) is in: the `jump` and `land` events no longer exist (they become `step` and `bump`), the particles and sounds the issue describes need to suit walking, and the day and night cycle should build on the clock from the apartment state (021). The planner will rewrite the affected criteria before releasing it.
 
 ## Progress log

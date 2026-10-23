@@ -1,12 +1,15 @@
-# Life: a studio apartment platformer
+# Life: a studio apartment game
 
-A single-room platformer set in Marc's real studio apartment. There is no win condition. You do mundane day-to-day tasks (make coffee, do the dishes, shower, doomscroll) and earn points for them.
+A top-down, Pokemon-style game set in Marc's real studio apartment. There is no win condition. You do day-to-day tasks (make coffee, do the dishes, write a song, doomscroll, contemplate existence) and earn points for them. The apartment and the character change as you go.
+
+> **Direction change, 2026-10-22.** The first version was a side-view platformer (kept in git history and the tag `side-view-prototype`). It worked as a prototype, but a horizontal lane squeezed the apartment and made the character tiny, and jumping had nothing to do with the game. The game is now top-down: walk tile to tile, face something, press E. Issues 001 to 018 were built for the side view; the ones that are not about the view (loop, camera, HUD, scoring, events and layers, sprite pipeline, process) carry over. Issue 019 onward is the switch.
 
 ## Design pillars
-- **One room, one screen.** No scrolling camera. The apartment is the whole level.
-- **Furniture is the level.** Couch, counter, loft bed and shelves are platforms and interactables.
+- **Walk, face, press E.** Pokemon-style: you step tile to tile, face a direction and use what is in front of you. Rooms are screens joined by doorways.
+- **The apartment is real and it changes.** The layout follows Marc's actual apartment, and doing things changes it: dishes pile up, the bed gets made and unmade, the character gets tired.
+- **Personal and a bit silly.** Work, songwriting, open mics, reading, records, side projects, and abstract tasks like contemplating existence. Tasks can be a wait, a cutscene or a mini-game.
 - **Mundane is the joke.** Tasks are small, slightly absurd and satisfying. Feedback (popups, sounds, little animations) matters more than depth.
-- **No goal, soft incentives.** Points, streaks, combos and achievements. Repeating a task has diminishing returns.
+- **No goal, soft incentives.** Points, variety combos and achievements. Repeating a task has diminishing returns.
 
 ## Stack
 - HTML5 canvas, TypeScript, Vite. No game framework.
@@ -38,11 +41,11 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 | 007c | [Sprites: kitchen west](issues/007c-sprites-kitchen-west.md) | agent | done | 005, 006 |
 | 007d | [Sprites: kitchen east and bath](issues/007d-sprites-kitchen-east-and-bath.md) | agent | done | 005, 006 |
 | 008 | [Player character sprite](issues/008-player-sprite.md) | agent | done | 006 |
-| 009 | [Polish (umbrella)](issues/009-polish.md) | marc + claude | todo | 009a-d |
-| 009a | [Polish: sound effects](issues/009a-sound.md) | agent | todo | 017 |
-| 009b | [Polish: particles](issues/009b-particles.md) | agent | todo | 017 |
-| 009c | [Polish: achievements and saved progress](issues/009c-achievements.md) | agent | todo | 017 |
-| 009d | [Polish: time of day](issues/009d-time-of-day.md) | agent | todo | 017 |
+| 009 | [Polish (umbrella)](issues/009-polish.md) | marc + claude | blocked | 009a-d |
+| 009a | [Polish: sound effects](issues/009a-sound.md) | agent | blocked | 017 |
+| 009b | [Polish: particles](issues/009b-particles.md) | agent | blocked | 017 |
+| 009c | [Polish: achievements and saved progress](issues/009c-achievements.md) | agent | blocked | 017 |
+| 009d | [Polish: time of day](issues/009d-time-of-day.md) | agent | blocked | 017 |
 | 010 | [Scrolling camera](issues/010-scrolling-camera.md) | claude | done | 005 |
 | 011 | [Integrate the floor plan and task data](issues/011-integrate-floor-plan.md) | claude | done | 005, 003 |
 | 012 | [Interaction edge cases](issues/012-interaction-edge-cases.md) | claude | done | |
@@ -52,22 +55,40 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 | 016 | [Draw the level and player with sprites](issues/016-draw-level-with-sprites.md) | agent | done | 007, 008, 010, 011 |
 | 017 | [Game events and drawing layers](issues/017-game-events-and-layers.md) | claude | done | |
 | 018 | [Layer hardening](issues/018-layer-hardening.md) | claude | todo | 017 |
+| 019 | [Top-down foundation (grid steps, facing, interact)](issues/019-topdown-foundation.md) | claude | todo | |
+| 020 | [Top-down floor plan of the apartment](issues/020-topdown-floor-plan.md) | marc + agent | todo | 019 |
+| 021 | [Apartment state and tasks that change it](issues/021-apartment-state.md) | claude | todo | 019 |
+| 022 | [Activities, mini-games and cutscenes](issues/022-activities.md) | claude | todo | 019 |
+| 023 | [Dialog box and choice menus](issues/023-dialog-and-menus.md) | claude | todo | 019 |
+| 024 | [Personal touch interview](issues/024-personal-touch-interview.md) | marc + agent | todo | |
+| 025 | [Top-down art spec](issues/025-topdown-art-spec.md) | marc + agent | todo | |
 
 ## Order of work
-1. **Playable skeleton first:** 001, 002, 003, 004 with rectangles for art.
-2. **In parallel:** Marc supplies photos and measurements (005) while 006 builds the sprite pipeline.
-3. **Real level:** 011 (integrate the floor plan) and 010 (scrolling camera, since the real room is wider than the screen) once 005 is merged.
-4. **Art:** 007a-d and 008 can start now (floor plan and style guide are done); then 016 draws the level and player with them once the camera (010) and real data (011) are in.
-5. **Polish:** 017 (events and layers) first, then 009a-d in parallel, each as its own module.
-6. **Cleanup:** 012 and 013 any time (minor findings from reviews of 003 and 002); 014 after the camera and real floor plan are in (minor findings from the review of 004).
+**Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.
+
+**Now:**
+1. **019, top-down foundation**, then a **decision gate**: Marc plays it and says continue, adjust or stop.
+2. **In parallel with 019, because they don't depend on it:** 024 (personal interview), 025 (top-down art spec) and 018 (layer hardening).
+
+**After the gate:**
+3. **020** (top-down floor plan) and, in parallel, **021** (apartment state), **022** (activities) and **023** (dialog and menus).
+4. **Art:** new furniture and character batches, written once 020 gives the piece list and 025 the rules.
+5. **Content:** a new task list from the interview (024): the tasks, cutscenes, mini-games and "contemplate" menus, written as data.
+6. **Polish:** 009a to 009d, rewritten for the new view (footsteps instead of jumps, a day and night cycle on the clock from 021).
 
 ## Decisions
-- **Level wider than the screen:** scrolling camera (issue 010), chosen over smaller tiles or a compressed room.
-- **Scale:** 1 tile = 1 ft with the player 14px tall (about 10 in) stays as is for now. Revisit if the sprites feel too small. Re-run 005's reachability check if the player or jump constants ever change.
+- **View (2026-10-22):** top-down, Pokemon-style, replacing the side-view platformer. An isometric version (like Focus Friend) is a possible later project that Marc may make his own art for; not this one.
+- **Movement:** grid steps, tile to tile, with turning before stepping. Interact with the faced tile.
+- **The side-view version** lives in git history and the tag `side-view-prototype` only.
+- **Personal touch:** an interview (issue 024) gathers Marc's day-to-day to shape tasks, cutscenes and the character.
+- **Level size and scale:** decided again in 020 (the old 1 tile = 1 ft and the scrolling camera belonged to the side view).
 - **Day and night cycle:** yes. A game clock, lighting through the day and tasks that pay better at the right hour (issue 009d).
 - **Combo rule:** rewards variety (different tasks in quick succession), not repetition.
 
 ## Open questions
+- Rooms as separate screens joined by doorways, or one scrolling map? (020; Pokemon-style screens preferred.)
+- Character size: 16x16 or taller? (025)
+- Lowercase text and more punctuation in the pixel font, for dialog and excerpts? (023)
 - Is the final player character agent-drawn or generated with an external tool?
 - Keyboard only, or gamepad support too?
 - Should the game persist score between sessions (localStorage)?

@@ -3,7 +3,7 @@ import { TILE } from "./config";
 import type { Appearance, Variant } from "./appearance";
 import type { Direction } from "./direction";
 import type { Interactable } from "./interactable";
-import { pieceBounds, validateLevel, type Door, type Level, type Piece, type WallTile } from "./level";
+import { pieceBounds, validateLevel, type Door, type Level, type Piece, type Prop, type WallTile } from "./level";
 import { doorwayName, wallKind, wallTileName } from "./wall-tiles";
 import type { Solid } from "./world";
 
@@ -47,7 +47,23 @@ export interface ObjectDef {
   door?: Omit<Door, "col" | "row">;
 }
 
+// A swappable thing on top of an object (see `Prop`). `on` is the legend
+// letter of the object, and `at` is the offset of its top-left from the top-left
+// of that object's tiles.
+export interface PropDef {
+  name: string;
+  slot: string;
+  on: string;
+  at: { x: number; y: number };
+  size: { w: number; h: number };
+  sprite?: string;
+  variants?: Variant[];
+  color?: keyof typeof COLOR;
+}
+
 export interface MapOptions {
+  // Things that sit on top of objects in the room.
+  props?: PropDef[];
   // The tasks the legend's ids refer to.
   tasks?: readonly TaskDef[];
   // The room's name, for doorways and error messages.
@@ -144,6 +160,7 @@ export function parseTileMap(
   const appearances: Appearance[] = [];
   const doors: Door[] = [];
   const pieces: Piece[] = [];
+  const pieceByChar = new Map<string, Piece>();
   for (const [ch, tiles] of tilesByChar) {
     const def = legend[ch];
     if (!isOneObject(tiles)) {
@@ -156,13 +173,15 @@ export function parseTileMap(
       doors.push({ ...def.door, col: tiles[0].col, row: tiles[0].row });
       continue;
     }
-    pieces.push({
+    const piece: Piece = {
       name: def.name ?? ch,
       sprite: def.sprite,
       tiles,
       bounds: pieceBounds(tiles),
       ...(def.color && { color: def.color }),
-    });
+    };
+    pieces.push(piece);
+    pieceByChar.set(ch, piece);
     const zones = tiles.map((t) => ({ x: t.col * TILE, y: t.row * TILE, w: TILE, h: TILE }));
     const tasks = [
       ...(def.task ? [def.task] : []),
@@ -171,6 +190,21 @@ export function parseTileMap(
     for (const task of tasks) interactables.push({ ...task, zones });
     if (def.variants) appearances.push({ area: pieceBounds(tiles), variants: def.variants });
   }
+
+  const props: Prop[] = (options.props ?? []).map((def) => {
+    const on = pieceByChar.get(def.on);
+    if (!on) throw new Error(`${where}Prop "${def.slot}" sits on "${def.on}", which is not an object in this room`);
+    const { x, y } = on.bounds;
+    return {
+      name: def.name,
+      slot: def.slot,
+      area: { x: x + def.at.x, y: y + def.at.y, w: def.size.w, h: def.size.h },
+      on,
+      ...(def.sprite && { sprite: def.sprite }),
+      ...(def.variants && { variants: def.variants }),
+      ...(def.color && { color: def.color }),
+    };
+  });
 
   const tiled = options.floor !== undefined && options.wallPieces !== undefined;
   const walls: WallTile[] = [];
@@ -204,6 +238,7 @@ export function parseTileMap(
     appearances,
     doors,
     pieces,
+    ...(props.length && { props }),
     ...(tiled && { floor: { sprite: options.floor!, tiles: floorTiles }, walls }),
     spawn,
     facing: options.facing,

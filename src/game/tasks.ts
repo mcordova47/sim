@@ -1,6 +1,7 @@
 import { CLOCK, ENERGY, MIRROR, NAP } from "./config";
 import { CONTEMPLATE, MIRROR_DAY, MIRROR_MORNING, MIRROR_NIGHT, MIRROR_TIRED } from "./dialog-data";
 import { ART_SCENES } from "./art-pieces";
+import { REVIVE_REQUIRES, WATER_EFFECTS, WATER_REQUIRES } from "./plant";
 import { SIDE_PROJECTS, sideProjectTask } from "./side-projects";
 import type { Requirement } from "./state";
 import type { Interactable } from "./interactable";
@@ -23,8 +24,15 @@ const CONTENT: Task[] = [
     flavor: 'The outside is still there. Good to know.' },
   { id: 'close-blinds', name: 'Close the blinds', prompt: 'Close the blinds', duration: 1, points: 10,
     flavor: 'Now it is a cave. A cozy one.' },
+  // The snake plant (issue 063): one of these is offered, by how it is doing.
+  // Drooping first, then thirsty, then "still damp" (plant.ts has the rules).
+  { id: 'water-plant-droop', name: 'Water the drooping snake plant', prompt: 'Water the drooping plant', duration: 2, points: 20,
+    exclusive: 'plant', flavor: 'It perks up. It was only resting.' },
   { id: 'water-plant', name: 'Water the snake plant', prompt: 'Water the plant', duration: 2, points: 20,
-    flavor: 'It has survived worse owners. It has not had worse owners.' },
+    exclusive: 'plant', flavor: 'It has survived worse owners. It has not had worse owners.' },
+  { id: 'check-plant', name: 'Check the snake plant', prompt: 'Check the plant', duration: 0, points: 2, cooldown: 60,
+    exclusive: 'plant',
+    activity: { type: 'cutscene', steps: [{ say: 'The soil is still damp. The plant is doing fine.' }] } },
   { id: 'sort-records', name: 'Alphabetize the records', prompt: 'Alphabetize records', duration: 6, points: 60,
     flavor: 'By artist. Then by mood. Then by artist again.' },
 
@@ -164,7 +172,10 @@ const STATE_RULES: Record<string, Partial<Task>> = {
   journal: { effects: [{ var: "mood", add: 6 }], pointsBonus: { var: "mood", perUnit: 0.2 } },
   shower: { effects: [{ var: "mood", add: 6 }] },
   "brush-teeth": { effects: [{ var: "mood", add: 2 }] },
-  "water-plant": { effects: [{ var: "mood", add: 3 }] },
+  "water-plant-droop": { requires: REVIVE_REQUIRES, effects: [...WATER_EFFECTS, { var: "mood", add: 4 }] },
+  "water-plant": { requires: WATER_REQUIRES, effects: [...WATER_EFFECTS, { var: "mood", add: 3 }] },
+  // Offered only when the other two are not (the soil is damp), so it never lies.
+  "check-plant": {},
   "take-trash": { effects: [{ var: "mood", add: 2 }] },
   sit: { effects: [{ var: "mood", add: 2 }] },
   // A gag: moves piles around and changes nothing, so it pays points and little
@@ -174,7 +185,7 @@ const STATE_RULES: Record<string, Partial<Task>> = {
     cooldown: 60,
     requires: [{ var: "energy", max: NAP.below, reason: "NOT SLEEPY ENOUGH" }],
     // The bed stays as it is: this is the sofa.
-    effects: [{ var: "energy", add: NAP.energy }, { var: "clock", add: NAP.hours }, { var: "mood", add: 3 }],
+    effects: [{ var: "energy", add: NAP.energy }, { var: "clock", add: NAP.hours }, { var: "plantDry", add: NAP.hours }, { var: "mood", add: 3 }],
   },
   "admire-art": {
     cooldown: 60,
@@ -272,6 +283,7 @@ const GOOD_HOURS: Record<string, HourWindow[]> = {
   "open-blinds": [at(6, 10)],
   "close-blinds": [at(19, 24)],
   "water-plant": [at(7, 11)],
+  "water-plant-droop": [at(7, 11)],
   "sort-records": [at(17, 23)],
   "sort-records-year": [at(17, 23)],
   "sort-records-fav": [at(17, 23)],
@@ -324,6 +336,7 @@ const EXTRA: Task[] = [
       { var: "energy", set: 100 },
       { var: "bedMade", set: 0 },
       { var: "clock", add: 7 },
+      { var: "plantDry", add: 7 },
       { var: "mood", add: 10 },
     ],
   },

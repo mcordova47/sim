@@ -2,6 +2,7 @@ import {
   DIALOG,
   MOOD,
   PARTICLES,
+  PLANT,
   TILE,
   type AmbientWhen,
   type EmitterAnchor,
@@ -93,6 +94,17 @@ export class ParticlesFeature implements Layer {
       if (id !== "mood" || previous < MOOD.lowBelow || value >= MOOD.lowBelow) return;
       const s = PARTICLES.sigh;
       puff(this.pool, this.random, s.kind, game.player.x + s.dx, game.player.y + s.dy, countIn(s.count, this.random), s.spread);
+    });
+
+    // The plant grew a stage, or came back from drooping (issue 063): a few
+    // green and pale bits drift up from it. Only drawn in the room it is in.
+    events.on("stateChanged", ({ id, value, previous }) => {
+      const grew = id === "plantStage" && value > previous;
+      const perked = id === "plantDry" && previous >= PLANT.droopAfterHours && value < PLANT.droopAfterHours;
+      if (!grew && !perked) return;
+      const g = PARTICLES.plantGrow;
+      const at = this.anchor(g.at, null);
+      if (at) puff(this.pool, this.random, g.kind, at.x, at.y, countIn(g.count, this.random), g.spread);
     });
 
     // Particles belong to the room they were made in.

@@ -191,7 +191,7 @@ describe("state hardening (issue 027)", () => {
     const log: { id: string; clock: number; energy: number }[] = [];
     s.onChange = (c) => log.push({ id: c.id, clock: s.get("clock"), energy: s.get("energy") });
     s.tick(60 / CLOCK.minutesPerSecond); // an hour: both cross a whole number
-    expect(log.map((l) => l.id)).toEqual(["clock", "energy"]);
+    expect(log.map((l) => l.id)).toEqual(["clock", "energy", "plantDry"]);
     expect(log.every((l) => l.energy === s.get("energy") && l.clock === s.get("clock"))).toBe(true);
   });
 

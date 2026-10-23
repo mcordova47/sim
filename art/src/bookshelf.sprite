@@ -1,4 +1,4 @@
-# Cube bookshelf, top-down (issue 047): the divider seen from above and in front, like the other furniture: the light oak top with what sits on it (north to south since issue 057: a vase of dried flowers, a white bowl, a stack of books on a wooden tray, a sansevieria) and the shelf's south end as the front slice. 1x4 tiles. The book and object detail of the old face-on drawing is kept as `view-bookshelf` (not drawn into the room).
+# Cube bookshelf, top-down (issue 047): the divider seen from above and in front, like the other furniture: the light oak top with what sits on it (north to south since issue 057: a vase of dried flowers, a white bowl, a stack of books on a wooden tray, and at the south end the sansevieria, which since issue 063 is its own piece, plant-0..3 and plant-wilted, drawn over the bare oak here) and the shelf's south end as the front slice. 1x4 tiles. The book and object detail of the old face-on drawing is kept as `view-bookshelf` (not drawn into the room).
 size: 16x64
 .11111111111111.
 .1aaabaadakaa91.
@@ -38,18 +38,18 @@ size: 16x64
 .1aaaaaaaaaaa91.
 .1aaaaaaaaaaa91.
 .1aaaaaaaaaaa91.
-.1aaaafeaaaaa91.
-.1aaaffeaafaa91.
-.1aaffeeafeaa91.
-.1aafeaefafea91.
-.1aafeaefffea91.
-.1aafeaaeeaea91.
-.1aaa1111111a91.
-.1aa16666651a91.
-.1aa15566551a91.
-.1aa16566651a91.
-.1aa15555551a91.
-.1aaa111111aa91.
+.1aaaaaaaaaaa91.
+.1aaaaaaaaaaa91.
+.1aaaaaaaaaaa91.
+.1aaaaaaaaaaa91.
+.1aaaaaaaaaaa91.
+.1aaaaaaaaaaa91.
+.1aaaaaaaaaaa91.
+.1aaaaaaaaaaa91.
+.1aaaaaaaaaaa91.
+.1aaaaaaaaaaa91.
+.1aaaaaaaaaaa91.
+.1aaaaaaaaaaa91.
 .1aaaaaaaaaaa91.
 .1aaaaaaaaaaa91.
 .1aaaaaaaaaaa91.

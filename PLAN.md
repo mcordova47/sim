@@ -27,7 +27,7 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 | # | Issue | Owner | Status | Depends on |
 |---|-------|-------|--------|------------|
 | 001 | [Scaffold project](issues/001-scaffold-project.md) | claude | done | |
-| 002 | [Player movement and collision](issues/002-player-movement.md) | claude | todo | 001 |
+| 002 | [Player movement and collision](issues/002-player-movement.md) | claude | done | 001 |
 | 003 | [Interaction and scoring system](issues/003-interaction-scoring.md) | claude | todo | 002 |
 | 004 | [HUD and feedback](issues/004-hud-feedback.md) | claude | todo | 003 |
 | 005 | [Floor plan and task list](issues/005-floor-plan-tasks.md) | marc + agent | blocked | needs photos from Marc |

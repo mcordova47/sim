@@ -74,7 +74,7 @@ const MAIN: Record<string, ObjectDef> = {
   L: { name: "lamp table", sprite: "lamp-table", color: "butter" },
   R: { name: "record stand", sprite: "record-stand", color: "paper", tasks: ["record-play"] },
   p: { name: "painting over the table", sprite: "painting", color: "paper" },
-  q: { name: "painting over the desk", sprite: "painting", color: "paper" },
+  q: { name: "painting over the desk", sprite: "painting-desk", color: "paper" },
   u: { name: "painting over the nightstand", sprite: "painting-wide", color: "paper" },
   f: { name: "front door (decoration for now)", sprite: "front-door", color: "tangerine" },
   "1": { door: { to: "kitchen", arrive: { col: 11, row: 3, facing: "left" } } },

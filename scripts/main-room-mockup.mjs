@@ -42,6 +42,9 @@ for (const bed of ["bed-made", "bed-unmade"]) {
     const name = r === 0 ? "wall-back" : c === COLS - 1 ? "wall-side-right" : c === 0 ? "wall-side-left" : "wall-front";
     blit(load(name), c * T, r * T);
   }
+  // 036: the gallery wall hangs on the south wall face behind the sofa (cols 1-6 of the sofa wall). Mockup only.
+  const gallery = load("gallery-wall");
+  if (gallery) blit(gallery, T, 7 * T);
   // pieces: bounding box of each letter
   const boxes = {};
   for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
@@ -55,8 +58,9 @@ for (const bed of ["bed-made", "bed-unmade"]) {
   for (const b of Object.values(boxes)) {
     let name = spriteOf[b.ch];
     if (name === "bed-made") name = bed;
-    if (name === "painting" && b.c2 - b.c === 2) name = "painting-wide";
     if (name === "window-blinds" && b.ch === "w") name = "window";
+    // 036: show both blind states, open in the made-bed picture and closed in the unmade one.
+    if (name === "window-blinds") name = bed === "bed-made" ? "window-blinds-open" : "window-blinds-closed";
     const img = load(name);
     if (!img) { console.log(`missing sprite: ${name}`); continue; }
     things.push({ name, img, x: b.c * T, y: b.r * T, bottom: (b.r2 + 1) * T });

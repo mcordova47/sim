@@ -1,7 +1,7 @@
 ---
 id: 046
 title: Escape during any action (and a cutscene's text)
-status: review
+status: done
 owner: claude
 depends_on: []
 ---
@@ -31,3 +31,16 @@ Changes:
 - Docs: `docs/activities.md` (table, wrong dialog-owns-Escape text fixed), `docs/dialogs.md`, README.
 
 Verified: `npm test` (882 passed), `npm run build` ok. Not checked: how it looks and feels in a browser (hint position and legibility over the gallery wall picture).
+
+### 2026-10-23 (independent review)
+Verdict: **approve**.
+
+Checked by me: `npm test` 882 passed, `npm run build` ok. Diff touches only src, docs, README and this issue; no PLAN.md or other issues, no reference-photos. Wrote my own edge tests (kept outside the repo, 67 cases plus a coverage probe) against the real `Game`:
+- Escape at every 3rd frame offset (0 to 200) into wait, dialog task (nested menu), cutscene with `say`, with `ask`, walking then `say`, and `view` then `say`, each with `DIALOG.pauseClock` true and false: always ends not busy, dialog closed, lock released, score 0, `dishes` unchanged, events exactly `taskStart, taskCancelled`, and nothing resumes after 200 more frames. Held Escape for 5 frames: harmless.
+- Escape and E in the same frame while a scene runs: cancels, does not restart (one `taskStart`). Escape and E in the same frame that opens the task: the task starts, that Escape is lost (nothing was running yet), the next Escape cancels. Acceptable.
+- Escape on each frame around the end of a 3 s wait: exactly one of complete (100 points) or cancelled, never both. Short wait-then-`say` cutscene with Escape at 150 frame offsets: always a clean cancel.
+- Cutscene walk across a door tile, Escape at 40 offsets (43 of 80 landed in the new room): cancels cleanly in either room, no points, the later `set` step is not applied.
+Criteria: reproduction and table in `docs/activities.md` pass; Escape cancels any running action except notes (as agreed), no points, effects or cooldown, pass; the cutscene `say` decision (cancel, code and docs agree, stale "dialog owns Escape" text fixed) pass; every exit path releases lock, dialog and view, and the 022 fuzz-style test and the 7-moment real-task test pass; test and build pass.
+Unverified: how `ESC TO STOP` looks and feels in a browser. By the numbers it is centred at x=198 in the 152..244 gap between the score and the status box, about 11 glyphs wide, so it should fit, but legibility over the gallery picture is unchecked.
+Opinion for Marc: leaving notes uncancellable contradicts "Escape cancels any running action", and with no hint shown a player will hit the same "can't escape" he reported. I think notes should be cancellable too (a one-line change plus tests); the author is right to leave it until he decides.
+Minor, non-blocking: the comment on `cancel` in `src/game/activity.ts` is one very long line.

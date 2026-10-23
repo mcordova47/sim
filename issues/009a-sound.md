@@ -1,7 +1,7 @@
 ---
 id: 009a
 title: "Polish: sound effects"
-status: review
+status: done
 owner: agent
 depends_on: []
 ---
@@ -110,6 +110,24 @@ Changes needed (checklist)
 
 ### 2026-10-23: review round 1 fixes (agent)
 1 and 2: both tags now sit along the bottom edge, clear of the score panel, the status panel, toasts and the ESC TO STOP hint: MUTE / SOUND ON at the bottom right, NOW PLAYING at the bottom left (cut to fit beside the mute tag). Still not seen in a browser, and the record player's interact prompt could still overlap the bottom-left line if the player stands near the bottom (unverified). 3: shortest note is 1/32 beat (tests). 4: octave limited to 0-8 (test). 5: M ignored with Ctrl, Meta or Alt (test).
+
+### 2026-10-23: review round 2 (independent reviewer): approve
+Re-ran `npm test` (1160 pass, 57 files), `npx tsc --noEmit` (clean), `npm run build` (ok). Wrote my own checks outside the repo (a rendering-recorder test for the HUD tags and parser limit tests).
+
+Round 1 items
+- 1 (tag overlap): pass. Recomputed from `render/layout.ts` and the HUD code: HUD_BOX is x 0 to 152, y 0 to 38; STATUS_BOX is x 244 to 320, y 0 to 50; `ESC TO STOP` is centred at x 198 (width 65, about x 166 to 231) at y 3. The tags are now at y 179 to 190 (view height 192), so none of those are touched. Recorded the real fill rects from `drawHud`: MUTE box x 289 to 318; SOUND ON box x 265 to 318; NOW PLAYING with a very long title is cut to x 2 to 283 (muted) or x 2 to 259 (SOUND ON), so it never meets the mute tag (4 px and 6 px gaps). Both stay inside the 320 px view. Toasts stack down the right side from below the status panel (about y 52 to 140 at most), so they do not reach y 179.
+- 2 (now-playing vs prompt): not fixed, only moved; the author says so. The line is now bottom left. The record player's interact prompt (placed by `fitBox` or `placeLabel`, which avoid only HUD_BOX) could still overlap the bottom-left line when the player stands near the bottom edge. Cosmetic and short-lived, not an acceptance criterion; recorded as unverified. Marc to look.
+- 3 (note length): pass. `MIN_NOTE_BEATS` is 1/32; `1/100000` and `0.001` are refused, and 1/32 and 64 accepted (my test and the new test).
+- 4 (octave): pass. `C0` and `C8` accepted, `C9` refused (my test and the new test).
+- 5 (modifier keys): pass. Ctrl+M, Cmd+M and Alt+M leave mute unchanged (checked each); a plain M, and Shift+M, still toggle. The key still unlocks audio first, which is right.
+
+All other criteria were passed in round 1 and the round 1 fix commit touched only `music/track.ts`, `sound/feature.ts` and their tests, so nothing else could have changed.
+
+Notes for Marc (not blockers)
+- Dialogs are drawn after the HUD layers, so while a dialog box is open it covers the bottom edge, including the MUTE or SOUND ON tag if you press M then. The NOW PLAYING line is hidden during dialogs by design.
+- Still unverified (needs a browser): how any of it sounds (levels, pitch, loop timing, footsteps) and how the tags look on screen. Marc will listen and tune.
+
+Verdict: approve. Branch `issue/009a-sound`. `PLAN.md` table needs updating by the planner.
 
 ## Note from Marc (2026-10-23)
 Listening to music could play 8-bit music, and Marc may design the tracks himself. When this issue is picked up, plan for a small music player (a song list, play and stop tied to the record and guitar tasks and maybe an ambient track) and a format Marc can write by hand (for example a text score of notes and lengths, or a tiny tracker file) that the game plays with Web Audio.

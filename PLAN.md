@@ -43,7 +43,7 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 | 011 | [Integrate the floor plan and task data](issues/011-integrate-floor-plan.md) | claude | done | 005, 003 |
 | 012 | [Interaction edge cases](issues/012-interaction-edge-cases.md) | claude | done | |
 | 013 | [Physics robustness](issues/013-physics-robustness.md) | claude | done | |
-| 014 | [HUD polish](issues/014-hud-polish.md) | claude | todo | 010, 011 |
+| 014 | [HUD polish](issues/014-hud-polish.md) | claude | done | 010, 011 |
 | 015 | [Extract the game scene from main.ts](issues/015-extract-game-scene.md) | claude | done | |
 | 016 | [Draw the level and player with sprites](issues/016-draw-level-with-sprites.md) | claude | todo | 007, 008, 010, 011 |
 

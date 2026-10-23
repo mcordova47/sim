@@ -58,12 +58,16 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 019 | [Top-down foundation (grid steps, facing, interact)](issues/019-topdown-foundation.md) | claude | done | |
 | 020 | [Top-down floor plan of the apartment](issues/020-topdown-floor-plan.md) | marc + agent | done | 019 |
 | 021 | [Apartment state and tasks that change it](issues/021-apartment-state.md) | claude | done | 019 |
-| 022 | [Activities, mini-games and cutscenes](issues/022-activities.md) | claude | todo | 019 |
+| 022 | [Activities, mini-games and cutscenes](issues/022-activities.md) | claude | in-progress (review: changes needed, fixes running) | 019 |
 | 023 | [Dialog box and choice menus](issues/023-dialog-and-menus.md) | claude | done | 019 |
 | 024 | [Personal touch interview](issues/024-personal-touch-interview.md) | marc + agent | done | |
 | 025 | [Top-down art spec](issues/025-topdown-art-spec.md) | marc + agent | done | |
 | 026 | [Spanish flashcards on the in-game computer (stretch)](issues/026-spanish-flashcards-terminal.md) | marc + claude | blocked | 021, 022, 023 |
 | 027 | [State hardening](issues/027-state-hardening.md) | claude | todo | 021 |
+| 028 | [Top-down art: main room](issues/028-art-main-room.md) | agent | todo | 020, 025 |
+| 029 | [Top-down art: kitchen and bath](issues/029-art-kitchen-bath.md) | agent | todo | 020, 025 |
+| 030 | [Top-down art: player character](issues/030-art-player-character.md) | agent | todo | 025 |
+| 031 | [Draw the top-down game with sprites](issues/031-wire-sprites-topdown.md) | claude | todo | 028, 029, 030 |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

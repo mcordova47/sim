@@ -1,7 +1,7 @@
 ---
 id: 010
 title: Scrolling camera
-status: review
+status: done
 owner: claude
 depends_on: [005]
 ---
@@ -37,3 +37,17 @@ The real apartment (35 tiles wide in the 005 draft) is wider than the 20-tile vi
   - A test of mine failed first because it expected scrolling after only 1 s of walking; the player was still inside the dead zone, so that was a wrong test and not a camera bug (fixed the test).
   - **Not checked in a browser:** how the follow speed and dead zone feel. These are one-line tweaks in `CAMERA`.
   - Notes for the planner: the interim state from 011 is gone, since the whole 560 px apartment is now playable. The popup clamp in issue 014 now works in screen space (popup x is clamped after the world to screen conversion), so 014 should check popups near the screen edges again with the camera moving.
+
+- 2026-10-22: **Review (independent): approve.**
+  - `npm run build` passes; `npm test` 54 pass. I also wrote my own checks outside the repo (19 tests, not committed), all passing:
+  - World size is data: pass. `Camera` takes `level.size` and `VIEW`; no hard-coded sizes. Narrower-than-view and exactly-view worlds pin to 0, never -0.
+  - Horizontal follow, clamp, smoothing, whole pixels: pass. 5 seeds x 8000 frames of random controls on `APARTMENT_LEVEL` (plus holding right/left 20 s, hopping right to the far wall at x=550 and idling): the player body was fully inside the view at alpha 0, 0.5 and 1 on every frame, and the camera stayed in `[0, world - view]` (reaches 240 at the far wall). Dead-zone boundary: no move at exactly `deadzoneX`, moves at +1. Steady state settles with the target at the dead-zone edge. dt = 0 leaves it unchanged, dt = 0.25 stays finite and does not overshoot. Corners via `snapTo` clamp correctly. 1/60 and 1/30 steps agree within 0.01 px.
+  - Vertical: pass. Fixed at 0 when the world fits (apartment is exactly the view height); follows when taller (author's test, and my corner checks).
+  - World through camera, HUD in screen space: pass. A recording canvas shows one integer `translate` per frame, the HUD and the background drawn with no translate, and the HUD after all world and UI drawing. The player and a solid keep a constant relative offset while the camera is still easing (player stationary, 120 frames x 5 alphas, one distinct offset), so there is no jitter between the player and the furniture. During movement the player is drawn at its own rounded position and the translate equals `-camera.position(alpha)`.
+  - World UI: pass. Swept 1287 prompt/progress boxes (player x/y grid at camera offsets 0 to 240): every one on screen and clear of `HUD_BOX`. Popups for every task zone right of x=200, at camera x 100/160/240, are centred on the zone centre minus the camera (clamped to 20..300) and at zone y.
+  - Interpolation of the camera: pass. `position(alpha)` interpolates prev to current and rounds (also covered by the author's monotonic test).
+  - Placeholder wide room and real room: pass (author's 640 px flat level test, and my runs on the apartment).
+  - Tuning in `config.ts`: pass (`CAMERA`).
+  - Scope: pass. Only `camera.ts`, `config.ts`, `game.ts`, `popups.ts`, two test files and this issue file changed. No other issues or `PLAN.md` edited. No reference photos or personal details.
+  - Not verified: how the follow speed and dead zone feel in a browser (I did not run the dev server and the author did not either). Notes only, not blockers: the "Not checked in a browser" caveat stands; issue 014 should recheck popups near screen edges, as the author said.
+  - Tell the planner: `PLAN.md` row 010 should be set to `done` (its table still says `todo`).

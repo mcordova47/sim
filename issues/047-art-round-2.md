@@ -1,7 +1,7 @@
 ---
 id: 047
 title: Art round 2 from the 034 playtest
-status: review
+status: done
 owner: agent
 depends_on: []
 ---
@@ -33,3 +33,12 @@ Marc's notes after playing the 034 build (2026-10-23): overall it looks really g
   - **Files:** `art/src/{sofa-td,table,painting,painting-wide,guitar,guitar-nylon,bookshelf,view-bookshelf,radiator}.sprite`, `docs/art-style.md`, this issue. No map or code changes.
   - **Checked:** `npm run sprites` (130 sprites), `npm test` (651 pass), `npm run build` pass. Rendered `node scripts/main-room-mockup.mjs` and a real frame of the game in headless Chrome (dev server) and looked at both, plus zoomed views of each changed sprite.
   - **Not checked:** how it feels at 1x on Marc's screen; whether the guitar reads right to him; the photo match of colours is approximate (palette only).
+- 2026-10-23: **Review (independent): approve.**
+  - Sofa: pass (two seat cushions, oak back rail and arms, 96x32 = 6x2 tiles `S`; matches `sofa-detail`).
+  - Table: pass (64x32 = `T` 4x2; microwave at west end as in `table-farther` and `microwave-on-table-with-mail`; clutter kept; dripper on scale at east end reads as a cone on a dark scale. Marc's "thing on the left" is unconfirmed).
+  - Barn painting: pass (32x16, few shapes). Silkscreen print: pass (checked by script: 14 px of mat each side, frame 2..45).
+  - Guitar: pass on the stated reading (hangs by headstock, 16x32 = `G` 1x2); `guitar-nylon` 16x32 drawn, not wired. Unverified: whether this reading is what Marc wants.
+  - Bookshelf: pass (16x64 = `H` 1x4, top-down; `view-bookshelf` 16x64 is the old drawing, differing only in its header comment, not drawn into the room, nothing in src references it). Radiator: pass (3 tiles drawn in the 16x64 sprite; map not edited, proposal logged).
+  - Docs updated. `npm run sprites` (130, PNGs regenerate with no diff), `npm test` (651), `npm run build` pass. No src or map edits; only art, PNGs, docs and this file changed. Rendered `main-room-mockup.mjs` and zoomed sprites and looked at them.
+  - Unverified: feel at 1x on Marc's screen; guitar reading; the bookshelf's dark mid-line reads slightly like two pieces at 4x (minor, Marc's call).
+  - PLAN.md table needs updating by the planner.

@@ -1,3 +1,5 @@
+import type { Check } from "./state";
+
 export interface Rect {
   x: number;
   y: number;
@@ -9,6 +11,11 @@ export interface Rect {
 // placeholder rectangles until there is art.
 export interface Solid extends Rect {
   color?: string;
+  // Only blocks while all of these hold (a door that opens, a pile in the way).
+  // Always blocks if missing.
+  blockedWhen?: Check[];
+  // Not drawn as a rectangle because an appearance draws this object.
+  hidden?: boolean;
 }
 
 export function overlaps(a: Rect, b: Rect): boolean {

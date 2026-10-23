@@ -1,7 +1,7 @@
 ---
 id: 021
 title: Apartment state and tasks that change it
-status: todo
+status: review
 owner: claude
 depends_on: [019]
 ---
@@ -28,3 +28,16 @@ Make doing things matter: eating makes dirty dishes, washing them removes them, 
 - The task text and balance are placeholders until the personal task list (024) is written. This issue builds the system with a few example tasks.
 
 ## Progress log
+
+- 2026-10-23: Started. Plan: `state.ts` (variables, checks, effects, clock and energy tick) with data in `state-vars.ts`; `requires`/`effects`/`pointsBonus` on `Interactable`; unmet reasons in the prompt; sprite variants per object (placeholder label and colour); conditional solids that rebuild the `Grid`; clock and energy meter in a new status panel; `stateChanged` event; example tasks in the placeholder room; tests.
+- 2026-10-23: Built, status `review`. `npm run build` passes; `npm test` 165 tests pass (33 new in `state.test.ts`, `apartment.test.ts`, `placeholder-level.test.ts`).
+  - **State:** `src/game/state.ts` (`ApartmentState`: get, checks, `anyOf` requirements, add/set effects clamped or wrapped, `tick`, `onChange`, `formatClock`); variables are data in `state-vars.ts` (dishes, bedMade, energy, clock). Clock and energy tuning in `config.ts` (`CLOCK`, `ENERGY`).
+  - **Tasks:** `Interactable` gains `requires`, `effects`, `pointsBonus`. Effects apply on finish; the bonus is counted before them. `InteractionSystem.unavailableReason` / `canStart`; the prompt shows the reason greyed ("NO DIRTY DISHES"); a press emits `taskBlocked` with `reason: "requirement"` and a `message`. An object can have several tasks (`tasks` in the tile-map legend); the first doable one is offered.
+  - **Looks:** `appearance.ts` (`Variant`, `pickVariant`). Tile-map legend `variants`; the game draws the matching variant each frame as a coloured block with a label (bed made / unmade, dishes 0 to 3+). Sprite names are stored for when the art exists.
+  - **Walkability:** decided on rebuilding the grid. `Grid.setSolids`, and `Solid.blockedWhen` (legend `blockedWhen`); `Game` rebuilds on every `stateChanged` if any solid is conditional. Tested with a pile that blocks until the bed is made.
+  - **Energy:** falls with the clock and work; HUD status panel top right (clock and meter, red when low); below `ENERGY.lowBelow` steps are 1.6x slower (`Player.stepTimeScale`, fixed per step) and a "YAWN..." popup shows once on crossing. Sleep restores it, unmakes the bed and moves the clock on 7 hours.
+  - **Events:** `stateChanged {id, value, previous}`, for effects at once and for time-driven changes when the rounded value changes (clock hourly, energy by point).
+  - **Placeholder room:** bed (make bed, sleep), fridge (snack adds a dish), sink (dishes, bonus per dish), desk (work costs energy).
+  - **Not done:** the `bump` latch reset after a task. Nothing audible exists yet, and a fix means `Game` has to stop calling `player.update` while busy and clear the per-update flags; left for the sound issue (009a). The yawn is a popup; a dialog line waits on 023.
+  - **Not checked:** how it looks and feels in a browser (status panel layout, placeholder labels fitting in 1 to 2 tile objects, tired step speed, clock pace of 2 game minutes per second).
+  - Files: `game/{state,state-vars,appearance}.ts` (new), `game/{config,events,game,grid,interactable,interaction,level,placeholder-level,player,tilemap,world}.ts`, `render/{hud,layout,world-ui}.ts`, tests.

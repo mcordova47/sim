@@ -3,14 +3,20 @@ import { Camera } from "../render/camera";
 import { COLOR } from "../render/colors";
 import { Hud } from "../render/hud";
 import { Popups, type PopupLine } from "../render/popups";
+import { drawText } from "../render/font";
+import { STATUS_BOX } from "../render/layout";
 import { drawProgress, drawPrompt } from "../render/world-ui";
-import { DEBUG, TILE, VIEW } from "./config";
+import { pickVariant } from "./appearance";
+import { DEBUG, ENERGY, TILE, VIEW } from "./config";
 import { DELTA } from "./direction";
 import { Emitter, type GameEvents } from "./events";
 import { Grid } from "./grid";
 import { InteractionSystem } from "./interaction";
 import type { Level } from "./level";
 import { Player } from "./player";
+import { ApartmentState } from "./state";
+import { STATE_VARS } from "./state-vars";
+import type { Solid } from "./world";
 
 // An extra thing the game updates and draws, added with `Game.addLayer`. Every
 // hook is optional. Layers run in the order they were added.
@@ -36,6 +42,8 @@ export class Game {
   readonly player: Player;
   readonly interaction: InteractionSystem;
   readonly camera: Camera;
+  // The apartment and character: dishes, the bed, energy and the clock.
+  readonly state: ApartmentState;
   // Announces steps, bumps into things, and task starts, completions and refusals.
   readonly events = new Emitter<GameEvents>();
   private readonly hud = new Hud();
@@ -43,8 +51,13 @@ export class Game {
   private readonly layers: Layer[] = [];
   private readonly grid: Grid;
 
-  constructor(private readonly level: Level) {
-    this.grid = new Grid(level.size, level.solids);
+  constructor(
+    private readonly level: Level,
+    state: ApartmentState = new ApartmentState(STATE_VARS),
+  ) {
+    this.state = state;
+    this.grid = new Grid(level.size, this.activeSolids());
+    this.state.onChange = (change) => this.stateChanged(change);
     this.player = new Player(level.spawn.x, level.spawn.y, level.facing);
     this.camera = new Camera(level.size, VIEW);
     this.camera.snapTo(this.playerCentre());
@@ -58,10 +71,29 @@ export class Game {
       }
       this.popups.add(item.zone.x + item.zone.w / 2, item.zone.y, lines);
       this.events.emit("taskComplete", { item, award });
-    });
+    }, this.state);
     this.interaction.onStart = (item) => this.events.emit("taskStart", { item });
-    this.interaction.onBlocked = (item, reason) =>
-      this.events.emit("taskBlocked", { item, reason });
+    this.interaction.onBlocked = (item, reason, message) =>
+      this.events.emit("taskBlocked", { item, reason, ...(message && { message }) });
+  }
+
+  // The solids that block right now: those with no condition, or whose condition holds.
+  private activeSolids(): Solid[] {
+    return this.level.solids.filter((s) => !s.blockedWhen || this.state.matchesAll(s.blockedWhen));
+  }
+
+  private stateChanged(change: { id: string; value: number; previous: number }): void {
+    // Doors, piles and the like may now block or not.
+    if (this.level.solids.some((s) => s.blockedWhen)) this.grid.setSolids(this.activeSolids());
+    this.events.emit("stateChanged", change);
+    // Dropping below the tired line shows a yawn over the player.
+    if (
+      change.id === "energy" &&
+      Math.round(change.previous) >= ENERGY.lowBelow &&
+      Math.round(change.value) < ENERGY.lowBelow
+    ) {
+      this.popups.add(this.player.x + TILE / 2, this.player.y, [{ text: "YAWN...", color: COLOR.mist }]);
+    }
   }
 
   // Adds an extra layer (sound, particles, toasts, lighting...). Returns a
@@ -75,6 +107,8 @@ export class Game {
   }
 
   update(dt: number, controls: Controls): void {
+    this.state.tick(dt);
+    this.player.stepTimeScale = this.state.get("energy") < ENERGY.lowBelow ? ENERGY.tiredStepFactor : 1;
     this.interaction.update(dt, this.player, controls);
     // Locked in place while a task runs.
     this.player.update(dt, this.interaction.busy ? NO_INPUT : controls, this.grid);
@@ -159,13 +193,35 @@ export class Game {
       }
     }
 
-    const drawables = this.level.solids.map((s) => ({
-      bottom: s.y + s.h,
-      draw: () => {
-        ctx.fillStyle = s.color ?? COLOR.dusk;
-        ctx.fillRect(s.x, s.y, s.w, s.h);
-      },
-    }));
+    const drawables = this.activeSolids()
+      .filter((s) => !s.hidden)
+      .map((s) => ({
+        bottom: s.y + s.h,
+        draw: () => {
+          ctx.fillStyle = s.color ?? COLOR.dusk;
+          ctx.fillRect(s.x, s.y, s.w, s.h);
+        },
+      }));
+    // Objects that change with state: the variant whose rule holds right now.
+    // The placeholder is a coloured block with the variant's label.
+    for (const { area, variants } of this.level.appearances ?? []) {
+      const variant = pickVariant(variants, this.state);
+      if (!variant) continue;
+      drawables.push({
+        bottom: area.y + area.h,
+        draw: () => {
+          ctx.fillStyle = COLOR[variant.color ?? "mist"];
+          ctx.fillRect(area.x, area.y, area.w, area.h);
+          if (variant.label) {
+            drawText(ctx, variant.label, area.x + area.w / 2, area.y + area.h / 2 - 3, {
+              color: COLOR.ink,
+              align: "center",
+              shadow: null,
+            });
+          }
+        },
+      });
+    }
     drawables.push({ bottom: actor.y + actor.h, draw: () => this.drawPlayer(ctx, actor) });
     // The sort is stable, so on a tie the player (added last) is in front.
     drawables.sort((a, b) => a.bottom - b.bottom);
@@ -198,18 +254,19 @@ export class Game {
   ): void {
     const { interaction } = this;
     // Labels keep clear of any popup that is still floating up.
-    const popupBoxes = this.popups.boxes(VIEW, cam);
+    const popupBoxes = [...this.popups.boxes(VIEW, cam), STATUS_BOX];
     if (interaction.active) {
       drawProgress(ctx, actor, interaction.active.item, interaction.progress, VIEW, popupBoxes);
     } else if (interaction.nearby) {
       const cooldown = interaction.cooldownRemaining(interaction.nearby);
-      drawPrompt(ctx, actor, interaction.nearby, cooldown, VIEW, popupBoxes);
+      const unavailable = interaction.unavailableReason(interaction.nearby);
+      drawPrompt(ctx, actor, interaction.nearby, cooldown, VIEW, popupBoxes, unavailable);
     }
     this.popups.draw(ctx, VIEW, cam);
   }
 
   private drawHud(ctx: CanvasRenderingContext2D): void {
-    this.hud.draw(ctx, this.interaction.scoreboard, this.interaction.time);
+    this.hud.draw(ctx, this.interaction.scoreboard, this.interaction.time, this.state);
   }
 }
 

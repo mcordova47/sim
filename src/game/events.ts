@@ -13,7 +13,11 @@ export interface GameEvents {
   taskStart: { item: Interactable };
   taskComplete: { item: Interactable; award: Award };
   // The player pressed interact but the task in reach is not ready yet.
-  taskBlocked: { item: Interactable; reason: "cooldown" };
+  // `message` is the reason shown to the player when `reason` is "requirement".
+  taskBlocked: { item: Interactable; reason: "cooldown" | "requirement"; message?: string };
+  // A state variable changed: by a task's effects, or (for time-driven
+  // changes) when its rounded value did, so the clock reports once an hour.
+  stateChanged: { id: string; value: number; previous: number };
 }
 
 type Listener<T> = (payload: T) => void;

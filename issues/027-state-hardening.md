@@ -37,3 +37,4 @@ Fix the smaller findings from the review of issue 021 before the sound, achievem
   - **Checklist for the author:**
     - [ ] Let `parseTileMap` take the known variables (for example a `MapOptions` field passed to `validateLevel`, defaulting to `STATE_VARS`), or defer the name check for such rooms to `Game`; add a test with a custom variable room built by `parseTileMap` and played in a `Game` with a custom state.
     - [ ] Optional: note in `docs/state.md` that one clock event can span several hours; reject a `NaN` `initial`/range.
+- 2026-10-23: Review round 1 asked for changes (custom-variable rooms built by `parseTileMap` were rejected). Fixed: `MapOptions.knownVars` passed to `validateLevel` (default the real list); test builds a custom-variable room and plays it in a `Game` with custom state. Also noted in `docs/state.md` that a multi-hour change gives one clock event. Status `review`. Not done: NaN `initial` rejection (pre-existing, optional).

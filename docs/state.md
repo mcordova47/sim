@@ -37,7 +37,7 @@ variants: [
 A solid can also be conditional with `blockedWhen` (a pile in the way); the grid is rebuilt on every state change.
 
 ## Typos fail when the level is built
-`validateLevel` (run by `parseTileMap` and by `Game` for every room it loads) checks every variable name used by a task's `requires`, `effects` and `pointsBonus`, a cutscene's `set` steps, a variant's `when` and a solid's `blockedWhen`. The error names the room and the task or object, for example `main: task "dishes" effects uses the unknown state variable "dishs"`. So a typo in the task list stops the game at load and in the tests, not when the task is first used.
+`validateLevel` (run by `parseTileMap` and by `Game` for every room it loads) checks every variable name used by a task's `requires`, `effects` and `pointsBonus`, a cutscene's `set` steps, a variant's `when` and a solid's `blockedWhen`. A room meant for a game with its own variables passes `knownVars` in the `parseTileMap` options (and the `Game` checks against its own state). The error names the room and the task or object, for example `main: task "dishes" effects uses the unknown state variable "dishs"`. So a typo in the task list stops the game at load and in the tests, not when the task is first used.
 
 ## Events
 `game.events.on("stateChanged", ({ id, value, previous }) => ...)`.
@@ -45,4 +45,5 @@ A solid can also be conditional with `blockedWhen` (a pile in the way); the grid
 - **Task effects:** all of a task's effects are applied first, then one event per variable that changed, in the order the variables first appear in `effects`. A listener on the first event sees every later effect already applied (sleeping: energy is 100 and the bed is unmade in the event for either). A variable touched twice reports once, from its first previous value to its last; a net zero reports nothing.
 - **Time:** each tick moves the clock and energy together and then reports them, clock first. A time-driven change reports only when the whole-number part (the floor) changes.
 - **The clock for lighting (009d):** the clock event fires once per whole in-game hour (24 a day, midnight included once), when the floor of the hour changes. `value` is the exact time at that moment, a frame past the hour. For smooth light between hours, do not wait for events: read `game.state.get("clock")` each frame (hours since midnight, 0 up to 24). Use the event to step things that change on the hour and the per-frame read for anything continuous.
+- A change that spans several hours in one go (sleep's `clock add 7`, a very long tick) reports one event, not one per hour.
 - Energy reports once per whole point on the way down; the yawn fires when it crosses `ENERGY.lowBelow`.

@@ -4,6 +4,7 @@ import { APARTMENT } from "./apartment";
 import { Game } from "./game";
 import { validateLevel } from "./level";
 import { PLACEHOLDER_LEVEL } from "./placeholder-level";
+import { ApartmentState } from "./state";
 import { STATE_VARS } from "./state-vars";
 import { TASKS } from "./tasks";
 import { parseTileMap } from "./tilemap";
@@ -140,5 +141,14 @@ describe("the state rules in the task list", () => {
     const first = sleepEvents[0];
     expect(first.energy).toBeGreaterThan(95);
     expect(first.bedMade).toBe(0);
+  });
+
+  it("lets a room built with its own variables play in a game with matching state", () => {
+    const mood = { id: "mood-up", name: "M", prompt: "Cheer up", duration: 0, points: 1, effects: [{ var: "mood", add: 1 }] };
+    const knownVars = (id: string) => id === "mood";
+    const level = parseTileMap(["#####", "#.@X#", "#####"], { X: { tasks: ["mood-up"] } }, { tasks: [mood], knownVars });
+    const state = new ApartmentState([{ id: "mood", initial: 0, min: 0, max: 5, meaning: "mood" }]);
+    expect(() => new Game({ ...level, facing: "right" }, { state })).not.toThrow();
+    expect(() => parseTileMap(["#####", "#.@X#", "#####"], { X: { tasks: ["mood-up"] } }, { tasks: [mood] })).toThrow(/mood/);
   });
 });

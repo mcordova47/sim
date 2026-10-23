@@ -1,7 +1,7 @@
 ---
 id: 009c
 title: "Polish: achievements and saved progress"
-status: review
+status: done
 owner: agent
 depends_on: []
 ---
@@ -63,3 +63,29 @@ Decisions:
 Verification: `npm test` 956 pass (about 100 new), `npm run build` ok. Looked at screenshots from headless Chrome of the toasts and the list screen (seeded save), and a restored position and apartment state.
 Not checked: how it feels over a long play session in a real browser; the exact wording of the achievements is for Marc to review. A restored low energy shows a YAWN popup at load (game.ts behaviour, left alone).
 
+
+### 2026-10-23, reviewer: review (approve)
+Checked in the worktree on branch issue/009c-achievements. `npm test` 956 pass, `npm run build` ok, `npx tsc --noEmit` clean. I also wrote 23 independent edge-case tests (kept outside the repo, all pass) covering save/load tolerance, double unlock, storage failure, toast layout, drawing, and the list/reset key flow.
+
+Per criterion:
+- 15+ achievements, data-driven, from real tasks: pass. 26 in data.ts; every task id they name exists in the apartment rooms; ids unique. Conditions are data.
+- Stats from events in a separate module with tests: pass (stats.ts; steps, bumps, cancels, rooms, per-task counts, points, chain, award, best score, min-payout repeats, seconds).
+- Toasts: pass. Every description wraps to at most 2 lines at the toast width, so the fixed 2-slot stack never overlaps. Stepped 26 queued toasts at 10 ms for 120 s: at most 2 shown, never overlapping each other, never off screen, never touching HUD_BOX or STATUS_BOX, alpha within 0..1. Bottom of the stack is y=126, above the dialog box. Only palette colours drawn (checked every fillStyle). Names and descriptions pass `unsupportedChars`; widths fit the toast, list column and footer. Huge dt and empty text are fine.
+- Saved under a versioned key, injected storage, failures wrapped: pass. Tried getItem, setItem and removeItem all throwing; quota error on setItem; null storage; getItem returning undefined, a number or an object; none break play. Unlocks still happen when saving fails.
+- Save/load tolerance: pass. Malformed saves (empty string, null, array, truncated JSON, other version, wrong types, huge or negative numbers, `__proto__` and `constructor` keys, unknown variable ids, fractional or out-of-range tile) never throw and start sane. Round trip reproduces the identical saved text, and a reload shows no toasts. A saved unlock whose stats are gone is kept and does not re-toast. A periodic save mid-run is valid, and the completion save has the post-effect variable values.
+- List screen, "???" for locked: pass. Key L; all draw paths (none, all unlocked, cursor ends, reset message) run; hint and message widths fit; empty list does not crash.
+- Reset: pass. Needs Shift+R then Y with the list open. A lone Y, plain R then Y, Shift+R then arrow then Y, and held-key repeats do not reset. Every state variable returns to its initial value, the stored key is removed, stats restart, and the score is 0.
+- Unlock once, tests for unlock/double/save/load/corrupt: pass (existing tests plus mine).
+- Thresholds and timing in data or config: pass (data.ts, ACHIEVEMENTS_UI).
+- Current-state requirements: pass. Uses step/bump/taskCancelled/room events; L is not a reserved key; the list will not open while a task runs, a dialog is open, or input is locked; repeated open/close leaks no input lock; Escape closes the list only when it is open and is ignored otherwise, so it does not interfere with action cancel; saves on taskComplete (after effects), on each unlock, every 10 s and on visibilitychange (hidden only); variables validated through the game state, unknown ids ignored, missing ones keep defaults.
+
+Scope: changed only the new achievements module, an ACHIEVEMENTS_UI block in config.ts, one line plus import in features.ts, and its own issue file. game.ts, PLAN.md and other issues are untouched. No reference-photos content or personal details.
+
+Not verified (author did not either, and I could not): how it feels over a long play session in a real browser, and the wording quality of the achievement names (for Marc). I did not run a real browser, so the actual pixel look of the toasts and list is unchecked by me.
+
+Minor observations, none blocking:
+- The list is not a pause: the game clock and energy keep advancing while it is open (I saw the clock move and energy drop over 60 s). A dialog can also be opened under the list by code, and the list would hide it; nothing in the game does this today.
+- `parseWorld` drops the whole world (including the apartment variables) if the saved facing, room or tile is missing or not a valid type. A merely invalid room or tile is handled correctly (variables kept, player at start). Only a damaged position field loses the variables, which is a harmless edge.
+- Reset puts variables back but leaves the player where they stand.
+
+Verdict: approve. PLAN.md table needs updating by the planner.

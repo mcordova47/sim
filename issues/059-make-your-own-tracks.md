@@ -1,7 +1,7 @@
 ---
 id: 059
 title: Make your own tracks in the game (mix-in mini-game)
-status: todo
+status: in-progress
 owner: marc + claude
 depends_on: []
 ---
@@ -27,3 +27,5 @@ Layout A (piano roll); opens at the desk laptop as a new task (it appears in the
 - Then a first build: the editor, saving, listing and playing made tracks, with tests (the editor output always parses with the track parser, bad input is rejected, storage failures are tolerated) and a way to delete a track. `npm test` and `npm run build` pass; Marc tries it.
 
 ## Progress log
+
+- 2026-10-23: Started (work-issue). Building stages 1 to 3 of `docs/make-tracks.md`: (1) data, storage `life.tracks.v1`, parser round trip, limits, tests; (2) the piano roll editor as an activity at the desk laptop, clock held, Escape always exits, drafts, export and import; (3) Demos under `Demos...` in the record menu (built at press time), demos lift mood like records. Stage 4 (play a demo at the recording gear) is left as a follow-up.

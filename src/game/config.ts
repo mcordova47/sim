@@ -155,6 +155,41 @@ export const DIALOG = {
   textWidth: VIEW.width - 2 * 4 - 2 * 6,
 };
 
+// Making your own tracks (issue 059, docs/make-tracks.md). Marc's picks: the
+// piano roll editor, 12 saved tracks, 24-letter names, up to 32 steps, a reward
+// of 90 points and +6 mood once per 6 game hours for a track with real notes.
+export const MAKE_TRACKS = {
+  // Where made tracks, the draft and the reward cooldown are saved. Bump the
+  // number to start afresh (an old save under the old key is left alone).
+  storageKey: "life.tracks.v1",
+  // A step is half a beat. Tracks are 16 steps by default and at most 32.
+  stepBeats: 0.5,
+  steps: { default: 16, max: 32, short: 16 },
+  // A note is held for 1, 2 or 4 steps (the length key cycles through these).
+  lengths: [1, 2, 4],
+  maxNoteSteps: 4,
+  // Tempo in beats per minute; the editor stays in a calmer range than the parser.
+  tempo: { min: 60, max: 180, default: 100, step: 4 },
+  // Pitches as MIDI numbers (C4 is 60): melody C3 to B5, bass C2 to B3.
+  melody: { name: "melody", wave: "square", volume: 0.6, low: 48, high: 83, start: 60 },
+  bass: { name: "bass", wave: "triangle", volume: 0.8, low: 36, high: 59, start: 36 },
+  beat: { name: "beat", wave: "drums", volume: 0.5 },
+  maxTracks: 12,
+  nameMax: 24,
+  // Letters, digits, space and a few marks. `#`, `:` and `[` would break a .track line.
+  nameChars: /^[A-Za-z0-9 .,!?'()&-]+$/,
+  maxTextBytes: 2048,
+  // The save for one track, 2 KB, 12 of them and a draft stay far below this.
+  maxSaveBytes: 64 * 1024,
+  // Starting names are "Untitled 1", "Untitled 2", ...
+  untitled: "Untitled",
+  // Saving pays this much, but only for a track with enough notes, and then
+  // not again until this many game hours have passed.
+  reward: { points: 90, mood: 6, cooldownHours: 6, minNotes: 8, minChannels: 2 },
+  // Seconds a message in the editor's footer stays.
+  messageSeconds: 3,
+};
+
 // Debug drawing, off in normal play.
 export const DEBUG = {
   // Outline the task zones.

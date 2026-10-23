@@ -1,7 +1,7 @@
 ---
 id: 016
 title: Draw the level and player with sprites
-status: review
+status: done
 owner: agent
 depends_on: [007, 008, 010, 011]
 ---
@@ -30,3 +30,15 @@ Replace the coloured rectangles with the real art: furniture, decor and the play
   - **Without sprites** (tests, levels with no scene) `Game` falls back to the old plain rectangles, so existing tests are unchanged.
   - **Checked:** `npm run build` and `npm test` (109 total, including new `src/render/scene.test.ts`) pass; `npm run sprites` is idempotent. Tests cover draw order (real apartment data, recorded sprite calls), every sprite name existing in `public/sprites`, frame selection for every state, flipping, the animator, and no zone rectangles in a render.
   - **Not checked:** nothing was looked at in a browser, so the real look (sprite alignment against collision, wall colour, walk cycle feel and speed, flip) and console warnings are unverified. The back-wall and shell colours are my choice (slate, dusk), not from the art guide.
+- 2026-10-22: Review (independent). Verdict: **approve**.
+  - **Checks run:** `npm run build` and `npm test` (109 pass). Own throwaway test (not committed) against the real apartment data and files: every prop's PNG size in `public/sprites` equals its prop w/h from `room.ts` (0 mismatches, all 24 props present); resolved draw order is 7 decor then 17 furniture in data order; `Sprites.draw` flip math checked by reading it (translate(left + width, y), scale(-1, 1), draw at 0,0 covers the same cell, so position is unchanged). Player frame source has the 10x14 body at cols 3-12, rows 2-15, matching the (3, 2) anchor and symmetric for flipping.
+  - Props drawn with their sprite, positions from the floor plan, behind player; fallback labelled rectangle kept (`Sprites.placeholder`, `onerror` resolves with a console warning): **pass**.
+  - Order walls, decor, furniture, player, UI (`drawScene`, `drawWorld`): **pass**.
+  - Player frames idle/walk/jump/fall/task by state, flipped in code: **pass** (code and tests).
+  - Camera and whole-pixel snapping (`Math.round` in `draw`, drawn inside the camera transform): **pass** by reading; look unverified.
+  - Loaded before first frame (`sprites.load(...).then(startLoop)`), errors resolve to placeholders: **pass** by reading; no browser run, so console output is **can't verify**.
+  - Zones no longer drawn as translucent rects (outline only behind `DEBUG.zones`, default false): **pass**.
+  - `couch` and `coffee-mug` removed from `art/src` and `public/sprites`; no remaining references in src/scripts/art/public: **pass**.
+  - Tests for draw order and frame selection without a browser: **pass**.
+  - **Unverified (no browser):** sprite alignment against collision, walk cycle speed and feel, flip appearance, wall (slate) and shell (dusk) colours, console warnings.
+  - **Scope:** only expected files changed; PLAN.md and other issues untouched; no reference-photo or personal data. Minor notes, not blockers: `main.ts` uses `scene!` non-null assertion; `docs/art-style.md` still names couch/coffee-mug as examples (author left it deliberately).

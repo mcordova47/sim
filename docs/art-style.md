@@ -102,7 +102,6 @@ Sorted for the top-down view. **Reuse:** use as-is (wall-mounted or flat). **Ada
 | mic-stand | 16x112 | Redraw | Far too tall; a short stand about 1x2 tiles. |
 | player-idle, -walk-1..4, -jump, -fall, -task | 16x16 | Redraw | Side-view poses. Replaced by the `player-<state>-<direction>` set (issue 030); the old files are removed. |
 | record-stand | 16x48 | Adapt | Front-facing; trim and add a top. |
-| shower-curtain | 48x96 | Redraw | Draw the tub and curtain from the front of the bathroom. |
 | sofa-arm | 16x32 | Adapt | Armchair side; give it a backrest slice like `sofa-td`. |
 | sofa | 32x16 | Adapt | Done: `sofa-td` (32x32). |
 | spice-rack | 16x64 | Reuse | Wall-mounted. |
@@ -114,7 +113,7 @@ Sorted for the top-down view. **Reuse:** use as-is (wall-mounted or flat). **Ada
 | vanity | 32x48 | Adapt | Front-facing; add a top slice. |
 | window-blinds, window-curtain | 32x64 | Reuse | Hang on the back wall; trim height to fit the wall band. |
 
-Verdict totals: 6 reuse, 10 adapt, 8 redraw (plus the 8 player poses, all redraw).
+Verdict totals: 6 reuse, 10 adapt, 7 redraw (plus the 8 player poses, all redraw).
 
 ## Samples in the repo (for approval)
 `floor-wood`, `floor-tile`, `rug`, `wall-back`, `wall-side-left`, `wall-side-right`, `doorway` (the tileset); `sofa-td` (adapted) and `bed-made` (new); `player-idle-down` and `player-walk-down-1` (the character, 16x16). Run `npm run sprites -- --sheet=floor-,rug,wall-,doorway,bed-,sofa-td,player-idle-down,player-walk-down` and `node scripts/room-mockup.mjs`, then open `art/contact-sheet.png` and `art/room-mockup.png`. Left-over rules from the side view (outline, palette) are unchanged. Furniture batches are not drawn until Marc approves this look.

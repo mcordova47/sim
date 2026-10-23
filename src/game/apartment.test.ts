@@ -6,6 +6,7 @@ import { Grid } from "./grid";
 import { doorProblems, reachablePlaces, taskSpots } from "./plan-checks";
 import { TASKS } from "./tasks";
 
+const spriteFiles = import.meta.glob("/public/sprites/*.png", { query: "?url" });
 const rooms = APARTMENT.rooms;
 const start = rooms[APARTMENT.start];
 const from = { room: APARTMENT.start, col: start.spawn.x / TILE, row: start.spawn.y / TILE };
@@ -163,5 +164,38 @@ describe("furniture", () => {
     const grid = new Grid(rooms.kitchen.size, rooms.kitchen.solids);
     expect(grid.isBlocked(9, 8)).toBe(false); // bottom of the leg
     expect(grid.isBlocked(2, 8)).toBe(true); // under the bar, where the bath is
+  });
+
+  it("draws every sprite named in level data with a file in public/sprites", () => {
+    const names = new Set<string>();
+    for (const room of Object.values(rooms)) {
+      for (const piece of room.pieces) if (piece.sprite) names.add(piece.sprite);
+      for (const a of room.appearances ?? []) for (const v of a.variants) if (v.sprite) names.add(v.sprite);
+    }
+    expect(names.size).toBeGreaterThan(20);
+    for (const name of names) {
+      expect(`/public/sprites/${name}.png` in spriteFiles, name).toBe(true);
+    }
+  });
+
+  it("uses the wide painting over the nightstand and the plain window above the blinds", () => {
+    const sprite = (name: string) => rooms.main.pieces.find((p) => p.name === name)?.sprite;
+    expect(sprite("painting over the nightstand")).toBe("painting-wide");
+    expect(sprite("window")).toBe("window");
+    expect(sprite("window and blinds")).toBe("window-blinds");
+  });
+
+  it("puts the fridge in the south-east corner of the kitchen, usable from a walkable tile", () => {
+    const fridge = rooms.kitchen.pieces.find((p) => p.name === "fridge");
+    expect(fridge?.tiles.map((t) => `${t.col},${t.row}`).sort()).toEqual(["10,7", "10,8", "11,7", "11,8"]);
+    const grid = new Grid(rooms.kitchen.size, rooms.kitchen.solids);
+    expect(grid.isBlocked(10, 9)).toBe(true); // the south wall is just below it
+    expect(grid.isBlocked(10, 6)).toBe(false); // floor in the freed row, above it
+    const spots = taskSpots(rooms.kitchen);
+    for (const task of ["fridge-stare", "humidifier"]) {
+      const mine = spots.filter((s) => s.id === task);
+      expect(mine.length, task).toBeGreaterThan(0);
+      expect(mine.some((s) => at("kitchen", s.stand.col, s.stand.row)), task).toBe(true);
+    }
   });
 });

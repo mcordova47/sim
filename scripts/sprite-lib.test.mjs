@@ -76,7 +76,7 @@ describe("player sprites (home outfit)", () => {
   };
   const dirs = ["down", "up", "left", "right"];
   // Sizes after issue 034: poses are drawn on the real furniture (sofa 6x2, desk 4x2, table 4x2, bed 5x6).
-  const poses = { "player-sit-sofa": [16, 32], "player-type-desk": [16, 32], "player-guitar": [16, 48], "player-read-sofa": [32, 32], "player-sleep-bed": [80, 96], "player-eat-table": [16, 32] };
+  const poses = { "player-sit-sofa": [16, 32], "player-type-desk": [16, 32], "player-guitar": [32, 48], "player-read-sofa": [32, 32], "player-sleep-bed": [80, 96], "player-eat-table": [16, 32] };
 
   it.each(dirs)("has idle and two walk frames facing %s, 16x16, that differ clearly", (d) => {
     const idle = load(`player-idle-${d}`);

@@ -139,7 +139,7 @@ Letters avoid the keys the game already uses: Escape, E, X, L, M (mute), Tab and
 
 | key | does |
 |---|---|
-| arrows (or W A S D is not used: S and D are commands) | move the cursor one step or one pitch. Past the top or bottom of the window it scrolls an octave. Past the last step it wraps to the first |
+| arrows | move the cursor one step or one pitch. Past the top or bottom of the window it scrolls an octave. Past the last step it wraps to the first |
 | E | place a note at the cursor; on a note, clears it. In the beat channel the row decides the drum. Each press makes a small blip of that note so you hear what you placed |
 | 1, 2, 3 | switch to melody, bass or beat (keeps the step) |
 | P | play from the start (loops) and stop. A moving `>` marker shows where it is. Editing while playing is allowed and takes effect on the next loop |

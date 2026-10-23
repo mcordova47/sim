@@ -84,7 +84,7 @@ describe("ApartmentState", () => {
     expect(s.get("energy")).toBe(0);
   });
 
-  it("reports effects at once, and time only when the rounded value changes", () => {
+  it("reports effects at once, and time only when the whole-number part changes", () => {
     const s = make();
     const log: StateChange[] = [];
     s.onChange = (c) => log.push(c);
@@ -98,7 +98,7 @@ describe("ApartmentState", () => {
     expect(log.filter((c) => c.id === "clock")).toEqual([]); // still within the hour
     s.tick(60 / CLOCK.minutesPerSecond); // an hour
     expect(log.filter((c) => c.id === "clock").length).toBeGreaterThanOrEqual(1);
-    for (const c of log) expect(Math.round(c.value)).not.toBe(Math.round(c.previous));
+    for (const c of log) expect(Math.floor(c.value)).not.toBe(Math.floor(c.previous));
   });
 });
 
@@ -145,5 +145,70 @@ describe("the state variable data", () => {
 
   it("says what each one means", () => {
     for (const v of STATE_VARS) expect(v.meaning.length, v.id).toBeGreaterThan(0);
+  });
+});
+
+describe("state hardening (issue 027)", () => {
+  it("rejects a wrapping variable whose min equals its max", () => {
+    expect(() => new ApartmentState([{ id: "x", initial: 3, min: 3, max: 3, wrap: true, meaning: "" }])).toThrow(/wraps/);
+    expect(() => new ApartmentState([{ id: "x", initial: 3, min: 3, max: 3, meaning: "" }])).not.toThrow();
+  });
+
+  it("announces a task's changes only after all its effects have applied", () => {
+    const s = new ApartmentState(STATE_VARS);
+    s.applyEffects([{ var: "energy", set: 20 }, { var: "bedMade", set: 1 }]);
+    const seen: { id: string; energy: number; bedMade: number }[] = [];
+    s.onChange = (c) => seen.push({ id: c.id, energy: s.get("energy"), bedMade: s.get("bedMade") });
+    // Sleeping: energy back up, bed unmade.
+    s.applyEffects([{ var: "energy", set: 100 }, { var: "bedMade", set: 0 }, { var: "clock", add: 7 }]);
+    expect(seen).toEqual([
+      { id: "energy", energy: 100, bedMade: 0 },
+      { id: "bedMade", energy: 100, bedMade: 0 },
+      { id: "clock", energy: 100, bedMade: 0 },
+    ]);
+  });
+
+  it("reports one event per variable even if several effects touch it, and none for a net zero", () => {
+    const s = make();
+    const log: StateChange[] = [];
+    s.onChange = (c) => log.push(c);
+    s.applyEffects([{ var: "dishes", add: 1 }, { var: "dishes", add: 1 }]);
+    expect(log).toEqual([{ id: "dishes", value: 4, previous: 2 }]);
+    log.length = 0;
+    s.applyEffects([{ var: "dishes", add: 1 }, { var: "dishes", add: -1 }]);
+    expect(log).toEqual([]);
+  });
+
+  it("changes nothing if an effect names an unknown variable", () => {
+    const s = make();
+    expect(() => s.applyEffects([{ var: "dishes", add: 1 }, { var: "nope", add: 1 }])).toThrow(/nope/);
+    expect(s.get("dishes")).toBe(2);
+  });
+
+  it("applies a tick's clock and energy before announcing either", () => {
+    const s = new ApartmentState(STATE_VARS);
+    s.applyEffects([{ var: "clock", set: 8.99 }, { var: "energy", set: 50.2 }]);
+    const log: { id: string; clock: number; energy: number }[] = [];
+    s.onChange = (c) => log.push({ id: c.id, clock: s.get("clock"), energy: s.get("energy") });
+    s.tick(60 / CLOCK.minutesPerSecond); // an hour: both cross a whole number
+    expect(log.map((l) => l.id)).toEqual(["clock", "energy"]);
+    expect(log.every((l) => l.energy === s.get("energy") && l.clock === s.get("clock"))).toBe(true);
+  });
+
+  it("reports the clock once per whole in-game hour, 24 times a day, including midnight", () => {
+    const s = new ApartmentState(STATE_VARS);
+    const hours: number[] = [];
+    s.onChange = (c) => c.id === "clock" && hours.push(Math.floor(c.value));
+    const frame = 1 / 60;
+    const dayOfFrames = Math.round((24 * 60) / CLOCK.minutesPerSecond / frame);
+    for (let i = 0; i < dayOfFrames + 5; i++) s.tick(frame); // a few frames over, for rounding
+    expect(hours.length).toBe(24);
+    expect(hours.slice(0, 3)).toEqual([9, 10, 11]); // starts at 8:00
+    expect(hours).toContain(0); // midnight is one event, not two
+    expect(hours.filter((h) => h === 0).length).toBe(1);
+    // Each event is exactly the next hour: no skipped or doubled hours.
+    hours.forEach((h, i) => expect(h).toBe((9 + i) % 24));
+    // And the exact time is always there to read.
+    expect(Math.floor(s.get("clock"))).toBe(8);
   });
 });

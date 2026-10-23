@@ -1,7 +1,7 @@
 ---
 id: 027
 title: State hardening
-status: todo
+status: review
 owner: claude
 depends_on: [021]
 ---
@@ -17,3 +17,12 @@ Fix the smaller findings from the review of issue 021 before the sound, achievem
 - Docs: a short section in `docs/` (or the issue) describing how to add a state variable, a requirement, an effect, a variant, and what events they produce.
 
 ## Progress log
+- 2026-10-23: Started. Plan: `validateLevel` checks every variable name in a room (task requires/effects/pointsBonus, cutscene set steps, variant `when`, solid `blockedWhen`); reject `wrap` with `min == max` in the `ApartmentState` constructor; apply all effects (and a tick's clock and energy) before emitting `stateChanged`; clock events by floor; docs in `docs/state.md`; tests.
+- 2026-10-23: Built, status `review`. `npm run build` passes; `npm test` 520 tests pass (was 506).
+  - **Unknown names at load:** `validateLevel(level, knownVars?)` in `level.ts` (new `validateStateNames`), defaulting to `STATE_VARS`; `Game` passes its own state, so a game with custom variables checks against those, in the constructor and in `loadLevel`. The error names the room and the task, variant or solid. Tests in `level.test.ts` (each place) and `apartment-rules.test.ts` (all real rooms and the placeholder room validate; a typo in the real task list shape fails in `parseTileMap`).
+  - **`wrap` with `min == max`:** the `ApartmentState` constructor throws.
+  - **Event timing:** `applyEffects` writes all effects, then announces one event per changed variable, in effects order (net zero: none; the same variable twice: one). It also checks every name first, so an unknown name changes nothing. `tick` applies clock and energy, then announces both. Tests in `state.test.ts` and a sleep test in `apartment-rules.test.ts`.
+  - **Clock for 009d (decision):** the event is per whole in-game hour (floor, not round): 24 a day, midnight once, value is the exact time at the crossing. For smooth lighting read `game.state.get("clock")` each frame. Time-driven energy events also use floor now, and the yawn compares raw values (matching the HUD and step slowdown). Tested for a full day.
+  - **Docs:** `docs/state.md` (add a variable, requirement, effect, variant; load-time checks; events).
+  - Files: `src/game/{state,level,game,events}.ts`, tests `src/game/{state,level,apartment-rules}.test.ts`, `docs/state.md`.
+  - **Not checked:** nothing visual changed; the yawn now fires on the raw crossing (not seen in a browser).

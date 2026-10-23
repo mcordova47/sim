@@ -88,11 +88,11 @@ export class Game {
   private readonly random: () => number;
 
   constructor(level: Level, options: GameOptions = {}) {
-    validateLevel(level);
+    this.state = options.state ?? new ApartmentState(STATE_VARS);
+    validateLevel(level, (id) => this.state.has(id));
     this.level = level;
     this.rooms = options.rooms ?? {};
     this.random = options.random ?? Math.random;
-    this.state = options.state ?? new ApartmentState(STATE_VARS);
     this.grid = new Grid(level.size, this.activeSolids());
     this.state.onChange = (change) => this.stateChanged(change);
     this.player = new Player(level.spawn.x, level.spawn.y, level.facing);
@@ -178,8 +178,8 @@ export class Game {
     // Dropping below the tired line shows a yawn over the player.
     if (
       change.id === "energy" &&
-      Math.round(change.previous) >= ENERGY.lowBelow &&
-      Math.round(change.value) < ENERGY.lowBelow
+      change.previous >= ENERGY.lowBelow &&
+      change.value < ENERGY.lowBelow
     ) {
       this.popups.add(this.player.x + TILE / 2, this.player.y, [{ text: "YAWN...", color: COLOR.mist }]);
     }
@@ -225,7 +225,7 @@ export class Game {
   // Moves the player into another room: the level, the tile and the way they
   // face. Score, combos, cooldowns, popups, events and layers carry on.
   loadLevel(level: Level, col: number, row: number, facing: Direction): void {
-    validateLevel(level);
+    validateLevel(level, (id) => this.state.has(id));
     if (!Number.isInteger(col) || !Number.isInteger(row)) {
       throw new Error(`Can't enter ${level.id ?? "the room"} at col ${col}, row ${row}: not a whole tile`);
     }

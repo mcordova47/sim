@@ -6,6 +6,8 @@ import "./activities";
 import { Grid } from "./grid";
 import type { Appearance } from "./appearance";
 import type { Interactable } from "./interactable";
+import type { Check } from "./state";
+import { STATE_VARS } from "./state-vars";
 import { boundsOf, type Rect, type Solid } from "./world";
 
 // A doorway. It is a walkable tile; stepping onto it takes the player to the
@@ -58,8 +60,12 @@ export function pieceBounds(tiles: { col: number; row: number }[]): Rect {
 // Throws if the level could not be played: a size that is not whole tiles, a
 // start that is off the map, in a wall or off the tile grid, or a doorway that
 // is not a walkable tile of the room, or a task whose `activity` is not a known
-// type with sane settings.
-export function validateLevel(level: Level): void {
+// type with sane settings, or a state variable name that does not exist
+// (`knownVars` says which do; it defaults to the real list in state-vars.ts).
+export function validateLevel(
+  level: Level,
+  knownVars: (id: string) => boolean = defaultKnownVars,
+): void {
   const { width, height } = level.size;
   const name = level.id ?? "level";
   if (!(width > 0 && height > 0) || width % TILE !== 0 || height % TILE !== 0) {
@@ -72,9 +78,44 @@ export function validateLevel(level: Level): void {
     throw new Error(`${name}: the start (col ${x / TILE}, row ${y / TILE}) is not open floor`);
   }
   for (const item of level.interactables) validateActivity(item);
+  validateStateNames(level, knownVars);
   for (const door of level.doors) {
     if (grid.isBlocked(door.col, door.row)) {
       throw new Error(`${name}: the door at col ${door.col}, row ${door.row} is blocked`);
     }
   }
+}
+
+const DEFAULT_IDS = new Set(STATE_VARS.map((v) => v.id));
+const defaultKnownVars = (id: string) => DEFAULT_IDS.has(id);
+
+// Throws, naming the room and the task or object, if anything in the level
+// refers to a state variable that does not exist: a task's `requires`,
+// `effects` and `pointsBonus`, a cutscene's `set` steps, a variant's `when`
+// and a solid's `blockedWhen`. This is what catches a typo when the level is
+// built, not when the variable is first read.
+export function validateStateNames(level: Level, known: (id: string) => boolean): void {
+  const name = level.id ?? "level";
+  const bad: string[] = [];
+  const check = (where: string, id: string) => {
+    if (!known(id)) bad.push(`${where} uses the unknown state variable "${id}"`);
+  };
+  const checks = (where: string, list: Check[] | undefined) => list?.forEach((c) => check(where, c.var));
+  for (const item of level.interactables) {
+    const task = `task "${item.id}"`;
+    for (const r of item.requires ?? []) checks(`${task} requires`, "anyOf" in r ? r.anyOf : [r]);
+    for (const e of item.effects ?? []) check(`${task} effects`, e.var);
+    if (item.pointsBonus) check(`${task} pointsBonus`, item.pointsBonus.var);
+    const steps = (item.activity as { type?: string; steps?: unknown } | undefined)?.steps;
+    if (item.activity?.type === "cutscene" && Array.isArray(steps)) {
+      for (const step of steps as { set?: { var?: unknown } }[]) {
+        if (typeof step?.set?.var === "string") check(`${task} cutscene`, step.set.var);
+      }
+    }
+  }
+  for (const { variants } of level.appearances ?? []) {
+    for (const v of variants) checks(`variant "${v.sprite}"`, v.when);
+  }
+  for (const s of level.solids) checks(`a solid at x ${s.x}, y ${s.y} blockedWhen`, s.blockedWhen);
+  if (bad.length) throw new Error(`${name}: ${bad.join("; ")}`);
 }

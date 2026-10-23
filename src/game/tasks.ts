@@ -24,10 +24,10 @@ export const TASKS: Task[] = [
   // Bed nook
   { id: 'make-bed', piece: 'bed', name: 'Make the bed', prompt: 'Make the bed', duration: 3, points: 30,
     flavor: 'It will be undone in eleven hours. Worth it.',
-    zone: { x: 0, w: 4, feetFrom: 2, feetTo: 2 } },
+    zone: { x: 0, w: 2, feetFrom: 2, feetTo: 2 } },
   { id: 'open-blinds', piece: 'bed', name: 'Open the blinds', prompt: 'Open the blinds', duration: 1, points: 10,
     flavor: 'The outside is still there. Good to know.',
-    zone: { x: 1, w: 2, feetFrom: 2, feetTo: 2 } },
+    zone: { x: 2, w: 2, feetFrom: 2, feetTo: 2 } },
   { id: 'water-plant', piece: 'bookshelf', name: 'Water the snake plant', prompt: 'Water the plant', duration: 2, points: 20,
     flavor: 'It has survived worse owners. It has not had worse owners.',
     zone: { x: 5, w: 2, feetFrom: 5, feetTo: 5 } },
@@ -60,10 +60,10 @@ export const TASKS: Task[] = [
   // Sofa
   { id: 'doomscroll', piece: 'sofa', name: 'Doomscroll', prompt: 'Doomscroll', duration: 10, points: 40,
     flavor: 'One more. Okay, one more. Where did forty minutes go.',
-    zone: { x: 15, w: 2, feetFrom: 1, feetTo: 1 } },
+    zone: { x: 15, w: 1, feetFrom: 1, feetTo: 1 } },
   { id: 'guitar', piece: 'sofa', name: 'Play three chords', prompt: 'Play guitar', duration: 5, points: 55,
     flavor: 'Same three chords. Different, slightly worse, song.',
-    zone: { x: 15, w: 2, feetFrom: 3, feetTo: 6 } },
+    zone: { x: 16, w: 1, feetFrom: 1, feetTo: 1 } },
 
   // Kitchen
   { id: 'fridge-stare', piece: 'spice-rack', name: 'Stare into the fridge', prompt: 'Open the fridge', duration: 3, points: 30,

@@ -64,3 +64,22 @@ export const PLAYER = {
   coyoteTime: 0.1,
   jumpBufferTime: 0.1,
 };
+
+// Player sprite animation. Distances are pixels, speeds are pixels per second.
+export const PLAYER_ANIM = {
+  // Horizontal distance walked per walk frame, so feet match the ground speed.
+  walkFrameDistance: 5,
+  // Below this speed on the ground the player counts as standing still.
+  walkMinSpeed: 8,
+  // Where the 16x16 frame sits relative to the hitbox (body is cols 3-12, rows 2-15).
+  offsetX: 3,
+  offsetY: 2,
+  frameSize: 16,
+  walkFrames: 4,
+};
+
+// Debug drawing, off in normal play.
+export const DEBUG = {
+  // Outline the task zones.
+  zones: false,
+};

@@ -11,7 +11,19 @@ export interface SpriteSize {
 // Sprites are loaded by name (the filename without ".png"). A missing file
 // yields a labeled rectangle instead of an error, so the game stays playable
 // while art is still being made.
-export class Sprites {
+// What the game needs to draw a sprite; tests substitute a recorder.
+export interface SpriteDrawer {
+  draw(
+    ctx: CanvasRenderingContext2D,
+    name: string,
+    x: number,
+    y: number,
+    size?: SpriteSize,
+    flip?: boolean,
+  ): void;
+}
+
+export class Sprites implements SpriteDrawer {
   private images = new Map<string, HTMLImageElement | null>();
   private placeholders = new Map<string, HTMLCanvasElement>();
 
@@ -31,9 +43,20 @@ export class Sprites {
     x: number,
     y: number,
     size: SpriteSize = { width: TILE, height: TILE },
+    flip = false,
   ): void {
-    const image = this.images.get(name);
-    ctx.drawImage(image ?? this.placeholder(name, size), Math.round(x), Math.round(y));
+    const image = this.images.get(name) ?? this.placeholder(name, size);
+    const left = Math.round(x);
+    if (flip) {
+      // Mirror inside the sprite's own cell, so the position doesn't change.
+      ctx.save();
+      ctx.translate(left + image.width, Math.round(y));
+      ctx.scale(-1, 1);
+      ctx.drawImage(image, 0, 0);
+      ctx.restore();
+    } else {
+      ctx.drawImage(image, left, Math.round(y));
+    }
   }
 
   private loadOne(name: string): Promise<void> {

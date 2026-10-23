@@ -4,7 +4,10 @@ import { COLOR } from "../render/colors";
 import { Hud } from "../render/hud";
 import { Popups, type PopupLine } from "../render/popups";
 import { drawProgress, drawPrompt } from "../render/world-ui";
-import { VIEW } from "./config";
+import { PlayerAnimator } from "../render/player-sprite";
+import { drawPlayer, drawScene } from "../render/scene";
+import type { SpriteDrawer } from "../render/sprites";
+import { DEBUG, VIEW } from "./config";
 import { InteractionSystem } from "./interaction";
 import type { Level } from "./level";
 import { Player } from "./player";
@@ -17,8 +20,13 @@ export class Game {
   readonly camera: Camera;
   private readonly hud = new Hud();
   private readonly popups = new Popups();
+  private readonly animator = new PlayerAnimator();
 
-  constructor(private readonly level: Level) {
+  // Without sprites (tests, or art not loaded) the level is drawn as plain rectangles.
+  constructor(
+    private readonly level: Level,
+    private readonly sprites?: SpriteDrawer,
+  ) {
     this.player = new Player(level.spawn.x, level.spawn.y);
     this.camera = new Camera(level.size, VIEW);
     this.camera.snapTo(this.playerCentre());
@@ -38,6 +46,7 @@ export class Game {
     this.interaction.update(dt, this.player, controls);
     // Locked in place while a task runs.
     this.player.update(dt, this.interaction.busy ? NO_INPUT : controls, this.level.solids);
+    this.animator.update(dt, this.poseState());
     this.camera.update(dt, this.playerCentre());
     this.popups.update(dt);
     this.hud.update(dt, this.interaction.scoreboard.score);
@@ -74,24 +83,39 @@ export class Game {
     return { x: this.player.x + this.player.w / 2, y: this.player.y + this.player.h / 2 };
   }
 
+  private poseState() {
+    const { player } = this;
+    return { grounded: player.grounded, vx: player.vx, vy: player.vy, busy: !!this.interaction.busy };
+  }
+
+  // Back to front: walls, decor, furniture, player. Task zones only show in debug.
   private drawWorld(ctx: CanvasRenderingContext2D, actor: Actor): void {
-    for (const s of this.level.solids) {
-      ctx.fillStyle = s.oneWay ? COLOR.mist : COLOR.dusk;
-      ctx.fillRect(s.x, s.y, s.w, s.h);
+    const { sprites } = this;
+    const { scene } = this.level;
+    if (sprites && scene) {
+      drawScene(ctx, scene, sprites);
+    } else {
+      for (const s of this.level.solids) {
+        ctx.fillStyle = s.oneWay ? COLOR.mist : COLOR.dusk;
+        ctx.fillRect(s.x, s.y, s.w, s.h);
+      }
     }
 
-    ctx.globalAlpha = 0.25;
-    ctx.fillStyle = COLOR.butter;
-    for (const item of this.level.interactables) {
-      ctx.fillRect(item.zone.x, item.zone.y, item.zone.w, item.zone.h);
+    if (DEBUG.zones) {
+      ctx.strokeStyle = COLOR.butter;
+      for (const item of this.level.interactables) {
+        const z = item.zone;
+        ctx.strokeRect(z.x + 0.5, z.y + 0.5, z.w - 1, z.h - 1);
+      }
     }
-    ctx.globalAlpha = 1;
 
-    ctx.fillStyle = COLOR.brick;
-    ctx.fillRect(actor.x, actor.y, actor.w, actor.h);
-    // Eye on the facing side so direction is visible.
-    ctx.fillStyle = COLOR.paper;
-    ctx.fillRect(actor.x + (this.player.facing > 0 ? actor.w - 3 : 1), actor.y + 3, 2, 2);
+    if (sprites) {
+      const frame = this.animator.frame(this.poseState());
+      drawPlayer(ctx, sprites, frame, actor.x, actor.y, this.player.facing);
+    } else {
+      ctx.fillStyle = COLOR.brick;
+      ctx.fillRect(actor.x, actor.y, actor.w, actor.h);
+    }
   }
 
   // `actor` is in screen coordinates; `cam` is the world position of the

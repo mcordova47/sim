@@ -31,7 +31,9 @@ In a task (in `tasks.ts`, or in a tile-map legend):
 { set: { var: "bedMade", value: 1 } } // set a state variable (a flag), clamped to its range
 ```
 
-The answer of the last `ask` is passed on as the result's `data` (and in the completion event). Every step is checked when the level is built.
+The answer of the last `ask` is passed on as the result's `data` (and in the completion event). Every step is checked when the level is built. A `set` step must name a state variable the game knows (an unknown one is rejected at load, naming the task), so it cannot fail halfway through a scene. `set` steps apply as they run and stay applied if the scene is skipped with Escape; they are not rolled back.
+
+A `walk` that ends on or crosses a door tile enters the door (the player is moved to the other room) and the remaining steps, including later steps of the scene, run in the new room, from where the door put the player. The walk does not stop at doors. A test pins this.
 
 Steps that take no time (a cue, a turn) run in the same update as the next step. Escape skips the rest of the scene, which still counts as finishing it.
 
@@ -72,6 +74,8 @@ Import it from `src/game/activities/index.ts` so it is registered. Rules:
 - Movement keys do not move the player while an activity runs. Escape is the back-out key; X is a letter.
 - To walk the player (a cutscene), set `playerControls` to a `Controls` with a `dir`; set it back to `null` to stop.
 - Put tunable numbers in `config.ts`.
+- `draw` is called every frame while the task runs; one that throws is reported and cancels the task, like a throwing `update`.
+- Settings must be the right type: `count` and `lines` must be numbers, not text like `"3"`.
 - `fakeHost()` in `activities/fake-host.ts` lets you test an activity without a game.
 
 While a dialog is open (for example one a cutscene opened), the running activity's `update` is not called and the game clock stands still (`DIALOG.pauseClock`, true by default; if set false, `update` is called with no input), so a cutscene's text can't be skipped past by timing and a mini-game doesn't run behind a dialog. The dialog owns Escape: Escape inside a cutscene's own dialog closes that dialog and the scene goes on to its next step; Escape skips the scene only while no dialog is open.

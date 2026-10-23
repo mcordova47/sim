@@ -7,6 +7,7 @@ import { NotesActivity, SNIPPETS, TypingActivity } from "./activities";
 import { CutsceneActivity } from "./activities/cutscene";
 import { fakeHost } from "./activities/fake-host";
 import type { GameEvents } from "./events";
+import { ApartmentState } from "./state";
 import { Game } from "./game";
 import { InteractionSystem } from "./interaction";
 import type { Interactable } from "./interactable";
@@ -266,5 +267,107 @@ describe("mini-game boxes fit the screen", () => {
     }
     // The text sits inside the typing box.
     expect(textWidth(widest) + 16).toBeLessThanOrEqual(VIEW.width);
+  });
+});
+
+describe("a throwing draw cancels the task", () => {
+  class BadDraw extends BaseActivity {
+    cancellable = true;
+    update(): void {}
+    draw(): void {
+      throw new Error("draw boom");
+    }
+  }
+  it("is reported, cancelled like a throwing update, and the loop runs on", () => {
+    const err = vi.spyOn(console, "error").mockImplementation(() => {});
+    registerActivity("bad-draw", () => new BadDraw());
+    try {
+      const t: Task = { id: "d", name: "D", prompt: "D", ...base, effects: [{ var: "dishes", add: 5 }], activity: { type: "bad-draw" } };
+      const game = new Game(room(t));
+      const log = listen(game);
+      const ctx = new Proxy({}, { get: () => () => {}, set: () => true }) as unknown as CanvasRenderingContext2D;
+      vi.stubGlobal("document", { createElement: () => ({ width: 0, height: 0, getContext: () => ctx }) });
+      run(game, 0.2);
+      game.update(dt, press);
+      expect(game.interaction.busy).toBe(true);
+      expect(() => game.render(ctx, 0)).not.toThrow();
+      expect(err).toHaveBeenCalled();
+      expect(game.interaction.busy).toBe(false);
+      expect(log).toEqual(["taskStart", "taskCancelled"]);
+      expect(game.state.get("dishes")).toBe(1);
+      expect(game.interaction.cooldownRemaining(t as Interactable)).toBe(0);
+      expect(() => game.render(ctx, 0)).not.toThrow();
+      run(game, 0.5, { ...NO_INPUT, dir: "down" });
+      expect(game.player.row).toBeGreaterThan(2);
+    } finally {
+      vi.unstubAllGlobals();
+      unregisterActivity("bad-draw");
+    }
+  });
+});
+
+describe("strict numbers and state names at load", () => {
+  const level = (activity: unknown) =>
+    parseTileMap(["###", "#@X", "###"], { X: { tasks: [{ id: "t", name: "T", prompt: "T", ...base, activity } as Task] } });
+  it("rejects numeric strings and other non-numbers", () => {
+    for (const bad of ["3", true, null, [3], {}]) {
+      expect(() => new Game(level({ type: "notes", count: bad })), String(bad)).toThrow(/Task "t": notes/);
+      expect(() => new Game(level({ type: "typing", lines: bad })), String(bad)).toThrow(/Task "t": typing/);
+    }
+    expect(() => new Game(level({ type: "notes", count: 3 }))).not.toThrow();
+    expect(() => new Game(level({ type: "typing", lines: 3 }))).not.toThrow();
+  });
+  it("rejects a cutscene set of an unknown variable, naming the task", () => {
+    const steps = [{ set: { var: "bedMade", value: 1 } }, { set: { var: "nope", value: 1 } }];
+    expect(() => new Game(level({ type: "cutscene", steps }))).toThrow(/Task "t", cutscene step 2: set names an unknown state variable "nope"/);
+    expect(() => new Game(level({ type: "cutscene", steps: [steps[0]] }))).not.toThrow();
+  });
+  it("checks against the game's own state variables", () => {
+    const state = new ApartmentState([{ id: "mood", initial: 0, min: 0, max: 5, meaning: "m" }]);
+    const steps = [{ set: { var: "mood", value: 2 } }];
+    expect(() => new Game(level({ type: "cutscene", steps }), { state })).not.toThrow();
+    expect(() => new Game(level({ type: "cutscene", steps: [{ set: { var: "dishes", value: 1 } }] }), { state })).toThrow(/unknown state variable/);
+  });
+});
+
+describe("a scripted walk onto a door tile", () => {
+  const door = (to: string, col: number, row: number, facing: "left" | "right") => ({ to, arrive: { col, row, facing } });
+  const walker = (walk: "right"[]): Task => ({
+    id: "walker", name: "Walk", prompt: "Walk", ...base,
+    activity: { type: "cutscene", steps: [{ walk }, { set: { var: "bedMade", value: 1 } }] },
+  });
+  const rooms = (walk: "right"[], doorCol: number) => {
+    const a = parseTileMap(
+      ["#X....#", "#@....#"].map((r) => r.slice(0, 7)),
+      { X: { tasks: [walker(walk)] }, "1": { door: door("b", 1, 1, "right") } },
+      { id: "a" },
+    );
+    // Put the door tile in row 1 at doorCol.
+    const rows = ["#X....#", "#@....#"].map((r, i) => (i === 1 ? r.slice(0, doorCol) + "1" + r.slice(doorCol + 1) : r));
+    const withDoor = parseTileMap(rows, { X: { tasks: [walker(walk)] }, "1": { door: door("b", 1, 1, "right") } }, { id: "a" });
+    const b = parseTileMap(["#####", "#.@.#", "#####"], {}, { id: "b" });
+    void a;
+    const game = new Game({ ...withDoor, facing: "up" }, { rooms: { a: withDoor, b } });
+    const entered: string[] = [];
+    game.events.on("room", (e) => entered.push(e.id));
+    run(game, 0.2);
+    game.update(dt, press);
+    run(game, 4);
+    return { game, entered };
+  };
+
+  it("ending on the door enters it, and the later steps run in the new room", () => {
+    const { game, entered } = rooms(["right", "right", "right"], 4);
+    expect(entered).toEqual(["b"]);
+    expect(game.interaction.busy).toBe(false);
+    expect(game.state.get("bedMade")).toBe(1);
+    expect([game.player.col, game.player.row]).toEqual([1, 1]);
+  });
+
+  it("crossing a door carries the rest of the walk into the new room", () => {
+    const { game, entered } = rooms(["right", "right", "right", "right"], 3);
+    expect(entered).toEqual(["b"]);
+    expect(game.state.get("bedMade")).toBe(1);
+    expect([game.player.col, game.player.row]).toEqual([3, 1]);
   });
 });

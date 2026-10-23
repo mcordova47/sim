@@ -112,8 +112,8 @@ export class TypingActivity extends BaseActivity {
 }
 
 function lineCount(spec: Record<string, unknown>, item: { id: string }): number {
-  const count = spec.lines === undefined ? TYPING.lines : Number(spec.lines);
-  if (!Number.isInteger(count) || count < 1 || count > TYPING.maxLines) {
+  const count = spec.lines === undefined ? TYPING.lines : spec.lines;
+  if (typeof count !== "number" || !Number.isInteger(count) || count < 1 || count > TYPING.maxLines) {
     throw new Error(
       `Task "${item.id}": typing needs a whole number of lines, 1 or more and at most ${TYPING.maxLines}`,
     );

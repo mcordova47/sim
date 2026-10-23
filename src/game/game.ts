@@ -88,11 +88,11 @@ export class Game {
   private readonly random: () => number;
 
   constructor(level: Level, options: GameOptions = {}) {
-    validateLevel(level);
+    this.state = options.state ?? new ApartmentState(STATE_VARS);
+    validateLevel(level, this.validation());
     this.level = level;
     this.rooms = options.rooms ?? {};
     this.random = options.random ?? Math.random;
-    this.state = options.state ?? new ApartmentState(STATE_VARS);
     this.grid = new Grid(level.size, this.activeSolids());
     this.state.onChange = (change) => this.stateChanged(change);
     this.player = new Player(level.spawn.x, level.spawn.y, level.facing);
@@ -136,6 +136,11 @@ export class Game {
     });
     this.interaction.onBlocked = (item, reason, message) =>
       this.events.emit("taskBlocked", { item, reason, ...(message && { message }) });
+  }
+
+  // What level checks may ask of this game.
+  private validation(): { hasState(id: string): boolean } {
+    return { hasState: (id) => this.state.has(id) };
   }
 
   // What activities (cutscenes, dialogs, mini-games) are allowed to ask of the game.
@@ -225,7 +230,7 @@ export class Game {
   // Moves the player into another room: the level, the tile and the way they
   // face. Score, combos, cooldowns, popups, events and layers carry on.
   loadLevel(level: Level, col: number, row: number, facing: Direction): void {
-    validateLevel(level);
+    validateLevel(level, this.validation());
     if (!Number.isInteger(col) || !Number.isInteger(row)) {
       throw new Error(`Can't enter ${level.id ?? "the room"} at col ${col}, row ${row}: not a whole tile`);
     }
@@ -311,10 +316,22 @@ export class Game {
     this.drawWorldUi(ctx, { ...actor, x: actor.x - cam.x, y: actor.y - cam.y }, cam);
     this.drawHud(ctx);
     // A mini-game's own picture, then any dialog on top of it.
-    this.interaction.active?.activity.draw?.(ctx, VIEW);
+    this.drawActivity(ctx);
     const dialogView = this.dialog.view;
     if (dialogView) drawDialog(ctx, dialogView);
     this.eachLayer((layer) => this.drawLayer(ctx, () => layer.drawHud?.(ctx), layer.drawHud));
+  }
+
+  // A mini-game's picture. One that throws cancels its task (like a throwing
+  // `update`) and the loop carries on.
+  private drawActivity(ctx: CanvasRenderingContext2D): void {
+    const active = this.interaction.active;
+    if (!active?.activity.draw) return;
+    try {
+      active.activity.draw(ctx, VIEW);
+    } catch (error) {
+      this.interaction.abandonActive(error);
+    }
   }
 
   // Runs `fn` for each layer, in order. It works on a snapshot, so layers can

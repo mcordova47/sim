@@ -1,6 +1,6 @@
 import type { Controls } from "../../input/controls";
 import { NO_INPUT } from "../../input/controls";
-import { BaseActivity, needHost, registerActivity, type ActivityHost } from "../activity";
+import { BaseActivity, needHost, registerActivity, type ActivityHost, type ValidationContext } from "../activity";
 import { say, type DialogNode, type DialogResult } from "../dialog";
 import { DIRECTIONS, type Direction } from "../direction";
 
@@ -145,7 +145,7 @@ export class CutsceneActivity extends BaseActivity {
   }
 }
 
-function validateStep(step: unknown, where: string): void {
+function validateStep(step: unknown, where: string, context?: ValidationContext): void {
   const bad = (why: string) => {
     throw new Error(`${where}: ${why}`);
   };
@@ -176,22 +176,24 @@ function validateStep(step: unknown, where: string): void {
       const v = s.set as { var?: unknown; value?: unknown } | null;
       if (!v || typeof v.var !== "string" || typeof v.value !== "number" || !Number.isFinite(v.value)) {
         bad("set needs { var, value } with a variable name and a number");
+      } else if (context && !context.hasState(v.var as string)) {
+        bad(`set names an unknown state variable "${v.var}"`);
       }
     }
   }
 }
 
-function validate(spec: Record<string, unknown>, item: { id: string }): CutsceneStep[] {
+function validate(spec: Record<string, unknown>, item: { id: string }, context?: ValidationContext): CutsceneStep[] {
   const steps = spec.steps;
   if (!Array.isArray(steps) || steps.length === 0) {
     throw new Error(`Task "${item.id}": a cutscene needs a list of steps, one or more`);
   }
-  steps.forEach((step, i) => validateStep(step, `Task "${item.id}", cutscene step ${i + 1}`));
+  steps.forEach((step, i) => validateStep(step, `Task "${item.id}", cutscene step ${i + 1}`, context));
   return steps as CutsceneStep[];
 }
 
 registerActivity(
   "cutscene",
   (spec, item, host) => new CutsceneActivity(validate(spec, item), needHost(host, `Task "${item.id}"`)),
-  (spec, item) => void validate(spec, item),
+  (spec, item, context) => void validate(spec, item, context),
 );

@@ -1,7 +1,7 @@
 ---
 id: 061
 title: Admire the art: zoom in on a piece and comment very seriously
-status: review
+status: done
 owner: marc + claude
 depends_on: []
 ---
@@ -54,3 +54,15 @@ Marc's gag ideas (2026-10-23): (1) the Ferris Bueller painting zoom: the view pu
   - Not verified: browser feel (push timing, reading speed; my frames are screenshots at set delays), night tint. Marc plays it and reads the lines. PLAN.md table needs updating by the planner.
 
 - 2026-10-23: Marc played it: likes the gag, wants it less self-aware. Rewrote all thirty lines in `src/game/art-pieces.ts` in a sincere, slightly pompous critic's voice (restraint, patience, economy, tension, what the work asks of the viewer); no mention of pixels, squares, scale, zoom or the game, and no concrete colour or shape claims that could contradict the picture. The 8x line is in the same voice. Test added: no line may match pixel, square, block, scale, zoom, resolution, closer, grid, bitmap, sprite, game or screen; the font-safe, three-lines and length checks stay. Zoom mechanics untouched. `npm test` (1327) and `tsc` pass; rendered piece 0 at 4x (2x and 4x frames) and the longest lines (121 characters) fit the dialog box. Status back to review for a new independent review; the earlier approval was for the old text.
+
+- 2026-10-23: Review round 3 (independent reviewer, text rewrite): verdict APPROVE.
+  - Ran: `npm test` 1327 pass, `npm run build` pass. Diff since the round-2 approval (4d824a1): only `src/game/art-pieces.ts` (text), one line in `src/game/art-zoom.test.ts` (new medium-word ban) and this file. Zoom mechanics, cutscene, view-zoom, tasks, state-vars untouched.
+  - Text: 30 lines (10 pieces x 3), longest 121 chars, all font-safe (test plus my own count). Read all thirty myself: none mentions pixels, squares, blocks, scale, resolution, zoom, a game, a screen, sprites or the picture breaking up (also grepped for dot, grid, closer, bitmap: none). No artist, brand or personal names. Every last line is sincere (quiet, still, "harder to do than it looks").
+  - Against the wall picture (`view-gallery-wall.png` at 4x, viewed): lines make no colour claim that contradicts a piece. Landscape, tall-brown (dark around a warm centre), small-blue, oak-box (brown frame), pale-mat (wide mat, three small notes), animal (faces left, orange ground), still life, gold frame, dark postcard all match.
+  - Rendered in the real game headless (own dev server, stopped; start piece rewritten in a throwaway copy only), pieces 1, 5, 8 at wall, 2x, 4x, 8x and the return to the room, with the dialog advanced by E. Longest lines (3 dialog rows) fit above/inside the box, "ESC TO STOP" clear, the focus object stays visible above the dialog at every level, room returns, score +25 as before.
+  - Merge: in a throwaway clone of main (now at 791eb62, 059 merged): `git merge --no-commit` was clean (no conflicts, tasks.ts and state-vars.ts auto-merged, artPiece after recordSort); merged result builds and `npm test` 1491 pass. Real main not touched.
+  - Small leftovers, not blocking (for the text pass 037):
+    - [ ] Piece 8 `gold-narrow` line 1: "a single vertical gesture divides the field" overclaims; the mark is a small vertical block in the middle of the mat, it does not divide anything.
+    - [ ] Piece 2 `white-building`: "A building" and "one warm note governs" are shape and colour claims the picture does not back (it reads as a red and yellow object on a checkerboard; red and yellow are both warm).
+    - [ ] Piece 9 line 1 "low on the left" is true of the wall position only; fine.
+  - Not verified: browser feel (push timing, reading speed), night tint. PLAN.md table needs updating by the planner.

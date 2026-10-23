@@ -1,7 +1,7 @@
 ---
 id: 057
 title: Bookshelf top order; guitar pose shows the neck
-status: done
+status: review
 owner: agent
 depends_on: []
 ---
@@ -34,3 +34,4 @@ From Marc's playtest (2026-10-23):
   - **Scope/conventions/privacy: pass.** Only the bookshelf and guitar sprites and PNGs, `poses.ts`, two tests, `docs/art-style.md` and the issue file changed. No PLAN.md edits, nothing copied from reference photos.
   - **Unverified:** feel in a live browser; whether Marc likes the look. Observations for Marc: at 1x the neck is a thin 2 px line and the body reads as a plain cream blob with no visible arms; the neck emerges near the chin. Acceptable but he may want a polish pass.
   - PLAN.md table needs updating by the planner.
+- 2026-10-23 (agent, round 2 after Marc's playtest note): bookshelf top is kept. Marc is right-handed, so `player-guitar` is mirrored across the vertical axis: the player is now on the left 16 px (col 1, row 4) and the neck, hand and headstock run east over col 2, row 4 (floor above the sofa's west arm, which starts one row lower). `poses.ts`: `at` x 0, y -16 (size 32x48 unchanged); `poses.test.ts` now expects x 16, y 64; `docs/art-style.md` and the sprite header updated. Rendered the real game at 1x, 4x and 12x: the neck, headstock and the hand on the neck show, are drawn in front of the floor and clear of the sofa; the plain player and held-guitar overlay are not drawn while the pose plays (no double). I did not reuse the mirrored hanging `guitar` sprite: the lap-held body already reads as a guitar and the earlier look stays consistent with it. `npm test` and `npm run build` pass. Needs a fresh review (the earlier approval was for the west-facing neck).

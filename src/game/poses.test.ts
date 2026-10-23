@@ -69,7 +69,7 @@ describe("doing poses", () => {
     ["doomscroll", 5, 4, "down", {}, "player-sit-sofa", 93, 80],
     ["work", 6, 3, "up", {}, "player-type-desk", 128, 32],
     ["drink-coffee", 2, 3, "up", { mug: 1 }, "player-eat-table", 40, 32],
-    ["guitar", 1, 4, "down", {}, "player-guitar", 0, 64],
+    ["guitar", 1, 4, "down", {}, "player-guitar", 16, 64],
     ["sleep", 11, 4, "right", { bedMade: 1, energy: 10 }, "player-sleep-bed", 192, 32],
   ];
 

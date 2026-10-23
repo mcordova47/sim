@@ -1,9 +1,9 @@
 ---
 id: 009d
 title: "Polish: time of day"
-status: blocked
+status: todo
 owner: agent
-depends_on: [017]
+depends_on: []
 ---
 
 ## Goal
@@ -34,7 +34,14 @@ The clock now lives in the apartment state (issue 021: `CLOCK` in `config.ts`, t
 ## Note from the 018 review
 The canvas reset between layers covers the transform, `globalAlpha` and the compositing mode only. A layer that sets `clip`, `shadowBlur`, `filter` or similar and doesn't balance its own `save`/`restore` can leave those set for the layers after it. Balance your own `save`/`restore` (the game also wraps each draw hook in one), and if this feature uses clipping, shadows or filters, say so in the progress log so the reset can be widened.
 
-## Blocked on the top-down switch
-On 2026-10-22 the game changed direction from a side-view platformer to a top-down, Pokemon-style game (issues 019 onward). Do not start this issue yet. It needs revisiting once the foundation (019) is in: the `jump` and `land` events no longer exist (they become `step` and `bump`), the particles and sounds the issue describes need to suit walking, and the day and night cycle should build on the clock from the apartment state (021). The planner will rewrite the affected criteria before releasing it.
+## Current state of the game (2026-10-23, replaces the old "blocked" note)
+The game is top-down and the clock already exists (apartment state, `clock`, formatted in a HUD clock panel; `CLOCK` in `config.ts`). Changes since this issue was written:
+- Events: `step` and `bump` replace `jump` and `land`. The `stateChanged` event for `clock` fires once per whole in-game hour (floor), and a multi-hour jump (sleep adds 7) gives one event; for smooth lighting read `game.state.get("clock")` every frame instead of listening. See `docs/state.md`.
+- The clock is saved with the rest of the apartment state (009c), so a reload resumes the same hour.
+- Lighting: a layer drawn inside the camera transform after the world and before the HUD, with a softer or no tint over dialogs, activity views and the HUD. Every full-screen view (`view` picture from issue 040, dialogs) must stay legible. Use only palette colors with alpha; no sudden jumps at midnight (the clock wraps).
+- Light comes from windows: if it is easy, let the blinds (state `blinds`, issue 035) change how much daylight reaches the room, and add a faint lamp glow at night near the lamp table and the desk; keep these optional extras small and listed in the log.
+- The tint must not hide sprites the way a flat overlay would: check the room at every hour at 1x, in all three rooms (kitchen and bath have no windows in the map; decide whether they follow the outside hour).
+- Task bonus hours (good hours per task) must use the existing `pointsBonus` and award popup code paths; add hours to the real tasks, including the new ones (nap, coffee and drink-coffee in the morning, mirror, etc.) with sensible values. `mood` (038) is a separate nudge; do not change it here.
+- Marc finds some text too jokey (issue 037); keep the popup wording plain.
 
 ## Progress log

@@ -1,12 +1,12 @@
 import type { Level } from "../game/level";
 import { TASKS } from "../game/tasks";
-import { PLAYER_SPRITES } from "./player-sprite";
+import { HELD_SPRITES, OUTFIT_SPRITES, PLAYER_SPRITES, POSE_SPRITES } from "./player-sprite";
 
 // Every sprite the game can ask for in these rooms: floors, wall and doorway
-// tiles, pieces, every look of an object that changes, and the player. Used to
+// tiles, pieces, every look of an object that changes, the player in every outfit, the doing poses and the held items. Used to
 // load them before the first frame and to check that each one has a file.
 export function spriteNames(rooms: Iterable<Level>): string[] {
-  const names = new Set<string>(PLAYER_SPRITES);
+  const names = new Set<string>([...PLAYER_SPRITES, ...OUTFIT_SPRITES, ...POSE_SPRITES, ...HELD_SPRITES]);
   for (const level of rooms) {
     if (level.floor) names.add(level.floor.sprite);
     for (const wall of level.walls ?? []) {

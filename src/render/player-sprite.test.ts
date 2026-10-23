@@ -29,3 +29,20 @@ describe("playerFrame", () => {
     expect(new Set(PLAYER_SPRITES).size).toBe(12);
   });
 });
+
+describe("playerFrame in another outfit", () => {
+  it("uses the outfit's prefix for idle and walk frames", () => {
+    expect(playerFrame("down", false, 0, () => true, "player-casual").name).toBe("player-casual-idle-down");
+    expect(playerFrame("up", true, 1, () => true, "player-out").name).toBe("player-out-walk-up-2");
+  });
+
+  it("mirrors the outfit's right frame for left when only that is missing", () => {
+    const noLeft = (n: string) => !n.includes("-left");
+    expect(playerFrame("left", false, 0, noLeft, "player-pajamas")).toEqual({ name: "player-pajamas-idle-right", flip: true });
+  });
+
+  it("draws the everyday clothes when the outfit has no art for the frame", () => {
+    const homeOnly = (n: string) => !n.startsWith("player-casual");
+    expect(playerFrame("right", true, 0, homeOnly, "player-casual")).toEqual({ name: "player-walk-right-1", flip: false });
+  });
+});

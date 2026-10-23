@@ -34,6 +34,13 @@ export interface Interactable {
   // `activity: { type: "dialog" }`: the task is over, and scores, when the
   // dialog closes (and not at all if the player backs out of it).
   dialog?: DialogNode;
+  // The pose the player takes while it runs (a key of POSES in poses.ts). It
+  // plays only at the piece the pose belongs to; anywhere else, or with the
+  // art missing, the plain player is drawn.
+  pose?: string;
+  // An item shown in the player's hands while it runs (poses.ts), when no pose
+  // is drawn.
+  held?: string;
   // The tiles of the object, as one rectangle per tile (so an L-shaped counter
   // is exactly its tiles). It is used by standing next to a tile and facing it.
   zones: Rect[];

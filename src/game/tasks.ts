@@ -241,6 +241,24 @@ const MIRRORS: Task[] = [
   ]),
 ];
 
+// How the player looks while a task runs (issue 045): a `pose` (a scene over
+// the furniture they face) and/or a `held` item. See poses.ts. A pose plays only
+// at the piece it belongs to, so doomscroll sits on the sofa but not on the bed;
+// `held` is what is drawn when there is no pose.
+const LOOKS: Record<string, Pick<Task, "pose" | "held">> = {
+  doomscroll: { pose: "sit-sofa" },
+  "work-sofa": { pose: "sit-sofa", held: "laptop" },
+  nap: { pose: "sit-sofa" },
+  "work-bed": { held: "laptop" },
+  work: { pose: "type-desk", held: "laptop" },
+  journal: { held: "book" },
+  guitar: { pose: "guitar", held: "guitar" },
+  sleep: { pose: "sleep-bed" },
+  "drink-coffee": { pose: "eat-table", held: "mug" },
+  "eat-dinner": { pose: "eat-table" },
+  reheat: { pose: "eat-table" },
+};
+
 // Tasks that need the state or a dialog, so they are not in the content list above.
 const EXTRA: Task[] = [
   {
@@ -281,4 +299,6 @@ const EXTRA: Task[] = [
   },
 ];
 
-export const TASKS: Task[] = [...CONTENT.map((t) => ({ ...t, ...STATE_RULES[t.id] })), ...EXTRA];
+export const TASKS: Task[] = [...CONTENT.map((t) => ({ ...t, ...STATE_RULES[t.id] })), ...EXTRA].map(
+  (t) => ({ ...t, ...LOOKS[t.id] }),
+);

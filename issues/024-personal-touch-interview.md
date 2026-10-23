@@ -1,7 +1,7 @@
 ---
 id: 024
 title: Personal touch interview
-status: in-progress
+status: review
 owner: marc + agent
 depends_on: []
 ---
@@ -36,3 +36,4 @@ Make the game feel like Marc's life, not a generic one. An agent interviews Marc
 
 - 2026-10-22: Started. Plan: interview Marc one question at a time across the themes, then write docs/about-marc.md, docs/tasks-v2.md and the character brief for his approval. Documents only.
 - 2026-10-23: Interview done (9 questions, themes covered: day, work, work spots, music, reading and listening, side projects, tone, character, boundaries). Habits and small objects left open at Marc's request. Drafted `docs/about-marc.md`, `docs/tasks-v2.md` and `docs/character-brief.md` in the worktree, **not committed**: Marc must read and edit about-marc.md first. Waiting on Marc's approval before committing and requesting review. Not checked: whether the tone is right and whether any task is wrong (his call).
+- 2026-10-23: Marc read and approved all three docs ("looks great"). Set status: review. Files: docs/about-marc.md, docs/tasks-v2.md, docs/character-brief.md. Open items left in tasks-v2.md for later: song names, book/album picks, more habits. Not independently checked yet.

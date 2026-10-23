@@ -1,5 +1,7 @@
 import { COLOR } from "../../render/colors";
-import { drawText } from "../../render/font";
+import { drawText, textWidth } from "../../render/font";
+import type { SpriteDrawer } from "../../render/sprites";
+import { GOOD_HOUR_ICON, GOOD_HOUR_ICON_SIZE } from "../../render/world-ui";
 import { VIEW } from "../config";
 import type { Achievement } from "./data";
 import type { ToastView } from "./toasts";
@@ -41,7 +43,11 @@ export interface ListView {
   cursor: number;
   // A line to show instead of the usual hint, for example the reset question.
   message: string | null;
+  // Where the legend's icon comes from; without it (or the sprite) there is no legend.
+  sprites?: SpriteDrawer;
 }
+
+export const LEGEND_TEXT = "GOOD HOUR: 1.5X POINTS";
 
 // The list of achievements: a full-screen panel, locked ones as "???".
 export function drawList(ctx: CanvasRenderingContext2D, view: ListView): void {
@@ -49,6 +55,13 @@ export function drawList(ctx: CanvasRenderingContext2D, view: ListView): void {
   ctx.fillRect(0, 0, VIEW.width, VIEW.height);
   const done = view.achievements.filter((a) => view.unlocked(a.id)).length;
   drawText(ctx, `ACHIEVEMENTS ${done}/${view.achievements.length}`, 6, 5, { color: COLOR.butter });
+
+  // Legend for the clock icon the prompt and the award popup use.
+  if (view.sprites?.has(GOOD_HOUR_ICON)) {
+    const x = VIEW.width - 6 - textWidth(LEGEND_TEXT);
+    view.sprites.draw(ctx, GOOD_HOUR_ICON, x - GOOD_HOUR_ICON_SIZE - 3, 4);
+    drawText(ctx, LEGEND_TEXT, x, 5, { color: COLOR.mist, shadow: null });
+  }
 
   const perColumn = Math.ceil(view.achievements.length / LIST_LAYOUT.columns);
   const columnWidth = Math.floor((VIEW.width - 12) / LIST_LAYOUT.columns);

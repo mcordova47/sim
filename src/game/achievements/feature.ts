@@ -228,6 +228,7 @@ export class AchievementsFeature implements Layer {
         unlocked: (id) => this.unlocks.has(id),
         cursor: this.cursor,
         message: this.confirmReset ? "RESET ALL PROGRESS? Y: YES" : null,
+        sprites: this.game.sprites,
       });
     }
   }

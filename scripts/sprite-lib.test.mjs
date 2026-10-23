@@ -13,6 +13,19 @@ describe("parseSprite", () => {
   it("rejects sizes that are not a tile multiple", () => {
     expect(sprite("a", "16x20", Array(20).fill(row("1"))).errors.join()).toMatch(/multiple/);
   });
+  it("lets icon-* sprites be any size, but not other names", () => {
+    const rows = Array(9).fill(row("1", 9));
+    expect(sprite("icon-good-hour", "9x9", rows).errors).toEqual([]);
+    expect(sprite("good-hour", "9x9", rows).errors.join()).toMatch(/multiple/);
+  });
+  it("has the real icon sprite at 9x9, rendered to a 9x9 png", () => {
+    const text = readFileSync(join(root, "art", "src", "icon-good-hour.sprite"), "utf8");
+    const parsed = parseSprite("icon-good-hour.sprite", text);
+    expect(parsed.errors).toEqual([]);
+    expect([parsed.width, parsed.height]).toEqual([9, 9]);
+    const png = readFileSync(join(root, "public", "sprites", "icon-good-hour.png"));
+    expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([9, 9]);
+  });
   it("rejects unknown palette keys", () => {
     const rows = Array(16).fill(row("1"));
     rows[3] = "1".repeat(15) + "z";

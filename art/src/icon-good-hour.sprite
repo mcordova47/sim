@@ -1,0 +1,12 @@
+# Good-hour icon: a small clock (butter face, ink hands) with a paper glint. 9x9, not a tile.
+# Drawn next to the task prompt and the award popup when a task is done at its best hour.
+size: 9x9
+..11111..
+.1ddddd1.
+1d6d1ddd1
+1ddd1ddd1
+1ddd111d1
+1ddddddd1
+1ddddddd1
+.1ddddd1.
+..11111..

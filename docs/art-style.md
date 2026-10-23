@@ -17,7 +17,7 @@ Early Game Boy Pokemon: the camera looks at the room from slightly above and in 
 
 ## Grid
 - **Tile size: 16x16 px** (`TILE` in `src/game/config.ts`).
-- Every sprite's width and height is a multiple of 16. The pipeline rejects anything else.
+- Every sprite's width and height is a multiple of 16. The pipeline rejects anything else, except small UI icons named `icon-*` (such as `icon-good-hour`, 9x9), which are drawn at their own size in the HUD and popups, never on the grid.
 - **The player is 16x16, one tile** (decided with Marc, 2026-10-22). No pipeline change was needed.
 - The screen shows whole numbers of tiles and is only ever scaled by whole numbers, so pixels stay crisp.
 

@@ -35,7 +35,9 @@ export function parseSprite(file, text) {
   const width = Number(m[1]);
   const height = Number(m[2]);
 
-  if (width % TILE || height % TILE) {
+  // Small UI icons (`icon-*`) are drawn at their own size, not on the tile grid.
+  const isIcon = file.startsWith("icon-");
+  if (!isIcon && (width % TILE || height % TILE)) {
     errors.push(`${file}: size ${width}x${height} is not a multiple of the ${TILE}px tile`);
   }
   if (lines.length !== height) {

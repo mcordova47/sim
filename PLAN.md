@@ -59,7 +59,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 020 | [Top-down floor plan of the apartment](issues/020-topdown-floor-plan.md) | marc + agent | todo | 019 |
 | 021 | [Apartment state and tasks that change it](issues/021-apartment-state.md) | claude | done | 019 |
 | 022 | [Activities, mini-games and cutscenes](issues/022-activities.md) | claude | todo | 019 |
-| 023 | [Dialog box and choice menus](issues/023-dialog-and-menus.md) | claude | todo | 019 |
+| 023 | [Dialog box and choice menus](issues/023-dialog-and-menus.md) | claude | done | 019 |
 | 024 | [Personal touch interview](issues/024-personal-touch-interview.md) | marc + agent | todo | |
 | 025 | [Top-down art spec](issues/025-topdown-art-spec.md) | marc + agent | done | |
 | 026 | [Spanish flashcards on the in-game computer (stretch)](issues/026-spanish-flashcards-terminal.md) | marc + claude | blocked | 021, 022, 023 |

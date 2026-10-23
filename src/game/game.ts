@@ -11,7 +11,7 @@ import { RoomPainter, drawFloorAndWalls } from "../render/room-painter";
 import type { SpriteDrawer } from "../render/sprites";
 import { drawProgress, drawPrompt } from "../render/world-ui";
 import { pickVariant, type Appearance } from "./appearance";
-import { DEBUG, DIALOG, ENERGY, TILE, VIEW } from "./config";
+import { DEBUG, DIALOG, ENERGY, MOOD, TILE, VIEW } from "./config";
 import type { ActivityHost } from "./activity";
 import { DialogRunner, type DialogNode, type DialogResult } from "./dialog";
 import { DELTA, DIRECTIONS, type Direction } from "./direction";
@@ -232,6 +232,11 @@ export class Game {
       change.value < ENERGY.lowBelow
     ) {
       this.popups.add(this.player.x + TILE / 2, this.player.y, [{ text: "YAWN...", color: COLOR.mist }]);
+    }
+    // Dropping below the low-mood line shows a sigh. That is all low mood
+    // does for now (a slumped walk is left for later).
+    if (change.id === "mood" && change.previous >= MOOD.lowBelow && change.value < MOOD.lowBelow) {
+      this.popups.add(this.player.x + TILE / 2, this.player.y, [{ text: "SIGH...", color: COLOR.mist }]);
     }
   }
 

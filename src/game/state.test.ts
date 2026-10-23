@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { GLYPHS } from "../render/font";
 import { pickVariant } from "./appearance";
-import { CLOCK, ENERGY } from "./config";
+import { CLOCK, ENERGY, MOOD } from "./config";
 import { ApartmentState, formatClock, type StateChange, type StateVar } from "./state";
 import { STATE_VARS } from "./state-vars";
 
@@ -187,7 +187,7 @@ describe("state hardening (issue 027)", () => {
 
   it("applies a tick's clock and energy before announcing either", () => {
     const s = new ApartmentState(STATE_VARS);
-    s.applyEffects([{ var: "clock", set: 8.99 }, { var: "energy", set: 50.2 }]);
+    s.applyEffects([{ var: "clock", set: 8.99 }, { var: "energy", set: 50.2 }, { var: "mood", set: MOOD.rest }]);
     const log: { id: string; clock: number; energy: number }[] = [];
     s.onChange = (c) => log.push({ id: c.id, clock: s.get("clock"), energy: s.get("energy") });
     s.tick(60 / CLOCK.minutesPerSecond); // an hour: both cross a whole number

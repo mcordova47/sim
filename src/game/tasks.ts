@@ -110,7 +110,7 @@ function working(text: string[]): Partial<Task> {
     cooldown: 30,
     activity: { type: "typing", lines: 2, text },
     requires: [{ var: "energy", min: 10, reason: "TOO TIRED TO WORK" }],
-    effects: [{ var: "energy", add: -15 }],
+    effects: [{ var: "energy", add: -15 }, { var: "mood", add: -5 }],
   };
 }
 
@@ -118,29 +118,29 @@ const STATE_RULES: Record<string, Partial<Task>> = {
   "make-bed": {
     cooldown: 30,
     requires: [{ var: "bedMade", max: 0, reason: "BED IS MADE" }],
-    effects: [{ var: "bedMade", set: 1 }],
+    effects: [{ var: "bedMade", set: 1 }, { var: "mood", add: 3 }],
   },
   dishes: {
     cooldown: 45,
     requires: [{ var: "dishes", min: 1, reason: "NO DIRTY DISHES" }],
-    effects: [{ var: "dishes", set: 0 }],
+    effects: [{ var: "dishes", set: 0 }, { var: "mood", add: -2 }],
     // More dishes, more points.
     pointsBonus: { var: "dishes", perUnit: 10 },
   },
   // Coffee alternates: the mug is empty, so you make it; it is full, so you drink it.
   coffee: {
     requires: [NO_CLEAN_PLATES, { var: "mug", max: 0, reason: "COFFEE IS WAITING" }],
-    effects: [dirty(1), { var: "mug", set: 1 }, { var: "energy", add: 2 }],
+    effects: [dirty(1), { var: "mug", set: 1 }, { var: "energy", add: 2 }, { var: "mood", add: 2 }],
   },
   "drink-coffee": {
     requires: [{ var: "mug", min: 1, reason: "NO COFFEE MADE" }],
-    effects: [{ var: "mug", set: 0 }, { var: "energy", add: 8 }],
+    effects: [{ var: "mug", set: 0 }, { var: "energy", add: 8 }, { var: "mood", add: 4 }],
   },
   // The blinds alternate: open them if they are closed, close them if open.
   "open-blinds": {
     cooldown: 15,
     requires: [{ var: "blinds", max: 0, reason: "BLINDS ARE OPEN" }],
-    effects: [{ var: "blinds", set: 1 }],
+    effects: [{ var: "blinds", set: 1 }, { var: "mood", add: 5 }],
   },
   "close-blinds": {
     cooldown: 15,
@@ -153,6 +153,14 @@ const STATE_RULES: Record<string, Partial<Task>> = {
   "sort-records-year": sortStep(1),
   "sort-records-fav": sortStep(2),
   "sort-records-color": sortStep(3),
+  // The rest of the mood table (small numbers; see docs/tasks.md).
+  doomscroll: { effects: [{ var: "mood", add: -8 }] },
+  journal: { effects: [{ var: "mood", add: 6 }], pointsBonus: { var: "mood", perUnit: 0.2 } },
+  shower: { effects: [{ var: "mood", add: 6 }] },
+  "brush-teeth": { effects: [{ var: "mood", add: 2 }] },
+  "water-plant": { effects: [{ var: "mood", add: 3 }] },
+  "take-trash": { effects: [{ var: "mood", add: 2 }] },
+  sit: { effects: [{ var: "mood", add: 2 }] },
   // A gag: moves piles around and changes nothing, so it pays points and little
   // else. A long cooldown keeps it from being farmed.
   "tidy-desk": { cooldown: 90 },
@@ -160,10 +168,11 @@ const STATE_RULES: Record<string, Partial<Task>> = {
     cooldown: 60,
     requires: [{ var: "energy", max: NAP.below, reason: "NOT SLEEPY ENOUGH" }],
     // The bed stays as it is: this is the sofa.
-    effects: [{ var: "energy", add: NAP.energy }, { var: "clock", add: NAP.hours }],
+    effects: [{ var: "energy", add: NAP.energy }, { var: "clock", add: NAP.hours }, { var: "mood", add: 3 }],
   },
   "admire-art": {
     cooldown: 60,
+    effects: [{ var: "mood", add: 8 }],
     activity: {
       type: "cutscene",
       steps: [
@@ -176,9 +185,9 @@ const STATE_RULES: Record<string, Partial<Task>> = {
       ],
     },
   },
-  reheat: { requires: [NO_CLEAN_PLATES], effects: [dirty(1), { var: "energy", add: 8 }] },
-  "eat-dinner": { requires: [NO_CLEAN_PLATES], effects: [dirty(2), { var: "energy", add: 15 }] },
-  cook: { requires: [NO_CLEAN_PLATES], effects: [dirty(2), { var: "energy", add: 5 }] },
+  reheat: { requires: [NO_CLEAN_PLATES], effects: [dirty(1), { var: "energy", add: 8 }, { var: "mood", add: 2 }] },
+  "eat-dinner": { requires: [NO_CLEAN_PLATES], effects: [dirty(2), { var: "energy", add: 15 }, { var: "mood", add: 6 }] },
+  cook: { requires: [NO_CLEAN_PLATES], effects: [dirty(2), { var: "energy", add: 5 }, { var: "mood", add: 4 }] },
   // Mash keys to type. How fast it goes decides how well the work went. What
   // is typed depends on where: emails at the desk, code on the couch, a bit of
   // both in bed.
@@ -186,9 +195,15 @@ const STATE_RULES: Record<string, Partial<Task>> = {
   "work-sofa": working(CODE_LINES),
   "work-bed": working(MIXED_LINES),
   // Press the arrows that appear.
-  guitar: { activity: { type: "notes", count: 6 } },
+  // Playing lifts mood, and more so when you are already in a good one.
+  guitar: {
+    activity: { type: "notes", count: 6 },
+    effects: [{ var: "mood", add: 10 }],
+    pointsBonus: { var: "mood", perUnit: 0.3 },
+  },
   // A short scene.
   "record-play": {
+    effects: [{ var: "mood", add: 5 }],
     activity: {
       type: "cutscene",
       steps: [
@@ -251,6 +266,7 @@ const EXTRA: Task[] = [
       { var: "energy", set: 100 },
       { var: "bedMade", set: 0 },
       { var: "clock", add: 7 },
+      { var: "mood", add: 10 },
     ],
   },
   ...MIRRORS,

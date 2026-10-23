@@ -80,7 +80,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 041 | [Look in the mirror (bathroom)](issues/041-bathroom-mirror.md) | claude | done | |
 | 042 | [Clutter that moves (desk, clothes, mail)](issues/042-clutter-states.md) | claude | todo | 034 |
 | 043 | [Random encounters (explore the idea)](issues/043-random-encounters.md) | marc + claude | todo | |
-| 044 | [Place the new art on the map](issues/044-place-new-art.md) | claude | todo | 034 |
+| 044 | [Place the new art on the map](issues/044-place-new-art.md) | claude | done | 034 |
 | 045 | [Draw the doing poses, outfits and held items](issues/045-draw-poses-outfits-items.md) | claude | done | 034 |
 | 046 | [Escape during any action (and a cutscene's text)](issues/046-cutscene-escape.md) | claude | done | |
 | 047 | [Art round 2 from the 034 playtest](issues/047-art-round-2.md) | agent | done | |

@@ -412,3 +412,178 @@ export const MUSIC = {
     H: [{ noise: "highpass", freq: 6500, q: 0.7, length: 0.035, gain: 0.7 }],
   } as Record<string, Voice[]>,
 };
+
+// Particles (issue 009b). Small effects drawn in the world, as whole-pixel
+// squares in palette colors (names from art/palette.json). Times are in seconds
+// of game time, speeds in pixels per second, offsets in pixels. Marc tunes by
+// editing these numbers; adding an effect to a task is one line in `taskEmitters`.
+export type Range = [number, number];
+
+export interface ParticleKind {
+  // A key of `PARTICLE_SHAPES`.
+  shape: string;
+  // Palette names; each particle takes one of them (a burst can override this).
+  colors: string[];
+  life: Range;
+  vx: Range;
+  vy: Range;
+  // Pixels per second squared; positive falls, negative rises.
+  gravity: number;
+  // Fraction of the speed lost each second (0 keeps it).
+  drag: number;
+  // A side to side wobble: how far it goes and how many times a second.
+  sway?: { amp: number; hz: number };
+  // The particle fades out over the last part of its life, starting at this
+  // fraction of it (1 means it just vanishes).
+  fadeFrom: number;
+}
+
+// Tiny pictures: `#` is a pixel, `.` is empty. Every pixel is a whole-pixel square.
+export const PARTICLE_SHAPES: Record<string, string[]> = {
+  dot: ["#"],
+  dot2: ["##", "##"],
+  // A Z, for sleeping.
+  z: ["###", "..#", ".#.", "#..", "###"],
+  // An eighth note.
+  note: ["..#", "..##", "..#.#", "..#", "##", "##"],
+  // A little four-point sparkle.
+  sparkle: [".#.", "###", ".#."],
+};
+
+export type EmitterAnchor =
+  // The task's zone (its object's tiles), measured from the zone's top-left.
+  | { from: "zone"; dx: number; dy: number; spread?: number }
+  // The pose sprite the task shows, from its top-left (needs the task's `pose`).
+  | { from: "pose"; dx: number; dy: number; spread?: number }
+  // A piece of the room by sprite name, from its top-left (only in the room that has it).
+  | { from: "piece"; sprite: string; dx: number; dy: number; spread?: number }
+  // The player's tile, from its top-left; `byFacing` gives another spot for a
+  // direction (the held mug is in a different place each way they face).
+  | {
+      from: "player";
+      dx: number;
+      dy: number;
+      spread?: number;
+      byFacing?: Partial<Record<"up" | "down" | "left" | "right", [number, number]>>;
+    };
+
+// Something that keeps making particles for as long as it applies.
+export interface EmitterDef {
+  kind: string;
+  // Seconds between puffs, picked at random each time.
+  every: Range;
+  // How many particles each time (1 if missing).
+  count?: Range;
+  // A palette name that replaces the kind's colors (the z is darker on the pale bed).
+  color?: string;
+  at: EmitterAnchor;
+}
+
+// What an ambient emitter needs (all that are set must hold).
+export interface AmbientWhen {
+  // The state variable's value is at least this (and at most `max`).
+  state?: { var: string; min?: number; max?: number };
+  // A record is playing.
+  music?: boolean;
+  // No task is running (the player is free to walk).
+  free?: boolean;
+}
+
+export const PARTICLES = {
+  // At most this many live at once. When full, a new one replaces the oldest.
+  budget: 200,
+  // Particles older than this fraction of their life fade in this many steps
+  // (so alpha is 1, 2/3, 1/3 and never a smooth fade).
+  fadeSteps: 3,
+  kinds: {
+    // A step: a few specks kicked up behind the foot. Wood and stone puff a
+    // little, tile (the bath) none.
+    dustWood: { shape: "dot2", colors: ["paper", "putty"], life: [0.28, 0.42], vx: [-10, 10], vy: [-12, -4], gravity: 20, drag: 1.5, fadeFrom: 0.4 },
+    dustStone: { shape: "dot2", colors: ["paper", "dusk"], life: [0.25, 0.38], vx: [-9, 9], vy: [-10, -3], gravity: 20, drag: 1.5, fadeFrom: 0.4 },
+    // Running into a wall.
+    bump: { shape: "dot", colors: ["paper", "putty"], life: [0.2, 0.35], vx: [-16, 16], vy: [-14, -3], gravity: 40, drag: 1, fadeFrom: 0.4 },
+    // Task completion.
+    confetti: { shape: "dot2", colors: ["butter", "paper"], life: [0.7, 1.1], vx: [-44, 44], vy: [-82, -34], gravity: 170, drag: 0.3, fadeFrom: 0.6 },
+    confettiDull: { shape: "dot", colors: ["mist", "taupe"], life: [0.45, 0.7], vx: [-22, 22], vy: [-46, -20], gravity: 110, drag: 0.5, fadeFrom: 0.5 },
+    // The good hour clock in the award popup.
+    sparkle: { shape: "sparkle", colors: ["butter", "paper"], life: [0.5, 0.8], vx: [-3, 3], vy: [-17, -8], gravity: 0, drag: 0, fadeFrom: 0.3 },
+    // Coffee and warm things.
+    steam: { shape: "dot2", colors: ["paper"], life: [0.9, 1.4], vx: [-2, 2], vy: [-14, -8], gravity: 0, drag: 0, sway: { amp: 1.6, hz: 1.4 }, fadeFrom: 0.35 },
+    // The sink.
+    bubble: { shape: "dot2", colors: ["sky", "teal"], life: [0.9, 1.5], vx: [-3, 3], vy: [-16, -9], gravity: 0, drag: 0, sway: { amp: 1.5, hz: 1.1 }, fadeFrom: 0.6 },
+    // Sleeping.
+    z: { shape: "z", colors: ["paper"], life: [1.8, 2.4], vx: [3, 7], vy: [-9, -6], gravity: 0, drag: 0, sway: { amp: 1.5, hz: 0.7 }, fadeFrom: 0.5 },
+    // Music.
+    note: { shape: "note", colors: ["butter", "tangerine", "paper"], life: [1.5, 2.1], vx: [4, 9], vy: [-12, -8], gravity: 0, drag: 0, sway: { amp: 1.8, hz: 0.9 }, fadeFrom: 0.5 },
+    // A sigh over the head when mood drops low.
+    sigh: { shape: "dot2", colors: ["mist"], life: [0.8, 1.1], vx: [3, 9], vy: [-7, -3], gravity: 0, drag: 0.3, sway: { amp: 1, hz: 1 }, fadeFrom: 0.4 },
+  } as Record<string, ParticleKind>,
+  // Walking. Which floor each room has is `SOUND.floors`; a floor with no
+  // entry here (tile) makes no dust.
+  step: {
+    // Where the puff starts: this far below the top of the tile the player left.
+    footY: 14,
+    puffs: {
+      wood: { kind: "dustWood", count: [2, 3] },
+      stone: { kind: "dustStone", count: [1, 2] },
+    } as Record<string, { kind: string; count: Range }>,
+    // Tired (energy below ENERGY.lowBelow) and shuffling: no dust.
+  },
+  bump: { kind: "bump", count: [3, 4] as Range },
+  // A burst of squares from the task's zone when it completes.
+  burst: {
+    // The count for a chain of one, the extra for each further link, and the most.
+    base: 8,
+    perChain: 4,
+    max: 40,
+    // Colors by chain length (the last list serves every longer chain): one
+    // color, two, then the multicolor confetti from the palette.
+    colors: [
+      ["butter", "paper"],
+      ["butter", "tangerine", "paper"],
+      ["brick", "tangerine", "butter", "leaf", "teal", "sky", "plum", "blush", "paper"],
+    ] as string[][],
+    kind: "confetti",
+    // A repeat with diminishing returns (award.repeatFactor below 1): the
+    // count is scaled by the factor (at least `minCount`), in duller colors.
+    repeat: { kind: "confettiDull", minCount: 2 },
+  },
+  // The good hour sparkle, around the clock icon in the award popup. Where the
+  // icon is follows from the popup's layout (render/popups.ts: a gap of `lineGap`
+  // between lines, the amount line twice the text height, then the combo, repeat
+  // and quality lines when they apply, then the icon line); the popup starts
+  // out at the top of the task's zone and rises, and so do the sparkles.
+  sparkle: { kind: "sparkle", count: [4, 5] as Range, spreadX: 11, spreadY: 6, lineGap: 2 },
+  // The sigh over the head when mood drops below MOOD.lowBelow.
+  sigh: { kind: "sigh", count: [3, 4] as Range, dx: 12, dy: 1, spread: 2 },
+  // Effects that go on while a task runs, by task id.
+  taskEmitters: {
+    // Steam over the kettle and the dripper on the table.
+    coffee: [
+      { kind: "steam", every: [0.16, 0.3], at: { from: "zone", dx: 45, dy: 4, spread: 1 } },
+      { kind: "steam", every: [0.4, 0.7], at: { from: "zone", dx: 56, dy: 5, spread: 1 } },
+    ],
+    // Steam from the mug while you drink it (the pose shows it on the table).
+    "drink-coffee": [{ kind: "steam", every: [0.2, 0.35], at: { from: "pose", dx: 8, dy: 12, spread: 2 } }],
+    // Bubbles from the sink.
+    dishes: [{ kind: "bubble", every: [0.2, 0.4], at: { from: "zone", dx: 11, dy: 12, spread: 5 } }],
+    // A z drifting up from the pillow, and from the sofa.
+    sleep: [{ kind: "z", every: [0.9, 1.4], color: "denim", at: { from: "pose", dx: 28, dy: 12, spread: 1 } }],
+    nap: [{ kind: "z", every: [0.9, 1.4], at: { from: "pose", dx: 13, dy: 0, spread: 1 } }],
+    // Notes from the guitar.
+    guitar: [{ kind: "note", every: [0.6, 1.1], at: { from: "pose", dx: 23, dy: 3, spread: 2 } }],
+  } as Record<string, EmitterDef[]>,
+  // Effects that go on whatever the player is doing, while their condition holds.
+  ambientEmitters: [
+    // Steam from the mug of coffee you carry.
+    {
+      when: { state: { var: "mug", min: 1 }, free: true },
+      emitter: { kind: "steam", every: [0.35, 0.6], at: { from: "player", dx: 12, dy: 7, spread: 1, byFacing: { up: [14, 8], down: [12, 7], left: [3, 7], right: [12, 7] } } },
+    },
+    // Notes from the record player while a record plays.
+    {
+      when: { music: true },
+      emitter: { kind: "note", every: [1, 2], at: { from: "piece", sprite: "record-stand", dx: 8, dy: 2, spread: 3 } },
+    },
+  ] as { when: AmbientWhen; emitter: EmitterDef }[],
+};

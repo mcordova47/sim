@@ -20,6 +20,9 @@ function pick(name: string): string {
   return hex;
 }
 
+// Any palette colour by name, not just the few in COLOR (for data files that name colours).
+export const paletteColor = pick;
+
 export const COLOR = {
   ink: pick("ink"),
   night: pick("night"),

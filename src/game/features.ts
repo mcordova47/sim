@@ -1,5 +1,6 @@
 import { attachAchievements } from "./achievements/feature";
 import type { Game } from "./game";
+import { attachParticles } from "./particles/feature";
 import { attachSound } from "./sound/feature";
 import { attachTimeOfDay } from "./time-of-day/feature";
 
@@ -8,7 +9,9 @@ import { attachTimeOfDay } from "./time-of-day/feature";
 // if it draws, registers a layer with `game.addLayer`. Adding a feature is one
 // line here, so features don't have to edit `game.ts`.
 export function attachFeatures(game: Game): void {
-  attachSound(game);
+  const sound = attachSound(game);
   attachAchievements(game);
   attachTimeOfDay(game);
+  // After the time of day, so particles are drawn over its tint and stay bright at night.
+  attachParticles(game, { musicPlaying: () => sound.track !== null && !sound.muted });
 }

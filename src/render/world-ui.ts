@@ -34,9 +34,19 @@ function promptLabel(item: Interactable, cooldownRemaining: number, unavailable:
 
 // Size of the prompt box, so layout (and tests over the real task data) can
 // measure it without drawing.
-export function promptSize(item: Interactable, cooldownRemaining: number, unavailable: string | null = null) {
+// A task at its best hour (issue 009d) has `GOOD_HOUR_HINT` after the verb.
+export const GOOD_HOUR_HINT = "GOOD HOUR";
+const HINT_GAP = 5;
+
+export function promptSize(
+  item: Interactable,
+  cooldownRemaining: number,
+  unavailable: string | null = null,
+  goodTime = false,
+) {
   const keyW = cooldownRemaining > 0 || unavailable ? 0 : KEY_WIDTH;
-  return { w: 3 + keyW + textWidth(promptLabel(item, cooldownRemaining, unavailable)) + 3, h: 13 };
+  const hintW = goodTime ? HINT_GAP + textWidth(GOOD_HOUR_HINT) : 0;
+  return { w: 3 + keyW + textWidth(promptLabel(item, cooldownRemaining, unavailable)) + hintW + 3, h: 13 };
 }
 
 export function progressSize(item: Interactable) {
@@ -54,10 +64,11 @@ export function drawPrompt(
   view: View,
   avoid: Box[] = [],
   unavailable: string | null = null,
+  goodTime = false,
 ): void {
   const cooling = cooldownRemaining > 0 || unavailable !== null;
   const label = promptLabel(item, cooldownRemaining, unavailable);
-  const size = promptSize(item, cooldownRemaining, unavailable);
+  const size = promptSize(item, cooldownRemaining, unavailable, goodTime);
 
   const box = placeLabel(
     { x: actor.x + actor.w / 2, top: actor.y, bottom: actor.y + actor.h },
@@ -77,6 +88,9 @@ export function drawPrompt(
     textX += KEY_WIDTH;
   }
   drawText(ctx, label, textX, box.y + 3, { color: cooling ? DIM : TEXT, shadow: null });
+  if (goodTime && !cooling) {
+    drawText(ctx, GOOD_HOUR_HINT, textX + textWidth(label) + HINT_GAP, box.y + 3, { color: ACCENT, shadow: null });
+  }
 }
 
 // Task name with a progress bar underneath, while a task runs.

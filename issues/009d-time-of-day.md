@@ -1,7 +1,7 @@
 ---
 id: 009d
 title: "Polish: time of day"
-status: todo
+status: review
 owner: agent
 depends_on: []
 ---
@@ -45,3 +45,29 @@ The game is top-down and the clock already exists (apartment state, `clock`, for
 - Marc finds some text too jokey (issue 037); keep the popup wording plain.
 
 ## Progress log
+
+### 2026-10-23 start
+Plan: a `time-of-day` module (hours, tint, layer + dev shortcuts), one line in `features.ts`, `goodHours` on tasks, a `timeFactor` through the scoreboard (same path as the mini-game quality factor), a hint in the prompt and a line in the award popup.
+
+### 2026-10-23 done, ready for review
+What changed
+- `src/game/time-of-day/hours.ts`: `HourWindow` (from, to; `to` before `from` wraps past midnight), `inWindow`, `inAnyWindow`, `windowProblem`.
+- `src/game/time-of-day/tint.ts`: `lightAt(hour)` blends keyframes from `TIME_OF_DAY.tint` in `config.ts` (night, dawn, day, dusk, back to night; first and last key match, so no jump at midnight). Between keys of different colours one palette colour fades out as the next fades in, so only palette colours are ever drawn. `roomWashes` scales it per room and adds the blinds dimming.
+- `src/game/time-of-day/feature.ts`: a layer with `drawWorld` only (inside the camera transform, after the world and player, before the prompts, popups, HUD, dialogs, activity pictures and `view` pictures, so none of those are tinted). It reads `game.state.get("clock")` every frame. Plus a faint butter glow (three rings) at night around the lamp table and the desk in the main room. Uses no clip, shadow or filter; draws with plain `fillRect` and `arc`, no save/restore of its own needed.
+- `config.ts`: `TIME_OF_DAY` (bonus multiplier 1.5, tint keys, per-room light, blinds dimming, glows) and `TIME_DEV`.
+- Task bonus: `Interactable.goodHours`, data in `tasks.ts` (`GOOD_HOURS`, every real task that has a sensible hour, including nap, coffee, drink-coffee, the mirror lines, sleep, contemplate). `InteractionSystem.isGoodTime` and `finish` pass `timeFactor` to `Scoreboard.complete` (new optional 4th argument, `Award.timeFactor`). The hour is read before the task's effects, so sleep and nap, which move the clock, are judged by when they ended. `pointsBonus` is untouched and still adds first.
+- Prompt hint: `GOOD HOUR` in green after the verb (`world-ui.ts`, new last argument to `drawPrompt` and `promptSize`). Not shown while the task is on cooldown or blocked. Award popup gets a line `GOOD HOUR X1.5`.
+- Decisions: the existing HUD clock panel (issue 021) already is the clock readout and is not changed; no tint over the HUD at all. The kitchen has a window so it gets 85% of the light; the bath has none so it gets 50% (it follows the outside hour but softly). Closed blinds (state `blinds`) take 10% of the light away in the main room by day (the blinds start closed, so noon in the main room is a touch dimmer until they are opened); lamps glow only in the main room. Day length stays what issue 021 set (`CLOCK.minutesPerSecond: 2`, 12 minutes a day), not changed here.
+- Dev only: `import.meta.env.DEV` turns on `?hour=19.5`, `?room=kitchen` and the `[` / `]` keys (back and forward one hour; ignored while a task, dialog or lock has the keyboard). None of it exists in a built game.
+
+Files outside the module (small, needed): `game.ts` (a `currentLevel` getter, the `GOOD HOUR` popup line, passing the hint flag to `drawPrompt`), `interaction.ts`, `scoring.ts`, `interactable.ts`, `tasks.ts`, `render/world-ui.ts`, `config.ts`, `features.ts` (one line), and one fixture in `achievements/feature.test.ts` that builds an `Award` by hand (needed the new field).
+
+Verified
+- `npx tsc --noEmit`, `npm run build`, `npm test` (1010 tests, 30 of them new in `time-of-day/time-of-day.test.ts`: clock wraps and pauses with a dialog, tint colour is a palette colour with alpha in range for every hour, stays moderate, changes by under 5 shades per 3 minutes of game time, matches across midnight, bonus only inside hours including windows that wrap, popup line, hint only at good hours, every real task window valid, prompt widths fit the screen, layer draws in the world pass, dev shortcuts are off unless dev).
+- Looked at rendered frames (headless Chrome against the dev server, 2x scale) of main room, kitchen and bath at 6:30, 12:00, 19:30 and 23:00. Night is moody but furniture, prompt, HUD and the lamp prompt stay legible; dawn is cool, dusk warm; the bath is dimmer but readable. Also looked at the prompt hint (temporarily forced on the sofa task, then removed).
+
+Not checked
+- How it feels at 1x in a real browser window over a long play (headless frames only, at 2x).
+- Smooth fading seen live, and the `[` `]` keys in a real keyboard session (tested with fakes).
+- Popup text looked at on screen (tested through the popup call, not seen).
+- Window light (optional) was not added.

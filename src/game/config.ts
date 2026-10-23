@@ -187,3 +187,59 @@ export const ACHIEVEMENTS_UI = {
   toastGap: 3,
   toastMargin: 2,
 };
+
+// Time of day (issue 009d). The clock itself is `CLOCK` above and the `clock`
+// state variable; this is how the light and the task bonuses follow it.
+// A color is a palette name (see render/colors.ts); alpha is 0 to 1.
+export interface TintKey {
+  // Hour of the day, 0 up to 24. The first key is at 0 and the last at 24,
+  // with the same look, so the day comes round with no jump at midnight.
+  hour: number;
+  color: "night" | "dusk" | "tangerine" | "butter";
+  alpha: number;
+  // How much the lamps are on, 0 (day) to 1 (night): the glow near lamps.
+  lamps: number;
+}
+
+export const TIME_OF_DAY = {
+  // Finishing a task inside one of its `goodHours` multiplies its points by this.
+  bonusMultiplier: 1.5,
+  // The tint over the world. Between two keys the look blends smoothly; when
+  // two keys have different colors, one fades out as the other fades in.
+  tint: [
+    { hour: 0, color: "night", alpha: 0.46, lamps: 1 },
+    { hour: 4.5, color: "night", alpha: 0.46, lamps: 1 },
+    { hour: 6, color: "dusk", alpha: 0.36, lamps: 0.7 },
+    { hour: 7.25, color: "tangerine", alpha: 0.24, lamps: 0.3 },
+    { hour: 9.5, color: "butter", alpha: 0, lamps: 0 },
+    { hour: 16.5, color: "butter", alpha: 0, lamps: 0 },
+    { hour: 18, color: "butter", alpha: 0.14, lamps: 0.2 },
+    { hour: 19.5, color: "tangerine", alpha: 0.28, lamps: 0.5 },
+    { hour: 21, color: "dusk", alpha: 0.4, lamps: 0.85 },
+    { hour: 22.5, color: "night", alpha: 0.46, lamps: 1 },
+    { hour: 24, color: "night", alpha: 0.46, lamps: 1 },
+  ] as TintKey[],
+  // How much of the outside light reaches each room (1 is all of it). The bath
+  // has no window, so it only follows the hour a little.
+  roomLight: { main: 1, kitchen: 0.85, bath: 0.5 } as Record<string, number>,
+  // The main room's blinds: closed, they take this much light away at midday
+  // (less at night, when there is no daylight to keep out).
+  blindsClosedDim: 0.1,
+  // A faint glow around lamps at night. `sprite` names the piece it sits on;
+  // `radius` is in pixels; `alpha` is the strength at full night.
+  glows: [
+    { sprite: "lamp-table", radius: 40, alpha: 0.2 },
+    { sprite: "desk", radius: 28, alpha: 0.1 },
+  ],
+};
+
+// Developer shortcuts for trying the light (see time-of-day/feature.ts). They
+// only exist in the dev server (`npm run dev`), never in a built game.
+export const TIME_DEV = {
+  // `?hour=19.5` starts the game at that hour; `?room=kitchen` starts in that room.
+  hourParam: "hour",
+  roomParam: "room",
+  // Jump the clock one hour back and forward.
+  backKey: "BracketLeft",
+  forwardKey: "BracketRight",
+};

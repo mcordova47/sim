@@ -11,6 +11,8 @@ export interface Award {
   chain: number;
   // How well a mini-game went, as a multiplier (1 for tasks without a quality).
   qualityFactor: number;
+  // The time-of-day bonus (see TIME_OF_DAY.bonusMultiplier): 1 outside the task's good hours.
+  timeFactor: number;
 }
 
 interface Completion {
@@ -27,7 +29,7 @@ export class Scoreboard {
   private lastTime = -Infinity;
   private recent: Completion[] = [];
 
-  complete(task: { id: string; points: number }, now: number, qualityFactor = 1): Award {
+  complete(task: { id: string; points: number }, now: number, qualityFactor = 1, timeFactor = 1): Award {
     if (!this.chainAlive(now)) this.chain = [];
 
     this.recent = this.recent.filter((c) => now - c.time <= SCORING.repeatWindow);
@@ -41,7 +43,7 @@ export class Scoreboard {
     const multiplier = chainMultiplier(this.chain.length);
     const points = Math.max(
       SCORING.minPoints,
-      Math.round(task.points * repeatFactor * multiplier * qualityFactor),
+      Math.round(task.points * repeatFactor * multiplier * qualityFactor * timeFactor),
     );
 
     this.recent.push({ id: task.id, time: now });
@@ -55,6 +57,7 @@ export class Scoreboard {
       multiplier,
       chain: this.chain.length,
       qualityFactor,
+      timeFactor,
     };
   }
 

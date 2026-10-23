@@ -1,5 +1,6 @@
 import { attachAchievements } from "./achievements/feature";
 import type { Game } from "./game";
+import { attachTimeOfDay } from "./time-of-day/feature";
 
 // Switches on the optional features (sound, particles, achievements, the
 // day/night cycle). Each one is a module that subscribes to `game.events` and,
@@ -8,4 +9,5 @@ import type { Game } from "./game";
 export function attachFeatures(game: Game): void {
   // attachSound(game);
   attachAchievements(game);
+  attachTimeOfDay(game);
 }

@@ -40,7 +40,7 @@ const item = (id: string) => {
   throw new Error(id);
 };
 const complete = (game: Game, id: string, points = 10, chain = 1, repeatFactor = 1) =>
-  game.events.emit("taskComplete", { item: item(id), award: { points, basePoints: points, repeatFactor, multiplier: 1, chain, qualityFactor: 1 } });
+  game.events.emit("taskComplete", { item: item(id), award: { points, basePoints: points, repeatFactor, multiplier: 1, chain, qualityFactor: 1, timeFactor: 1 } });
 const toastTitles = (f: AchievementsFeature) => {
   f.toasts.update(0);
   return f.toasts.views().map((v) => v.title);

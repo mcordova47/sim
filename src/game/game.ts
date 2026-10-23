@@ -79,6 +79,11 @@ export class Game {
   readonly player: Player;
   readonly interaction: InteractionSystem;
   readonly camera: Camera;
+  // The room the player is in (for lighting and the like).
+  get currentLevel(): Level {
+    return this.level;
+  }
+
   // The apartment and character: dishes, the bed, energy and the clock.
   readonly state: ApartmentState;
   // Announces steps, bumps into things, and task starts, completions and refusals.
@@ -128,6 +133,10 @@ export class Game {
           text: `${award.qualityFactor > 1 ? "NICE" : "SLOPPY"} X${award.qualityFactor.toFixed(2)}`,
           color: award.qualityFactor > 1 ? COLOR.leaf : COLOR.mist,
         });
+      }
+      // Done at the right hour.
+      if (award.timeFactor > 1) {
+        lines.push({ text: `GOOD HOUR X${award.timeFactor.toFixed(1)}`, color: COLOR.butter });
       }
       const zone = boundsOf(item.zones);
       this.popups.add(zone.x + zone.w / 2, zone.y, lines);
@@ -596,7 +605,8 @@ export class Game {
       } else if (interaction.nearby) {
         const cooldown = interaction.cooldownRemaining(interaction.nearby);
         const unavailable = interaction.unavailableReason(interaction.nearby);
-        drawPrompt(ctx, actor, interaction.nearby, cooldown, VIEW, popupBoxes, unavailable);
+        const goodTime = unavailable === null && cooldown === 0 && interaction.isGoodTime(interaction.nearby);
+        drawPrompt(ctx, actor, interaction.nearby, cooldown, VIEW, popupBoxes, unavailable, goodTime);
       }
     }
     this.popups.draw(ctx, VIEW, cam);

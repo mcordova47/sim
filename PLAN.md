@@ -100,6 +100,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 061 | [Admire the art: zoom in and comment very seriously](issues/061-art-zoom-gag.md) | marc + claude | todo | |
 | 062 | [Customizable decor (inventory, swap, buy) (explore)](issues/062-customizable-decor.md) | marc + claude | todo | |
 | 063 | [Plants that grow in stages](issues/063-plant-growth.md) | marc + claude | todo | |
+| 064 | [Plugins (VSTs) for the track editor (explore)](issues/064-track-editor-plugins.md) | marc + claude | todo | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

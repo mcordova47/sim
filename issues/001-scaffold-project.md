@@ -1,7 +1,7 @@
 ---
 id: 001
 title: Scaffold project
-status: in-progress
+status: review
 owner: claude
 depends_on: []
 ---
@@ -32,6 +32,7 @@ Set up a Vite + TypeScript project that renders a canvas and runs a fixed-timest
   - Privacy: only `reference-photos/README.md` is tracked; nothing else copied in. Pass.
   - **Out of scope (reason for the verdict):** commit fe6be7e also edits `PLAN.md` (worktree convention wording) and `.claude/skills/work-issue/SKILL.md`. `PLAN.md` says agents must not edit it, and neither file is in this issue's scope. Neither is on `main` (main is at ebe1d96).
   - Checklist for the author:
-    - [ ] Remove the `PLAN.md` and `.claude/skills/work-issue/SKILL.md` changes from this branch, or have Marc confirm they are intentional and should ride along.
-    - [ ] Optional: confirm the browser-only items (scaling, loop, key label) by hand and note it in the log.
+    - [x] Remove the `PLAN.md` and `.claude/skills/work-issue/SKILL.md` changes from this branch, or have Marc confirm they are intentional and should ride along.
+    - [x] Optional: confirm the browser-only items (scaling, loop, key label) by hand and note it in the log.
   - No code defects found; once the scope item is resolved this should be approvable.
+- 2026-10-22 Addressed review. Reverted `PLAN.md` and `.claude/skills/work-issue/SKILL.md` on this branch (they were planner edits and now live in their own commit e281028 on `main`). The branch diff against `main` should now touch only 001's files. Marc ran `npm run dev` by hand and confirmed it works (author-reported, not independently verified by the reviewer).

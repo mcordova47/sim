@@ -27,6 +27,13 @@ Lists: `src/game/typing-text.ts`.
 - The blinds use `window-blinds-open` and `window-blinds-closed`.
 - `view-gallery-wall` is a labelled placeholder (320x192) until an art issue draws it from Marc's photos.
 
+## Side projects (issue 051)
+Side projects are data: `SIDE_PROJECTS` in `src/game/side-projects.ts`, each with its own points, cooldown, mood and energy change, good hours, picture and lines; `sideProjectTask` turns an entry into a task. To add one, add an entry and its id to the standing desk's tasks in `apartment.ts`. The desk offers the first task that can start, and Work on the side project sits right after Answer emails, so it comes up while work is cooling down.
+
+Only one is written: **Work on the side project** (`side-project-game`, desk). A cutscene that shows `view-side-project` (a lower-res picture of this game's own main room, with the small player at the desk, inside a monitor frame), three quiet lines, and puts the picture away. 45 points, 90 s cooldown, mood +4, energy -5, needs energy 10, best 20:00 to midnight. The wording is a draft for the text pass (037).
+
+`view-side-project` is the real game rendered once at 320x192 in a browser, shrunk 2x by averaging 2x2 blocks and snapped to the palette (160x96), then set in the frame. To refresh it after the art changes, render a frame of the game with the player at the desk, redo the shrink and compose into `art/src/view-side-project.sprite`.
+
 ## Mirror (issue 041)
 On the bath vanity, ahead of Brush teeth. **Look in mirror** is four tasks with the same prompt, each a short two-line dialog (`dialog-data.ts`, `MIRROR_*`); the vanity offers the first that can start:
 

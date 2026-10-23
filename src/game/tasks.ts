@@ -1,5 +1,6 @@
 import { CLOCK, ENERGY, MIRROR, NAP } from "./config";
 import { CONTEMPLATE, MIRROR_DAY, MIRROR_MORNING, MIRROR_NIGHT, MIRROR_TIRED } from "./dialog-data";
+import { SIDE_PROJECTS, sideProjectTask } from "./side-projects";
 import type { Requirement } from "./state";
 import type { Interactable } from "./interactable";
 import type { HourWindow } from "./time-of-day/hours";
@@ -326,6 +327,7 @@ const EXTRA: Task[] = [
     ],
   },
   ...MIRRORS,
+  ...SIDE_PROJECTS.map(sideProjectTask),
   {
     id: "contemplate",
     name: "Contemplate",

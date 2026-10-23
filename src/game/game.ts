@@ -9,7 +9,7 @@ import { STATUS_BOX } from "../render/layout";
 import { playerFrame } from "../render/player-sprite";
 import { RoomPainter, drawFloorAndWalls } from "../render/room-painter";
 import type { SpriteDrawer } from "../render/sprites";
-import { drawProgress, drawPrompt } from "../render/world-ui";
+import { GOOD_HOUR_ICON, GOOD_HOUR_ICON_SIZE, drawProgress, drawPrompt } from "../render/world-ui";
 import { pickVariant, type Appearance } from "./appearance";
 import { DEBUG, DIALOG, ENERGY, MOOD, TILE, VIEW } from "./config";
 import type { ActivityHost } from "./activity";
@@ -89,7 +89,7 @@ export class Game {
   // Announces steps, bumps into things, and task starts, completions and refusals.
   readonly events = new Emitter<GameEvents>();
   private readonly hud = new Hud();
-  private readonly popups = new Popups();
+  private readonly popups: Popups;
   private readonly layers: Layer[] = [];
   private level: Level;
   private grid: Grid;
@@ -102,6 +102,10 @@ export class Game {
   private readonly random: () => number;
   private readonly painter: RoomPainter;
   private readonly spriteDrawer: SpriteDrawer | undefined;
+  // For layers that draw sprites of their own (the achievements legend).
+  get sprites(): SpriteDrawer | undefined {
+    return this.spriteDrawer;
+  }
   // The piece the player was facing when the running task started, which is
   // what its pose is drawn on.
   // `sprite` is the pose's art, picked then too (a bed is slept on made or unmade).
@@ -114,6 +118,7 @@ export class Game {
     this.rooms = options.rooms ?? {};
     this.random = options.random ?? Math.random;
     this.spriteDrawer = options.sprites;
+    this.popups = new Popups(options.sprites);
     this.painter = new RoomPainter(options.sprites);
     this.grid = new Grid(level.size, this.activeSolids());
     this.state.onChange = (change) => this.stateChanged(change);
@@ -137,7 +142,12 @@ export class Game {
       }
       // Done at the right hour.
       if (award.timeFactor > 1) {
-        lines.push({ text: `GOOD HOUR X${award.timeFactor.toFixed(1)}`, color: COLOR.butter });
+        const x = `X${award.timeFactor.toFixed(1)}`;
+        lines.push(
+          this.spriteDrawer?.has(GOOD_HOUR_ICON)
+            ? { text: x, color: COLOR.butter, icon: { name: GOOD_HOUR_ICON, size: GOOD_HOUR_ICON_SIZE } }
+            : { text: `GOOD HOUR ${x}`, color: COLOR.butter },
+        );
       }
       const zone = boundsOf(item.zones);
       this.popups.add(zone.x + zone.w / 2, zone.y, lines);
@@ -610,7 +620,7 @@ export class Game {
         const cooldown = interaction.cooldownRemaining(interaction.nearby);
         const unavailable = interaction.unavailableReason(interaction.nearby);
         const goodTime = unavailable === null && cooldown === 0 && interaction.isGoodTime(interaction.nearby);
-        drawPrompt(ctx, actor, interaction.nearby, cooldown, VIEW, popupBoxes, unavailable, goodTime);
+        drawPrompt(ctx, actor, interaction.nearby, cooldown, VIEW, popupBoxes, unavailable, goodTime, this.spriteDrawer);
       }
     }
     this.popups.draw(ctx, VIEW, cam);

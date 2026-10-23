@@ -1,10 +1,24 @@
 import { GLYPH_H, drawText, textWidth } from "./font";
 import { fitBox, type Box } from "./layout";
+import type { SpriteDrawer } from "./sprites";
 
 export interface PopupLine {
   text: string;
   color: string;
   scale?: number;
+  // A sprite drawn before the text (the caller only sets it when the sprite has loaded).
+  icon?: { name: string; size: number };
+}
+
+const ICON_GAP = 2;
+
+function lineWidth(line: PopupLine): number {
+  const text = textWidth(line.text, line.scale ?? 1);
+  return line.icon ? line.icon.size + ICON_GAP + text : text;
+}
+
+function lineHeight(line: PopupLine): number {
+  return Math.max(GLYPH_H * (line.scale ?? 1), line.icon?.size ?? 0);
 }
 
 interface Popup {
@@ -34,6 +48,8 @@ interface Placed {
 // game time, so it pauses with the game.
 export class Popups {
   private items: Popup[] = [];
+
+  constructor(private readonly sprites?: SpriteDrawer) {}
 
   add(x: number, y: number, lines: PopupLine[]): void {
     this.items.push({ x, y, lines, age: 0 });
@@ -66,12 +82,21 @@ export class Popups {
       let y = box.y;
       for (const line of popup.lines) {
         const scale = line.scale ?? 1;
-        drawText(ctx, line.text, box.x + box.w / 2, y, {
+        const h = lineHeight(line);
+        const w = lineWidth(line);
+        // Lines are centred; an icon sits at the left of its line's own width.
+        let textX = box.x + box.w / 2;
+        if (line.icon && this.sprites) {
+          const left = Math.round(box.x + (box.w - w) / 2);
+          this.sprites.draw(ctx, line.icon.name, left, y + Math.floor((h - line.icon.size) / 2));
+          textX = left + line.icon.size + ICON_GAP + textWidth(line.text, scale) / 2;
+        }
+        drawText(ctx, line.text, textX, y + Math.floor((h - GLYPH_H * scale) / 2), {
           color: line.color,
           align: "center",
           scale,
         });
-        y += GLYPH_H * scale + LINE_GAP;
+        y += h + LINE_GAP;
       }
       ctx.globalAlpha = 1;
     }
@@ -86,9 +111,9 @@ export class Popups {
 
       // Size from the real text, so wide popups aren't clipped by the screen
       // edge, then kept on screen and out of the HUD.
-      const w = Math.max(...popup.lines.map((l) => textWidth(l.text, l.scale ?? 1)));
+      const w = Math.max(...popup.lines.map(lineWidth));
       const h =
-        popup.lines.reduce((sum, l) => sum + GLYPH_H * (l.scale ?? 1), 0) +
+        popup.lines.reduce((sum, l) => sum + lineHeight(l), 0) +
         LINE_GAP * (popup.lines.length - 1);
       const box = fitBox(
         {

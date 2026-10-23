@@ -2,6 +2,7 @@ import type { Interactable } from "../game/interactable";
 import { COLOR, withAlpha } from "./colors";
 import { GLYPH_H, drawText, textWidth } from "./font";
 import { HUD_BOX, placeLabel, type Box } from "./layout";
+import type { SpriteDrawer } from "./sprites";
 
 const BG = withAlpha(COLOR.ink, 0.75);
 const TEXT = COLOR.paper;
@@ -35,7 +36,10 @@ function promptLabel(item: Interactable, cooldownRemaining: number, unavailable:
 // Size of the prompt box, so layout (and tests over the real task data) can
 // measure it without drawing.
 // A task at its best hour (issue 009d) has `GOOD_HOUR_HINT` after the verb.
+// With the icon sprite loaded it is a small clock; without it, the words.
 export const GOOD_HOUR_HINT = "GOOD HOUR";
+export const GOOD_HOUR_ICON = "icon-good-hour";
+export const GOOD_HOUR_ICON_SIZE = 9;
 const HINT_GAP = 5;
 
 export function promptSize(
@@ -43,9 +47,10 @@ export function promptSize(
   cooldownRemaining: number,
   unavailable: string | null = null,
   goodTime = false,
+  iconReady = false,
 ) {
   const keyW = cooldownRemaining > 0 || unavailable ? 0 : KEY_WIDTH;
-  const hintW = goodTime ? HINT_GAP + textWidth(GOOD_HOUR_HINT) : 0;
+  const hintW = goodTime ? HINT_GAP + (iconReady ? GOOD_HOUR_ICON_SIZE : textWidth(GOOD_HOUR_HINT)) : 0;
   return { w: 3 + keyW + textWidth(promptLabel(item, cooldownRemaining, unavailable)) + hintW + 3, h: 13 };
 }
 
@@ -65,10 +70,12 @@ export function drawPrompt(
   avoid: Box[] = [],
   unavailable: string | null = null,
   goodTime = false,
+  sprites?: SpriteDrawer,
 ): void {
   const cooling = cooldownRemaining > 0 || unavailable !== null;
   const label = promptLabel(item, cooldownRemaining, unavailable);
-  const size = promptSize(item, cooldownRemaining, unavailable, goodTime);
+  const icon = !!sprites?.has(GOOD_HOUR_ICON);
+  const size = promptSize(item, cooldownRemaining, unavailable, goodTime, icon);
 
   const box = placeLabel(
     { x: actor.x + actor.w / 2, top: actor.y, bottom: actor.y + actor.h },
@@ -89,7 +96,9 @@ export function drawPrompt(
   }
   drawText(ctx, label, textX, box.y + 3, { color: cooling ? DIM : TEXT, shadow: null });
   if (goodTime && !cooling) {
-    drawText(ctx, GOOD_HOUR_HINT, textX + textWidth(label) + HINT_GAP, box.y + 3, { color: ACCENT, shadow: null });
+    const hintX = textX + textWidth(label) + HINT_GAP;
+    if (icon) sprites!.draw(ctx, GOOD_HOUR_ICON, hintX, box.y + 2);
+    else drawText(ctx, GOOD_HOUR_HINT, hintX, box.y + 3, { color: ACCENT, shadow: null });
   }
 }
 

@@ -39,6 +39,11 @@ On the bath vanity, ahead of Brush teeth. **Look in mirror** is four tasks with 
 
 15 points, no state change, 60 s cooldown each. After one, the vanity falls through to Brush teeth. No mood change yet; mirror lines can use mood now that 038 has landed. Wording is a draft for the text pass (037).
 
+## Good hours (issues 009d, 055)
+A task can list `goodHours` (in `GOOD_HOURS` in `tasks.ts`): the times of day that suit it, such as coffee in the morning or dinner in the evening. Finishing it inside one multiplies its points by `TIME_OF_DAY.bonusMultiplier` (1.5).
+
+The small yellow clock icon (`icon-good-hour`, 9x9) means "this pays extra now". It shows after the verb in the task prompt while the task can start at a good hour, and beside `X1.5` in the award popup when the bonus paid. The achievements list (L) has a one-line legend for it. If the sprite is missing, the prompt says `GOOD HOUR` and the popup says `GOOD HOUR X1.5` in words, as before.
+
 ## Mood (issue 038)
 `mood` runs 0 to 100 and starts at 60. It is a nudge, never a lock: no task requires it. Every 1 game hour it moves `MOOD.driftPerHour` (3) toward `MOOD.rest` (50) and never past it, so it cannot stay at either end. Tuning is in `config.ts` (`MOOD`); the changes are in `tasks.ts`.
 

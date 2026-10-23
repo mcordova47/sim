@@ -1,7 +1,7 @@
 ---
 id: 058
 title: Add warm greys to the palette; re-tint the plaster and kitchen walls
-status: todo
+status: review
 owner: agent
 depends_on: []
 ---
@@ -17,3 +17,6 @@ Marc approved adding warm greys to the shared palette (2026-10-23) so the main r
 - `npm run sprites`, `npm test` and `npm run build` pass; render all three rooms and look at them.
 
 ## Progress log
+
+- 2026-10-23: Plan: add two warm greys, re-tint the eight main-room and kitchen wall sprites.
+- 2026-10-23: Done. Sampled `wall-texture.jpeg` (warm grey-beige, face about mid-light) and chose `l` putty #cdc7b9 (face) and `m` taupe #a29b8c (shade, dents, wall-front base band, side-wall floor shadow). Re-tinted by swapping key 5 to `l` and 4 to `m` in wall-back, wall-front, wall-side-left, wall-side-right and their `-kitchen` versions (stipple, structure and baseboards unchanged; `6` highlights and `1` ink kept). Bath walls untouched. No palette size limit exists in `sprite-lib.mjs`, `colors.ts` or the tests (nothing counts colors); only `docs/art-style.md` was updated (heading now 22 colors, two palette rows, a Materials row). `public/sprites` diff is exactly the eight wall PNGs. Rendered all three rooms headless at 1x, 4x and `?hour=23`: the warm walls read next to wood floor and furniture; at night they go neutral grey, not muddy. Side note: the dusk-blue floor shadow became taupe, so wall bases are slightly lighter than before; fine to me. Lighting tint not changed; a warm key (`m`/`l`) could be used for the dusk tint later. Could not check: how it feels in a live browser.

@@ -21,7 +21,7 @@ Early Game Boy Pokemon: the camera looks at the room from slightly above and in 
 - **The player is 16x16, one tile** (decided with Marc, 2026-10-22). No pipeline change was needed.
 - The screen shows whole numbers of tiles and is only ever scaled by whole numbers, so pixels stay crisp.
 
-## Palette (20 colors)
+## Palette (22 colors)
 Characters are what you type in a `.sprite` file. `.` is transparent.
 
 | Key | Name | Hex | Typical use |
@@ -46,6 +46,8 @@ Characters are what you type in a `.sprite` file. `.` is transparent.
 | i | sky | #9fd3f0 | light blue, highlights on blue |
 | j | plum | #7b5ea7 | purple accents |
 | k | blush | #f2a7c0 | pink accents |
+| l | putty | #cdc7b9 | warm light grey, plaster and drywall face |
+| m | taupe | #a29b8c | warm mid grey, plaster shade and wall base band |
 
 Only these colors may be used. To add one, edit `palette.json` and this table in the same change.
 
@@ -63,6 +65,7 @@ Use the same palette keys for the same material everywhere, so sprites drawn by 
 | Plants | `f` | `d` | `e` | leaves; pots use wood or `c` |
 | Teal appliance, fabric accents | `g` | `i` | `4` | microwave, sofa geometric pattern |
 | Red accents | `b` | `k` | `7` | sofa pattern, duvet stripes |
+| Plaster and drywall (main room, kitchen) | `l` | `6` | `m` | stipple bumps use `6`; kitchen drywall is smooth |
 | Wall and window light | `i` | `6` | `h` | window glass, curtains use `5` and `4` |
 
 If a piece needs a colour that isn't here, pick the nearest palette key and say so in the issue's progress log instead of adding to this table; the planner folds additions in afterwards.

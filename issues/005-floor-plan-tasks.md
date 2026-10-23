@@ -1,7 +1,7 @@
 ---
 id: 005
 title: Floor plan and task list
-status: review
+status: in-progress
 owner: marc + agent
 depends_on: []
 ---
@@ -28,3 +28,15 @@ Photos are placed in `reference-photos/` (gitignored). Read them by path. Do not
   - NOT verified: reachability against issue 002's real constants (002 not done). Re-run `check()` once it lands.
   - NOT verified: Marc's review of the layout. Needs sign-off on the squeezed main room, the lack of open floor and the reordered kitchen.
   - Follow-ups for the planner: the level is 35x12 tiles but 001's view is 20x12, so the view or tile size must change. Geometry types in `room.ts` (`Rect`, `Solid`) are local; 002 may want to own them. `npm run build` not run: 001's files are uncommitted in the main checkout, so this branch has no `package.json`.
+- 2026-10-22: Review (independent). Verdict: CHANGES NEEDED (not done yet; two criteria cannot be closed).
+  - Inventory: PASS. 17 pieces plus 7 decor with size, position and colour; spot-checked against photos (table with microwave and coffee gear, bed, bookshelf), consistent. No overlapping pieces.
+  - Proposed layout (platform / interactable / decor): PASS on content, but "needs Marc's review" has not happened. CAN'T VERIFY sign-off.
+  - Reachability: CAN'T VERIFY against 002's constants. I re-ran `check()` via esbuild: placeholder rise 3 / gap 2 / height 3 gives no unreachable pieces or tasks; rise 2 makes bed, bookshelf and 5 tasks (make-bed, open-blinds, water-plant, sort-records, guitar) unreachable. The check logic reads correct.
+  - Task list: PASS. 21 unique tasks, every interactable has at least one, each has name, prompt, duration, points, flavor; all piece ids resolve.
+  - Data output and docs: PASS. room.ts, tasks.ts, reach.ts, docs/floor-plan.md present; `tsc --strict --noEmit` clean. `npm run build` not runnable on this branch (disclosed).
+  - Scope: PASS. Only 005's files and its issue file changed; PLAN.md and other issues untouched.
+  - Privacy: PASS. No photos in repo, no address. Minor: the plant, records, guitar, mic stand and journal tasks name belongings beyond furniture; Marc may want to confirm he is fine with that.
+  - Checklist to finish:
+    - [ ] Marc reviews and signs off the layout (squeezed main room, no open floor, reordered kitchen, assumed dimensions)
+    - [ ] Re-run `check()` with issue 002's real jump constants once 002 is done; adjust heights if it fails
+    - [ ] Planner: reconcile 35x12 level with 001's 20x12 view

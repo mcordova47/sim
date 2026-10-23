@@ -70,7 +70,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 031 | [Draw the top-down game with sprites](issues/031-wire-sprites-topdown.md) | claude | done | |
 | 032 | [Activity follow-ups from the 022 review](issues/032-activity-followups.md) | claude | done | |
 | 033 | [Floor plan fixes found while drawing the art](issues/033-floor-plan-art-fixes.md) | claude | done | |
-| 034 | [Art follow-ups from 028 to 030](issues/034-art-followups.md) | agent | todo | |
+| 034 | [Art follow-ups from 028 to 030](issues/034-art-followups.md) | agent | done | |
 | 035 | [Task variety from the first playtest](issues/035-task-variety.md) | claude | done | |
 | 036 | [Art: more accurate paintings, gallery wall, blinds states](issues/036-art-paintings-and-couch.md) | agent | done | |
 | 037 | [Text pass: drop "the", tone down the jokes](issues/037-text-pass.md) | marc + claude | todo | |

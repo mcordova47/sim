@@ -26,13 +26,13 @@ import { parseTileMap, type ObjectDef } from "./tilemap";
 // record stand by its east end. The passage to the kitchen is in the west wall
 // between the table and the sofa.
 export const MAIN_MAP = [
-  "##pp###qq#####uuu##",
-  "#TTTT.DDDDH...NNNr#",
-  "#TTTT.DDDDH.BBBBBr#",
+  "##pp#k#qq#####uuu##",
+  "#TTTTMDDDDH...NNNr#",
+  "#TTTTMDDDDH.BBBBBr#",
   "1.......C.H.BBBBBrw",
-  "2....@....H.BBBBBrw",
+  "2....@....H.BBBBB.w",
   "#GSSSSSS....BBBBB.#",
-  "#GSSSSSSL...BBBBB.W",
+  "#.SSSSSSL...BBBBB.W",
   "########.R..BBBBB.W",
   "##########........#",
   "##########ff#######",
@@ -72,6 +72,8 @@ const MAIN: Record<string, ObjectDef> = {
   G: { name: "guitar", sprite: "guitar", color: "tangerine", tasks: ["guitar"] },
   L: { name: "lamp table", sprite: "lamp-table", color: "butter" },
   R: { name: "record stand", sprite: "record-stand", color: "paper", tasks: ["record-play"] },
+  k: { name: "robin print", sprite: "painting-robin", color: "paper" },
+  M: { name: "mic stand", sprite: "mic-stand", color: "ink" },
   p: { name: "painting over the table", sprite: "painting", color: "paper" },
   q: { name: "painting over the desk", sprite: "painting-desk", color: "paper" },
   u: { name: "painting over the nightstand", sprite: "painting-wide", color: "paper" },
@@ -150,7 +152,7 @@ const BATH: Record<string, ObjectDef> = {
 // floor: windows, doors, paintings, the front door, the kitchen curtain and
 // the range hood. See wall-tiles.ts for how the wall under them is drawn.
 export const WALL_PIECES: Record<string, string> = {
-  main: "pquwWf12",
+  main: "pkquwWf12",
   kitchen: "c123h",
   bath: "1",
 };

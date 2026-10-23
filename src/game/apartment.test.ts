@@ -196,6 +196,27 @@ describe("furniture", () => {
     expect(sprite("window and blinds")).toBe("window-blinds");
   });
 
+  it("places the robin print, the mic stand, the 1x1 guitar and the 1x3 radiator (issue 044)", () => {
+    const piece = (name: string) => rooms.main.pieces.find((p) => p.name === name);
+    const tiles = (name: string) => piece(name)?.tiles.map((t) => `${t.col},${t.row}`).sort();
+    expect(piece("robin print")?.sprite).toBe("painting-robin");
+    expect(tiles("robin print")).toEqual(["5,0"]);
+    expect(piece("mic stand")?.sprite).toBe("mic-stand");
+    expect(tiles("mic stand")).toEqual(["5,1", "5,2"]); // the sprite is 16x32
+    expect(tiles("guitar")).toEqual(["1,5"]);
+    expect(tiles("radiator")).toEqual(["17,1", "17,2", "17,3"]);
+    const grid = new Grid(rooms.main.size, rooms.main.solids);
+    expect(grid.isBlocked(17, 4)).toBe(false); // the radiator's old fourth tile
+    expect(at("main", 17, 4)).toBe(true);
+    expect(grid.isBlocked(1, 6)).toBe(false); // the guitar's old second tile
+    expect(grid.isBlocked(5, 3)).toBe(false); // still a way through between the table and the desk
+  });
+
+  it("keeps the guitar usable from the floor north of it", () => {
+    const mine = taskSpots(rooms.main).filter((s) => s.id === "guitar");
+    expect(mine.some((s) => s.stand.col === 1 && s.stand.row === 4 && at("main", 1, 4))).toBe(true);
+  });
+
   it("puts the fridge in the south-east corner of the kitchen, usable from a walkable tile", () => {
     const fridge = rooms.kitchen.pieces.find((p) => p.name === "fridge");
     expect(fridge?.tiles.map((t) => `${t.col},${t.row}`).sort()).toEqual(["10,7", "10,8", "11,7", "11,8"]);

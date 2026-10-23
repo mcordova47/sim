@@ -32,6 +32,19 @@ describe("wall tiles", () => {
       "xxxxxxxxxxffffffffx",
     ]);
   });
+  it("treats the robin print as a wall piece (back wall under it) and the mic stand, guitar and radiator as open floor (issue 044)", () => {
+    expect(MAIN_MAP[0][5]).toBe("k");
+    expect(wallKind(MAIN_MAP, WALL_PIECES.main, 5, 0)).toBe("back");
+    // The wall tiles beside the guitar and the radiator keep their side walls.
+    expect(wallKind(MAIN_MAP, WALL_PIECES.main, 0, 5)).toBe("left");
+    expect(wallKind(MAIN_MAP, WALL_PIECES.main, 0, 6)).toBe("left");
+    expect(wallKind(MAIN_MAP, WALL_PIECES.main, 18, 1)).toBe("right");
+    expect(wallKind(MAIN_MAP, WALL_PIECES.main, 18, 4)).toBe("right");
+    // Furniture is never a wall tile.
+    for (const [c, r] of [[5, 1], [5, 2], [1, 5], [17, 1], [17, 4]]) {
+      expect(wallKind(MAIN_MAP, WALL_PIECES.main, c, r), `${c},${r}`).toBeFalsy();
+    }
+  });
   it("classifies every wall tile in the kitchen", () => {
     expect(picture(KITCHEN_MAP, "kitchen")).toEqual([
       "xbbbbbbbbbbbx",

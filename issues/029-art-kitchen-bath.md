@@ -1,7 +1,7 @@
 ---
 id: 029
 title: Top-down art: kitchen and bath
-status: review
+status: done
 owner: agent
 depends_on: [020, 025]
 ---
@@ -48,3 +48,15 @@ Draw every top-down piece in the kitchen and the bath, to `docs/art-style.md` an
   - Planner: the `PLAN.md` table needs updating to done.
 - 2026-10-23 (Marc's feedback after review): the kitchen appliances were drawn front-on, but they stand against south walls and face north. Marc chose "top-down, back to the wall": redrew `counter` and `dishes-0..3` (thin cabinet front along the top edge, large work surface with the sink and the dish pile), `stove` (oven door and knobs on the top edge, burners below), `hood` (vent slots on the front, chimney top) and `fridge` (doors and handles on the top edge, the top of the fridge below). Same names and sizes; dish stages still share the counter's footprint. Bath approved by Marc as is. Rebuilt sprites, `npm test` and `npm run build` pass; looked at the new kitchen mockup.
   - Open point: the fridge is against the **east** wall in the map, not the south, so facing north may not be right for it. Left as north-facing; say if it should face west.
+- 2026-10-23: **Review 2 (independent, current branch state after a88992d) - approve, with one minor nit.**
+  - Sizes vs the piece list and `apartment.ts`: pass. My own script parsed each `.sprite`: counter, dishes-0..3, stove 48x32 (3x2); hood 48x16 (3x1); fridge 32x32 (2x2); recycling, bin, tote 16x16; boxes 32x16; window-curtain 16x32; tub 32x64; toilet, vanity 32x32. Map footprints match (counter block is 3x2 at cols 1-3, rows 3-4; hood 3x1 in row 5; fridge 2x2). Every row is full width.
+  - Palette only: pass. Every char is a key in `art/palette.json` (or the transparent key `.`). Decoded each PNG in `public/sprites` and compared to its source pixel by pixel: all 16 match. `npm run sprites` (56 sprites) leaves git clean.
+  - Dish stages: pass on footprint and growth. `dishes-0` is identical to `counter`. Stages 1-3 differ from the counter only in rows 10-18 (the work surface) and keep the outline and cabinet front. Pixels changed vs the previous stage: 64, 121, 208. Viewed at 8x, 2x and on the contact sheet: one plate in the sink and a mug, then plates, bowl, two mugs, then a spilling pile with a pot and glass. It reads as a growing pile. **Not checked at true 1x in a browser.** At 2x it still reads, but the first stage is small (a plate and one mug), so Marc should judge it at 1x.
+  - **Nit (minor, not a failure):** stages 1-3 have transparent pixels (`.`) inside the counter, at the rounded corners of the plates, mugs and pot (8, 17 and 31 pixels). Over the counter these show the floor through instead of white counter. They are single-pixel corners and barely visible in the mockup, but the counter is not fully opaque in those stages. Easy fix: fill those corners with counter-top colour `6`. Not blocking.
+  - Top-down view, thin front edge on the north side (judgement, described not failed): the counter has a wood cabinet front 6 rows deep on top and a large white work surface below with the sink and dishes. The stove has the oven door, knobs and a front lip on top and the four burners below. The fridge has a handle strip on the top edge and its roof below. In the kitchen mockup (4x) this reads as a row of appliances seen from above with their fronts to the north, and it is consistent across counter, stove and fridge. The hood is a separate unit in the wall row south of the stove, drawn from above with vent slots, and looks plausible but is the least certain piece. Whether it matches what Marc imagines is his call.
+  - **Open point, unverified/judgement:** the fridge is on the east wall in the map and is drawn facing north. Not failed. Marc to decide whether it should face west.
+  - Bath: unchanged since the earlier approval and approved by Marc; the bath mockup looks fine (tub with curtain, toilet, vanity with mirror).
+  - Side-view removal: `shower-curtain` is gone and nothing in `src`, `scripts` or `art/src` refers to it.
+  - `npm test` 380 passed, `npm run build` passes.
+  - Scope: changed files outside `art/src` and `public/sprites` are `.gitignore`, `scripts/room-mockup-kitchen-bath.mjs` and this issue file. Since the first review only sprites and this issue file changed. No `PLAN.md` edits, nothing wired into `src`, no photo content.
+  - Planner: the `PLAN.md` table needs updating to done.

@@ -1,7 +1,7 @@
 ---
 id: 007b
 title: "Furniture sprites: Main room, east: dining table, records and sofa"
-status: review
+status: in-progress
 owner: agent
 depends_on: [005, 006]
 ---
@@ -48,3 +48,19 @@ The sprites should look like Marc's real pieces, so work from the photos in `ref
   - Table: items sit in the top 16px above the slab, trestle legs and stretcher leave the space under it open. Sofa starts at row 1 (row 0 transparent), feet on the bottom edge.
   - Colours: used only the Materials table; sofa upholstery uses `b`/`g` on cream `a` (pattern accent, no new key). Gallery frames use `5`, `9`, `a`, `d`, `6` and `7` for silver, wood, gold and white frames.
   - Not checked: how the sprites look in the running game (the level is not drawn with sprites until issue 016); Marc's approval of the look. The record-stand turntable is small and dark at 1x.
+- 2026-10-22: Review (independent reviewer): **changes needed**.
+  - Checked: `npm run build`, `npm test` (29 pass) and `npm run sprites` all pass; re-rendering leaves `git status` clean (PNGs match sources). Own script (outside the repo) decoded every PNG and compared it to its `.sprite`: sizes exactly 48x32, 16x48, 16x32, 32x16, 48x48, 16x48; every pixel is a palette key with one hex per key; alpha only 0 or 255; each PNG matches its source pixel for pixel. Only the six sprites, this issue file changed (no edits to other issues, PLAN.md, art-style, palette or room.ts). No photos or address in the repo. Compared by eye against the reference photos: dark red-brown table with teal microwave and coffee gear, red/teal sofa with mission arm, spruce guitar and mixed frames all read as the real pieces.
+  - Criteria: sizes/names/PNGs **pass**; palette only **pass**; recognisable and readable at 1x **pass**; materials table **pass** (dark wood 8/9/7, light wood 9, red/teal accents; no new colours); light from top-left **pass** (visual check); base on bottom edge **pass**; `npm run sprites` **pass**; no contact sheet or other batches' files committed **pass**.
+  - **Fail: 1px ink outline around the outside of every object.** An automated check for non-ink pixels that touch transparent pixels found:
+    - `table`: the stretcher has no bottom outline (row 25, x 7 to 38, `7` over transparent). Also a stray `5` pixel pair at x45, y7 to 8 outside the outline.
+    - `sofa-arm`: the bottom rail has no outline (row 30, x 4 to 11 are `8` over transparent).
+    - `guitar`: the neck rows 7 to 21 is 2px wide `7`/`8`/`5` with no ink outline (head and body are outlined).
+    - `record-stand`: cables (x7 to 8, y14 to 21) and the record sleeves (rows 29 to 33, `b` and `4`) have no outline.
+  - **Fail (partial): nothing important touches the box edge.** `guitar` head and the small hook shape at x12 to 14 touch the top row (y0, 7px); `gallery-wall` frames touch the top row (9px) and right column (15px) with no neighbour there. (`table`, `record-stand`, `sofa-arm` and `sofa` touch edges only where they meet neighbours.)
+  - **Judgement, please decide:** `table` under-space is open between the trestle legs except a full-width stretcher at rows 23 to 25, right at the height of a 14px player standing on the floor, so the player visually walks through it. If intended, say so in the log; otherwise lower or thin it. Also the collision surface is the top of the box (`room.ts`: the one-way slab is one tile at the top), so art tops below row 0 make the player float over it: `record-stand` top is at row 3 (3px), `sofa` at row 1 (1px), `table` slab at row 10 (the clutter above it is what the player stands on). `sofa-arm` is flush at row 0. Make the flush-vs-gap choice consistent or note why.
+  - Checklist for the author:
+    - [ ] Add the missing ink outlines: table stretcher bottom, sofa-arm bottom rail, guitar neck, record-stand cables and records; remove or outline the stray `5` pixels on the table (x45, y7 to 8).
+    - [ ] Keep the guitar head/hook and gallery-wall frames off the top and right edges of the box (or justify in the log).
+    - [ ] Decide on the table stretcher and the 1 to 3px tops on record-stand and sofa, and note the decision.
+    - [ ] Re-run `npm run sprites` and view the sheet again.
+  - **Unverified** (cannot be checked here): how the sprites look in the running game (the level is not drawn with sprites until 016); Marc's approval of the overall look; comparison with other batches (none merged).

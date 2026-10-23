@@ -1,7 +1,7 @@
 ---
 id: 039
 title: Choosing a task at an object (options, not only first-available)
-status: review
+status: done
 owner: claude
 depends_on: []
 ---
@@ -34,3 +34,13 @@ An object with several tasks currently offers the first one that can start, so t
   - Survey of real data over random states: choices now appear at the desk (work, side project, journal, tidy), sofa, bed, dining table (coffee/reheat/dinner), fridge (stare/humidifier), vanity (mirror and brush teeth) and bookshelf (water plant and a sort). The blinds and records stay automatic.
   - For the planner: at the vanity the mirror variants can overlap (`mirror-tired` with `mirror-day`, etc.), so the cycle can show two entries both called "Look in mirror". Not changed (outside the design as written); 041 could make them exclusive.
   - Not checked: how it feels in a browser, Tab behaviour in real browsers (preventDefault is on the window keydown).
+
+- 2026-10-23: Review (independent reviewer). Verdict: approve.
+  - Criterion 1 (design implemented, in `docs/tasks.md`, logic in `InteractionSystem`): pass. Read the diff; no per-object data, docs updated in `tasks.md` and `floor-plan.md`.
+  - Criterion 2 (single-task behaviour unchanged; new tests): pass. `npm test` 1191 pass. My own temporary differential test ran the real main-room items through `main`'s old `interaction.ts` and the new one over 6 x 4000 random frames (random E, Escape, X, arrows, Shift, M, random facing spots, no Tab/Q): `nearby`, active task and score identical every frame. Author's tests cover the listed cases.
+  - Criterion 3 (desk, sofa, bed choices): pass. Desk offers work, side project, journal, tidy together; sofa and bed offer choices (tested in the real game, `random: () => 0.5`).
+  - Criterion 4 (rendered frame, one line, test and build, Marc plays): partly. `npm test` and `npm run build` pass; the width of the longest prompt is asserted by `choice-prompt.test.ts`. I did not re-render a frame, so the render is unverified by me. Marc has not played it yet.
+  - Edge checks I wrote (temporary harness, deleted): Shift held alone or Tab held without a new press does not cycle; Tab+Q in the same frame cycles once; wrap forward and back; hammering Tab/Q while the typing game runs does not cycle or break the task; Escape out of the typing game then Tab leaves a sane `choices`/`nearby`; Shift+Tab with a dialog open leaves the pick unchanged; changing rooms and returning resets the pick to the first.
+  - Unverified (not tested by anyone): feel in a real browser, and `Tab` preventDefault actually stopping focus movement in real browsers (the code adds it to the keydown preventDefault set; only read, not run).
+  - Scope: only the files named in the log, plus this issue file; no `PLAN.md` or other-issue edits; no reference-photo content. Note for planner: the vanity can show two entries both named "Look in mirror" (already logged by the author, belongs to 041). "Only a player's pick is remembered" is a deliberate, logged deviation from the "keep selection" wording and is reasonable.
+  - Planner: update the `PLAN.md` table to done for 039.

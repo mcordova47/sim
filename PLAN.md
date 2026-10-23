@@ -40,7 +40,7 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 | 008 | [Player character sprite](issues/008-player-sprite.md) | agent | todo | 006 |
 | 009 | [Polish: sound, particles, achievements, time of day](issues/009-polish.md) | agent | todo | 004, 007 |
 | 010 | [Scrolling camera](issues/010-scrolling-camera.md) | claude | todo | 005 |
-| 011 | [Integrate the floor plan and task data](issues/011-integrate-floor-plan.md) | claude | todo | 005, 003 |
+| 011 | [Integrate the floor plan and task data](issues/011-integrate-floor-plan.md) | claude | done | 005, 003 |
 | 012 | [Interaction edge cases](issues/012-interaction-edge-cases.md) | claude | todo | |
 | 013 | [Physics robustness](issues/013-physics-robustness.md) | claude | todo | |
 | 014 | [HUD polish](issues/014-hud-polish.md) | claude | todo | 010, 011 |

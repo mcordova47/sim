@@ -31,4 +31,6 @@ The art that is left, and the small fixes the reviews noted. Do these after 031 
 - Redo the paintings (`painting`, `painting-desk`, `painting-wide`) and the `gallery-wall` strip from the new close-ups so they are better impressions of the real pieces; add `painting-robin` and a piece for the silkscreen over the bed if there is a wall slot (check the floor plan; propose a slot if not, do not edit the map).
 - Use the new references to improve whatever else they show: mic stand, stool, chair and desk-chair (overhead), books and records on the shelf, coffee station and mug on the table, nightstand, fridge, kitchen counter, microwave and mail on the table, desk clutter (for 042), made and unmade bed.
 
+- `view-gallery-wall` (320x192, same name): a straight-on view of the whole south gallery wall for the admire-art scene (issue 040). Keep key content in the top 140 px or so, because the dialog box covers the bottom. It is a labelled placeholder now.
+
 ## Progress log

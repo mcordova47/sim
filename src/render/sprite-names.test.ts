@@ -12,7 +12,7 @@ describe("the sprites the game asks for", () => {
       "floor-wood", "floor-kitchen", "floor-bath", "wall-back", "wall-front", "wall-side-left",
       "wall-side-right-kitchen", "wall-side-left-bath", "doorway", "doorway-left-kitchen",
       "doorway-right-kitchen", "doorway-right-bath", "bed-made", "bed-unmade", "dishes-0",
-      "dishes-3", "fridge", "player-idle-down", "player-walk-left-2",
+      "dishes-3", "view-gallery-wall", "fridge", "player-idle-down", "player-walk-left-2",
     ]) {
       expect(names, expected).toContain(expected);
     }

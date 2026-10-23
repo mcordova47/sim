@@ -21,11 +21,11 @@ Lists: `src/game/typing-text.ts`.
 ## New
 - **Clean the desk** (`tidy-desk`, desk): points and a flavor line only; changes nothing; cooldown 90 s.
 - **Take a nap** (`nap`, sofa): needs energy under `NAP.below`; adds `NAP.energy` and an hour; leaves the bed alone.
-- **Admire the art** (`admire-art`, sofa): a scene that walks to `GALLERY` (config.ts), looks, says two lines and walks back.
+- **Admire the art** (`admire-art`, sofa): a scene that shows a full-screen picture of the south gallery wall (`view-gallery-wall`), says two lines and takes it away. Nobody walks; the map is unchanged.
 
 ## Notes
-- The blinds sprites for each state are drawn in issue 036 (`window-blinds-open`, `window-blinds-closed`). Until then both states use `window-blinds`.
-- The gallery wall's place on the map is not set yet; `GALLERY` is a stand-in floor tile on the north wall.
+- The blinds use `window-blinds-open` and `window-blinds-closed`.
+- `view-gallery-wall` is a labelled placeholder (320x192) until an art issue draws it from Marc's photos.
 
 ## Mirror (issue 041)
 On the bath vanity, ahead of Brush teeth. **Look in mirror** is four tasks with the same prompt, each a short two-line dialog (`dialog-data.ts`, `MIRROR_*`); the vanity offers the first that can start:

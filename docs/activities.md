@@ -31,7 +31,11 @@ In a task (in `tasks.ts`, or in a tile-map legend):
 { set: { var: "bedMade", value: 1 } } // set a state variable (a flag), clamped to its range
 { goto: { col: 5, row: 1 } }        // walk to that tile of this room, around furniture and not through doorways
 { back: true }                      // walk back to the tile the scene began on and face the way you did
+{ view: "view-gallery-wall" }       // cover the world and HUD with that full-screen (320x192) picture
+{ unview: true }                    // take the picture away again
 ```
+
+`view` shows a static picture (a sprite named `view-...`, same size as the screen) over the world and the HUD. The step takes no time: the picture stays up while the steps after it run, so follow it with `say` (waits for a key) and `wait` (waits for time), and finish with `unview`. A dialog is drawn over the picture. The world is frozen behind it as for any running task: nobody walks, and the scene holds the controls. The picture belongs to the scene, so it goes away however the scene ends (the last step, Escape, an error) even without an `unview`. The sprite is loaded at start (the names are collected from the tasks' `view` steps); a missing file shows a labelled panel.
 
 `goto` and `back` plan their own route (breadth first over the room's walkable tiles, from wherever the player is when the step starts), so a scene works from any tile it can be started from. A tile with no way to it skips the step, so a scene never sticks. Use `face` after a `goto` to look at something.
 

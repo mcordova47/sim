@@ -93,6 +93,7 @@ export class Game {
   private readonly rooms: Readonly<Record<string, Level>>;
   private readonly random: () => number;
   private readonly painter: RoomPainter;
+  private readonly spriteDrawer: SpriteDrawer | undefined;
 
   constructor(level: Level, options: GameOptions = {}) {
     this.state = options.state ?? new ApartmentState(STATE_VARS);
@@ -100,6 +101,7 @@ export class Game {
     this.level = level;
     this.rooms = options.rooms ?? {};
     this.random = options.random ?? Math.random;
+    this.spriteDrawer = options.sprites;
     this.painter = new RoomPainter(options.sprites);
     this.grid = new Grid(level.size, this.activeSolids());
     this.state.onChange = (change) => this.stateChanged(change);
@@ -176,6 +178,7 @@ export class Game {
         },
       },
       route: (col, row) => this.routeTo(col, row),
+      sprites: this.spriteDrawer,
       random: () => this.random(),
     };
   }

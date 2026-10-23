@@ -1,6 +1,7 @@
 import type { Controls } from "../input/controls";
 import type { DialogNode, DialogResult } from "./dialog";
 import type { Direction } from "./direction";
+import type { SpriteDrawer } from "../render/sprites";
 import type { Interactable } from "./interactable";
 
 // An activity is what a task is while the player is doing it. Today's timed
@@ -48,6 +49,8 @@ export interface ActivityHost {
   // tile `col`, `row` in this room, around furniture and not through doorways,
   // or null if there is no way. Empty if they are already there.
   route?(col: number, row: number): Direction[] | null;
+  // Where full-screen pictures come from (a cutscene's `view`). Missing in tests.
+  readonly sprites?: SpriteDrawer;
   // A random number from 0 up to 1. Injected, so tests are deterministic.
   random(): number;
 }

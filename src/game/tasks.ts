@@ -1,4 +1,4 @@
-import { CLOCK, ENERGY, GALLERY, MIRROR, NAP } from "./config";
+import { CLOCK, ENERGY, MIRROR, NAP } from "./config";
 import { CONTEMPLATE, MIRROR_DAY, MIRROR_MORNING, MIRROR_NIGHT, MIRROR_TIRED } from "./dialog-data";
 import type { Requirement } from "./state";
 import type { Interactable } from "./interactable";
@@ -176,12 +176,12 @@ const STATE_RULES: Record<string, Partial<Task>> = {
     activity: {
       type: "cutscene",
       steps: [
-        { goto: { col: GALLERY.col, row: GALLERY.row } },
-        { face: GALLERY.face },
+        // No walk: the view is a picture of the south gallery wall.
+        { view: "view-gallery-wall" },
         { say: "Frames on a wall. A few of them straight." },
         { wait: 0.6 },
         { say: "You stand here long enough that it becomes a decision." },
-        { back: true },
+        { unview: true },
       ],
     },
   },

@@ -1,3 +1,4 @@
+import { COLOR } from "../../render/colors";
 import type { Controls } from "../../input/controls";
 import { NO_INPUT } from "../../input/controls";
 import { BaseActivity, needHost, registerActivity, type ActivityHost, type ValidationContext } from "../activity";
@@ -13,6 +14,8 @@ import { DIRECTIONS, type Direction } from "../direction";
 //   { walk: ["left", "left", "up"] }    walk the player that many tiles
 //   { goto: { col: 5, row: 1 } }        walk to that tile of the room, around furniture
 //   { back: true }                      walk back to the tile the scene began on, and face as before
+//   { view: "sprite-name" }             cover the world with that full-screen picture (dialogs draw over it)
+//   { unview: true }                    take the picture away again
 //   { set: { var: "mood", value: 1 } }  set a state variable (a flag)
 // The answer of the last `ask` ends up in the result's `data`.
 export type CutsceneStep =
@@ -24,6 +27,8 @@ export type CutsceneStep =
   | { walk: Direction[] }
   | { goto: { col: number; row: number } }
   | { back: true }
+  | { view: string }
+  | { unview: true }
   | { set: { var: string; value: number } };
 
 // How long a single scripted step is given before it counts as blocked.
@@ -47,6 +52,9 @@ export class CutsceneActivity extends BaseActivity {
   private route: Direction[] | null = null;
   // What the last `ask` was answered with.
   private answer: DialogResult | undefined;
+  // The full-screen picture being shown, if any. Cleared by `end`, so it goes
+  // away however the scene finishes (the last step, Escape, an error).
+  private viewSprite: string | null = null;
 
   constructor(
     private readonly steps: CutsceneStep[],
@@ -63,7 +71,22 @@ export class CutsceneActivity extends BaseActivity {
   }
 
   private end(): void {
+    this.viewSprite = null;
     this.finish({ completed: true, ...(this.answer !== undefined && { data: this.answer }) });
+  }
+
+  // The picture of a `view` step, over the world and the HUD. The game draws a
+  // dialog on top of it. Without the game's sprites (tests) it is a labelled panel.
+  draw(ctx: CanvasRenderingContext2D, screen: { width: number; height: number }): void {
+    if (this.viewSprite === null || this.done) return;
+    const sprites = this.host.sprites;
+    if (sprites?.has(this.viewSprite)) {
+      sprites.draw(ctx, this.viewSprite, 0, 0, screen);
+      return;
+    }
+    ctx.fillStyle = COLOR.ink;
+    ctx.fillRect(0, 0, screen.width, screen.height);
+    sprites?.draw(ctx, this.viewSprite, 0, 0, screen);
   }
 
   update(dt: number, _controls: Controls): void {
@@ -92,6 +115,14 @@ export class CutsceneActivity extends BaseActivity {
   private run(step: CutsceneStep, dt: number): "waiting" | "done" {
     if ("say" in step) return this.openAndWait(say(step.say, undefined, step.speaker));
     if ("ask" in step) return this.openAndWait(step.ask, true);
+    if ("view" in step) {
+      this.viewSprite = step.view;
+      return "done";
+    }
+    if ("unview" in step) {
+      this.viewSprite = null;
+      return "done";
+    }
     if ("set" in step) {
       this.host.setState(step.set.var, step.set.value);
       return "done";
@@ -175,8 +206,8 @@ function validateStep(step: unknown, where: string, context?: ValidationContext)
   };
   if (typeof step !== "object" || step === null || Array.isArray(step)) return bad("a step must be an object");
   const s = step as Record<string, unknown>;
-  const keys = ["say", "ask", "wait", "cue", "face", "walk", "goto", "back", "set"].filter((k) => k in s);
-  if (keys.length !== 1) return bad("a step needs exactly one of say, ask, wait, cue, face, walk, goto, back, set");
+  const keys = ["say", "ask", "wait", "cue", "face", "walk", "goto", "back", "view", "unview", "set"].filter((k) => k in s);
+  if (keys.length !== 1) return bad("a step needs exactly one of say, ask, wait, cue, face, walk, goto, back, view, unview, set");
   switch (keys[0]) {
     case "say":
     case "cue":
@@ -203,6 +234,12 @@ function validateStep(step: unknown, where: string, context?: ValidationContext)
     }
     case "back":
       if (s.back !== true) bad("back must be true");
+      break;
+    case "view":
+      if (typeof s.view !== "string" || !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(s.view)) bad("view needs a sprite name");
+      break;
+    case "unview":
+      if (s.unview !== true) bad("unview must be true");
       break;
     case "set": {
       const v = s.set as { var?: unknown; value?: unknown } | null;

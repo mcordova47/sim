@@ -1,4 +1,5 @@
 import type { Level } from "../game/level";
+import { TASKS } from "../game/tasks";
 import { PLAYER_SPRITES } from "./player-sprite";
 
 // Every sprite the game can ask for in these rooms: floors, wall and doorway
@@ -14,6 +15,12 @@ export function spriteNames(rooms: Iterable<Level>): string[] {
     }
     for (const piece of level.pieces) if (piece.sprite) names.add(piece.sprite);
     for (const { variants } of level.appearances ?? []) for (const v of variants) names.add(v.sprite);
+  }
+  // Full-screen pictures a task's cutscene shows (`view` steps).
+  for (const task of TASKS) {
+    const spec = task.activity;
+    if (spec?.type !== "cutscene" || !Array.isArray(spec.steps)) continue;
+    for (const step of spec.steps) if (step && typeof (step as { view?: unknown }).view === "string") names.add((step as { view: string }).view);
   }
   return [...names].sort();
 }

@@ -1,5 +1,8 @@
 import { TILE } from "./config";
 import type { Direction } from "./direction";
+import { validateActivity } from "./activity";
+// Registers the built-in activities, so their settings can be checked here.
+import "./activities";
 import { Grid } from "./grid";
 import type { Appearance } from "./appearance";
 import type { Interactable } from "./interactable";
@@ -54,7 +57,8 @@ export function pieceBounds(tiles: { col: number; row: number }[]): Rect {
 
 // Throws if the level could not be played: a size that is not whole tiles, a
 // start that is off the map, in a wall or off the tile grid, or a doorway that
-// is not a walkable tile of the room.
+// is not a walkable tile of the room, or a task whose `activity` is not a known
+// type with sane settings.
 export function validateLevel(level: Level): void {
   const { width, height } = level.size;
   const name = level.id ?? "level";
@@ -67,6 +71,7 @@ export function validateLevel(level: Level): void {
   if (grid.isBlocked(x / TILE, y / TILE)) {
     throw new Error(`${name}: the start (col ${x / TILE}, row ${y / TILE}) is not open floor`);
   }
+  for (const item of level.interactables) validateActivity(item);
   for (const door of level.doors) {
     if (grid.isBlocked(door.col, door.row)) {
       throw new Error(`${name}: the door at col ${door.col}, row ${door.row} is blocked`);

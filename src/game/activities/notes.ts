@@ -22,6 +22,9 @@ export class NotesActivity extends BaseActivity {
 
   constructor(readonly sequence: Direction[]) {
     super();
+    if (sequence.length > NOTES.maxCount) {
+      throw new Error(`Too many notes: ${sequence.length} (at most ${NOTES.maxCount})`);
+    }
     this.outcomes = sequence.map(() => null);
     this.timer = NOTES.leadIn;
     if (sequence.length === 0) this.finish({ completed: true, quality: 1 });
@@ -100,12 +103,19 @@ export class NotesActivity extends BaseActivity {
   }
 }
 
+function noteCount(spec: Record<string, unknown>, item: { id: string }): number {
+  const count = spec.count === undefined ? NOTES.count : Number(spec.count);
+  if (!Number.isInteger(count) || count < 1 || count > NOTES.maxCount) {
+    throw new Error(
+      `Task "${item.id}": notes needs a whole number of notes, 1 or more and at most ${NOTES.maxCount} (so they fit the screen)`,
+    );
+  }
+  return count;
+}
+
 registerActivity("notes", (spec, item, host) => {
   const h = needHost(host, `Task "${item.id}"`);
-  const count = spec.count === undefined ? NOTES.count : Number(spec.count);
-  if (!Number.isInteger(count) || count < 1) {
-    throw new Error(`Task "${item.id}": notes needs a whole number of notes, 1 or more`);
-  }
+  const count = noteCount(spec, item);
   const sequence = Array.from({ length: count }, () => DIRECTIONS[Math.floor(h.random() * DIRECTIONS.length)]);
   return new NotesActivity(sequence);
-});
+}, (spec, item) => void noteCount(spec, item));

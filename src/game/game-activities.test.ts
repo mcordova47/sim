@@ -221,7 +221,8 @@ describe("a cutscene in the game", () => {
     run(game, 0.2);
     game.update(dt, press);
     const start = game.player.row;
-    run(game, 1.5, { ...NO_INPUT, dir: "up" }); // the player's own keys are ignored
+    // The player's own keys are ignored until the scene is over.
+    for (let i = 0; i < 300 && game.interaction.busy; i++) game.update(dt, { ...NO_INPUT, dir: "up" });
     expect(game.player.row).toBe(start + 2);
     expect(game.player.facing).toBe("up");
     expect(game.interaction.busy).toBe(false);

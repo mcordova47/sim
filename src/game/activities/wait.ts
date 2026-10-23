@@ -22,4 +22,12 @@ export class WaitActivity extends BaseActivity {
   }
 }
 
-registerActivity("wait", (_spec, item) => new WaitActivity(item.duration));
+registerActivity(
+  "wait",
+  (_spec, item) => new WaitActivity(item.duration),
+  (_spec, item) => {
+    if (typeof item.duration !== "number" || Number.isNaN(item.duration)) {
+      throw new Error(`Task "${item.id}": a wait needs a duration in seconds`);
+    }
+  },
+);

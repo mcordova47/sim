@@ -88,6 +88,10 @@ export const TYPING = {
   maxSeconds: 30,
   // How many lines of code to type, by default.
   lines: 2,
+  // At most this many lines, and no line wider than this many pixels, so the
+  // box fits the 320 px screen.
+  maxLines: 6,
+  maxLineWidth: 280,
 };
 
 // The key-notes mini-game: arrows appear one at a time and you press the same
@@ -95,6 +99,8 @@ export const TYPING = {
 export const NOTES = {
   // How many notes, by default.
   count: 6,
+  // At most this many, so the row of notes fits the 320 px screen.
+  maxCount: 14,
   // Seconds each note waits to be pressed.
   window: 1.2,
   // Seconds between notes, and before the first.

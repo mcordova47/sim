@@ -10,6 +10,7 @@ const PREVENT_DEFAULT = new Set([
 export class Keyboard {
   private held = new Set<string>();
   private pressed = new Set<string>();
+  private released = new Set<string>();
 
   constructor(target: Window = window) {
     target.addEventListener("keydown", (e) => {
@@ -19,10 +20,11 @@ export class Keyboard {
       this.pressed.add(e.code);
     });
     target.addEventListener("keyup", (e) => {
-      this.held.delete(e.code);
+      if (this.held.delete(e.code)) this.released.add(e.code);
     });
     // Avoid keys getting stuck down when focus leaves the page.
     target.addEventListener("blur", () => {
+      for (const code of this.held) this.released.add(code);
       this.held.clear();
       this.pressed.clear();
     });
@@ -42,8 +44,19 @@ export class Keyboard {
     return [...this.pressed];
   }
 
+  // The codes of every key held right now.
+  heldKeys(): string[] {
+    return [...this.held];
+  }
+
+  // The codes of every key let go since the last endFrame().
+  releasedKeys(): string[] {
+    return [...this.released];
+  }
+
   // Call once at the end of each update step.
   endFrame(): void {
     this.pressed.clear();
+    this.released.clear();
   }
 }

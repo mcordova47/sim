@@ -103,7 +103,7 @@ describe("TypingActivity", () => {
   });
 
   it("ends with quality 0 if it takes too long, and still counts as done", () => {
-    const a = new TypingActivity(["x".repeat(50)]);
+    const a = new TypingActivity(["x".repeat(40)]);
     for (let i = 0; i < Math.ceil(TYPING.maxSeconds / dt) + 2; i++) a.update(dt, NO_INPUT);
     expect(a.done).toBe(true);
     expect(a.result).toEqual({ completed: true, quality: 0 });

@@ -125,25 +125,44 @@ describe("walking the player by script", () => {
     const s = scene([{ walk: directions }, { cue: "arrived" }]);
     let timer = 0;
     let moves = 0;
+    let going: string | undefined;
     const frame = () => {
       s.a.update(dt, NO_INPUT);
-      const held = s.a.playerControls?.dir;
-      if (held && moves < blockedAfter) {
-        s.f.player.stepping = true;
+      // Like the player: a step starts only from a held direction, then runs
+      // to the end on its own.
+      if (!s.f.player.stepping) {
+        const held = s.a.playerControls?.dir;
+        if (held && moves < blockedAfter) {
+          s.f.player.stepping = true;
+          going = held;
+          timer = 0;
+        }
+      }
+      if (s.f.player.stepping) {
         timer += dt;
         if (timer >= 0.16) {
-          timer = 0;
           s.f.player.stepping = false;
           moves++;
-          if (held === "left") s.f.player.col--;
-          if (held === "right") s.f.player.col++;
-          if (held === "up") s.f.player.row--;
-          if (held === "down") s.f.player.row++;
+          if (going === "left") s.f.player.col--;
+          if (going === "right") s.f.player.col++;
+          if (going === "up") s.f.player.row--;
+          if (going === "down") s.f.player.row++;
         }
       }
     };
     return { ...s, frame, get moves() { return moves; } };
   }
+
+  it("lets go of the key once a step has started, so the player stops after one tile", () => {
+    const w = walkScene(["left"]);
+    for (let i = 0; i < 300 && !w.a.done; i++) {
+      const wasStepping = w.f.player.stepping;
+      w.frame();
+      if (wasStepping) expect(w.a.playerControls).toBeNull();
+    }
+    expect(w.f.player.col).toBe(4);
+    expect(w.moves).toBe(1);
+  });
 
   it("holds each direction until the player has moved a tile, then the next", () => {
     const w = walkScene(["left", "left", "up"]);
@@ -170,7 +189,7 @@ describe("walking the player by script", () => {
 
   it("gives back control when it ends or is skipped", () => {
     const w = walkScene(["left", "left", "left"]);
-    for (let i = 0; i < 20; i++) w.frame();
+    w.frame(); // the first frame holds the key
     expect(w.a.playerControls).not.toBeNull();
     w.a.cancel();
     expect(w.a.playerControls).toBeNull();

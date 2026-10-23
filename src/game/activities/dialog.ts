@@ -26,7 +26,12 @@ export class DialogActivity extends BaseActivity {
   }
 }
 
-registerActivity("dialog", (_spec, item, host) => {
+function validate(_spec: unknown, item: { id: string; dialog?: unknown }): void {
   if (!item.dialog) throw new Error(`Task "${item.id}" has a dialog activity but no dialog`);
-  return new DialogActivity(item.dialog, needHost(host, `Task "${item.id}"`));
-});
+}
+
+registerActivity(
+  "dialog",
+  (_spec, item, host) => new DialogActivity(item.dialog!, needHost(host, `Task "${item.id}"`)),
+  validate,
+);

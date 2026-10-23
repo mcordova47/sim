@@ -21,6 +21,10 @@ export interface Controls {
   // The code of every key that went down this frame, for mini-games that read
   // typing or particular keys (for example "KeyA", "Space", "Escape").
   keys: string[];
+  // The code of every key held right now, and of every key let go this frame
+  // (for "hold and release on cue" mini-games).
+  keysDown: string[];
+  keysReleased: string[];
 }
 
 // What the player gets while locked into a task.
@@ -30,6 +34,8 @@ export const NO_INPUT: Controls = {
   interactPressed: false,
   cancelPressed: false,
   keys: [],
+  keysDown: [],
+  keysReleased: [],
 };
 
 const anyDown = (keyboard: Keyboard, codes: string[]) =>
@@ -59,5 +65,7 @@ export function readControls(keyboard: Keyboard): Controls {
     interactPressed: INTERACT.some((c) => keyboard.wasPressed(c)),
     cancelPressed: CANCEL.some((c) => keyboard.wasPressed(c)),
     keys: keyboard.pressedKeys(),
+    keysDown: keyboard.heldKeys(),
+    keysReleased: keyboard.releasedKeys(),
   };
 }

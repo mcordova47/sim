@@ -1,8 +1,8 @@
 import type { Controls } from "../../input/controls";
 import { NO_INPUT } from "../../input/controls";
 import { BaseActivity, needHost, registerActivity, type ActivityHost } from "../activity";
-import { say, type DialogNode } from "../dialog";
-import type { Direction } from "../direction";
+import { say, type DialogNode, type DialogResult } from "../dialog";
+import { DIRECTIONS, type Direction } from "../direction";
 
 // One step of a cutscene, written as data:
 //   { say: "text", speaker?: "name" }   show text and wait for it to be read
@@ -11,13 +11,16 @@ import type { Direction } from "../direction";
 //   { cue: "record-spin" }              announce a named moment (sound, animation)
 //   { face: "left" }                    turn the player
 //   { walk: ["left", "left", "up"] }    walk the player that many tiles
+//   { set: { var: "mood", value: 1 } }  set a state variable (a flag)
+// The answer of the last `ask` ends up in the result's `data`.
 export type CutsceneStep =
   | { say: string; speaker?: string }
   | { ask: DialogNode }
   | { wait: number }
   | { cue: string }
   | { face: Direction }
-  | { walk: Direction[] };
+  | { walk: Direction[] }
+  | { set: { var: string; value: number } };
 
 // How long a single scripted step is given before it counts as blocked.
 const WALK_TIMEOUT = 1;
@@ -34,18 +37,24 @@ export class CutsceneActivity extends BaseActivity {
   private waiting = false;
   private walkIndex = 0;
   private walkFrom: { col: number; row: number } | null = null;
+  // What the last `ask` was answered with.
+  private answer: DialogResult | undefined;
 
   constructor(
     private readonly steps: CutsceneStep[],
     private readonly host: ActivityHost,
   ) {
     super();
-    if (steps.length === 0) this.finish({ completed: true });
+    if (steps.length === 0) this.end();
   }
 
   // A cutscene that is skipped still happened.
   cancel(): void {
-    this.finish({ completed: true });
+    this.end();
+  }
+
+  private end(): void {
+    this.finish({ completed: true, ...(this.answer !== undefined && { data: this.answer }) });
   }
 
   update(dt: number, _controls: Controls): void {
@@ -55,7 +64,7 @@ export class CutsceneActivity extends BaseActivity {
     for (let guard = 0; guard < 1000 && !this.done; guard++) {
       if (this.index >= this.steps.length) {
         this.progress = 1;
-        this.finish({ completed: true });
+        this.end();
         return;
       }
       this.progress = this.index / this.steps.length;
@@ -72,7 +81,11 @@ export class CutsceneActivity extends BaseActivity {
   // Returns "waiting" if the step isn't finished, else "done".
   private run(step: CutsceneStep, dt: number): "waiting" | "done" {
     if ("say" in step) return this.openAndWait(say(step.say, undefined, step.speaker));
-    if ("ask" in step) return this.openAndWait(step.ask);
+    if ("ask" in step) return this.openAndWait(step.ask, true);
+    if ("set" in step) {
+      this.host.setState(step.set.var, step.set.value);
+      return "done";
+    }
     if ("wait" in step) {
       this.timer += dt;
       return this.timer >= step.wait ? "done" : "waiting";
@@ -88,10 +101,11 @@ export class CutsceneActivity extends BaseActivity {
     return this.walk(step.walk, dt);
   }
 
-  private openAndWait(node: DialogNode): "waiting" | "done" {
+  private openAndWait(node: DialogNode, keepAnswer = false): "waiting" | "done" {
     if (this.waiting) return "waiting";
     // If another dialog is open, try again next update.
-    const opened = this.host.openDialog(node, () => {
+    const opened = this.host.openDialog(node, (result) => {
+      if (keepAnswer) this.answer = result;
       this.waiting = false;
       this.index++;
       this.timer = 0;
@@ -100,7 +114,9 @@ export class CutsceneActivity extends BaseActivity {
     return "waiting";
   }
 
-  // Walks one tile per direction, holding the key until the player arrives.
+  // Walks one tile per direction. The key is held only until the step has
+  // started; the player then finishes it with no input, so on arrival they
+  // don't carry straight on into a second tile.
   private walk(directions: Direction[], dt: number): "waiting" | "done" {
     const player = this.host.player;
     if (this.walkIndex >= directions.length) {
@@ -108,6 +124,8 @@ export class CutsceneActivity extends BaseActivity {
       return "done";
     }
     if (this.walkFrom === null) {
+      // Let a step already under way finish first.
+      if (player.stepping) return "waiting";
       this.walkFrom = { col: player.col, row: player.row };
       this.timer = 0;
     }
@@ -121,13 +139,59 @@ export class CutsceneActivity extends BaseActivity {
       this.playerControls = null;
       return this.walkIndex >= directions.length ? "done" : "waiting";
     }
-    this.playerControls = { ...NO_INPUT, dir: directions[this.walkIndex] };
+    // Hold the key only until the step has started.
+    this.playerControls = player.stepping ? null : { ...NO_INPUT, dir: directions[this.walkIndex] };
     return "waiting";
   }
 }
 
-registerActivity("cutscene", (spec, item, host) => {
+function validateStep(step: unknown, where: string): void {
+  const bad = (why: string) => {
+    throw new Error(`${where}: ${why}`);
+  };
+  if (typeof step !== "object" || step === null || Array.isArray(step)) return bad("a step must be an object");
+  const s = step as Record<string, unknown>;
+  const keys = ["say", "ask", "wait", "cue", "face", "walk", "set"].filter((k) => k in s);
+  if (keys.length !== 1) return bad("a step needs exactly one of say, ask, wait, cue, face, walk, set");
+  switch (keys[0]) {
+    case "say":
+    case "cue":
+      if (typeof s[keys[0]] !== "string") bad(`${keys[0]} needs text`);
+      break;
+    case "ask":
+      if (typeof s.ask !== "object" || s.ask === null) bad("ask needs a dialog or menu");
+      break;
+    case "wait":
+      if (typeof s.wait !== "number" || !Number.isFinite(s.wait) || s.wait < 0) bad("wait needs a number of seconds, 0 or more");
+      break;
+    case "face":
+      if (!DIRECTIONS.includes(s.face as Direction)) bad("face needs up, down, left or right");
+      break;
+    case "walk":
+      if (!Array.isArray(s.walk) || s.walk.some((d) => !DIRECTIONS.includes(d as Direction))) {
+        bad("walk needs a list of up, down, left or right");
+      }
+      break;
+    case "set": {
+      const v = s.set as { var?: unknown; value?: unknown } | null;
+      if (!v || typeof v.var !== "string" || typeof v.value !== "number" || !Number.isFinite(v.value)) {
+        bad("set needs { var, value } with a variable name and a number");
+      }
+    }
+  }
+}
+
+function validate(spec: Record<string, unknown>, item: { id: string }): CutsceneStep[] {
   const steps = spec.steps;
-  if (!Array.isArray(steps)) throw new Error(`Task "${item.id}": a cutscene needs a list of steps`);
-  return new CutsceneActivity(steps as CutsceneStep[], needHost(host, `Task "${item.id}"`));
-});
+  if (!Array.isArray(steps) || steps.length === 0) {
+    throw new Error(`Task "${item.id}": a cutscene needs a list of steps, one or more`);
+  }
+  steps.forEach((step, i) => validateStep(step, `Task "${item.id}", cutscene step ${i + 1}`));
+  return steps as CutsceneStep[];
+}
+
+registerActivity(
+  "cutscene",
+  (spec, item, host) => new CutsceneActivity(validate(spec, item), needHost(host, `Task "${item.id}"`)),
+  (spec, item) => void validate(spec, item),
+);

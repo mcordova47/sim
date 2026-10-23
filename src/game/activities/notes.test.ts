@@ -141,7 +141,7 @@ describe("making one from a task", () => {
   });
 
   it("uses all four directions over a long run", () => {
-    expect(new Set(sequence(5, 80)).size).toBe(4);
+    expect(new Set([1, 2, 3, 4, 5, 6].flatMap((s) => sequence(s, NOTES.maxCount))).size).toBe(4);
   });
 
   it("rejects a bad count, naming the task", () => {

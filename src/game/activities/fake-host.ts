@@ -6,6 +6,7 @@ import type { Direction } from "../direction";
 // the activity asks for, and lets the test decide when a dialog closes.
 export function fakeHost(seed = 1) {
   const cues: string[] = [];
+  const stateSets: { id: string; value: number }[] = [];
   const dialogs: { node: DialogNode; close(result?: DialogResult): void }[] = [];
   let open = false;
 
@@ -39,6 +40,7 @@ export function fakeHost(seed = 1) {
       return true;
     },
     cue: (name) => cues.push(name),
+    setState: (id, value) => stateSets.push({ id, value }),
     player,
     random,
   };
@@ -46,6 +48,7 @@ export function fakeHost(seed = 1) {
   return {
     host,
     cues,
+    stateSets,
     dialogs,
     player,
     // Make `openDialog` refuse, as if another dialog were open.

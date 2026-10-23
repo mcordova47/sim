@@ -32,6 +32,7 @@ export function isTypingKey(code: string): boolean {
 // the key. How well it went depends on how fast the lines were finished.
 export class TypingActivity extends BaseActivity {
   cancellable = true;
+  readonly readsKeys = true;
 
   readonly lines: string[];
   private readonly total: number;
@@ -40,6 +41,14 @@ export class TypingActivity extends BaseActivity {
 
   constructor(lines: string[]) {
     super();
+    if (lines.length > TYPING.maxLines) {
+      throw new Error(`Too many lines to type: ${lines.length} (at most ${TYPING.maxLines})`);
+    }
+    for (const line of lines) {
+      if (textWidth(line) > TYPING.maxLineWidth) {
+        throw new Error(`A line to type is too wide for the screen (${textWidth(line)} px, at most ${TYPING.maxLineWidth}): "${line}"`);
+      }
+    }
     this.lines = lines;
     this.total = lines.reduce((sum, l) => sum + l.length, 0);
   }
@@ -102,12 +111,23 @@ export class TypingActivity extends BaseActivity {
   }
 }
 
-registerActivity("typing", (spec, item, host) => {
-  const h: ActivityHost = needHost(host, `Task "${item.id}"`);
+function lineCount(spec: Record<string, unknown>, item: { id: string }): number {
   const count = spec.lines === undefined ? TYPING.lines : Number(spec.lines);
-  if (!Number.isInteger(count) || count < 1) {
-    throw new Error(`Task "${item.id}": typing needs a whole number of lines, 1 or more`);
+  if (!Number.isInteger(count) || count < 1 || count > TYPING.maxLines) {
+    throw new Error(
+      `Task "${item.id}": typing needs a whole number of lines, 1 or more and at most ${TYPING.maxLines}`,
+    );
   }
-  const lines = Array.from({ length: count }, () => SNIPPETS[Math.floor(h.random() * SNIPPETS.length)]);
-  return new TypingActivity(lines);
-});
+  return count;
+}
+
+registerActivity(
+  "typing",
+  (spec, item, host) => {
+    const h: ActivityHost = needHost(host, `Task "${item.id}"`);
+    const count = lineCount(spec, item);
+    const lines = Array.from({ length: count }, () => SNIPPETS[Math.floor(h.random() * SNIPPETS.length)]);
+    return new TypingActivity(lines);
+  },
+  (spec, item) => void lineCount(spec, item),
+);

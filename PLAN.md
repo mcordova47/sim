@@ -42,7 +42,7 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 | 009a | [Polish: sound effects](issues/009a-sound.md) | agent | todo | 017 |
 | 009b | [Polish: particles](issues/009b-particles.md) | agent | todo | 017 |
 | 009c | [Polish: achievements and saved progress](issues/009c-achievements.md) | agent | todo | 017 |
-| 009d | [Polish: time of day (optional)](issues/009d-time-of-day.md) | agent | todo | 017 |
+| 009d | [Polish: time of day](issues/009d-time-of-day.md) | agent | todo | 017 |
 | 010 | [Scrolling camera](issues/010-scrolling-camera.md) | claude | done | 005 |
 | 011 | [Integrate the floor plan and task data](issues/011-integrate-floor-plan.md) | claude | done | 005, 003 |
 | 012 | [Interaction edge cases](issues/012-interaction-edge-cases.md) | claude | done | |
@@ -63,6 +63,7 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 ## Decisions
 - **Level wider than the screen:** scrolling camera (issue 010), chosen over smaller tiles or a compressed room.
 - **Scale:** 1 tile = 1 ft with the player 14px tall (about 10 in) stays as is for now. Revisit if the sprites feel too small. Re-run 005's reachability check if the player or jump constants ever change.
+- **Day and night cycle:** yes. A game clock, lighting through the day and tasks that pay better at the right hour (issue 009d).
 - **Combo rule:** rewards variety (different tasks in quick succession), not repetition.
 
 ## Open questions

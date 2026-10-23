@@ -1,13 +1,13 @@
 ---
 id: 009d
-title: "Polish: time of day (optional)"
+title: "Polish: time of day"
 status: todo
 owner: agent
 depends_on: [017]
 ---
 
 ## Goal
-Give the apartment a sense of time: lighting that changes through the day, a clock, and tasks that pay better at the right hour (coffee in the morning, cooking in the evening). This is the most optional of the polish issues; build it only if Marc wants a day and night cycle.
+Give the apartment a sense of time: lighting that changes through the day, a clock, and tasks that pay better at the right hour (coffee in the morning, cooking in the evening). Marc approved the day and night cycle.
 
 ## How this fits in
 Issue 017 added `game.events` (typed events for jump, land, task start, task complete and task blocked) and `game.addLayer(...)` for extra update and drawing hooks. Build this feature as its own module that subscribes to those events and, if it draws, registers a layer. Add exactly one line to `src/game/features.ts` to switch it on. Do not edit `game.ts` unless the issue says so, and keep every colour from `render/colors.ts` and every number you may want to tune in `config.ts`. Other agents are building the other three polish features at the same time, so stay inside your own module.
@@ -26,6 +26,6 @@ Keep it all testable without a browser: put the logic in plain functions and cla
 
 ## Notes
 - Be careful that lighting never makes the game hard to read. Night should be moody but the prompts, HUD and furniture must stay legible.
-- Marc decides whether this ships. If he says no, close the issue unmerged.
+- Marc wants this in the game (decided 2026-10-22).
 
 ## Progress log

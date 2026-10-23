@@ -92,7 +92,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 053 | [Sleeping on an unmade bed shows a made bed](issues/053-sleep-on-unmade-bed.md) | agent | done | 052 |
 | 054 | [Wall texture from the new photo](issues/054-wall-texture.md) | marc + agent | done | |
 | 055 | [Replace the GOOD HOUR text with an icon](issues/055-good-hour-icon.md) | claude | done | |
-| 056 | [Redraw the mic stand; take the robin print off the map](issues/056-mic-and-robin.md) | agent | todo | |
+| 056 | [Redraw the mic stand; take the robin print off the map](issues/056-mic-and-robin.md) | agent | done | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

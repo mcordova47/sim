@@ -1,7 +1,7 @@
 ---
 id: 035
 title: Task variety from Marc's first playtest
-status: review
+status: done
 owner: claude
 depends_on: []
 ---
@@ -38,3 +38,14 @@ Make the existing tasks less repetitive and match what they say. From Marc's pla
   - **Checked:** `npm test` (565 pass) and `npm run build` pass. The existing level validation, reachability (every task has a reachable spot), font and sprite-exists tests all cover the new tasks. Points: new tasks 10 to 80, inside the old range 10 to 90.
   - **Not checked:** how any of it looks or feels in a browser (typing box with the new lines, the admire walk, the nap prompt).
   - **Design notes for Marc:** (1) an object offers the first startable task, so at the sofa and bookshelf the tasks rotate by cooldown and requirements rather than by choice; a pick-a-task menu would be a new feature. (2) the four record sorts and coffee make/drink are different task ids, so doing them in a row counts as variety for the combo (each id has a cooldown of at least 15 s, records 45 s). (3) the gallery wall spot (`GALLERY` in config.ts) is a placeholder tile on the north wall until 036 places the piece.
+- 2026-10-23, reviewer (independent). Verdict: **approve**.
+  - Ran `npm test` (565 pass) and `npm run build` (ok) on the branch. Wrote my own edge-case tests outside the repo (not committed).
+  - **Typing text: pass.** `text` validated at build (rejects empty list, non-list, empty or blank strings, non-strings, non-font characters such as an accented e or a newline, and lines over `TYPING.maxLineWidth`). Desk is email, sofa code, bed mixed. A pool smaller than `lines` refills without throwing.
+  - **Alternating tasks: pass.** Over 9 record sorts in a row the order was alphabetical, year, favorites, color, then round again, with `recordSort` wrapping 3 to 0. Coffee and drink alternated over 4 cycles; with every table task on offer the table rotated coffee, drink, reheat, eat. Blinds: close refused while closed, open refused while open, close available after the 15 s cooldown. Blind state is in apartment state. Records cycle automatically (no menu), as Marc decided.
+  - **Clean the desk: pass.** No effects, cooldown 90.
+  - **Sofa: pass.** Nap raised energy (40 to about 64 after the clock moved on), left `bedMade` at 1, refused at energy 90. Admire-art run from every standable tile and facing next to the sofa, with a prompt each time (up to 42 starts): reached the gallery tile, never stepped on a doorway, ended on its start tile with the starting facing. With all sofa tasks on offer, the sofa rotated doomscroll, contemplate, work-sofa, admire-art as cooldowns ran.
+  - **Validation, reachability, font, sprite-exists, points (10 to 80): pass** via the existing tests, which cover the new tasks.
+  - **Docs: pass.** `docs/tasks.md` and `docs/activities.md`.
+  - **Scope:** only issue 035 files; no PLAN.md or other issues touched. No privacy concerns. The one engine addition (`goto`, `back`, `route()`) is small and documented.
+  - **Unverified (browser feel and look):** the typing box with the new lines, the admire-art walk, the nap and other prompts, how the window reads (both variants use `window-blinds` until 036). Merge note: change the two `window-blinds` sprite names in `apartment.ts` (`W`) when 036's `window-blinds-open` and `window-blinds-closed` land; point `GALLERY` in config.ts at the real piece.
+  - **Minor, not blocking:** pressing Escape in the middle of the admire-art walk skips the rest, so `back` never runs and the player is left partway across the room (I saw tile 3,3). This matches how Escape works for other cutscenes. The nap needs energy 75 or less, so at high energy the sofa offers other tasks only.

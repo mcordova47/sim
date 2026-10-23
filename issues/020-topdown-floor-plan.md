@@ -1,7 +1,7 @@
 ---
 id: 020
 title: Top-down floor plan of the apartment
-status: review
+status: done
 owner: marc + agent
 depends_on: [019]
 ---
@@ -103,3 +103,4 @@ Same rules as before: photos stay in `reference-photos/` (gitignored); the repo 
   - **Unverified:** Marc's sign-off; how doors feel in a browser; the HUD overlap by eye; sprite files.
   - **Scope:** the commit touches `docs/floor-plan.md`, the issue file, `apartment.ts`, `apartment.test.ts`, `game.ts`, `tilemap.ts` and `tilemap.test.ts` only; `PLAN.md` untouched; no photos or address text.
   - **Note for the planner:** the branch still conflicts with current main (021, 018: `game.ts`, `grid.ts`, `interactable.ts`, `interaction.ts`, `level.ts`, `tilemap.ts`; main's `Grid.setSolids`, `placeholder-level.ts`). The author did not merge or rebase. Resolve before merging, then re-check 021's state against `loadLevel`.
+- 2026-10-23 (planner): Marc signed off the layout. Merged after two independent review rounds (code and maps approved; the layout sign-off was the only open criterion). The branch was based on an older `main`, so it conflicted with 021, 018 and 023; every conflict was resolved by keeping both sides (see the merge commit message for each file). Two things beyond conflict resolution: (1) `Game`'s constructor now takes an options object, `new Game(level, { rooms, state })`, because 020 added `rooms` and 021 added `state` as second parameters; (2) the placeholder room's state demo and the contemplate dialog were ported onto the real apartment as data so the playable game keeps 021 and 023: state requirements and effects on the existing tasks (make the bed, the dishes, the eating tasks add dishes, work costs energy), new `sleep` (on the bed) and `contemplate` (on the sofa) tasks, and bed and sink appearances. That balance is a placeholder carried over from the demo until the personal task list. `placeholder-level.ts` stays as a fixture for the state and dialog tests. Not yet looked at by Marc in a browser: the merged build (doors with the state panel, the ported tasks).

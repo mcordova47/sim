@@ -1,7 +1,7 @@
 ---
 id: 029
 title: Top-down art: kitchen and bath
-status: done
+status: review
 owner: agent
 depends_on: [020, 025]
 ---
@@ -46,3 +46,5 @@ Draw every top-down piece in the kitchen and the bath, to `docs/art-style.md` an
   - Scope: only `art/src`, `public/sprites`, `scripts/room-mockup-kitchen-bath.mjs`, a `.gitignore` line for `art/mockup-*.png` and this issue file changed. No `PLAN.md` or other issue edits, nothing wired into `src`. No photo content or personal details in the diff. Noted for the planner: `docs/art-style.md` still lists `shower-curtain` in the audit table (out of scope here).
   - `npm test` 380 passed, `npm run build` passes.
   - Planner: the `PLAN.md` table needs updating to done.
+- 2026-10-23 (Marc's feedback after review): the kitchen appliances were drawn front-on, but they stand against south walls and face north. Marc chose "top-down, back to the wall": redrew `counter` and `dishes-0..3` (thin cabinet front along the top edge, large work surface with the sink and the dish pile), `stove` (oven door and knobs on the top edge, burners below), `hood` (vent slots on the front, chimney top) and `fridge` (doors and handles on the top edge, the top of the fridge below). Same names and sizes; dish stages still share the counter's footprint. Bath approved by Marc as is. Rebuilt sprites, `npm test` and `npm run build` pass; looked at the new kitchen mockup.
+  - Open point: the fridge is against the **east** wall in the map, not the south, so facing north may not be right for it. Left as north-facing; say if it should face west.

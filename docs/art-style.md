@@ -80,7 +80,7 @@ If a piece needs a colour that isn't here, pick the nearest palette key and say 
 - Lowercase kebab-case, enforced by the pipeline: `coffee-mug`, `loft-bed`. The filename (minus extension) is the name the game loads: `art/src/coffee-mug.sprite` becomes `public/sprites/coffee-mug.png`.
 - **Variants:** `<name>-<variant>`: `bed-made`, `bed-unmade`, `kettle-on`.
 - **Counts and stages:** `<name>-<n>`: `dishes-1`, `dishes-2`, `dishes-3` (a pile growing).
-- **Character frames:** `<character>-<state>-<direction>[-<frame>]` with direction `down`, `up`, `left`, `right`: `player-idle-down`, `player-walk-down-1`, `player-walk-down-2`. A walk cycle is two frames (left foot, right foot) alternating with idle. Left may be omitted and drawn by flipping right.
+- **Character frames:** `<character>-<state>-<direction>[-<frame>]` with direction `down`, `up`, `left`, `right`: `player-idle-down`, `player-walk-down-1`, `player-walk-down-2`. A walk cycle is two frames (left foot, right foot) alternating with idle. Left is generated as a mirror of right (and walk-2 of walk-1 for down and up), so every file exists and the game needs no flip.
 - **Doing poses** (drawn as small scenes where the character sits or lies, so they are bigger than 16x16 and show the furniture too): `player-sit-sofa` (16x16), `player-type-desk` (16x32), `player-guitar` (32x16), `player-read-sofa` (32x16), `player-sleep-bed` (a lump under the duvet on `bed-made`'s footprint, 32x48), `player-eat-table` (16x16). Sizes are proposals; the activity issue (022) confirms them.
 - **Tiles:** `floor-<material>`, `wall-<kind>`, `rug`, `doorway`.
 
@@ -100,7 +100,7 @@ Sorted for the top-down view. **Reuse:** use as-is (wall-mounted or flat). **Ada
 | guitar | 16x48 | Adapt | Leaning against the wall is fine; trim. |
 | hood | 48x32 | Reuse | Wall-mounted. |
 | mic-stand | 16x112 | Redraw | Far too tall; a short stand about 1x2 tiles. |
-| player-idle, -walk-1..4, -jump, -fall, -task | 16x16 | Redraw | Side-view poses. Replaced by the `player-<state>-<direction>` set. |
+| player-idle, -walk-1..4, -jump, -fall, -task | 16x16 | Redraw | Side-view poses. Replaced by the `player-<state>-<direction>` set (issue 030); the old files are removed. |
 | record-stand | 16x48 | Adapt | Front-facing; trim and add a top. |
 | shower-curtain | 48x96 | Redraw | Draw the tub and curtain from the front of the bathroom. |
 | sofa-arm | 16x32 | Adapt | Armchair side; give it a backrest slice like `sofa-td`. |
@@ -137,3 +137,6 @@ The first non-comment line is `size: WxH`, followed by exactly H rows of exactly
 3. `art/contact-sheet.png` is a generated review aid and is not committed (it is gitignored), so branches don't conflict on it. Don't `git add -f` it. The script prints where it wrote it.
 4. The script fails, writing nothing, if a sprite has an unknown color, a wrong row width or height, or a size that is not a multiple of the tile, or a name that is not lowercase kebab-case.
 5. In the game, `sprites.draw(ctx, "name", x, y)` (see `src/render/sprites.ts`). A missing file draws a red rectangle labeled with its name. To swap in hand-made art, drop a PNG of the right size at `public/sprites/<name>.png` and skip the source file (the script only overwrites PNGs that have a `.sprite` source).
+
+## The player (issue 030, home outfit)
+`player-idle-<dir>`, `player-walk-<dir>-1`, `-2` for `down`, `up`, `left`, `right`, all 16x16, plus the doing poses `player-sit-sofa`, `player-type-desk`, `player-guitar`, `player-read-sofa`, `player-sleep-bed`, `player-eat-table` at the sizes listed under Naming. Colors: hair `8` with `9` and `7`, skin `a`, t-shirt `h` with `i`, sweatpants `4`, outline `1`. A walk frame differs from idle by the whole figure dipping one row, the legs spreading with one foot lifted, and the arms swinging, so it reads at 1x. Play the cycle idle, 1, idle, 2. `node scripts/walk-preview.mjs` writes `art/walk-preview.png` (the cycle at 1x and 6x, all directions). The other outfits in `docs/character-brief.md` (casual, out, pajamas) are drawn later as `player-<outfit>-...`.

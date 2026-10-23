@@ -1,6 +1,6 @@
 ---
 id: 046
-title: Escape during a cutscene's text
+title: Escape during any action (and a cutscene's text)
 status: todo
 owner: claude
 depends_on: []

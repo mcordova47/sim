@@ -52,6 +52,13 @@ export class Hud {
     this.drawStatus(ctx, state);
   }
 
+  // While an action that can be backed out of runs: how to stop it. Drawn last,
+  // over a picture or dialog, in the gap between the score and the clock.
+  drawStopHint(ctx: CanvasRenderingContext2D): void {
+    const x = Math.round((HUD_BOX.x + HUD_BOX.w + STATUS_BOX.x) / 2);
+    drawText(ctx, "ESC TO STOP", x, 3, { color: LABEL, align: "center" });
+  }
+
   // Top right: the time of day, the energy meter and the mood meter.
   private drawStatus(ctx: CanvasRenderingContext2D, state: ApartmentState): void {
     const { x, y, w, h } = STATUS_BOX;

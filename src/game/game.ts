@@ -306,6 +306,13 @@ export class Game {
   }
 
   update(dt: number, controls: Controls): void {
+    // Escape backs out of the running action even while its text or menu is up
+    // (the dialog would otherwise own the key). The action is cancelled first, so
+    // when the dialog's close reaches it, it is already over.
+    if (this.dialog.open && controls.keys.includes("Escape") && this.interaction.cancelActive()) {
+      this.dialog.abort();
+      controls = NO_INPUT;
+    }
     if (this.dialog.open) {
       // The dialog has the controls. Unless the clock is set to run on, time
       // stands still while it is open (task cooldowns, the combo, and the
@@ -373,6 +380,7 @@ export class Game {
     this.drawActivity(ctx);
     const dialogView = this.dialog.view;
     if (dialogView) drawDialog(ctx, dialogView);
+    if (this.interaction.active?.activity.cancellable) this.hud.drawStopHint(ctx);
     this.eachLayer((layer) => this.drawLayer(ctx, () => layer.drawHud?.(ctx), layer.drawHud));
   }
 

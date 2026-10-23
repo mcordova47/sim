@@ -84,7 +84,7 @@ describe("a cancelled activity never restarts from a buffered press", () => {
     expect(log).toEqual(["taskStart", "taskCancelled"]);
   });
 
-  it("a skipped cutscene does not restart either", () => {
+  it("a cancelled cutscene does not restart either", () => {
     const scene: Task = { id: "s", name: "S", prompt: "S", ...base, cooldown: 0, activity: { type: "cutscene", steps: [{ wait: 100 }] } };
     const game = new Game(room(scene));
     const log = listen(game);
@@ -93,7 +93,7 @@ describe("a cancelled activity never restarts from a buffered press", () => {
     game.update(dt, mashE);
     game.update(dt, { ...keys("Escape"), interactPressed: true });
     run(game, 0.5);
-    expect(log).toEqual(["taskStart", "taskComplete"]);
+    expect(log).toEqual(["taskStart", "taskCancelled"]);
   });
 });
 

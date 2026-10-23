@@ -4,6 +4,7 @@ import { BaseActivity, registerActivity } from "../activity";
 // The plain timed task: the player holds still for `duration` seconds. A
 // duration of 0 is over at once.
 export class WaitActivity extends BaseActivity {
+  cancellable = true;
   private elapsed = 0;
 
   constructor(private readonly duration: number) {

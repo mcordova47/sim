@@ -171,6 +171,22 @@ export class InteractionSystem {
     }
   }
 
+  // Escape while a dialog has the controls: backs out of the running activity
+  // (if it allows it) right now. Returns whether it did.
+  cancelActive(): boolean {
+    if (!this.active || !this.active.activity.cancellable) return false;
+    const { item, activity } = this.active;
+    try {
+      activity.cancel();
+    } catch (error) {
+      this.abandon(item, activity, error);
+      return true;
+    }
+    this.interactBuffer = 0;
+    if (activity.done) this.finish(item, activity, activity.result);
+    return true;
+  }
+
   // The running activity broke somewhere outside `update` (its `draw`): same
   // as a throw in `update`.
   abandonActive(error: unknown): void {

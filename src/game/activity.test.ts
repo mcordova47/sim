@@ -190,8 +190,12 @@ describe("backing out with Escape", () => {
     expect(sys.scoreboard.score).toBe(0);
   });
 
-  it("is ignored by an activity that doesn't allow it, such as the plain wait", () => {
-    const sys = new InteractionSystem([item()]);
+  it("is ignored by an activity that doesn't allow it", () => {
+    class Stubborn extends TwoPresses {
+      cancellable = false;
+    }
+    registerActivity("stubborn", () => new Stubborn());
+    const sys = new InteractionSystem([item({ activity: { type: "stubborn" } })]);
     sys.update(dt, facing, press);
     sys.update(dt, facing, escape);
     expect(sys.busy).toBe(true);

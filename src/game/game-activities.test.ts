@@ -230,7 +230,7 @@ describe("a cutscene in the game", () => {
     expect(game.player.col).toBeGreaterThan(3);
   });
 
-  it("is skipped with Escape and still pays", () => {
+  it("is cancelled with Escape and pays nothing", () => {
     const long: Task = { id: "long", name: "Long", prompt: "Long", ...base, activity: { type: "cutscene", steps: [{ wait: 100 }] } };
     const game = new Game(room(long));
     run(game, 0.2);
@@ -239,7 +239,7 @@ describe("a cutscene in the game", () => {
     game.update(dt, keys("Escape"));
     game.update(dt, NO_INPUT);
     expect(game.interaction.busy).toBe(false);
-    expect(game.interaction.scoreboard.score).toBeGreaterThan(0);
+    expect(game.interaction.scoreboard.score).toBe(0);
   });
 });
 

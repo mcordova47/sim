@@ -102,12 +102,12 @@ describe("CutsceneActivity", () => {
     expect(a.progress).toBe(1);
   });
 
-  it("is skipped with Escape, which still counts as having happened", () => {
+  it("is cancelled with Escape: it did not happen (no points, no effects)", () => {
     const { a } = scene([{ wait: 100 }, { cue: "never" }]);
     expect(a.cancellable).toBe(true);
     a.cancel();
     expect(a.done).toBe(true);
-    expect(a.result).toEqual({ completed: true });
+    expect(a.result).toEqual({ completed: false });
   });
 
   it("does nothing more once it is over", () => {

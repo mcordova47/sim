@@ -6,6 +6,8 @@ import type { DialogNode } from "../dialog";
 // dialog closes, so the points arrive then, not when it opens. Backing out of
 // the dialog backs out of the task; picking anything finishes it.
 export class DialogActivity extends BaseActivity {
+  cancellable = true;
+
   constructor(
     private readonly node: DialogNode,
     private readonly host: ActivityHost,

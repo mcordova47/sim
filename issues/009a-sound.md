@@ -35,3 +35,10 @@ On 2026-10-22 the game changed direction from a side-view platformer to a top-do
 
 ## Note from Marc (2026-10-23)
 Listening to music could play 8-bit music, and Marc may design the tracks himself. When this issue is picked up, plan for a small music player (a song list, play and stop tied to the record and guitar tasks and maybe an ambient track) and a format Marc can write by hand (for example a text score of notes and lengths, or a tiny tracker file) that the game plays with Web Audio.
+
+## Note from Marc (2026-10-23): the record player controls the soundtrack
+The music is controlled through the record player in the game. Design to settle when this is picked up (ask Marc):
+- Interacting with the record player (`record-play`, today "Flip the record") changes what is playing: it cycles to the next record, or offers stop. Show what is playing in the prompt or a small now-playing line (one line at the 320x192 view); a record sprite on the player could change with the track.
+- Playing music affects mood (038) while it plays, or only the choice of track does; the volume or an on/off switch lives on the record player too, so there is no separate settings screen.
+- Tracks are Marc's own 8-bit pieces in a text format he can write by hand; the track list is data (title, a short note for the now-playing line). Default is silence or a first track; remember the choice in saved progress (009c adds a save store; add a `music` field).
+- Browsers block audio until the first key press; start sound only after input, and fail quietly if audio is unavailable.

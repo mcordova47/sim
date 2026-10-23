@@ -61,10 +61,11 @@ The app is "Mil Palabras" (palabras.mcord.dev): PureScript, Netlify, spaced repe
 - **UI:** a very loose pixel homage to the app, not a replica. Text must be legible first.
 - **Spoken answers:** "mumblespeak" instead of real speech. Read as: when the card's Spanish is "spoken", the game plays Animal Crossing / Sims style per-letter blips or mumble sounds, not the browser's text-to-speech that the real app uses. Confirm this reading when picked up.
 
+- **Remembering state:** yes. The key is remembered in this browser's localStorage (never in the codebase), with a "forget key" option. Game state in general is persisted too (see PLAN.md decisions).
+
 ### Still open (deliberately)
 - **Deck source:** copy `es-1000.csv` into the game (simplest) or fetch a static JSON the flashcards app publishes (needs that app hosted and CORS on it). Decide when picked up.
 - **Points:** whether real answers earn game points, how much, and whether there is a daily cap. Left open.
-- **Remembering the key:** ask every time, or remember it in this browser's localStorage with a "forget key" option? Not in the codebase either way. Leaning toward remembering so Marc is not typing 32 characters on every visit, but not decided.
 
 ## Acceptance criteria (draft, to refine later)
 - A "study Spanish" interaction on the computer starts a `flashcards` activity.

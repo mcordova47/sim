@@ -84,6 +84,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 - **Personal touch:** an interview (issue 024) gathers Marc's day-to-day to shape tasks, cutscenes and the character.
 - **Level size and scale:** decided again in 020 (the old 1 tile = 1 ft and the scrolling camera belonged to the side view).
 - **Day and night cycle:** yes. A game clock, lighting through the day and tasks that pay better at the right hour (issue 009d).
+- **Persistence (2026-10-22):** yes, the game remembers state between sessions in localStorage (score, apartment state, settings, and for issue 026 the flashcards key). Wrapped in try/catch so a blocked or empty store never breaks the game. Issue 009c owns the detail.
 - **Combo rule:** rewards variety (different tasks in quick succession), not repetition.
 
 ## Open questions
@@ -92,4 +93,3 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 - Lowercase text and more punctuation in the pixel font, for dialog and excerpts? (023)
 - Is the final player character agent-drawn or generated with an external tool?
 - Keyboard only, or gamepad support too?
-- Should the game persist score between sessions (localStorage)?

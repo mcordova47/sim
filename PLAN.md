@@ -31,7 +31,7 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 | 003 | [Interaction and scoring system](issues/003-interaction-scoring.md) | claude | done | 002 |
 | 004 | [HUD and feedback](issues/004-hud-feedback.md) | claude | done | 003 |
 | 005 | [Floor plan and task list](issues/005-floor-plan-tasks.md) | marc + agent | done | |
-| 006 | [Sprite pipeline and style guide](issues/006-sprite-pipeline.md) | agent | todo | 001 |
+| 006 | [Sprite pipeline and style guide](issues/006-sprite-pipeline.md) | agent | done | 001 |
 | 007 | [Furniture sprites](issues/007-furniture-sprites.md) | agent | todo | 005, 006 |
 | 008 | [Player character sprite](issues/008-player-sprite.md) | agent | todo | 006 |
 | 009 | [Polish: sound, particles, achievements, time of day](issues/009-polish.md) | agent | todo | 004, 007 |
@@ -51,6 +51,7 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 
 ## Decisions
 - **Level wider than the screen:** scrolling camera (issue 010), chosen over smaller tiles or a compressed room.
+- **Scale:** 1 tile = 1 ft with the player 14px tall (about 10 in) stays as is for now. Revisit if the sprites feel too small. Re-run 005's reachability check if the player or jump constants ever change.
 - **Combo rule:** rewards variety (different tasks in quick succession), not repetition.
 
 ## Open questions

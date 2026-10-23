@@ -1,7 +1,7 @@
 ---
 id: 007a
 title: "Furniture sprites: Main room, west: sleeping nook and work corner"
-status: todo
+status: review
 owner: agent
 depends_on: [005, 006]
 ---
@@ -39,3 +39,12 @@ The sprites should look like Marc's real pieces, so work from the photos in `ref
 - Scale: the player is about 14px tall at 1 tile = 16px, so the player is tiny next to a 96px fridge. That is intended.
 
 ## Progress log
+
+- 2026-10-22: Starting. Plan: view reference photos (converted copies kept outside the repo), draw the five sprites as text grids using a throwaway generator script kept outside the repo, render with `npm run sprites`, check the contact sheet.
+- 2026-10-22: Done, ready for review.
+  - Added `art/src/{bed,bookshelf,desk,window-blinds,mic-stand}.sprite` and rendered PNGs in `public/sprites/`. Sizes exactly 64x32, 48x80, 48x48, 32x64, 16x112.
+  - Checked: `npm run sprites` passes; contact sheet viewed at 4x. No other batches are merged yet, so no side-by-side comparison; only the example `couch`/`coffee-mug` were next to them. `npm run build` not affected (no code changed).
+  - Desk: top slab is the top 16px; legs only below, transparent between them.
+  - Compromises: pieces' tops are the walking surface, so things that sit on top (bookshelf plant and vase, desk monitor, green lamp, chair tucked under the desk) are left out; the desk's riser drawer and the bookshelf's books/records/drawers carry the identity instead. Bed pillows are drawn on its face at the head (left), since the silhouette must stay flat-topped.
+  - Materials: no colours outside the table needed. Black stand uses `4`/`3` (black plastic and metal row) with `5` highlights so it reads on the dark background.
+  - Not checked: how it looks in the game (016 draws the level).

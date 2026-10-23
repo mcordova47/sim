@@ -1,7 +1,7 @@
 ---
 id: 008
 title: Player character sprite
-status: review
+status: done
 owner: agent
 depends_on: [006]
 ---
@@ -38,3 +38,13 @@ A player character with enough animation to feel alive.
   - [x] Redrew walk-1..4 as a real cycle: walk-1 and walk-3 are opposite wide-stride contact poses with opposite arm swing; walk-2 and walk-4 are different passing poses. Verified in the generator that no two frames are pixel-identical (walk-3 is no longer idle).
   - [x] Fall now has arms out to the sides at hip height, distinct from jump (arms up at shoulder height).
   - Contact sheet re-viewed. Build passes. Still unverified: motion feel in a browser (issue 016).
+
+- 2026-10-22: **Review round 2: approve.**
+  - Own checks (scratchpad `r2.py`, stdlib-only PNG decoder, plus a 12x zoom strip of all 8 frames, viewed): all 8 `.sprite` files are 16 rows of 16 chars; all PNGs are 16x16 RGBA; PNG transparency matches the source `.` cells exactly; alpha is only 0 or 255; the bounding box is cols 3-12, rows 2-15 on every frame (matches the 10x14 hitbox); PNG colours are only the six palette hexes for keys `1 3 7 a h i`. `npm run sprites` leaves a clean tree; `npm run build` and `npm test` (29) pass.
+  - Pairwise distinctness (pixel differences between `.sprite` files, all 28 pairs): no pair is identical. Smallest gaps are idle vs walk-2 / walk-4 (4 px) and walk-2 vs walk-4 (4 px, the arm swap); walk-1 vs walk-3 is 16 px, and the stride poses differ from the rest by 22-28 px. Prior-round failure (walk-3 == idle) is fixed.
+  - Criterion 1 (idle, walk x4, jump, fall, task): **pass.** At zoom, walk-1 and walk-3 are opposite wide-stride contact poses with opposite arm swing, walk-2 and walk-4 are passing poses; cycle reads as stride, pass, opposite stride, pass. Fall (arms out low) is now distinct from jump (arms at shoulder height); task has hands together in front.
+  - Criterion 2 (flip in code): art side **pass** (drawn facing right, footprint cols 3-12 symmetric in the cell, anchor documented). The flip code does not exist yet (issue 016), so the code side is **can't verify**.
+  - Criterion 3 (document missing quality for external art): **pass** (progress log gives the limits and the filename/size/body-position constraints for replacement).
+  - Unverified: animation feel in a browser (wiring is issue 016); walk frame timing.
+  - Non-blocking notes: walk-2 and walk-4 are near-identical (4 px, arms only), so the passing poses give little variation; jump arms read as "arms at sides, slightly out" rather than clearly "up". Both are polish for Marc or an external-art pass.
+  - Scope: only art/src player sprites, rendered PNGs and this issue file changed; no PLAN.md or other issues touched; no reference-photo or personal data. The planner should update the PLAN.md table to done.

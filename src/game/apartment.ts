@@ -1,7 +1,7 @@
 import { PLAYER, TILE } from "./config";
 import type { Interactable } from "./interactable";
-import type { Level } from "./level";
-import { PIECES, ROOM, SOLIDS, SPAWN } from "./room";
+import type { Level, Prop, Scene } from "./level";
+import { DECOR, PIECES, ROOM, SOLIDS, SPAWN } from "./room";
 import { TASKS, type Task } from "./tasks";
 import type { Solid } from "./world";
 
@@ -63,12 +63,42 @@ export function buildSpawn(): { x: number; y: number } {
   return { x: px(SPAWN.x), y: px(SPAWN.y) - PLAYER.height };
 }
 
+// Sprites for the pieces and decor, positioned from the same floor plan as the
+// collision. Sprite names come from the data, so swapping art needs no code.
+export function buildScene(): Scene {
+  const solids = buildSolids();
+  const floor = px(ROOM.floorY);
+  const decor: Prop[] = DECOR.map((d) => ({
+    sprite: d.sprite,
+    x: px(d.x),
+    y: floor - px(d.toHeight),
+    w: px(d.w),
+    h: px(d.toHeight - d.fromHeight),
+    layer: "decor",
+  }));
+  const furniture: Prop[] = PIECES.map((p) => ({
+    sprite: p.sprite,
+    x: px(p.x),
+    y: floor - px(p.height),
+    w: px(p.w),
+    h: px(p.height),
+    layer: "furniture",
+  }));
+  return {
+    wall: { x: 0, y: px(ROOM.ceilingY), w: px(ROOM.width), h: floor - px(ROOM.ceilingY) },
+    // The first four solids are the shell (see buildSolids).
+    shell: solids.slice(0, 4),
+    props: [...decor, ...furniture],
+  };
+}
+
 export function buildApartmentLevel(): Level {
   return {
     size: { width: px(ROOM.width), height: px(ROOM.height) },
     solids: buildSolids(),
     interactables: TASKS.map((t) => taskToInteractable(t)),
     spawn: buildSpawn(),
+    scene: buildScene(),
   };
 }
 

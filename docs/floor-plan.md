@@ -13,7 +13,7 @@ The apartment as a side-on cutaway. Data lives in `src/game/room.ts` and `src/ga
 |---|---|---|---|---|---|
 | main | Queen bed | 0 | 4 | 2 ft | solid |
 | main | Cube bookshelf | 4 | 3 | 5 ft | solid |
-| main | Standing desk | 7 | 3 | 2 ft | oneWay |
+| main | Standing desk | 7 | 3 | 3 ft | oneWay |
 | main | Dining table | 10 | 3 | 2 ft | oneWay |
 | main | Record player stand | 13 | 1 | 3 ft | solid |
 | main | Sofa armrest | 14 | 1 | 2 ft | solid |
@@ -31,7 +31,7 @@ The apartment as a side-on cutaway. Data lives in `src/game/room.ts` and `src/ga
 
 ## Choices to review
 - **Squeezed main room.** In the real room the sofa is on one wall and the table, desk, shelf and bed are on the opposite one. A side-on view has one lane, so five pieces that total about 24 ft share 17 ft. Bed, desk, table and sofa are scaled down by roughly a quarter to a third. Heights are real.
-- **No open floor.** Furniture touches end to end, so the player runs along the tops: sofa, record stand, table, desk, shelf, bed. Tables and the desk are 2 ft high and the player is taller, so you can't walk under them. If you want visible floor and walking room, the fix is to shrink pieces further or widen the level.
+- **Little open floor.** Furniture touches end to end, so most travel is along the tops. The only bare floor is under the desk and table (x 7 to 13), because the 14 px player fits under their 2 to 3 ft slabs. The desk is 3 ft, not the real 2.5, because it is a standing desk and the extra foot makes the bookshelf reachable. For more visible floor, shrink pieces further or widen the level.
 - **Kitchen reordered.** In real life the fridge is next to the door. Here the tote bag (1 ft), then bin (2), stove (3), counter (3), box stack (5) and fridge (6) form a staircase up to the fridge top. The side rack is the end of the line.
 - **Bath is a staircase too:** vanity 3, toilet 2, tub 2.
 - **Guitar on the wall** above the sofa is a task zone, reached by jumping from the sofa arm or seat. The mic and key light stand is decor only.
@@ -71,11 +71,13 @@ The apartment as a side-on cutaway. Data lives in `src/game/room.ts` and `src/ga
 | tub | Take a shower | Take a shower | 6s | 70 | Best ideas of the day, all forgotten by the towel. |
 
 ## Reachability
-`reach.ts` builds a graph of standable surfaces (tops of pieces) and links two surfaces if the gap is small enough and the step up is within the jump limit. It reports pieces and tasks that can't be reached from the spawn on the sofa, and anything with too little headroom under the 10 ft ceiling.
+`reach.ts` builds a graph of standable surfaces (tops of pieces, plus bare floor) and links two surfaces if the gap is small enough and the step up is within the jump limit. It reports pieces and tasks that can't be reached from the spawn on the sofa, and anything with too little headroom under the 10 ft ceiling.
 
-Run with placeholder limits (jump up 3 tiles, cross a 2-tile gap, player 3 tiles tall): **every piece and task is reachable, and nothing hits the ceiling.** The tightest step is 3 tiles, from the desk up to the bookshelf. With a 2-tile jump the bookshelf, bed and guitar become unreachable, so we need to know the real jump height.
+Limits come from issue 002's `PLAYER` config (1 tile = 16 px): `jumpHeight` 40 px = **2.5 tiles up**, player 14 px = 0.875 tiles tall, and a flat-ground hop covers about 3.3 tiles at `maxSpeed` (checked with a gap of 2 and of 3).
 
-**These limits are placeholders, not issue 002's constants.** Re-run the check when 002 lands (pass the real values to `check` in `reach.ts`) and adjust heights in `room.ts` if it fails.
+Result with those limits: **every piece and task is reachable and nothing hits the ceiling.** The first run failed the bookshelf (a 3 ft step up from the 2 ft desk) and the guitar (zone too high to jump to from the sofa seat). Raising the desk to 3 ft and lowering the guitar zone to 3 ft fixed both. The tightest steps are now 2.5 tiles or less everywhere.
+
+**Scale caveat:** at 1 tile = 1 ft the player is about 10 inches tall and jumps 2.5 ft. That works for the layout but looks wrong next to 6 ft of fridge. Either 002's player gets bigger, or the sprite art treats the player as a cartoon-scale figure. The level is also 560 px wide against a 320 px view in `VIEW`.
 
 ## Privacy
 Descriptions list furniture type, size and color only. No address, no belongings beyond furniture and fixtures. Marc deletes `reference-photos/` when this issue closes.

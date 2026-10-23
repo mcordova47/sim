@@ -38,10 +38,10 @@ export const TASKS: Task[] = [
   // Work corner
   { id: 'work', piece: 'desk', name: 'Answer emails', prompt: 'Work at the desk', duration: 8, points: 80,
     flavor: 'Per my last email, you are doing great.',
-    zone: { x: 7, w: 2, feetFrom: 2, feetTo: 2 } },
+    zone: { x: 7, w: 2, feetFrom: 3, feetTo: 3 } },
   { id: 'journal', piece: 'desk', name: 'Write in the journal', prompt: 'Write in the journal', duration: 5, points: 50,
     flavor: 'Dear diary, I made coffee. It was a lot.',
-    zone: { x: 9, w: 1, feetFrom: 2, feetTo: 2 } },
+    zone: { x: 9, w: 1, feetFrom: 3, feetTo: 3 } },
   { id: 'record-play', piece: 'record-stand', name: 'Flip the record', prompt: 'Flip the record', duration: 2, points: 25,
     flavor: 'Side B is the one you actually like.',
     zone: { x: 13, w: 1, feetFrom: 3, feetTo: 3 } },
@@ -63,7 +63,7 @@ export const TASKS: Task[] = [
     zone: { x: 15, w: 2, feetFrom: 1, feetTo: 1 } },
   { id: 'guitar', piece: 'sofa', name: 'Play three chords', prompt: 'Play guitar', duration: 5, points: 55,
     flavor: 'Same three chords. Different, slightly worse, song.',
-    zone: { x: 15, w: 2, feetFrom: 4, feetTo: 6 } },
+    zone: { x: 15, w: 2, feetFrom: 3, feetTo: 6 } },
 
   // Kitchen
   { id: 'fridge-stare', piece: 'spice-rack', name: 'Stare into the fridge', prompt: 'Open the fridge', duration: 3, points: 30,

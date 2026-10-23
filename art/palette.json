@@ -20,7 +20,9 @@
     "h": { "name": "denim",      "hex": "#4a78c2" },
     "i": { "name": "sky",        "hex": "#9fd3f0" },
     "j": { "name": "plum",       "hex": "#7b5ea7" },
-    "k": { "name": "blush",      "hex": "#f2a7c0" }
+    "k": { "name": "blush",      "hex": "#f2a7c0" },
+    "l": { "name": "putty",      "hex": "#cdc7b9" },
+    "m": { "name": "taupe",      "hex": "#a29b8c" }
   },
   "transparent": "."
 }

@@ -1,7 +1,7 @@
 ---
 id: 001
 title: Scaffold project
-status: review
+status: done
 owner: claude
 depends_on: []
 ---

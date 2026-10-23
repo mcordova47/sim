@@ -1,7 +1,7 @@
 ---
 id: 024
 title: Personal touch interview
-status: todo
+status: in-progress
 owner: marc + agent
 depends_on: []
 ---
@@ -33,3 +33,6 @@ Make the game feel like Marc's life, not a generic one. An agent interviews Marc
 - The task list will be reshaped by the engine work (state, activities, dialogs), so write tasks in plain language and let the content issue turn them into data later.
 
 ## Progress log
+
+- 2026-10-22: Started. Plan: interview Marc one question at a time across the themes, then write docs/about-marc.md, docs/tasks-v2.md and the character brief for his approval. Documents only.
+- 2026-10-23: Interview done (9 questions, themes covered: day, work, work spots, music, reading and listening, side projects, tone, character, boundaries). Habits and small objects left open at Marc's request. Drafted `docs/about-marc.md`, `docs/tasks-v2.md` and `docs/character-brief.md` in the worktree, **not committed**: Marc must read and edit about-marc.md first. Waiting on Marc's approval before committing and requesting review. Not checked: whether the tone is right and whether any task is wrong (his call).

@@ -1,0 +1,20 @@
+import type { Rect } from "./world";
+
+// A task the player can do, placed in the room. Pure data: adding a task
+// means adding an entry to a data file, never changing the engine.
+export interface Interactable {
+  id: string;
+  name: string;
+  // Verb phrase shown when the player is in range, e.g. "Make coffee".
+  prompt: string;
+  // Seconds the player is locked in place doing it.
+  duration: number;
+  // Points for the first completion. Repeats and combos scale this.
+  points: number;
+  // Seconds before it can be done again; defaults to DEFAULT_TASK_COOLDOWN.
+  cooldown?: number;
+  // One-line joke shown on completion.
+  flavor?: string;
+  // Area in pixels where the player must be standing to use it.
+  zone: Rect;
+}

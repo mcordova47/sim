@@ -53,6 +53,10 @@ export interface MapOptions {
   id?: string;
   // Which way the player faces at the start. Defaults to down.
   facing?: Direction;
+  // Which state variable names exist, for checking the room's tasks and looks.
+  // Defaults to the real list in state-vars.ts; pass this for a room meant
+  // for a game with its own variables.
+  knownVars?: (id: string) => boolean;
 }
 
 const RESERVED = ["#", ".", "@"];
@@ -167,7 +171,7 @@ export function parseTileMap(
     spawn,
     facing: options.facing,
   };
-  validateLevel(level);
+  validateLevel(level, options.knownVars ? { hasState: options.knownVars } : undefined);
   return level;
 }
 

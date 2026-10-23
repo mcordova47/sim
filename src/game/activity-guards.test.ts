@@ -308,7 +308,7 @@ describe("a throwing draw cancels the task", () => {
 
 describe("strict numbers and state names at load", () => {
   const level = (activity: unknown) =>
-    parseTileMap(["###", "#@X", "###"], { X: { tasks: [{ id: "t", name: "T", prompt: "T", ...base, activity } as Task] } });
+    parseTileMap(["###", "#@X", "###"], { X: { tasks: [{ id: "t", name: "T", prompt: "T", ...base, activity } as Task] } }, { knownVars: () => true });
   it("rejects numeric strings and other non-numbers", () => {
     for (const bad of ["3", true, null, [3], {}]) {
       expect(() => new Game(level({ type: "notes", count: bad })), String(bad)).toThrow(/Task "t": notes/);

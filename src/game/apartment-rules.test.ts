@@ -2,6 +2,9 @@ import { describe, expect, it } from "vitest";
 import { NO_INPUT, type Controls } from "../input/controls";
 import { APARTMENT } from "./apartment";
 import { Game } from "./game";
+import { validateLevel } from "./level";
+import { PLACEHOLDER_LEVEL } from "./placeholder-level";
+import { ApartmentState } from "./state";
 import { STATE_VARS } from "./state-vars";
 import { TASKS } from "./tasks";
 import { parseTileMap } from "./tilemap";
@@ -106,5 +109,46 @@ describe("the state rules in the task list", () => {
     desk.update(dt, press);
     run(desk, 6);
     expect(desk.state.get("energy")).toBeLessThan(before);
+  });
+
+  it("builds every real room and the placeholder room with only known variables", () => {
+    for (const room of [...Object.values(APARTMENT.rooms), PLACEHOLDER_LEVEL]) {
+      expect(() => validateLevel(room), room.id).not.toThrow();
+    }
+  });
+
+  it("fails when the room is built if a task in the list has a typo'd variable", () => {
+    const typo = { ...TASKS.find((t) => t.id === "dishes")!, id: "typo-task", effects: [{ var: "dishs", add: -1 }] };
+    expect(() => parseTileMap(["#####", "#.@X#", "#####"], { X: { tasks: ["typo-task"] } }, { id: "oops", tasks: [typo, ...TASKS] })).toThrow(
+      /oops: task "typo-task" effects uses the unknown state variable "dishs"/,
+    );
+  });
+
+  it("announces a task's changes only after all of its effects have applied (sleep)", () => {
+    const bed = roomWith(["make-bed", "sleep"]);
+    bed.update(dt, press);
+    run(bed, 4); // bed made
+    bed.state.applyEffects([{ var: "energy", set: 20 }]);
+    run(bed, 31);
+    const seen: { id: string; energy: number; bedMade: number }[] = [];
+    bed.events.on("stateChanged", (c) =>
+      seen.push({ id: c.id, energy: Math.round(bed.state.get("energy")), bedMade: bed.state.get("bedMade") }),
+    );
+    bed.update(dt, press);
+    run(bed, 8);
+    const sleepEvents = seen.filter((e) => e.id === "energy" || e.id === "bedMade");
+    expect(sleepEvents.length).toBeGreaterThanOrEqual(2);
+    const first = sleepEvents[0];
+    expect(first.energy).toBeGreaterThan(95);
+    expect(first.bedMade).toBe(0);
+  });
+
+  it("lets a room built with its own variables play in a game with matching state", () => {
+    const mood = { id: "mood-up", name: "M", prompt: "Cheer up", duration: 0, points: 1, effects: [{ var: "mood", add: 1 }] };
+    const knownVars = (id: string) => id === "mood";
+    const level = parseTileMap(["#####", "#.@X#", "#####"], { X: { tasks: ["mood-up"] } }, { tasks: [mood], knownVars });
+    const state = new ApartmentState([{ id: "mood", initial: 0, min: 0, max: 5, meaning: "mood" }]);
+    expect(() => new Game({ ...level, facing: "right" }, { state })).not.toThrow();
+    expect(() => parseTileMap(["#####", "#.@X#", "#####"], { X: { tasks: ["mood-up"] } }, { tasks: [mood] })).toThrow(/mood/);
   });
 });

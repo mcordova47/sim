@@ -23,8 +23,9 @@ export interface GameEvents {
   // The player pressed interact but the task in reach is not ready yet.
   // `message` is the reason shown to the player when `reason` is "requirement".
   taskBlocked: { item: Interactable; reason: "cooldown" | "requirement"; message?: string };
-  // A state variable changed: by a task's effects, or (for time-driven
-  // changes) when its rounded value did, so the clock reports once an hour.
+  // A state variable changed. Sent after all the changes of the same moment
+  // (all of a task's effects) have applied. Time-driven changes are sent when
+  // the whole-number part changes: the clock once per in-game hour. See docs/state.md.
   stateChanged: { id: string; value: number; previous: number };
   // A dialog or menu opened or closed.
   dialogOpen: Record<string, never>;

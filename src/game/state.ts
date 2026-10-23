@@ -40,9 +40,15 @@ export interface StateChange {
 }
 
 export class ApartmentState {
-  // Called after a variable changes. Changes from the passing of time only
-  // count when the rounded value changes, so the clock reports once an hour
-  // and energy once a point rather than every frame.
+  // Called after a variable changes, once per variable, and only after every
+  // change of the same moment has been applied (all of a task's effects, or
+  // the clock and energy of one tick), so a listener always sees a settled
+  // state. Events come in the order the variables first changed in the
+  // effects list (a tick: clock, then energy). Changes from the passing of
+  // time only count when the whole-number part (the floor) changes, so the
+  // clock reports once per in-game hour and energy once per point rather than
+  // every frame. The event carries the exact new value; to read the exact
+  // time every frame, use `get("clock")`.
   onChange?: (change: StateChange) => void;
 
   private readonly defs = new Map<string, StateVar>();
@@ -53,6 +59,9 @@ export class ApartmentState {
       if (this.defs.has(v.id)) throw new Error(`State variable "${v.id}" is listed twice`);
       if (v.min > v.max || v.initial < v.min || v.initial > v.max) {
         throw new Error(`State variable "${v.id}" starts outside its range`);
+      }
+      if (v.wrap && !(v.max > v.min)) {
+        throw new Error(`State variable "${v.id}" wraps but has no range to wrap around (min equals max)`);
       }
       this.defs.set(v.id, v);
       this.values.set(v.id, v.initial);
@@ -88,30 +97,47 @@ export class ApartmentState {
     return null;
   }
 
+  // The ids among `ids` that are not state variables (for checking data when it loads).
+  unknown(ids: Iterable<string>): string[] {
+    return [...new Set(ids)].filter((id) => !this.defs.has(id));
+  }
+
+  // Applies all the effects, then announces the changes.
   applyEffects(effects: Effect[] = []): void {
+    for (const e of effects) this.get(e.var); // an unknown name throws before anything changes
+    const changes = new Map<string, StateChange>();
     for (const e of effects) {
-      this.write(e.var, e.set ?? this.get(e.var) + (e.add ?? 0), false);
+      this.write(e.var, e.set ?? this.get(e.var) + (e.add ?? 0), changes);
     }
+    this.announce(changes, false);
   }
 
   // Passes `dt` seconds of game time: the clock runs on and energy drains.
   tick(dt: number): void {
     const hours = (dt * CLOCK.minutesPerSecond) / 60;
-    if (this.has("clock")) this.write("clock", this.get("clock") + hours, true);
-    if (this.has("energy")) this.write("energy", this.get("energy") - hours * ENERGY.fallPerHour, true);
+    const changes = new Map<string, StateChange>();
+    if (this.has("clock")) this.write("clock", this.get("clock") + hours, changes);
+    if (this.has("energy")) this.write("energy", this.get("energy") - hours * ENERGY.fallPerHour, changes);
+    this.announce(changes, true);
   }
 
-  private write(id: string, wanted: number, fromTime: boolean): void {
+  private write(id: string, wanted: number, changes: Map<string, StateChange>): void {
     const def = this.defs.get(id);
     if (!def) throw new Error(`Unknown state variable "${id}"`);
     const span = def.max - def.min;
     const value = def.wrap
       ? def.min + ((((wanted - def.min) % span) + span) % span)
       : Math.min(def.max, Math.max(def.min, wanted));
-    const previous = this.get(id);
+    const previous = changes.get(id)?.previous ?? this.get(id);
     this.values.set(id, value);
-    const changed = fromTime ? Math.round(value) !== Math.round(previous) : value !== previous;
-    if (changed) this.onChange?.({ id, value, previous });
+    changes.set(id, { id, value, previous });
+  }
+
+  private announce(changes: Map<string, StateChange>, fromTime: boolean): void {
+    for (const c of changes.values()) {
+      const changed = fromTime ? Math.floor(c.value) !== Math.floor(c.previous) : c.value !== c.previous;
+      if (changed) this.onChange?.(c);
+    }
   }
 }
 

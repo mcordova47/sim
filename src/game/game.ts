@@ -183,8 +183,8 @@ export class Game {
     // Dropping below the tired line shows a yawn over the player.
     if (
       change.id === "energy" &&
-      Math.round(change.previous) >= ENERGY.lowBelow &&
-      Math.round(change.value) < ENERGY.lowBelow
+      change.previous >= ENERGY.lowBelow &&
+      change.value < ENERGY.lowBelow
     ) {
       this.popups.add(this.player.x + TILE / 2, this.player.y, [{ text: "YAWN...", color: COLOR.mist }]);
     }

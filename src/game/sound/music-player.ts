@@ -11,6 +11,12 @@ interface Event {
   volume: number;
 }
 
+function eventsOf(track: Track): Event[] {
+  return track.channels
+    .flatMap((c) => c.notes.map((note) => ({ start: note.start, length: note.length, note, wave: c.wave, volume: c.volume })))
+    .sort((a, b) => a.start - b.start);
+}
+
 // Plays one track at a time, looping, a little ahead of the audio clock. It
 // holds no timers: the game calls `update(synth)` every frame and it schedules
 // the notes that fall in the next `MUSIC.lookahead` seconds. With no synth
@@ -23,6 +29,8 @@ export class MusicPlayer {
   private loop = 0;
   // Context time at which the first loop began; null until it can be set.
   private origin: number | null = null;
+  // A track waiting for the end of the loop that is playing (see `swap`).
+  private pending: Track | null = null;
 
   get track(): Track | null {
     return this.current;
@@ -30,14 +38,19 @@ export class MusicPlayer {
 
   play(track: Track | null): void {
     this.current = track;
+    this.pending = null;
     this.cursor = 0;
     this.loop = 0;
     this.origin = null;
-    this.events = track
-      ? track.channels
-          .flatMap((c) => c.notes.map((note) => ({ start: note.start, length: note.length, note, wave: c.wave, volume: c.volume })))
-          .sort((a, b) => a.start - b.start)
-      : [];
+    this.events = track ? eventsOf(track) : [];
+  }
+
+  // Changes the track that is playing without a break: the new one takes over
+  // when the current loop ends, on the beat (the track editor changing a track
+  // while it plays). With nothing playing it just starts.
+  swap(track: Track): void {
+    if (!this.current || this.origin === null) this.play(track);
+    else this.pending = track;
   }
 
   stop(): void {
@@ -67,6 +80,17 @@ export class MusicPlayer {
       if (this.cursor >= this.events.length) {
         this.cursor = 0;
         this.loop++;
+        const next = this.pending;
+        if (next) {
+          // The new track starts where the next loop would have. Its tempo and
+          // length are used from the next call.
+          this.origin += this.loop * loopLength;
+          this.loop = 0;
+          this.current = next;
+          this.events = eventsOf(next);
+          this.pending = null;
+          return;
+        }
       }
     }
   }

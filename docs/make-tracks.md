@@ -1,6 +1,6 @@
 # Make your own tracks (design note, issue 059)
 
-Status: design note for Marc to pick from. Nothing is built yet.
+Status: Marc picked all the recommendations. Stages 1 to 3 are built (data and storage, the editor, Demos in the record player). Stage 4 (play a demo at the recording gear) is a follow-up. How it works now is in `docs/music.md` ("Your own tracks"); where the build differs from this note is listed in the issue 059 progress log.
 
 Marc's decisions so far (2026-10-23):
 - Your own tracks play in the record player menu under a **Demos** heading, and later also at the recording gear on the desk (a "play demo" action).

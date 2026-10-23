@@ -181,10 +181,10 @@ describe("choosing in the real game", () => {
     game.update(dt, NO_INPUT);
   }
 
-  it("the desk offers emails, side project, journal and tidying together", () => {
+  it("the desk offers emails, side project, journal, tidying and making a track together", () => {
     const game = newGame();
     stand(game, "work");
-    expect(game.interaction.choices.map((i) => i.id)).toEqual(["work", "side-project-game", "journal", "tidy-desk"]);
+    expect(game.interaction.choices.map((i) => i.id)).toEqual(["work", "side-project-game", "journal", "tidy-desk", "make-track"]);
   });
 
   it("the sofa and the bed offer choices", () => {

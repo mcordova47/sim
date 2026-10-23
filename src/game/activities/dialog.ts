@@ -1,6 +1,7 @@
 import type { Controls } from "../../input/controls";
 import { BaseActivity, needHost, registerActivity, type ActivityHost } from "../activity";
 import type { DialogNode } from "../dialog";
+import { dialogOf } from "../interactable";
 
 // A task that is a conversation or a menu ("contemplate"). It is over when the
 // dialog closes, so the points arrive then, not when it opens. Backing out of
@@ -9,14 +10,15 @@ export class DialogActivity extends BaseActivity {
   cancellable = true;
 
   constructor(
-    private readonly node: DialogNode,
+    private readonly node: DialogNode | (() => DialogNode),
     private readonly host: ActivityHost,
   ) {
     super();
   }
 
   start(): void {
-    const opened = this.host.openDialog(this.node, (result) =>
+    const node = dialogOf({ dialog: this.node })!;
+    const opened = this.host.openDialog(node, (result) =>
       this.finish({ completed: !result.cancelled }),
     );
     // Another dialog is already open, so there is nothing to wait for.

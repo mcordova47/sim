@@ -4,7 +4,7 @@ import { SIDE_PROJECTS, sideProjectTask } from "./side-projects";
 import type { Requirement } from "./state";
 import type { Interactable } from "./interactable";
 import type { HourWindow } from "./time-of-day/hours";
-import { RECORD_MENU } from "./music/records";
+import { currentRecordMenu } from "./music/demo-library";
 import { CODE_LINES, EMAIL_LINES, MIXED_LINES } from "./typing-text";
 
 // Task content from the first version of the game: names, prompts, durations,
@@ -42,6 +42,9 @@ const CONTENT: Task[] = [
   { id: 'journal', name: 'Write in the journal', prompt: 'Write in the journal', duration: 5, points: 50,
     flavor: 'Dear diary, I made coffee. It was a lot.' },
   { id: 'record-play', name: 'Choose a record', prompt: 'Choose a record', duration: 2, points: 25 },
+  // The track editor (issue 059): no points of its own and no cooldown, since
+  // it is always open to you; saving a track pays (activities/make-track.ts).
+  { id: 'make-track', name: 'Make a track', prompt: 'Make a track', duration: 0, points: 0, cooldown: 0 },
 
   // Table
   { id: 'coffee', name: 'Make pour-over coffee', prompt: 'Make coffee', duration: 6, points: 70,
@@ -207,9 +210,11 @@ const STATE_RULES: Record<string, Partial<Task>> = {
   // in music/tracks, and one to stop. Choosing pays like playing guitar does and
   // lifts mood a little; while a record plays, mood climbs more (sound feature).
   // Backing out of the menu pays nothing.
+  "make-track": { activity: { type: "make-track" } },
   "record-play": {
     effects: [{ var: "mood", add: 5 }],
-    dialog: RECORD_MENU,
+    // Built when the player presses E, so it lists demos made since the game loaded.
+    dialog: currentRecordMenu,
   },
 };
 

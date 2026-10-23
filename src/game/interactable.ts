@@ -42,7 +42,9 @@ export interface Interactable {
   // A dialog or menu that is the task ("contemplate"). Shorthand for
   // `activity: { type: "dialog" }`: the task is over, and scores, when the
   // dialog closes (and not at all if the player backs out of it).
-  dialog?: DialogNode;
+  // It may be a function, which is called each time the task starts (the record
+  // player's menu lists demos that did not exist when the game loaded).
+  dialog?: DialogNode | (() => DialogNode);
   // The pose the player takes while it runs (a key of POSES in poses.ts). It
   // plays only at the piece the pose belongs to; anywhere else, or with the
   // art missing, the plain player is drawn.
@@ -53,4 +55,9 @@ export interface Interactable {
   // The tiles of the object, as one rectangle per tile (so an L-shaped counter
   // is exactly its tiles). It is used by standing next to a tile and facing it.
   zones: Rect[];
+}
+
+// The dialog a task opens right now (calling it if it is a function).
+export function dialogOf(item: Pick<Interactable, "dialog">): DialogNode | undefined {
+  return typeof item.dialog === "function" ? item.dialog() : item.dialog;
 }

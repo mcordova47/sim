@@ -5,7 +5,7 @@ import "./activities";
 import { ACTIVITY, DEFAULT_TASK_COOLDOWN, INTERACT_BUFFER_TIME, TIME_OF_DAY } from "./config";
 import type { Interactable } from "./interactable";
 import { Scoreboard, type Award } from "./scoring";
-import type { ApartmentState } from "./state";
+import type { ApartmentState, Effect } from "./state";
 import { inAnyWindow } from "./time-of-day/hours";
 import { overlaps, type Rect } from "./world";
 
@@ -224,6 +224,19 @@ export class InteractionSystem {
       if (message !== null) this.onBlocked?.(this.nearby, "requirement", message);
       else if (this.cooldownRemaining(this.nearby) > 0) this.onBlocked?.(this.nearby, "cooldown");
     }
+  }
+
+  // Pays points for the running task and applies `effects` now, announced like
+  // a completion, without ending it or starting its cooldown (the track editor's
+  // save reward). Null if no task is running.
+  award(points: number, effects: Effect[] = []): Award | null {
+    const active = this.active;
+    if (!active) return null;
+    this.state?.applyEffects(effects);
+    const award = this.scoreboard.complete({ id: active.item.id, points }, this.time, 1, 1);
+    this.lastCompletion = { item: active.item, award, time: this.time };
+    this.onComplete?.(this.lastCompletion);
+    return award;
   }
 
   // Escape while a dialog has the controls: backs out of the running activity

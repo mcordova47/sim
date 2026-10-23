@@ -8,6 +8,11 @@ import { parseTileMap } from "./tilemap";
 import { APARTMENT } from "./apartment";
 import { taskSpots } from "./plan-checks";
 import { STATE_VARS } from "./state-vars";
+import { FakeStorage } from "./achievements/fake-storage";
+import { MAKE_TRACKS as M } from "./config";
+import { DemoStore } from "./music/demo-store";
+import { setDemoStore } from "./music/demo-library";
+import { emptyGrid, placeNote } from "./music/demos";
 
 // Escape during every kind of action, at every stage (issue 046). One row per
 // case; each must end with no points, no apartment changes, no cooldown, the
@@ -38,6 +43,10 @@ interface Case {
   moved?: boolean;
   // The thing that should be up when Escape is pressed.
   expectDialog?: boolean;
+  // Keys pressed once each (a frame apart) after it has settled.
+  keys?: string[];
+  // Something is saved, so the track editor opens with its start menu.
+  saved?: boolean;
 }
 
 const cases: Case[] = [
@@ -50,12 +59,23 @@ const cases: Case[] = [
   { name: "cutscene: ask up", task: t("cs4", { activity: { type: "cutscene", steps: [{ ask: menu("Which?", [choice("A"), choice("B")]) }] }, effects: base.effects }), settle: 5, expectDialog: true },
   { name: "cutscene: view and say", task: t("cs5", { activity: { type: "cutscene", steps: [{ view: "view-x" }, { say: "Look." }, { unview: true }] }, effects: base.effects }), settle: 120, expectDialog: true },
   { name: "cutscene: walking", task: t("cs6", { activity: { type: "cutscene", steps: [{ walk: ["down", "down"] }] }, effects: base.effects }), settle: 4, moved: true },
+  { name: "track editor", task: t("mk", { activity: { type: "make-track" }, effects: base.effects }), settle: 20 },
+  { name: "track editor: playing", task: t("mk2", { activity: { type: "make-track" }, effects: base.effects }), settle: 20, keys: ["KeyE", "KeyP"] },
+  { name: "track editor: typing a name", task: t("mk3", { activity: { type: "make-track" }, effects: base.effects }), settle: 20, keys: ["KeyN", "KeyA"] },
+  { name: "track editor: start menu", task: t("mk4", { activity: { type: "make-track" }, effects: base.effects }), settle: 5, expectDialog: true, saved: true },
   { name: "typing", task: t("ty", { activity: { type: "typing", lines: 1 }, effects: base.effects }), settle: 20 },
 ];
 
 describe("Escape cancels every action at any time", () => {
   for (const c of cases) {
     it(c.name, () => {
+      const demos = new DemoStore(new FakeStorage(), M.storageKey, { reserved: () => [], log: () => {} });
+      if (c.saved) {
+        const g = emptyGrid("Saved");
+        placeNote(g, "melody", 0, 60, 1);
+        demos.save(null, g);
+      }
+      setDemoStore(demos);
       const game = new Game(room(c.task), { random: () => 0.5 });
       const log: string[] = [];
       for (const n of ["taskStart", "taskComplete", "taskCancelled", "dialogClose"] as const) {
@@ -66,6 +86,10 @@ describe("Escape cancels every action at any time", () => {
       game.update(dt, press);
       expect(game.interaction.busy).toBe(true);
       for (let i = 0; i < c.settle; i++) game.update(dt, NO_INPUT);
+      for (const code of c.keys ?? []) {
+        game.update(dt, { ...NO_INPUT, keys: [code] });
+        game.update(dt, NO_INPUT);
+      }
       expect(game.interaction.busy).toBe(true);
       if (c.expectDialog) expect(game.dialogOpen).toBe(true);
 

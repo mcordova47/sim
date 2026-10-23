@@ -5,6 +5,7 @@ import { DIALOG } from "./config";
 import type { DialogNode } from "./dialog";
 import { CONTEMPLATE } from "./dialog-data";
 import { APARTMENT } from "./apartment";
+import { dialogOf } from "./interactable";
 import { PLACEHOLDER_LEVEL } from "./placeholder-level";
 import { TASKS } from "./tasks";
 import { wrapText } from "./dialog";
@@ -26,12 +27,12 @@ function nodes(root: DialogNode): DialogNode[] {
 // Every dialog in the game: the contemplate menu and any a task carries.
 const roots: DialogNode[] = [
   CONTEMPLATE,
-  ...PLACEHOLDER_LEVEL.interactables.flatMap((i) => (i.dialog ? [i.dialog] : [])),
+  ...PLACEHOLDER_LEVEL.interactables.flatMap((i) => (i.dialog ? [dialogOf(i)!] : [])),
   // And every dialog a task in the real apartment carries.
   ...Object.values(APARTMENT.rooms).flatMap((room) =>
-    room.interactables.flatMap((i) => (i.dialog ? [i.dialog] : [])),
+    room.interactables.flatMap((i) => (i.dialog ? [dialogOf(i)!] : [])),
   ),
-  ...TASKS.flatMap((t) => (t.dialog ? [t.dialog] : [])),
+  ...TASKS.flatMap((t) => (t.dialog ? [dialogOf(t)!] : [])),
 ];
 const all = [...new Set(roots.flatMap(nodes))];
 

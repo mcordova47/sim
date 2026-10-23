@@ -2,7 +2,7 @@ import type { KeyValueStorage } from "../achievements/progress";
 import { MAKE_TRACKS } from "../config";
 import { DemoStore } from "./demo-store";
 import { RESERVED_NAMES } from "./demos";
-import { TRACKS } from "./records";
+import { TRACKS, recordMenu } from "./records";
 
 // The one store of made tracks the game shares: the editor writes it, the
 // record player's menu and the sound feature read it. It is made the first
@@ -28,3 +28,7 @@ export function demoStore(): DemoStore {
 export function setDemoStore(store: DemoStore | null): void {
   shared = store;
 }
+
+// The record player's menu as it is right now: the records, and the demos if
+// there are any. Built when the player presses the interact key, not at load.
+export const currentRecordMenu = () => recordMenu(TRACKS, demoStore().tracks());

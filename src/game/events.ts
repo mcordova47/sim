@@ -1,6 +1,7 @@
 import type { Direction } from "./direction";
 import type { Interactable } from "./interactable";
 import type { Level } from "./level";
+import type { Track } from "./music/track";
 import type { Award } from "./scoring";
 
 // Things that happen in the game that other features (sound, particles,
@@ -27,6 +28,11 @@ export interface GameEvents {
   // (all of a task's effects) have applied. Time-driven changes are sent when
   // the whole-number part changes: the clock once per in-game hour. See docs/state.md.
   stateChanged: { id: string; value: number; previous: number };
+  // The track editor wants `track` played over the music (null: put the record
+  // back). `live` means swap it in at the end of the loop. See ActivityHost.previewTrack.
+  preview: { track: Track | null; live: boolean };
+  // The track editor sounded a note at `freq` Hz.
+  blip: { freq: number };
   // A dialog or menu opened or closed.
   dialogOpen: Record<string, never>;
   // `path` is every label picked in the dialog (empty if none); `cancelled` is

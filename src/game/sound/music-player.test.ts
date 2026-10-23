@@ -109,3 +109,48 @@ describe("MusicPlayer", () => {
     expect(ctx.started).toBe(0);
   });
 });
+
+describe("MusicPlayer.swap", () => {
+  const A = parseTrack("title: A\ntempo: 120\n[a square]\nC4:1 C4:1");
+  const B = parseTrack("title: B\ntempo: 120\n[a square]\nG4:1 G4:1");
+
+  it("starts the track at once when nothing is playing", () => {
+    const { synth, player, ctx } = setup(A);
+    player.stop();
+    player.swap(B);
+    expect(player.track?.title).toBe("B");
+    player.update(synth);
+    expect(Math.round(ctx.oscillators[0].frequency.calls[0].value)).toBe(392);
+  });
+
+  it("changes the track at the end of the loop that is playing, without a gap", () => {
+    const { ctx, synth, player } = setup(A);
+    player.update(synth);
+    player.swap(B);
+    expect(player.track?.title).toBe("A"); // not yet
+    // A is two beats (1 s) long. Run a little past its end.
+    for (const t of [0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6]) {
+      ctx.currentTime = t;
+      player.update(synth);
+    }
+    expect(player.track?.title).toBe("B");
+    const freqs = ctx.oscillators.map((o) => Math.round(o.frequency.calls[0].value));
+    expect(freqs.filter((f) => f === 262).length).toBe(2); // one pass of A
+    expect(freqs).toContain(392);
+    // B's first note starts where A's next loop would have: 1.05 s after the start (0.05 lead in).
+    const g = ctx.oscillators.find((o) => Math.round(o.frequency.calls[0].value) === 392)!;
+    expect(g.startedAt).toBeCloseTo(1.05, 2);
+  });
+
+  it("forgets a waiting track when something else is played or stopped", () => {
+    const { ctx, synth, player } = setup(A);
+    player.update(synth);
+    player.swap(B);
+    player.stop();
+    for (const t of [0.5, 1.0, 1.5, 2.0]) {
+      ctx.currentTime = t;
+      player.update(synth);
+    }
+    expect(player.track).toBeNull();
+  });
+});

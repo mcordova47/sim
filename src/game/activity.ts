@@ -111,7 +111,12 @@ export type ActivityFactory = (
 
 // Checks a spec's settings without building anything; throws a message that
 // names the task. Run for every task when a level is built.
-export type ActivityValidator = (spec: ActivitySpec, item: Interactable) => void;
+// `context` says what the game knows (for now, which state variables exist); it
+// is missing when a task is checked with no game around.
+export interface ValidationContext {
+  hasState(id: string): boolean;
+}
+export type ActivityValidator = (spec: ActivitySpec, item: Interactable, context?: ValidationContext) => void;
 
 const registry = new Map<string, { factory: ActivityFactory; validate?: ActivityValidator }>();
 
@@ -141,7 +146,7 @@ export function specFor(item: Interactable): ActivitySpec {
 // Throws, naming the task, if its `activity` is not a known type with sane
 // settings. Called when a level is built, so a typo shows up then and not on
 // the first press of the interact key.
-export function validateActivity(item: Interactable): void {
+export function validateActivity(item: Interactable, context?: ValidationContext): void {
   const raw: unknown = item.activity;
   if (raw !== undefined) {
     if (typeof raw !== "object" || raw === null || Array.isArray(raw)) {
@@ -154,7 +159,7 @@ export function validateActivity(item: Interactable): void {
   const spec = specFor(item);
   const entry = registry.get(spec.type);
   if (!entry) throw new Error(`Task "${item.id}" has an unknown activity type "${spec.type}"`);
-  entry.validate?.(spec, item);
+  entry.validate?.(spec, item, context);
 }
 
 export function createActivity(item: Interactable, host: ActivityHost | null): Activity {

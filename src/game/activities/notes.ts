@@ -104,8 +104,8 @@ export class NotesActivity extends BaseActivity {
 }
 
 function noteCount(spec: Record<string, unknown>, item: { id: string }): number {
-  const count = spec.count === undefined ? NOTES.count : Number(spec.count);
-  if (!Number.isInteger(count) || count < 1 || count > NOTES.maxCount) {
+  const count = spec.count === undefined ? NOTES.count : spec.count;
+  if (typeof count !== "number" || !Number.isInteger(count) || count < 1 || count > NOTES.maxCount) {
     throw new Error(
       `Task "${item.id}": notes needs a whole number of notes, 1 or more and at most ${NOTES.maxCount} (so they fit the screen)`,
     );

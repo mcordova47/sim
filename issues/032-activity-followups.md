@@ -1,7 +1,7 @@
 ---
 id: 032
 title: Activity follow-ups from the 022 review
-status: todo
+status: done
 owner: claude
 depends_on: []
 ---
@@ -18,3 +18,23 @@ Close the small gaps the two reviews of 022 left open.
 - `npm test` and `npm run build` pass.
 
 ## Progress log
+
+- 2026-10-23: Started. Plan: guard `draw`, validate `set` vars and strict numbers at load, pin the door walk, docs.
+- 2026-10-23: Done, in review.
+  - `Game.render` now calls the activity's `draw` in a try/catch; a throw goes through the new `InteractionSystem.abandonActive` (same path as a throwing `update`: logged, cancelled, no points/effects/cooldown). Test fails on old code.
+  - Cutscene `set` vars are checked at load against the game's own state (new optional `ValidationContext` passed through `validateLevel` and `validateActivity`; `Game` passes `{ hasState }`). Decision: `set` steps stay applied if a scene is skipped or later steps fail; they are not rolled back. Because an unknown variable is rejected at load, a `set` cannot fail partway, so there is nothing to half-apply. Documented.
+  - Notes `count` and typing `lines` now reject any non-number (`"3"`, `true`, `null`, `[3]`) instead of coercing.
+  - Door walk: decision is it stays (walk enters doors, later steps run in the new room). Documented in `docs/activities.md` and pinned by two tests (ending on a door; crossing one).
+  - Interface gaps (open mic result, result-dependent effects, waiting cue, reading state, world drawing, room-change hook): no content issue hits any yet, so none done.
+  - Files: activity.ts, activities/{cutscene,notes,typing}.ts, game.ts, interaction.ts, level.ts, activity-guards.test.ts, docs/activities.md.
+  - Checks: `npm test` 513 pass; `npm run build` ok; `tsc --noEmit` clean. With the old game.ts, the new draw and state-var tests fail. Not checked: anything in a real browser (a real canvas throw).
+- 2026-10-23: Review (independent). Verdict: approve.
+  - Draw guard: pass. Own test (outside repo): a `draw` that throws, with a `cancel` that also throws, fires one taskCancelled, no taskComplete, one logged error across 5 further frames, and the task can start again at once (draw ran twice in total).
+  - Unknown `set` var: pass. Rejected at `validateActivity` (message names task and var), at `new Game`, and at `loadLevel`. Also rejects non-string var, NaN, and `__proto__`/`toString`. Decision (set steps stay applied, no rollback) is documented and reasoned.
+  - Strict numbers: pass. Notes `count` and typing `lines` reject "3", true, null, [3], {}, NaN, Infinity, 2.5, 0, -1; accept 3, 1 and the default.
+  - Door walk: pass. Decision (walk enters doors) documented in docs/activities.md and pinned by two tests (read, not re-derived).
+  - Interface gaps: pass as scoped. None done; no content issue needs them.
+  - `npm test` 513 pass, `npm run build` ok.
+  - Scope: only the files named in the log plus the issue file. PLAN.md untouched.
+  - Not verified: anything in a real browser (a real canvas draw throw, a door walk on screen). Unit tests use a stubbed canvas.
+  - Note, not blocking: `validateLevel`/`validateActivity` called without a context (for example standalone in tests) skip the state-var check by design.

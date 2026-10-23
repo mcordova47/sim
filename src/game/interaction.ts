@@ -171,6 +171,12 @@ export class InteractionSystem {
     }
   }
 
+  // The running activity broke somewhere outside `update` (its `draw`): same
+  // as a throw in `update`.
+  abandonActive(error: unknown): void {
+    if (this.active) this.abandon(this.active.item, this.active.activity, error);
+  }
+
   // An activity threw: report it once, drop it as cancelled (no points, no
   // effects, no cooldown) and let the game go on.
   private abandon(item: Interactable, activity: Activity, error: unknown): void {

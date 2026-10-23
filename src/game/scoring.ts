@@ -60,6 +60,11 @@ export class Scoreboard {
     return this.chainAlive(now) ? this.chain.length : 0;
   }
 
+  // Multiplier of the combo as it stands at `now` (1 when there is no combo).
+  multiplier(now: number): number {
+    return chainMultiplier(this.chainLength(now));
+  }
+
   // Multiplier the next *different* task would get if done at `now`.
   nextMultiplier(now: number): number {
     return chainMultiplier(this.chainLength(now) + 1);

@@ -7,6 +7,9 @@ import { PLACEHOLDER_SOLIDS, PLACEHOLDER_SPAWN } from "./game/placeholder-room";
 import { NO_INPUT, readControls } from "./input/controls";
 import { Keyboard } from "./input/keyboard";
 import { createScreen } from "./render/canvas";
+import { Hud } from "./render/hud";
+import { Popups, type PopupLine } from "./render/popups";
+import { drawProgress, drawPrompt } from "./render/world-ui";
 
 const canvas = document.getElementById("game") as HTMLCanvasElement;
 const { ctx } = createScreen(canvas);
@@ -14,22 +17,30 @@ const keyboard = new Keyboard();
 
 const solids = PLACEHOLDER_SOLIDS;
 const player = new Player(PLACEHOLDER_SPAWN.x, PLACEHOLDER_SPAWN.y);
-const interaction = new InteractionSystem(PLACEHOLDER_INTERACTABLES);
+const hud = new Hud();
+const popups = new Popups();
+
+const interaction = new InteractionSystem(PLACEHOLDER_INTERACTABLES, ({ item, award }) => {
+  const lines: PopupLine[] = [{ text: `+${award.points}`, color: "#ffd166", scale: 2 }];
+  if (award.multiplier > 1) {
+    lines.push({ text: `COMBO X${award.multiplier.toFixed(1)}`, color: "#ef476f" });
+  }
+  if (award.repeatFactor < 1) {
+    lines.push({ text: `REPEAT X${award.repeatFactor.toFixed(2)}`, color: "#8d99ae" });
+  }
+  popups.add(item.zone.x + item.zone.w / 2, item.zone.y, lines);
+});
 
 function update(dt: number) {
   const controls = readControls(keyboard);
   interaction.update(dt, player, controls);
   // Locked in place while a task runs.
   player.update(dt, interaction.busy ? NO_INPUT : controls, solids);
+  popups.update(dt);
+  hud.update(dt, interaction.scoreboard.score);
   keyboard.endFrame();
 }
 
-function text(s: string, x: number, y: number, color = "#edf2f4") {
-  ctx.fillStyle = color;
-  ctx.fillText(s, Math.round(x), Math.round(y));
-}
-
-// Throwaway debug HUD; issue 004 replaces it with the real one.
 function render(alpha: number) {
   ctx.fillStyle = "#2b2d42";
   ctx.fillRect(0, 0, VIEW.width, VIEW.height);
@@ -55,41 +66,19 @@ function render(alpha: number) {
   ctx.fillStyle = "#edf2f4";
   ctx.fillRect(x + (player.facing > 0 ? player.w - 3 : 1), y + 3, 2, 2);
 
-  ctx.font = "8px monospace";
-  ctx.textAlign = "center";
+  // World-space UI. Coordinates are world positions; the camera in issue 010
+  // will convert them to screen positions here.
+  const actor = { x, y, w: player.w, h: player.h };
   if (interaction.active) {
-    const w = 24;
-    ctx.fillStyle = "#000";
-    ctx.fillRect(x + player.w / 2 - w / 2, y - 6, w, 3);
-    ctx.fillStyle = "#06d6a0";
-    ctx.fillRect(x + player.w / 2 - w / 2, y - 6, w * interaction.progress, 3);
+    drawProgress(ctx, actor, interaction.active.item, interaction.progress, VIEW);
   } else if (interaction.nearby) {
     const cooldown = interaction.cooldownRemaining(interaction.nearby);
-    const label =
-      cooldown > 0
-        ? `${interaction.nearby.prompt} (${Math.ceil(cooldown)}s)`
-        : `E: ${interaction.nearby.prompt}`;
-    const px = Math.min(Math.max(x + player.w / 2, 60), VIEW.width - 60);
-    text(label, px, y - 6, cooldown > 0 ? "#8d99ae" : "#edf2f4");
+    drawPrompt(ctx, actor, interaction.nearby, cooldown, VIEW);
   }
+  popups.draw(ctx, VIEW.width);
 
-  const last = interaction.lastCompletion;
-  if (last && interaction.time - last.time < 1.5) {
-    text(`+${last.award.points}`, x + player.w / 2, y - 14 - (interaction.time - last.time) * 8, "#ffd166");
-  }
-
-  ctx.textAlign = "left";
-  const { scoreboard, time } = interaction;
-  const chain = scoreboard.chainLength(time);
-  text(`score ${scoreboard.score}`, 12, 20);
-  if (chain > 0) {
-    text(
-      `combo x${chain} (next x${scoreboard.nextMultiplier(time).toFixed(1)}, ${Math.ceil(scoreboard.comboTimeLeft(time))}s)`,
-      12,
-      30,
-      "#ffd166",
-    );
-  }
+  // Screen-space HUD.
+  hud.draw(ctx, interaction.scoreboard, interaction.time);
 }
 
 startLoop({ update, render });

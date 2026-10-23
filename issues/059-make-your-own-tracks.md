@@ -19,6 +19,9 @@ Marc's idea (2026-10-23): create tracks in the game itself. The "mix" mini-game 
 - **Where tracks play: both.** Your tracks are listed in the record player menu under a "Demos" heading, and later the recording gear at the desk (audio interface and laptop) gets its own "play demo" action.
 - **A free-form tool, not a timed mini-game:** no clock or score pressure while editing; making and saving a track pays points and a mood bump once, with a cooldown so it cannot be farmed.
 
+## Marc's picks on the design note (2026-10-23): all of the recommendations in `docs/make-tracks.md`
+Layout A (piano roll); opens at the desk laptop as a new task (it appears in the 039 choice cycle) replacing "Mix the demo"; notes may be held for 2 or 4 steps (a key to change the length); waves fixed per channel; Demos under a `Demos...` submenu in the record menu; reward 90 points and +6 mood once per 6 game hours for a track of at least 8 notes across at least 2 channels; limits 12 tracks, 24-letter names, 32 steps; the game clock held still while editing; import rejects tracks the editor cannot show; a playing demo lifts mood like a record; new tracks start as "Untitled N". Stage 4 (play a demo at the recording gear) is a follow-up.
+
 ## Acceptance criteria
 - A short design note in `docs/make-tracks.md` with the choices above and mockups of the editor at 320x192 (ASCII is fine), Marc picks.
 - Then a first build: the editor, saving, listing and playing made tracks, with tests (the editor output always parses with the track parser, bad input is rejected, storage failures are tolerated) and a way to delete a track. `npm test` and `npm run build` pass; Marc tries it.

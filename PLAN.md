@@ -32,7 +32,11 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 | 004 | [HUD and feedback](issues/004-hud-feedback.md) | claude | done | 003 |
 | 005 | [Floor plan and task list](issues/005-floor-plan-tasks.md) | marc + agent | done | |
 | 006 | [Sprite pipeline and style guide](issues/006-sprite-pipeline.md) | agent | done | 001 |
-| 007 | [Furniture sprites](issues/007-furniture-sprites.md) | agent | todo | 005, 006 |
+| 007 | [Furniture sprites (umbrella)](issues/007-furniture-sprites.md) | marc + claude | todo | 007a-d |
+| 007a | [Sprites: west main room](issues/007a-sprites-west-main-room.md) | agent | todo | 005, 006 |
+| 007b | [Sprites: east main room](issues/007b-sprites-east-main-room.md) | agent | todo | 005, 006 |
+| 007c | [Sprites: kitchen west](issues/007c-sprites-kitchen-west.md) | agent | todo | 005, 006 |
+| 007d | [Sprites: kitchen east and bath](issues/007d-sprites-kitchen-east-and-bath.md) | agent | todo | 005, 006 |
 | 008 | [Player character sprite](issues/008-player-sprite.md) | agent | todo | 006 |
 | 009 | [Polish: sound, particles, achievements, time of day](issues/009-polish.md) | agent | todo | 004, 007 |
 | 010 | [Scrolling camera](issues/010-scrolling-camera.md) | claude | todo | 005 |
@@ -41,12 +45,13 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 | 013 | [Physics robustness](issues/013-physics-robustness.md) | claude | todo | |
 | 014 | [HUD polish](issues/014-hud-polish.md) | claude | todo | 010, 011 |
 | 015 | [Extract the game scene from main.ts](issues/015-extract-game-scene.md) | claude | todo | |
+| 016 | [Draw the level and player with sprites](issues/016-draw-level-with-sprites.md) | claude | todo | 007, 008, 010, 011 |
 
 ## Order of work
 1. **Playable skeleton first:** 001, 002, 003, 004 with rectangles for art.
 2. **In parallel:** Marc supplies photos and measurements (005) while 006 builds the sprite pipeline.
 3. **Real level:** 011 (integrate the floor plan) and 010 (scrolling camera, since the real room is wider than the screen) once 005 is merged.
-4. **Art:** 007 and 008 once the floor plan, camera and style guide exist.
+4. **Art:** 007a-d and 008 can start now (floor plan and style guide are done); then 016 draws the level and player with them once the camera (010) and real data (011) are in.
 5. **Polish:** 009.
 6. **Cleanup:** 012 and 013 any time (minor findings from reviews of 003 and 002); 014 after the camera and real floor plan are in (minor findings from the review of 004).
 

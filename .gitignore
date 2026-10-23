@@ -3,3 +3,4 @@ dist/
 .DS_Store
 reference-photos/*
 !reference-photos/README.md
+art/contact-sheet.png

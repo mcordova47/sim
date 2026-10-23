@@ -35,6 +35,24 @@ Characters are what you type in a `.sprite` file. `.` is transparent.
 
 Only these colors may be used. To add one, edit `palette.json` and this table in the same change.
 
+## Materials
+Use the same palette keys for the same material everywhere, so sprites drawn by different people match. One light and one dark tone per material, plus the `1` outline.
+
+| Material | Base | Light | Dark | Notes |
+|----------|------|-------|------|-------|
+| Light wood (oak, bamboo) | `9` | `a` | `8` | bookshelf, desk top, counter cabinets |
+| Dark wood (walnut, red-brown) | `8` | `9` | `7` | dining table, sofa frame, record stand |
+| White (appliance, porcelain, sheets) | `6` | `6` | `5` | toilet, vanity top, tub, pillows |
+| Steel (fridge, stove, sink) | `5` | `6` | `4` | brushed metal; keep highlights on the top-left |
+| Black plastic and metal | `3` | `4` | `2` | bin, tote bag, stove burners, rods |
+| Cardboard | `9` | `a` | `8` | boxes |
+| Plants | `f` | `d` | `e` | leaves; pots use wood or `c` |
+| Teal appliance, fabric accents | `g` | `i` | `4` | microwave, sofa geometric pattern |
+| Red accents | `b` | `k` | `7` | sofa pattern, duvet stripes |
+| Wall and window light | `i` | `6` | `h` | window glass, curtains use `5` and `4` |
+
+If a piece needs a colour that isn't here, pick the nearest palette key and say so in the issue's progress log instead of adding to this table; the planner folds additions in afterwards.
+
 ## Outlines
 - 1 px outline in **ink** (`1`) around the outside of every object. No outline between two parts of the same object; use a shade change instead.
 - No anti-aliasing, no semi-transparent pixels. Every pixel is a palette color or fully transparent.
@@ -62,5 +80,6 @@ The first non-comment line is `size: WxH`, followed by exactly H rows of exactly
 ## Workflow
 1. Edit or add `art/src/<name>.sprite`.
 2. `npm run sprites` validates and renders to `public/sprites/` plus `art/contact-sheet.png` (4x upscale on a checkerboard). Look at the sheet before committing.
-3. The script fails, writing nothing, if a sprite has an unknown color, a wrong row width or height, or a size that is not a multiple of the tile.
-4. In the game, `sprites.draw(ctx, "name", x, y)` (see `src/render/sprites.ts`). A missing file draws a red rectangle labeled with its name. To swap in hand-made art, drop a PNG of the right size at `public/sprites/<name>.png` and skip the source file (the script only overwrites PNGs that have a `.sprite` source).
+3. `art/contact-sheet.png` is a generated review aid and is not committed (it is gitignored), so branches don't conflict on it. Don't `git add -f` it. The script prints where it wrote it.
+4. The script fails, writing nothing, if a sprite has an unknown color, a wrong row width or height, or a size that is not a multiple of the tile.
+5. In the game, `sprites.draw(ctx, "name", x, y)` (see `src/render/sprites.ts`). A missing file draws a red rectangle labeled with its name. To swap in hand-made art, drop a PNG of the right size at `public/sprites/<name>.png` and skip the source file (the script only overwrites PNGs that have a `.sprite` source).

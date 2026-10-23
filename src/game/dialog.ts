@@ -106,6 +106,9 @@ export type DialogView =
 // oldest first (empty if it was only text, or backed out of).
 export interface DialogResult {
   path: string[];
+  // True if the player backed out of a menu to end the dialog, rather than
+  // finishing it. The path still holds anything chosen before.
+  cancelled: boolean;
 }
 
 export interface DialogHandlers {
@@ -262,7 +265,7 @@ export class DialogRunner {
   private back(): void {
     const saved = this.history.pop();
     if (!saved) {
-      this.close();
+      this.close(true);
       return;
     }
     this.path.pop();
@@ -270,8 +273,8 @@ export class DialogRunner {
     this.cursor = saved.cursor;
   }
 
-  private close(): void {
-    const result = { path: [...this.path] };
+  private close(cancelled = false): void {
+    const result: DialogResult = { path: [...this.path], cancelled };
     const onDone = this.onDone;
     this.node = null;
     this.pages = [];
@@ -279,8 +282,16 @@ export class DialogRunner {
     this.history = [];
     this.path = [];
     this.onDone = null;
-    // The state is already clear, so these may start another dialog.
-    onDone?.(result);
+    // The dialog is fully closed before anyone hears about it. First the
+    // handlers (which release the input lock and announce the close), then this
+    // dialog's own callback, so a callback may start another dialog without
+    // the two overlapping. A callback that throws is reported and ignored: it
+    // must not be able to leave the game locked.
     this.handlers.onClose?.(result);
+    try {
+      onDone?.(result);
+    } catch (error) {
+      console.error("A dialog's onDone callback threw", error);
+    }
   }
 }

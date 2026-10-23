@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { NO_INPUT, type Controls } from "../input/controls";
 import { DIALOG } from "./config";
 import { DialogRunner, choice, menu, paginate, say, wrapText, type Menu } from "./dialog";
@@ -434,5 +434,92 @@ describe("DialogRunner: results", () => {
     r.update(dt, press);
     r.update(dt, press);
     expect(called).toBe(false);
+  });
+});
+
+
+describe("DialogRunner: closing order and callbacks", () => {
+  it("tells the handlers about the close before the dialog's own callback", () => {
+    const order: string[] = [];
+    const r = new DialogRunner({ onClose: () => order.push("handler") }, 1000);
+    r.start(say("hi"), () => order.push("onDone"));
+    r.update(dt, press);
+    r.update(dt, press);
+    expect(order).toEqual(["handler", "onDone"]);
+  });
+
+  it("is already fully closed when the callback runs, so it can start another dialog", () => {
+    const { log, handlers } = record();
+    const r = new DialogRunner(handlers, 1000);
+    r.start(say("one"), () => {
+      expect(r.open).toBe(false);
+      expect(r.start(say("two"))).toBe(true);
+    });
+    r.update(dt, press);
+    r.update(dt, press);
+    expect(log).toEqual(["open", "close", "open"]);
+    expect(r.open).toBe(true);
+  });
+
+  it("reports and ignores a callback that throws, still closing cleanly", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    const { log, handlers } = record();
+    const r = new DialogRunner(handlers, 1000);
+    r.start(say("hi"), () => {
+      throw new Error("broken");
+    });
+    r.update(dt, press);
+    expect(() => r.update(dt, press)).not.toThrow();
+    expect(r.open).toBe(false);
+    expect(log).toEqual(["open", "close"]);
+    expect(error).toHaveBeenCalledTimes(1);
+    // And a new dialog can start.
+    expect(r.start(say("again"))).toBe(true);
+    error.mockRestore();
+  });
+});
+
+describe("DialogRunner: cancelled", () => {
+  const results = () => {
+    const seen: { path: string[]; cancelled: boolean }[] = [];
+    return { seen, done: (res: { path: string[]; cancelled: boolean }) => seen.push(res) };
+  };
+
+  it("is false for a dialog that was finished, and true for one backed out of", () => {
+    const a = results();
+    const r = new DialogRunner({}, 1000);
+    r.start(say("hi"), a.done);
+    r.update(dt, press);
+    r.update(dt, press);
+    r.start(menu("Pick", [choice("A")]), a.done);
+    r.update(dt, cancel);
+    r.start(menu("Pick", [choice("A")]), a.done);
+    r.update(dt, press); // chose A, nothing after it
+    expect(a.seen.map((s) => s.cancelled)).toEqual([false, true, false]);
+  });
+
+  it("is only true when the top menu is cancelled, not when backing out one level", () => {
+    const a = results();
+    const inner = menu("Inner", [choice("x")]);
+    const r = new DialogRunner({}, 1000);
+    r.start(menu("Outer", [choice("in", inner)]), a.done);
+    r.update(dt, press);
+    r.update(dt, cancel); // back to Outer: still open
+    expect(a.seen).toEqual([]);
+    r.update(dt, cancel); // closes
+    expect(a.seen).toEqual([{ path: [], cancelled: true }]);
+  });
+
+  it("keeps what was chosen before a reply when the menu after it is cancelled", () => {
+    const a = results();
+    const b = menu("B", [choice("y")]);
+    const first = menu("A", [choice("x", say("reply", b))]);
+    const r = new DialogRunner({}, 1000);
+    r.start(first, a.done);
+    r.update(dt, press); // x
+    r.update(dt, press);
+    r.update(dt, press); // on to B
+    r.update(dt, cancel);
+    expect(a.seen).toEqual([{ path: ["x"], cancelled: true }]);
   });
 });

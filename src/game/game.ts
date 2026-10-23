@@ -71,6 +71,7 @@ export class Game {
     };
     this.dialog = new DialogRunner({
       onOpen: () => {
+        this.releaseDialogLock?.();
         this.releaseDialogLock = this.lockInput();
         this.interaction.clearPressBuffer();
         this.events.emit("dialogOpen", {});

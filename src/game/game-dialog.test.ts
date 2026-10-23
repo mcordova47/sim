@@ -257,3 +257,67 @@ describe("a press made just before a dialog opens", () => {
     expect(game.interaction.busy).toBe(false);
   });
 });
+
+
+describe("Game dialogs: callbacks and the lock", () => {
+  it("leaves the player free when the callback throws, and still announces the close", () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    const game = new Game(level());
+    const log = listen(game);
+    game.openDialog(say("Hi."), () => {
+      throw new Error("broken");
+    });
+    run(game, 1);
+    expect(() => game.update(dt, press)).not.toThrow();
+    expect(game.dialogOpen).toBe(false);
+    expect(game.inputLocked).toBe(false);
+    expect(names(log)).toEqual(["dialogOpen", "dialogClose"]);
+    run(game, 0.5, hold("left"));
+    expect(game.player.col).toBeLessThan(3);
+  });
+
+  it("chains one dialog into the next without leaking a lock", () => {
+    const game = new Game(level());
+    const log = listen(game);
+    game.openDialog(say("One."), () => {
+      game.openDialog(say("Two."));
+    });
+    run(game, 1);
+    game.update(dt, press); // closes the first; the second opens
+    expect(game.dialogOpen).toBe(true);
+    expect(names(log)).toEqual(["dialogOpen", "dialogClose", "dialogOpen"]);
+    run(game, 1);
+    game.update(dt, press); // closes the second
+    expect(game.dialogOpen).toBe(false);
+    expect(game.inputLocked).toBe(false);
+    expect(names(log)).toEqual(["dialogOpen", "dialogClose", "dialogOpen", "dialogClose"]);
+    run(game, 0.5, hold("left"));
+    expect(game.player.col).toBeLessThan(3);
+  });
+
+  it("keeps another feature's lock when chained dialogs close", () => {
+    const game = new Game(level());
+    const other = game.lockInput();
+    game.openDialog(say("One."), () => {
+      game.openDialog(say("Two."));
+    });
+    run(game, 1);
+    game.update(dt, press);
+    run(game, 1);
+    game.update(dt, press);
+    expect(game.dialogOpen).toBe(false);
+    expect(game.inputLocked).toBe(true);
+    other();
+    expect(game.inputLocked).toBe(false);
+  });
+
+  it("says in the event and the callback whether the dialog was cancelled", () => {
+    const game = new Game(level());
+    const log = listen(game);
+    const got: boolean[] = [];
+    game.openDialog(menu("Pick", [choice("A")]), (r) => got.push(r.cancelled));
+    game.update(dt, { ...NO_INPUT, cancelPressed: true });
+    expect(got).toEqual([true]);
+    expect(log.at(-1)).toMatchObject({ name: "dialogClose", payload: { cancelled: true } });
+  });
+});

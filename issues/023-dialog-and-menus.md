@@ -1,7 +1,7 @@
 ---
 id: 023
 title: Dialog box and choice menus
-status: in-progress
+status: review
 owner: claude
 depends_on: [019]
 ---
@@ -93,3 +93,10 @@ A Pokemon-style text box and choice menus, so cutscenes, thoughts and abstract t
     - [ ] Game-level tests for both.
     - Optional: `wrapText` quadratic on very long unbroken words; a `cancelled` flag in the result; a marker on a cut label.
   - **Not verified:** real-time feel, a real browser, and anything Marc has not looked at.
+- 2026-10-23 (round 3, author): Fixed the two bugs the second review found in the new `onDone` API, and added a `cancelled` flag. Back in `review`.
+  - **A callback that throws no longer leaves the game locked (fixed).** `DialogRunner.close()` now clears all of its state, then tells the handlers (the `Game` releases the input lock and announces `dialogClose`), and only then calls the dialog's own `onDone`, inside a try/catch that logs and ignores a throw. Before, `onDone` ran first, so a throw skipped the lock release and the event.
+  - **A callback that starts another dialog no longer leaks a lock (fixed).** With the first dialog fully closed (lock released) before `onDone` runs, the second dialog's lock is a fresh one. Event order is `dialogOpen`, `dialogClose`, `dialogOpen`, `dialogClose` for a chain. `Game` also releases any stale dialog lock before taking a new one, as a second safeguard.
+  - **`DialogResult.cancelled` (new).** True when the player backed out of a menu to end the dialog, false when it finished or a choice had nothing after it. Backing out one level inside nested menus does not end the dialog, so it is not reported. The path still holds what was chosen before. It is in the `dialogClose` event too.
+  - **Docs:** `docs/dialogs.md` now says a menu reached after a reply is a fresh start even if it looks like a submenu of the one before (Escape closes the dialog rather than returning to the menu before the reply; to get "back to A", lead the choice straight to the next menu with no reply, or put the reply text in its prompt), and describes `cancelled`, the closing order and that a throwing callback is logged and ignored.
+  - **Not changed (reviewer notes, negligible):** `wrapText` is quadratic on a very long word with no spaces (10,000 characters take 0.5 s; no real dialog looks like that); a cut label has no marker and a cut can land mid surrogate pair (the data test keeps such text out of real data).
+  - **Checks:** `npm run build` passes; `npm test` 269 pass (259 before, 10 new: 3 runner closing-order tests, 3 `cancelled` tests, 4 at game level for a throwing callback, a chain, another feature's lock surviving a chain, and `cancelled` in the event and callback). All 10 fail against the previous `dialog.ts` and `game.ts` and pass now.

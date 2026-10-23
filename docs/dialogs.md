@@ -19,13 +19,14 @@ menu("Contemplate what?", [           // a list of choices, with an optional pro
 - A `say` is wrapped to the box and split into pages of three lines. The interact key (E) finishes a page that is still typing, then moves on to the next page, then to `next` (or closes).
 - A `menu` moves with the arrow keys or W and S, one entry per press (it wraps around), E chooses, and Escape or X goes back one level (or closes, from the top menu).
 - A choice's `next` can be another `menu`, so submenus are just nesting. Cancel goes back to the menu you came from, with the cursor where you left it.
+- A menu reached after a reply is a fresh start, even if it looks like a submenu of the one before: for A, a choice, a reply, then B, Escape at B closes the dialog (`cancelled` is true and the path still has what was chosen before) and does not return to A. To get "back to A", lead the choice straight to B with no reply, or put the reply text in B's prompt.
 - Cancel goes back only within a run of menus. Once the player has read a reply, going on to the next node starts afresh, so cancel at a menu reached after a reply closes the dialog (or backs out of menus opened after that reply), never back across it.
 - Nodes are ordinary objects, so a node can lead back to an earlier one (a menu offered again after a reply). Build the loop by creating the menu first and pushing its choices afterwards.
 
 ## Getting one to open
 
 - A task can carry one: `task: { ..., duration: 0, dialog: myMenu }` in a tile-map legend or an `Interactable`. The dialog opens when the task starts. (Until the activity framework, issue 022, a task with a dialog is instant and scores as soon as it starts.)
-- Code can open one: `game.openDialog(node, onDone?)`. It returns false if one is already open. `onDone` is called when that dialog closes, with `{ path }`: the labels the player picked, oldest first (empty for plain text or backing out). That is how a cutscene or an activity waits for a dialog and learns the answer.
+- Code can open one: `game.openDialog(node, onDone?)`. It returns false if one is already open. `onDone` is called when that dialog closes, with `{ path, cancelled }`: the labels the player picked, oldest first (empty for plain text), and whether the player backed out of a menu to end it. By the time it is called the dialog is fully closed and the controls are back, so it may open another dialog; if it throws, the error is logged and ignored. That is how a cutscene or an activity waits for a dialog and learns the answer.
 - While a dialog is open the player and the interaction system have no controls, and the game clock (task cooldowns, the combo timer) stands still (`DIALOG.pauseClock` in `config.ts`). Features that need to take the controls themselves use `game.lockInput()`, which returns a function that gives them back.
 - Events: `dialogOpen`, `dialogChoose` (the label picked and the whole path so far) and `dialogClose` (with the path).
 - A press of the interact key made just before a dialog opens is forgotten, so it can't start a task when the dialog closes.

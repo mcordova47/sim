@@ -1,3 +1,4 @@
+import type { COLOR } from "../render/colors";
 import { TILE } from "./config";
 import type { Direction } from "./direction";
 import { validateActivity, type ValidationContext } from "./activity";
@@ -8,6 +9,7 @@ import type { Appearance } from "./appearance";
 import type { Interactable } from "./interactable";
 import type { Check } from "./state";
 import { STATE_VARS } from "./state-vars";
+import type { WallKind } from "./wall-tiles";
 import { boundsOf, type Rect, type Solid } from "./world";
 
 // A doorway. It is a walkable tile; stepping onto it takes the player to the
@@ -29,6 +31,18 @@ export interface Piece {
   sprite?: string;
   tiles: { col: number; row: number }[];
   bounds: Rect;
+  // Placeholder colour (a palette name), for when the sprite is missing.
+  color?: keyof typeof COLOR;
+}
+
+// One tile of wall to draw: which sprite, and the doorway sprite over it when
+// the tile is a door. Worked out by `wallKind` (see wall-tiles.ts).
+export interface WallTile {
+  col: number;
+  row: number;
+  kind: WallKind;
+  sprite: string;
+  doorSprite?: string;
 }
 
 // Everything the game needs to know about the room it runs in.
@@ -48,6 +62,10 @@ export interface Level {
   doors: Door[];
   // The furniture, for sprites.
   pieces: Piece[];
+  // How to draw the room's floor and walls with the tileset. Rooms without it
+  // are drawn as plain rectangles.
+  floor?: { sprite: string; tiles: { col: number; row: number }[] };
+  walls?: WallTile[];
   // Top-left of the tile the player starts on, in pixels. Must not be blocked.
   spawn: { x: number; y: number };
   facing?: Direction;

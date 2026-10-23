@@ -6,8 +6,11 @@ import { Hud } from "../render/hud";
 import { Popups, type PopupLine } from "../render/popups";
 import { drawText } from "../render/font";
 import { STATUS_BOX } from "../render/layout";
+import { playerFrame } from "../render/player-sprite";
+import { RoomPainter, drawFloorAndWalls } from "../render/room-painter";
+import type { SpriteDrawer } from "../render/sprites";
 import { drawProgress, drawPrompt } from "../render/world-ui";
-import { pickVariant } from "./appearance";
+import { pickVariant, type Appearance } from "./appearance";
 import { DEBUG, DIALOG, ENERGY, TILE, VIEW } from "./config";
 import type { ActivityHost } from "./activity";
 import { DialogRunner, type DialogNode, type DialogResult } from "./dialog";
@@ -15,11 +18,11 @@ import { DELTA, type Direction } from "./direction";
 import { Emitter, type GameEvents } from "./events";
 import { Grid } from "./grid";
 import { InteractionSystem } from "./interaction";
-import { validateLevel, type Door, type Level } from "./level";
+import { validateLevel, type Door, type Level, type Piece } from "./level";
 import { Player } from "./player";
 import { ApartmentState } from "./state";
 import { STATE_VARS } from "./state-vars";
-import { boundsOf, type Solid } from "./world";
+import { boundsOf, type Rect, type Solid } from "./world";
 
 // An extra thing the game updates and draws, added with `Game.addLayer`. Every
 // hook is optional. Layers run in the order they were added.
@@ -62,6 +65,9 @@ export interface GameOptions {
   // A random number from 0 up to 1, for the mini-games. Math.random by default;
   // tests pass a seeded one.
   random?: () => number;
+  // Where the sprites come from. Without it (tests) everything is drawn as
+  // plain coloured rectangles.
+  sprites?: SpriteDrawer;
 }
 
 // The running game: owns the player, tasks, scoring and the UI built on them.
@@ -86,6 +92,7 @@ export class Game {
   // The other levels the level's doorways lead to, by id.
   private readonly rooms: Readonly<Record<string, Level>>;
   private readonly random: () => number;
+  private readonly painter: RoomPainter;
 
   constructor(level: Level, options: GameOptions = {}) {
     this.state = options.state ?? new ApartmentState(STATE_VARS);
@@ -93,6 +100,7 @@ export class Game {
     this.level = level;
     this.rooms = options.rooms ?? {};
     this.random = options.random ?? Math.random;
+    this.painter = new RoomPainter(options.sprites);
     this.grid = new Grid(level.size, this.activeSolids());
     this.state.onChange = (change) => this.stateChanged(change);
     this.player = new Player(level.spawn.x, level.spawn.y, level.facing);
@@ -296,7 +304,8 @@ export class Game {
 
     const hardened = this.layers.some((l) => l.drawWorld || l.drawHud);
     if (hardened) resetCanvas(ctx);
-    ctx.fillStyle = COLOR.night;
+    // With the tileset the ink shows where a room has no wall tile (corners, filler).
+    ctx.fillStyle = this.painter.active ? COLOR.ink : COLOR.night;
     ctx.fillRect(0, 0, VIEW.width, VIEW.height);
 
     // The world is drawn shifted by the camera. Everything uses the same
@@ -375,35 +384,36 @@ export class Game {
     return { x: this.player.x + this.player.w / 2, y: this.player.y + this.player.h / 2 };
   }
 
-  // The floor, then walls, furniture and the player ordered by how far down
-  // the screen their bottom edge is, so whatever is nearer the viewer is drawn
-  // in front. These are placeholder rectangles until there is art. Task zones
-  // only show in debug.
+  // The floor and walls, then furniture and the player ordered by how far down
+  // the screen the bottom edge of their footprint is, so whatever is nearer the
+  // viewer is drawn in front (the player stands behind a piece below them and
+  // in front of one above). Pieces draw their sprite at the top-left of their
+  // bounds, so rows above the footprint overhang the tile behind. Anything
+  // whose sprite is missing (or all of it, without a sprite source) is a
+  // coloured rectangle. Task zones only show in debug.
   private drawWorld(ctx: CanvasRenderingContext2D, actor: Actor): void {
-    for (let row = 0; row < this.grid.rows; row++) {
-      for (let col = 0; col < this.grid.cols; col++) {
-        ctx.fillStyle = (col + row) % 2 === 0 ? COLOR.night : COLOR.slate;
-        ctx.fillRect(col * TILE, row * TILE, TILE, TILE);
-      }
-    }
+    const { painter, level } = this;
+    drawFloorAndWalls(ctx, level, painter);
 
-    const drawables = this.activeSolids()
-      .filter((s) => !s.hidden)
-      .map((s) => ({
-        bottom: s.y + s.h,
-        draw: () => {
-          ctx.fillStyle = s.color ?? COLOR.dusk;
-          ctx.fillRect(s.x, s.y, s.w, s.h);
-        },
-      }));
-    // Objects that change with state: the variant whose rule holds right now.
-    // The placeholder is a coloured block with the variant's label.
-    for (const { area, variants } of this.level.appearances ?? []) {
-      const variant = pickVariant(variants, this.state);
+    const walled = painter.active && level.walls !== undefined;
+    const drawables: { bottom: number; draw: () => void }[] = [];
+    // Tiles whose rectangle is not needed because a sprite covers them, and
+    // every tile that belongs to some piece (the rest of the solids are walls).
+    const covered = new Set<string>();
+    const pieceTiles = new Set<string>();
+    const tileKey = (col: number, row: number) => `${col},${row}`;
+    for (const piece of level.pieces) for (const t of piece.tiles) pieceTiles.add(tileKey(t.col, t.row));
+
+    const looksChange = new Set<Appearance>();
+    for (const appearance of level.appearances ?? []) {
+      looksChange.add(appearance);
+      const variant = pickVariant(appearance.variants, this.state);
       if (!variant) continue;
+      const { area } = appearance;
       drawables.push({
         bottom: area.y + area.h,
         draw: () => {
+          if (painter.draw(ctx, variant.sprite, area.x, area.y)) return;
           ctx.fillStyle = COLOR[variant.color ?? "mist"];
           ctx.fillRect(area.x, area.y, area.w, area.h);
           if (variant.label) {
@@ -413,6 +423,29 @@ export class Game {
               shadow: null,
             });
           }
+        },
+      });
+    }
+    // Pieces that look the same whatever the state are drawn from their sprite.
+    const changing = (piece: Piece) =>
+      [...looksChange].some((a) => sameRect(a.area, piece.bounds));
+    for (const piece of level.pieces) {
+      if (!piece.sprite || changing(piece) || !painter.available(piece.sprite)) continue;
+      const { x, y, h } = piece.bounds;
+      for (const t of piece.tiles) covered.add(tileKey(t.col, t.row));
+      drawables.push({ bottom: y + h, draw: () => painter.draw(ctx, piece.sprite!, x, y) });
+    }
+
+    for (const s of this.activeSolids()) {
+      if (s.hidden) continue;
+      const k = tileKey(s.x / TILE, s.y / TILE);
+      // Walls are drawn as tiles; furniture with a sprite is drawn from it.
+      if (covered.has(k) || (walled && !pieceTiles.has(k))) continue;
+      drawables.push({
+        bottom: s.y + s.h,
+        draw: () => {
+          ctx.fillStyle = s.color ?? COLOR.dusk;
+          ctx.fillRect(s.x, s.y, s.w, s.h);
         },
       });
     }
@@ -429,11 +462,17 @@ export class Game {
     }
   }
 
-  // A rectangle with a small mark on the side it is facing.
+  // The player's idle or walking frame for the way they face; without it, a
+  // rectangle with a small mark on the side it is facing.
   private drawPlayer(ctx: CanvasRenderingContext2D, actor: Actor): void {
+    const { player, painter } = this;
+    const frame = playerFrame(player.facing, player.stepping, player.stepsTaken, (n) =>
+      painter.has(n),
+    );
+    if (painter.draw(ctx, frame.name, actor.x, actor.y, frame.flip)) return;
     ctx.fillStyle = COLOR.brick;
     ctx.fillRect(actor.x, actor.y, actor.w, actor.h);
-    const { dc, dr } = DELTA[this.player.facing];
+    const { dc, dr } = DELTA[player.facing];
     ctx.fillStyle = COLOR.paper;
     ctx.fillRect(actor.x + 6 + dc * 5, actor.y + 6 + dr * 5, 4, 4);
   }
@@ -468,6 +507,10 @@ export class Game {
 
 // The state every frame starts from: no transform (or just a translation),
 // fully opaque, normal compositing.
+function sameRect(a: Rect, b: Rect): boolean {
+  return a.x === b.x && a.y === b.y && a.w === b.w && a.h === b.h;
+}
+
 function resetCanvas(ctx: CanvasRenderingContext2D, tx = 0, ty = 0): void {
   ctx.setTransform(1, 0, 0, 1, tx, ty);
   ctx.globalAlpha = 1;

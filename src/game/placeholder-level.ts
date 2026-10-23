@@ -1,3 +1,4 @@
+import { CONTEMPLATE } from "./dialog-data";
 import type { Level } from "./level";
 import { parseTileMap } from "./tilemap";
 
@@ -13,7 +14,7 @@ const MAP = [
   "#......TTT.........#",
   "#..................#",
   "#.......@..........#",
-  "#..............SS..#",
+  "#..CC..........SS..#",
   "#..................#",
   "####################",
 ];
@@ -53,6 +54,18 @@ export const PLACEHOLDER_LEVEL: Level = parseTileMap(MAP, {
       points: 20,
       cooldown: 45,
       flavor: "Somehow still more dishes.",
+    },
+  },
+  C: {
+    color: "leaf",
+    task: {
+      id: "contemplate",
+      name: "Contemplate",
+      prompt: "Contemplate",
+      duration: 0,
+      points: 5,
+      cooldown: 30,
+      dialog: CONTEMPLATE,
     },
   },
   T: { color: "tangerine" },

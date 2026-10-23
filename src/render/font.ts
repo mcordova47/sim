@@ -57,7 +57,48 @@ export const GLYPHS: Record<string, string[]> = {
   ")": [".#...", "..#..", "...#.", "...#.", "...#.", "..#..", ".#..."],
   "/": ["....#", "....#", "...#.", "..#..", ".#...", "#....", "#...."],
   "%": ["##..#", "##.#.", "...#.", "..#..", ".#...", ".#.##", "#..##"],
+  '"': [".#.#.", ".#.#.", ".#.#.", ".....", ".....", ".....", "....."],
+  ";": [".....", ".##..", ".##..", ".....", ".##..", "..#..", ".#..."],
+  "&": [".##..", "#..#.", "#.#..", ".#...", "#.#.#", "#..#.", ".##.#"],
+  "#": [".#.#.", "#####", ".#.#.", ".#.#.", "#####", ".#.#.", "....."],
+  "@": [".###.", "#...#", "#.###", "#.#.#", "#.###", "#....", ".###."],
+  $: ["..#..", ".####", "#.#..", ".###.", "..#.#", "####.", "..#.."],
+  "=": [".....", ".....", "#####", ".....", "#####", ".....", "....."],
+  _: [".....", ".....", ".....", ".....", ".....", ".....", "#####"],
+  "<": ["...#.", "..#..", ".#...", "#....", ".#...", "..#..", "...#."],
+  ">": [".#...", "..#..", "...#.", "....#", "...#.", "..#..", ".#..."],
+  "[": [".###.", ".#...", ".#...", ".#...", ".#...", ".#...", ".###."],
+  "]": [".###.", "...#.", "...#.", "...#.", "...#.", "...#.", ".###."],
+  "{": ["..##.", ".#...", ".#...", "#....", ".#...", ".#...", "..##."],
+  "}": [".##..", "...#.", "...#.", "....#", "...#.", "...#.", ".##.."],
+  "|": ["..#..", "..#..", "..#..", "..#..", "..#..", "..#..", "..#.."],
+  "\\": ["#....", "#....", ".#...", "..#..", "...#.", "....#", "....#"],
+  "^": ["..#..", ".#.#.", "#...#", ".....", ".....", ".....", "....."],
+  "~": [".....", ".....", ".##.#", "#.##.", ".....", ".....", "....."],
+  "`": ["#....", ".#...", "..#..", ".....", ".....", ".....", "....."],
 };
+
+// Text from books and the web has typographic characters the font doesn't
+// have. They are replaced by plain ones before measuring, drawing or checking:
+// curly quotes, dashes, the ellipsis, and odd spaces.
+export function normalizeText(text: string): string {
+  return text
+    .replace(/[\u2018\u2019\u201B\u2032]/g, "'")
+    .replace(/[\u201C\u201D\u201F\u2033]/g, '"')
+    .replace(/[\u2010-\u2015\u2212]/g, "-")
+    .replace(/\u2026/g, "...")
+    .replace(/[\u00A0\u2000-\u200A\u202F\t]/g, " ");
+}
+
+// The characters in `text` that the font can't draw (after normalising and
+// upper-casing), without repeats. Empty means the whole text can be drawn.
+export function unsupportedChars(text: string): string[] {
+  const bad = new Set<string>();
+  for (const ch of normalizeText(text).toUpperCase()) {
+    if (ch !== " " && !GLYPHS[ch]) bad.add(ch);
+  }
+  return [...bad];
+}
 
 export interface TextOptions {
   color?: string;
@@ -70,7 +111,8 @@ export interface TextOptions {
 
 // Width in pixels of `text` at `scale`.
 export function textWidth(text: string, scale = 1): number {
-  return text.length === 0 ? 0 : (text.length * ADVANCE - 1) * scale;
+  const length = normalizeText(text).length;
+  return length === 0 ? 0 : (length * ADVANCE - 1) * scale;
 }
 
 const glyphCache = new Map<string, HTMLCanvasElement>();
@@ -121,7 +163,7 @@ export function drawText(
   y: number,
   { color = COLOR.paper, align = "left", shadow = COLOR.ink, scale = 1 }: TextOptions = {},
 ): void {
-  const upper = text.toUpperCase();
+  const upper = normalizeText(text).toUpperCase();
   const width = textWidth(upper, scale);
   const left = Math.round(align === "center" ? x - width / 2 : align === "right" ? x - width : x);
   const top = Math.round(y);

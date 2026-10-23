@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { GLYPHS, GLYPH_H, GLYPH_W, textWidth } from "./font";
+import { GLYPHS, GLYPH_H, GLYPH_W, normalizeText, textWidth, unsupportedChars } from "./font";
 import { HUD_BOX, fitBox, placeLabel, type Box } from "./layout";
 import { Popups } from "./popups";
 
@@ -17,6 +17,30 @@ describe("font", () => {
     const needed =
       "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-*.,:!?'()/%";
     for (const ch of needed) expect(GLYPHS[ch], ch).toBeDefined();
+  });
+
+  it("has the punctuation dialog text needs", () => {
+    for (const ch of "\"; & # @ $ = _ < > [ ] { } | \\ ^ ~ `".replace(/ /g, "")) {
+      expect(GLYPHS[ch], ch).toBeDefined();
+    }
+  });
+
+  it("replaces typographic characters with plain ones", () => {
+    expect(normalizeText("it\u2019s")).toBe("it's");
+    expect(normalizeText("\u201Cquoted\u201D")).toBe('"quoted"');
+    expect(normalizeText("a\u2014b\u2013c")).toBe("a-b-c");
+    expect(normalizeText("wait\u2026")).toBe("wait...");
+    expect(normalizeText("a\u00A0b\tc")).toBe("a b c");
+    expect(normalizeText("plain text")).toBe("plain text");
+  });
+
+  it("measures text after normalising it, so an ellipsis counts as three dots", () => {
+    expect(textWidth("\u2026")).toBe(textWidth("..."));
+  });
+
+  it("lists the characters it can't draw, once each", () => {
+    expect(unsupportedChars("Hello, world! (it\u2019s fine)")).toEqual([]);
+    expect(unsupportedChars("caf\u00E9 \u00E9\u00E9 \u2603")).toEqual(["\u00C9", "\u2603"]);
   });
 
   it("measures text", () => {

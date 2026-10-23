@@ -1,3 +1,4 @@
+import type { DialogNode } from "./dialog";
 import type { Rect } from "./world";
 
 // A task the player can do, placed in the room. Pure data: adding a task
@@ -16,6 +17,10 @@ export interface Interactable {
   cooldown?: number;
   // One-line joke shown on completion.
   flavor?: string;
+  // A dialog or menu to open when the task starts (for example "contemplate").
+  // Until activities exist (issue 022) a task with one is instant, and the
+  // dialog runs on top of it.
+  dialog?: DialogNode;
   // Area in pixels where the player must be standing to use it.
   zone: Rect;
 }

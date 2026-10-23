@@ -1,10 +1,12 @@
 import { NO_INPUT, type Controls } from "../input/controls";
 import { Camera } from "../render/camera";
 import { COLOR } from "../render/colors";
+import { drawDialog } from "../render/dialog-box";
 import { Hud } from "../render/hud";
 import { Popups, type PopupLine } from "../render/popups";
 import { drawProgress, drawPrompt } from "../render/world-ui";
-import { DEBUG, TILE, VIEW } from "./config";
+import { DEBUG, DIALOG, TILE, VIEW } from "./config";
+import { DialogRunner, type DialogNode } from "./dialog";
 import { DELTA } from "./direction";
 import { Emitter, type GameEvents } from "./events";
 import { Grid } from "./grid";
@@ -42,6 +44,10 @@ export class Game {
   private readonly popups = new Popups();
   private readonly layers: Layer[] = [];
   private readonly grid: Grid;
+  private readonly dialog: DialogRunner;
+  // Who currently has the controls (a dialog, later an activity or cutscene).
+  private readonly locks = new Set<object>();
+  private releaseDialogLock: (() => void) | null = null;
 
   constructor(private readonly level: Level) {
     this.grid = new Grid(level.size, level.solids);
@@ -59,7 +65,22 @@ export class Game {
       this.popups.add(item.zone.x + item.zone.w / 2, item.zone.y, lines);
       this.events.emit("taskComplete", { item, award });
     });
-    this.interaction.onStart = (item) => this.events.emit("taskStart", { item });
+    this.interaction.onStart = (item) => {
+      this.events.emit("taskStart", { item });
+      if (item.dialog) this.openDialog(item.dialog);
+    };
+    this.dialog = new DialogRunner({
+      onOpen: () => {
+        this.releaseDialogLock = this.lockInput();
+        this.events.emit("dialogOpen", {});
+      },
+      onChoose: (label, path) => this.events.emit("dialogChoose", { label, path }),
+      onClose: () => {
+        this.releaseDialogLock?.();
+        this.releaseDialogLock = null;
+        this.events.emit("dialogClose", {});
+      },
+    });
     this.interaction.onBlocked = (item, reason) =>
       this.events.emit("taskBlocked", { item, reason });
   }
@@ -74,10 +95,44 @@ export class Game {
     };
   }
 
+  // Takes the controls away from the player and the interaction system until
+  // the returned function is called (calling it more than once is harmless).
+  // A dialog, an activity or a cutscene uses this so they don't each need
+  // their own way to freeze the player.
+  lockInput(): () => void {
+    const token = {};
+    this.locks.add(token);
+    return () => {
+      this.locks.delete(token);
+    };
+  }
+
+  get inputLocked(): boolean {
+    return this.locks.size > 0;
+  }
+
+  get dialogOpen(): boolean {
+    return this.dialog.open;
+  }
+
+  // Opens a dialog or menu. Returns false if one is already open.
+  openDialog(node: DialogNode): boolean {
+    return this.dialog.start(node);
+  }
+
   update(dt: number, controls: Controls): void {
-    this.interaction.update(dt, this.player, controls);
-    // Locked in place while a task runs.
-    this.player.update(dt, this.interaction.busy ? NO_INPUT : controls, this.grid);
+    if (this.dialog.open) {
+      // The dialog has the controls. Unless the clock is set to run on, time
+      // for tasks (cooldowns, the combo) stands still while it is open, and the
+      // press that closes it can't also start a task.
+      this.dialog.update(dt, controls);
+      if (!DIALOG.pauseClock) this.interaction.update(dt, this.player, NO_INPUT);
+    } else {
+      this.interaction.update(dt, this.player, this.inputLocked ? NO_INPUT : controls);
+    }
+    // Locked in place while a task runs or something else has the controls.
+    const walking = !this.inputLocked && !this.interaction.busy;
+    this.player.update(dt, walking ? controls : NO_INPUT, this.grid);
     if (this.player.arrivedThisUpdate) this.events.emit("step", this.player.arrivedThisUpdate);
     if (this.player.bumpedThisUpdate) this.events.emit("bump", this.player.bumpedThisUpdate);
     this.camera.update(dt, this.playerCentre());
@@ -112,6 +167,8 @@ export class Game {
     // of the HUD), so it gets screen positions, then the HUD goes on top.
     this.drawWorldUi(ctx, { ...actor, x: actor.x - cam.x, y: actor.y - cam.y }, cam);
     this.drawHud(ctx);
+    const dialogView = this.dialog.view;
+    if (dialogView) drawDialog(ctx, dialogView);
     this.eachLayer((layer) => this.drawLayer(ctx, () => layer.drawHud?.(ctx), layer.drawHud));
   }
 
@@ -199,11 +256,14 @@ export class Game {
     const { interaction } = this;
     // Labels keep clear of any popup that is still floating up.
     const popupBoxes = this.popups.boxes(VIEW, cam);
-    if (interaction.active) {
-      drawProgress(ctx, actor, interaction.active.item, interaction.progress, VIEW, popupBoxes);
-    } else if (interaction.nearby) {
-      const cooldown = interaction.cooldownRemaining(interaction.nearby);
-      drawPrompt(ctx, actor, interaction.nearby, cooldown, VIEW, popupBoxes);
+    // No prompt while a dialog is open: it would only sit behind the boxes.
+    if (!this.dialog.open) {
+      if (interaction.active) {
+        drawProgress(ctx, actor, interaction.active.item, interaction.progress, VIEW, popupBoxes);
+      } else if (interaction.nearby) {
+        const cooldown = interaction.cooldownRemaining(interaction.nearby);
+        drawPrompt(ctx, actor, interaction.nearby, cooldown, VIEW, popupBoxes);
+      }
     }
     this.popups.draw(ctx, VIEW, cam);
   }

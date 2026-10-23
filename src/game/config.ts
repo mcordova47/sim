@@ -50,6 +50,23 @@ export const WALK = {
   turnTime: 0.08,
 };
 
+// Dialog boxes and menus.
+export const DIALOG = {
+  // How fast text appears, in characters per second.
+  charsPerSecond: 45,
+  // Lines of text in one page of the box.
+  linesPerPage: 3,
+  // While a dialog is open the game clock (task cooldowns, the combo timer)
+  // stands still, so reading doesn't cost you anything. Set false to let
+  // time run while a dialog is open.
+  pauseClock: true,
+  // Layout of the boxes, in pixels. The text box sits at the bottom of the screen.
+  margin: 4,
+  padding: 6,
+  // Widest a line of text can be inside the text box.
+  textWidth: VIEW.width - 2 * 4 - 2 * 6,
+};
+
 // Debug drawing, off in normal play.
 export const DEBUG = {
   // Outline the task zones.

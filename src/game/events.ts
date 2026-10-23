@@ -14,6 +14,12 @@ export interface GameEvents {
   taskComplete: { item: Interactable; award: Award };
   // The player pressed interact but the task in reach is not ready yet.
   taskBlocked: { item: Interactable; reason: "cooldown" };
+  // A dialog or menu opened or closed.
+  dialogOpen: Record<string, never>;
+  dialogClose: Record<string, never>;
+  // The player picked an entry in a menu. `path` is every label picked so far
+  // in this dialog, oldest first, ending with `label`.
+  dialogChoose: { label: string; path: string[] };
 }
 
 type Listener<T> = (payload: T) => void;

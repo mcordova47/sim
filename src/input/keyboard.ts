@@ -5,6 +5,8 @@ const PREVENT_DEFAULT = new Set([
   "ArrowLeft",
   "ArrowRight",
   "Space",
+  // Cycles the choice at an object (issue 039); it must not move browser focus.
+  "Tab",
 ]);
 
 export class Keyboard {

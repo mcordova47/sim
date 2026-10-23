@@ -9,6 +9,15 @@ import type { ApartmentState } from "./state";
 import { inAnyWindow } from "./time-of-day/hours";
 import { overlaps, type Rect } from "./world";
 
+// The keys that cycle the choice at an object: Tab or Q forward, with Shift
+// backward. (Escape and the interact key are unrelated and never cycle.)
+export const CYCLE_KEYS = ["Tab", "KeyQ"];
+
+function cycleStep(controls: Controls): number {
+  if (!CYCLE_KEYS.some((k) => controls.keys.includes(k))) return 0;
+  return controls.keysDown.some((k) => k === "ShiftLeft" || k === "ShiftRight") ? -1 : 1;
+}
+
 export interface CompletionEvent {
   item: Interactable;
   award: Award;
@@ -37,6 +46,10 @@ export class InteractionSystem {
   time = 0;
   // The interactable the player is facing right now, if any.
   nearby: Interactable | null = null;
+  // The tasks the player can pick between right now at the object they face
+  // (those that can start, in listed order), when there are two or more; else
+  // empty. `nearby` is the one picked. See `cycle`.
+  choices: Interactable[] = [];
   active: ActiveTask | null = null;
   lastCompletion: CompletionEvent | null = null;
 
@@ -50,6 +63,10 @@ export class InteractionSystem {
   // What activities that talk to the game (a cutscene, a dialog) are given.
   host: ActivityHost | null = null;
 
+  // The pick among the choices, remembered while the player keeps facing the
+  // same object (`reach` names it by the tasks it holds).
+  private selectedId: string | null = null;
+  private reach = "";
   private readyAt = new Map<string, number>();
   // Seconds left on a remembered interact press.
   private interactBuffer = 0;
@@ -71,6 +88,14 @@ export class InteractionSystem {
   setItems(items: Interactable[]): void {
     this.items = items;
     this.nearby = null;
+    this.choices = [];
+    this.selectedId = null;
+    this.reach = "";
+  }
+
+  // Position of the picked task among the choices (0 when there is no choice).
+  get choiceIndex(): number {
+    return Math.max(0, this.choices.findIndex((i) => i === this.nearby));
   }
 
   get busy(): boolean {
@@ -112,6 +137,7 @@ export class InteractionSystem {
 
   update(dt: number, player: Interactor, controls: Controls): void {
     this.time += dt;
+    const wasActive = this.active !== null;
     // Presses made while an activity that reads raw keys runs belong to it (E
     // types a letter in the typing game), so they are not remembered as a
     // request to start another task. Other activities keep the usual buffer,
@@ -140,11 +166,28 @@ export class InteractionSystem {
       this.finish(item, activity, activity.result);
     }
 
-    // The first task being faced that can be started, else the first being
-    // faced, so the prompt always names the task the key will start.
+    // The tasks being faced that can be started: one is picked (the first,
+    // until the player cycles), and the prompt names it, so it always names
+    // the task the key will start. With none startable, the first being faced
+    // is shown, with why it can't be done.
     const target = player.target;
     const inReach = target ? this.items.filter((i) => i.zones.some((z) => overlaps(target, z))) : [];
-    this.nearby = inReach.find((i) => this.canStart(i)) ?? inReach[0] ?? null;
+    const reach = inReach.map((i) => i.id).join("|");
+    // Walking away, or facing another object, forgets the pick.
+    if (reach !== this.reach) this.selectedId = null;
+    this.reach = reach;
+    const available = inReach.filter((i) => this.canStart(i));
+    // A task that stopped being available gives the pick back to the first.
+    let index = Math.max(0, available.findIndex((i) => i.id === this.selectedId));
+    // The cycle key, but not the frame a task just ended (that press may have
+    // been the activity's, e.g. a typed Tab).
+    const step = wasActive ? 0 : cycleStep(controls);
+    if (step !== 0 && available.length > 1) index = (index + step + available.length) % available.length;
+    // Only a pick the player made is remembered; with fewer than two to pick
+    // from, or when the pick went unavailable, the first is shown again.
+    this.selectedId = available.length > 1 && (step !== 0 || available[index].id === this.selectedId) ? available[index].id : null;
+    this.choices = available.length > 1 ? available : [];
+    this.nearby = available[index] ?? inReach[0] ?? null;
 
     if (this.nearby && this.interactBuffer > 0 && this.canStart(this.nearby)) {
       this.interactBuffer = 0;

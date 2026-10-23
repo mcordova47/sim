@@ -1,6 +1,6 @@
 # Tasks that vary (issue 035)
 
-Where the original task list is in `src/game/tasks.ts`; this lists what issue 035 added or changed. Objects offer the **first task that can start**, so a spot with several tasks rotates through them as each goes on cooldown or its requirements stop holding. State does the alternating.
+Where the original task list is in `src/game/tasks.ts`; this lists what issue 035 added or changed. An object offers the tasks that can start right now (see "Choosing a task" below). Tasks that exclude each other through `requires` therefore alternate by themselves, and State does the alternating.
 
 ## Alternating, by state
 | State | Tasks | How it alternates |
@@ -28,7 +28,7 @@ Lists: `src/game/typing-text.ts`.
 - `view-gallery-wall` is a labelled placeholder (320x192) until an art issue draws it from Marc's photos.
 
 ## Side projects (issue 051)
-Side projects are data: `SIDE_PROJECTS` in `src/game/side-projects.ts`, each with its own points, cooldown, mood and energy change, good hours, picture and lines; `sideProjectTask` turns an entry into a task. To add one, add an entry and its id to the standing desk's tasks in `apartment.ts`. The desk offers the first task that can start, and Work on the side project sits right after Answer emails, so it comes up while work is cooling down.
+Side projects are data: `SIDE_PROJECTS` in `src/game/side-projects.ts`, each with its own points, cooldown, mood and energy change, good hours, picture and lines; `sideProjectTask` turns an entry into a task. To add one, add an entry and its id to the standing desk's tasks in `apartment.ts`. The desk offers every task that can start, so Work on the side project is a choice beside Answer emails (issue 039).
 
 Only one is written: **Work on the side project** (`side-project-game`, desk). A cutscene that shows `view-side-project` (a lower-res picture of this game's own main room, with the small player at the desk, inside a monitor frame), three quiet lines, and puts the picture away. 45 points, 90 s cooldown, mood +4, energy -5, needs energy 10, best 20:00 to midnight. The wording is a draft for the text pass (037).
 
@@ -71,3 +71,14 @@ The small yellow clock icon (`icon-good-hour`, 9x9) means "this pays extra now".
 | Do the dishes -2 | |
 
 Low mood: crossing below `MOOD.lowBelow` (25) shows a "SIGH..." popup over the player. A slumped walk or different idle line is left for later. Mood changes go through `stateChanged` like any variable.
+
+## Choosing a task (issue 039)
+No per-object setting. An object offers the tasks that **can start right now** (off cooldown, requirements met), in the order they are listed on the object.
+- Exactly one can start: nothing changes. `[E]` starts it.
+- Two or more: the prompt shows the first, with `<1/3>` after the verb, and the player cycles. **Tab** (or **Q**) goes forward, **Shift+Tab** (or **Shift+Q**) backward, wrapping. `E` starts the shown task. Tab's browser focus move is prevented.
+- Tasks that exclude each other through `requires` (blinds, make and drink coffee, the record sorts, make the bed and sleep) are never available together, so they stay automatic. The desk, the sofa, the bed, the dining table, the fridge, the bath vanity and the bookshelf become choices when several apply.
+- None can start: the first task on the object is shown, greyed, with its reason or cooldown, as before. Unavailable tasks are not in the cycle.
+- **Selection memory:** only a pick the player made is remembered, and only while they keep facing that object. It resets to the first available when they walk away, face another object, or change rooms. Finishing a task keeps the pick if it is still available; if it went on cooldown, or lost a requirement, the first available is shown. With one task left there is nothing to pick.
+- The good-hour icon and the "why not" messages follow the shown task. The sound feature's record-stand check follows it too.
+- The key is read from the pressed-key list (`Controls.keys`, with Shift from `keysDown`) inside `InteractionSystem.update`. It does nothing while a task runs (and not the frame one ends, so a Tab typed in the typing game cannot cycle), while a dialog is open, or while input is locked: all of those hand the system `NO_INPUT` or return before the check.
+- Code: `InteractionSystem.choices` (the offered tasks when two or more), `nearby` (the shown one), `choiceIndex`; the prompt count is drawn by `drawPrompt` in `src/render/world-ui.ts`. Tests: `src/game/task-choice.test.ts`, `src/render/choice-prompt.test.ts`.

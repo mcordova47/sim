@@ -626,7 +626,7 @@ export class Game {
         const cooldown = interaction.cooldownRemaining(interaction.nearby);
         const unavailable = interaction.unavailableReason(interaction.nearby);
         const goodTime = unavailable === null && cooldown === 0 && interaction.isGoodTime(interaction.nearby);
-        drawPrompt(ctx, actor, interaction.nearby, cooldown, VIEW, popupBoxes, unavailable, goodTime, this.spriteDrawer);
+        drawPrompt(ctx, actor, interaction.nearby, cooldown, VIEW, popupBoxes, unavailable, goodTime, this.spriteDrawer, interaction.choices.length > 1 ? { index: interaction.choiceIndex, count: interaction.choices.length } : null);
       }
     }
     this.popups.draw(ctx, VIEW, cam);

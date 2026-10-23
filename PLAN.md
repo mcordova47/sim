@@ -35,14 +35,14 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 | 007 | [Furniture sprites (umbrella)](issues/007-furniture-sprites.md) | marc + claude | todo | 007a-d |
 | 007a | [Sprites: west main room](issues/007a-sprites-west-main-room.md) | agent | done | 005, 006 |
 | 007b | [Sprites: east main room](issues/007b-sprites-east-main-room.md) | agent | done | 005, 006 |
-| 007c | [Sprites: kitchen west](issues/007c-sprites-kitchen-west.md) | agent | todo | 005, 006 |
-| 007d | [Sprites: kitchen east and bath](issues/007d-sprites-kitchen-east-and-bath.md) | agent | todo | 005, 006 |
-| 008 | [Player character sprite](issues/008-player-sprite.md) | agent | todo | 006 |
+| 007c | [Sprites: kitchen west](issues/007c-sprites-kitchen-west.md) | agent | done | 005, 006 |
+| 007d | [Sprites: kitchen east and bath](issues/007d-sprites-kitchen-east-and-bath.md) | agent | done | 005, 006 |
+| 008 | [Player character sprite](issues/008-player-sprite.md) | agent | done | 006 |
 | 009 | [Polish: sound, particles, achievements, time of day](issues/009-polish.md) | agent | todo | 004, 007 |
 | 010 | [Scrolling camera](issues/010-scrolling-camera.md) | claude | done | 005 |
 | 011 | [Integrate the floor plan and task data](issues/011-integrate-floor-plan.md) | claude | done | 005, 003 |
-| 012 | [Interaction edge cases](issues/012-interaction-edge-cases.md) | claude | todo | |
-| 013 | [Physics robustness](issues/013-physics-robustness.md) | claude | todo | |
+| 012 | [Interaction edge cases](issues/012-interaction-edge-cases.md) | claude | done | |
+| 013 | [Physics robustness](issues/013-physics-robustness.md) | claude | done | |
 | 014 | [HUD polish](issues/014-hud-polish.md) | claude | todo | 010, 011 |
 | 015 | [Extract the game scene from main.ts](issues/015-extract-game-scene.md) | claude | done | |
 | 016 | [Draw the level and player with sprites](issues/016-draw-level-with-sprites.md) | claude | todo | 007, 008, 010, 011 |

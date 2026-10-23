@@ -1,7 +1,7 @@
 ---
 id: 007d
 title: "Furniture sprites: Kitchen, east half, and the bathroom"
-status: review
+status: done
 owner: agent
 depends_on: [005, 006]
 ---
@@ -68,3 +68,18 @@ Checklist for the author:
 Unverified, for Marc: game scene look, look next to other batches, likeness to the photos. Toilet: the 32px collision box is wider than the 22px tank (author already noted).
 
 - 2026-10-22 (round 2): Redrew `spice-rack`: tea boxes now start at row 0, legs run to row 63 with a bottom wire shelf on the bottom edge, still open under the top slab. Rerun `npm run sprites`: passes. Only `spice-rack` changed.
+
+### Review 2026-10-22 round 2 (independent reviewer): APPROVE
+Own checks: wrote a fresh PNG decoder (not `npm run sprites`) and compared each `public/sprites/*.png` to its `.sprite` source and `art/palette.json`. `npm run sprites`, `npm run build` and `npm test` (29 tests) pass. Branch diff vs main touches only the 7 sources, 7 PNGs and this file; no photos, address or contact sheet committed; style guide, palette, room.ts untouched.
+
+- Sprite per row, exact size and name, source plus PNG: **pass** (all 7 sizes match; 0 pixel differences between PNG and source).
+- Palette only, no semi-transparent pixels: **pass** (0 off-palette, 0 semi-alpha). Materials table: **pass**; off-table `a` (linen) and `4`/`2` (bins) are logged.
+- 1px ink outline, light from top-left: **pass** (as round 1; wire/rod/faucet detail pixels on the silhouette are intentional, for Marc's eye).
+- Recognisable at 1x: **pass on shape and colour from the sheet**; likeness to the reference photos **unverified** (not compared; Marc approves the look).
+- One-way spice-rack: **pass**. Slab and tea boxes sit in rows 0 to 13, rows 14 to 63 are 1px legs plus a thin mid shelf (rows 38-39, 24px above the floor, so the 14px player fits under it) and a bottom wire shelf (rows 60-63).
+- Base on bottom edge: **pass for all 7**. Last opaque row is the bottom row in every sprite (opaque pixels in it: boxes 16, fridge 32, spice-rack 16, vanity 32, toilet 14, tub 12, curtain 48). Round-1 failure fixed: spice-rack now starts at row 0 (tea boxes) and ends at row 63.
+- Nothing important touches the box edge: **pass**. Only tops touch (clutter, tea boxes, flat tops, rod rings), plus the spice-rack's left and right wire legs on its full-width frame, which is fine as it is a wall-hung rack beside the fridge.
+- Contact sheet / `npm run sprites`: **pass**. Next to other batches: **unverified** (none merged). In the game scene: **unverified** (016 draws the level).
+- Do not commit contact sheet, edit protected files: **pass**.
+
+Unverified, for Marc: in-game look, look next to other batches, likeness to the photos. Known small notes: the toilet's 32px collision box is wider than its 22px tank; fridge collision top is the clutter top; spice-rack top row 0 is only 4px wide (the tea box), so the one-way surface is visually narrow at its very top. Needs updating in the `PLAN.md` table by the planner: 007d done.

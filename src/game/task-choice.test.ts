@@ -8,7 +8,6 @@ import { menu, choice, say } from "./dialog";
 import { taskSpots } from "./plan-checks";
 import { ApartmentState } from "./state";
 import { STATE_VARS } from "./state-vars";
-import { parseTileMap } from "./tilemap";
 
 // Issue 039: an object offers every task that can start now; the player cycles.
 

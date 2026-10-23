@@ -1,5 +1,5 @@
 import type { Controls } from "../input/controls";
-import { DEFAULT_TASK_COOLDOWN } from "./config";
+import { DEFAULT_TASK_COOLDOWN, INTERACT_BUFFER_TIME } from "./config";
 import type { Interactable } from "./interactable";
 import { Scoreboard, type Award } from "./scoring";
 import { overlaps, type Rect } from "./world";
@@ -31,6 +31,8 @@ export class InteractionSystem {
   lastCompletion: CompletionEvent | null = null;
 
   private readyAt = new Map<string, number>();
+  // Seconds left on a remembered interact press.
+  private interactBuffer = 0;
 
   constructor(
     private items: Interactable[],
@@ -48,27 +50,37 @@ export class InteractionSystem {
 
   // 0..1 progress of the running task.
   get progress(): number {
-    return this.active ? Math.min(1, this.active.elapsed / this.active.item.duration) : 0;
+    if (!this.active) return 0;
+    const { elapsed, item } = this.active;
+    return item.duration > 0 ? Math.min(1, elapsed / item.duration) : 1;
   }
 
   update(dt: number, player: Interactor, controls: Controls): void {
     this.time += dt;
+    this.interactBuffer = controls.interactPressed
+      ? INTERACT_BUFFER_TIME
+      : Math.max(0, this.interactBuffer - dt);
 
     if (this.active) {
       this.active.elapsed += dt;
-      if (this.active.elapsed >= this.active.item.duration) this.finish(this.active.item);
-      return;
+      if (this.active.elapsed < this.active.item.duration) return;
+      this.finish(this.active.item);
     }
 
-    this.nearby = this.items.find((i) => overlaps(player, i.zone)) ?? null;
+    // The first task in reach that can be started, else the first in reach, so
+    // the prompt always names the task the key will start.
+    const inReach = this.items.filter((i) => overlaps(player, i.zone));
+    this.nearby = inReach.find((i) => this.cooldownRemaining(i) === 0) ?? inReach[0] ?? null;
 
     if (
       this.nearby &&
-      controls.interactPressed &&
+      this.interactBuffer > 0 &&
       player.grounded &&
       this.cooldownRemaining(this.nearby) === 0
     ) {
+      this.interactBuffer = 0;
       this.active = { item: this.nearby, elapsed: 0 };
+      if (this.nearby.duration <= 0) this.finish(this.nearby);
     }
   }
 

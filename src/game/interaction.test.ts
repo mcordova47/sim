@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { NO_INPUT, type Controls } from "../input/controls";
-import { DEFAULT_TASK_COOLDOWN } from "./config";
+import { DEFAULT_TASK_COOLDOWN, INTERACT_BUFFER_TIME, SCORING } from "./config";
 import type { Interactable } from "./interactable";
 import { InteractionSystem, type CompletionEvent } from "./interaction";
 
@@ -87,5 +87,70 @@ describe("InteractionSystem", () => {
     expect(events.map((e) => e.item.id)).toEqual(["fridge", "sink"]);
     expect(events[0].award.multiplier).toBe(1);
     expect(events[1].award.multiplier).toBeGreaterThan(1);
+  });
+
+  it("completes a zero-duration task immediately with finite progress", () => {
+    const instant: Interactable = { ...fridge, id: "instant", duration: 0 };
+    const sys = new InteractionSystem([instant]);
+    expect(sys.progress).toBe(0);
+    sys.update(dt, at(105), press);
+    expect(sys.busy).toBe(false);
+    expect(sys.scoreboard.score).toBe(10);
+    expect(sys.progress).toBe(0);
+    // Mid-task progress is never NaN either.
+    const zero = { ...instant, id: "zero" };
+    const s2 = new InteractionSystem([zero]);
+    s2.active = { item: zero, elapsed: 0 };
+    expect(s2.progress).toBe(1);
+  });
+
+  it("buffers an interact press made just before a task ends", () => {
+    const other: Interactable = { ...sink, id: "other", duration: 1, zone: fridge.zone };
+    const both = new InteractionSystem([fridge, other]);
+    both.update(dt, at(105), press);
+    run(both, 1 - 5 * dt);
+    expect(both.busy).toBe(true);
+    both.update(dt, at(105), press); // pressed a few frames before it ends
+    expect(both.busy).toBe(true);
+    run(both, 6 * dt);
+    expect(both.busy).toBe(true);
+    expect(both.active?.item.id).toBe("other");
+  });
+
+  it("drops a press older than the buffer", () => {
+    const sys = new InteractionSystem([fridge]);
+    sys.update(dt, at(150), press); // out of range
+    run(sys, INTERACT_BUFFER_TIME + 3 * dt, at(150));
+    sys.update(dt, at(105), NO_INPUT);
+    expect(sys.busy).toBe(false);
+  });
+
+  it("starts the first task that is off cooldown when zones overlap", () => {
+    const twin: Interactable = { ...sink, id: "twin", zone: fridge.zone };
+    const sys = new InteractionSystem([fridge, twin]);
+    sys.update(dt, at(105), press);
+    expect(sys.active?.item).toBe(fridge);
+    run(sys, 1.1);
+    sys.update(dt, at(105), NO_INPUT);
+    expect(sys.nearby).toBe(twin);
+    sys.update(dt, at(105), press);
+    expect(sys.active?.item).toBe(twin);
+  });
+
+  it("falls back to the first task in reach when all are cooling down", () => {
+    const twin: Interactable = { ...sink, id: "twin", duration: 0, zone: fridge.zone };
+    const sys = new InteractionSystem([twin, fridge]);
+    sys.update(dt, at(105), press);
+    sys.update(dt, at(105), press);
+    expect(sys.cooldownRemaining(twin)).toBeGreaterThan(0);
+    expect(sys.cooldownRemaining(fridge)).toBe(0);
+    expect(sys.nearby).toBe(fridge);
+  });
+
+  it("pays minPoints for a task with 0 base points", () => {
+    const free: Interactable = { ...fridge, id: "free", points: 0, duration: 0 };
+    const sys = new InteractionSystem([free]);
+    sys.update(dt, at(105), press);
+    expect(sys.scoreboard.score).toBe(SCORING.minPoints);
   });
 });

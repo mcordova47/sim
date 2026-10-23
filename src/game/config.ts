@@ -37,6 +37,10 @@ export const SCORING = {
 // Used when a task doesn't set its own cooldown.
 export const DEFAULT_TASK_COOLDOWN = 10;
 
+// An interact press is remembered this long (seconds) so one made just before
+// a task ends, or just before the player lands, isn't lost.
+export const INTERACT_BUFFER_TIME = 0.15;
+
 // Movement tuning. Units are pixels and seconds.
 export const PLAYER = {
   width: 10,

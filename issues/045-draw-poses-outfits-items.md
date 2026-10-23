@@ -1,7 +1,7 @@
 ---
 id: 045
 title: Draw the doing poses, outfits and held items in the game
-status: review
+status: done
 owner: claude
 depends_on: [034]
 ---
@@ -44,3 +44,26 @@ Data-driven: a `pose` and a `held` on the task (tasks.ts), what they mean in `po
 - Nap uses the sit pose (there is no lying-on-the-sofa art).
 - Outfits and pajamas cannot be seen in the game yet, only in tests and my renders.
 - `docs/art-style.md` still says "the game does not use the poses yet" (not edited: outside this issue).
+
+### 2026-10-23, claude (independent reviewer): review
+Verdict: **approve**. `npm test` 909 pass, `npm run build` pass. Diff touches only src/ and this issue file; no PLAN.md or other issues, no reference-photos, no personal details.
+
+**Criteria**
+1. Poses: pass. Rendered real `Game` frames in headless Chrome at 3x and looked at them: sofa sit (middle cushion, in front of the sofa back), desk type (over the chair, below the desk edge), table eat, guitar (wall guitar hidden), sleep (lump fills the bed). Plain player is not drawn while a pose plays. Own checks: pose shown at the same spot when started from every sofa tile, desk cols 6/7/9; doomscroll on the bed gives no pose (plain player); Escape and natural finish restore plain player and wall guitar; missing art falls back to the plain player and warns once. Task-to-pose map is data (`LOOKS` in tasks.ts plus poses.ts). Pass.
+2. Outfit state: pass for what was done. `outfit` var, default 0; idle and walk frames load from `player-<outfit>-...`; rendered casual (green) and pajamas; missing outfit art falls back to home. Pajamas-after-sleep is not done and was left for Marc, which the criterion allows ("decide with Marc"). Nothing sets `outfit` in play yet.
+3. Held items: pass. Mug shows while carried (mug=1) and stops after drink-coffee finishes (mug 0); Escape on drink-coffee keeps the mug (mug stays 1, overlay shown). Laptop/book/guitar show only when no pose is drawn. Overlays are tiny.
+4. Missing sprites: pass. Pose, outfit and held art each fall back and warn once.
+5. Tests, frames, build: pass. Marc has not played it: **can't verify** (see below).
+
+**Unverified (not passes)**
+- How any of it feels in a browser in motion (pose pop-in at task start, walking up and back, held-item alignment against walk frames). I only looked at still frames.
+- Starting from another tile: the stills show the figure appears at the fixed spot, e.g. a doomscroll from col 7 puts the sitter on the middle cushion (col 5), the desk from col 6 or 9 puts the typist at the chair (col 8). Static frames look fine; the jump itself in motion is unjudged.
+
+**Observations (none blocks approval)**
+- The typing box and the ANSWER EMAILS label are drawn over the desk, so while working at the desk the type pose is fully covered in a real frame. Seen only with the UI hidden. Likewise the work-bed task is covered by the box. This is existing UI layout, not a 045 bug, but the pose is mostly invisible during `work`.
+- The held mug disappears while the eat-table pose plays (drink-coffee), and while a mug is carried the sit-sofa pose has no mug. Pose art does not include one; a small visual gap.
+- Latent: a task that survives a room change keeps drawing its pose at the old room's coordinates (`doing.piece` is not cleared in `loadLevel`). Not reachable today, since no pose task lets the player walk through a door.
+- `drawPlayer` logs a missing-sprite warning for an outfit's left-facing frame even when the right one is mirrored instead (no outfit is missing a left frame, so it does not show today).
+- `read-sofa` has art and a pose entry but no task uses it; the guitar pose is 16x48 standing at the wall (looks right).
+- `docs/art-style.md` still says the game does not use the poses yet.
+- Issue 009c risk: `outfit` was inserted in the middle of `STATE_VARS` (after `mug`, before `recordSort`), not appended. If the save writes values by id, it is additive and an old save loads `outfit` as 0. If 009c saves by array position, or rejects a save with unknown or missing ids, this shifts or breaks it. It is also a likely textual merge conflict in state-vars.ts. Planner: when merging, check 009c's save format against this, and make a save from before `outfit` existed load as 0.

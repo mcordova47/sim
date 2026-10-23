@@ -1,7 +1,7 @@
 ---
 id: 060
 title: Draw the gallery wall view
-status: todo
+status: review
 owner: agent
 depends_on: []
 ---
@@ -15,3 +15,6 @@ depends_on: []
 - Palette only; render it in the real game (`Admire the art` from the sofa; the dev build shows it) and look at it at 1x and 4x, in the day and at `?hour=23`; `npm run sprites`, `npm test` and `npm run build` pass.
 
 ## Progress log
+
+- 2026-10-23: started. Plan: redraw `view-gallery-wall` from the gallery-wall photos (ten pieces at the photo's arrangement, scaled about 0.17), plaster, corner, baseboard, sofa rail with blanket and hoodie; keep pieces in the top 140 px.
+- 2026-10-23: done, status review. Replaced `art/src/view-gallery-wall.sprite` (320x192, palette only; the generated `public/sprites/view-gallery-wall.png` is updated too). Frames keep real finishes (silver bevel, white-and-gold, ornate gold, oak box, pale wood), pictures are blurry impressions. Pieces end at y 138; the bottom rows are plaster, baseboard, sofa rail with a cable-knit blanket and a green hoodie. Checked: `npm run sprites`, `npm test` (1256 pass), `npm run build` pass. Rendered in the real game headless (puppeteer, dev server; Tab x3 at the sofa then E) at 1x and 4x, day and `?hour=23`, and looked at all four: the three-line box and "ESC TO STOP" stay readable, and nothing key is under the dialog. Notes: (1) the view is drawn above the night tint, so it looks identical at 23:00 as by day; that is existing engine behaviour, not changed (out of scope; a follow-up if Marc wants it dimmed at night). (2) The wolf print is a small shaggy figure, a loose impression. Not checked: how it feels in a real browser.

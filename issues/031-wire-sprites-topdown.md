@@ -1,7 +1,7 @@
 ---
 id: 031
 title: Draw the top-down game with sprites
-status: review
+status: done
 owner: claude
 depends_on: [033]
 ---
@@ -40,3 +40,15 @@ Replace the colored rectangles and labels with the sprites: floors and walls, fu
     - `npm test` (549 pass) and `npm run build` pass.
   - Not checked: how it looks and feels in a real browser (the fake canvas does not do image smoothing or scaling); the walk animation moving; the sprite loading path (`Sprites.load` against the dev server) was not exercised.
   - Out of scope, left alone: the doing-pose sprites (`player-sit-sofa` etc.) are not drawn (activity work); `scripts/*mockup*.mjs` still use their own wall logic.
+
+- 2026-10-23: Review (independent agent). Verdict: approve. `npm test` 549 pass; `npm run build` passes. Worked from my own harness (outside the repo): a fake raster canvas decoding the real PNGs in `public/sprites`, driving the real `Game` and `APARTMENT` rooms, and I looked at the frames.
+  - Tiles and pieces, overhang, draw order: pass. Rendered main, kitchen and bath. Walls, doorways, hood under the stove, fridge in the corner all as in `docs/floor-plan.md`; I also printed each room's wall kinds from the real level data and they match the doc's three pictures exactly, with the right doorway sprites (main `doorway` x2; kitchen `doorway-right-kitchen` x2 and `doorway-left-kitchen`; bath `doorway-right-bath`). Every piece and variant sprite is the same size as its bounds. No rectangle bleeds behind sprites (checked the fillRect log). Draw order moved the player behind/in front of the bookshelf and bed by bottom edge, with the player winning ties.
+  - Variants: pass. Bed made/unmade frames viewed; dishes 0,1,2,3,5,0 picked `dishes-0,1,2,3,3,0` on successive frames.
+  - Player: pass in a fake-canvas run (not seen moving). Idle by facing, walk-1/2 alternates per step and has no idle flicker mid-hold at the real TIMESTEP; with all left frames removed it mirrors the right frames (flip) at the same position.
+  - Missing sprite: pass. With stove, fridge, floor, wall-back, doorway and dishes removed the kitchen drew coloured rectangles (the stove's own colour is ink, so it is hard to see on the ink background; cosmetic). One warning per name over repeated frames; no source gives no warnings.
+  - Rooms without floor/walls: pass. A map with no `floor`/`wallPieces` (or only one of them) gets no `floor`/`walls` and is drawn as before; a missing piece sprite logs once.
+  - Sprite-name test: pass; it covers floors, walls, doorways, pieces, variants and the player.
+  - Doors, labels: pass in tests (doors still switch rooms); labels are gone from the apartment data. `placeholder-level.ts` still has its labels as the fallback.
+  - Scope: only the files named in the log plus this issue file; PLAN.md untouched. No reference-photos content.
+  - Unverified (not passing): how it looks and feels in a real browser (smoothing, scaling); the walk animation actually moving; the real `Sprites.load` path against the dev server; "Marc plays it" is Marc's.
+  - Planner: update the PLAN.md table (031 done).

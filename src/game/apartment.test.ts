@@ -196,11 +196,10 @@ describe("furniture", () => {
     expect(sprite("window and blinds")).toBe("window-blinds");
   });
 
-  it("places the robin print, the mic stand, the 1x1 guitar and the 1x3 radiator (issue 044)", () => {
+  it("places the mic stand, the 1x1 guitar and the 1x3 radiator (issues 044, 056)", () => {
     const piece = (name: string) => rooms.main.pieces.find((p) => p.name === name);
     const tiles = (name: string) => piece(name)?.tiles.map((t) => `${t.col},${t.row}`).sort();
-    expect(piece("robin print")?.sprite).toBe("painting-robin");
-    expect(tiles("robin print")).toEqual(["5,0"]);
+    expect(piece("robin print")).toBeUndefined(); // it hangs on the west wall, off camera
     expect(piece("mic stand")?.sprite).toBe("mic-stand");
     expect(tiles("mic stand")).toEqual(["5,1", "5,2"]); // the sprite is 16x32
     expect(tiles("guitar")).toEqual(["1,5"]);

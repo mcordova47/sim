@@ -39,8 +39,8 @@ Columns and rows counted inside the walls, from the top left (col 0, row 0).
 | Lamp table | 1 at col 7, row 5 | by the sofa's east end | (decor) |
 | Record stand | 1 at col 8, row 6 | | flip record |
 | Front door | 2, in the south wall at cols 9-10 | | (decoration) |
-| Mic stand | 1 x 2 at col 4, rows 0-1 | the gap between the table and the desk (16x32 sprite), under the robin print; leaves col 4, row 2 open to walk through | (decor) |
-| Paintings | north wall over the table, desk and nightstand, and the robin print at col 4 (1 x 1) between the table's and the desk's | | (decor) |
+| Mic stand | 1 x 2 at col 4, rows 0-1 | the gap between the table and the desk (16x32 sprite). Leaves col 4, row 2 open to walk through | (decor) |
+| Paintings | north wall over the table, desk and nightstand. (The robin print hangs above the table on the **west** wall, which this camera does not show, so it is not on the map.) | | (decor) |
 
 The south wall steps down toward the front door: it is at row 6 along the sofa, row 7 at cols 7-8, and row 8 from col 9 east. There is **one lane** to walk around the bed: down its west side (col 10) and along its foot (row 7). The player starts at col 4, row 3, facing the sofa.
 
@@ -53,7 +53,7 @@ The tub (2 x 4) down the west wall, the toilet and the vanity sink (each 2 x 2) 
 ## Wall tiles
 `wallKind(map, wallPieces, col, row)` in `src/game/wall-tiles.ts` is the rule; issue 031 draws with it, and `wall-tiles.test.ts` pins the result for every tile of the three maps. `wallTileName(kind, room)` gives the sprite name.
 
-A tile is in a **wall line** if it is `#` or a wall piece: a character that sits in a wall rather than on the floor (`WALL_PIECES` in `apartment.ts`). Main room: paintings `p k q u` (`k` is the robin print), windows `w W`, front door `f`, doors `1 2`. Kitchen: curtain `c`, doors `1 2 3`, range hood `h`. Bath: door `1`. A tile is **open** if it is anything else (floor, furniture). Wall pieces and doors are never open, so a door beside a wall tile does not change what that wall tile is.
+A tile is in a **wall line** if it is `#` or a wall piece: a character that sits in a wall rather than on the floor (`WALL_PIECES` in `apartment.ts`). Main room: paintings `p q u`, windows `w W`, front door `f`, doors `1 2`. Kitchen: curtain `c`, doors `1 2 3`, range hood `h`. Bath: door `1`. A tile is **open** if it is anything else (floor, furniture). Wall pieces and doors are never open, so a door beside a wall tile does not change what that wall tile is.
 
 Every wall-line tile, pieces included, gets the tile below, drawn under the piece. First match wins:
 

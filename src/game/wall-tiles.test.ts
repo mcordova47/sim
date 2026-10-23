@@ -32,8 +32,8 @@ describe("wall tiles", () => {
       "xxxxxxxxxxffffffffx",
     ]);
   });
-  it("treats the robin print as a wall piece (back wall under it) and the mic stand, guitar and radiator as open floor (issue 044)", () => {
-    expect(MAIN_MAP[0][5]).toBe("k");
+  it("has plain back wall where the robin print was, and treats the mic stand, guitar and radiator as open floor (issues 044, 056)", () => {
+    expect(MAIN_MAP[0][5]).toBe("#");
     expect(wallKind(MAIN_MAP, WALL_PIECES.main, 5, 0)).toBe("back");
     // The wall tiles beside the guitar and the radiator keep their side walls.
     expect(wallKind(MAIN_MAP, WALL_PIECES.main, 0, 5)).toBe("left");

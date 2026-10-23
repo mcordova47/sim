@@ -42,7 +42,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 007d | [Sprites: kitchen east and bath](issues/007d-sprites-kitchen-east-and-bath.md) | agent | done | 005, 006 |
 | 008 | [Player character sprite](issues/008-player-sprite.md) | agent | done | 006 |
 | 009 | [Polish (umbrella)](issues/009-polish.md) | marc + claude | blocked | 009a-d |
-| 009a | [Polish: sound effects](issues/009a-sound.md) | agent | blocked | 017 |
+| 009a | [Polish: sound effects](issues/009a-sound.md) | agent | todo | |
 | 009b | [Polish: particles](issues/009b-particles.md) | agent | blocked | 017 |
 | 009c | [Polish: achievements and saved progress](issues/009c-achievements.md) | agent | done | |
 | 009d | [Polish: time of day](issues/009d-time-of-day.md) | agent | done | |
@@ -93,6 +93,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 054 | [Wall texture from the new photo](issues/054-wall-texture.md) | marc + agent | done | |
 | 055 | [Replace the GOOD HOUR text with an icon](issues/055-good-hour-icon.md) | claude | done | |
 | 056 | [Redraw the mic stand; take the robin print off the map](issues/056-mic-and-robin.md) | agent | done | |
+| 057 | [Bookshelf top order; guitar pose shows the neck](issues/057-bookshelf-and-guitar-pose.md) | agent | todo | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

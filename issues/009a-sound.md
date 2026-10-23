@@ -1,9 +1,9 @@
 ---
 id: 009a
 title: "Polish: sound effects"
-status: blocked
+status: todo
 owner: agent
-depends_on: [017]
+depends_on: []
 ---
 
 ## Goal
@@ -28,8 +28,13 @@ Keep it all testable without a browser: put the logic in plain functions and cla
 ## Notes
 - Marc will listen and tune. Keep the volume modest by default, and make every effect easy to change in one place.
 
-## Blocked on the top-down switch
-On 2026-10-22 the game changed direction from a side-view platformer to a top-down, Pokemon-style game (issues 019 onward). Do not start this issue yet. It needs revisiting once the foundation (019) is in: the `jump` and `land` events no longer exist (they become `step` and `bump`), the particles and sounds the issue describes need to suit walking, and the day and night cycle should build on the clock from the apartment state (021). The planner will rewrite the affected criteria before releasing it.
+## Current state of the game (2026-10-23, replaces the old "blocked" note)
+The game is top-down (issues 019 onward). Events now are `step` and `bump` (no jump or land), `taskStart`, `taskComplete`, `taskCancelled`, `taskBlocked`, `stateChanged`, `room`, dialog open and close; see `src/game/events.ts` and `features.ts` (one line per feature, as 009c and 009d did). Sound effects: footsteps (soft, varied by floor: wood, stone in the kitchen, tile in the bath; quieter when tired), bump, task start and complete, cancelled, blocked, doors and room changes, dialog text blips (typewriter), achievement toast, the typing and notes mini-games (each key press), good-hour awards. Everything synthesized with Web Audio, no files. Browsers block audio until the first key press, so start it after input and fail quietly if audio is unavailable or blocked. A mute key (not Tab, Escape, E, X, L or the arrows; say which) and the saved on/off choice go in the 009c save (add a `sound` field, tolerant of old saves).
+
+## Marc's decisions (2026-10-23)
+- **Music lifts mood:** while a record plays, mood (038) gets a small lift over time (for example +1 every in-game 10 minutes up to a cap), and choosing a record is a real action like playing guitar (it pays points and a small mood bump at the start). Put the numbers in `config.ts`.
+- **The record player controls the soundtrack** (see the note below). Marc will write tracks himself; build the player and the format, with two or three starter tracks of your own so it works, clearly marked as placeholders for Marc's.
+- Sound effects stay quiet and plain: Marc finds some jokey text too much, and this applies to tone in sound too (no gag sounds).
 
 ## Progress log
 

@@ -16,6 +16,7 @@ Replace the coloured rectangles with the real art: furniture, decor and the play
 - Sprites are drawn through the camera from issue 010 and snapped to whole pixels.
 - Sprites are loaded before the first frame (or the game shows the fallback until they arrive) without errors in the console.
 - Interactable zones stop being drawn as translucent rectangles (or are behind a debug flag).
+- The two example sprites from issue 006 (`couch`, a blue sofa that clashes with the real red and teal one, and `coffee-mug`) are removed from `art/src/` and `public/sprites/` once the real art is wired in, unless a test still uses them.
 - Tests cover the draw order and the frame-selection logic without a browser.
 
 ## Progress log

@@ -1,7 +1,7 @@
 ---
 id: 007b
 title: "Furniture sprites: Main room, east: dining table, records and sofa"
-status: todo
+status: review
 owner: agent
 depends_on: [005, 006]
 ---
@@ -40,3 +40,11 @@ The sprites should look like Marc's real pieces, so work from the photos in `ref
 - Scale: the player is about 14px tall at 1 tile = 16px, so the player is tiny next to a 96px fridge. That is intended.
 
 ## Progress log
+
+- 2026-10-22: Plan: draw the six sprites from the photos (dark red-brown trestle table with teal microwave and coffee gear, mission-style sofa arm, red/teal patterned sofa, record stand with turntable, mixed-frame gallery wall, spruce acoustic guitar).
+- 2026-10-22: Done, set to review.
+  - Files: `art/src/{table,record-stand,sofa-arm,sofa,gallery-wall,guitar}.sprite` and matching PNGs in `public/sprites/`. Sizes exactly as in the table.
+  - Checks: `npm run sprites` passes (no validation errors); viewed `art/contact-sheet.png` at 4x. Other batches are not merged yet, so I could not compare against their sprites.
+  - Table: items sit in the top 16px above the slab, trestle legs and stretcher leave the space under it open. Sofa starts at row 1 (row 0 transparent), feet on the bottom edge.
+  - Colours: used only the Materials table; sofa upholstery uses `b`/`g` on cream `a` (pattern accent, no new key). Gallery frames use `5`, `9`, `a`, `d`, `6` and `7` for silver, wood, gold and white frames.
+  - Not checked: how the sprites look in the running game (the level is not drawn with sprites until issue 016); Marc's approval of the look. The record-stand turntable is small and dark at 1x.

@@ -9,8 +9,11 @@ import type { CutsceneStep } from "./activities/cutscene";
 //
 // Each piece has three lines, said at the three zoom levels:
 //   at 2x  what it is and how it is composed,
-//   at 4x  the brushwork,
-//   at 8x  the pixels (the last line, and then the view goes back to the room).
+//   at 4x  the handling (brushwork, restraint),
+//   at 8x  what the work asks of the viewer (the last line; then the view goes back to the room).
+// The voice is a completely sincere, slightly pompous critic looking at a real
+// painting. It never admits the picture is small, chunky or part of a game; the
+// joke is the distance between the lofty words and what is on screen.
 
 export interface ArtPiece {
   id: string;
@@ -24,90 +27,90 @@ export const ART_PIECES: ArtPiece[] = [
     id: "silver-landscape",
     at: { x: 59, y: 4, w: 60, h: 54 },
     lines: [
-      "A landscape. The horizon sits low, which gives the sky room. The pale line leads the eye across the field.",
-      "The grey of the sky is laid in even, patient strokes. The green below is allowed to be busier.",
-      "Up close it is square after square of green. Each one is doing its part.",
+      "A landscape of real restraint. The eye is led across the field and asked to stay, and it does.",
+      "Note the patience in the handling of the sky. Nothing is hurried. Nothing is explained.",
+      "A quiet work. It asks only that you give it a moment longer, and rewards you for it.",
     ],
   },
   {
     id: "tall-brown",
     at: { x: 127, y: 13, w: 37, h: 49 },
     lines: [
-      "A tall, narrow piece. The upright format suggests a doorway, or a tower. Either way it is built to be climbed with the eye.",
-      "The orange is laid in thin vertical bands. The brown around them holds them in place.",
-      "At this distance it is brown squares and orange squares. The vertical still holds.",
+      "A tall, serious composition. The upright format gives it dignity, and it never once asks for more than it has.",
+      "The handling is confident and economical. Warmth comes in at the center, held in check by the dark around it.",
+      "It holds the gaze without raising its voice. That is harder to do than it looks.",
     ],
   },
   {
     id: "white-building",
     at: { x: 170, y: 18, w: 55, h: 70 },
     lines: [
-      "A building, centered in the frame. The red element is the only warm note, and the whole piece is arranged around it.",
-      "The checked pattern below is handled with care. Every square is committed to its color.",
-      "Up close it is a red block and a yellow block, side by side. Everything around them is white.",
+      "A building, centered and unafraid of it. One warm note governs the whole composition, and everything else defers to it.",
+      "The mood is order. Every part of the lower register has been placed on purpose.",
+      "Stay with it. It rewards a steady look, and it has nothing to hide.",
     ],
   },
   {
     id: "small-blue",
     at: { x: 231, y: 28, w: 25, h: 20 },
     lines: [
-      "A small blue piece. Small pieces ask you to come closer, and this one rewards it.",
-      "The blue is flat and confident. A pink mark and a purple mark are placed exactly where they need to be.",
-      "A grid of blues with a few lighter squares. They carry the composition.",
+      "A small work with a large manner. The blue is assured, and the composition does not apologize for its size.",
+      "There is great economy in the accents. Each is placed exactly where it is needed and nowhere else.",
+      "It asks the viewer to lean in. It is not wrong to.",
     ],
   },
   {
     id: "oak-box",
     at: { x: 228, y: 53, w: 31, h: 37 },
     lines: [
-      "A shallow box frame in oak. The red, orange and yellow blocks press against the brown without apology.",
-      "The edges between the blocks are firm. Nothing bleeds into anything else.",
-      "Red, orange and yellow squares on brown. The straight edges are the entire argument.",
+      "A work of real tension, framed in oak. Warm tones press against dark ones, and neither gives way.",
+      "The handling is firm. Edges are decided and kept. Nothing is left to chance, or to charm.",
+      "This is a work that knows what it is arguing, and argues it plainly.",
     ],
   },
   {
     id: "pale-mat",
     at: { x: 68, y: 63, w: 35, h: 42 },
     lines: [
-      "A small picture in a wide pale mat. The mat does most of the talking, and the picture lets it.",
-      "A green mark, a slate mark and a tan mark sit close together, each aware of the others.",
-      "Three kinds of square: green, slate and tan. The rest is mat.",
+      "A modest work, generously presented. The wide mat gives the image room to breathe, and the image is grateful.",
+      "Three small notes of color keep company with one another. The restraint is complete.",
+      "It asks very little of the viewer, and gives a great deal of stillness in return.",
     ],
   },
   {
     id: "dark-animal",
     at: { x: 109, y: 64, w: 54, h: 72 },
     lines: [
-      "A dark animal stands on an orange ground against pale green. It faces left, and the composition faces left with it.",
-      "The fur is built from short, uneven strokes. The effort is visible and well spent.",
-      "Pixels, dark ones mostly. The animal is a decision made many times in a row.",
+      "A single animal stands on a warm ground, facing left. The composition faces left with it. It is not in a hurry.",
+      "The mark is bold and unfussy. There is a great deal of confidence in the mass of the figure.",
+      "It meets your gaze and does not look away. Few works are this sure of themselves.",
     ],
   },
   {
     id: "green-still-life",
     at: { x: 168, y: 92, w: 38, h: 38 },
     lines: [
-      "A still life in a green frame. A few objects, set off center and left to be themselves.",
-      "An orange shape, a white shape and a navy shape share the table. None of them crowds another.",
-      "Orange, white, navy and brown squares, stacked. The brown is the table, and it holds.",
+      "A still life, composed with care. The objects are set off center, and the eye travels between them without being told to.",
+      "There is warmth in the accents and weight in the shadow. The balance is exact.",
+      "The longer you look, the more settled it becomes. That is the mark of a considered work.",
     ],
   },
   {
     id: "gold-narrow",
     at: { x: 210, y: 96, w: 30, h: 35 },
     lines: [
-      "A narrow piece in a gold frame. A pale field with one dark upright, which works like a pause.",
-      "The dark upright is a single stroke, a little softer at the top. It looks deliberate.",
-      "One column of green squares on a field of pale ones. It is a good column.",
+      "A narrow work in a gold frame. A single vertical gesture divides the field, and the field accepts it calmly.",
+      "The mark is deliberate and slightly softened at its edge. It reads as a pause, not an absence.",
+      "Silence is difficult to compose. This work has managed it.",
     ],
   },
   {
     id: "dark-postcard",
     at: { x: 82, y: 111, w: 24, h: 28 },
     lines: [
-      "A dark postcard, low on the left and easy to miss. The composition rewards those who look down.",
-      "Bars of yellow and green stand against the dark. The dark has been given real depth.",
-      "Dark squares, yellow squares, green squares. It was a postcard and it is now a grid.",
+      "A dark work, low on the left, easy to miss. The composition rewards those willing to look down.",
+      "Bands of warm and cool color stand out against the dark, which has been given real depth.",
+      "Modest in format, serious in intent. It deserves more attention than it asks for.",
     ],
   },
 ];

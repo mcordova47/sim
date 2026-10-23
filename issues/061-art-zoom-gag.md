@@ -1,7 +1,7 @@
 ---
 id: 061
 title: Admire the art: zoom in on a piece and comment very seriously
-status: done
+status: review
 owner: marc + claude
 depends_on: []
 ---
@@ -52,3 +52,5 @@ Marc's gag ideas (2026-10-23): (1) the Ferris Bueller painting zoom: the view pu
     - [ ] Piece 6 `dark-animal` line 1 says "against pale green"; behind the animal is white inside a green frame.
     - [ ] Piece 2 `white-building` line 1 still says red is "the only warm note" (yellow is warm too).
   - Not verified: browser feel (push timing, reading speed; my frames are screenshots at set delays), night tint. Marc plays it and reads the lines. PLAN.md table needs updating by the planner.
+
+- 2026-10-23: Marc played it: likes the gag, wants it less self-aware. Rewrote all thirty lines in `src/game/art-pieces.ts` in a sincere, slightly pompous critic's voice (restraint, patience, economy, tension, what the work asks of the viewer); no mention of pixels, squares, scale, zoom or the game, and no concrete colour or shape claims that could contradict the picture. The 8x line is in the same voice. Test added: no line may match pixel, square, block, scale, zoom, resolution, closer, grid, bitmap, sprite, game or screen; the font-safe, three-lines and length checks stay. Zoom mechanics untouched. `npm test` (1327) and `tsc` pass; rendered piece 0 at 4x (2x and 4x frames) and the longest lines (121 characters) fit the dialog box. Status back to review for a new independent review; the earlier approval was for the old text.

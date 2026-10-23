@@ -112,6 +112,7 @@ describe("the text", () => {
       expect(p.lines).toHaveLength(3);
       for (const line of p.lines) {
         expect(unsupportedChars(line), line).toEqual([]);
+        expect(line, "the narrator never mentions the medium").not.toMatch(/pixel|square|block|scale|zoom|resolution|closer|grid|bitmap|sprite|game|screen/i);
         expect(line.length).toBeGreaterThan(20);
         expect(line.length).toBeLessThanOrEqual(130);
       }

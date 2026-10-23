@@ -1,7 +1,7 @@
 ---
 id: 057
 title: Bookshelf top order; guitar pose shows the neck
-status: done
+status: review
 owner: agent
 depends_on: []
 ---
@@ -55,3 +55,4 @@ From Marc's playtest (2026-10-23):
   - **Render (real `Game`, headless Chrome, throwaway harness removed): pass.** 1x and 4x, guitar task playing beside a frame with the wall guitar, plus a 4x-then-4x crop. The pose guitar and wall guitar match in colour, outline weight and scale; the style now matches the room. It reads as playing: the player sits with the body in the lap and a hand on a neck rising east. Honest notes: the neck is dark brown on brown floor, so contrast is low and it is a thin line at 1x (same as the wall guitar's); the hand is a small block; legs are hidden by the body.
   - **Scope/privacy: pass.** Round 3 touched the sprite, its PNG, `docs/art-style.md` and this file only.
   - PLAN.md table needs updating by the planner.
+- 2026-10-23 (agent, round 4 after Marc's 4x screenshot): the guitar hung too low. Moved the whole drawing (body, neck, headstock, hand) up 3 px inside the same 32x48 sprite: the body now sits over the lower shirt and lap right under the chin line, the hand is at shoulder height on the neck, the headstock is at the top of the frame (row 0 to 2, so nothing is cut off). Neck still east, hand on it, still over open floor above the sofa's west arm. Size and placement unchanged, so `poses.ts`, tests and docs are untouched. Rendered the real game at 1x, 4x and 12x and looked. `npm test` and `npm run build` pass. Needs a fresh review.

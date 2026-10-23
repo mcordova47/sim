@@ -1,7 +1,7 @@
 ---
 id: 007d
 title: "Furniture sprites: Kitchen, east half, and the bathroom"
-status: todo
+status: review
 owner: agent
 depends_on: [005, 006]
 ---
@@ -41,3 +41,9 @@ The sprites should look like Marc's real pieces, so work from the photos in `ref
 - Scale: the player is about 14px tall at 1 tile = 16px, so the player is tiny next to a 96px fridge. That is intended.
 
 ## Progress log
+
+- 2026-10-22: Plan: draw the 7 sprites from the reference photos (fridge, boxes, bath), palette and Materials table only.
+- 2026-10-22: Drew all 7 sprites in `art/src/` (boxes, fridge, spice-rack, vanity, toilet, tub, shower-curtain) with PNGs in `public/sprites/`. Sizes match the table. Checks: `npm run sprites` passes; contact sheet viewed at 4x; `npm run build` passes. Not checked: how they look in the game scene (016 draws the level), or next to other batches (none merged yet).
+  - Details: fridge is steel with humidifier and clutter on top and handles on the left; boxes are two grey bins with pantry food over two cardboard boxes; spice-rack is a white wire rack with a top slab holding tea boxes, thin lower shelves, mostly transparent underneath; vanity is a wood cabinet with a white top and basin; toilet is front-on; tub is a white apron with feet; curtain is linen with a black rod and rings.
+  - Colours: used `a` (cream) for linen on the shower curtain (not in the Materials table), and `4`/`2` (dusk, night) for the grey storage bins. No other off-table colours.
+  - Notes: the toilet and tub top edges are flat so the player lands on the tank and the tub rim. The toilet's solid box is 32 wide but the tank is 22 wide, so the player stands on a slightly narrower visual than the collision. The fridge-top clutter sits inside the sprite's top 12px, so the collision top lines up with the clutter top, not the fridge body.

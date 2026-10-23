@@ -19,7 +19,7 @@ export const PLAYER_SPRITES: string[] = framesFor(HOME_PREFIX);
 // Everything the player can be drawn from besides the walking frames of the
 // everyday clothes: the other outfits, the doing poses and the held items.
 export const OUTFIT_SPRITES: string[] = OUTFITS.slice(1).flatMap((o) => framesFor(o.prefix));
-export const POSE_SPRITES: string[] = Object.values(POSES).map((p) => p.sprite);
+export const POSE_SPRITES: string[] = Object.values(POSES).flatMap((p) => [p.sprite, ...(p.variants ?? []).map((v) => v.sprite)]);
 export const HELD_SPRITES: string[] = HELD_ITEMS.flatMap((item) =>
   DIRECTIONS.map((dir) => heldSprite(item, dir)),
 );

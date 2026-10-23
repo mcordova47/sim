@@ -99,7 +99,8 @@ export class Game {
   private readonly spriteDrawer: SpriteDrawer | undefined;
   // The piece the player was facing when the running task started, which is
   // what its pose is drawn on.
-  private doing: { item: Interactable; piece: Piece | null } | null = null;
+  // `sprite` is the pose's art, picked then too (a bed is slept on made or unmade).
+  private doing: { item: Interactable; piece: Piece | null; sprite: string | null } | null = null;
 
   constructor(level: Level, options: GameOptions = {}) {
     this.state = options.state ?? new ApartmentState(STATE_VARS);
@@ -134,7 +135,9 @@ export class Game {
       this.events.emit("taskComplete", { item, award });
     }, this.state);
     this.interaction.onStart = (item) => {
-      this.doing = { item, piece: this.facedPiece() };
+      const def = item.pose ? POSES[item.pose] : undefined;
+      const sprite = def ? (def.variants?.find((v) => this.state.matchesAll(v.when))?.sprite ?? def.sprite) : null;
+      this.doing = { item, piece: this.facedPiece(), sprite };
       this.events.emit("taskStart", { item });
     };
     this.interaction.onCancelled = (item) => this.events.emit("taskCancelled", { item });
@@ -454,13 +457,14 @@ export class Game {
   // The pose the player is in right now: the running task's, if it belongs to
   // the piece it was started at and its art exists (otherwise the plain
   // player is drawn, and the missing file is logged once).
-  private currentPose(): { def: PoseDef; piece: Piece } | null {
+  private currentPose(): { def: PoseDef; piece: Piece; sprite: string } | null {
     const active = this.interaction.active?.item;
     if (!active?.pose || this.doing?.item !== active || !this.doing.piece) return null;
     const def = POSES[active.pose];
     const piece = this.doing.piece;
-    if (!def || piece.sprite !== def.on || !this.painter.available(def.sprite)) return null;
-    return { def, piece };
+    const sprite = this.doing.sprite ?? def?.sprite;
+    if (!def || !sprite || piece.sprite !== def.on || !this.painter.available(sprite)) return null;
+    return { def, piece, sprite };
   }
 
   private playerCentre(): { x: number; y: number } {
@@ -536,10 +540,10 @@ export class Game {
     }
     if (pose) {
       // Over the piece it is on, and in front of anything it overlaps.
-      const { def, piece } = pose;
+      const { def, piece, sprite } = pose;
       const x = piece.bounds.x + def.at.x;
       const y = piece.bounds.y + def.at.y;
-      drawables.push({ bottom: y + def.size.h, draw: () => painter.draw(ctx, def.sprite, x, y) });
+      drawables.push({ bottom: y + def.size.h, draw: () => painter.draw(ctx, sprite, x, y) });
     } else {
       drawables.push({ bottom: actor.y + actor.h, draw: () => this.drawPlayer(ctx, actor) });
     }

@@ -16,3 +16,5 @@ Make the in-game text read the way Marc wants. From his playtests (2026-10-23).
 - `npm test` and `npm run build` pass.
 
 ## Progress log
+
+- 2026-10-23 (planner): wrote the first `docs/text-review.md` (tasks, state meanings, dialogs, typing text) from a throwaway dump script. Still to do: Marc marks it; the "the" removal; a script or test that keeps the list in sync; the strings added by 038, 040 and 041.

@@ -1,7 +1,7 @@
 ---
 id: 013
 title: Physics robustness
-status: review
+status: done
 owner: claude
 depends_on: []
 ---
@@ -25,3 +25,15 @@ Fix the minor findings from the review of issue 002 so the player physics doesn'
   - `src/game/player.test.ts` (new, 19 tests): landing, jump height and short hop, coyote (inside and outside the window), jump buffer, one-way platforms, walls/ceilings/corner, 0.25 s steps (floor, thin wall, thin ceiling, equivalence with fixed steps), starting inside solids (wall sides, floor, thin wall, wedged between two, one-way ignored).
   - Checks: `npm test` 49 pass; `npm run build` ok. With the old `player.ts`, 5 of the new tests fail (large-step floor, step equivalence, three depenetration cases), so they do test the change.
   - Not done: optional drop-through one-way platforms. Not checked: how it feels in a browser (should be identical at 60 Hz).
+
+- 2026-10-22 (claude, review): Verdict **approve**.
+  - Large dt safe: pass. `update` slices at <= 1/60 s; checked with my own tests (scratchpad) at dt 0.1/0.25/0.5/1 s sideways into a thin wall from both sides, falling at dt 0.25/1/5 onto a floor, and a jump press inside a 0.25 s step (jumps once, only first slice sees the press, lands again; apex matches 15 fixed steps). Repo test file also covers it.
+  - Overlap pushed out along shortest axis: pass. Swept 1000+ start positions across three mutually overlapping solids: none left overlapping; tiny penetrations resolve by the nearest side; dt 0 gives finite values.
+  - Optional drop-through: skipped, allowed.
+  - Jump height documented in `config.ts` (about 37.8px): pass.
+  - Vitest suite: pass. `src/game/player.test.ts` has 20 tests (log says 19) covering landing, jump heights, coyote, buffering, one-way, corners. Against old `player.ts` 5 of them fail (large-step floor, step equivalence, three depenetration cases). The thin-wall/ceiling large-step tests pass on old code too, so they don't add protection.
+  - Behaviour at exactly 1/60 s vs main: my differential test (main's player.ts vs branch, 1200 frames of scripted moves and jumps over floor, thin wall, one-way and ceiling) gives bit-identical x, y, vx, vy, grounded.
+  - `npm test` 49 pass, `npm run build` ok. Scope: only player.ts, config.ts, player.test.ts and this issue file changed; no PLAN.md edits.
+  - Unverified: feel in a browser (should be identical at 60 Hz given the equivalence test).
+  - Note, not a failure: `resolveOverlaps` sets `grounded = true` when pushed up, which is fine but means a spawn-embedded player can jump on that frame.
+  - PLAN.md table needs updating by the planner.

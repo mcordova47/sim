@@ -30,7 +30,7 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 | 002 | [Player movement and collision](issues/002-player-movement.md) | claude | done | 001 |
 | 003 | [Interaction and scoring system](issues/003-interaction-scoring.md) | claude | done | 002 |
 | 004 | [HUD and feedback](issues/004-hud-feedback.md) | claude | todo | 003 |
-| 005 | [Floor plan and task list](issues/005-floor-plan-tasks.md) | marc + agent | blocked | needs photos from Marc |
+| 005 | [Floor plan and task list](issues/005-floor-plan-tasks.md) | marc + agent | done | |
 | 006 | [Sprite pipeline and style guide](issues/006-sprite-pipeline.md) | agent | todo | 001 |
 | 007 | [Furniture sprites](issues/007-furniture-sprites.md) | agent | todo | 005, 006 |
 | 008 | [Player character sprite](issues/008-player-sprite.md) | agent | todo | 006 |

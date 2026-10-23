@@ -17,4 +17,7 @@ Replace the placeholder room and tasks with the real data from issue 005 and mak
 - Tasks have no cooldown in 005's data, so they use `DEFAULT_TASK_COOLDOWN` unless 005 adds one. Check the defaults feel reasonable against durations.
 - Placeholder files (`placeholder-room.ts`, `placeholder-interactables.ts`) are removed, or kept only if tests still use them.
 
+## Open question: scale
+005 uses 1 tile = 1 ft, but the player is 14px tall in 16px tiles, so the character is about 10 inches tall next to a 3 ft desk. Jump height is 2.5 tiles (2.5 ft). Decide before building this issue: keep it as is (a small hero in a big apartment, which also makes the apartment feel big and the platforming work), or rescale (taller player and a higher jump, which makes the room taller or the tiles smaller). Whatever is chosen, 005's reachability check must be re-run with the final constants.
+
 ## Progress log

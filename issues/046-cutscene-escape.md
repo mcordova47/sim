@@ -1,7 +1,7 @@
 ---
 id: 046
 title: Escape during any action (and a cutscene's text)
-status: review
+status: done
 owner: claude
 depends_on: []
 ---
@@ -47,3 +47,17 @@ Minor, non-blocking: the comment on `cancel` in `src/game/activity.ts` is one ve
 
 ### 2026-10-23 (claude), after the approval
 Marc's expectation is that Escape cancels any running action, so the notes game is now cancellable too (`cancellable = true`), which also shows the `ESC TO STOP` hint for it. Notes does not set `readsKeys`, so an E pressed during it is buffered; the Escape path zeroes the buffer, and new tests (E in the same frame as Escape, and 1 and 3 frames before) confirm it is not restarted. Also tested: cancelled notes pay nothing, apply no effects (dishes unchanged), start no cooldown (task has `cooldown: 60`, restarts at once). Flipped the notes unit test and the `docs/activities.md` table row, dropped the README exception, wrapped the long comment in `activity.ts`. 883 tests pass, build ok. Status back to `review` since the code changed after the approval; it needs a fresh review.
+
+### 2026-10-23 (independent review, round 2, after 914eeb9)
+Verdict: **approve**.
+
+Checked by me on the real `Game` with a throwaway test file (deleted, not committed): `npm test` 883 passed, `npm run build` ok.
+- Escape matrix: wait, dialog task (nested menu and plain say), cutscene (wait then `set`, walk then `say`, `say`, `ask`, `view` then `say`), typing, notes, each with Escape at every frame offset 0 to 260 after the opening press, with `DIALOG.pauseClock` true and false. Every case ends not busy, dialog closed, lock released, score 0, events exactly `taskStart, taskCancelled`; apartment state unchanged for non-cutscenes (a cutscene's earlier `set` stays, as documented); no cooldown (restarts at once, including notes with `cooldown: 60` and typing). Tasks that finished by themselves first ended cleanly with `taskStart, taskComplete`.
+- Buffered E then Escape: typing, notes, wait, cutscene `say`, dialog; E in the same frame, and 1, 2, 3 and 5 frames before Escape; three settle times each. Exactly one `taskStart`, never restarted.
+- Hint: recorded draw calls at 320x192. `ESC TO STOP` spans x 166..232 at y 3..10 for all ten task types while running, nothing else drawn in that band, and none when idle or after the task ends. It clears the score/combo panel (ends x=148) and the clock panel (starts x=248). Not seen in a browser.
+- Fuzz: 400 seeds, 1500 frames each, random dt (some up to 0.2 s), E, Escape, Escape+E, letters, directions, X, random task mix (all ten types in one room) and random input locks taken and released. Each `taskStart` is followed by exactly one complete or cancelled before the next, busy always matches, and after releasing locks and draining: not busy, dialog closed, lock count 0, starts equal ends (over 1000 tasks).
+- Compare with main: 300 seeds x pauseClock true/false, wait and dialog tasks only, no Escape, random dt and keys. Per-frame log (events, busy, dialog open, score, apartment state) is byte-identical to main (24.8 MB, `cmp`).
+- Scope: issue file, docs, README, src only; no PLAN.md, other issues or reference-photos. Docs table matches behaviour (notes row included); the README and dialogs.md lines are accurate.
+Criteria: reproduction table, Escape cancels everything with no points, effects or cooldown, cutscene `say` decision and docs, every exit path clean, test and build: all pass. Notes is now cancellable and shows the hint.
+Not verified: appearance in a browser. Nits, non-blocking: Escape and E in the very frame that opens a task is lost (the next Escape works); X inside a task's dialog still only goes back one level (documented).
+PLAN.md table needs updating by the planner.

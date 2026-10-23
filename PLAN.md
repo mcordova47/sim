@@ -97,7 +97,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 058 | [Add warm greys to the palette; re-tint the plaster and kitchen walls](issues/058-warm-grey.md) | agent | done | |
 | 059 | [Make your own tracks in the game](issues/059-make-your-own-tracks.md) | marc + claude | done | |
 | 060 | [Draw the gallery wall view](issues/060-gallery-wall-view.md) | agent | done | |
-| 061 | [Admire the art: zoom in and comment very seriously](issues/061-art-zoom-gag.md) | marc + claude | todo | |
+| 061 | [Admire the art: zoom in and comment very seriously](issues/061-art-zoom-gag.md) | marc + claude | done | |
 | 062 | [Customizable decor (inventory, swap, buy) (explore)](issues/062-customizable-decor.md) | marc + claude | todo | |
 | 063 | [Plants that grow in stages](issues/063-plant-growth.md) | marc + claude | todo | |
 | 064 | [Plugins (VSTs) for the track editor (explore)](issues/064-track-editor-plugins.md) | marc + claude | todo | |

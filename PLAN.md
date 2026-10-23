@@ -61,7 +61,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 022 | [Activities, mini-games and cutscenes](issues/022-activities.md) | claude | todo | 019 |
 | 023 | [Dialog box and choice menus](issues/023-dialog-and-menus.md) | claude | todo | 019 |
 | 024 | [Personal touch interview](issues/024-personal-touch-interview.md) | marc + agent | todo | |
-| 025 | [Top-down art spec](issues/025-topdown-art-spec.md) | marc + agent | todo | |
+| 025 | [Top-down art spec](issues/025-topdown-art-spec.md) | marc + agent | done | |
 | 026 | [Spanish flashcards on the in-game computer (stretch)](issues/026-spanish-flashcards-terminal.md) | marc + claude | blocked | 021, 022, 023 |
 
 ## Order of work
@@ -81,6 +81,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 - **View (2026-10-22):** top-down, Pokemon-style, replacing the side-view platformer. An isometric version (like Focus Friend) is a possible later project that Marc may make his own art for; not this one.
 - **Movement:** grid steps, tile to tile, with turning before stepping. Interact with the faced tile.
 - **The side-view version** lives in git history and the tag `side-view-prototype` only.
+- **View orientation (Marc, 2026-10-23):** the main room is seen from the sofa side, looking toward the table, desk, bookshelf and bed wall. The sofa is on the near (bottom) wall, seen from behind; the pieces against the far (top) wall are drawn front-on. Kitchen and bath orientation to be agreed in 020.
 - **Personal touch:** an interview (issue 024) gathers Marc's day-to-day to shape tasks, cutscenes and the character.
 - **Level size and scale:** decided again in 020 (the old 1 tile = 1 ft and the scrolling camera belonged to the side view).
 - **Day and night cycle:** yes. A game clock, lighting through the day and tasks that pay better at the right hour (issue 009d).

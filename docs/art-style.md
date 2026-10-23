@@ -4,6 +4,9 @@ Rules for every sprite in the game. The palette lives in [art/palette.json](../a
 
 > **Top-down rewrite, 2026-10-22.** The side-view rules (front elevations, 1 tile = 1 ft, jump-height scale) are in git history and the tag `side-view-prototype`. Everything below is for the top-down game.
 
+## Room orientation
+Marc's decision (2026-10-23): the main room is seen from the sofa side, looking toward the table, desk, bookshelf and bed wall. Pieces on the far (top) wall are drawn front-on with a visible top slice. The sofa sits on the near (bottom) wall and is drawn from behind and above. The sample `sofa-td` and `bed-made` are placeholders, to be redrawn from new photos in the furniture batches.
+
 ## Perspective
 Early Game Boy Pokemon: the camera looks at the room from slightly above and in front.
 - **Furniture is drawn front-on with a visible top slice.** You see the front face of a piece (a fridge's doors, a sofa's seat) and a thin band of its top surface above it. Pieces against the back wall look like they are standing against it.

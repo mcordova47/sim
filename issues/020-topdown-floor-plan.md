@@ -9,6 +9,9 @@ depends_on: [019]
 ## Goal
 Re-plan the real apartment as top-down tile maps. The side view forced the sofa and the table, desk, shelf and bed into one squeezed lane. A top-down plan can keep the real arrangement: which wall things are on, how rooms connect. Sizes are game-scaled in the Pokemon way (the character is one tile, furniture is two or three), not real-scaled.
 
+## View orientation (Marc, 2026-10-23)
+The main room is seen from the sofa side, looking toward the table, desk, bookshelf and bed wall: the sofa is on the near (bottom) wall and the other pieces are along the far (top) wall. Pieces on the far wall are drawn front-on, which is how most of the reused side-view sprites were already drawn; the sofa is seen from behind and above. Agree the same kind of orientation for the kitchen and the bath with Marc, and record which wall each piece is on in `docs/floor-plan.md`. Marc may take more photos (sofa, bed and other pieces) for the furniture art; ask which views would help.
+
 ## Acceptance criteria
 - A decision with Marc, recorded in `docs/floor-plan.md`: rooms as separate screens joined by doorways (the Pokemon way, preferred) or one connected scrolling map; the tiles-per-foot or other scale used and why; how big each room is in tiles.
 - Maps for the main room, kitchen and bath: floor, walls, doorways, furniture footprints in tiles (which wall each piece is on and which way it faces), and a spawn point. Preserve the real arrangement; use the inventory in the earlier floor plan (git tag `side-view-prototype`, `docs/floor-plan.md`) and the photos in `reference-photos/` (read from the main checkout by absolute path; never commit them).

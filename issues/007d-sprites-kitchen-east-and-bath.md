@@ -1,7 +1,7 @@
 ---
 id: 007d
 title: "Furniture sprites: Kitchen, east half, and the bathroom"
-status: review
+status: in-progress
 owner: agent
 depends_on: [005, 006]
 ---
@@ -47,3 +47,22 @@ The sprites should look like Marc's real pieces, so work from the photos in `ref
   - Details: fridge is steel with humidifier and clutter on top and handles on the left; boxes are two grey bins with pantry food over two cardboard boxes; spice-rack is a white wire rack with a top slab holding tea boxes, thin lower shelves, mostly transparent underneath; vanity is a wood cabinet with a white top and basin; toilet is front-on; tub is a white apron with feet; curtain is linen with a black rod and rings.
   - Colours: used `a` (cream) for linen on the shower curtain (not in the Materials table), and `4`/`2` (dusk, night) for the grey storage bins. No other off-table colours.
   - Notes: the toilet and tub top edges are flat so the player lands on the tank and the tub rim. The toilet's solid box is 32 wide but the tank is 22 wide, so the player stands on a slightly narrower visual than the collision. The fridge-top clutter sits inside the sprite's top 12px, so the collision top lines up with the clutter top, not the fridge body.
+
+### Review 2026-10-22 (independent reviewer): CHANGES NEEDED
+Own checks: decoded each PNG in `public/sprites/` with a separate script (not `npm run sprites`) and compared against the `.sprite` source, the palette hexes and the sizes. `npm run build` and `npm test` (29 tests) pass. Branch touches only the 7 sources, 7 PNGs and this issue file; no photos or address text in the repo.
+
+- Sprite per row, exact size and name, source plus PNG: **pass** (all 7 are the right size, PNG matches source pixel for pixel).
+- Palette only, no semi-transparent pixels: **pass** (0 off-palette, 0 semi-alpha). Materials table: **pass**; the two off-table colours (`a` linen, `4`/`2` bins) are logged.
+- 1px ink outline: **pass** for boxes, fridge, toilet, tub. Non-ink pixels on the silhouette: vanity faucet (6 px, mist), shower curtain rod rings (68 px, `4`/`5` on the rod), spice-rack wire frame (93 px, `6`/`5`); these read as intended detail, flagged for Marc's eye only.
+- Light from top-left: **pass** on viewing my own 5x sheet (highlights on top and left).
+- Recognisable and readable at 1x: **pass on shape and colour from the sheet**; **can't verify** against the reference photos (not compared by this review). Marc approves the look.
+- One-way spice-rack leaves space under the slab: **pass**. Rows 16 to 47 are only 1px legs and thin shelves, so the space is open.
+- Base sits on the bottom edge: **FAIL for spice-rack**. Rows 0 to 1 and rows 48 to 63 are fully transparent, so the lowest opaque pixel is row 47 and the bottom row has 0 opaque pixels. The rack floats 16px above the box bottom, and the top 2px are empty so the collision top is 2px above the tea boxes. The other six pass (bottom row opaque: boxes 16, fridge 32, vanity 32, toilet 14, tub 12 feet, curtain 48).
+- Nothing important touches the box edge: **pass with notes**. Only tops touch (fridge clutter, boxes, tub and toilet flat tops, curtain rod rings).
+- `npm run sprites` passes, contact sheet viewed: **pass** (author's claim; I rendered my own 5x sheet instead). Next to other batches: **unverified** (none merged). In the game scene: **unverified** (016 draws the level).
+- Do not commit contact sheet or edit style guide, palette, room.ts or other sprites: **pass**.
+
+Checklist for the author:
+- [ ] `spice-rack`: redraw so the base reaches row 63 (legs or wire frame to the bottom edge, still open under the top slab), or, if a floating wall-hung rack is the intent, say so in the log and have Marc confirm. Also remove the 2 empty top rows (or start the tea boxes at row 0) so the collision top matches what the player visually stands on.
+
+Unverified, for Marc: game scene look, look next to other batches, likeness to the photos. Toilet: the 32px collision box is wider than the 22px tank (author already noted).

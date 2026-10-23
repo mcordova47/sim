@@ -1,7 +1,7 @@
 ---
 id: 007b
 title: "Furniture sprites: Main room, east: dining table, records and sofa"
-status: review
+status: done
 owner: agent
 depends_on: [005, 006]
 ---
@@ -70,3 +70,13 @@ The sprites should look like Marc's real pieces, so work from the photos in `ref
   - [x] Table stretcher moved down to rows 28 to 31, so a 14px player standing on the floor clears it (top of player at row 18, slab bottom at row 15).
   - [x] Flush tops: record-stand turntable now starts at row 0 and the sofa outline at row 0, matching the sofa-arm. The table's standable surface is the top of the clutter at the box top; the slab is at row 10 by design (items sit on it within the one-way top tile).
   - `npm run sprites` passes; contact sheet viewed at 4x. Still not checked: in-game look, Marc's approval, comparison with other batches.
+- 2026-10-22: Review, round 2 (independent reviewer): **approve**.
+  - Checked: `npm run build`, `npm test` (29 pass) and `npm run sprites` pass; re-rendering leaves `git status` clean. Own decoder script (outside the repo) read every PNG and compared it to its `.sprite`: sizes exactly 48x32, 16x48, 16x32, 32x16, 48x48, 16x48; 0 pixel mismatches between PNG and source; every pixel a palette key; alpha only 0 or 255. Only the six sprites and this issue file changed on the branch (no edits to other issues, PLAN.md, art-style, palette or room.ts). No photos or address in the repo.
+  - Outline: own 4-neighbour check (non-ink pixel next to transparent or outside the box) finds no gaps on `sofa-arm`, `sofa`, `gallery-wall` or `guitar`. Remaining hits are only on the box edge where the piece meets the floor or a neighbour: `table` feet at (3,31), (4,31); `record-stand` feet at (3,47), (13,47) and side-edge pixels at x0/x15, y11 to 12 (where it abuts neighbours). Accepted (base on the bottom edge, neighbour contact). The round 1 gaps (stretcher, cables, records, neck, stray `5` pixels) are fixed.
+  - Box edges: `guitar` and `gallery-wall` have 0 pixels on the top, bottom, left and right edges (first opaque row 1). `table`, `record-stand`, `sofa-arm` and `sofa` touch edges only at the floor or where they meet neighbours.
+  - Table under-space: legs at x3 to 8 and x37 to 42 only in rows 16 to 27; the stretcher is rows 28 to 31 (floor level), so a 14px player (top at row 18) walks through open space. Accepted.
+  - Flush tops: `table` row 0 (clutter), `record-stand` row 0, `sofa-arm` row 0, `sofa` row 0 (ink outline). Consistent. Table slab at row 10 is by design (clutter sits on it within the one-way top tile).
+  - Viewed 8x renders of all six against a reference photo of the room: dark trestle table with teal microwave and coffee gear, red/teal patterned sofa with mission arm, spruce guitar and mixed frames read as the real pieces. Light is from the top-left. Colours match the Materials table (blush `k` on the sofa top is the red-accent light tone).
+  - Criteria: all **pass**.
+  - **Unverified** (cannot be checked here): how the sprites look in the running game (level not drawn with sprites until 016); Marc's approval of the overall look; comparison with other batches (none merged).
+  - Note for planner: the `PLAN.md` table needs updating for 007b (only the planner edits it).

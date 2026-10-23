@@ -1,6 +1,7 @@
 import type { Level } from "./level";
 import { TASKS } from "./tasks";
-import { parseTileMap, type ObjectDef } from "./tilemap";
+import { DROOPING } from "./plant";
+import { parseTileMap, type ObjectDef, type PropDef } from "./tilemap";
 
 // The real apartment as three top-down rooms, one tile to a foot, each a
 // screen of its own. docs/floor-plan.md explains the choices. Maps are drawn as
@@ -38,11 +39,34 @@ export const MAIN_MAP = [
   "##########ff#######",
 ];
 
+// The plant on the bookshelf (issue 063): its own piece on top of the bookshelf
+// sprite, not drawn into it, so it can grow, droop, and later be swapped for
+// another plant (a decor slot, issue 062). 16x16 at the south end of the top.
+// Drooping wins over the stage; the stage is the growth so far.
+const MAIN_PROPS: PropDef[] = [
+  {
+    name: "snake plant",
+    slot: "plant-shelf",
+    on: "H",
+    at: { x: 0, y: 36 },
+    size: { w: 16, h: 16 },
+    sprite: "plant-0",
+    color: "leaf",
+    variants: [
+      { sprite: "plant-wilted", when: [DROOPING], color: "butter" },
+      { sprite: "plant-3", when: [{ var: "plantStage", min: 3 }], color: "leaf" },
+      { sprite: "plant-2", when: [{ var: "plantStage", min: 2 }], color: "leaf" },
+      { sprite: "plant-1", when: [{ var: "plantStage", min: 1 }], color: "leaf" },
+      { sprite: "plant-0", color: "leaf" },
+    ],
+  },
+];
+
 const MAIN: Record<string, ObjectDef> = {
   T: { name: "dining table", sprite: "table", color: "tangerine", tasks: ["coffee", "drink-coffee", "reheat", "eat-dinner"] },
   D: { name: "standing desk", sprite: "desk", color: "butter", tasks: ["work", "side-project-game", "journal", "tidy-desk", "make-track"] },
   C: { name: "desk chair", sprite: "desk-chair", color: "ink" },
-  H: { name: "cube bookshelf", sprite: "bookshelf", color: "butter", tasks: ["water-plant", "sort-records", "sort-records-year", "sort-records-fav", "sort-records-color"] },
+  H: { name: "cube bookshelf", sprite: "bookshelf", color: "butter", tasks: ["water-plant-droop", "water-plant", "check-plant", "sort-records", "sort-records-year", "sort-records-fav", "sort-records-color"] },
   N: { name: "nightstand", sprite: "nightstand", color: "tangerine" },
   B: {
     name: "queen bed",
@@ -166,7 +190,7 @@ export const APARTMENT: Apartment = {
   start: "main",
   rooms: {
     main: parseTileMap(MAIN_MAP, MAIN, {
-      id: "main", tasks: TASKS, facing: "down", floor: "floor-wood", wallPieces: WALL_PIECES.main,
+      id: "main", tasks: TASKS, facing: "down", floor: "floor-wood", wallPieces: WALL_PIECES.main, props: MAIN_PROPS,
     }),
     kitchen: parseTileMap(KITCHEN_MAP, KITCHEN, {
       id: "kitchen", tasks: TASKS, facing: "left", floor: "floor-kitchen", wallPieces: WALL_PIECES.kitchen,

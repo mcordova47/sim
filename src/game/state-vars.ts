@@ -12,6 +12,10 @@ export const STATE_VARS: StateVar[] = [
   { id: "blinds", initial: 0, min: 0, max: 1, meaning: "1 if the blinds are open, 0 if closed (the one window that has blinds)." },
   { id: "mug", initial: 0, min: 0, max: 1, meaning: "1 if a full mug of coffee is waiting to be drunk, 0 if not." },
   { id: "outfit", initial: 0, min: 0, max: 3, meaning: "What you are wearing: 0 everyday clothes, 1 casual, 2 out, 3 pajamas (see outfits.ts)." },
+  // The snake plant on the bookshelf (issue 063, rules in plant.ts and PLANT in config.ts).
+  { id: "plantStage", initial: 1, min: 0, max: 3, meaning: "How far the snake plant has grown: 0 sprout, 1 small, 2 full, 3 flowering." },
+  { id: "plantGrowth", initial: 0, min: 0, max: 9, meaning: "Waterings that counted toward the next stage of the snake plant." },
+  { id: "plantDry", initial: 12, min: 0, max: 999, meaning: "Game hours since the snake plant was last watered. Past PLANT.droopAfterHours it droops; watering fixes it." },
   {
     id: "recordSort",
     initial: 0,

@@ -5,7 +5,7 @@ import { validateActivity, type ValidationContext } from "./activity";
 // Registers the built-in activities, so their settings can be checked here.
 import "./activities";
 import { Grid } from "./grid";
-import type { Appearance } from "./appearance";
+import type { Appearance, Variant } from "./appearance";
 import type { Interactable } from "./interactable";
 import type { Check } from "./state";
 import { STATE_VARS } from "./state-vars";
@@ -32,6 +32,24 @@ export interface Piece {
   tiles: { col: number; row: number }[];
   bounds: Rect;
   // Placeholder colour (a palette name), for when the sprite is missing.
+  color?: keyof typeof COLOR;
+}
+
+// Something that sits on top of a piece and can be swapped for something else
+// without touching the piece (issue 063): the plant on the bookshelf. It has
+// no tiles of its own, blocks nothing and offers no tasks. `slot` names the
+// place, so a decor system (issue 062) can later put another item in it; the
+// look is picked from `variants` each frame, like any object that changes.
+export interface Prop {
+  name: string;
+  slot: string;
+  // The sprite's top-left, in pixels, and its size.
+  area: Rect;
+  // The piece it sits on; it is drawn in front of it, and with it for depth.
+  on: Piece;
+  // Used when no variant applies.
+  sprite?: string;
+  variants?: Variant[];
   color?: keyof typeof COLOR;
 }
 
@@ -62,6 +80,8 @@ export interface Level {
   doors: Door[];
   // The furniture, for sprites.
   pieces: Piece[];
+  // Swappable things on top of the furniture (the plant on the bookshelf).
+  props?: Prop[];
   // How to draw the room's floor and walls with the tileset. Rooms without it
   // are drawn as plain rectangles.
   floor?: { sprite: string; tiles: { col: number; row: number }[] };
@@ -131,6 +151,9 @@ export function validateStateNames(level: Level, known: (id: string) => boolean)
   }
   for (const { variants } of level.appearances ?? []) {
     for (const v of variants) checks(`variant "${v.sprite}"`, v.when);
+  }
+  for (const prop of level.props ?? []) {
+    for (const v of prop.variants ?? []) checks(`prop "${prop.slot}" variant "${v.sprite}"`, v.when);
   }
   for (const s of level.solids) checks(`a solid at x ${s.x}, y ${s.y} blockedWhen`, s.blockedWhen);
   if (bad.length) throw new Error(`${name}: ${bad.join("; ")}`);

@@ -69,6 +69,25 @@ export const CLOCK = {
   lateUntil: 5,
 };
 
+// The snake plant on the bookshelf (issue 063). Times are game hours, so a
+// day is 24 of them and lasts 12 minutes of play. Quiet on purpose: nothing
+// here is ever lost. The plant droops when it has been dry a long while, and
+// the next watering perks it up again; it keeps the stage it had grown to.
+export const PLANT = {
+  // Stages are plantStage 0 sprout, 1 small, 2 full, 3 flowering (see plant.ts).
+  lastStage: 3,
+  // A watering only counts (and only moves it toward the next stage) when the
+  // soil has had this long to dry out. Sooner than that it is "still damp".
+  dampHours: 6,
+  // Dry this long and the plant droops (the `plant-wilted` look).
+  droopAfterHours: 96,
+  // Waterings that count to grow out of stage 0, 1 and 2. A flowering plant is
+  // as far as it goes.
+  wateringsToGrow: [2, 3, 4],
+  // The state variable that holds the hours since it was watered stops counting here.
+  maxDryHours: 999,
+};
+
 // Energy runs from 0 to 100 (see state-vars.ts).
 export const ENERGY = {
   // Points lost per game hour just from being awake.
@@ -550,6 +569,8 @@ export const PARTICLES = {
     z: { shape: "z", colors: ["paper"], life: [1.8, 2.4], vx: [3, 7], vy: [-9, -6], gravity: 0, drag: 0, sway: { amp: 1.5, hz: 0.7 }, fadeFrom: 0.5 },
     // Music.
     note: { shape: "note", colors: ["butter", "tangerine", "paper"], life: [1.5, 2.1], vx: [4, 9], vy: [-12, -8], gravity: 0, drag: 0, sway: { amp: 1.8, hz: 0.9 }, fadeFrom: 0.5 },
+    // The plant grows or perks up (issue 063): a few green and pale bits drifting up.
+    leafGlint: { shape: "dot2", colors: ["leaf", "paper", "butter"], life: [0.8, 1.3], vx: [-6, 6], vy: [-16, -7], gravity: 0, drag: 0.2, sway: { amp: 1.2, hz: 1 }, fadeFrom: 0.4 },
     // A sigh over the head when mood drops low.
     sigh: { shape: "dot2", colors: ["mist"], life: [0.8, 1.1], vx: [3, 9], vy: [-7, -3], gravity: 0, drag: 0.3, sway: { amp: 1, hz: 1 }, fadeFrom: 0.4 },
   } as Record<string, ParticleKind>,
@@ -591,6 +612,14 @@ export const PARTICLES = {
   sparkle: { kind: "sparkle", count: [4, 5] as Range, spreadX: 11, spreadY: 6, lineGap: 2 },
   // The sigh over the head when mood drops below MOOD.lowBelow.
   sigh: { kind: "sigh", count: [3, 4] as Range, dx: 12, dy: 1, spread: 2 },
+  // The plant grew a stage, or came back from drooping (issue 063): where it
+  // sits on the bookshelf piece (`plant-shelf`, see apartment.ts).
+  plantGrow: {
+    kind: "leafGlint",
+    count: [7, 9] as Range,
+    at: { from: "piece", sprite: "bookshelf", dx: 8, dy: 42 } as EmitterAnchor,
+    spread: { x: 5, y: 4 },
+  },
   // Effects that go on while a task runs, by task id.
   taskEmitters: {
     // Steam over the kettle and the dripper on the table.

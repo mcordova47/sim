@@ -22,6 +22,7 @@ import { InteractionSystem } from "./interaction";
 import { validateLevel, type Door, type Level, type Piece } from "./level";
 import { outfitPrefix } from "./outfits";
 import { Player } from "./player";
+import { settlePlant } from "./plant";
 import { CARRIED, POSES, heldSprite, type PoseDef } from "./poses";
 import { ApartmentState } from "./state";
 import { STATE_VARS } from "./state-vars";
@@ -262,6 +263,9 @@ export class Game {
   }
 
   private stateChanged(change: { id: string; value: number; previous: number }): void {
+    // Enough waterings and the plant grows a stage (issue 063). Its own changes
+    // come back through here, which settles any growth left over.
+    if (change.id === "plantGrowth" && this.state.has("plantStage")) settlePlant(this.state);
     // Doors, piles and the like may now block or not.
     if (this.level.solids.some((s) => s.blockedWhen)) this.grid.setSolids(this.activeSolids());
     this.events.emit("stateChanged", change);
@@ -562,6 +566,21 @@ export class Game {
       for (const t of piece.tiles) covered.add(tileKey(t.col, t.row));
       if (pose?.def.replacesPiece && pose.piece === piece) continue;
       drawables.push({ bottom: y + h, draw: () => painter.draw(ctx, piece.sprite!, x, y) });
+    }
+
+    // Props sit on top of their piece: drawn with it, in front of it.
+    for (const prop of level.props ?? []) {
+      const variant = pickVariant(prop.variants ?? [], this.state);
+      const sprite = variant?.sprite ?? prop.sprite;
+      const { x, y, w, h } = prop.area;
+      drawables.push({
+        bottom: prop.on.bounds.y + prop.on.bounds.h,
+        draw: () => {
+          if (sprite && painter.draw(ctx, sprite, x, y)) return;
+          ctx.fillStyle = COLOR[variant?.color ?? prop.color ?? "leaf"];
+          ctx.fillRect(x + 4, y + 4, w - 8, h - 8);
+        },
+      });
     }
 
     for (const s of this.activeSolids()) {

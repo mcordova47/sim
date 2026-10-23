@@ -1,4 +1,4 @@
-import { CLOCK, ENERGY, MOOD } from "./config";
+import { CLOCK, ENERGY, MOOD, PLANT } from "./config";
 
 // One thing about the apartment or the character that tasks can read and
 // change. The list lives in state-vars.ts; adding a variable is a data change.
@@ -124,6 +124,10 @@ export class ApartmentState {
       const mood = this.get("mood");
       const pull = hours * MOOD.driftPerHour;
       this.write("mood", mood > MOOD.rest ? Math.max(MOOD.rest, mood - pull) : Math.min(MOOD.rest, mood + pull), changes);
+    }
+    // The soil dries out as time passes (issue 063).
+    if (this.has("plantDry")) {
+      this.write("plantDry", Math.min(PLANT.maxDryHours, this.get("plantDry") + hours), changes);
     }
     this.announce(changes, true);
   }

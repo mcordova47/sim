@@ -1,4 +1,4 @@
-import { ENERGY, SCORING } from "../game/config";
+import { ENERGY, MOOD, SCORING } from "../game/config";
 import type { Scoreboard } from "../game/scoring";
 import { formatClock, type ApartmentState } from "../game/state";
 import { COLOR, withAlpha } from "./colors";
@@ -52,7 +52,7 @@ export class Hud {
     this.drawStatus(ctx, state);
   }
 
-  // Top right: the time of day and the energy meter.
+  // Top right: the time of day, the energy meter and the mood meter.
   private drawStatus(ctx: CanvasRenderingContext2D, state: ApartmentState): void {
     const { x, y, w, h } = STATUS_BOX;
     ctx.fillStyle = PANEL;
@@ -67,5 +67,13 @@ export class Hud {
     ctx.fillRect(x + 8, 27, barWidth, 3);
     ctx.fillStyle = energy < ENERGY.lowBelow ? COLOR.brick : COLOR.leaf;
     ctx.fillRect(x + 8, 27, Math.round(barWidth * (energy / 100)), 3);
+
+    // Mood, in the same style, below energy.
+    drawText(ctx, "MOOD", x + 8, 33, { color: LABEL });
+    const mood = state.has("mood") ? state.get("mood") : 0;
+    ctx.fillStyle = COLOR.ink;
+    ctx.fillRect(x + 8, 43, barWidth, 3);
+    ctx.fillStyle = mood < MOOD.lowBelow ? COLOR.brick : COLOR.butter;
+    ctx.fillRect(x + 8, 43, Math.round(barWidth * (mood / 100)), 3);
   }
 }

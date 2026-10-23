@@ -59,8 +59,8 @@ describe("validateLevel", () => {
     });
 
     it("catches a typo in a cutscene's set step, a variant rule and a solid's blockedWhen", () => {
-      const cutscene = { activity: { type: "cutscene", steps: [{ set: { var: "mood", value: 1 } }] } };
-      expect(() => validateLevel(withTask(cutscene))).toThrow(/cutscene.*mood/);
+      const cutscene = { activity: { type: "cutscene", steps: [{ set: { var: "cheer", value: 1 } }] } };
+      expect(() => validateLevel(withTask(cutscene))).toThrow(/cutscene.*cheer/);
       const variants = { area: { x: 0, y: 0, w: TILE, h: TILE }, variants: [{ sprite: "s", when: [{ var: "zzz" }] }] };
       expect(() => validateLevel({ ...level, appearances: [variants] })).toThrow(/variant "s".*zzz/);
       const solid = { x: 3 * TILE, y: TILE, w: TILE, h: TILE, blockedWhen: [{ var: "qqq" }] };
@@ -68,8 +68,8 @@ describe("validateLevel", () => {
     });
 
     it("checks against the names given", () => {
-      const lvl = withTask({ effects: [{ var: "mood", add: 1 }] });
-      expect(() => validateLevel(lvl, { hasState: (id) => id === "mood" })).not.toThrow();
+      const lvl = withTask({ effects: [{ var: "cheer", add: 1 }] });
+      expect(() => validateLevel(lvl, { hasState: (id) => id === "cheer" })).not.toThrow();
     });
   });
 });

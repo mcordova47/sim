@@ -71,6 +71,17 @@ export const ENERGY = {
   sleepBelow: 60,
 };
 
+// Mood runs from 0 to 100 (see state-vars.ts). It is a nudge, not a lock:
+// nothing is ever refused for low mood.
+export const MOOD = {
+  // The middle that mood drifts back toward, and how many points it moves per
+  // game hour, so it is never stuck at either end.
+  rest: 50,
+  driftPerHour: 3,
+  // Below this the character is down: they sigh once when they cross it.
+  lowBelow: 25,
+};
+
 // A nap on the sofa (issue 035): a short rest that does not unmake the bed.
 export const NAP = {
   // Only sleepy enough to nap below this much energy.

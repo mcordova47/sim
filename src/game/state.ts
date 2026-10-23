@@ -1,4 +1,4 @@
-import { CLOCK, ENERGY } from "./config";
+import { CLOCK, ENERGY, MOOD } from "./config";
 
 // One thing about the apartment or the character that tasks can read and
 // change. The list lives in state-vars.ts; adding a variable is a data change.
@@ -112,12 +112,19 @@ export class ApartmentState {
     this.announce(changes, false);
   }
 
-  // Passes `dt` seconds of game time: the clock runs on and energy drains.
+  // Passes `dt` seconds of game time: the clock runs on, energy drains and mood
+  // drifts toward the middle.
   tick(dt: number): void {
     const hours = (dt * CLOCK.minutesPerSecond) / 60;
     const changes = new Map<string, StateChange>();
     if (this.has("clock")) this.write("clock", this.get("clock") + hours, changes);
     if (this.has("energy")) this.write("energy", this.get("energy") - hours * ENERGY.fallPerHour, changes);
+    if (this.has("mood")) {
+      // Toward the middle, and never past it.
+      const mood = this.get("mood");
+      const pull = hours * MOOD.driftPerHour;
+      this.write("mood", mood > MOOD.rest ? Math.max(MOOD.rest, mood - pull) : Math.min(MOOD.rest, mood + pull), changes);
+    }
     this.announce(changes, true);
   }
 

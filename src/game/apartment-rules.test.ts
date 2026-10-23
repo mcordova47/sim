@@ -144,11 +144,11 @@ describe("the state rules in the task list", () => {
   });
 
   it("lets a room built with its own variables play in a game with matching state", () => {
-    const mood = { id: "mood-up", name: "M", prompt: "Cheer up", duration: 0, points: 1, effects: [{ var: "mood", add: 1 }] };
-    const knownVars = (id: string) => id === "mood";
-    const level = parseTileMap(["#####", "#.@X#", "#####"], { X: { tasks: ["mood-up"] } }, { tasks: [mood], knownVars });
-    const state = new ApartmentState([{ id: "mood", initial: 0, min: 0, max: 5, meaning: "mood" }]);
+    const cheer = { id: "cheer-up", name: "M", prompt: "Cheer up", duration: 0, points: 1, effects: [{ var: "cheer", add: 1 }] };
+    const knownVars = (id: string) => id === "cheer";
+    const level = parseTileMap(["#####", "#.@X#", "#####"], { X: { tasks: ["cheer-up"] } }, { tasks: [cheer], knownVars });
+    const state = new ApartmentState([{ id: "cheer", initial: 0, min: 0, max: 5, meaning: "cheer" }]);
     expect(() => new Game({ ...level, facing: "right" }, { state })).not.toThrow();
-    expect(() => parseTileMap(["#####", "#.@X#", "#####"], { X: { tasks: ["mood-up"] } }, { tasks: [mood] })).toThrow(/mood/);
+    expect(() => parseTileMap(["#####", "#.@X#", "#####"], { X: { tasks: ["cheer-up"] } }, { tasks: [cheer] })).toThrow(/cheer/);
   });
 });

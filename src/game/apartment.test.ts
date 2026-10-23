@@ -178,6 +178,12 @@ describe("furniture", () => {
     }
   });
 
+  it("gives each of the three paintings on the north wall its own sprite", () => {
+    const sprite = (name: string) => rooms.main.pieces.find((p) => p.name === name)?.sprite;
+    const three = ["painting over the table", "painting over the desk", "painting over the nightstand"].map(sprite);
+    expect(new Set(three).size).toBe(3);
+  });
+
   it("uses the wide painting over the nightstand and the plain window above the blinds", () => {
     const sprite = (name: string) => rooms.main.pieces.find((p) => p.name === name)?.sprite;
     expect(sprite("painting over the nightstand")).toBe("painting-wide");

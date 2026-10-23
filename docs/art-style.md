@@ -96,7 +96,7 @@ Sorted for the top-down view. **Reuse:** use as-is (wall-mounted or flat). **Ada
 | counter | 32x48 | Adapt | Front cabinets are right; add a counter top slice. |
 | desk | 48x48 | Redraw | Table on legs; from above the top surface matters. |
 | fridge | 32x96 | Adapt | Front doors are right; too tall, trim to about 2x4 and add a top slice. |
-| gallery-wall | 48x48 | Reuse | Flat frames on the wall. |
+| gallery-wall | 96x16 | Redraw | Issue 036: redrawn from the real wall behind the sofa as a 6x1 strip of frames on the south wall face (`wall-front` colours). Not placed in the data yet; issue 035 adds it. |
 | guitar | 16x48 | Adapt | Leaning against the wall is fine; trim. |
 | hood | 48x32 | Reuse | Wall-mounted. |
 | mic-stand | 16x112 | Redraw | Far too tall; a short stand about 1x2 tiles. |
@@ -112,6 +112,8 @@ Sorted for the top-down view. **Reuse:** use as-is (wall-mounted or flat). **Ada
 | tub | 48x32 | Redraw | Side view; draw the long edge facing the player. |
 | vanity | 32x48 | Adapt | Front-facing; add a top slice. |
 | window-blinds, window-curtain | 32x64 | Reuse | Hang on the back wall; trim height to fit the wall band. |
+| window-blinds-open, window-blinds-closed | 16x32 | New | Issue 036: the two states of `window-blinds` (raised, showing glass; lowered, tan slats edge to edge). Same size and frame, so either can replace it. |
+| painting, painting-desk, painting-wide | 32x16, 32x16, 48x16 | Redraw | Issue 036: abstract impressions of the real prints over the table (barn drawing, cream frame), the desk (gold and orange abstract, walnut frame) and the nightstand (small green print in a wide white mat). |
 
 Verdict totals: 6 reuse, 10 adapt, 7 redraw (plus the 8 player poses, all redraw).
 

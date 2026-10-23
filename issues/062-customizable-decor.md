@@ -1,7 +1,7 @@
 ---
 id: 062
 title: Customizable decor (inventory, swap, buy new things) (explore)
-status: todo
+status: in-progress
 owner: marc + claude
 depends_on: []
 ---
@@ -25,3 +25,4 @@ Marc's idea (2026-10-23): the apartment can be customized: an inventory of decor
 Getting things starts as a **quiet side effect**, not a goal: the game is a little zen garden. It might become a goal later; Marc does not know yet. So: no currency pressure, no scarcity, no grind. Things turn up (gifts, finds, deliveries, small purchases that are never required) and you arrange them. Design the data model so a goal could be added later without changing it.
 
 ## Progress log
+- 2026-10-23: design note written in `docs/decor.md` (slot model, items, decor store vs a state variable per slot, swap task and mockups at 320x192, sources without pressure, first item set and art budget, plants 063 and plugins 064 as the same owned model, tolerant save format, staged plan, open questions). Recommendation: a separate decor store drawn through the existing appearance path, gifts and finds first, nothing costs anything, no mood or points effect. Status stays `in-progress` until Marc answers the open questions; then stage 1 becomes a build issue. No code changed.

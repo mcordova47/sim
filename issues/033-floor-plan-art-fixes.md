@@ -1,7 +1,7 @@
 ---
 id: 033
 title: Floor plan fixes found while drawing the art
-status: in-progress
+status: review
 owner: claude
 depends_on: []
 ---

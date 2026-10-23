@@ -1,7 +1,7 @@
 ---
 id: 029
 title: Top-down art: kitchen and bath
-status: review
+status: done
 owner: agent
 depends_on: [020, 025]
 ---
@@ -36,3 +36,13 @@ Draw every top-down piece in the kitchen and the bath, to `docs/art-style.md` an
   - New `scripts/room-mockup-kitchen-bath.mjs` draws both rooms from the real maps in `apartment.ts` to `art/mockup-kitchen.png` and `art/mockup-bath.png` (gitignored). View: `npm run sprites -- --sheet=dishes-,counter,stove,hood,fridge,recycling,bin,boxes,tote,window-curtain,tub,toilet,vanity,floor-,wall-side,doorway`, `node scripts/room-mockup-kitchen-bath.mjs`, open the PNGs in `art/`.
   - Checked: sizes against the list (script), `npm run sprites` (56 sprites), `npm test` (380), `npm run build`; looked at the contact sheet and both mockups. The dish stages read as a growing pile at the 4x sheet; **not checked at true 1x in a browser.**
   - Notes for 031: the mockup's wall placement is crude (it only picks wall pieces by neighbours); the counter, stove and hood are drawn front-on though the map puts them against the bar's south wall, per the art spec; the hood sits in the wall row below the stove; the kitchen window/door tiles sit in side walls, so 031 should pick the `-kitchen`/`-bath` wall variants per room. `docs/art-style.md` still lists `shower-curtain` in the audit table (not edited: out of scope).
+- 2026-10-23: **Review (independent) - approve.**
+  - Sizes and palette: pass. My own script (not the author's) parsed every `.sprite` in the piece list against `src/game/apartment.ts`: counter, dishes-0..3, stove 3x2; hood 3x1; fridge 2x2; recycling, bin, tote 1x1; boxes 2x1; window-curtain 1x2; tub 2x4; toilet, vanity 2x2. All exact pixel sizes, every row full width, every char in the palette, and each PNG's header size matches its sprite. Re-running `npm run sprites` (56 sprites) left git clean, so the committed PNGs are in sync.
+  - Every kitchen/bath sprite named in `apartment.ts` exists. The only names with no sprite are main-room pieces (desk-chair, nightstand, bed-unmade, radiator, lamp-table, painting, front-door), which belong to other issues. The new tile and doorway sprites (floor-kitchen, floor-bath, wall-side-left/right-kitchen/bath, doorway-left/right-kitchen, doorway-right-bath) are all 16x16.
+  - Dish stages share the counter's footprint: pass. `dishes-0` is pixel-identical to `counter`. Stages 1-3 differ from it only inside rows 1-8 (the counter top) and keep the full outline and cabinet face, so the footprint is the same. Each stage changes more pixels than the last (64, 121, 206 vs the stage before). Pile growth at 4x on the contact sheet: one plate and mug, then stacked plates, bowl and two mugs, then a spilling pile with pot and glass. It reads clearly.
+  - **Unverified:** how the dish stages and the other sprites look at true 1x in a browser. I only looked at the 4x contact sheet and the mockups (the mockups are drawn at 4x too). Whether the pile still reads as a growing pile at 1x is a judgement for Marc.
+  - Side-view removal: pass. `shower-curtain` (sprite and PNG) is gone and nothing in `src`, `scripts` or `art` refers to it. Left-over side-view `spice-rack` is audit "Reuse" and untouched.
+  - Contact sheet and mockups: viewed. Kitchen and bath mockups render from the real maps, and the pieces fit the footprints. Look is cohesive with the existing style: grey stone kitchen floor, beige bath floor. The mockup's wall placement is crude (the author says so).
+  - Scope: only `art/src`, `public/sprites`, `scripts/room-mockup-kitchen-bath.mjs`, a `.gitignore` line for `art/mockup-*.png` and this issue file changed. No `PLAN.md` or other issue edits, nothing wired into `src`. No photo content or personal details in the diff. Noted for the planner: `docs/art-style.md` still lists `shower-curtain` in the audit table (out of scope here).
+  - `npm test` 380 passed, `npm run build` passes.
+  - Planner: the `PLAN.md` table needs updating to done.

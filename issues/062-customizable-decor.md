@@ -21,4 +21,7 @@ Marc's idea (2026-10-23): the apartment can be customized: an inventory of decor
 - A design note in `docs/decor.md` with the choices above, a data model (slots, items, owned list, save format tolerant of old saves), mockups of the swap and shop prompts at 320x192, a staged build plan, and open questions for Marc.
 - Marc picks; then stage 1 (data and storage, slots rendered from state with today's decor as the default, tests) is a build issue.
 
+## Marc's answer (2026-10-23)
+Getting things starts as a **quiet side effect**, not a goal: the game is a little zen garden. It might become a goal later; Marc does not know yet. So: no currency pressure, no scarcity, no grind. Things turn up (gifts, finds, deliveries, small purchases that are never required) and you arrange them. Design the data model so a goal could be added later without changing it.
+
 ## Progress log

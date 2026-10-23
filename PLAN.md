@@ -125,6 +125,8 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 - **Day and night cycle:** yes. A game clock, lighting through the day and tasks that pay better at the right hour (issue 009d).
 - **Persistence (2026-10-22):** yes, the game remembers state between sessions in localStorage (score, apartment state, settings, and for issue 026 the flashcards key). Wrapped in try/catch so a blocked or empty store never breaks the game. Issue 009c owns the detail.
 - **Combo rule:** rewards variety (different tasks in quick succession), not repetition.
+- **Collecting is a quiet side effect, a zen garden (Marc, 2026-10-23):** decor (062), plants (063) and track-editor plugins (064) are things you accumulate calmly, not a goal or a progression ladder. The game has no win condition and Marc is not sure where it goes; it might become a goal later, but not now. Do not add pressure, scarcity or grinding around them.
+- **Humor (Marc, 2026-10-23):** deadpan and sincere. The joke is the disconnect (a lofty, serious narrator over a plain visual), not winking at the medium: never acknowledge that it is pixels or a game. Plain wording elsewhere; Marc reviews text in issue 037.
 
 ## Open questions
 - Rooms as separate screens joined by doorways, or one scrolling map? (020; Pokemon-style screens preferred.)

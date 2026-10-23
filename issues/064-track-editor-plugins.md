@@ -20,4 +20,7 @@ Marc's idea (2026-10-23): like customizable decor (issue 062), you could also ge
 - A design note in `docs/plugins.md` with the plugin list and which the format supports, the editor UI for applying one (mockups at 320x192), acquisition options, data model and save format, a staged plan, and open questions for Marc.
 - Marc picks; then stage 1 (the plugin data model and two or three simple plugins, say transpose, chord stamp and echo, applied in the editor with undo) is a build issue.
 
+## Marc's answer (2026-10-23)
+Same as 062: plugins are a **quiet side effect**, a zen-garden thing you collect calmly, not a goal. No pressure or scarcity; they turn up (gifts, finds, small purchases that are never required, or as a calm reward for making tracks).
+
 ## Progress log

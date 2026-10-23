@@ -1,4 +1,5 @@
 import { APARTMENT_LEVEL } from "./game/apartment";
+import { attachFeatures } from "./game/features";
 import { Game } from "./game/game";
 import { startLoop } from "./game/loop";
 import { readControls } from "./input/controls";
@@ -12,6 +13,7 @@ const { ctx } = createScreen(canvas);
 const keyboard = new Keyboard();
 const sprites = new Sprites();
 const game = new Game(APARTMENT_LEVEL, sprites);
+attachFeatures(game);
 
 // Load every sprite before the first frame. A missing one falls back to a
 // labelled rectangle rather than blocking the game.

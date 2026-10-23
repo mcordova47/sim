@@ -75,7 +75,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 036 | [Art: more accurate paintings, gallery wall, blinds states](issues/036-art-paintings-and-couch.md) | agent | done | |
 | 037 | [Text pass: drop "the", tone down the jokes](issues/037-text-pass.md) | marc + claude | todo | |
 | 038 | [Mood (morale) state](issues/038-mood.md) | claude | done | |
-| 039 | [Choosing a task at an object](issues/039-choose-or-cycle.md) | claude | todo | |
+| 039 | [Choosing a task at an object](issues/039-choose-or-cycle.md) | claude | done | |
 | 040 | [Admire the art: a view of just the gallery wall](issues/040-admire-art-view.md) | claude | done | |
 | 041 | [Look in the mirror (bathroom)](issues/041-bathroom-mirror.md) | claude | done | |
 | 042 | [Clutter that moves (desk, clothes, mail)](issues/042-clutter-states.md) | claude | todo | |

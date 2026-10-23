@@ -1,167 +1,157 @@
 import type { Controls } from "../input/controls";
-import { PLAYER, TIMESTEP } from "./config";
-import { overlaps, type Solid } from "./world";
+import { TILE, WALK } from "./config";
+import { DELTA, type Direction } from "./direction";
+import type { Grid } from "./grid";
+import type { Rect } from "./world";
 
-const JUMP_SPEED = Math.sqrt(2 * PLAYER.gravity * PLAYER.jumpHeight);
-
-// Approach `target` by at most `step`.
-function approach(value: number, target: number, step: number): number {
-  if (value < target) return Math.min(value + step, target);
-  return Math.max(value - step, target);
+interface Step {
+  toCol: number;
+  toRow: number;
+  elapsed: number;
 }
 
-// Largest slice simulated in one go. Longer updates are split into slices of
-// at most this, so speed never carries the player through a thin solid.
-const MAX_SUBSTEP = TIMESTEP;
-const EPSILON = 1e-9;
+export interface TileEvent {
+  col: number;
+  row: number;
+  direction: Direction;
+}
 
+// The player, walking tile to tile Pokemon-style. Pressing a direction you are
+// not facing turns you first; holding it then steps. A step takes
+// `WALK.stepTime` and the position slides smoothly between tiles. There is no
+// diagonal movement and no gravity.
 export class Player {
+  // Top-left in pixels. Between tiles this is part way along a step.
   x: number;
   y: number;
   // Position at the start of the last update, for render interpolation.
   prevX: number;
   prevY: number;
-  vx = 0;
-  vy = 0;
-  grounded = false;
-  facing: 1 | -1 = 1;
+  // The tile the player is on (while stepping, the tile being left).
+  col: number;
+  row: number;
+  facing: Direction;
+
+  readonly w = TILE;
+  readonly h = TILE;
 
   // What happened during the most recent update(), for things that react to it
-  // (sound, particles). They are reset at the start of each update.
-  jumpedThisUpdate = false;
-  // Speed in px/s of the hardest touchdown after being airborne, else 0.
-  landingSpeed = 0;
+  // (sound, particles). They are reset at the start of each update. If a long
+  // update covers several steps, `arrivedThisUpdate` is the last one.
+  arrivedThisUpdate: TileEvent | null = null;
+  bumpedThisUpdate: TileEvent | null = null;
+  turnedThisUpdate = false;
 
-  readonly w = PLAYER.width;
-  readonly h = PLAYER.height;
+  private step: Step | null = null;
+  // Time left before a fresh turn can become a step.
+  private turnTimer = 0;
+  // True once a bump has been reported, until the key is let go or changed, so
+  // pushing against a wall doesn't report it every frame.
+  private bumpReported = false;
 
-  private coyote = 0;
-  private jumpBuffer = 0;
-
-  constructor(x: number, y: number) {
-    this.x = this.prevX = x;
-    this.y = this.prevY = y;
+  constructor(x: number, y: number, facing: Direction = "down") {
+    this.col = Math.round(x / TILE);
+    this.row = Math.round(y / TILE);
+    this.x = this.prevX = this.col * TILE;
+    this.y = this.prevY = this.row * TILE;
+    this.facing = facing;
   }
 
-  update(dt: number, controls: Controls, solids: Solid[]): void {
+  get stepping(): boolean {
+    return this.step !== null;
+  }
+
+  // The tile in front of the player, as a rectangle, when they are standing
+  // still. Null while walking: you can't use things mid-step.
+  get target(): Rect | null {
+    if (this.step) return null;
+    const { dc, dr } = DELTA[this.facing];
+    return { x: (this.col + dc) * TILE, y: (this.row + dr) * TILE, w: TILE, h: TILE };
+  }
+
+  update(dt: number, controls: Controls, grid: Grid): void {
     this.prevX = this.x;
     this.prevY = this.y;
-    this.jumpedThisUpdate = false;
-    this.landingSpeed = 0;
+    this.arrivedThisUpdate = null;
+    this.bumpedThisUpdate = null;
+    this.turnedThisUpdate = false;
 
-    this.resolveOverlaps(solids);
-
-    const steps = Math.max(1, Math.ceil(dt / MAX_SUBSTEP - EPSILON));
-    const step = dt / steps;
-    for (let i = 0; i < steps; i++) {
-      // A press is a single-frame event, so only the first slice sees it.
-      this.step(step, i === 0 ? controls : { ...controls, jumpPressed: false }, solids);
-    }
-  }
-
-  private step(dt: number, controls: Controls, solids: Solid[]): void {
-    this.applyHorizontalInput(dt, controls.moveX);
-    this.applyJump(dt, controls);
-
-    this.vy = Math.min(this.vy + PLAYER.gravity * dt, PLAYER.maxFallSpeed);
-
-    this.moveX(dt, solids);
-    this.moveY(dt, solids);
-  }
-
-  // If we start inside a solid (bad spawn, a future moving platform), push out
-  // along the axis with the least penetration. Ties prefer up, then sideways.
-  private resolveOverlaps(solids: Solid[]): void {
-    // A push can land us in a neighbouring solid, so settle over a few passes.
-    for (let pass = 0; pass < 4; pass++) {
-      let moved = false;
-      for (const s of solids) {
-        if (s.oneWay || !overlaps(this, s)) continue;
-        const up = this.y + this.h - s.y;
-        const left = this.x + this.w - s.x;
-        const right = s.x + s.w - this.x;
-        const down = s.y + s.h - this.y;
-        const least = Math.min(up, left, right, down);
-        if (least === up) {
-          this.y = s.y - this.h;
-          if (this.vy > 0) this.vy = 0;
-          this.grounded = true;
-        } else if (least === left) {
-          this.x = s.x - this.w;
-          if (this.vx > 0) this.vx = 0;
-        } else if (least === right) {
-          this.x = s.x + s.w;
-          if (this.vx < 0) this.vx = 0;
-        } else {
-          this.y = s.y + s.h;
-          if (this.vy < 0) this.vy = 0;
+    let time = dt;
+    // Loop so a long update can finish one step and carry on into the next.
+    while (time > 0) {
+      if (this.step) {
+        const left = WALK.stepTime - this.step.elapsed;
+        if (time < left) {
+          this.step.elapsed += time;
+          break;
         }
-        moved = true;
+        time -= left;
+        this.arrive();
+        continue;
       }
-      if (!moved) return;
-    }
-  }
 
-  private applyHorizontalInput(dt: number, moveX: number): void {
-    const accel = this.grounded ? PLAYER.groundAccel : PLAYER.airAccel;
-    const friction = this.grounded ? PLAYER.groundFriction : PLAYER.airFriction;
-    if (moveX !== 0) {
-      this.vx = approach(this.vx, moveX * PLAYER.maxSpeed, accel * dt);
-      this.facing = moveX > 0 ? 1 : -1;
-    } else {
-      this.vx = approach(this.vx, 0, friction * dt);
-    }
-  }
-
-  private applyJump(dt: number, controls: Controls): void {
-    this.coyote = this.grounded ? PLAYER.coyoteTime : Math.max(0, this.coyote - dt);
-    this.jumpBuffer = controls.jumpPressed
-      ? PLAYER.jumpBufferTime
-      : Math.max(0, this.jumpBuffer - dt);
-
-    if (this.jumpBuffer > 0 && this.coyote > 0) {
-      this.vy = -JUMP_SPEED;
-      this.jumpBuffer = 0;
-      this.coyote = 0;
-      this.grounded = false;
-      this.jumpedThisUpdate = true;
-    }
-
-    // Variable jump height: letting go early cuts the rise short.
-    if (!controls.jumpHeld && this.vy < 0) {
-      this.vy *= PLAYER.jumpCutFactor;
-    }
-  }
-
-  private moveX(dt: number, solids: Solid[]): void {
-    this.x += this.vx * dt;
-    for (const s of solids) {
-      if (s.oneWay || !overlaps(this, s)) continue;
-      this.x = this.vx > 0 ? s.x - this.w : s.x + s.w;
-      this.vx = 0;
-    }
-  }
-
-  private moveY(dt: number, solids: Solid[]): void {
-    const prevBottom = this.y + this.h;
-    const wasGrounded = this.grounded;
-    this.y += this.vy * dt;
-    this.grounded = false;
-
-    for (const s of solids) {
-      if (!overlaps(this, s)) continue;
-      if (this.vy > 0) {
-        // One-way platforms only catch us if we were above them last step.
-        if (s.oneWay && prevBottom > s.y) continue;
-        // Touching down after being airborne, as opposed to standing still.
-        if (!wasGrounded) this.landingSpeed = Math.max(this.landingSpeed, this.vy);
-        this.y = s.y - this.h;
-        this.vy = 0;
-        this.grounded = true;
-      } else if (this.vy < 0 && !s.oneWay) {
-        this.y = s.y + s.h;
-        this.vy = 0;
+      const dir = controls.dir;
+      if (!dir) {
+        this.turnTimer = 0;
+        this.bumpReported = false;
+        break;
       }
+
+      if (dir !== this.facing) {
+        this.facing = dir;
+        this.turnTimer = WALK.turnTime;
+        this.turnedThisUpdate = true;
+        this.bumpReported = false;
+      }
+      if (this.turnTimer > 0) {
+        const used = Math.min(time, this.turnTimer);
+        this.turnTimer -= used;
+        time -= used;
+        if (this.turnTimer > 0) break;
+      }
+      if (!this.startStep(dir, grid)) break;
     }
+
+    this.place();
+  }
+
+  // Tries to start a step. Returns false (after reporting a bump, once) if
+  // the way is blocked.
+  private startStep(dir: Direction, grid: Grid): boolean {
+    const { dc, dr } = DELTA[dir];
+    const toCol = this.col + dc;
+    const toRow = this.row + dr;
+    if (grid.isBlocked(toCol, toRow)) {
+      if (!this.bumpReported) {
+        this.bumpReported = true;
+        this.bumpedThisUpdate = { col: toCol, row: toRow, direction: dir };
+      }
+      return false;
+    }
+    this.bumpReported = false;
+    this.step = { toCol, toRow, elapsed: 0 };
+    return true;
+  }
+
+  private arrive(): void {
+    if (!this.step) return;
+    this.col = this.step.toCol;
+    this.row = this.step.toRow;
+    this.step = null;
+    this.arrivedThisUpdate = { col: this.col, row: this.row, direction: this.facing };
+  }
+
+  // Sets the pixel position from the tile and how far along a step we are.
+  private place(): void {
+    const fromX = this.col * TILE;
+    const fromY = this.row * TILE;
+    if (!this.step) {
+      this.x = fromX;
+      this.y = fromY;
+      return;
+    }
+    const t = Math.min(1, this.step.elapsed / WALK.stepTime);
+    this.x = fromX + (this.step.toCol * TILE - fromX) * t;
+    this.y = fromY + (this.step.toRow * TILE - fromY) * t;
   }
 }

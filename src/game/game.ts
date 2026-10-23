@@ -4,11 +4,10 @@ import { COLOR } from "../render/colors";
 import { Hud } from "../render/hud";
 import { Popups, type PopupLine } from "../render/popups";
 import { drawProgress, drawPrompt } from "../render/world-ui";
-import { PlayerAnimator } from "../render/player-sprite";
-import { drawPlayer, drawScene } from "../render/scene";
-import type { SpriteDrawer } from "../render/sprites";
-import { DEBUG, EVENTS, VIEW } from "./config";
+import { DEBUG, TILE, VIEW } from "./config";
+import { DELTA } from "./direction";
 import { Emitter, type GameEvents } from "./events";
+import { Grid } from "./grid";
 import { InteractionSystem } from "./interaction";
 import type { Level } from "./level";
 import { Player } from "./player";
@@ -37,19 +36,16 @@ export class Game {
   readonly player: Player;
   readonly interaction: InteractionSystem;
   readonly camera: Camera;
-  // Announces jumps, landings and task starts, completions and refusals.
+  // Announces steps, bumps into things, and task starts, completions and refusals.
   readonly events = new Emitter<GameEvents>();
   private readonly hud = new Hud();
   private readonly popups = new Popups();
-  private readonly animator = new PlayerAnimator();
   private readonly layers: Layer[] = [];
+  private readonly grid: Grid;
 
-  // Without sprites (tests, or art not loaded) the level is drawn as plain rectangles.
-  constructor(
-    private readonly level: Level,
-    private readonly sprites?: SpriteDrawer,
-  ) {
-    this.player = new Player(level.spawn.x, level.spawn.y);
+  constructor(private readonly level: Level) {
+    this.grid = new Grid(level.size, level.solids);
+    this.player = new Player(level.spawn.x, level.spawn.y, level.facing);
     this.camera = new Camera(level.size, VIEW);
     this.camera.snapTo(this.playerCentre());
     this.interaction = new InteractionSystem(level.interactables, ({ item, award }) => {
@@ -81,12 +77,9 @@ export class Game {
   update(dt: number, controls: Controls): void {
     this.interaction.update(dt, this.player, controls);
     // Locked in place while a task runs.
-    this.player.update(dt, this.interaction.busy ? NO_INPUT : controls, this.level.solids);
-    this.animator.update(dt, this.poseState());
-    if (this.player.jumpedThisUpdate) this.events.emit("jump", {});
-    if (this.player.landingSpeed >= EVENTS.minLandSpeed) {
-      this.events.emit("land", { speed: this.player.landingSpeed });
-    }
+    this.player.update(dt, this.interaction.busy ? NO_INPUT : controls, this.grid);
+    if (this.player.arrivedThisUpdate) this.events.emit("step", this.player.arrivedThisUpdate);
+    if (this.player.bumpedThisUpdate) this.events.emit("bump", this.player.bumpedThisUpdate);
     this.camera.update(dt, this.playerCentre());
     this.popups.update(dt);
     this.hud.update(dt, this.interaction.scoreboard.score);
@@ -154,23 +147,29 @@ export class Game {
     return { x: this.player.x + this.player.w / 2, y: this.player.y + this.player.h / 2 };
   }
 
-  private poseState() {
-    const { player } = this;
-    return { grounded: player.grounded, vx: player.vx, vy: player.vy, busy: !!this.interaction.busy };
-  }
-
-  // Back to front: walls, decor, furniture, player. Task zones only show in debug.
+  // The floor, then walls, furniture and the player ordered by how far down
+  // the screen their bottom edge is, so whatever is nearer the viewer is drawn
+  // in front. These are placeholder rectangles until there is art. Task zones
+  // only show in debug.
   private drawWorld(ctx: CanvasRenderingContext2D, actor: Actor): void {
-    const { sprites } = this;
-    const { scene } = this.level;
-    if (sprites && scene) {
-      drawScene(ctx, scene, sprites);
-    } else {
-      for (const s of this.level.solids) {
-        ctx.fillStyle = s.oneWay ? COLOR.mist : COLOR.dusk;
-        ctx.fillRect(s.x, s.y, s.w, s.h);
+    for (let row = 0; row < this.grid.rows; row++) {
+      for (let col = 0; col < this.grid.cols; col++) {
+        ctx.fillStyle = (col + row) % 2 === 0 ? COLOR.night : COLOR.slate;
+        ctx.fillRect(col * TILE, row * TILE, TILE, TILE);
       }
     }
+
+    const drawables = this.level.solids.map((s) => ({
+      bottom: s.y + s.h,
+      draw: () => {
+        ctx.fillStyle = s.color ?? COLOR.dusk;
+        ctx.fillRect(s.x, s.y, s.w, s.h);
+      },
+    }));
+    drawables.push({ bottom: actor.y + actor.h, draw: () => this.drawPlayer(ctx, actor) });
+    // The sort is stable, so on a tie the player (added last) is in front.
+    drawables.sort((a, b) => a.bottom - b.bottom);
+    for (const d of drawables) d.draw();
 
     if (DEBUG.zones) {
       ctx.strokeStyle = COLOR.butter;
@@ -179,14 +178,15 @@ export class Game {
         ctx.strokeRect(z.x + 0.5, z.y + 0.5, z.w - 1, z.h - 1);
       }
     }
+  }
 
-    if (sprites) {
-      const frame = this.animator.frame(this.poseState());
-      drawPlayer(ctx, sprites, frame, actor.x, actor.y, this.player.facing);
-    } else {
-      ctx.fillStyle = COLOR.brick;
-      ctx.fillRect(actor.x, actor.y, actor.w, actor.h);
-    }
+  // A rectangle with a small mark on the side it is facing.
+  private drawPlayer(ctx: CanvasRenderingContext2D, actor: Actor): void {
+    ctx.fillStyle = COLOR.brick;
+    ctx.fillRect(actor.x, actor.y, actor.w, actor.h);
+    const { dc, dr } = DELTA[this.player.facing];
+    ctx.fillStyle = COLOR.paper;
+    ctx.fillRect(actor.x + 6 + dc * 5, actor.y + 6 + dr * 5, 4, 4);
   }
 
   // `actor` is in screen coordinates; `cam` is the world position of the

@@ -1,26 +1,29 @@
 import { describe, expect, it, vi } from "vitest";
 import { NO_INPUT, type Controls } from "../input/controls";
+import { TILE, WALK } from "./config";
 import { Game } from "./game";
 import type { Level } from "./level";
+import { parseTileMap } from "./tilemap";
 
 const dt = 1 / 60;
 const press: Controls = { ...NO_INPUT, interactPressed: true };
+const hold = (dir: Controls["dir"]): Controls => ({ ...NO_INPUT, dir });
 
-// A flat floor with one task right where the player spawns.
+const sinkTask = {
+  id: "sink",
+  name: "Do the dishes",
+  prompt: "Do the dishes",
+  duration: 1,
+  points: 20,
+};
+
+// The player starts at @ facing right, with the sink (S) on the next tile.
 const level: Level = {
-  size: { width: 300, height: 120 },
-  solids: [{ x: 0, y: 100, w: 300, h: 20 }],
-  interactables: [
-    {
-      id: "sink",
-      name: "Do the dishes",
-      prompt: "Do the dishes",
-      duration: 1,
-      points: 20,
-      zone: { x: 40, y: 80, w: 40, h: 20 },
-    },
-  ],
-  spawn: { x: 50, y: 86 },
+  ...parseTileMap(
+    ["##########", "#........#", "#..@S....#", "#........#", "##########"],
+    { S: { color: "mist", task: sinkTask } },
+  ),
+  facing: "right",
 };
 
 function run(game: Game, seconds: number, controls: Controls = NO_INPUT) {
@@ -28,36 +31,43 @@ function run(game: Game, seconds: number, controls: Controls = NO_INPUT) {
 }
 
 describe("Game", () => {
-  it("settles the player onto the floor", () => {
+  it("starts on the spawn tile facing the level's direction", () => {
     const game = new Game(level);
-    run(game, 1);
-    expect(game.player.grounded).toBe(true);
-    expect(game.player.y + game.player.h).toBe(100);
+    expect(game.player.col).toBe(3);
+    expect(game.player.row).toBe(2);
+    expect(game.player.facing).toBe("right");
   });
 
-  it("moves the player with input", () => {
+  it("walks one tile per step with input, and stops on a tile when it is let go", () => {
     const game = new Game(level);
-    run(game, 0.5);
-    const x = game.player.x;
-    run(game, 0.5, { ...NO_INPUT, moveX: 1 });
-    expect(game.player.x).toBeGreaterThan(x);
+    run(game, WALK.stepTime * 2 + 0.01, hold("left"));
+    run(game, 0.5, NO_INPUT);
+    expect(game.player.col).toBe(1); // turned left, then two steps (the turn costs a moment)
+    expect(game.player.x % TILE).toBe(0);
   });
 
   it("runs a task: locks the player, then awards points", () => {
     const game = new Game(level);
-    run(game, 0.5);
+    run(game, 0.1);
     game.update(dt, press);
     expect(game.interaction.busy).toBe(true);
 
-    // Held-right input is ignored while the task runs.
-    const x = game.player.x;
-    run(game, 0.5, { ...NO_INPUT, moveX: 1 });
-    expect(game.player.x).toBeLessThan(x + 1);
+    // Held input is ignored while the task runs.
+    const { col, row } = game.player;
+    run(game, 0.5, hold("left"));
+    expect([game.player.col, game.player.row]).toEqual([col, row]);
     expect(game.interaction.busy).toBe(true);
 
     run(game, 0.6);
     expect(game.interaction.busy).toBe(false);
     expect(game.interaction.scoreboard.score).toBe(20);
+  });
+
+  it("can only use what it is facing", () => {
+    const game = new Game({ ...level, facing: "down" });
+    run(game, 0.1);
+    game.update(dt, press);
+    expect(game.interaction.busy).toBe(false);
   });
 
   it("doesn't need a browser to run its logic", () => {
@@ -66,43 +76,47 @@ describe("Game", () => {
   });
 });
 
+// A flat room of the given width, the player near the left wall.
+function wideLevel(cols: number, spawnCol = 2): Level {
+  const wall = "#".repeat(cols);
+  const floor = "#" + ".".repeat(cols - 2) + "#";
+  const rows = [wall, floor, floor, floor, floor, floor, floor, floor, floor, floor, floor, wall];
+  const open = [...floor];
+  open[spawnCol] = "@";
+  rows[6] = open.join("");
+  return { ...parseTileMap(rows, {}), facing: "right" };
+}
+
 describe("Game camera", () => {
-  // A flat room twice as wide as the view.
-  const wide: Level = {
-    size: { width: 640, height: 192 },
-    solids: [
-      { x: 0, y: 176, w: 640, h: 16 },
-      { x: -16, y: 0, w: 16, h: 192 },
-      { x: 640, y: 0, w: 16, h: 192 },
-    ],
-    interactables: [],
-    spawn: { x: 40, y: 162 },
-  };
+  it("holds still in a room that fits the view", () => {
+    const game = new Game(wideLevel(20));
+    run(game, 3, hold("right"));
+    expect(game.camera.x).toBe(0);
+  });
 
   it("starts centred on the player, clamped to the left edge", () => {
-    expect(new Game(wide).camera.x).toBe(0);
+    expect(new Game(wideLevel(40)).camera.x).toBe(0);
   });
 
   it("scrolls with the player and stops at the right edge of the room", () => {
-    const game = new Game(wide);
-    // Inside the dead zone around the middle of the view, nothing scrolls yet.
-    run(game, 1, { ...NO_INPUT, moveX: 1 });
-    expect(game.camera.x).toBe(0);
-    run(game, 2, { ...NO_INPUT, moveX: 1 });
+    const game = new Game(wideLevel(40));
+    run(game, 1, hold("right"));
+    expect(game.camera.x).toBe(0); // still inside the dead zone around the middle
+    run(game, 4, hold("right"));
     expect(game.camera.x).toBeGreaterThan(0);
-    run(game, 12, { ...NO_INPUT, moveX: 1 });
-    expect(game.player.x).toBeGreaterThan(600);
-    expect(game.camera.x).toBeLessThanOrEqual(640 - 320);
-    expect(game.camera.x).toBeGreaterThan(300);
+    run(game, 10, hold("right"));
+    expect(game.player.col).toBe(38);
+    expect(game.camera.x).toBeLessThanOrEqual(40 * TILE - 20 * TILE);
+    expect(game.camera.x).toBeGreaterThan(300 - 20);
   });
 
   it("keeps the player on screen while scrolling", () => {
-    const game = new Game(wide);
-    for (let i = 0; i < 60 * 12; i++) {
-      game.update(dt, { ...NO_INPUT, moveX: 1 });
+    const game = new Game(wideLevel(40));
+    for (let i = 0; i < 60 * 14; i++) {
+      game.update(dt, hold("right"));
       const { x } = game.camera.position(1);
       expect(game.player.x - x).toBeGreaterThanOrEqual(0);
-      expect(game.player.x + game.player.w - x).toBeLessThanOrEqual(320);
+      expect(game.player.x + game.player.w - x).toBeLessThanOrEqual(20 * TILE);
     }
   });
 });
@@ -128,13 +142,7 @@ describe("Game rendering", () => {
     vi.stubGlobal("document", {
       createElement: () => ({ width: 0, height: 0, getContext: () => fakeContext().ctx }),
     });
-    const wideLevel: Level = {
-      size: { width: 640, height: 192 },
-      solids: [{ x: 0, y: 176, w: 640, h: 16 }],
-      interactables: [],
-      spawn: { x: 400, y: 162 },
-    };
-    const game = new Game(wideLevel);
+    const game = new Game(wideLevel(40, 30));
     const { ctx, calls } = fakeContext();
     game.render(ctx, 1);
 
@@ -143,18 +151,35 @@ describe("Game rendering", () => {
     const save = calls.indexOf("save()");
     const translate = calls.indexOf(`translate(${-cam.x},${-cam.y})`);
     const restore = calls.indexOf("restore()");
-    expect(save).toBeGreaterThanOrEqual(0);
     expect(translate).toBeGreaterThan(save);
     expect(restore).toBeGreaterThan(translate);
 
-    // The floor is drawn inside the camera transform, in world coordinates.
-    const floor = calls.indexOf("fillRect(0,176,640,16)");
-    expect(floor).toBeGreaterThan(translate);
-    expect(floor).toBeLessThan(restore);
+    // A wall tile is drawn inside the camera transform, in world coordinates.
+    const wall = calls.indexOf("fillRect(0,0,16,16)");
+    expect(wall).toBeGreaterThan(translate);
+    expect(wall).toBeLessThan(restore);
 
     // Everything after the restore (the HUD) is drawn in screen space.
     expect(calls.slice(restore).some((c) => c.startsWith("fillRect"))).toBe(true);
     expect(calls.slice(restore).some((c) => c.startsWith("translate"))).toBe(false);
+    vi.unstubAllGlobals();
+  });
+
+  it("draws things nearer the viewer in front: a wall below the player covers them", () => {
+    vi.stubGlobal("document", {
+      createElement: () => ({ width: 0, height: 0, getContext: () => fakeContext().ctx }),
+    });
+    const game = new Game(level);
+    const { ctx, calls } = fakeContext();
+    game.render(ctx, 1);
+    // Player at col 3 row 2 is drawn at (48,32). The bottom wall row (row 4) is
+    // lower on screen, so it comes after the player; the top wall row comes before.
+    const player = calls.indexOf("fillRect(48,32,16,16)");
+    const topWall = calls.indexOf("fillRect(0,0,16,16)");
+    const bottomWall = calls.indexOf("fillRect(0,64,16,16)");
+    expect(player).toBeGreaterThan(-1);
+    expect(topWall).toBeLessThan(player);
+    expect(bottomWall).toBeGreaterThan(player);
     vi.unstubAllGlobals();
   });
 });

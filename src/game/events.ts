@@ -1,12 +1,15 @@
-import type { Award } from "./scoring";
+import type { Direction } from "./direction";
 import type { Interactable } from "./interactable";
+import type { Award } from "./scoring";
 
 // Things that happen in the game that other features (sound, particles,
 // achievements, the day/night cycle) can react to. Payloads are plain objects.
 export interface GameEvents {
-  jump: Record<string, never>;
-  // Touching the ground after being airborne; `speed` is the impact in px/s.
-  land: { speed: number };
+  // The player arrived on a new tile, having walked in `direction`.
+  step: { col: number; row: number; direction: Direction };
+  // The player tried to walk into something solid. `col` and `row` are the tile
+  // they ran into. Announced once per attempt, not every frame while pushing.
+  bump: { col: number; row: number; direction: Direction };
   taskStart: { item: Interactable };
   taskComplete: { item: Interactable; award: Award };
   // The player pressed interact but the task in reach is not ready yet.

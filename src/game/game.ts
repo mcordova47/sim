@@ -6,7 +6,7 @@ import { Hud } from "../render/hud";
 import { Popups, type PopupLine } from "../render/popups";
 import { drawProgress, drawPrompt } from "../render/world-ui";
 import { DEBUG, DIALOG, TILE, VIEW } from "./config";
-import { DialogRunner, type DialogNode } from "./dialog";
+import { DialogRunner, type DialogNode, type DialogResult } from "./dialog";
 import { DELTA } from "./direction";
 import { Emitter, type GameEvents } from "./events";
 import { Grid } from "./grid";
@@ -72,13 +72,14 @@ export class Game {
     this.dialog = new DialogRunner({
       onOpen: () => {
         this.releaseDialogLock = this.lockInput();
+        this.interaction.clearPressBuffer();
         this.events.emit("dialogOpen", {});
       },
       onChoose: (label, path) => this.events.emit("dialogChoose", { label, path }),
-      onClose: () => {
+      onClose: (result) => {
         this.releaseDialogLock?.();
         this.releaseDialogLock = null;
-        this.events.emit("dialogClose", {});
+        this.events.emit("dialogClose", result);
       },
     });
     this.interaction.onBlocked = (item, reason) =>
@@ -115,9 +116,10 @@ export class Game {
     return this.dialog.open;
   }
 
-  // Opens a dialog or menu. Returns false if one is already open.
-  openDialog(node: DialogNode): boolean {
-    return this.dialog.start(node);
+  // Opens a dialog or menu. Returns false if one is already open. `onDone` is
+  // called when this dialog closes, with the labels the player picked.
+  openDialog(node: DialogNode, onDone?: (result: DialogResult) => void): boolean {
+    return this.dialog.start(node, onDone);
   }
 
   update(dt: number, controls: Controls): void {

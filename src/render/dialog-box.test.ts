@@ -2,7 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 import { DIALOG, VIEW } from "../game/config";
 import { choice, menu, say, wrapText, DialogRunner } from "../game/dialog";
 import { NO_INPUT } from "../input/controls";
-import { drawDialog, menuBoxRect, textBoxRect } from "./dialog-box";
+import { drawDialog, fitLabel, menuBoxRect, textBoxRect } from "./dialog-box";
+import { textWidth } from "./font";
 import { HUD_BOX, type Box } from "./layout";
 
 const inside = (b: Box) =>
@@ -127,6 +128,33 @@ describe("drawDialog", () => {
       expect(y).toBeGreaterThanOrEqual(0);
       expect(x + w).toBeLessThanOrEqual(VIEW.width);
       expect(y + h).toBeLessThanOrEqual(VIEW.height);
+    }
+    vi.unstubAllGlobals();
+  });
+});
+
+describe("long choice labels", () => {
+  it("fitLabel keeps a label that fits and cuts one that doesn't", () => {
+    expect(fitLabel("Short", 100)).toBe("Short");
+    const cut = fitLabel("A very long label indeed", 60);
+    expect(textWidth(cut)).toBeLessThanOrEqual(60);
+    expect("A very long label indeed".startsWith(cut)).toBe(true);
+    expect(fitLabel("anything", 0)).toBe("");
+  });
+
+  it("draws no glyph past the right edge of the screen for a very long label", () => {
+    vi.stubGlobal("document", {
+      createElement: () => ({ width: 0, height: 0, getContext: () => fakeContext().ctx }),
+    });
+    const runner = new DialogRunner();
+    runner.start(menu("Pick", [choice("x".repeat(100)), choice("Short")]));
+    const { ctx, calls } = fakeContext();
+    drawDialog(ctx, runner.view!);
+    const box = menuBoxRect(["x".repeat(100), "Short"], true);
+    for (const c of calls.filter((c) => c.startsWith("drawImage"))) {
+      const [, x, , w] = c.slice(10, -1).split(",");
+      // Glyphs of the long label stay inside the choice box.
+      if (Number(x) >= box.x) expect(Number(x) + Number(w)).toBeLessThanOrEqual(box.x + box.w);
     }
     vi.unstubAllGlobals();
   });

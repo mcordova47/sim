@@ -7,6 +7,13 @@ import type { Box } from "./layout";
 const LINE = GLYPH_H + 2;
 const CURSOR_WIDTH = 8;
 
+// `label` cut down until it fits in `maxWidth` pixels.
+export function fitLabel(label: string, maxWidth: number): string {
+  let fitted = label;
+  while (fitted.length > 0 && textWidth(fitted) > maxWidth) fitted = fitted.slice(0, -1);
+  return fitted;
+}
+
 // The text box along the bottom of the screen, Pokemon style.
 export function textBoxRect(screen = VIEW): Box {
   const h = DIALOG.padding * 2 + DIALOG.linesPerPage * LINE - 2;
@@ -93,7 +100,8 @@ export function drawDialog(ctx: CanvasRenderingContext2D, view: DialogView, scre
       ctx.fillRect(x + 1, y + 1, 1, 3);
       ctx.fillRect(x + 2, y + 2, 1, 1);
     }
-    drawText(ctx, label, box.x + DIALOG.padding + CURSOR_WIDTH, y, {
+    const room = box.w - DIALOG.padding * 2 - CURSOR_WIDTH;
+    drawText(ctx, fitLabel(label, room), box.x + DIALOG.padding + CURSOR_WIDTH, y, {
       color: COLOR.ink,
       shadow: null,
     });

@@ -211,3 +211,49 @@ describe("Game dialogs", () => {
     expect(game.inputLocked).toBe(false);
   });
 });
+
+describe("Game dialog results", () => {
+  it("reports what was picked when the dialog closes, in the event and the callback", () => {
+    const game = new Game(level());
+    const log = listen(game);
+    game.update(dt, press); // the task opens its own dialog
+    game.update(dt, press); // choose "Stuff"
+    run(game, 1);
+    game.update(dt, press); // close
+    expect(log.at(-1)).toMatchObject({ name: "dialogClose", payload: { path: ["Stuff"] } });
+
+    const got: string[][] = [];
+    const g2 = new Game(level());
+    const l2 = listen(g2);
+    g2.openDialog(menu("Pick", [choice("A"), choice("B")]), (r) => got.push(r.path));
+    g2.update(dt, tap("down"));
+    g2.update(dt, press); // B
+    expect(got).toEqual([["B"]]);
+    expect(l2.at(-1)).toMatchObject({ name: "dialogClose", payload: { path: ["B"] } });
+  });
+
+  it("gives an empty path when the dialog is backed out of", () => {
+    const game = new Game(level());
+    const log = listen(game);
+    game.update(dt, press);
+    game.update(dt, { ...NO_INPUT, cancelPressed: true });
+    expect(log.at(-1)).toMatchObject({ name: "dialogClose", payload: { path: [] } });
+  });
+});
+
+describe("a press made just before a dialog opens", () => {
+  it("is forgotten, so it doesn't start a task when the dialog closes", () => {
+    // Facing a wall (up), so a press does nothing yet but is remembered for a moment.
+    const game = new Game({ ...level(), facing: "up" });
+    const log = listen(game);
+    game.update(dt, press);
+    game.openDialog(say("Hello."));
+    run(game, 1);
+    game.update(dt, press); // closes the dialog
+    expect(game.dialogOpen).toBe(false);
+    // Turn to face the thinking spot; no new press.
+    run(game, 0.3, hold("right"));
+    expect(names(log)).not.toContain("taskStart");
+    expect(game.interaction.busy).toBe(false);
+  });
+});

@@ -71,6 +71,29 @@ describe("wrapText", () => {
   });
 });
 
+describe("wrapText with tiny widths", () => {
+  // A measure that fails the test instead of hanging if wrapText keeps looping.
+  function limited() {
+    let calls = 0;
+    return (s: string) => {
+      if (++calls > 200000) throw new Error("wrapText did not stop");
+      return width(s);
+    };
+  }
+
+  it("always finishes, taking at least one character per line", () => {
+    for (const max of [0, -5, 3, 5]) {
+      const lines = wrapText("abcdefgh ij", max, limited());
+      expect(lines.join("").replace(/ /g, ""), `max=${max}`).toBe("abcdefghij");
+      for (const line of lines) expect(line.length, `max=${max}`).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it("puts one character per line when nothing wider fits", () => {
+    expect(wrapText("abc", 0, limited())).toEqual(["a", "b", "c"]);
+  });
+});
+
 describe("paginate", () => {
   it("groups lines into pages", () => {
     expect(paginate(["a", "b", "c", "d", "e"], 2)).toEqual([["a", "b"], ["c", "d"], ["e"]]);
@@ -295,5 +318,121 @@ describe("DialogRunner: menus", () => {
     r.start(tree());
     r.update(dt, { ...NO_INPUT, interactPressed: true, cancelPressed: true });
     expect(r.view).toMatchObject({ kind: "say", lines: [""] });
+  });
+});
+
+describe("DialogRunner: cancel after a reply", () => {
+  it("closes at once from a menu reached again through a reply (the loop pattern)", () => {
+    const { log, handlers } = record();
+    const top: Menu = { type: "menu", prompt: "T", choices: [] };
+    const sub = menu("S", [choice("toReply", say("r", top))]);
+    top.choices.push(choice("toS", sub));
+    const r = new DialogRunner(handlers, 1000);
+    r.start(top);
+    r.update(dt, press); // toS
+    r.update(dt, press); // toReply
+    r.update(dt, press); // finish the reply
+    r.update(dt, press); // on to T again
+    expect(r.view).toMatchObject({ kind: "menu", promptLines: ["T"] });
+    r.update(dt, cancel);
+    // Not "back to T": the dialog closes.
+    expect(r.open).toBe(false);
+    expect(log.at(-1)).toBe("close");
+  });
+
+  it("doesn't take you back across a reply to an earlier menu", () => {
+    const { log, handlers } = record();
+    const m3 = menu("M3", [choice("x"), choice("y")]);
+    const m2 = menu("M2", [choice("toR", say("r", m3))]);
+    const a = menu("A", [choice("toM2", m2)]);
+    const r = new DialogRunner(handlers, 1000);
+    r.start(a);
+    r.update(dt, press); // toM2
+    r.update(dt, press); // toR
+    r.update(dt, press); // finish
+    r.update(dt, press); // on to M3
+    expect(r.view).toMatchObject({ promptLines: ["M3"] });
+    r.update(dt, cancel);
+    expect(r.open).toBe(false); // not A or M2
+    expect(log).toEqual(["open", "choose:toM2:toM2", "choose:toR:toM2>toR", "close"]);
+  });
+
+  it("keeps the whole path of choices across a reply", () => {
+    const { log, handlers } = record();
+    const m3 = menu("M3", [choice("x")]);
+    const m2 = menu("M2", [choice("toR", say("r", m3))]);
+    const r = new DialogRunner(handlers, 1000);
+    r.start(m2);
+    r.update(dt, press);
+    r.update(dt, press);
+    r.update(dt, press);
+    r.update(dt, press); // x
+    expect(log).toContain("choose:x:toR>x");
+  });
+
+  it("still backs out one level inside a chain of menus after a reply", () => {
+    const deep = menu("Deep", [choice("d")]);
+    const mid = menu("Mid", [choice("down", deep)]);
+    const r = new DialogRunner({}, 1000);
+    r.start(say("hi", mid));
+    r.update(dt, press); // finish
+    r.update(dt, press); // on to Mid
+    r.update(dt, press); // down
+    expect(r.view).toMatchObject({ promptLines: ["Deep"] });
+    r.update(dt, cancel);
+    expect(r.view).toMatchObject({ promptLines: ["Mid"] });
+    r.update(dt, cancel);
+    expect(r.open).toBe(false);
+  });
+});
+
+describe("DialogRunner: results", () => {
+  it("calls the callback once when the dialog closes, with what was chosen", () => {
+    const seen: string[][] = [];
+    const r = new DialogRunner({}, 1000);
+    r.start(menu("Pick", [choice("A", say("ok")), choice("B")]), (res) => seen.push(res.path));
+    expect(seen).toEqual([]);
+    r.update(dt, press); // A
+    run(r, 1);
+    r.update(dt, press);
+    expect(seen).toEqual([["A"]]);
+    run(r, 1);
+    expect(seen).toHaveLength(1);
+  });
+
+  it("gives an empty path for text only, or for backing out", () => {
+    const seen: string[][] = [];
+    const r = new DialogRunner({}, 1000);
+    r.start(say("hi"), (res) => seen.push(res.path));
+    r.update(dt, press);
+    r.update(dt, press);
+    r.start(menu("Pick", [choice("A")]), (res) => seen.push(res.path));
+    r.update(dt, cancel);
+    expect(seen).toEqual([[], []]);
+  });
+
+  it("lets the callback start another dialog, and keeps each dialog's own callback", () => {
+    const order: string[] = [];
+    const r = new DialogRunner({}, 1000);
+    r.start(say("one"), () => {
+      order.push("first done");
+      r.start(say("two"), () => order.push("second done"));
+    });
+    r.update(dt, press);
+    r.update(dt, press);
+    expect(r.open).toBe(true);
+    r.update(dt, press);
+    r.update(dt, press);
+    expect(order).toEqual(["first done", "second done"]);
+  });
+
+  it("doesn't call the callback of a dialog that wasn't started", () => {
+    const r = new DialogRunner({}, 1000);
+    r.start(say("one"));
+    let called = false;
+    expect(r.start(say("two"), () => (called = true))).toBe(false);
+    r.update(dt, press);
+    r.update(dt, press);
+    expect(called).toBe(false);
   });
 });

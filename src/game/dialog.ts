@@ -59,9 +59,11 @@ export function wrapText(
         continue;
       }
       if (line) lines.push(line);
-      // Split a word that is too long for a line on its own.
+      // Split a word that is too long for a line on its own. A line always
+      // takes at least one character, even if that is wider than the box, so
+      // this can't loop forever on a tiny width.
       let rest = word;
-      while (measure(rest) > maxWidth) {
+      while (measure(rest) > maxWidth && rest.length > 1) {
         let cut = rest.length - 1;
         while (cut > 1 && measure(rest.slice(0, cut)) > maxWidth) cut--;
         lines.push(rest.slice(0, cut));
@@ -100,11 +102,17 @@ export type DialogView =
       blink: boolean;
     };
 
+// What came of a dialog once it closes. `path` is every label picked in it,
+// oldest first (empty if it was only text, or backed out of).
+export interface DialogResult {
+  path: string[];
+}
+
 export interface DialogHandlers {
   onOpen?(): void;
   // `path` is every label picked so far in this dialog, oldest first.
   onChoose?(label: string, path: string[]): void;
-  onClose?(): void;
+  onClose?(result: DialogResult): void;
 }
 
 interface Saved {
@@ -126,6 +134,8 @@ export class DialogRunner {
   private history: Saved[] = [];
   private path: string[] = [];
   private time = 0;
+  // Called once when the dialog that is open now closes.
+  private onDone: ((result: DialogResult) => void) | null = null;
 
   constructor(
     private readonly handlers: DialogHandlers = {},
@@ -137,11 +147,14 @@ export class DialogRunner {
   }
 
   // Starts a dialog. Returns false, doing nothing, if one is already open.
-  start(node: DialogNode): boolean {
+  // `onDone` is called with the result when this dialog closes, so a caller can
+  // wait for it and see what was chosen.
+  start(node: DialogNode, onDone?: (result: DialogResult) => void): boolean {
     if (this.node) return false;
     this.history = [];
     this.path = [];
     this.time = 0;
+    this.onDone = onDone ?? null;
     this.enter(node);
     this.handlers.onOpen?.();
     return true;
@@ -224,6 +237,9 @@ export class DialogRunner {
       this.page++;
       this.revealed = 0;
     } else if (node.next) {
+      // Going on past a reply starts afresh: cancel won't take you back across
+      // it (to a menu you are already looking at, or to one before the reply).
+      this.history = [];
       this.enter(node.next);
     } else {
       this.close();
@@ -255,11 +271,16 @@ export class DialogRunner {
   }
 
   private close(): void {
+    const result = { path: [...this.path] };
+    const onDone = this.onDone;
     this.node = null;
     this.pages = [];
     this.promptLines = [];
     this.history = [];
     this.path = [];
-    this.handlers.onClose?.();
+    this.onDone = null;
+    // The state is already clear, so these may start another dialog.
+    onDone?.(result);
+    this.handlers.onClose?.(result);
   }
 }

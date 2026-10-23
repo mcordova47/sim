@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { unsupportedChars, textWidth } from "../render/font";
 import { menuBoxRect } from "../render/dialog-box";
-import { DIALOG, VIEW } from "./config";
+import { DIALOG } from "./config";
 import type { DialogNode } from "./dialog";
 import { CONTEMPLATE } from "./dialog-data";
 import { PLACEHOLDER_LEVEL } from "./placeholder-level";
@@ -58,8 +58,8 @@ describe("the dialog data", () => {
       expect(box.x, node.prompt).toBeGreaterThanOrEqual(0);
       expect(box.y, node.prompt).toBeGreaterThanOrEqual(0);
       for (const l of labels) {
-        // The label plus the cursor and padding fits across the screen.
-        expect(textWidth(l) + 8 + DIALOG.padding * 2 + 2 * DIALOG.margin).toBeLessThanOrEqual(VIEW.width);
+        // The label fits inside the choice box, next to the cursor, uncut.
+        expect(textWidth(l) + 8 + DIALOG.padding * 2, l).toBeLessThanOrEqual(box.w);
       }
     }
   });

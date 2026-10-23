@@ -16,7 +16,8 @@ export interface GameEvents {
   taskBlocked: { item: Interactable; reason: "cooldown" };
   // A dialog or menu opened or closed.
   dialogOpen: Record<string, never>;
-  dialogClose: Record<string, never>;
+  // `path` is every label picked in the dialog (empty if none).
+  dialogClose: { path: string[] };
   // The player picked an entry in a menu. `path` is every label picked so far
   // in this dialog, oldest first, ending with `label`.
   dialogChoose: { label: string; path: string[] };

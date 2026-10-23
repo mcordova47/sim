@@ -33,7 +33,7 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 | 005 | [Floor plan and task list](issues/005-floor-plan-tasks.md) | marc + agent | done | |
 | 006 | [Sprite pipeline and style guide](issues/006-sprite-pipeline.md) | agent | done | 001 |
 | 007 | [Furniture sprites (umbrella)](issues/007-furniture-sprites.md) | marc + claude | todo | 007a-d |
-| 007a | [Sprites: west main room](issues/007a-sprites-west-main-room.md) | agent | todo | 005, 006 |
+| 007a | [Sprites: west main room](issues/007a-sprites-west-main-room.md) | agent | done | 005, 006 |
 | 007b | [Sprites: east main room](issues/007b-sprites-east-main-room.md) | agent | todo | 005, 006 |
 | 007c | [Sprites: kitchen west](issues/007c-sprites-kitchen-west.md) | agent | todo | 005, 006 |
 | 007d | [Sprites: kitchen east and bath](issues/007d-sprites-kitchen-east-and-bath.md) | agent | todo | 005, 006 |

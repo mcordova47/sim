@@ -52,3 +52,30 @@ describe("art/src", () => {
     expect(parseSprite(f, readFileSync(join(dir, f), "utf8")).errors).toEqual([]);
   });
 });
+
+describe("player sprites (home outfit)", () => {
+  const dir = join(root, "art", "src");
+  const load = (name) => rasterize(parseSprite(name, readFileSync(join(dir, `${name}.sprite`), "utf8")));
+  const diff = (a, b) => {
+    let n = 0;
+    for (let i = 0; i < a.rgba.length; i += 4) if (a.rgba.compare(b.rgba, i, i + 4, i, i + 4) !== 0) n++;
+    return n;
+  };
+  const dirs = ["down", "up", "left", "right"];
+  const poses = { "player-sit-sofa": [16, 16], "player-type-desk": [16, 32], "player-guitar": [32, 16], "player-read-sofa": [32, 16], "player-sleep-bed": [32, 48], "player-eat-table": [16, 16] };
+
+  it.each(dirs)("has idle and two walk frames facing %s, 16x16, that differ clearly", (d) => {
+    const idle = load(`player-idle-${d}`);
+    const w1 = load(`player-walk-${d}-1`);
+    const w2 = load(`player-walk-${d}-2`);
+    for (const img of [idle, w1, w2]) expect([img.width, img.height]).toEqual([16, 16]);
+    expect(diff(idle, w1)).toBeGreaterThanOrEqual(20);
+    expect(diff(idle, w2)).toBeGreaterThanOrEqual(20);
+    expect(diff(w1, w2)).toBeGreaterThanOrEqual(10);
+  });
+
+  it.each(Object.entries(poses))("%s exists at the documented size", (name, size) => {
+    const img = load(name);
+    expect([img.width, img.height]).toEqual(size);
+  });
+});

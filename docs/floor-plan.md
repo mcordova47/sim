@@ -1,3 +1,5 @@
+> **Superseded (2026-10-22).** This is the floor plan for the side-view version of the game (git tag `side-view-prototype`). The game is now top-down; issue 020 replaces this with top-down maps. It is kept for the inventory of pieces, their real sizes and colours, and the reasoning about the real layout.
+
 # Floor plan
 
 The apartment as a side-on cutaway. Data lives in `src/game/room.ts` and `src/game/tasks.ts`; `src/game/reach.ts` checks reachability. This doc explains the choices. Everything here is a first proposal for Marc to review.

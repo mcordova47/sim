@@ -5,15 +5,6 @@ export const VIEW = {
   height: 12 * TILE,
 };
 
-// Game events. A touchdown slower than this (px/s) is not announced. Speed is
-// sqrt(2 * gravity * drop): 100 is a drop of about 5 px, a one-tile (16 px)
-// step down is about 165 and a full jump lands at about 260. This skips
-// settling onto the floor at spawn and tiny lips; features should still scale
-// what they do by the speed they are given.
-export const EVENTS = {
-  minLandSpeed: 100,
-};
-
 // Camera tuning. Distances are pixels.
 export const CAMERA = {
   // How quickly the view catches up with the player, per second. Higher is snappier.
@@ -47,44 +38,16 @@ export const SCORING = {
 export const DEFAULT_TASK_COOLDOWN = 10;
 
 // An interact press is remembered this long (seconds) so one made just before
-// a task ends, or just before the player lands, isn't lost.
+// a task ends isn't lost.
 export const INTERACT_BUFFER_TIME = 0.15;
 
-// Movement tuning. Units are pixels and seconds.
-export const PLAYER = {
-  width: 10,
-  height: 14,
-
-  maxSpeed: 90,
-  groundAccel: 700,
-  groundFriction: 900,
-  airAccel: 450,
-  airFriction: 200,
-
-  gravity: 900,
-  maxFallSpeed: 320,
-
-  // Peak height of a full-hold jump; the launch speed is derived from it. The
-  // 60 Hz integration costs a little, so the real apex is about 37.8px.
-  jumpHeight: 40,
-  // Releasing jump while rising scales upward speed by this, for short hops.
-  jumpCutFactor: 0.45,
-  // Grace periods, in seconds.
-  coyoteTime: 0.1,
-  jumpBufferTime: 0.1,
-};
-
-// Player sprite animation. Distances are pixels, speeds are pixels per second.
-export const PLAYER_ANIM = {
-  // Horizontal distance walked per walk frame, so feet match the ground speed.
-  walkFrameDistance: 5,
-  // Below this speed on the ground the player counts as standing still.
-  walkMinSpeed: 8,
-  // Where the 16x16 frame sits relative to the hitbox (body is cols 3-12, rows 2-15).
-  offsetX: 3,
-  offsetY: 2,
-  frameSize: 16,
-  walkFrames: 4,
+// Walking. The player moves one tile at a time. Times are in seconds.
+export const WALK = {
+  // How long a step from one tile to the next takes.
+  stepTime: 0.16,
+  // Pressing a direction you are not facing first turns you; if you are still
+  // holding it after this long, you step. A quicker tap only turns.
+  turnTime: 0.08,
 };
 
 // Debug drawing, off in normal play.

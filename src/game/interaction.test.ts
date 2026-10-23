@@ -25,7 +25,11 @@ const sink: Interactable = {
   zone: { x: 200, y: 100, w: 20, h: 20 },
 };
 
-const at = (x: number, grounded = true) => ({ x, y: 106, w: 10, h: 14, grounded });
+// The tile being faced at x. `facing = false` stands for being mid-step, when
+// nothing can be used.
+const at = (x: number, facing = true) => ({
+  target: facing ? { x, y: 106, w: 10, h: 14 } : null,
+});
 
 function run(sys: InteractionSystem, seconds: number, player = at(105)) {
   for (let i = 0; i < Math.ceil(seconds / dt) + 1; i++) sys.update(dt, player, NO_INPUT);
@@ -52,7 +56,7 @@ describe("InteractionSystem", () => {
     expect(sys.scoreboard.score).toBe(10);
   });
 
-  it("does not start out of range or in the air", () => {
+  it("does not start when facing nothing, or mid-step", () => {
     const sys = new InteractionSystem([fridge]);
     sys.update(dt, at(150), press);
     expect(sys.busy).toBe(false);

@@ -15,17 +15,20 @@ interface ActiveTask {
   elapsed: number;
 }
 
-// What the interaction system needs to know about the player.
-export type Interactor = Rect & { grounded: boolean };
+// What the interaction system needs to know about the player: the tile they
+// are facing, or null while they are mid-step and can't use anything.
+export interface Interactor {
+  target: Rect | null;
+}
 
-// Finds the interactable the player is standing in, starts tasks on the
-// interact key, and awards points when they finish. While `busy` the caller
-// should feed the player no input.
+// Finds the interactable the player is facing, starts tasks on the interact
+// key, and awards points when they finish. While `busy` the caller should feed
+// the player no input.
 export class InteractionSystem {
   readonly scoreboard = new Scoreboard();
   // Game time in seconds, advanced by update().
   time = 0;
-  // The interactable in range right now, if any.
+  // The interactable the player is facing right now, if any.
   nearby: Interactable | null = null;
   active: ActiveTask | null = null;
   lastCompletion: CompletionEvent | null = null;
@@ -72,15 +75,15 @@ export class InteractionSystem {
       this.finish(this.active.item);
     }
 
-    // The first task in reach that can be started, else the first in reach, so
-    // the prompt always names the task the key will start.
-    const inReach = this.items.filter((i) => overlaps(player, i.zone));
+    // The first task being faced that can be started, else the first being
+    // faced, so the prompt always names the task the key will start.
+    const target = player.target;
+    const inReach = target ? this.items.filter((i) => overlaps(target, i.zone)) : [];
     this.nearby = inReach.find((i) => this.cooldownRemaining(i) === 0) ?? inReach[0] ?? null;
 
     if (
       this.nearby &&
       this.interactBuffer > 0 &&
-      player.grounded &&
       this.cooldownRemaining(this.nearby) === 0
     ) {
       this.interactBuffer = 0;
@@ -90,7 +93,6 @@ export class InteractionSystem {
     } else if (
       this.nearby &&
       controls.interactPressed &&
-      player.grounded &&
       this.cooldownRemaining(this.nearby) > 0
     ) {
       this.onBlocked?.(this.nearby, "cooldown");

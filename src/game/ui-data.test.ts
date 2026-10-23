@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { GLYPHS } from "../render/font";
 import { HUD_BOX, placeLabel, type Box } from "../render/layout";
 import { progressSize, promptSize } from "../render/world-ui";
-import { APARTMENT_LEVEL } from "./apartment";
 import { DEFAULT_TASK_COOLDOWN, VIEW } from "./config";
+import type { Interactable } from "./interactable";
 import { TASKS } from "./tasks";
 
 // Checks that the real task text works with the UI that draws it. When a new
@@ -34,7 +34,9 @@ describe("task labels and the HUD", () => {
   const overlaps = (a: Box, b: Box) =>
     a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 
-  const labels = APARTMENT_LEVEL.interactables.flatMap((item) => [
+  // The task content as things the UI can measure (the zone doesn't matter here).
+  const items: Interactable[] = TASKS.map((t) => ({ ...t, zone: { x: 0, y: 0, w: 16, h: 16 } }));
+  const labels = items.flatMap((item) => [
     { what: `${item.id} prompt`, ...promptSize(item, 0) },
     { what: `${item.id} cooling down`, ...promptSize(item, DEFAULT_TASK_COOLDOWN) },
     { what: `${item.id} progress`, ...progressSize(item) },

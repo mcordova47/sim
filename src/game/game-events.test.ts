@@ -5,28 +5,34 @@ import type { GameEvents } from "./events";
 import { Game } from "./game";
 import type { Interactable } from "./interactable";
 import type { Level } from "./level";
+import { parseTileMap } from "./tilemap";
 
 const dt = 1 / 60;
 const press: Controls = { ...NO_INPUT, interactPressed: true };
-const jump: Controls = { ...NO_INPUT, jumpPressed: true, jumpHeld: true };
-const hold: Controls = { ...NO_INPUT, jumpHeld: true };
+const hold = (dir: Controls["dir"]): Controls => ({ ...NO_INPUT, dir });
 
-const sink: Interactable = {
+const sink: Omit<Interactable, "zone"> = {
   id: "sink",
   name: "Do the dishes",
   prompt: "Do the dishes",
   duration: 1,
   points: 20,
-  zone: { x: 40, y: 80, w: 40, h: 20 },
 };
 
-function level(item: Interactable = sink): Level {
-  return {
-    size: { width: 300, height: 120 },
-    solids: [{ x: 0, y: 100, w: 300, h: 20 }],
-    interactables: [item],
-    spawn: { x: 50, y: 86 },
-  };
+// A small room. The player starts at @ facing right, with the sink (S) on the
+// next tile and a wall to the left after two tiles.
+function level(task: Omit<Interactable, "zone"> = sink): Level {
+  const map = parseTileMap(
+    [
+      "##########",
+      "#........#",
+      "#..@S....#",
+      "#........#",
+      "##########",
+    ],
+    { S: { color: "mist", task } },
+  );
+  return { ...map, facing: "right" };
 }
 
 function run(game: Game, seconds: number, controls: Controls = NO_INPUT) {
@@ -36,7 +42,7 @@ function run(game: Game, seconds: number, controls: Controls = NO_INPUT) {
 // Subscribes to every event and returns what was announced, in order.
 function listen(game: Game) {
   const log: { name: keyof GameEvents; payload: unknown }[] = [];
-  for (const name of ["jump", "land", "taskStart", "taskComplete", "taskBlocked"] as const) {
+  for (const name of ["step", "bump", "taskStart", "taskComplete", "taskBlocked"] as const) {
     game.events.on(name, (payload) => log.push({ name, payload }));
   }
   return log;
@@ -46,44 +52,45 @@ const names = (log: { name: string }[]) => log.map((e) => e.name);
 afterEach(() => vi.restoreAllMocks());
 
 describe("Game events", () => {
-  it("announces nothing on ordinary frames, including settling at the spawn", () => {
+  it("announces nothing while standing still", () => {
     const game = new Game(level());
     const log = listen(game);
-    run(game, 1);
-    run(game, 1, { ...NO_INPUT, moveX: 1 });
-    run(game, 1, { ...NO_INPUT, moveX: -1 });
+    run(game, 2);
     expect(log).toEqual([]);
   });
 
-  it("announces a jump once, on the frame it starts", () => {
+  it("announces each step once, when the player arrives on the new tile", () => {
     const game = new Game(level());
-    run(game, 0.5);
+    game.update(dt, NO_INPUT);
     const log = listen(game);
-    game.update(dt, jump);
-    expect(names(log)).toEqual(["jump"]);
-    run(game, 0.2, hold);
-    expect(names(log)).toEqual(["jump"]);
+    // Walk left along the open row: three tiles take just under half a second.
+    run(game, 0.2, hold("left")); // turn, then start the first step
+    expect(names(log)).toEqual([]);
+    run(game, 0.3, hold("left"));
+    const steps = log.filter((e) => e.name === "step").map((e) => e.payload as GameEvents["step"]);
+    expect(steps.map((s) => s.col)).toEqual([2, 1]);
+    expect(steps.every((s) => s.direction === "left" && s.row === 2)).toBe(true);
   });
 
-  it("doesn't announce a second jump for a press in mid-air", () => {
+  it("announces a bump once per push into a wall, and again after letting go", () => {
     const game = new Game(level());
-    run(game, 0.5);
     const log = listen(game);
-    game.update(dt, jump);
-    run(game, 0.1, hold);
-    game.update(dt, jump);
-    expect(names(log).filter((n) => n === "jump")).toHaveLength(1);
+    run(game, 2, hold("left")); // walk to the wall (two steps), then keep pushing
+    expect(names(log)).toEqual(["step", "step", "bump"]);
+    expect(log[2].payload).toMatchObject({ col: 0, row: 2, direction: "left" });
+    run(game, 0.1, NO_INPUT);
+    run(game, 0.5, hold("left"));
+    expect(names(log)).toEqual(["step", "step", "bump", "bump"]);
   });
 
-  it("announces the landing once, with how hard it was", () => {
+  it("announces nothing for a quick tap that only turns the player", () => {
     const game = new Game(level());
-    run(game, 0.5);
     const log = listen(game);
-    game.update(dt, jump);
-    run(game, 1.5, hold);
-    expect(names(log)).toEqual(["jump", "land"]);
-    const land = log[1].payload as GameEvents["land"];
-    expect(land.speed).toBeGreaterThan(200);
+    run(game, 0.05, hold("up"));
+    run(game, 0.5, NO_INPUT);
+    expect(game.player.facing).toBe("up");
+    expect(game.player.row).toBe(2);
+    expect(log).toEqual([]);
   });
 
   it("announces a task starting and finishing, with the task and its award", () => {
@@ -119,8 +126,8 @@ describe("Game events", () => {
     expect(names(log)).toEqual(["taskBlocked", "taskBlocked"]);
   });
 
-  it("doesn't announce a refused press with nothing in reach", () => {
-    const game = new Game(level({ ...sink, zone: { x: 200, y: 80, w: 40, h: 20 } }));
+  it("doesn't announce a refused press when facing nothing", () => {
+    const game = new Game({ ...level(), facing: "up" });
     run(game, 0.5);
     const log = listen(game);
     game.update(dt, press);
@@ -138,14 +145,13 @@ describe("Game events", () => {
   it("keeps the game running when a listener throws", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
     const game = new Game(level());
-    game.events.on("jump", () => {
+    game.events.on("step", () => {
       throw new Error("broken feature");
     });
     const seen: string[] = [];
-    game.events.on("jump", () => seen.push("jump"));
-    run(game, 0.5);
-    expect(() => game.update(dt, jump)).not.toThrow();
-    expect(seen).toEqual(["jump"]);
+    game.events.on("step", () => seen.push("step"));
+    expect(() => run(game, 0.5, hold("left"))).not.toThrow();
+    expect(seen.length).toBeGreaterThan(0);
   });
 });
 
@@ -229,7 +235,7 @@ describe("Game layers", () => {
     const cam = game.camera.position(1);
     const translate = idx(`translate(${-cam.x},${-cam.y})`);
     const player = calls.findIndex(
-      (c, i) => i > translate && c.startsWith("fillRect(") && c.includes(",10,14)"),
+      (c, i) => i > translate && c.startsWith("fillRect(") && c.includes(",16,16)"),
     );
     expect(translate).toBeGreaterThan(-1);
     expect(player).toBeGreaterThan(translate);
@@ -455,21 +461,3 @@ describe("Game layers", () => {
   });
 });
 
-describe("landing threshold", () => {
-  // Spawn above the floor so the player falls a known distance.
-  function dropFrom(height: number): GameEvents["land"][] {
-    const game = new Game({ ...level(), spawn: { x: 50, y: 86 - height } });
-    const landings: GameEvents["land"][] = [];
-    game.events.on("land", (e) => landings.push(e));
-    run(game, 2);
-    return landings;
-  }
-
-  it("ignores settling and tiny drops, and announces a one-tile step down", () => {
-    expect(dropFrom(0)).toHaveLength(0);
-    expect(dropFrom(3)).toHaveLength(0);
-    const step = dropFrom(16);
-    expect(step).toHaveLength(1);
-    expect(step[0].speed).toBeGreaterThan(150);
-  });
-});

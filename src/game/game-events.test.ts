@@ -301,6 +301,41 @@ describe("Game layers", () => {
     vi.unstubAllGlobals();
   });
 
+  // A stand-in that tracks the translation, alpha and composite mode through
+  // save, restore, translate and setTransform. Only translations are used here.
+  function transformContext() {
+    type State = { tx: number; ty: number; alpha: number; op: string };
+    let cur: State = { tx: 0, ty: 0, alpha: 1, op: "source-over" };
+    const stack: State[] = [];
+    const fills: State[] = [];
+    const ctx = new Proxy(
+      {},
+      {
+        get: (_t, name: string) => {
+          if (name === "globalAlpha") return cur.alpha;
+          if (name === "globalCompositeOperation") return cur.op;
+          if (name === "save") return () => void stack.push({ ...cur });
+          if (name === "restore") return () => void (cur = stack.pop() ?? cur);
+          if (name === "translate") {
+            return (x: number, y: number) => void (cur = { ...cur, tx: cur.tx + x, ty: cur.ty + y });
+          }
+          if (name === "setTransform") {
+            return (_a: number, _b: number, _c: number, _d: number, e: number, f: number) =>
+              void (cur = { ...cur, tx: e, ty: f });
+          }
+          if (name === "fillRect" || name === "fillText") return () => void fills.push({ ...cur });
+          return () => {};
+        },
+        set: (_t, name: string, value: unknown) => {
+          if (name === "globalAlpha") cur.alpha = value as number;
+          if (name === "globalCompositeOperation") cur.op = value as string;
+          return true;
+        },
+      },
+    ) as unknown as CanvasRenderingContext2D;
+    return { ctx, fills, state: () => cur };
+  }
+
   describe("when layers misbehave", () => {
     it("doesn't skip the next layer when a layer removes itself", () => {
       const game = new Game(level());
@@ -450,6 +485,130 @@ describe("Game layers", () => {
       const { ctx } = fakeContext();
       game.render(ctx, 1);
       expect(seen).toEqual([game.camera.position(1).x]);
+      vi.unstubAllGlobals();
+    });
+
+    // The ways a draw hook can mess up the canvas, each of them shifting,
+    // fading and recompositing it.
+    const misbehaviours: Record<string, (ctx: CanvasRenderingContext2D) => void> = {
+      "throws before its restore": (ctx) => {
+        ctx.save();
+        ctx.translate(40, 25);
+        ctx.globalAlpha = 0.2;
+        ctx.globalCompositeOperation = "lighter";
+        throw new Error("broken feature");
+      },
+      "forgets its restore": (ctx) => {
+        ctx.save();
+        ctx.translate(40, 25);
+        ctx.globalAlpha = 0.2;
+        ctx.globalCompositeOperation = "lighter";
+      },
+      "restores too many times": (ctx) => {
+        ctx.translate(40, 25);
+        ctx.globalAlpha = 0.2;
+        ctx.globalCompositeOperation = "lighter";
+        ctx.restore();
+        ctx.restore();
+        ctx.restore();
+      },
+    };
+
+    for (const [what, bad] of Object.entries(misbehaviours)) {
+      for (const pass of ["drawWorld", "drawHud"] as const) {
+        it(`keeps the canvas clean when a ${pass} layer ${what}`, () => {
+          stubDocument();
+          vi.spyOn(console, "error").mockImplementation(() => {});
+          const game = new Game(level());
+          const cam = game.camera.position(1);
+          const { ctx, fills, state } = transformContext();
+          const clean = { tx: 0, ty: 0, alpha: 1, op: "source-over" };
+          // The first HUD layer marks the end of the popups, prompt and HUD;
+          // the last world layer marks the end of the world pass.
+          let hudStart = -1;
+          let worldEnd = -1;
+          let worldSeen: unknown;
+          game.addLayer({ drawHud: () => (hudStart = fills.length) });
+          game.addLayer({ [pass]: bad });
+          game.addLayer({
+            drawWorld: () => {
+              worldEnd = fills.length;
+              worldSeen = { ...state() };
+            },
+          });
+          for (let frame = 0; frame < 3; frame++) {
+            fills.length = 0;
+            game.render(ctx, 1);
+            // The background is drawn first, on a clean canvas, every frame.
+            expect(fills[0]).toEqual(clean);
+            // A later world layer still gets the camera transform.
+            expect(worldSeen).toEqual({ tx: -cam.x, ty: -cam.y, alpha: 1, op: "source-over" });
+            // Popups, prompt and HUD are drawn clean.
+            expect(hudStart).toBeGreaterThan(worldEnd);
+            for (const f of fills.slice(worldEnd, hudStart)) expect(f).toEqual(clean);
+          }
+          // And the frame ends clean.
+          expect(state()).toEqual(clean);
+        });
+      }
+    }
+
+    it("shows a world layer the camera transform even after the layer before it broke it", () => {
+      stubDocument();
+      const game = new Game(level());
+      const cam = game.camera.position(1);
+      const { ctx, state } = transformContext();
+      let seen: { tx: number; ty: number } | undefined;
+      game.addLayer({ drawWorld: (c) => c.restore() });
+      game.addLayer({ drawWorld: () => (seen = { ...state() }) });
+      game.render(ctx, 1);
+      expect(seen).toMatchObject({ tx: -cam.x, ty: -cam.y });
+    });
+
+    it("includes the layer's name in the log when it throws", () => {
+      const error = vi.spyOn(console, "error").mockImplementation(() => {});
+      const game = new Game(level());
+      game.addLayer({
+        name: "sparkles",
+        update: () => {
+          throw new Error("boom");
+        },
+      });
+      game.update(dt, NO_INPUT);
+      expect(error.mock.calls[0][0]).toContain("sparkles");
+      error.mockClear();
+      game.addLayer({
+        update: () => {
+          throw new Error("boom");
+        },
+      });
+      game.update(dt, NO_INPUT);
+      expect(error.mock.calls[0][0]).toBe("A layer threw and was removed");
+    });
+
+    it("ignores a layer that is added twice", () => {
+      const game = new Game(level());
+      const calls: string[] = [];
+      const layer = { update: () => calls.push("tick") };
+      const remove = game.addLayer(layer);
+      game.addLayer(layer);
+      game.update(dt, NO_INPUT);
+      expect(calls).toEqual(["tick"]);
+      remove();
+      game.update(dt, NO_INPUT);
+      expect(calls).toEqual(["tick"]);
+    });
+
+    it("makes the same draw calls when layers have no draw hooks", () => {
+      stubDocument();
+      const withLayer = new Game(level());
+      withLayer.addLayer({ name: "silent", update: () => {} });
+      const without = new Game(level());
+      const a = fakeContext();
+      const b = fakeContext();
+      withLayer.render(a.ctx, 1);
+      without.render(b.ctx, 1);
+      expect(a.calls).toEqual(b.calls);
       vi.unstubAllGlobals();
     });
   });

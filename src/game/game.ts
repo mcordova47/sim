@@ -18,11 +18,24 @@ import { Player } from "./player";
 //
 // Each draw hook runs between its own `save()` and `restore()`, so a layer can
 // change `globalAlpha`, the fill style or the transform without cleaning up.
+// A layer must still balance its own `save`/`restore` calls. If it doesn't (it
+// throws between them, forgets one or calls `restore` too often), the game
+// puts the canvas back to a known state (the camera transform for world
+// layers, the identity transform for HUD layers, `globalAlpha` 1 and
+// `source-over` compositing) before the next layer, after the world pass and at
+// the start of the next frame, so the damage stops there. It can't undo
+// leftover entries on the canvas state stack, so an unbalanced layer is still a
+// bug. A layer cannot move the camera: a translate in `drawWorld` only lasts
+// for that layer (screen shake would need a camera API).
+//
 // A layer may remove itself or another layer from inside a hook, and it gets a
-// copy of the camera position. A layer that throws is reported and removed, so
-// one broken feature can't stop the game. A layer added during a frame first
-// runs on the next one.
+// copy of the camera position. A layer that throws is reported (with its
+// `name`) and removed, so one broken feature can't stop the game. A layer added
+// during a frame first runs on the next one. Adding the same layer object
+// twice is ignored.
 export interface Layer {
+  // Shown in the log when the layer throws, so it's clear which feature broke.
+  name?: string;
   update?(dt: number): void;
   // Drawn in world space, inside the camera transform, after the player.
   // `camera` is the world position of the top-left of the view.
@@ -69,9 +82,10 @@ export class Game {
   }
 
   // Adds an extra layer (sound, particles, toasts, lighting...). Returns a
-  // function that removes it again.
+  // function that removes it again. A layer that is already added is not added
+  // a second time.
   addLayer(layer: Layer): () => void {
-    this.layers.push(layer);
+    if (!this.layers.includes(layer)) this.layers.push(layer);
     return () => {
       const i = this.layers.indexOf(layer);
       if (i >= 0) this.layers.splice(i, 1);
@@ -103,6 +117,8 @@ export class Game {
       h: player.h,
     };
 
+    const hardened = this.layers.some((l) => l.drawWorld || l.drawHud);
+    if (hardened) resetCanvas(ctx);
     ctx.fillStyle = COLOR.night;
     ctx.fillRect(0, 0, VIEW.width, VIEW.height);
 
@@ -112,8 +128,11 @@ export class Game {
     ctx.save();
     ctx.translate(-cam.x, -cam.y);
     this.drawWorld(ctx, actor);
-    this.eachLayer((layer) => this.drawLayer(ctx, () => layer.drawWorld?.(ctx, { ...cam }), layer.drawWorld));
+    this.eachLayer((layer) =>
+      this.drawLayer(ctx, () => layer.drawWorld?.(ctx, { ...cam }), layer.drawWorld, cam),
+    );
     ctx.restore();
+    if (hardened) resetCanvas(ctx);
 
     // World UI is laid out in screen space (it must stay on screen and clear
     // of the HUD), so it gets screen positions, then the HUD goes on top.
@@ -132,7 +151,8 @@ export class Game {
       try {
         fn(layer);
       } catch (error) {
-        console.error("A layer threw and was removed", error);
+        const label = layer.name ? ` "${layer.name}"` : "";
+        console.error(`A layer${label} threw and was removed`, error);
         const i = this.layers.indexOf(layer);
         if (i >= 0) this.layers.splice(i, 1);
       }
@@ -140,9 +160,17 @@ export class Game {
   }
 
   // Runs one draw hook inside its own save/restore, but only if there is one.
-  private drawLayer(ctx: CanvasRenderingContext2D, draw: () => void, hook: unknown): void {
+  // It starts from a known state: the camera transform when `cam` is given
+  // (world layers), otherwise the identity transform.
+  private drawLayer(
+    ctx: CanvasRenderingContext2D,
+    draw: () => void,
+    hook: unknown,
+    cam?: { x: number; y: number },
+  ): void {
     if (!hook) return;
     ctx.save();
+    resetCanvas(ctx, cam ? -cam.x : 0, cam ? -cam.y : 0);
     try {
       draw();
     } finally {
@@ -211,6 +239,14 @@ export class Game {
   private drawHud(ctx: CanvasRenderingContext2D): void {
     this.hud.draw(ctx, this.interaction.scoreboard, this.interaction.time);
   }
+}
+
+// The state every frame starts from: no transform (or just a translation),
+// fully opaque, normal compositing.
+function resetCanvas(ctx: CanvasRenderingContext2D, tx = 0, ty = 0): void {
+  ctx.setTransform(1, 0, 0, 1, tx, ty);
+  ctx.globalAlpha = 1;
+  ctx.globalCompositeOperation = "source-over";
 }
 
 interface Actor {

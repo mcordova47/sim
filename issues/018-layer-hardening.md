@@ -1,7 +1,7 @@
 ---
 id: 018
 title: Layer hardening
-status: todo
+status: review
 owner: claude
 depends_on: [017]
 ---
@@ -22,3 +22,10 @@ Close the gaps the second review of issue 017 found in how `Game` runs layers, b
 - Screen shake would need a camera API (`camera.shake`, or an offset the camera adds), not a layer. Leave it for the polish features to ask for if they want it.
 
 ## Progress log
+
+- 2026-10-22 (claude): Plan: reset the canvas (identity transform, alpha 1, source-over) at frame start and after the world pass when some layer has a draw hook; reset before each layer's hook too (camera translation for world layers, identity for HUD), so a broken layer can't affect the next one; add `Layer.name`; ignore duplicate `addLayer`.
+- 2026-10-22 (claude): Done, in review.
+  - `src/game/game.ts`: `resetCanvas` helper; `render` resets at frame start and after the world pass only if `layers.some(l => l.drawWorld || l.drawHud)`; `drawLayer` resets inside its own save before each hook (camera translate for world, identity for HUD); `Layer.name` shown in the "threw and was removed" message (`A layer "name" threw...`, unchanged text when unnamed); duplicate `addLayer` is ignored; doc comment on `Layer` rewritten (balance your own save/restore, what the game guarantees, can't move the camera).
+  - `src/game/game-events.test.ts`: transform-tracking fake canvas (save/restore/translate/setTransform, alpha, composite); 3 misbehaviours (throws before restore, forgets restore, restores too often) x `drawWorld`/`drawHud`; later world layer still gets the camera transform; name in log (named and unnamed); duplicate add; same draw calls for a layer with no draw hooks.
+  - Checks: `npm run build` passes; `npm test` 155 pass (146 before, plus 9 new... 146 existing + 9 new). With the old `game.ts`, the 9 new tests fail. Replay against the base commit (10aa74d) `Game`, 9,000 random-input updates, rendering every second frame, md5 of every draw call: identical on all 4,500 frames both with no layers and with an update-only layer (the run only reached a score of 20, so it exercises little task logic; draw calls are what matter here).
+  - Not verified: nothing in a real browser. The canvas state stack can't be inspected through the public API, so a layer that forgets a `restore()` still leaves one extra entry on the stack each frame (harmless to output, but it grows); the doc comment says such a layer is still a bug. Not fixed, would need `ctx.reset()` or a wrapper context.

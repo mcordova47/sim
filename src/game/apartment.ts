@@ -1,6 +1,5 @@
 import type { Level } from "./level";
 import { TASKS } from "./tasks";
-import { DROOPING } from "./plant";
 import { parseTileMap, type ObjectDef, type PropDef } from "./tilemap";
 
 // The real apartment as three top-down rooms, one tile to a foot, each a
@@ -42,7 +41,8 @@ export const MAIN_MAP = [
 // The plant on the bookshelf (issue 063): its own piece on top of the bookshelf
 // sprite, not drawn into it, so it can grow, droop, and later be swapped for
 // another plant (a decor slot, issue 062). 16x16 at the south end of the top.
-// Drooping wins over the stage; the stage is the growth so far.
+// Which sprite it shows comes from the plant in the slot (decor.ts `look`):
+// drooping wins over the stage, and the stage is the growth so far.
 const MAIN_PROPS: PropDef[] = [
   {
     name: "snake plant",
@@ -52,13 +52,6 @@ const MAIN_PROPS: PropDef[] = [
     size: { w: 16, h: 16 },
     sprite: "plant-0",
     color: "leaf",
-    variants: [
-      { sprite: "plant-wilted", when: [DROOPING], color: "butter" },
-      { sprite: "plant-3", when: [{ var: "plantStage", min: 3 }], color: "leaf" },
-      { sprite: "plant-2", when: [{ var: "plantStage", min: 2 }], color: "leaf" },
-      { sprite: "plant-1", when: [{ var: "plantStage", min: 1 }], color: "leaf" },
-      { sprite: "plant-0", color: "leaf" },
-    ],
   },
 ];
 
@@ -94,12 +87,14 @@ const MAIN: Record<string, ObjectDef> = {
   },
   S: { name: "sofa", sprite: "sofa-td", color: "brick", tasks: ["doomscroll", "contemplate", "work-sofa", "nap", "admire-art"] },
   G: { name: "guitar", sprite: "guitar", color: "tangerine", tasks: ["guitar"] },
-  L: { name: "lamp table", sprite: "lamp-table", color: "butter" },
+  L: { name: "lamp table", sprite: "lamp-table", color: "butter", slot: "lamp-sofa" },
   R: { name: "record stand", sprite: "record-stand", color: "paper", tasks: ["record-play"] },
   M: { name: "mic stand", sprite: "mic-stand", color: "ink" },
-  p: { name: "painting over the table", sprite: "painting", color: "paper" },
-  q: { name: "painting over the desk", sprite: "painting-desk", color: "paper" },
-  u: { name: "painting over the nightstand", sprite: "painting-wide", color: "paper" },
+  // The paintings are decor slots (issue 062): what hangs there comes from the
+  // decor store, and these are today's pictures.
+  p: { name: "painting over the table", sprite: "painting", color: "paper", slot: "art-table" },
+  q: { name: "painting over the desk", sprite: "painting-desk", color: "paper", slot: "art-desk" },
+  u: { name: "painting over the nightstand", sprite: "painting-wide", color: "paper", slot: "art-bed" },
   f: { name: "front door (decoration for now)", sprite: "front-door", color: "tangerine" },
   "1": { door: { to: "kitchen", arrive: { col: 11, row: 3, facing: "left" } } },
   "2": { door: { to: "kitchen", arrive: { col: 11, row: 4, facing: "left" } } },

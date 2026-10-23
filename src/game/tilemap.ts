@@ -43,6 +43,10 @@ export interface ObjectDef {
   variants?: Variant[];
   // Only blocks while all of these hold (see `Solid.blockedWhen`).
   blockedWhen?: Solid["blockedWhen"];
+  // A decor slot (issue 062): what is drawn here is the item in that slot of the
+  // decor store. `sprite` and `color` are the default item's, used when there is
+  // no store. The piece keeps its sprite name (the lamp's glow looks for it).
+  slot?: string;
   // Makes the tile a doorway to another room.
   door?: Omit<Door, "col" | "row">;
 }
@@ -149,7 +153,7 @@ export function parseTileMap(
           ...rect,
           color: def.color ? COLOR[def.color] : COLOR.mist,
           ...(def.blockedWhen && { blockedWhen: def.blockedWhen }),
-          ...(def.variants && { hidden: true }),
+          ...((def.variants || def.slot) && { hidden: true }),
         });
       }
     });
@@ -188,7 +192,15 @@ export function parseTileMap(
       ...(def.tasks ?? []).map((t) => (typeof t === "string" ? tasksById.get(t)! : t)),
     ];
     for (const task of tasks) interactables.push({ ...task, zones });
-    if (def.variants) appearances.push({ area: pieceBounds(tiles), variants: def.variants });
+    if (def.slot) {
+      if (def.variants) throw new Error(`${where}Legend "${ch}" has a decor slot, so it can't also have variants`);
+      if (!def.sprite) throw new Error(`${where}Legend "${ch}" has a decor slot, so it needs the default sprite`);
+      appearances.push({
+        area: pieceBounds(tiles),
+        variants: [{ sprite: def.sprite, ...(def.color && { color: def.color }) }],
+        slot: def.slot,
+      });
+    } else if (def.variants) appearances.push({ area: pieceBounds(tiles), variants: def.variants });
   }
 
   const props: Prop[] = (options.props ?? []).map((def) => {

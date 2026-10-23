@@ -88,6 +88,17 @@ export const PLANT = {
   maxDryHours: 999,
 };
 
+// Limits for the saved decor (issue 062, docs/decor.md). A save someone edited
+// by hand, or that grew without bound, is cut to these when it is read.
+export const DECOR = {
+  // Most item ids kept in the owned list.
+  maxOwned: 500,
+  // Longest id kept (a longer one cannot be a real item).
+  maxIdLength: 64,
+  // Most slot entries read from the saved placements.
+  maxPlaced: 200,
+};
+
 // Energy runs from 0 to 100 (see state-vars.ts).
 export const ENERGY = {
   // Points lost per game hour just from being awake.

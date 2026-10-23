@@ -1,7 +1,7 @@
 ---
 id: 033
 title: Floor plan fixes found while drawing the art
-status: review
+status: done
 owner: claude
 depends_on: []
 ---
@@ -44,3 +44,10 @@ Small map and level-data changes the art batches (028 to 030) showed are needed,
   - Rule order is now back (open south), front (open north), left (open east), right (open west), none. This makes kitchen (3,5) and (7,5), either side of the hood, front like the hood tile itself; the doc and rule agree.
   - Every wall-line character (pieces included) gets the tile of its position; documented in `docs/floor-plan.md` with the full result pictured.
   - `wall-tiles.test.ts` pins the result for every tile of all three maps, plus spot checks for the reviewed tiles. `npm test` (516) and `npm run build` pass.
+- 2026-10-23: Review round 2 (independent). Verdict: **approve**.
+  - Wall-tile rules: pass. I re-implemented the rule independently (wall line = `#` or piece char; open = any other in-map tile; back/front/left/right/none in that order) and ran it over every wall-line character of all three maps parsed from source; I also dumped `wallKind` itself. The two outputs are identical and match the pictures in `docs/floor-plan.md` row for row. Previously wrong tiles: main (0,2) l, (18,2) r, (18,5) r; kitchen (12,2) r, (7,6) l; bath (8,2) r. All sensible side walls. Hood neighbours kitchen (3,5) and (7,5) are `front`, same as the hood tile. Every wall-line char gets a defined tile: paintings `p q u` (back), windows `w W` (right), doors `1 2` (left in main, right in kitchen/bath, `3` left), curtain `c` (left), front door `f` (front), hood `h` (front); only corners, the bath block and step-down filler are none, and the doc says so. Every sprite name `wallTileName` can produce (and the floors and four doorways) exists in `public/sprites`.
+  - Doc vs function: rule order, "open" definition, wall piece lists per room (`WALL_PIECES`: main `pquwWf12`, kitchen `c123h`, bath `1`) and tile names match exactly; no ambiguity found.
+  - Exports: diff of `apartment.ts` shows only `export` added to the three maps, the `WALL_PIECES` constant, and the intended fridge and sprite edits; no behaviour change.
+  - Fridge/reachability: still pass. Own BFS from each room's spawn over raw maps: only unreached floor is main (8,7), the pre-existing pocket; every object has a tile with a reachable orthogonal neighbour, fridge via (10,6), (9,7), (9,8). Game's reachability and fridge spot tests pass.
+  - Sprite-name tests pass; `shower-curtain` gone; scope clean (docs, apartment.ts, wall-tiles.ts, two test files, this issue; PLAN.md and other issues untouched).
+  - `npm test` 516 pass, `npm run build` pass.

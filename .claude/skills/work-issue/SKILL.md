@@ -1,6 +1,6 @@
 ---
 name: work-issue
-description: Work one local issue from issues/ for the life platformer. Loads PLAN.md and the issue, checks dependencies, does the work, verifies each acceptance criterion, and reports back. Use as `/work-issue 006`.
+description: Work one local issue from issues/ for the life platformer. Loads PLAN.md and the issue, checks dependencies, does the work, verifies each acceptance criterion, has an independent review agent check it, and reports back with what Marc should say to the planner. Use as `/work-issue 006`.
 ---
 
 # work-issue
@@ -43,6 +43,45 @@ Never merge, push, rebase onto other branches or remove the worktree. Merging is
 - If a criterion can't be met or checked, say so plainly. Do not mark it as passing.
 
 ## 6. Finish
-- Set `status: review` (not `done`; the user or `/review-issue` closes it) and write a final progress-log entry: what changed, files touched, anything left over.
+- Set `status: review` (not `done`; only the reviewer closes it) and write a progress-log entry: what changed, files touched, anything left over, and what you could not check (for example, how something feels in a browser).
 - Commit your work on the issue branch (including the issue file) so it can be merged. Use messages starting `NNN:`. If the user had you work in the main checkout instead, don't commit unless they ask.
-- Your report back should be short: issue number, final status, criteria met or not met, files changed, branch name and worktree path if you used one, open questions or follow-ups for the planner.
+
+## 7. Get an independent review
+Do this yourself, without waiting to be asked. Start a fresh review agent with the Agent tool (general-purpose, run in the foreground so you get its verdict) and have it follow `.claude/skills/review-issue/SKILL.md` for this issue number. Your prompt to it should give:
+- the worktree path and branch, and the path to the review-issue skill in that worktree;
+- the rules: it must not fix anything, may edit only the issue file (review entry and status) and commit that on the branch with a message starting `NNN: review`, and must not merge, push or remove worktrees;
+- a request to write its own independent checks outside the repo, aimed at edge cases, and not just rerun yours;
+- anything you could not verify (such as browser feel), so it records those as unverified instead of passing them;
+- not to touch other worktrees, and to keep temp files outside the repo.
+
+Do not tell the reviewer your conclusions ("this works", "all criteria pass") and do not argue its verdict into shape. A reviewer who is told the answer tends to agree with it.
+
+When the verdict comes back:
+- **Approve:** the reviewer has set `status: done` on the branch. Nothing more to change.
+- **Changes needed:** work through its checklist on the same branch, tick items off in the progress log, set `status: review` again and commit. Then run a new review agent. Stop after two rounds and report instead of looping; ask Marc if a finding is a judgement call rather than a defect.
+- If you can't start a subagent in your session, say so and tell Marc to run `/review-issue NNN` in a fresh session. Do not review your own work and call it independent.
+
+## 8. Report, and tell Marc what to say to the planner
+Marc relays your result to the planner (the main session that merges branches and updates `PLAN.md`), so your last message must make that easy. Keep it short and end with a ready-to-paste block. Include:
+- issue number, final status, reviewer verdict, criteria met or not met, files changed;
+- branch name and worktree path;
+- anything the review couldn't verify, and open questions or follow-ups for the planner (for example, files likely to conflict with `main`, or new issues you think are needed);
+- how Marc can try it himself, if the issue is something he should play or look at: the worktree path and the command to run (usually `npm run dev`), and what to try.
+
+End with exactly one of these blocks, filled in:
+
+If the review approved and nothing needs Marc's eyes:
+```
+Say to the planner: "Merge issue NNN (branch issue/NNN-slug, approved by an independent review). Update the table and remove the worktree."
+```
+
+If Marc should try it first:
+```
+Try it: cd <worktree path> && npm run dev   (what to look at: <one line>)
+Then say to the planner: "NNN feels good, merge it."   or   "NNN: <what's off>."
+```
+
+If the review asked for changes you couldn't finish, or something needs a decision:
+```
+Say to the planner: "NNN is not ready. <the blocker or the decision needed>. Branch issue/NNN-slug is in its worktree."
+```

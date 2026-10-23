@@ -1,7 +1,7 @@
 ---
 id: 018
 title: Layer hardening
-status: review
+status: done
 owner: claude
 depends_on: [017]
 ---
@@ -29,3 +29,16 @@ Close the gaps the second review of issue 017 found in how `Game` runs layers, b
   - `src/game/game-events.test.ts`: transform-tracking fake canvas (save/restore/translate/setTransform, alpha, composite); 3 misbehaviours (throws before restore, forgets restore, restores too often) x `drawWorld`/`drawHud`; later world layer still gets the camera transform; name in log (named and unnamed); duplicate add; same draw calls for a layer with no draw hooks.
   - Checks: `npm run build` passes; `npm test` 155 pass (146 before, plus 9 new... 146 existing + 9 new). With the old `game.ts`, the 9 new tests fail. Replay against the base commit (10aa74d) `Game`, 9,000 random-input updates, rendering every second frame, md5 of every draw call: identical on all 4,500 frames both with no layers and with an update-only layer (the run only reached a score of 20, so it exercises little task logic; draw calls are what matter here).
   - Not verified: nothing in a real browser. The canvas state stack can't be inspected through the public API, so a layer that forgets a `restore()` still leaves one extra entry on the stack each frame (harmless to output, but it grows); the doc comment says such a layer is still a bug. Not fixed, would need `ctx.reset()` or a wrapper context.
+
+- 2026-10-22 (claude, independent review): **Approve.**
+  - Ran `npm run build` (ok) and `npm test` (155 pass). Diff against 10aa74d touches only `game.ts`, `game-events.test.ts` and this file. No scope problems.
+  - Criterion 1 (reset canvas, only when a draw hook exists): pass. `hardened` is computed per frame from `drawWorld`/`drawHud`; reset at frame start and after the world pass; `drawLayer` also resets inside its own save before each hook. Checked with my own throwaway tests (deleted, not committed) using a fake canvas that tracks a full affine matrix, alpha, composite, clip and the save stack: a layer that does `scale`/`rotate`/`transform` and throws, a HUD layer that forgets `restore` after `rotate`, and a world layer that calls `restore` twice before another world layer all left the next layer at the camera translation (world) or identity (HUD), alpha 1, `source-over`, and the frame ended at identity. A world layer removing itself and adding a HUD layer mid-draw behaved correctly.
+  - Criterion 2 (tests for the 3 cases in world and HUD): pass. 6 parametrised tests plus the later-layer test; they check the background fill, the world layers after, popups/prompt/HUD and the end state.
+  - Criterion 3 (`name`): pass. Named and unnamed tested. My edge cases: empty string and `undefined` give the unnamed text; a name with quotes or a newline is printed raw (cosmetic only); a non-Error `throw "str"` is handled; works from `update`, `drawWorld` and `drawHud`.
+  - Criterion 4 (doc comment): pass. States balance, the guarantee, the unremoved stack entries, and no camera moves.
+  - Criterion 5 (duplicates): pass, ignored and tested. Note: removers are keyed on the layer object, so a stale remover from an earlier `addLayer` also removes a layer re-added later, and a duplicate add's remover removes the one registration. Existing behaviour, not documented, harmless.
+  - Criterion 6 (replay shows no draw-call change): partly verified. I re-ran my own check that a game with an update-only layer makes identical fillRect/fillText/drawImage calls to one without layers; I did not rerun the author's 9,000-update md5 replay against 10aa74d. With no draw hooks `hardened` is false, both resets are skipped and `drawLayer` returns at `if (!hook)` before its new code, so I judge it low risk.
+  - Beyond the criteria, notes (not blocking):
+    - The reset covers transform, alpha and composite only. A layer that calls `restore` too many times and then sets `clip`, `shadowBlur` or `filter` leaves those set for later layers and the HUD (my fake showed all three surviving a frame). Not in the listed reset, and a layer that balances its own calls is unaffected, but the criterion wording "or otherwise changed" is broader than what is guaranteed. If polish features use clip or shadows, widen `resetCanvas` or document it.
+    - Unverified (needs a real browser): real canvas state-stack behaviour. In my fake, a layer that forgets `restore` grew the stack by one per frame (1, 2, 3, 4), matching the author's note; the real leak cost, any browser stack limit, and long-session behaviour were not checked. Also unverified: real `setTransform` and `globalCompositeOperation` handling.
+  - PLAN.md table needs updating (planner only).

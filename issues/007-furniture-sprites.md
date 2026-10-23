@@ -1,7 +1,7 @@
 ---
 id: 007
 title: Furniture sprites
-status: todo
+status: done
 owner: marc + claude
 depends_on: [007a, 007b, 007c, 007d]
 ---
@@ -21,3 +21,4 @@ The furniture should look like Marc's real pieces, so work from the photos in `r
 - The full set looks consistent side by side (same materials, outlines and lighting). Check this once all batches are merged, and fix mismatches in a follow-up.
 
 ## Progress log
+- 2026-10-22: Marc reviewed the full contact sheet (all four batches plus the player frames merged) and approved the set. Closed. `reference-photos/` can now be deleted, along with any converted copies the sprite agents made in temp folders.

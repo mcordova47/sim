@@ -81,7 +81,7 @@ If a piece needs a colour that isn't here, pick the nearest palette key and say 
 - **Variants:** `<name>-<variant>`: `bed-made`, `bed-unmade`, `kettle-on`.
 - **Counts and stages:** `<name>-<n>`: `dishes-1`, `dishes-2`, `dishes-3` (a pile growing).
 - **Character frames:** `<character>-<state>-<direction>[-<frame>]` with direction `down`, `up`, `left`, `right`: `player-idle-down`, `player-walk-down-1`, `player-walk-down-2`. A walk cycle is two frames (left foot, right foot) alternating with idle. Left is generated as a mirror of right (and walk-2 of walk-1 for down and up), so every file exists and the game needs no flip.
-- **Doing poses** (drawn as small scenes where the character sits or lies, so they are bigger than 16x16 and show the furniture too): `player-sit-sofa` (16x16), `player-type-desk` (16x32), `player-guitar` (32x16), `player-read-sofa` (32x16), `player-sleep-bed` (a lump under the duvet on `bed-made`'s footprint, 32x48), `player-eat-table` (16x16). Sizes are proposals; the activity issue (022) confirms them.
+- **Doing poses** (drawn as small scenes where the character sits or lies, so they are bigger than 16x16 and show the furniture too): `player-sit-sofa` (16x32), `player-read-sofa` (32x32), `player-type-desk` (16x32), `player-eat-table` (16x32), `player-guitar` (16x48) and `player-sleep-bed` (80x96). **Since issue 034 each pose is drawn on the real furniture**, so it replaces the furniture's own pixels where it is drawn: `player-sit-sofa` is one 16x32 column of `sofa-td` (x 48..63) and `player-read-sofa` two (x 48..79), at the sofa's top edge; `player-type-desk` is the desk's lower row at x 32..47 (desk y 16) plus the chair tile; `player-eat-table` is the table's lower row at x 24..39 (table y 16) plus the stool tile south of it, the player seen from behind; `player-guitar` is the player standing north of the guitar, holding it across the body, with only the empty wall hanger on the two guitar tiles below (so it replaces both the player and the `guitar` sprite); `player-sleep-bed` is the whole 5x6 `bed-made` with hair on the pillow and a plain lump under the duvet. The game does not use the poses yet.
 - **Tiles:** `floor-<material>`, `wall-<kind>`, `rug`, `doorway`.
 
 ## Reuse audit of the 24 side-view sprites
@@ -96,15 +96,15 @@ Sorted for the top-down view. **Reuse:** use as-is (wall-mounted or flat). **Ada
 | counter | 32x48 | Adapt | Front cabinets are right; add a counter top slice. |
 | desk | 48x48 | Redraw | Table on legs; from above the top surface matters. |
 | fridge | 32x96 | Adapt | Front doors are right; too tall, trim to about 2x4 and add a top slice. |
-| gallery-wall | 96x16 | Redraw | Issue 036: redrawn from the real wall behind the sofa as a 6x1 strip of frames on the south wall face (`wall-front` colours). Not placed in the data yet; issue 035 adds it. |
-| guitar | 16x48 | Adapt | Leaning against the wall is fine; trim. |
+| gallery-wall | 96x16 | Redraw | Issue 036, redone in 034 from the close-ups: the ten pieces in their real arrangement as a 6x1 strip on the south wall face (`wall-front` colours). Not placed in the data yet. |
+| guitar | 16x32 | Redraw | Issue 034: flipped and shortened to hang on the west wall by its headstock (1x2 tiles, strap trailing). The floor plan still blocks both tiles. |
 | hood | 48x32 | Reuse | Wall-mounted. |
-| mic-stand | 16x112 | Redraw | Far too tall; a short stand about 1x2 tiles. |
+| mic-stand | 16x32 | Redraw | Issue 034: tripod, pole, XLR plug, shock mount and mic from the mic photos, 1x2 tiles. Not placed; proposed at col 5, row 1 (the free tile between the table and the desk). |
 | player-idle, -walk-1..4, -jump, -fall, -task | 16x16 | Redraw | Side-view poses. Replaced by the `player-<state>-<direction>` set (issue 030); the old files are removed. |
 | record-stand | 16x48 | Adapt | Front-facing; trim and add a top. |
-| sofa-arm | 16x32 | Adapt | Armchair side; give it a backrest slice like `sofa-td`. |
+| sofa-arm | | Deleted | Issue 034: `sofa-td` already has its arms, and the floor plan has a plain 6x2 sofa. |
 | sofa | 32x16 | Adapt | Done: `sofa-td` (32x32). |
-| spice-rack | 16x64 | Reuse | Wall-mounted. |
+| spice-rack | | Deleted | Issue 034: a side-view piece the floor plan never uses. If a wall rack by the hood is wanted later, draw it new from the kitchen photos. |
 | stove | 48x48 | Adapt | Front-facing; add a top slice with burners. |
 | table | 48x32 | Redraw | Draw the tabletop from above with the mug and kettle on it. |
 | toilet | 32x32 | Redraw | Front elevation; needs the lid and seat seen from above and in front. |
@@ -115,7 +115,12 @@ Sorted for the top-down view. **Reuse:** use as-is (wall-mounted or flat). **Ada
 | window-blinds-open, window-blinds-closed | 16x32 | New | Issue 036: the two states of `window-blinds` (raised, showing glass; lowered, tan slats edge to edge). Same size and frame, so either can replace it. |
 | painting, painting-desk, painting-wide | 32x16, 32x16, 48x16 | Redraw | Issue 036: abstract impressions of the real prints over the table (barn drawing, cream frame), the desk (gold and orange abstract, walnut frame) and the nightstand (small green print in a wide white mat). |
 
-Verdict totals: 6 reuse, 10 adapt, 7 redraw (plus the 8 player poses, all redraw).
+Also redrawn or added in issue 034, from the new reference photos: `painting` (the barn drawing), `painting-desk`, `painting-wide` (the silkscreen over the bed), **`painting-robin`** (new, 16x16, not placed; proposed slot: north wall col 5, between the table and desk paintings), `front-door` (white, many layers of paint, chipped), `lamp-table` (drawn with a visible top, not side-on), `table` (coffee station, the teal microwave with its pile of mail, the mug), `desk-chair` (the wooden armchair with striped cushions), `bookshelf` (cubes, book spines, records, drawers, a plant on top), `fridge` (steel doors, a humidifier and a tote on top) and **`stool`** (new, 16x16, not placed). The four `doorway*` sprites are now open passages, not doors (see Doorways).
+
+Verdict totals: 6 reuse, 10 adapt, 7 redraw (plus the 8 player poses, all redraw). Issue 034 deleted `sofa-arm` and `spice-rack`.
+
+## Doorways
+Marc does not read door leaves at this size, so every doorway is an **open passage** (issue 034): the floor of the room you are in carries through the wall tile, and the floor of the next room shows in the thickness of the wall. `doorway` is the main room's west wall (wood, with the kitchen's stone in the wall), `doorway-right-kitchen` is the kitchen's east wall, `doorway-left-kitchen` is the kitchen leg's west wall (bath tile in the wall) and `doorway-right-bath` is the bath's east wall. The wall tiles above and below end flat, so the gap reads at 1x. The front door is decoration and is drawn white, painted over many times.
 
 ## Samples in the repo (for approval)
 `floor-wood`, `floor-tile`, `rug`, `wall-back`, `wall-side-left`, `wall-side-right`, `doorway` (the tileset); `sofa-td` (adapted) and `bed-made` (new); `player-idle-down` and `player-walk-down-1` (the character, 16x16). Run `npm run sprites -- --sheet=floor-,rug,wall-,doorway,bed-,sofa-td,player-idle-down,player-walk-down` and `node scripts/room-mockup.mjs`, then open `art/contact-sheet.png` and `art/room-mockup.png`. Left-over rules from the side view (outline, palette) are unchanged. Furniture batches are not drawn until Marc approves this look.
@@ -140,4 +145,4 @@ The first non-comment line is `size: WxH`, followed by exactly H rows of exactly
 5. In the game, `sprites.draw(ctx, "name", x, y)` (see `src/render/sprites.ts`). A missing file draws a red rectangle labeled with its name. To swap in hand-made art, drop a PNG of the right size at `public/sprites/<name>.png` and skip the source file (the script only overwrites PNGs that have a `.sprite` source).
 
 ## The player (issue 030, home outfit)
-`player-idle-<dir>`, `player-walk-<dir>-1`, `-2` for `down`, `up`, `left`, `right`, all 16x16, plus the doing poses `player-sit-sofa`, `player-type-desk`, `player-guitar`, `player-read-sofa`, `player-sleep-bed`, `player-eat-table` at the sizes listed under Naming. Colors: hair `8` with `9` and `7`, skin `a`, t-shirt `h` with `i`, sweatpants `4`, outline `1`. A walk frame differs from idle by the whole figure dipping one row, the legs spreading with one foot lifted, and the arms swinging, so it reads at 1x. Play the cycle idle, 1, idle, 2. `node scripts/walk-preview.mjs` writes `art/walk-preview.png` (the cycle at 1x and 6x, all directions). The other outfits in `docs/character-brief.md` (casual, out, pajamas) are drawn later as `player-<outfit>-...`.
+`player-idle-<dir>`, `player-walk-<dir>-1`, `-2` for `down`, `up`, `left`, `right`, all 16x16, plus the doing poses `player-sit-sofa`, `player-type-desk`, `player-guitar`, `player-read-sofa`, `player-sleep-bed`, `player-eat-table` at the sizes listed under Naming. Colors: hair `8` with `9` and `7`, skin `a`, t-shirt `h` with `i`, sweatpants `4`, outline `1`. A walk frame differs from idle by the whole figure dipping one row, the legs spreading with one foot lifted, and the arms swinging, so it reads at 1x. Play the cycle idle, 1, idle, 2. `node scripts/walk-preview.mjs` writes `art/walk-preview.png` (the cycle at 1x and 6x, all directions). The other outfits in `docs/character-brief.md` are drawn (issue 034) as `player-casual-...` (fern-green sweater, jeans), `player-out-...` (red flannel with a two-colour check, corduroy) and `player-pajamas-...` (teal top, plum bottoms, a hair tuft or two), for all idle and walk frames and all four directions (36 sprites). Held items are separate 16x16 overlays drawn over the player in the same cell: `held-<mug|laptop|book|guitar>-<down|up|left|right>`. In the side profile the nose that read as a beak was flattened (the face front is now a straight edge). Judge the poses and overlays in the game at 1x once something draws them.

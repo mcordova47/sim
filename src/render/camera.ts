@@ -21,9 +21,14 @@ export class Camera {
   private prevY = 0;
 
   constructor(
-    private readonly world: Size,
+    private world: Size,
     private readonly view: Size,
   ) {}
+
+  // Changes the world (a new room). Call `snapTo` after it.
+  setWorld(world: Size): void {
+    this.world = world;
+  }
 
   // Jump straight to the target with no smoothing, for the first frame.
   snapTo(target: Point): void {
@@ -62,12 +67,15 @@ export class Camera {
     return target - Math.sign(offset) * deadzone;
   }
 
-  // A world smaller than the view stays pinned to its top-left.
+  // A world smaller than the view holds still: centred sideways, and sitting
+  // at the bottom so the strip above it is free for the HUD.
   private clampX(x: number): number {
-    return Math.min(Math.max(x, 0), Math.max(0, this.world.width - this.view.width));
+    const spare = this.world.width - this.view.width;
+    return spare <= 0 ? Math.floor(spare / 2) : Math.min(Math.max(x, 0), spare);
   }
 
   private clampY(y: number): number {
-    return Math.min(Math.max(y, 0), Math.max(0, this.world.height - this.view.height));
+    const spare = this.world.height - this.view.height;
+    return spare <= 0 ? spare : Math.min(Math.max(y, 0), spare);
   }
 }

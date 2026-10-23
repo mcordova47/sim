@@ -43,9 +43,11 @@ describe("the placeholder level", () => {
       const usable = [...walkable].some((key) => {
         const [col, row] = key.split(",").map(Number);
         return DIRECTIONS.some((d) =>
-          overlaps(
-            { x: (col + DELTA[d].dc) * TILE, y: (row + DELTA[d].dr) * TILE, w: TILE, h: TILE },
-            item.zone,
+          item.zones.some((zone) =>
+            overlaps(
+              { x: (col + DELTA[d].dc) * TILE, y: (row + DELTA[d].dr) * TILE, w: TILE, h: TILE },
+              zone,
+            ),
           ),
         );
       });

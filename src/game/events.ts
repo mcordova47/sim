@@ -1,5 +1,6 @@
 import type { Direction } from "./direction";
 import type { Interactable } from "./interactable";
+import type { Level } from "./level";
 import type { Award } from "./scoring";
 
 // Things that happen in the game that other features (sound, particles,
@@ -10,6 +11,8 @@ export interface GameEvents {
   // The player tried to walk into something solid. `col` and `row` are the tile
   // they ran into. Announced once per attempt, not every frame while pushing.
   bump: { col: number; row: number; direction: Direction };
+  // The player walked through a doorway and is now in room `id`.
+  room: { id: string; level: Level };
   taskStart: { item: Interactable };
   taskComplete: { item: Interactable; award: Award };
   // The player pressed interact but the task in reach is not ready yet.

@@ -29,6 +29,7 @@ export interface Interactable {
   // Until activities exist (issue 022) a task with one is instant, and the
   // dialog runs on top of it.
   dialog?: DialogNode;
-  // Area in pixels where the player must be standing to use it.
-  zone: Rect;
+  // The tiles of the object, as one rectangle per tile (so an L-shaped counter
+  // is exactly its tiles). It is used by standing next to a tile and facing it.
+  zones: Rect[];
 }

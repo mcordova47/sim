@@ -11,7 +11,7 @@ const dt = 1 / 60;
 const press: Controls = { ...NO_INPUT, interactPressed: true };
 const hold = (dir: Controls["dir"]): Controls => ({ ...NO_INPUT, dir });
 
-const sink: Omit<Interactable, "zone"> = {
+const sink: Omit<Interactable, "zones"> = {
   id: "sink",
   name: "Do the dishes",
   prompt: "Do the dishes",
@@ -21,7 +21,7 @@ const sink: Omit<Interactable, "zone"> = {
 
 // A small room. The player starts at @ facing right, with the sink (S) on the
 // next tile and a wall to the left after two tiles.
-function level(task: Omit<Interactable, "zone"> = sink): Level {
+function level(task: Omit<Interactable, "zones"> = sink): Level {
   const map = parseTileMap(
     [
       "##########",
@@ -30,7 +30,8 @@ function level(task: Omit<Interactable, "zone"> = sink): Level {
       "#........#",
       "##########",
     ],
-    { S: { color: "mist", task } },
+    { S: { color: "mist", tasks: [task.id] } },
+    { tasks: [task] },
   );
   return { ...map, facing: "right" };
 }

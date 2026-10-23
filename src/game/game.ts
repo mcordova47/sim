@@ -10,15 +10,15 @@ import { drawProgress, drawPrompt } from "../render/world-ui";
 import { pickVariant } from "./appearance";
 import { DEBUG, DIALOG, ENERGY, TILE, VIEW } from "./config";
 import { DialogRunner, type DialogNode, type DialogResult } from "./dialog";
-import { DELTA } from "./direction";
+import { DELTA, type Direction } from "./direction";
 import { Emitter, type GameEvents } from "./events";
 import { Grid } from "./grid";
 import { InteractionSystem } from "./interaction";
-import type { Level } from "./level";
+import { validateLevel, type Door, type Level } from "./level";
 import { Player } from "./player";
 import { ApartmentState } from "./state";
 import { STATE_VARS } from "./state-vars";
-import type { Solid } from "./world";
+import { boundsOf, type Solid } from "./world";
 
 // An extra thing the game updates and draws, added with `Game.addLayer`. Every
 // hook is optional. Layers run in the order they were added.
@@ -51,6 +51,15 @@ export interface Layer {
   drawHud?(ctx: CanvasRenderingContext2D): void;
 }
 
+// How to set up a game beyond its first level.
+export interface GameOptions {
+  // The other levels the level's doorways lead to, by id.
+  rooms?: Readonly<Record<string, Level>>;
+  // The apartment and character state; a fresh one by default (a saved one
+  // can be passed in).
+  state?: ApartmentState;
+}
+
 // The running game: owns the player, tasks, scoring and the UI built on them.
 // It never touches the keyboard or the loop, so it can be driven by tests.
 export class Game {
@@ -64,17 +73,20 @@ export class Game {
   private readonly hud = new Hud();
   private readonly popups = new Popups();
   private readonly layers: Layer[] = [];
-  private readonly grid: Grid;
+  private level: Level;
+  private grid: Grid;
   private readonly dialog: DialogRunner;
   // Who currently has the controls (a dialog, later an activity or cutscene).
   private readonly locks = new Set<object>();
   private releaseDialogLock: (() => void) | null = null;
+  // The other levels the level's doorways lead to, by id.
+  private readonly rooms: Readonly<Record<string, Level>>;
 
-  constructor(
-    private readonly level: Level,
-    state: ApartmentState = new ApartmentState(STATE_VARS),
-  ) {
-    this.state = state;
+  constructor(level: Level, options: GameOptions = {}) {
+    validateLevel(level);
+    this.level = level;
+    this.rooms = options.rooms ?? {};
+    this.state = options.state ?? new ApartmentState(STATE_VARS);
     this.grid = new Grid(level.size, this.activeSolids());
     this.state.onChange = (change) => this.stateChanged(change);
     this.player = new Player(level.spawn.x, level.spawn.y, level.facing);
@@ -88,7 +100,8 @@ export class Game {
       if (award.repeatFactor < 1) {
         lines.push({ text: `REPEAT X${award.repeatFactor.toFixed(2)}`, color: COLOR.mist });
       }
-      this.popups.add(item.zone.x + item.zone.w / 2, item.zone.y, lines);
+      const zone = boundsOf(item.zones);
+      this.popups.add(zone.x + zone.w / 2, zone.y, lines);
       this.events.emit("taskComplete", { item, award });
     }, this.state);
     this.interaction.onStart = (item) => {
@@ -114,8 +127,8 @@ export class Game {
   }
 
   // The solids that block right now: those with no condition, or whose condition holds.
-  private activeSolids(): Solid[] {
-    return this.level.solids.filter((s) => !s.blockedWhen || this.state.matchesAll(s.blockedWhen));
+  private activeSolids(level: Level = this.level): Solid[] {
+    return level.solids.filter((s) => !s.blockedWhen || this.state.matchesAll(s.blockedWhen));
   }
 
   private stateChanged(change: { id: string; value: number; previous: number }): void {
@@ -169,6 +182,31 @@ export class Game {
     return this.dialog.start(node, onDone);
   }
 
+  // Moves the player into another room: the level, the tile and the way they
+  // face. Score, combos, cooldowns, popups, events and layers carry on.
+  loadLevel(level: Level, col: number, row: number, facing: Direction): void {
+    validateLevel(level);
+    if (!Number.isInteger(col) || !Number.isInteger(row)) {
+      throw new Error(`Can't enter ${level.id ?? "the room"} at col ${col}, row ${row}: not a whole tile`);
+    }
+    if (new Grid(level.size, this.activeSolids(level)).isBlocked(col, row)) {
+      throw new Error(`Can't enter ${level.id ?? "the room"} at col ${col}, row ${row}: it is blocked`);
+    }
+    this.level = level;
+    this.grid = new Grid(level.size, this.activeSolids());
+    this.interaction.setItems(level.interactables);
+    this.player.placeAt(col, row, facing);
+    this.camera.setWorld(level.size);
+    this.camera.snapTo(this.playerCentre());
+  }
+
+  private enterDoor(door: Door): void {
+    const room = this.rooms[door.to];
+    if (!room) throw new Error(`The door at col ${door.col}, row ${door.row} leads to "${door.to}", which is not a known room`);
+    this.loadLevel(room, door.arrive.col, door.arrive.row, door.arrive.facing);
+    this.events.emit("room", { id: door.to, level: room });
+  }
+
   update(dt: number, controls: Controls): void {
     if (this.dialog.open) {
       // The dialog has the controls. Unless the clock is set to run on, time
@@ -190,6 +228,9 @@ export class Game {
     this.player.update(dt, walking ? controls : NO_INPUT, this.grid);
     if (this.player.arrivedThisUpdate) this.events.emit("step", this.player.arrivedThisUpdate);
     if (this.player.bumpedThisUpdate) this.events.emit("bump", this.player.bumpedThisUpdate);
+    const arrived = this.player.arrivedThisUpdate;
+    const door = arrived && this.level.doors.find((d) => d.col === arrived.col && d.row === arrived.row);
+    if (door) this.enterDoor(door);
     this.camera.update(dt, this.playerCentre());
     this.popups.update(dt);
     this.hud.update(dt, this.interaction.scoreboard.score);
@@ -322,8 +363,7 @@ export class Game {
     if (DEBUG.zones) {
       ctx.strokeStyle = COLOR.butter;
       for (const item of this.level.interactables) {
-        const z = item.zone;
-        ctx.strokeRect(z.x + 0.5, z.y + 0.5, z.w - 1, z.h - 1);
+        for (const z of item.zones) ctx.strokeRect(z.x + 0.5, z.y + 0.5, z.w - 1, z.h - 1);
       }
     }
   }

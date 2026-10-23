@@ -19,7 +19,7 @@ Controls: WASD or arrow keys to walk (a new direction turns you first, holding i
 ## Layout
 
 - `src/main.ts`: entry point
-- `src/game/`: the game: loop, the player and grid, tile-map levels, interaction, scoring, events and layers, task content
+- `src/game/`: the game: loop, the player and grid, tile-map levels, the three-room apartment, interaction, scoring, events and layers, task content
 - `src/input/`: keyboard state and controls
 - `src/render/`: canvas, camera, pixel font, HUD, popups and colours (from the shared palette)
 - `art/`: sprite sources, the palette and the style guide notes (`docs/art-style.md`)

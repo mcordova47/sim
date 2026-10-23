@@ -1,88 +1,71 @@
-> **Superseded (2026-10-22).** This is the floor plan for the side-view version of the game (git tag `side-view-prototype`). The game is now top-down; issue 020 replaces this with top-down maps. It is kept for the inventory of pieces, their real sizes and colours, and the reasoning about the real layout.
-
 # Floor plan
 
-The apartment as a side-on cutaway. Data lives in `src/game/room.ts` and `src/game/tasks.ts`; `src/game/reach.ts` checks reachability. This doc explains the choices. Everything here is a first proposal for Marc to review.
+The apartment as three top-down rooms. Data lives in `src/game/apartment.ts` (the maps, as pictures drawn in text), `src/game/tasks.ts` (task content) and is turned into levels by `src/game/tilemap.ts`. `src/game/plan-checks.ts` and `src/game/apartment.test.ts` check it. This replaces the side-view plan (git tag `side-view-prototype`).
 
-## Scale and size
-- **1 tile = 1 foot.** Real measurements carry over directly, which keeps the data easy to check.
-- The level is **35 x 12 tiles**: main room 17 + kitchen 11 + bath 7 wide, a 10 ft ceiling, and 2 rows above it for the HUD. That is wider than the 20 x 12 view issue 001 set up, so the view (or the tile size) needs to change. See follow-ups.
-- Walls between rooms are drawn but do not block movement, so the whole apartment stays on one screen.
+## Decisions (Marc, 2026-10-23)
+- **Rooms are separate screens** joined by doorways, the Pokemon way. Walking onto a doorway tile moves the player to the next room, standing just inside its doorway and facing away from it. Score, combos, cooldowns, popups and events carry over.
+- **1 tile = 1 foot, furniture to scale.** The character is one tile, so it is chunky next to a 7-foot bed, but the real arrangement and its cramped feel survive. Every room fits the 20x12-tile view, so the camera never scrolls; a smaller room is centred sideways and sits at the bottom of the view (the HUD lives in the strip above it).
+- **The layout follows Marc's hand sketch** (not to scale, but the gaps between things are roughly right). The top of each map is the north wall. The main room is seen from the sofa side, as in the art guide.
+- **Three screens, and the kitchen is an L.** The front door is decoration for now.
 
-## Left to right
+## Rooms
+Sizes are inside the walls; each map adds a one-tile wall all round (plus solid filler where a room is not a rectangle).
 
-| Zone | Piece | x | Width | Height | Collision |
-|---|---|---|---|---|---|
-| main | Queen bed | 0 | 4 | 2 ft | solid |
-| main | Cube bookshelf | 4 | 3 | 5 ft | solid |
-| main | Standing desk | 7 | 3 | 3 ft | oneWay |
-| main | Dining table | 10 | 3 | 2 ft | oneWay |
-| main | Record player stand | 13 | 1 | 3 ft | solid |
-| main | Sofa armrest | 14 | 1 | 2 ft | solid |
-| main | Sofa | 15 | 2 | 1 ft | solid |
-| kitchen | Tote bag and shoes | 17 | 1 | 1 ft | solid |
-| kitchen | Trash bin | 18 | 1 | 2 ft | solid |
-| kitchen | Stove | 19 | 3 | 3 ft | solid |
-| kitchen | Counter and sink | 22 | 2 | 3 ft | solid |
-| kitchen | Box stack | 24 | 1 | 5 ft | solid |
-| kitchen | Fridge | 25 | 2 | 6 ft | solid |
-| kitchen | Side rack | 27 | 1 | 4 ft | oneWay |
-| bath | Vanity sink | 28 | 2 | 3 ft | solid |
-| bath | Toilet | 30 | 2 | 2 ft | solid |
-| bath | Tub and curtain | 32 | 3 | 2 ft | solid |
+| Room | Inside | Map |
+|---|---|---|
+| main | 17 x 8 | 19 x 10 tiles |
+| kitchen | 11 x 8, an L | 13 x 10 |
+| bath | 7 x 4 | 9 x 6 |
+
+Doorways (each pairs with one back; a test checks it):
+- **Main room west wall <-> kitchen east wall:** a two-tile passage (two door tiles side by side), in the middle of the west wall. Wall on either side: the table's side and the sofa's side.
+- **Kitchen leg west wall <-> bath east wall:** one door.
+
+### Main room
+Columns and rows counted inside the walls, from the top left (col 0, row 0).
+
+| Piece | Tiles | Where | Tasks |
+|---|---|---|---|
+| Dining table | 4 x 2 at col 0, row 0 | north wall, west end | coffee, reheat, eat dinner |
+| Standing desk | 4 x 2 at col 5, row 0 | north wall | work, journal |
+| Desk chair | 1 at col 7, row 2 | under the desk | (decor) |
+| Cube bookshelf | 1 x 4 at col 9, row 0 | stands out from the north wall, a divider | water plant, sort records |
+| Queen bed | 5 x 6 at col 11, row 1 | east end | make bed, work, doomscroll |
+| Nightstand | 3 x 1 at col 13, row 0 | north wall, above the bed | (decor) |
+| Radiator | 1 x 4 at col 16, row 0 | east wall, in front of the upper window | (decor) |
+| Windows | east wall, rows 2-3 (behind the radiator) and rows 5-6 | | open blinds (the lower one) |
+| Sofa | 6 x 2 at col 1, row 4 | south wall | doomscroll, work |
+| Guitar | 1 x 2 at col 0, rows 4-5 | by the sofa's west end | guitar |
+| Lamp table | 1 at col 7, row 5 | by the sofa's east end | (decor) |
+| Record stand | 1 at col 8, row 6 | | flip record |
+| Front door | 2, in the south wall at cols 9-10 | | (decoration) |
+| Paintings | north wall over the table, desk and nightstand | | (decor) |
+
+The south wall steps down toward the front door: it is at row 6 along the sofa, row 7 at cols 7-8, and row 8 from col 9 east. There is **one lane** to walk around the bed: down its west side (col 10) and along its foot (row 7). The player starts at col 4, row 3, facing the sofa.
+
+### Kitchen
+The bar runs along the top (11 x 4): the sink and counter (3 wide) and the stove (3 wide), both 2 deep against the south wall of the bar (the wall above the bath), the window in the west wall, the recycling, bin and box stack/pantry in the north-east corner, and the tote bag beside them. The leg drops down the east side (4 x 4) with the fridge (2 x 2) against the east wall. The bath is the solid block at the bottom left.
+
+### Bath
+The tub (2 x 4) down the west wall, the toilet and the vanity sink (each 2 x 2) against the north wall, a walkway across the south, and the door in the east wall.
+
+## Doing the same task from different places
+A task is placed on an object by id, so the same task can be on several objects. **Work** is on the desk, the sofa and the bed; **doomscroll** is on the sofa and the bed. They share one cooldown and repeat penalty (they are the same task), so working from the couch after working at the desk counts as a repeat. When an object has several tasks (the table has three), the interact key starts the first one that is off cooldown, so they rotate until the choice menu (issue 023).
+
+## Spots
+A spot is a walkable tile to stand on and the direction to face. `taskSpots` in `plan-checks.ts` works them out from the map: every walkable tile next to a tile of the object. A test walks from the start, through the doorways, and fails if any task has no reachable spot. For example, coffee at the table is done from the four tiles south of it, facing up; the guitar from the tile north of it, facing down; and the blinds from the east-wall lane, facing east.
+
+## L-shaped objects
+A task's zones are one rectangle per tile of the object, not the box around it, so an L-shaped counter or sofa has no usable gap in its corner. No piece in the apartment is an L right now (the L is the kitchen); the rule is tested on small maps in `tilemap.test.ts` and `game.test.ts`.
 
 ## Choices to review
-- **Squeezed main room.** In the real room the sofa is on one wall and the table, desk, shelf and bed are on the opposite one. A side-on view has one lane, so five pieces that total about 24 ft share 17 ft. Bed, desk, table and sofa are scaled down by roughly a quarter to a third. Heights are real.
-- **Little open floor.** Furniture touches end to end, so most travel is along the tops. The only bare floor is under the desk and table (x 7 to 13), because the 14 px player fits under their 2 to 3 ft slabs. The desk is 3 ft, not the real 2.5, because it is a standing desk and the extra foot makes the bookshelf reachable. For more visible floor, shrink pieces further or widen the level.
-- **Kitchen reordered.** In real life the fridge is next to the door. Here the tote bag (1 ft), then bin (2), stove (3), counter (3), box stack (5) and fridge (6) form a staircase up to the fridge top. The side rack is the end of the line.
-- **Bath is a staircase too:** vanity 3, toilet 2, tub 2.
-- **Guitar on the wall** hangs above the sofa, but the task is done sitting on the sofa seat: the engine only starts a task for a player standing on something, and nothing stands at guitar height. The sofa seat is split between the two sofa tasks (doomscroll on the left tile, guitar on the right). The mic and key light stand is decor only.
-- **Bed tasks** split the bed too: make the bed on the left two tiles, open the blinds on the right two, so the zones don't overlap.
-- **Dimensions assumed.** I took "17x8" as 17 ft along the side-on axis and 8 ft deep, and the same for the kitchen and bath. I took the bed as 4 tiles wide of its 6.7 ft length. Correct me if any of that is backwards.
-
-## Platforms, interactables, decor
-- **Platforms only:** sofa armrest, tote bag (solid blocks used as steps).
-- **Interactable (and also platform):** every other piece, because you stand on it to use it.
-- **Decor:** window blinds, gallery wall, guitar, mic stand, kitchen curtain, range hood, shower curtain.
-- Collision is derived from the pieces (`SOLIDS`). Desk, table and side rack are one-way: jump up through them from below.
-
-## Tasks
-21 tasks. Points and durations are first guesses and live only in `tasks.ts`.
-
-| Piece | Task | Prompt | Duration | Points | Flavor |
-|---|---|---|---|---|---|
-| bed | Make the bed | Make the bed | 3s | 30 | It will be undone in eleven hours. Worth it. |
-| bed | Open the blinds | Open the blinds | 1s | 10 | The outside is still there. Good to know. |
-| bookshelf | Water the snake plant | Water the plant | 2s | 20 | It has survived worse owners. It has not had worse owners. |
-| bookshelf | Alphabetize the records | Alphabetize records | 6s | 60 | By artist. Then by mood. Then by artist again. |
-| desk | Answer emails | Work at the desk | 8s | 80 | Per my last email, you are doing great. |
-| desk | Write in the journal | Write in the journal | 5s | 50 | Dear diary, I made coffee. It was a lot. |
-| record-stand | Flip the record | Flip the record | 2s | 25 | Side B is the one you actually like. |
-| table | Make pour-over coffee | Make coffee | 6s | 70 | Weigh, grind, bloom, wait. Peak civilization. |
-| table | Reheat leftovers | Reheat leftovers | 3s | 25 | Thirty seconds more. Thirty seconds more. Cold in the middle. |
-| table | Eat dinner | Eat dinner | 7s | 60 | Eaten while watching something you have already seen. |
-| sofa | Doomscroll | Doomscroll | 10s | 40 | One more. Okay, one more. Where did forty minutes go. |
-| sofa | Play three chords | Play guitar | 5s | 55 | Same three chords. Different, slightly worse, song. |
-| spice-rack | Stare into the fridge | Open the fridge | 3s | 30 | Nothing new has appeared since the last check. |
-| fridge | Refill the humidifier | Refill the humidifier | 4s | 45 | The air is now 4% less crunchy. |
-| bin | Take out the trash | Take out the trash | 4s | 50 | The bag was not full. You took it out anyway, out of spite. |
-| stove | Cook dinner | Cook dinner | 8s | 90 | Smoke alarm: silent, but judging. |
-| counter | Do the dishes | Do the dishes | 7s | 80 | The pile regrows when you look away. |
-| boxes | Flatten the boxes | Flatten boxes | 5s | 45 | You have been meaning to do this since spring. |
-| vanity | Brush teeth | Brush teeth | 3s | 30 | Two full minutes. Honest. |
-| toilet | Take a moment | Take a moment | 4s | 20 | Phone battery: 41%. Phone battery: 33%. |
-| tub | Take a shower | Take a shower | 6s | 70 | Best ideas of the day, all forgotten by the towel. |
-
-## Reachability
-`reach.ts` builds a graph of standable surfaces (tops of pieces, plus bare floor) and links two surfaces if the gap is small enough and the step up is within the jump limit. It reports pieces and tasks that can't be reached from the spawn on the sofa, and anything with too little headroom under the 10 ft ceiling.
-
-The integration (issue 011) now runs this check in a test with limits *measured from the real `Player`* (full-hold standing jump rise and flat standing-jump distance, rounded down to a quarter tile): a rise of **2.25 tiles** and a gap of **2 tiles**. Every piece and task is reachable with those. The older limits below are what the first draft used.
-
-Limits come from issue 002's `PLAYER` config (1 tile = 16 px): `jumpHeight` 40 px = **2.5 tiles up**, player 14 px = 0.875 tiles tall, and a flat-ground hop covers about 3.3 tiles at `maxSpeed` (checked with a gap of 2 and of 3).
-
-Result with those limits: **every piece and task is reachable and nothing hits the ceiling.** The first run failed the bookshelf (a 3 ft step up from the 2 ft desk) and the guitar (zone too high to jump to from the sofa seat). Raising the desk to 3 ft and lowering the guitar zone to 3 ft fixed both. The tightest steps are now 2.5 tiles or less everywhere.
-
-**Scale:** at 1 tile = 1 ft the player is about 10 inches tall and jumps about 2.3 ft. Marc decided to keep this for now. The level is 560 px wide against a 320 px view, which the scrolling camera (issue 010) handles.
+- **Bookshelf** is 1 x 4 and stands out from the wall, as in the sketch.
+- **Bed** 5 x 6, the sketch's size; the queen is about 5 x 6.7 ft.
+- **The sofa** is a plain 6 x 2 block; the sketch shows an arm and a seat cushion, left for the art.
+- **Kitchen sizes** follow the measurement (11 x 8 bounding box). The sketch's kitchen is a little tighter.
+- **Left out:** the dark wooden bench in the middle of the main room (in the photos), the mirror on the kitchen door, and the "painting" in the corridor north of the kitchen. Only furniture and fixtures are in the data.
+- **Doors** are open tiles (no animation or fade).
+- **Placeholder drawing:** each tile of furniture is a coloured rectangle. `sprite` names follow `docs/art-style.md` (`bed-made` and `sofa-td` exist; the rest are the names the furniture batches should use).
 
 ## Privacy
-Descriptions list furniture type, size and color only. No address, no belongings beyond furniture and fixtures. Marc deletes `reference-photos/` when this issue closes.
+Descriptions list furniture type, size and layout only. No address and no belongings beyond furniture and fixtures. Photos stay in `reference-photos/`, which is gitignored.

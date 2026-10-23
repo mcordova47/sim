@@ -1,23 +1,15 @@
+import { CLOCK, ENERGY } from "./config";
+import { CONTEMPLATE } from "./dialog-data";
+import type { Interactable } from "./interactable";
+
 // Task content from the first version of the game: names, prompts, durations,
-// points and a line of flavor. Where a task happens (which object, which tile)
-// is not here; that comes from the top-down floor plan (issue 020). The
+// points and a line of flavor, plus (below) what the tasks do to the apartment.
+// Where a task happens (which object, which tile) is not here; the floor plan
+// (`apartment.ts`) names tasks by id at the objects that offer them. The
 // personal task list (issue 024) will replace and extend this.
+export type Task = Omit<Interactable, "zones">;
 
-export type Task = {
-  id: string;
-  // Name shown in score popups and achievements.
-  name: string;
-  // Short verb phrase shown when the player is in range.
-  prompt: string;
-  // Seconds the player holds still while doing it.
-  duration: number;
-  // Points for the first completion. Repeats are scaled by the scoring system.
-  points: number;
-  // One-line joke shown on completion.
-  flavor: string;
-};
-
-export const TASKS: Task[] = [
+const CONTENT: Task[] = [
   // Bed nook
   { id: 'make-bed', name: 'Make the bed', prompt: 'Make the bed', duration: 3, points: 30,
     flavor: 'It will be undone in eleven hours. Worth it.' },
@@ -72,3 +64,73 @@ export const TASKS: Task[] = [
   { id: 'shower', name: 'Take a shower', prompt: 'Take a shower', duration: 6, points: 70,
     flavor: 'Best ideas of the day, all forgotten by the towel.' },
 ];
+
+// What tasks change in the apartment and the character (issue 021). The numbers
+// are a placeholder balance, carried over from the first demo room, until the
+// personal task list (issue 024) sets them.
+const dirty = (n: number) => ({ var: "dishes", add: n });
+const NO_CLEAN_PLATES = { var: "dishes", max: 8, reason: "NO CLEAN PLATES" };
+
+const STATE_RULES: Record<string, Partial<Task>> = {
+  "make-bed": {
+    cooldown: 30,
+    requires: [{ var: "bedMade", max: 0, reason: "BED IS MADE" }],
+    effects: [{ var: "bedMade", set: 1 }],
+  },
+  dishes: {
+    cooldown: 45,
+    requires: [{ var: "dishes", min: 1, reason: "NO DIRTY DISHES" }],
+    effects: [{ var: "dishes", set: 0 }],
+    // More dishes, more points.
+    pointsBonus: { var: "dishes", perUnit: 10 },
+  },
+  coffee: { requires: [NO_CLEAN_PLATES], effects: [dirty(1), { var: "energy", add: 10 }] },
+  reheat: { requires: [NO_CLEAN_PLATES], effects: [dirty(1), { var: "energy", add: 8 }] },
+  "eat-dinner": { requires: [NO_CLEAN_PLATES], effects: [dirty(2), { var: "energy", add: 15 }] },
+  cook: { requires: [NO_CLEAN_PLATES], effects: [dirty(2), { var: "energy", add: 5 }] },
+  work: {
+    cooldown: 30,
+    requires: [{ var: "energy", min: 10, reason: "TOO TIRED TO WORK" }],
+    effects: [{ var: "energy", add: -15 }],
+  },
+};
+
+// Tasks that need the state or a dialog, so they are not in the content list above.
+const EXTRA: Task[] = [
+  {
+    id: "sleep",
+    name: "Go to sleep",
+    prompt: "Go to sleep",
+    duration: 6,
+    points: 40,
+    cooldown: 60,
+    flavor: "Just five minutes. It was not five minutes.",
+    requires: [
+      {
+        anyOf: [
+          { var: "energy", max: ENERGY.sleepBelow },
+          { var: "clock", min: CLOCK.lateFrom },
+          { var: "clock", max: CLOCK.lateUntil },
+        ],
+        reason: "NOT TIRED YET",
+      },
+    ],
+    // Seven hours go by and the bed is a mess again.
+    effects: [
+      { var: "energy", set: 100 },
+      { var: "bedMade", set: 0 },
+      { var: "clock", add: 7 },
+    ],
+  },
+  {
+    id: "contemplate",
+    name: "Contemplate",
+    prompt: "Contemplate",
+    duration: 0,
+    points: 5,
+    cooldown: 30,
+    dialog: CONTEMPLATE,
+  },
+];
+
+export const TASKS: Task[] = [...CONTENT.map((t) => ({ ...t, ...STATE_RULES[t.id] })), ...EXTRA];

@@ -41,4 +41,13 @@ describe("Grid", () => {
   it("gives the rectangle of a tile", () => {
     expect(new Grid(size, []).tileRect(2, 3)).toEqual({ x: 2 * TILE, y: 3 * TILE, w: TILE, h: TILE });
   });
+
+  it("blocks every tile a solid touches, including partly covered ones", () => {
+    const g = new Grid(size, [{ x: TILE + 4, y: 2, w: 2 * TILE, h: TILE }]);
+    const blocked: string[] = [];
+    for (let row = 0; row < g.rows; row++) {
+      for (let col = 0; col < g.cols; col++) if (g.isBlocked(col, row)) blocked.push(`${col},${row}`);
+    }
+    expect(blocked).toEqual(["1,0", "2,0", "3,0", "1,1", "2,1", "3,1"]);
+  });
 });

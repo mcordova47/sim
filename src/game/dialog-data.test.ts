@@ -4,7 +4,9 @@ import { menuBoxRect } from "../render/dialog-box";
 import { DIALOG } from "./config";
 import type { DialogNode } from "./dialog";
 import { CONTEMPLATE } from "./dialog-data";
+import { APARTMENT } from "./apartment";
 import { PLACEHOLDER_LEVEL } from "./placeholder-level";
+import { TASKS } from "./tasks";
 import { wrapText } from "./dialog";
 
 // Walks every node reachable from `root`, once each (dialogs may loop back).
@@ -25,12 +27,19 @@ function nodes(root: DialogNode): DialogNode[] {
 const roots: DialogNode[] = [
   CONTEMPLATE,
   ...PLACEHOLDER_LEVEL.interactables.flatMap((i) => (i.dialog ? [i.dialog] : [])),
+  // And every dialog a task in the real apartment carries.
+  ...Object.values(APARTMENT.rooms).flatMap((room) =>
+    room.interactables.flatMap((i) => (i.dialog ? [i.dialog] : [])),
+  ),
+  ...TASKS.flatMap((t) => (t.dialog ? [t.dialog] : [])),
 ];
 const all = [...new Set(roots.flatMap(nodes))];
 
 describe("the dialog data", () => {
-  it("is found: the contemplate menu is reachable from a task in the placeholder room", () => {
+  it("is found: the contemplate menu is reachable from a task in the placeholder room and in the real apartment", () => {
     expect(PLACEHOLDER_LEVEL.interactables.some((i) => i.dialog === CONTEMPLATE)).toBe(true);
+    const real = Object.values(APARTMENT.rooms).flatMap((r) => r.interactables);
+    expect(real.some((i) => i.dialog === CONTEMPLATE)).toBe(true);
     expect(all.length).toBeGreaterThan(5);
   });
 

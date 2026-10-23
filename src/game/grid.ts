@@ -1,5 +1,5 @@
 import { TILE } from "./config";
-import { overlaps, type Rect } from "./world";
+import type { Rect } from "./world";
 
 // The room as a grid of tiles, each walkable or not. Built from the level's
 // solid rectangles: a tile is blocked if any solid overlaps it. Anything
@@ -17,11 +17,16 @@ export class Grid {
 
   // Replaces what blocks the grid, for solids that come and go with state.
   setSolids(solids: Rect[]): void {
-    this.blocked = [];
-    for (let row = 0; row < this.rows; row++) {
-      for (let col = 0; col < this.cols; col++) {
-        const tile = this.tileRect(col, row);
-        this.blocked.push(solids.some((s) => overlaps(tile, s)));
+    this.blocked = new Array<boolean>(this.cols * this.rows).fill(false);
+    // Mark the tiles each solid touches, so a big room costs one pass.
+    for (const s of solids) {
+      if (!(s.w > 0 && s.h > 0)) continue;
+      const col0 = Math.max(0, Math.floor(s.x / TILE));
+      const col1 = Math.min(this.cols - 1, Math.ceil((s.x + s.w) / TILE) - 1);
+      const row0 = Math.max(0, Math.floor(s.y / TILE));
+      const row1 = Math.min(this.rows - 1, Math.ceil((s.y + s.h) / TILE) - 1);
+      for (let row = row0; row <= row1; row++) {
+        for (let col = col0; col <= col1; col++) this.blocked[row * this.cols + col] = true;
       }
     }
   }

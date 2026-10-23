@@ -186,7 +186,7 @@ describe("Player", () => {
   });
 
   it("can't walk through a solid piece of furniture", () => {
-    const withTable = parseTileMap(["#####", "#.@T#", "#####"], { T: { color: "oak" as never } });
+    const withTable = parseTileMap(["#####", "#.@T#", "#####"], { T: { color: "brick" } });
     const g = new Grid(withTable.size, withTable.solids);
     const p = new Player(withTable.spawn.x, withTable.spawn.y, "right");
     for (let i = 0; i < 60; i++) p.update(dt, hold("right"), g);

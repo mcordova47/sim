@@ -13,7 +13,7 @@ const press: Controls = { ...NO_INPUT, interactPressed: true };
 const hold = (dir: Controls["dir"]): Controls => ({ ...NO_INPUT, dir });
 const tap = (dir: NonNullable<Controls["dir"]>): Controls => ({ ...NO_INPUT, dir, dirPressed: dir });
 
-const think: Omit<Interactable, "zone"> = {
+const think: Omit<Interactable, "zones"> = {
   id: "think",
   name: "Think",
   prompt: "Think",

@@ -14,7 +14,7 @@ const fridge: Interactable = {
   duration: 1,
   points: 10,
   cooldown: 5,
-  zone: { x: 100, y: 100, w: 20, h: 20 },
+  zones: [{ x: 100, y: 100, w: 20, h: 20 }],
 };
 const sink: Interactable = {
   id: "sink",
@@ -22,7 +22,7 @@ const sink: Interactable = {
   prompt: "Do the dishes",
   duration: 2,
   points: 20,
-  zone: { x: 200, y: 100, w: 20, h: 20 },
+  zones: [{ x: 200, y: 100, w: 20, h: 20 }],
 };
 
 // The tile being faced at x. `facing = false` stands for being mid-step, when
@@ -109,7 +109,7 @@ describe("InteractionSystem", () => {
   });
 
   it("buffers an interact press made just before a task ends", () => {
-    const other: Interactable = { ...sink, id: "other", duration: 1, zone: fridge.zone };
+    const other: Interactable = { ...sink, id: "other", duration: 1, zones: fridge.zones };
     const both = new InteractionSystem([fridge, other]);
     both.update(dt, at(105), press);
     run(both, 1 - 5 * dt);
@@ -130,7 +130,7 @@ describe("InteractionSystem", () => {
   });
 
   it("starts the first task that is off cooldown when zones overlap", () => {
-    const twin: Interactable = { ...sink, id: "twin", zone: fridge.zone };
+    const twin: Interactable = { ...sink, id: "twin", zones: fridge.zones };
     const sys = new InteractionSystem([fridge, twin]);
     sys.update(dt, at(105), press);
     expect(sys.active?.item).toBe(fridge);
@@ -142,7 +142,7 @@ describe("InteractionSystem", () => {
   });
 
   it("falls back to the first task in reach when all are cooling down", () => {
-    const twin: Interactable = { ...sink, id: "twin", duration: 0, zone: fridge.zone };
+    const twin: Interactable = { ...sink, id: "twin", duration: 0, zones: fridge.zones };
     const sys = new InteractionSystem([twin, fridge]);
     sys.update(dt, at(105), press);
     sys.update(dt, at(105), press);

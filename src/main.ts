@@ -1,7 +1,7 @@
+import { APARTMENT } from "./game/apartment";
 import { attachFeatures } from "./game/features";
 import { Game } from "./game/game";
 import { startLoop } from "./game/loop";
-import { PLACEHOLDER_LEVEL } from "./game/placeholder-level";
 import { readControls } from "./input/controls";
 import { Keyboard } from "./input/keyboard";
 import { createScreen } from "./render/canvas";
@@ -9,7 +9,7 @@ import { createScreen } from "./render/canvas";
 const canvas = document.getElementById("game") as HTMLCanvasElement;
 const { ctx } = createScreen(canvas);
 const keyboard = new Keyboard();
-const game = new Game(PLACEHOLDER_LEVEL);
+const game = new Game(APARTMENT.rooms[APARTMENT.start], { rooms: APARTMENT.rooms });
 attachFeatures(game);
 
 startLoop({

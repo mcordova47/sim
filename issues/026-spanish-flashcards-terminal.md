@@ -54,16 +54,27 @@ The app is "Mil Palabras" (palabras.mcord.dev): PureScript, Netlify, spaced repe
 - **Key handling:** read from `.env.local` or a localStorage field entered once, accepting the app's pairing link or a bare key (the app's parser accepts both). Not committed.
 - **Card text in the pixel font:** the vocabulary deck needs only `áéíóúñ` plus basic punctuation, so the font requirement is much smaller than I first wrote. `¿` and `¡` are not needed for v1.
 
-### Still needs Marc
-See the questions in the progress log entry below.
+### Decided by Marc (2026-10-22)
+- **Hosting:** the game might be hosted, so plan for it. CORS headers and an `OPTIONS` handler go on the flashcards functions (`progress.mjs`, and `notes.mjs` only if ever needed). Locally a Vite dev proxy is an alternative, but the hosted case needs the headers anyway.
+- **Changes to the flashcards app are welcome.** Candidates: the CORS change, publishing the deck as a static JSON file, and exporting scheduler test vectors for the parity tests. Each is its own small change in that repo, made on its own branch there.
+- **Key: never in the codebase.** The game asks for it and Marc types it. It accepts a bare key or the app's `?pair=` link (same parser rules as the app). It must be a text-entry screen in the game (needs a text input mode in the dialog work, 023).
+- **UI:** a very loose pixel homage to the app, not a replica. Text must be legible first.
+- **Spoken answers:** "mumblespeak" instead of real speech. Read as: when the card's Spanish is "spoken", the game plays Animal Crossing / Sims style per-letter blips or mumble sounds, not the browser's text-to-speech that the real app uses. Confirm this reading when picked up.
+
+### Still open (deliberately)
+- **Deck source:** copy `es-1000.csv` into the game (simplest) or fetch a static JSON the flashcards app publishes (needs that app hosted and CORS on it). Decide when picked up.
+- **Points:** whether real answers earn game points, how much, and whether there is a daily cap. Left open.
+- **Remembering the key:** ask every time, or remember it in this browser's localStorage with a "forget key" option? Not in the codebase either way. Leaning toward remembering so Marc is not typing 32 characters on every visit, but not decided.
 
 ## Acceptance criteria (draft, to refine later)
 - A "study Spanish" interaction on the computer starts a `flashcards` activity.
 - The activity loads due cards from the real server through a thin client module with the network layer injected, so it is tested without a network.
 - Answers are posted back to the server; failures are handled on purpose and tested.
 - The card screen renders in the pixel font with Spanish characters.
-- No secrets committed; the server URL and token come from local config.
+- The key is typed in by Marc in the game and never committed or bundled; the server URL comes from config.
+- A "mumblespeak" sound plays when a Spanish answer is spoken.
+- CORS support exists on the flashcards functions (changed in that repo) before this ships hosted.
 
 ## Progress log
-- 2026-10-22: Researched the flashcards repo; findings above. Open questions for Marc: (1) is the game ever hosted or local only, (2) modify the flashcards app or leave it untouched, (3) where the deck comes from, (4) points rules, (5) how faithful the card UI should be.
+- 2026-10-22: Researched the flashcards repo; findings above. Marc answered the questions: hosting possible, flashcards changes welcome, loose homage UI, mumblespeak audio, key typed in by Marc and never in the code. Deck source and points left open on purpose.
 - 2026-10-22: Recorded as an idea by Marc. Status is blocked until 021 to 023 exist and the core game has passed its decision gate.

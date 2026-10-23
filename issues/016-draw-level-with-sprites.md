@@ -2,7 +2,7 @@
 id: 016
 title: Draw the level and player with sprites
 status: todo
-owner: claude
+owner: agent
 depends_on: [007, 008, 010, 011]
 ---
 

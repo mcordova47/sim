@@ -38,21 +38,26 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 | 007c | [Sprites: kitchen west](issues/007c-sprites-kitchen-west.md) | agent | done | 005, 006 |
 | 007d | [Sprites: kitchen east and bath](issues/007d-sprites-kitchen-east-and-bath.md) | agent | done | 005, 006 |
 | 008 | [Player character sprite](issues/008-player-sprite.md) | agent | done | 006 |
-| 009 | [Polish: sound, particles, achievements, time of day](issues/009-polish.md) | agent | todo | 004, 007 |
+| 009 | [Polish (umbrella)](issues/009-polish.md) | marc + claude | todo | 009a-d |
+| 009a | [Polish: sound effects](issues/009a-sound.md) | agent | todo | 017 |
+| 009b | [Polish: particles](issues/009b-particles.md) | agent | todo | 017 |
+| 009c | [Polish: achievements and saved progress](issues/009c-achievements.md) | agent | todo | 017 |
+| 009d | [Polish: time of day (optional)](issues/009d-time-of-day.md) | agent | todo | 017 |
 | 010 | [Scrolling camera](issues/010-scrolling-camera.md) | claude | done | 005 |
 | 011 | [Integrate the floor plan and task data](issues/011-integrate-floor-plan.md) | claude | done | 005, 003 |
 | 012 | [Interaction edge cases](issues/012-interaction-edge-cases.md) | claude | done | |
 | 013 | [Physics robustness](issues/013-physics-robustness.md) | claude | done | |
 | 014 | [HUD polish](issues/014-hud-polish.md) | claude | done | 010, 011 |
 | 015 | [Extract the game scene from main.ts](issues/015-extract-game-scene.md) | claude | done | |
-| 016 | [Draw the level and player with sprites](issues/016-draw-level-with-sprites.md) | claude | todo | 007, 008, 010, 011 |
+| 016 | [Draw the level and player with sprites](issues/016-draw-level-with-sprites.md) | agent | todo | 007, 008, 010, 011 |
+| 017 | [Game events and drawing layers](issues/017-game-events-and-layers.md) | claude | todo | |
 
 ## Order of work
 1. **Playable skeleton first:** 001, 002, 003, 004 with rectangles for art.
 2. **In parallel:** Marc supplies photos and measurements (005) while 006 builds the sprite pipeline.
 3. **Real level:** 011 (integrate the floor plan) and 010 (scrolling camera, since the real room is wider than the screen) once 005 is merged.
 4. **Art:** 007a-d and 008 can start now (floor plan and style guide are done); then 016 draws the level and player with them once the camera (010) and real data (011) are in.
-5. **Polish:** 009.
+5. **Polish:** 017 (events and layers) first, then 009a-d in parallel, each as its own module.
 6. **Cleanup:** 012 and 013 any time (minor findings from reviews of 003 and 002); 014 after the camera and real floor plan are in (minor findings from the review of 004).
 
 ## Decisions

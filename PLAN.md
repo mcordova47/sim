@@ -94,6 +94,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 055 | [Replace the GOOD HOUR text with an icon](issues/055-good-hour-icon.md) | claude | done | |
 | 056 | [Redraw the mic stand; take the robin print off the map](issues/056-mic-and-robin.md) | agent | done | |
 | 057 | [Bookshelf top order; guitar pose shows the neck](issues/057-bookshelf-and-guitar-pose.md) | agent | todo | |
+| 058 | [Add warm greys to the palette; re-tint the plaster and kitchen walls](issues/058-warm-grey.md) | agent | todo | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

@@ -2,6 +2,7 @@ import { CLOCK, ENERGY, MIRROR, NAP } from "./config";
 import { CONTEMPLATE, MIRROR_DAY, MIRROR_MORNING, MIRROR_NIGHT, MIRROR_TIRED } from "./dialog-data";
 import type { Requirement } from "./state";
 import type { Interactable } from "./interactable";
+import type { HourWindow } from "./time-of-day/hours";
 import { CODE_LINES, EMAIL_LINES, MIXED_LINES } from "./typing-text";
 
 // Task content from the first version of the game: names, prompts, durations,
@@ -259,6 +260,43 @@ const LOOKS: Record<string, Pick<Task, "pose" | "held">> = {
   reheat: { pose: "eat-table" },
 };
 
+// When each task is at its best (issue 009d): finishing it then pays
+// TIME_OF_DAY.bonusMultiplier times the points. Hours since midnight, from up to
+// (not including) to; a window with `to` before `from` runs past midnight.
+// The mirror lines only exist in their own hours, so they match MIRROR.
+const at = (from: number, to: number): HourWindow => ({ from, to });
+const GOOD_HOURS: Record<string, HourWindow[]> = {
+  "make-bed": [at(6, 11)],
+  "open-blinds": [at(6, 10)],
+  "close-blinds": [at(19, 24)],
+  "water-plant": [at(7, 11)],
+  "sort-records": [at(17, 23)],
+  "sort-records-year": [at(17, 23)],
+  "sort-records-fav": [at(17, 23)],
+  "sort-records-color": [at(17, 23)],
+  work: [at(9, 17)],
+  "work-sofa": [at(9, 17)],
+  "tidy-desk": [at(8, 11)],
+  journal: [at(5, 8), at(20, 24)],
+  "record-play": [at(17, 23)],
+  coffee: [at(6, 11)],
+  "drink-coffee": [at(6, 11)],
+  reheat: [at(12, 14), at(18, 21)],
+  "eat-dinner": [at(18, 21)],
+  nap: [at(13, 16)],
+  "admire-art": [at(15, 19)],
+  guitar: [at(17, 23)],
+  "take-trash": [at(18, 22)],
+  cook: [at(17, 20)],
+  dishes: [at(19, 23)],
+  "brush-teeth": [at(6, 9), at(21, 24)],
+  shower: [at(6, 10), at(20, 23)],
+  sleep: [at(22, 4)],
+  "mirror-morning": [at(6, 10)],
+  "mirror-night": [at(21, 24)],
+  contemplate: [at(22, 3)],
+};
+
 // Tasks that need the state or a dialog, so they are not in the content list above.
 const EXTRA: Task[] = [
   {
@@ -301,4 +339,4 @@ const EXTRA: Task[] = [
 
 export const TASKS: Task[] = [...CONTENT.map((t) => ({ ...t, ...STATE_RULES[t.id] })), ...EXTRA].map(
   (t) => ({ ...t, ...LOOKS[t.id] }),
-);
+).map((t) => (GOOD_HOURS[t.id] ? { ...t, goodHours: GOOD_HOURS[t.id] } : t));

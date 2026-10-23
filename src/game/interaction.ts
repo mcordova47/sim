@@ -2,10 +2,11 @@ import type { Controls } from "../input/controls";
 import { createActivity, type Activity, type ActivityHost, type ActivityResult } from "./activity";
 // Registers the built-in activities (wait, dialog, cutscene, typing, notes).
 import "./activities";
-import { ACTIVITY, DEFAULT_TASK_COOLDOWN, INTERACT_BUFFER_TIME } from "./config";
+import { ACTIVITY, DEFAULT_TASK_COOLDOWN, INTERACT_BUFFER_TIME, TIME_OF_DAY } from "./config";
 import type { Interactable } from "./interactable";
 import { Scoreboard, type Award } from "./scoring";
 import type { ApartmentState } from "./state";
+import { inAnyWindow } from "./time-of-day/hours";
 import { overlaps, type Rect } from "./world";
 
 export interface CompletionEvent {
@@ -74,6 +75,11 @@ export class InteractionSystem {
 
   get busy(): boolean {
     return this.active !== null;
+  }
+
+  // Whether the hour is one of the task's good hours (it pays more now).
+  isGoodTime(item: Interactable): boolean {
+    return !!this.state?.has("clock") && inAnyWindow(this.state.get("clock"), item.goodHours);
   }
 
   // 0 when the task can be started now.
@@ -221,6 +227,8 @@ export class InteractionSystem {
     this.readyAt.set(item.id, this.time + (item.cooldown ?? DEFAULT_TASK_COOLDOWN));
 
     // The bonus is worked out before the effects, which may use up what it counts.
+    // The same goes for the hour: sleeping moves the clock on.
+    const timeFactor = this.isGoodTime(item) ? TIME_OF_DAY.bonusMultiplier : 1;
     const bonus = item.pointsBonus
       ? Math.round(item.pointsBonus.perUnit * (this.state?.get(item.pointsBonus.var) ?? 0))
       : 0;
@@ -241,6 +249,7 @@ export class InteractionSystem {
       { id: item.id, points: item.points + bonus },
       this.time,
       qualityFactor,
+      timeFactor,
     );
     this.lastCompletion = {
       item,

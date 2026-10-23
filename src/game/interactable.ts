@@ -1,6 +1,7 @@
 import type { Effect, Requirement } from "./state";
 import type { ActivitySpec } from "./activity";
 import type { DialogNode } from "./dialog";
+import type { HourWindow } from "./time-of-day/hours";
 import type { Rect } from "./world";
 
 // A task the player can do, placed in the room. Pure data: adding a task
@@ -26,6 +27,10 @@ export interface Interactable {
   // Extra points on top of `points`: `perUnit` for each unit the variable
   // holds when the task finishes (before its effects change it).
   pointsBonus?: { var: string; perUnit: number };
+  // Hours of the day when the task is at its best (see time-of-day/hours.ts;
+  // a window may run past midnight). Finishing it then multiplies its points
+  // by TIME_OF_DAY.bonusMultiplier, and its prompt says so.
+  goodHours?: HourWindow[];
   // What the task is while it runs: `{ type: "typing" }`, a cutscene, and so
   // on (see activities/). Without one, it is a plain wait of `duration`
   // seconds, or the `dialog` below if there is one.

@@ -1,5 +1,5 @@
 ---
-id: 026
+id: 027
 title: State hardening
 status: todo
 owner: claude

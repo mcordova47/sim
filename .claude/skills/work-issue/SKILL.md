@@ -14,12 +14,9 @@ You are an agent assigned to a single issue in this repo. Argument: the issue nu
 - If the issue is `blocked`, stop and report what it is blocked on.
 
 ## 2. Choose where to work
-Use a git worktree so parallel agents don't trip over each other's files. Work in the main checkout only if none of these is true:
-- `git worktree list` shows other worktrees for this repo.
-- `git status` shows uncommitted changes in the main checkout.
-- Another issue file is `status: in-progress`. (Statuses set inside a worktree live on that branch, so the main checkout can look stale. The two checks above cover that.)
+Always work in a git worktree on its own branch. This keeps parallel agents from tripping over each other and means nothing reaches `main` until it has been reviewed. The only exception is if the user explicitly says to work in the main checkout.
 
-If the user says "worktree" or "main checkout" explicitly, do that instead.
+If a worktree or branch for this issue already exists (`git worktree list`), reuse it instead of creating another.
 
 To create the worktree, from the main checkout:
 ```
@@ -47,5 +44,5 @@ Never merge, push, rebase onto other branches or remove the worktree. Merging is
 
 ## 6. Finish
 - Set `status: review` (not `done`; the user or `/review-issue` closes it) and write a final progress-log entry: what changed, files touched, anything left over.
-- In a worktree, commit your work on the issue branch (including the issue file) so it can be merged. Use messages starting `NNN:`. In the main checkout, do not commit unless the user asked.
+- Commit your work on the issue branch (including the issue file) so it can be merged. Use messages starting `NNN:`. If the user had you work in the main checkout instead, don't commit unless they ask.
 - Your report back should be short: issue number, final status, criteria met or not met, files changed, branch name and worktree path if you used one, open questions or follow-ups for the planner.

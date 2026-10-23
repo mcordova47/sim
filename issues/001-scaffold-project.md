@@ -1,7 +1,7 @@
 ---
 id: 001
 title: Scaffold project
-status: todo
+status: review
 owner: claude
 depends_on: []
 ---
@@ -17,3 +17,8 @@ Set up a Vite + TypeScript project that renders a canvas and runs a fixed-timest
 - `.gitignore` and a short `README.md` with run instructions.
 
 ## Progress log
+- 2026-10-22: Starting. Vite + TypeScript, 320x192 internal canvas (20x12 tiles of 16px), integer-scaled with pixelated rendering.
+- 2026-10-22: Done, ready for review. Added `package.json`, `tsconfig.json`, `index.html`, `README.md` and `src/` (`main.ts`, `game/config.ts`, `game/loop.ts`, `input/keyboard.ts`, `render/canvas.ts`, `assets/`). `.gitignore` already existed.
+  - Checked: `npm run build` passes (tsc strict + vite build). Dev server returns 200 for `/` and `/src/main.ts`.
+  - **Not checked in a browser:** scaling crispness, the loop actually running, and key states showing on screen. Needs a manual look at `npm run dev` (hold A/D/Space/E and confirm the label updates).
+  - Placeholder scene in `main.ts` is throwaway and gets replaced in 002.

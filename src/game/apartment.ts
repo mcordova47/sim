@@ -142,7 +142,7 @@ export const BATH_MAP = [
 const BATH: Record<string, ObjectDef> = {
   U: { name: "tub and curtain", sprite: "tub", color: "mist", tasks: ["shower"] },
   Q: { name: "toilet", sprite: "toilet", color: "paper", tasks: ["sit"] },
-  V: { name: "vanity sink", sprite: "vanity", color: "paper", tasks: ["brush-teeth"] },
+  V: { name: "vanity sink", sprite: "vanity", color: "paper", tasks: ["mirror-tired", "mirror-morning", "mirror-day", "mirror-night", "brush-teeth"] },
   "1": { door: { to: "kitchen", arrive: { col: 8, row: 7, facing: "right" } } },
 };
 

@@ -40,3 +40,26 @@ export const CONTEMPLATE = menu("Contemplate what?", [
   ),
   choice("Nothing, actually"),
 ]);
+
+// Looking in the mirror (issue 041). Plain lines, a little wry. Which one you
+// see depends on how tired you are and the time of day (see the mirror tasks
+// in tasks.ts). Draft wording: Marc reviews it in the text pass (037).
+export const MIRROR_TIRED = say(
+  "Your eyes look heavy. You look a few years older than you did this morning.",
+  say("A night's sleep would help."),
+);
+
+export const MIRROR_MORNING = say(
+  "There is a crease on your cheek from the pillow. It will fade.",
+  say("You look a little older than you remember. You decide it is the light."),
+);
+
+export const MIRROR_DAY = say(
+  "Mostly the same face as last year. A few lines around the eyes are new.",
+  say("You look like yourself, only more so."),
+);
+
+export const MIRROR_NIGHT = say(
+  "It is late, and the light in here is not kind.",
+  say("You look older than you feel. That is probably the light too."),
+);

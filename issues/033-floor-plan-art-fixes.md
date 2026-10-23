@@ -1,7 +1,7 @@
 ---
 id: 033
 title: Floor plan fixes found while drawing the art
-status: todo
+status: review
 owner: claude
 depends_on: []
 ---
@@ -17,3 +17,12 @@ Small map and level-data changes the art batches (028 to 030) showed are needed,
 - `npm test` and `npm run build` pass.
 
 ## Progress log
+
+- 2026-10-23: Plan: move the fridge, fix the three sprite names, add a sprite-exists test, write the wall-tile rules into `docs/floor-plan.md`, drop `shower-curtain` from the art doc.
+- 2026-10-23: Done, ready for review.
+  - Fridge: `KITCHEN_MAP` rows 6-8 now floor, `FF` on rows 7-8 (cols 10-11), south wall right below; the bath door (col 7, row 7) still opens onto floor. Comments and `docs/floor-plan.md` updated. New test checks the fridge tiles, the wall below, the floor above, and that `fridge-stare` and `humidifier` have a reachable spot. The existing reachability test still passes for every task.
+  - Sprites: `u` -> `painting-wide`, `w` -> `window`, `W` stays `window-blinds`. New tests: every sprite named by a piece or an appearance variant has a file in `public/sprites` (uses `import.meta.glob`, no node types needed); and the three names above. Checked the tests fail when a name is wrong (temporarily broke `painting-wide`).
+  - Wall decision (in `docs/floor-plan.md`, "Wall tiles"): by open orthogonal neighbour, first match wins: south open -> `wall-back`; east open -> `wall-side-left`; west open -> `wall-side-right`; north open -> `wall-front`; no open neighbour (corners, bath block, step-down filler) -> not drawn, ink background shows. Side walls/floors/doorways use the room's own `-kitchen`/`-bath` tiles. This replaces the mockup's "everything else is wall-front" which caused the grey bands.
+  - `docs/art-style.md`: removed the `shower-curtain` row and adjusted the redraw count (8 -> 7).
+  - Verified: `npm test` (510 pass) and `npm run build` pass. Not viewed in a browser (no drawing change in this issue).
+  - For 031/planner: `scripts/main-room-mockup.mjs` and `room-mockup-kitchen-bath.mjs` still use the old wall logic and a fridge position read from the map; not touched (out of scope).

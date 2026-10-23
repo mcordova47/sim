@@ -44,10 +44,25 @@ Columns and rows counted inside the walls, from the top left (col 0, row 0).
 The south wall steps down toward the front door: it is at row 6 along the sofa, row 7 at cols 7-8, and row 8 from col 9 east. There is **one lane** to walk around the bed: down its west side (col 10) and along its foot (row 7). The player starts at col 4, row 3, facing the sofa.
 
 ### Kitchen
-The bar runs along the top (11 x 4): the sink and counter (3 wide) and the stove (3 wide), both 2 deep against the south wall of the bar (the wall above the bath), the window in the west wall, the recycling, bin and box stack/pantry in the north-east corner, and the tote bag beside them. The leg drops down the east side (4 x 4) with the fridge (2 x 2) against the east wall. The bath is the solid block at the bottom left.
+The bar runs along the top (11 x 4): the sink and counter (3 wide) and the stove (3 wide), both 2 deep against the south wall of the bar (the wall above the bath), the window in the west wall, the recycling, bin and box stack/pantry in the north-east corner, and the tote bag beside them. The leg drops down the east side (4 x 4) with the fridge (2 x 2) in the south-east corner, against the south and east walls, facing north (Marc, 2026-10-23). The bath is the solid block at the bottom left.
 
 ### Bath
 The tub (2 x 4) down the west wall, the toilet and the vanity sink (each 2 x 2) against the north wall, a walkway across the south, and the door in the east wall.
+
+## Wall tiles
+Every `#` in a map is one of these, picked from its orthogonal neighbours. "Open" means any tile that is not `#` (floor, furniture, a door or a wall decoration such as a window or painting). Take the first rule that matches:
+
+| Kind | Tile | Where it applies |
+|---|---|---|
+| Back wall | `wall-back` | `#` with an open tile directly south: the north wall, and the wall below the main room's north-wall pieces |
+| Left wall | `wall-side-left` | `#` with an open tile directly east: a west wall |
+| Right wall | `wall-side-right` | `#` with an open tile directly west: an east wall |
+| Front wall | `wall-front` | `#` with an open tile directly north and none of the above: a south wall (the sofa wall, the front-door steps, the bar's south wall under the sink, stove and hood, and the south wall of the bath and of the kitchen leg) |
+| Corners and filler | nothing | `#` with no open orthogonal neighbour: the outer corners, the solid block that is the bath seen from the kitchen, the step-down corners. Left undrawn, so the canvas background (ink) shows. This removes the heavy grey bands |
+
+Wall decorations (`p`, `q`, `u` paintings; `w`, `W` and `c` windows and curtain; `f` front door; doors `1`, `2`, `3`) sit in a wall tile of the kind above, so the wall tile is drawn under them first.
+
+Per room, the side walls and floors use the room's own tiles: main room `floor-wood`, `wall-side-left`, `wall-side-right`, `doorway`; kitchen `floor-kitchen`, `wall-side-left-kitchen`, `wall-side-right-kitchen`, `doorway-left-kitchen`, `doorway-right-kitchen`; bath `floor-bath`, `wall-side-left-bath`, `wall-side-right-bath`, `doorway-right-bath`. `wall-back` and `wall-front` are shared by all three rooms. Issue 031 does the drawing.
 
 ## Doing the same task from different places
 A task is placed on an object by id, so the same task can be on several objects. **Work** is on the desk, the sofa and the bed; **doomscroll** is on the sofa and the bed. They share one cooldown and repeat penalty (they are the same task), so working from the couch after working at the desk counts as a repeat. When an object has several tasks (the table has three), the interact key starts the first one that is off cooldown, so they rotate until the choice menu (issue 023).

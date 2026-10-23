@@ -21,7 +21,8 @@ const zone = [{ x: 100, y: 100, w: 20, h: 20 }];
 const other = [{ x: 200, y: 100, w: 20, h: 20 }];
 const here = { target: { x: 105, y: 106, w: 10, h: 14 } };
 const there = { target: { x: 205, y: 106, w: 10, h: 14 } };
-const away = { target: null };
+type Facing = { target: { x: number; y: number; w: number; h: number } | null };
+const away: Facing = { target: null };
 
 const task = (id: string, extra: Partial<Interactable> = {}): Interactable => ({
   id, name: id, prompt: id, duration: 0.2, points: 5, cooldown: 3, zones: zone, ...extra,
@@ -32,7 +33,7 @@ const C = task("c");
 const D = task("d", { zones: other });
 
 const ids = (s: InteractionSystem) => s.nearby?.id;
-function step(s: InteractionSystem, player = here, controls: Controls = NO_INPUT) {
+function step(s: InteractionSystem, player: Facing = here, controls: Controls = NO_INPUT) {
   s.update(dt, player, controls);
 }
 function run(s: InteractionSystem, seconds: number, player = here) {
@@ -209,11 +210,12 @@ describe("choosing in the real game", () => {
     const game = newGame();
     stand(game, "work");
     const before = game.interaction.nearby?.id;
-    game.dialog.start(say("Hello"));
+    game.openDialog(say("Hello"));
     expect(game.dialogOpen).toBe(true);
     game.update(dt, tab);
     expect(game.interaction.nearby?.id).toBe(before);
-    game.dialog.abort();
+    for (let i = 0; i < 200 && game.dialogOpen; i++) game.update(dt, i % 10 === 0 ? press : NO_INPUT);
+    expect(game.dialogOpen).toBe(false);
     game.update(dt, NO_INPUT);
     game.update(dt, tab);
     expect(game.interaction.nearby?.id).not.toBe(before);
@@ -234,7 +236,7 @@ describe("choosing in the real game", () => {
       const dirs = ["up", "down", "left", "right", null] as const;
       if (unlock) { unlock(); unlock = null; }
       else if (rnd() < 0.05) unlock = game.lockInput();
-      if (rnd() < 0.02 && !game.dialogOpen) game.dialog.start(rnd() < 0.5 ? say("Hi") : menu("Pick", [choice("A"), choice("B")]));
+      if (rnd() < 0.02 && !game.dialogOpen) game.openDialog(rnd() < 0.5 ? say("Hi") : menu("Pick", [choice("A"), choice("B")]));
       game.update(dt, { ...NO_INPUT, keys: pressed, keysDown: down, interactPressed: pressed.includes("KeyE"), cancelPressed: pressed.includes("Escape"), dir: rnd() < 0.05 ? dirs[Math.floor(rnd() * 5)] : null });
       const s = game.interaction;
       if (s.nearby && s.choices.length > 0) {

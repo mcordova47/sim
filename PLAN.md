@@ -67,9 +67,9 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 028 | [Top-down art: main room](issues/028-art-main-room.md) | agent | done | 020, 025 |
 | 029 | [Top-down art: kitchen and bath](issues/029-art-kitchen-bath.md) | agent | done | 020, 025 |
 | 030 | [Top-down art: player character](issues/030-art-player-character.md) | agent | done | 025 |
-| 031 | [Draw the top-down game with sprites](issues/031-wire-sprites-topdown.md) | claude | todo | 033 |
+| 031 | [Draw the top-down game with sprites](issues/031-wire-sprites-topdown.md) | claude | todo | |
 | 032 | [Activity follow-ups from the 022 review](issues/032-activity-followups.md) | claude | done | |
-| 033 | [Floor plan fixes found while drawing the art](issues/033-floor-plan-art-fixes.md) | claude | todo | |
+| 033 | [Floor plan fixes found while drawing the art](issues/033-floor-plan-art-fixes.md) | claude | done | |
 | 034 | [Art follow-ups from 028 to 030](issues/034-art-followups.md) | agent | todo | 031 |
 
 ## Order of work

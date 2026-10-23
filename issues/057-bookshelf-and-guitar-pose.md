@@ -1,7 +1,7 @@
 ---
 id: 057
 title: Bookshelf top order; guitar pose shows the neck
-status: review
+status: done
 owner: agent
 depends_on: []
 ---
@@ -56,3 +56,14 @@ From Marc's playtest (2026-10-23):
   - **Scope/privacy: pass.** Round 3 touched the sprite, its PNG, `docs/art-style.md` and this file only.
   - PLAN.md table needs updating by the planner.
 - 2026-10-23 (agent, round 4 after Marc's 4x screenshot): the guitar hung too low. Moved the whole drawing (body, neck, headstock, hand) up 3 px inside the same 32x48 sprite: the body now sits over the lower shirt and lap right under the chin line, the hand is at shoulder height on the neck, the headstock is at the top of the frame (row 0 to 2, so nothing is cut off). Neck still east, hand on it, still over open floor above the sofa's west arm. Size and placement unchanged, so `poses.ts`, tests and docs are untouched. Rendered the real game at 1x, 4x and 12x and looked. `npm test` and `npm run build` pass. Needs a fresh review.
+- 2026-10-23 (reviewer, round 4): Review of ff4734a. Verdict: **approve**.
+  - **Sprite format: pass.** `player-guitar` is 32x48, 48 rows of 32, palette keys only; `npm run sprites` renders 139 and leaves the tree clean.
+  - **Guitar is the real `guitar` art, mirrored: pass.** Script check: mirrored `guitar` body (rows 6-15) matches the pose sprite on 84 of 84 opaque pixels at offset (+2, +6) (round 3 was +9, so exactly 3 px up); same colours, ink outline, sound hole, 11 px body; only the neck is lengthened (headstock with tuners). Whole drawing sits at x 2..21, y 0..21 of the 32x48 frame: inside it, nothing cut off (headstock at row 0 to 2).
+  - **Player body matches `player-idle-down`: pass.** Rows 0-4 identical; from row 5 they differ only where the neck, hand and guitar cover the shirt, pants and feet.
+  - **Overlap with torso: pass, with a note.** Face and chin are rows 3-6; the hand is at shoulder height on the shirt (rows 8-10) and the body starts at row 11/12, overlapping the hem and lap and running to row 20. It is in front of the lower torso/lap, not the chest. Reads as held in the lap, which is right for a guitar.
+  - **Placement: pass.** `git diff 5138d76 HEAD -- src` is empty (poses.ts unchanged: 32x48, at x 0, y -16, `replacesPiece`); player col 1 row 4, neck over col 2 row 4 (floor); nothing hides it; wall guitar hidden while playing; no plain-player or held-guitar double draw.
+  - **Bookshelf: pass.** `git diff 2ebc801 HEAD` on `bookshelf.sprite` and its PNG is empty; first approval stands (flowers north, plant south). Round 4 touched only the sprite, its PNG and this file.
+  - **Build/tests: pass.** `npm run build` ok, `npm test` 1033 pass, `npm run sprites` clean.
+  - **Render (real `Game`, headless Chrome at 1x, 4x and an 8x crop, guitar task playing beside a frame with the wall guitar; throwaway harness removed): pass.** Same colour, outline weight, body shape, sound hole and headstock as the wall guitar: matches the room's style. Reads as playing: the player sits with the body in the lap just under the shirt, a hand on a neck rising east to the headstock. Honest notes: the neck is dark brown on brown floor, so contrast is low and it is a thin line at 1x (as on the wall); the hand is a small block; the body is a bit low relative to the chest, but it is clearly in front of the torso now.
+  - **Scope/privacy: pass.** Nothing from reference photos, no PLAN.md edit.
+  - PLAN.md table needs updating by the planner.

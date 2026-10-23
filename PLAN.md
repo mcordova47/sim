@@ -89,7 +89,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 050 | [Guitar redraw (Marc's tweaks)](issues/050-guitar-redraw.md) | marc + agent | todo | |
 | 051 | [The meta side project](issues/051-meta-side-project.md) | marc + claude | todo | |
 | 052 | [Fix the sleeping and sofa-sitting poses](issues/052-pose-fixes.md) | agent | done | |
-| 053 | [Sleeping on an unmade bed shows a made bed](issues/053-sleep-on-unmade-bed.md) | agent | todo | 052 |
+| 053 | [Sleeping on an unmade bed shows a made bed](issues/053-sleep-on-unmade-bed.md) | agent | done | 052 |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

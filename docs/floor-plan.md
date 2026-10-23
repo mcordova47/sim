@@ -34,7 +34,8 @@ The apartment as a side-on cutaway. Data lives in `src/game/room.ts` and `src/ga
 - **Little open floor.** Furniture touches end to end, so most travel is along the tops. The only bare floor is under the desk and table (x 7 to 13), because the 14 px player fits under their 2 to 3 ft slabs. The desk is 3 ft, not the real 2.5, because it is a standing desk and the extra foot makes the bookshelf reachable. For more visible floor, shrink pieces further or widen the level.
 - **Kitchen reordered.** In real life the fridge is next to the door. Here the tote bag (1 ft), then bin (2), stove (3), counter (3), box stack (5) and fridge (6) form a staircase up to the fridge top. The side rack is the end of the line.
 - **Bath is a staircase too:** vanity 3, toilet 2, tub 2.
-- **Guitar on the wall** above the sofa is a task zone, reached by jumping from the sofa arm or seat. The mic and key light stand is decor only.
+- **Guitar on the wall** hangs above the sofa, but the task is done sitting on the sofa seat: the engine only starts a task for a player standing on something, and nothing stands at guitar height. The sofa seat is split between the two sofa tasks (doomscroll on the left tile, guitar on the right). The mic and key light stand is decor only.
+- **Bed tasks** split the bed too: make the bed on the left two tiles, open the blinds on the right two, so the zones don't overlap.
 - **Dimensions assumed.** I took "17x8" as 17 ft along the side-on axis and 8 ft deep, and the same for the kitchen and bath. I took the bed as 4 tiles wide of its 6.7 ft length. Correct me if any of that is backwards.
 
 ## Platforms, interactables, decor
@@ -73,11 +74,13 @@ The apartment as a side-on cutaway. Data lives in `src/game/room.ts` and `src/ga
 ## Reachability
 `reach.ts` builds a graph of standable surfaces (tops of pieces, plus bare floor) and links two surfaces if the gap is small enough and the step up is within the jump limit. It reports pieces and tasks that can't be reached from the spawn on the sofa, and anything with too little headroom under the 10 ft ceiling.
 
+The integration (issue 011) now runs this check in a test with limits *measured from the real `Player`* (full-hold standing jump rise and flat standing-jump distance, rounded down to a quarter tile): a rise of **2.25 tiles** and a gap of **2 tiles**. Every piece and task is reachable with those. The older limits below are what the first draft used.
+
 Limits come from issue 002's `PLAYER` config (1 tile = 16 px): `jumpHeight` 40 px = **2.5 tiles up**, player 14 px = 0.875 tiles tall, and a flat-ground hop covers about 3.3 tiles at `maxSpeed` (checked with a gap of 2 and of 3).
 
 Result with those limits: **every piece and task is reachable and nothing hits the ceiling.** The first run failed the bookshelf (a 3 ft step up from the 2 ft desk) and the guitar (zone too high to jump to from the sofa seat). Raising the desk to 3 ft and lowering the guitar zone to 3 ft fixed both. The tightest steps are now 2.5 tiles or less everywhere.
 
-**Scale caveat:** at 1 tile = 1 ft the player is about 10 inches tall and jumps 2.5 ft. That works for the layout but looks wrong next to 6 ft of fridge. Either 002's player gets bigger, or the sprite art treats the player as a cartoon-scale figure. The level is also 560 px wide against a 320 px view in `VIEW`.
+**Scale:** at 1 tile = 1 ft the player is about 10 inches tall and jumps about 2.3 ft. Marc decided to keep this for now. The level is 560 px wide against a 320 px view, which the scrolling camera (issue 010) handles.
 
 ## Privacy
 Descriptions list furniture type, size and color only. No address, no belongings beyond furniture and fixtures. Marc deletes `reference-photos/` when this issue closes.

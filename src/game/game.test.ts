@@ -8,6 +8,7 @@ const press: Controls = { ...NO_INPUT, interactPressed: true };
 
 // A flat floor with one task right where the player spawns.
 const level: Level = {
+  size: { width: 300, height: 120 },
   solids: [{ x: 0, y: 100, w: 300, h: 20 }],
   interactables: [
     {

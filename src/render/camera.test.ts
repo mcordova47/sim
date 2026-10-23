@@ -95,4 +95,19 @@ describe("Camera", () => {
     expect(mid.x).toBeLessThanOrEqual(end.x);
     expect(end.x).toBe(Math.round(camera.x));
   });
+
+  it("centres a room smaller than the view sideways and sits it at the bottom", () => {
+    const camera = new Camera({ width: 208, height: 160 }, view);
+    camera.snapTo({ x: 100, y: 80 });
+    expect([camera.x, camera.y]).toEqual([-56, -32]);
+    run(camera, { x: 20, y: 20 }, 2);
+    expect([camera.x, camera.y]).toEqual([-56, -32]);
+  });
+
+  it("moves to a new world with setWorld", () => {
+    const camera = new Camera(wide, view);
+    camera.setWorld({ width: 208, height: 160 });
+    camera.snapTo({ x: 100, y: 80 });
+    expect(camera.x).toBe(-56);
+  });
 });

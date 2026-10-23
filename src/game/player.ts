@@ -57,6 +57,22 @@ export class Player {
     this.facing = facing;
   }
 
+  // Puts the player on a tile, facing a direction, as if they had always been
+  // there (a new room, a script). Nothing is announced and nothing slides.
+  placeAt(col: number, row: number, facing: Direction): void {
+    this.col = col;
+    this.row = row;
+    this.facing = facing;
+    this.x = this.prevX = col * TILE;
+    this.y = this.prevY = row * TILE;
+    this.step = null;
+    this.turnTimer = 0;
+    this.bumpReported = false;
+    this.arrivedThisUpdate = null;
+    this.bumpedThisUpdate = null;
+    this.turnedThisUpdate = false;
+  }
+
   get stepping(): boolean {
     return this.step !== null;
   }

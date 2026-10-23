@@ -34,8 +34,8 @@ describe("task labels and the HUD", () => {
   const overlaps = (a: Box, b: Box) =>
     a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 
-  // The task content as things the UI can measure (the zone doesn't matter here).
-  const items: Interactable[] = TASKS.map((t) => ({ ...t, zone: { x: 0, y: 0, w: 16, h: 16 } }));
+  // The task content as things the UI can measure (the zones don't matter here).
+  const items: Interactable[] = TASKS.map((t) => ({ ...t, zones: [{ x: 0, y: 0, w: 16, h: 16 }] }));
   const labels = items.flatMap((item) => [
     { what: `${item.id} prompt`, ...promptSize(item, 0) },
     { what: `${item.id} cooling down`, ...promptSize(item, DEFAULT_TASK_COOLDOWN) },

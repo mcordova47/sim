@@ -47,6 +47,12 @@ export class InteractionSystem {
     private onComplete?: (event: CompletionEvent) => void,
   ) {}
 
+  // Swaps in the tasks of another room. Scores, combos and cooldowns stay.
+  setItems(items: Interactable[]): void {
+    this.items = items;
+    this.nearby = null;
+  }
+
   get busy(): boolean {
     return this.active !== null;
   }
@@ -78,7 +84,7 @@ export class InteractionSystem {
     // The first task being faced that can be started, else the first being
     // faced, so the prompt always names the task the key will start.
     const target = player.target;
-    const inReach = target ? this.items.filter((i) => overlaps(target, i.zone)) : [];
+    const inReach = target ? this.items.filter((i) => i.zones.some((z) => overlaps(target, z))) : [];
     this.nearby = inReach.find((i) => this.cooldownRemaining(i) === 0) ?? inReach[0] ?? null;
 
     if (

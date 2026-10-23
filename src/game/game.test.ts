@@ -21,7 +21,8 @@ const sinkTask = {
 const level: Level = {
   ...parseTileMap(
     ["##########", "#........#", "#..@S....#", "#........#", "##########"],
-    { S: { color: "mist", task: sinkTask } },
+    { S: { color: "mist", tasks: ["sink"] } },
+    { tasks: [sinkTask] },
   ),
   facing: "right",
 };
@@ -181,5 +182,97 @@ describe("Game rendering", () => {
     expect(topWall).toBeLessThan(player);
     expect(bottomWall).toBeGreaterThan(player);
     vi.unstubAllGlobals();
+  });
+});
+
+describe("Game rooms", () => {
+  const door = (to: string, col: number, row: number, facing: "left" | "right") => ({
+    to,
+    arrive: { col, row, facing },
+  });
+  // Two rooms side by side: a door in A's east wall to B's west wall, and back.
+  const a = parseTileMap(
+    ["######", "#..S.#", "#@...1", "######"],
+    { S: { tasks: ["sink"] }, "1": { door: door("b", 1, 1, "right") } },
+    { id: "a", tasks: [sinkTask] },
+  );
+  const b = parseTileMap(
+    ["#######", "0.@...#", "#######"],
+    { "0": { door: door("a", 4, 2, "left") } },
+    { id: "b" },
+  );
+
+  it("walks through a doorway into the other room, facing away from it", () => {
+    const game = new Game({ ...a, facing: "right" }, { a, b });
+    const rooms: string[] = [];
+    game.events.on("room", (e) => rooms.push(e.id));
+    run(game, 1.5, hold("right"));
+    expect(rooms).toEqual(["b", ]);
+    expect(game.player.facing).toBe("right");
+    expect(game.camera.x).toBeLessThan(0); // the small room is centred in the view
+  });
+
+  it("goes back the way it came", () => {
+    const game = new Game({ ...a, facing: "right" }, { a, b });
+    const rooms: string[] = [];
+    game.events.on("room", (e) => rooms.push(e.id));
+    run(game, 1.5, hold("right"));
+    run(game, 1, hold("left"));
+    expect(rooms).toEqual(["b", "a"]);
+    expect(game.player.facing).toBe("left");
+  });
+
+  it("keeps score, cooldowns and listeners across rooms", () => {
+    const game = new Game(a, { a, b });
+    const done: string[] = [];
+    game.events.on("taskComplete", (e) => done.push(e.item.id));
+    game.loadLevel(a, 3, 2, "up");
+    game.update(dt, press);
+    run(game, 1.2);
+    expect(done).toEqual(["sink"]);
+    const score = game.interaction.scoreboard.score;
+    game.loadLevel(b, 2, 1, "left");
+    expect(game.interaction.scoreboard.score).toBe(score);
+    expect(game.interaction.cooldownRemaining(a.interactables[0])).toBeGreaterThan(0);
+    expect(game.player.col).toBe(2);
+    expect(game.player.facing).toBe("left");
+  });
+
+  it("uses the new room's tasks and walls", () => {
+    const game = new Game(a, { a, b });
+    game.loadLevel(b, 2, 1, "left");
+    expect(game.interaction.nearby).toBeNull();
+    run(game, 2, hold("right"));
+    expect(game.player.col).toBe(5); // stopped by room b's east wall
+  });
+
+  it("refuses to enter a blocked tile or an unknown room", () => {
+    const game = new Game({ ...a, facing: "right" }, { a });
+    expect(() => game.loadLevel(b, 0, 0, "down")).toThrow("blocked");
+    expect(() => run(game, 1.5, hold("right"))).toThrow('"b"');
+  });
+});
+
+describe("L-shaped objects", () => {
+  // The counter (C) is an L: the corner tile at row 2, col 3 is floor.
+  const l = parseTileMap(
+    ["#######", "#@....#", "#..CC.#", "#..C..#", "#.....#", "#######"],
+    { C: { tasks: ["sink"] } },
+    { tasks: [sinkTask] },
+  );
+
+  it("starts the task when facing a tile of the counter", () => {
+    const game = new Game(l);
+    game.loadLevel(l, 3, 1, "down"); // above (3,2), a counter tile
+    game.update(dt, press);
+    expect(game.interaction.busy).toBe(true);
+  });
+
+  it("does nothing when facing the empty corner inside the L's bounding box", () => {
+    const game = new Game(l);
+    game.loadLevel(l, 5, 3, "left"); // facing (4,3): floor inside the L
+    game.update(dt, press);
+    expect(game.interaction.nearby).toBeNull();
+    expect(game.interaction.busy).toBe(false);
   });
 });

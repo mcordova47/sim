@@ -1,7 +1,7 @@
 ---
 id: 027
 title: State hardening
-status: review
+status: done
 owner: claude
 depends_on: [021]
 ---
@@ -38,3 +38,13 @@ Fix the smaller findings from the review of issue 021 before the sound, achievem
     - [ ] Let `parseTileMap` take the known variables (for example a `MapOptions` field passed to `validateLevel`, defaulting to `STATE_VARS`), or defer the name check for such rooms to `Game`; add a test with a custom variable room built by `parseTileMap` and played in a `Game` with a custom state.
     - [ ] Optional: note in `docs/state.md` that one clock event can span several hours; reject a `NaN` `initial`/range.
 - 2026-10-23: Review round 1 asked for changes (custom-variable rooms built by `parseTileMap` were rejected). Fixed: `MapOptions.knownVars` passed to `validateLevel` (default the real list); test builds a custom-variable room and plays it in a `Game` with custom state. Also noted in `docs/state.md` that a multi-hour change gives one clock event. Status `review`. Not done: NaN `initial` rejection (pre-existing, optional).
+- 2026-10-23: **Review round 2 (independent): approve.** `npm run build` passes; `npm test` 521 pass (32 files). Own edge-case test in a scratch dir outside the repo, 3 checks passing.
+  - **Round 1 checklist resolved.** `parseTileMap` now takes `MapOptions.knownVars` and passes it to `validateLevel` (default the real list). Own check: a room built with `knownVars` for a custom variable `mood` accepted it in task `requires`, `effects`, `pointsBonus`, a variant `when` and a solid `blockedWhen`; a typo (`moood`) still throws and names the room; the real variable `energy` is rejected when `knownVars` says only `mood` exists; a `Game` whose state lacks `mood` rejects that room. The author's new test builds a custom room and plays it in a `Game` with custom state, and checks the default still throws. Docs note on multi-hour clock events added. NaN `initial` stays unfixed (optional, pre-existing).
+  - **Unknown names at load: pass.** Real rooms and the placeholder room are validated by `apartment-rules.test.ts`; error names room and task/object.
+  - **`min == max` with `wrap`: pass** (constructor throws; round 1 checked, code unchanged).
+  - **Events after all effects: pass** (code unchanged since round 1 check; tests in `state.test.ts` and the sleep test).
+  - **Clock event: pass.** Per whole hour (floor), 24 a day, documented in `docs/state.md` with the per-frame `game.state.get("clock")` alternative; multi-hour change gives one event, now documented.
+  - **Docs: pass.** `docs/state.md`.
+  - **Beyond criteria:** the round 2 diff (d5cd93f) touches only `tilemap.ts`, `apartment-rules.test.ts`, `docs/state.md` and this file. No PLAN.md or other issues touched. No reference-photo content.
+  - **Unverified (needs a browser):** yawn behavior and status panel visuals.
+  - Minor, optional: yawn compares raw values only on floor-change events, which would miss a crossing if `ENERGY.lowBelow` were fractional (it is 25).

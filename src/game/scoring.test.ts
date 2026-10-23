@@ -81,4 +81,14 @@ describe("Scoreboard", () => {
     expect(s.chainLength(SCORING.comboWindow + 1)).toBe(0);
     expect(s.comboTimeLeft(SCORING.comboWindow + 1)).toBe(0);
   });
+
+  it("reports the current multiplier, falling back to 1 when the combo lapses", () => {
+    const s = new Scoreboard();
+    expect(s.multiplier(0)).toBe(1);
+    s.complete(a, 0);
+    expect(s.multiplier(1)).toBe(1);
+    s.complete(b, 2);
+    expect(s.multiplier(3)).toBe(1 + SCORING.comboStep);
+    expect(s.multiplier(2 + SCORING.comboWindow + 1)).toBe(1);
+  });
 });

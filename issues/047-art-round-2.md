@@ -1,7 +1,7 @@
 ---
 id: 047
 title: Art round 2 from the 034 playtest
-status: done
+status: review
 owner: agent
 depends_on: []
 ---
@@ -42,3 +42,9 @@ Marc's notes after playing the 034 build (2026-10-23): overall it looks really g
   - Docs updated. `npm run sprites` (130, PNGs regenerate with no diff), `npm test` (651), `npm run build` pass. No src or map edits; only art, PNGs, docs and this file changed. Rendered `main-room-mockup.mjs` and zoomed sprites and looked at them.
   - Unverified: feel at 1x on Marc's screen; guitar reading; the bookshelf's dark mid-line reads slightly like two pieces at 4x (minor, Marc's call).
   - PLAN.md table needs updating by the planner.
+
+- 2026-10-23 (round 2, after Marc's playtest; paintings, radiator, table and bookshelf untouched):
+  - **`sofa-td` flipped** (96x32): it is now seen from behind. The oak back rail and its fabric back panel are on the near (bottom) side, the two seat cushions (seam kept) and the arms lie above them, against the south wall; legs under the near edge. Same size and footprint.
+  - **`guitar` redrawn** (now **16x16**): in profile like the player facing right, headstock to the west on a wooden hanger at the west edge, neck running east, body to the east with its lit face skewed up and its shaded side below. `guitar-nylon` redrawn to match (16x16, not wired). My best attempt at 16 px; Marc may replace it.
+  - **Proposed map change (not made):** the guitar is now 1x1, but `G` covers 2 tiles on `MAIN_MAP` (col 1, rows 5 and 6). Make it one `G` tile and turn the other into floor `.`: keep `G` at col 1 row 5 and make col 1 row 6 `.` (or the reverse, `G` at row 6, if it should sit beside the sofa's near end). Row 5 gives the player a tile to stand on north of it (col 1 row 4) as now; the new floor tile at row 6 becomes walkable, check that it does not open a way into the wall. Until then the 1x2 block draws the guitar in its top tile with the bottom tile empty and blocked. Also update `docs/floor-plan.md` (guitar 1x1) and the `player-guitar` and `held-guitar-*` poses if they assume the old guitar tiles (not changed here).
+  - Checked: `npm run sprites`, `npm test`, `npm run build` (see below), re-rendered the main-room mockup and looked at zoomed crops of the sofa and both guitars.

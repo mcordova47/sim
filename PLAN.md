@@ -29,7 +29,7 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 | 001 | [Scaffold project](issues/001-scaffold-project.md) | claude | done | |
 | 002 | [Player movement and collision](issues/002-player-movement.md) | claude | done | 001 |
 | 003 | [Interaction and scoring system](issues/003-interaction-scoring.md) | claude | done | 002 |
-| 004 | [HUD and feedback](issues/004-hud-feedback.md) | claude | todo | 003 |
+| 004 | [HUD and feedback](issues/004-hud-feedback.md) | claude | done | 003 |
 | 005 | [Floor plan and task list](issues/005-floor-plan-tasks.md) | marc + agent | done | |
 | 006 | [Sprite pipeline and style guide](issues/006-sprite-pipeline.md) | agent | todo | 001 |
 | 007 | [Furniture sprites](issues/007-furniture-sprites.md) | agent | todo | 005, 006 |
@@ -39,6 +39,7 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 | 011 | [Integrate the floor plan and task data](issues/011-integrate-floor-plan.md) | claude | todo | 005, 003 |
 | 012 | [Interaction edge cases](issues/012-interaction-edge-cases.md) | claude | todo | |
 | 013 | [Physics robustness](issues/013-physics-robustness.md) | claude | todo | |
+| 014 | [HUD polish](issues/014-hud-polish.md) | claude | todo | 010, 011 |
 
 ## Order of work
 1. **Playable skeleton first:** 001, 002, 003, 004 with rectangles for art.
@@ -46,7 +47,7 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 3. **Real level:** 011 (integrate the floor plan) and 010 (scrolling camera, since the real room is wider than the screen) once 005 is merged.
 4. **Art:** 007 and 008 once the floor plan, camera and style guide exist.
 5. **Polish:** 009.
-6. **Cleanup, any time:** 012 and 013 (minor findings from reviews of 003 and 002).
+6. **Cleanup:** 012 and 013 any time (minor findings from reviews of 003 and 002); 014 after the camera and real floor plan are in (minor findings from the review of 004).
 
 ## Decisions
 - **Level wider than the screen:** scrolling camera (issue 010), chosen over smaller tiles or a compressed room.

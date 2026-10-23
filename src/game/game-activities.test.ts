@@ -5,7 +5,7 @@ import { APARTMENT } from "./apartment";
 import { TYPING, VIEW } from "./config";
 import { Game } from "./game";
 import type { GameEvents } from "./events";
-import type { Interactable } from "./interactable";
+import { dialogOf, type Interactable } from "./interactable";
 import { TypingActivity } from "./activities";
 import type { Level } from "./level";
 import { TASKS } from "./tasks";
@@ -248,7 +248,7 @@ describe("the real task list", () => {
     const byId = new Map(TASKS.map((t) => [t.id, t]));
     expect(byId.get("work")!.activity?.type).toBe("typing");
     expect(byId.get("guitar")!.activity?.type).toBe("notes");
-    expect(byId.get("record-play")!.dialog?.type).toBe("menu");
+    expect(dialogOf(byId.get("record-play")!)?.type).toBe("menu");
   });
 
   it("only uses characters the pixel font can draw in every cutscene's text", () => {
@@ -270,7 +270,7 @@ describe("the real task list", () => {
     expect(game).toBeDefined();
     for (const room of Object.values(APARTMENT.rooms)) {
       for (const task of room.interactables) {
-        if (task.activity) expect(["wait", "dialog", "cutscene", "typing", "notes"]).toContain(task.activity.type);
+        if (task.activity) expect(["wait", "dialog", "cutscene", "typing", "notes", "make-track"]).toContain(task.activity.type);
       }
     }
     expect(VIEW.width).toBeGreaterThan(0);

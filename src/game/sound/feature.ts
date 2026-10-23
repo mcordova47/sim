@@ -5,7 +5,9 @@ import type { KeyValueStorage } from "../achievements/progress";
 import { CLOCK, DIALOG, SOUND, VIEW } from "../config";
 import { isTypingKey } from "../activities/typing";
 import type { Game, Layer } from "../game";
-import { RECORD_TASK, TRACKS, trackForLabel } from "../music/records";
+import { demoStore } from "../music/demo-library";
+import type { DemoStore } from "../music/demo-store";
+import { RECORD_TASK, STOP_LABEL, TRACKS, trackForLabel } from "../music/records";
 import type { Track } from "../music/track";
 import { browserAudio, type AudioFactory } from "./audio-types";
 import { MoodLift, comboPitch, floorOf, noteKeyPitch, stepEffect, stepGain, stepPitch } from "./decisions";
@@ -33,6 +35,8 @@ export interface SoundOptions {
   random?: () => number;
   // The records on the player (the files in music/tracks by default).
   tracks?: readonly Track[];
+  // The tracks the player made, listed as demos (the game's shared store by default).
+  demos?: DemoStore;
   // The room the game starts in, for the first footsteps.
   start?: string;
 }
@@ -54,6 +58,10 @@ export class SoundFeature implements Layer {
   readonly engine: SoundEngine;
   private readonly store: SettingsStore;
   private readonly tracks: readonly Track[];
+  private readonly demos: DemoStore;
+  // The made tracks' version we last looked at, and whether the editor's preview is on.
+  private demoVersion: number;
+  private previewing = false;
   private readonly random: () => number;
   private readonly lift = new MoodLift();
   private room: string;
@@ -70,13 +78,15 @@ export class SoundFeature implements Layer {
   constructor(private readonly game: Game, options: SoundOptions = {}) {
     this.random = options.random ?? Math.random;
     this.tracks = options.tracks ?? TRACKS;
+    this.demos = options.demos ?? demoStore();
+    this.demoVersion = this.demos.version;
     this.room = options.start ?? APARTMENT.start;
     this.engine = new SoundEngine(options.audio ?? browserAudio, this.random);
     this.store = new SettingsStore(options.storage === undefined ? browserStorage() : options.storage, SOUND.storageKey);
 
     const saved = this.store.load();
     this.engine.muted = saved.muted;
-    this.selected = this.tracks.find((t) => t.id === saved.track) ?? null;
+    this.selected = this.everyTrack().find((t) => t.id === saved.track) ?? null;
     this.engine.music.play(this.selected);
 
     const { events } = game;
@@ -96,16 +106,25 @@ export class SoundFeature implements Layer {
       if (award.timeFactor > 1) this.engine.play("goodHour");
       if (item.id === RECORD_TASK && this.picked) this.setTrack(this.picked.track);
       this.picked = undefined;
+      // The editor pays while it is still open; its preview goes on then.
+      if (!game.interaction.active) this.endPreview();
     });
     events.on("taskCancelled", () => {
       this.picked = undefined;
+      if (!game.interaction.active) this.endPreview();
       this.engine.play("taskCancelled");
     });
     events.on("taskBlocked", () => this.engine.play("taskBlocked"));
     events.on("dialogChoose", ({ label }) => {
       this.engine.play("menuPick");
-      if (game.interaction.active?.item.id === RECORD_TASK) this.picked = { track: trackForLabel(label, this.tracks) };
+      if (game.interaction.active?.item.id === RECORD_TASK) {
+        // Only a record, a demo or "stop" is a pick ("Demos..." just opens a list).
+        const track = trackForLabel(label, this.everyTrack());
+        if (track || label === STOP_LABEL) this.picked = { track };
+      }
     });
+    events.on("preview", ({ track, live }) => this.preview(track, live));
+    events.on("blip", ({ freq }) => this.engine.play("noteKey", { pitch: freq / 440 }));
     events.on("cue", ({ name }) => {
       const effect = SOUND.cues[name];
       if (effect) this.engine.play(effect);
@@ -117,6 +136,41 @@ export class SoundFeature implements Layer {
 
   get track(): Track | null {
     return this.selected;
+  }
+
+  // The records and the demos, for finding a chosen one.
+  private everyTrack(): Track[] {
+    return [...this.tracks, ...this.demos.tracks()];
+  }
+
+  // The track editor's preview plays over the record without changing which
+  // record is on; ending it puts the record back.
+  private preview(track: Track | null, live: boolean): void {
+    if (track) {
+      if (live && this.previewing) this.engine.music.swap(track);
+      else this.engine.music.play(track);
+      this.previewing = true;
+    } else this.endPreview();
+  }
+
+  private endPreview(): void {
+    if (!this.previewing) return;
+    this.previewing = false;
+    this.engine.music.play(this.selected);
+  }
+
+  // The saved demos changed: a demo that is on the player is looked up again,
+  // so a deleted one stops and an edited one plays as it is now.
+  private syncDemos(): void {
+    this.demoVersion = this.demos.version;
+    const on = this.selected;
+    if (!on || !/^demo-\d+$/.test(on.id)) return;
+    const now = this.demos.tracks().find((t) => t.id === on.id) ?? null;
+    if (now === on) return;
+    this.selected = now;
+    this.lift.reset();
+    if (!this.previewing) this.engine.music.play(now);
+    this.save();
   }
 
   get muted(): boolean {
@@ -164,8 +218,10 @@ export class SoundFeature implements Layer {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
     const task = this.game.interaction.active;
     const activity = task?.item.activity?.type;
-    // The typing game reads every letter, so M is a letter there, not a mute key.
-    if (e.code === SOUND.muteKey && !task?.activity.readsKeys) {
+    // The typing game reads every letter, so M is a letter there, not a mute key
+    // (and in the track editor while a name is typed).
+    const lettersAreText = task?.activity.readsLetters ?? task?.activity.readsKeys;
+    if (e.code === SOUND.muteKey && !lettersAreText) {
       this.setMuted(!this.engine.muted);
     } else if (activity === "typing" && isTypingKey(e.code)) {
       this.engine.play("key", { pitch: 0.9 + this.random() * 0.2 });
@@ -179,6 +235,7 @@ export class SoundFeature implements Layer {
     this.nowPlayingFor = Math.max(0, this.nowPlayingFor - dt);
     this.indicatorFor = Math.max(0, this.indicatorFor - dt);
     this.engine.update();
+    if (this.demos.version !== this.demoVersion) this.syncDemos();
     this.blips();
     this.liftMood(dt);
   }
@@ -204,6 +261,8 @@ export class SoundFeature implements Layer {
     const { state } = this.game;
     if (!this.selected || !state.has("mood")) return;
     if (this.game.dialogOpen && DIALOG.pauseClock) return;
+    // The editor holds the clock: no mood from the music while it is open.
+    if (this.game.interaction.active?.activity.holdsClock) return;
     const effect = this.lift.advance(dt * CLOCK.minutesPerSecond, state.get("mood"));
     if (effect) state.applyEffects([effect]);
   }

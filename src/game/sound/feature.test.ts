@@ -3,7 +3,7 @@ import { NO_INPUT, type Controls } from "../../input/controls";
 import { FakeStorage } from "../achievements/fake-storage";
 import { CLOCK, MUSIC, SOUND } from "../config";
 import { Game } from "../game";
-import type { Interactable } from "../interactable";
+import { dialogOf, type Interactable } from "../interactable";
 import { RECORD_TASK, STOP_LABEL, TRACKS, recordMenu } from "../music/records";
 import { parseTrack } from "../music/track";
 import { TASKS } from "../tasks";
@@ -563,7 +563,7 @@ describe("drawing", () => {
 
 describe("the real record list", () => {
   it("offers every track file plus stop in the real task's menu", () => {
-    const menu = task(RECORD_TASK).dialog!;
+    const menu = dialogOf(task(RECORD_TASK))!;
     expect(menu.type).toBe("menu");
     expect(menu.type === "menu" && menu.choices.map((c) => c.label)).toEqual([...TRACKS.map((t) => t.title), STOP_LABEL]);
   });

@@ -3,6 +3,8 @@ import type { DialogNode, DialogResult } from "./dialog";
 import type { Direction } from "./direction";
 import type { SpriteDrawer } from "../render/sprites";
 import type { Interactable } from "./interactable";
+import type { Track } from "./music/track";
+import type { Effect } from "./state";
 
 // An activity is what a task is while the player is doing it. Today's timed
 // wait is one; a cutscene and the mini-games are others. The interaction
@@ -23,6 +25,10 @@ import type { Interactable } from "./interactable";
 // and does not affect the score.
 export interface ActivityResult {
   completed: boolean;
+  // With `completed: false`: the activity is simply over, and that is not a
+  // cancel. Nothing is paid, no cooldown starts and `taskCancelled` does not
+  // fire (the track editor's normal exit). Ignored when `completed` is true.
+  quiet?: boolean;
   quality?: number;
   data?: unknown;
 }
@@ -53,6 +59,17 @@ export interface ActivityHost {
   readonly sprites?: SpriteDrawer;
   // A random number from 0 up to 1. Injected, so tests are deterministic.
   random(): number;
+  // Plays `track` over the music for a preview (the track editor), or puts the
+  // record back with null. `live` swaps the track at the end of the loop that
+  // is playing instead of restarting it. Missing in tests.
+  previewTrack?(track: Track | null, live?: boolean): void;
+  // A short note sounded for a key press, at `freq` Hz (the track editor).
+  blip?(freq: number): void;
+  // Pays points and applies `effects` for the running task right now, as if it
+  // had finished, without ending it. Returns the points, or null if nothing was paid.
+  reward?(points: number, effects: Effect[]): number | null;
+  // Game minutes played so far (the clock held still by an activity does not count).
+  gameMinutes?(): number;
 }
 
 export interface Activity {
@@ -67,6 +84,12 @@ export interface Activity {
   // press of the interact key made during it is its own and is not kept to
   // start another task afterwards.
   readonly readsKeys?: boolean;
+  // True while letters it reads are text, so the mute key is a letter too. When
+  // missing, `readsKeys` decides (typing: always; the track editor: while naming).
+  readonly readsLetters?: boolean;
+  // True for an activity with no time pressure: the apartment's clock, energy
+  // and mood stand still while it runs (the track editor).
+  readonly holdsClock?: boolean;
   // Controls to give the player while it runs, for scripted movement; null
   // keeps the player where they are.
   readonly playerControls: Controls | null;

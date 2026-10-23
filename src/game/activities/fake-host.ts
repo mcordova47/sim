@@ -1,6 +1,8 @@
 import type { ActivityHost } from "../activity";
 import type { DialogNode, DialogResult } from "../dialog";
 import type { Direction } from "../direction";
+import type { Track } from "../music/track";
+import type { Effect } from "../state";
 
 // A stand-in for the game, for testing activities without one. It records what
 // the activity asks for, and lets the test decide when a dialog closes.
@@ -9,6 +11,11 @@ export function fakeHost(seed = 1) {
   const stateSets: { id: string; value: number }[] = [];
   const dialogs: { node: DialogNode; close(result?: DialogResult): void }[] = [];
   let open = false;
+  // What the track editor asks of the game.
+  const previews: { track: Track | null; live: boolean }[] = [];
+  const blips: number[] = [];
+  const rewards: { points: number; effects: Effect[] }[] = [];
+  const clock = { minutes: 0 };
 
   let state = seed >>> 0;
   const random = () => {
@@ -43,9 +50,20 @@ export function fakeHost(seed = 1) {
     setState: (id, value) => stateSets.push({ id, value }),
     player,
     random,
+    previewTrack: (track, live = false) => previews.push({ track, live }),
+    blip: (freq) => blips.push(freq),
+    reward: (points, effects) => {
+      rewards.push({ points, effects });
+      return points;
+    },
+    gameMinutes: () => clock.minutes,
   };
 
   return {
+    previews,
+    blips,
+    rewards,
+    clock,
     host,
     cues,
     stateSets,

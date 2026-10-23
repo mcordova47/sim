@@ -42,10 +42,19 @@ export const RECORD_TASK = "record-play";
 // The line shown when a record is chosen (and by the now-playing note).
 export const nowPlayingText = (track: Track): string => `Now playing: ${track.title}.${track.note ? ` ${track.note}` : ""}`;
 
-// The record player's menu: one choice per track and one to stop. Escape backs out of it.
-export function recordMenu(tracks: readonly Track[]): Menu {
+// The choice that opens the list of the player's own demos (issue 059).
+export const DEMOS_LABEL = "Demos...";
+
+// The record player's menu: one choice per track, then `Demos...` (only when
+// there is at least one demo; it opens a second menu of their titles), then one
+// to stop. Escape backs out of it. It is built each time the player presses
+// the interact key at the record stand, because demos come and go while playing.
+export function recordMenu(tracks: readonly Track[], demos: readonly Track[] = []): Menu {
   return menu("Which record?", [
     ...tracks.map((t) => choice(t.title, say(nowPlayingText(t)))),
+    ...(demos.length > 0
+      ? [choice(DEMOS_LABEL, menu("Which demo?", demos.map((t) => choice(t.title, say(nowPlayingText(t))))))]
+      : []),
     choice(STOP_LABEL, say("You lift the needle.")),
   ]);
 }

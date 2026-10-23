@@ -40,7 +40,7 @@ export const MAIN_MAP = [
 
 const MAIN: Record<string, ObjectDef> = {
   T: { name: "dining table", sprite: "table", color: "tangerine", tasks: ["coffee", "drink-coffee", "reheat", "eat-dinner"] },
-  D: { name: "standing desk", sprite: "desk", color: "butter", tasks: ["work", "side-project-game", "journal", "tidy-desk"] },
+  D: { name: "standing desk", sprite: "desk", color: "butter", tasks: ["work", "side-project-game", "journal", "tidy-desk", "make-track"] },
   C: { name: "desk chair", sprite: "desk-chair", color: "ink" },
   H: { name: "cube bookshelf", sprite: "bookshelf", color: "butter", tasks: ["water-plant", "sort-records", "sort-records-year", "sort-records-fav", "sort-records-color"] },
   N: { name: "nightstand", sprite: "nightstand", color: "tangerine" },

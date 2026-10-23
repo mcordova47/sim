@@ -18,6 +18,7 @@ In a task (in `tasks.ts`, or in a tile-map legend):
 | `cutscene` | a short script of steps (below) | `steps` |
 | `typing` | key mashing: every key press types a character of some lines (code by default) | `lines` (default 2, at most 6); `text`, a list of lines to pick from (no repeats until it runs out), each drawable by the font and under `TYPING.maxLineWidth` pixels. Lists live in `typing-text.ts` |
 | `notes` | arrows appear one at a time; press the matching direction before time runs out | `count` (default 6, at most 14) |
+| `make-track` | the track editor (a piano roll over the `.track` format), opened at the desk laptop. Free-form: it never finishes by itself, holds the game clock still (`holdsClock`), reads keys (`readsKeys`; `readsLetters` only while a name is typed, so M still mutes) and is left by Escape. Saving pays through `host.reward` | none (see music.md, "Your own tracks") |
 
 ### Cutscene steps
 
@@ -60,6 +61,7 @@ What happened before and after issue 046 (reproduced on the real `Game`; `src/ga
 | cutscene | `ask` menu up | Escape closed the menu (a cancelled answer) and the scene carried on | cancels |
 | cutscene | `view` picture and `say` | same as `say` | cancels, picture cleared |
 | typing | running | cancels | cancels |
+| make-track | any moment: editing, playing, typing a name, the start menu, the delete question, a paste | cancels at once, from anywhere (it does not close one box first) | cancels, pays nothing; the draft is already kept and the preview stops |
 | notes | running | ignored | cancels (made cancellable at Marc's request; no points, effects or cooldown, and a buffered E cannot restart it) |
 
 ## How it scores

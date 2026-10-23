@@ -11,7 +11,7 @@ import { RoomPainter, drawFloorAndWalls } from "../render/room-painter";
 import type { SpriteDrawer } from "../render/sprites";
 import { GOOD_HOUR_ICON, GOOD_HOUR_ICON_SIZE, drawProgress, drawPrompt } from "../render/world-ui";
 import { pickVariant, type Appearance } from "./appearance";
-import { DEBUG, DIALOG, ENERGY, MOOD, TILE, VIEW } from "./config";
+import { CLOCK, DEBUG, DIALOG, ENERGY, MOOD, TILE, VIEW } from "./config";
 import type { ActivityHost } from "./activity";
 import type { Interactable } from "./interactable";
 import { DialogRunner, type DialogNode, type DialogResult, type DialogView } from "./dialog";
@@ -91,6 +91,8 @@ export class Game {
   private readonly hud = new Hud();
   private readonly popups: Popups;
   private readonly layers: Layer[] = [];
+  // Game minutes that have gone by (the clock held still by an activity does not count).
+  private minutes = 0;
   private level: Level;
   private grid: Grid;
   private readonly dialog: DialogRunner;
@@ -209,6 +211,10 @@ export class Game {
         },
       },
       route: (col, row) => this.routeTo(col, row),
+      previewTrack: (track, live = false) => this.events.emit("preview", { track, live }),
+      blip: (freq) => this.events.emit("blip", { freq }),
+      reward: (points, effects) => this.interaction.award(points, effects)?.points ?? null,
+      gameMinutes: () => this.minutes,
       sprites: this.spriteDrawer,
       random: () => this.random(),
     };
@@ -357,11 +363,11 @@ export class Game {
       // start a task.
       this.dialog.update(dt, controls);
       if (!DIALOG.pauseClock) {
-        this.state.tick(dt);
+        this.tickClock(dt);
         this.interaction.update(dt, this.player, NO_INPUT);
       }
     } else {
-      this.state.tick(dt);
+      this.tickClock(dt);
       this.interaction.update(dt, this.player, this.inputLocked ? NO_INPUT : controls);
     }
     this.player.stepTimeScale = this.state.get("energy") < ENERGY.lowBelow ? ENERGY.tiredStepFactor : 1;
@@ -379,6 +385,14 @@ export class Game {
     this.popups.update(dt);
     this.hud.update(dt, this.interaction.scoreboard.score);
     this.eachLayer((layer) => layer.update?.(dt));
+  }
+
+  // Passes `dt` seconds of game time, unless the running activity holds the
+  // clock still (the track editor has no time pressure).
+  private tickClock(dt: number): void {
+    if (this.interaction.active?.activity.holdsClock) return;
+    this.state.tick(dt);
+    this.minutes += dt * CLOCK.minutesPerSecond;
   }
 
   render(ctx: CanvasRenderingContext2D, alpha: number): void {

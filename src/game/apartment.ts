@@ -62,11 +62,10 @@ const MAIN: Record<string, ObjectDef> = {
     sprite: "window-blinds",
     color: "mist",
     tasks: ["open-blinds", "close-blinds"],
-    // Open or closed. Both use the one sprite there is until issue 036 draws
-    // `window-blinds-open` and `window-blinds-closed`; then name them here.
+    // Open or closed.
     variants: [
-      { sprite: "window-blinds", when: [{ var: "blinds", min: 1 }], label: "BLINDS OPEN", color: "leaf" },
-      { sprite: "window-blinds", label: "BLINDS CLOSED", color: "mist" },
+      { sprite: "window-blinds-open", when: [{ var: "blinds", min: 1 }], label: "BLINDS OPEN", color: "leaf" },
+      { sprite: "window-blinds-closed", label: "BLINDS CLOSED", color: "mist" },
     ],
   },
   S: { name: "sofa", sprite: "sofa-td", color: "brick", tasks: ["doomscroll", "contemplate", "work-sofa", "nap", "admire-art"] },

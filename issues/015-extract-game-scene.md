@@ -1,7 +1,7 @@
 ---
 id: 015
 title: Extract the game scene from main.ts
-status: todo
+status: review
 owner: claude
 depends_on: []
 ---
@@ -17,3 +17,8 @@ depends_on: []
 - At least one test covers the new module without a browser (for example, driving `update` with simulated controls and checking the player moves and a task completes).
 
 ## Progress log
+- 2026-10-22: Done, ready for review. Branch `issue/015-extract-game-scene`, worktree `../life-worktrees/015-extract-game-scene`.
+  - Added `src/game/level.ts` (`Level` type and `PLACEHOLDER_LEVEL`), `src/game/game.ts` (`Game`: owns the player, interaction system, popups and HUD; `update(dt, controls)` and `render(ctx, alpha)`), `src/game/game.test.ts`. `src/main.ts` is now 21 lines: canvas, keyboard, `new Game(PLACEHOLDER_LEVEL)`, loop.
+  - Criteria: `main.ts` thin: yes. `Game` takes a `Level` (solids, interactables, spawn) so issue 011 swaps data in one place: yes. Render split into `drawWorld`, `drawWorldUi`, `drawHud`, with a comment marking where the camera in 010 wraps the first two: yes. Same behavior: the update and draw code moved without changes (same order of calls, same constants); `Game` doesn't read the keyboard, `main.ts` does and then calls `keyboard.endFrame()` as before. Test without a browser: `game.test.ts` (4 tests: settles on the floor, moves with input, locks during a task then awards points, runs without a canvas).
+  - Checks: `npm run build` passes; `npm test` 29 pass (25 existing plus 4 new).
+  - **Not checked:** pixel-for-pixel identical rendering against `main` in a browser; the draw code was moved, not changed, but nobody has compared the two visually.

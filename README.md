@@ -1,19 +1,27 @@
 # Life
 
-A single-room platformer set in a studio apartment. Do mundane tasks, earn points. See [PLAN.md](PLAN.md) for the design and issue list.
+A top-down, Pokemon-style game set in a studio apartment. Walk tile to tile, face something, press E, earn points. See [PLAN.md](PLAN.md) for the design and the issue list.
+
+The first version was a side-view platformer; it is kept in the git tag `side-view-prototype`.
 
 ## Run
 
 ```
 npm install
-npm run dev     # dev server
-npm run build   # type check and production build
+npm run dev       # dev server
+npm run build     # type check and production build
+npm test          # unit tests
+npm run sprites   # render art/src/*.sprite to public/sprites/ and a contact sheet
 ```
+
+Controls: WASD or arrow keys to walk (a new direction turns you first, holding it steps), E to use what you are facing.
 
 ## Layout
 
 - `src/main.ts`: entry point
-- `src/game/`: loop, config and (later) physics, tasks and scoring
-- `src/input/`: keyboard state
-- `src/render/`: canvas setup and drawing
-- `src/assets/`: static assets imported by code (sprites served as files go in `public/`)
+- `src/game/`: the game: loop, the player and grid, tile-map levels, interaction, scoring, events and layers, task content
+- `src/input/`: keyboard state and controls
+- `src/render/`: canvas, camera, pixel font, HUD, popups and colours (from the shared palette)
+- `art/`: sprite sources, the palette and the style guide notes (`docs/art-style.md`)
+- `issues/`: the issue files; one file per issue, tracked by `PLAN.md`
+- `.claude/skills/`: the `work-issue`, `review-issue` and `merge-issue` skills used to run the project

@@ -19,6 +19,11 @@ Re-plan the real apartment as top-down tile maps. The side view forced the sofa 
 - Task text only uses characters the font has, checked by a test over the real data.
 - Marc reviews and signs off the layout, as with the first floor plan.
 
+## Things the 019 review found that this issue must handle
+- **L-shaped objects.** `parseTileMap` makes one task zone from the rectangle around an object's tiles, so for an L-shaped counter or sofa the empty notch tile is usable too (facing the notch from the floor starts the task). Fix it: a zone should be exactly the tiles of the object (a list of tiles, or per-tile zones), and the real plan has L-shaped pieces. Add a test.
+- **Doorways need the game to switch rooms.** `Game` takes one level for its life and builds its `Grid` once. Add a way to move the player to another level (load a level, set the spawn tile and facing), keeping score, combo, popups, events and layers, and test it.
+- **Tile-map hardening, since this issue leans on it:** a legend entry for `#`, `.` or `@` is silently ignored (reject it); a bad `color` name silently falls back (reject it); CRLF input gives a confusing error (accept or explain it); a spawn on a wall or a size that is not a whole number of tiles is not validated; a very large single object can overflow the stack in `boundingRect`.
+
 ## Photo handling
 Same rules as before: photos stay in `reference-photos/` (gitignored); the repo gets text and sprites only, and nothing that identifies an address.
 

@@ -17,4 +17,7 @@ A Pokemon-style text box and choice menus, so cutscenes, thoughts and abstract t
 - Events (open, choose, close) so sound and achievements can react.
 - Tests (no browser): wrapping, paging, typewriter timing, skipping, menu navigation and cancel, nested menus, input blocking, glyph coverage over sample data.
 
+## Things the 019 review found that this issue must handle
+- **Freeze input while a dialog is open** through the same lock as activities (022), not a second mechanism. If 023 lands first, build the lock here and let 022 use it.
+
 ## Progress log

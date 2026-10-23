@@ -20,6 +20,10 @@ Make doing things matter: eating makes dirty dishes, washing them removes them, 
 - A `stateChanged` event so sound, particles and achievements can react.
 - Tests (no browser): requirements and effects, unavailable reasons, variants chosen by state, energy rise and fall, clock wrap, points hook, event.
 
+## Things the 019 review found that this issue must handle
+- **Walkability can change with state.** `Game` builds its `Grid` once from the level's solids, so anything that blocks or unblocks a tile (a door, a pile of laundry) needs an update API on `Grid` or a rebuild. Decide which and test it.
+- **The `bump` latch resets when a task locks the player**, so holding a direction into the object just used bumps once more after each task. Fix it if sound makes it audible.
+
 ## Notes
 - The task text and balance are placeholders until the personal task list (024) is written. This issue builds the system with a few example tasks.
 

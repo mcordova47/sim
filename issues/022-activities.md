@@ -18,4 +18,8 @@ Today every task is "wait N seconds". Let a task be an activity instead: the pla
 - Logic is deterministic with an injected random function and tested without a browser, including the interaction with scoring and combos and a test that a new activity type needs no change to the interaction system.
 - Activities run in game time and respect the clock (021) when it exists.
 
+## Things the 019 review found that this issue must handle
+- **A general input lock and scripted movement.** The busy lock exists only through `InteractionSystem.active`. Activities, cutscenes and (in 023) dialogs all need to freeze player input, and cutscenes need to move the player by script (walk to a spot, face a direction). Add one place for both (for example `Game.lock(owner)` and a way to queue steps for the player), instead of each feature inventing its own.
+- **Events can be missed in a long update.** `arrivedThisUpdate` and `bumpedThisUpdate` keep only the last event of an update; with the fixed 1/60 step this can't happen, but scripted movement or a catch-up update could. If an activity needs every step, make the player record a list.
+
 ## Progress log

@@ -1,7 +1,7 @@
 ---
 id: 025
 title: Top-down art spec
-status: todo
+status: in-progress
 owner: marc + agent
 depends_on: []
 ---
@@ -24,3 +24,5 @@ Decide how top-down art is drawn before anyone draws it, and prove it with a few
 - Furniture batches for the new view are written after 020 gives the piece list.
 
 ## Progress log
+
+- 2026-10-22: Started. Marc chose a 16x16 character (one tile). Plan: rewrite docs/art-style.md for top-down, audit the 32 existing sprites, draw sample tileset, one reused and one new furniture piece, and player-idle-down + walk frame; render a contact sheet and a room mockup; keep pipeline changes minimal.

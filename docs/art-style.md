@@ -2,10 +2,21 @@
 
 Rules for every sprite in the game. The palette lives in [art/palette.json](../art/palette.json) and is the single source of truth; the table below mirrors it.
 
+> **Top-down rewrite, 2026-10-22.** The side-view rules (front elevations, 1 tile = 1 ft, jump-height scale) are in git history and the tag `side-view-prototype`. Everything below is for the top-down game.
+
+## Perspective
+Early Game Boy Pokemon: the camera looks at the room from slightly above and in front.
+- **Furniture is drawn front-on with a visible top slice.** You see the front face of a piece (a fridge's doors, a sofa's seat) and a thin band of its top surface above it. Pieces against the back wall look like they are standing against it.
+- **Floors are flat patterns** seen from above. **The back wall** is front-on: a lit top slice, the wall face and a baseboard. **Side walls** are seen edge-on: an ink outline, a lit top face about 3 px wide and a shadow strip on the floor.
+- **Characters are front-on** (down), back-on (up) or in profile (left, right) with the same slight downward tilt: you see the top of the head a little.
+- **Overhang:** a sprite is `footprint rows + overhang rows`. The footprint is the tiles the piece blocks; the overhang is extra rows above it (a tall fridge, a sofa back) drawn over the tile behind. The sofa is 2x2 tiles with a 2x1 footprint. Draw order is by the bottom edge of the footprint: lower on screen is in front.
+- **Scale:** how many tiles a piece covers is decided by the floor plan (issue 020). Until then, draw to the footprints in the reuse table below; one tile is a bit more than one person wide, not a real-world foot.
+
 ## Grid
 - **Tile size: 16x16 px** (`TILE` in `src/game/config.ts`).
-- Every sprite's width and height is a multiple of 16 (the couch is 48x16, a standing player may be 16x32). The pipeline rejects anything else.
-- The view is 20x12 tiles (320x192) and is only ever scaled by whole numbers, so pixels stay crisp.
+- Every sprite's width and height is a multiple of 16. The pipeline rejects anything else.
+- **The player is 16x16, one tile** (decided with Marc, 2026-10-22). No pipeline change was needed.
+- The screen shows whole numbers of tiles and is only ever scaled by whole numbers, so pixels stay crisp.
 
 ## Palette (20 colors)
 Characters are what you type in a `.sprite` file. `.` is transparent.
@@ -58,12 +69,52 @@ If a piece needs a colour that isn't here, pick the nearest palette key and say 
 - No anti-aliasing, no semi-transparent pixels. Every pixel is a palette color or fully transparent.
 
 ## Lighting
-- Light comes from the **top-left** (the window). Highlights go on top and left edges, shadows on bottom and right.
+- Light comes from the **top-left** (the window). Highlights go on top and left edges, shadows on bottom and right. The top slice of a piece is its lightest tone.
+- **Shadows:** no cast shadows on the floor except the side-wall strip. A piece sits on the floor with its bottom outline; if it needs grounding, add one row of the darker material tone above the outline.
 - Use one lighter and one darker tone per material at most; shading is flat, no dithering.
 
 ## Naming
-- Lowercase kebab-case, e.g. `coffee-mug`, `loft-bed`. The filename (minus extension) is the name the game loads: `art/src/coffee-mug.sprite` becomes `public/sprites/coffee-mug.png`.
-- Variants and frames: `<name>-<variant>` or `<name>-<n>`, e.g. `player-walk-1`, `kettle-on`.
+- Lowercase kebab-case, enforced by the pipeline: `coffee-mug`, `loft-bed`. The filename (minus extension) is the name the game loads: `art/src/coffee-mug.sprite` becomes `public/sprites/coffee-mug.png`.
+- **Variants:** `<name>-<variant>`: `bed-made`, `bed-unmade`, `kettle-on`.
+- **Counts and stages:** `<name>-<n>`: `dishes-1`, `dishes-2`, `dishes-3` (a pile growing).
+- **Character frames:** `<character>-<state>-<direction>[-<frame>]` with direction `down`, `up`, `left`, `right`: `player-idle-down`, `player-walk-down-1`, `player-walk-down-2`. A walk cycle is two frames (left foot, right foot) alternating with idle. Left may be omitted and drawn by flipping right.
+- **Doing poses** (drawn as small scenes where the character sits or lies, so they are bigger than 16x16 and show the furniture too): `player-sit-sofa` (16x16), `player-type-desk` (16x32), `player-guitar` (32x16), `player-read-sofa` (32x16), `player-sleep-bed` (a lump under the duvet on `bed-made`'s footprint, 32x48), `player-eat-table` (16x16). Sizes are proposals; the activity issue (022) confirms them.
+- **Tiles:** `floor-<material>`, `wall-<kind>`, `rug`, `doorway`.
+
+## Reuse audit of the 24 side-view sprites
+Sorted for the top-down view. **Reuse:** use as-is (wall-mounted or flat). **Adapt:** the front face is good; add a top slice and trim the height to the planned footprint. **Redraw:** the side-view drawing does not work from above.
+
+| Sprite | Size | Verdict | Why |
+|--------|------|---------|-----|
+| bed | 64x32 | Redraw | Side profile. Replaced by `bed-made` (32x48, new). |
+| bin | 16x32 | Adapt | Front-facing; add a lid top, trim to 16x16 plus a few rows. |
+| bookshelf | 48x80 | Adapt | Front-facing against the wall; crop to about 3x3 tiles and add a top slice. |
+| boxes | 16x80 | Redraw | A stack seen from the side; draw as a 16x16 box with a top face. |
+| counter | 32x48 | Adapt | Front cabinets are right; add a counter top slice. |
+| desk | 48x48 | Redraw | Table on legs; from above the top surface matters. |
+| fridge | 32x96 | Adapt | Front doors are right; too tall, trim to about 2x4 and add a top slice. |
+| gallery-wall | 48x48 | Reuse | Flat frames on the wall. |
+| guitar | 16x48 | Adapt | Leaning against the wall is fine; trim. |
+| hood | 48x32 | Reuse | Wall-mounted. |
+| mic-stand | 16x112 | Redraw | Far too tall; a short stand about 1x2 tiles. |
+| player-idle, -walk-1..4, -jump, -fall, -task | 16x16 | Redraw | Side-view poses. Replaced by the `player-<state>-<direction>` set. |
+| record-stand | 16x48 | Adapt | Front-facing; trim and add a top. |
+| shower-curtain | 48x96 | Redraw | Draw the tub and curtain from the front of the bathroom. |
+| sofa-arm | 16x32 | Adapt | Armchair side; give it a backrest slice like `sofa-td`. |
+| sofa | 32x16 | Adapt | Done: `sofa-td` (32x32). |
+| spice-rack | 16x64 | Reuse | Wall-mounted. |
+| stove | 48x48 | Adapt | Front-facing; add a top slice with burners. |
+| table | 48x32 | Redraw | Draw the tabletop from above with the mug and kettle on it. |
+| toilet | 32x32 | Redraw | Front elevation; needs the lid and seat seen from above and in front. |
+| tote | 16x16 | Reuse | Small floor item, reads fine. |
+| tub | 48x32 | Redraw | Side view; draw the long edge facing the player. |
+| vanity | 32x48 | Adapt | Front-facing; add a top slice. |
+| window-blinds, window-curtain | 32x64 | Reuse | Hang on the back wall; trim height to fit the wall band. |
+
+Verdict totals: 5 reuse, 10 adapt, 9 redraw (plus the 8 player poses, all redraw).
+
+## Samples in the repo (for approval)
+`floor-wood`, `floor-tile`, `rug`, `wall-back`, `wall-side-left`, `wall-side-right`, `doorway` (the tileset); `sofa-td` (adapted) and `bed-made` (new); `player-idle-down` and `player-walk-down-1` (the character, 16x16). Run `npm run sprites -- --sheet=floor-,rug,wall-,doorway,bed-,sofa-td,player-idle-down,player-walk-down` and `node scripts/room-mockup.mjs`, then open `art/contact-sheet.png` and `art/room-mockup.png`. Left-over rules from the side view (outline, palette) are unchanged. Furniture batches are not drawn until Marc approves this look.
 
 ## Source format
 Plain text, one file per sprite in `art/src/`:
@@ -79,7 +130,7 @@ The first non-comment line is `size: WxH`, followed by exactly H rows of exactly
 
 ## Workflow
 1. Edit or add `art/src/<name>.sprite`.
-2. `npm run sprites` validates and renders to `public/sprites/` plus `art/contact-sheet.png` (4x upscale on a checkerboard). Look at the sheet before committing.
+2. `npm run sprites` validates and renders to `public/sprites/` plus `art/contact-sheet.png` (4x upscale on a checkerboard). Add `-- --sheet=prefix,prefix` to put only matching names on the sheet. `node scripts/room-mockup.mjs` composes a sample room into `art/room-mockup.png` (also not committed). Look at both before committing.
 3. `art/contact-sheet.png` is a generated review aid and is not committed (it is gitignored), so branches don't conflict on it. Don't `git add -f` it. The script prints where it wrote it.
-4. The script fails, writing nothing, if a sprite has an unknown color, a wrong row width or height, or a size that is not a multiple of the tile.
+4. The script fails, writing nothing, if a sprite has an unknown color, a wrong row width or height, or a size that is not a multiple of the tile, or a name that is not lowercase kebab-case.
 5. In the game, `sprites.draw(ctx, "name", x, y)` (see `src/render/sprites.ts`). A missing file draws a red rectangle labeled with its name. To swap in hand-made art, drop a PNG of the right size at `public/sprites/<name>.png` and skip the source file (the script only overwrites PNGs that have a `.sprite` source).

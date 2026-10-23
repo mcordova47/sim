@@ -107,13 +107,37 @@ it("Escape in a nested menu of a task backs out of the whole task, not one level
   expect(game.interaction.scoreboard.score).toBe(0);
 });
 
-it("notes are uncancellable by design: Escape does nothing to them", () => {
-  const game = new Game(room(t("nt", { activity: { type: "notes", count: 2 }, effects: base.effects })));
-  for (let i = 0; i < 12; i++) game.update(dt, NO_INPUT);
-  game.update(dt, press);
-  for (let i = 0; i < 30; i++) game.update(dt, NO_INPUT);
-  game.update(dt, esc);
-  expect(game.interaction.busy).toBe(true);
+describe("notes", () => {
+  const notes = () => t("nt", { activity: { type: "notes", count: 2 }, effects: base.effects, cooldown: 60 });
+  const start = () => {
+    const game = new Game(room(notes()));
+    for (let i = 0; i < 12; i++) game.update(dt, NO_INPUT);
+    game.update(dt, press);
+    for (let i = 0; i < 30; i++) game.update(dt, NO_INPUT);
+    return game;
+  };
+
+  it("are cancelled by Escape: no points, no effects, no cooldown", () => {
+    const game = start();
+    const dishes = game.state.get("dishes");
+    expect(game.interaction.busy).toBe(true);
+    game.update(dt, esc);
+    expect(game.interaction.busy).toBe(false);
+    expect(game.interaction.scoreboard.score).toBe(0);
+    expect(game.state.get("dishes")).toBe(dishes);
+    game.update(dt, press); // no cooldown: starts again at once
+    expect(game.interaction.busy).toBe(true);
+  });
+
+  it("are not restarted by a buffered E pressed with, or just before, the Escape", () => {
+    for (const lead of [0, 1, 3]) {
+      const game = start();
+      for (let i = 0; i < lead; i++) game.update(dt, i === 0 ? press : NO_INPUT);
+      game.update(dt, { ...esc, interactPressed: true, keys: ["Escape", "KeyE"] });
+      for (let i = 0; i < 30; i++) game.update(dt, NO_INPUT);
+      expect(game.interaction.busy, `lead ${lead}`).toBe(false);
+    }
+  });
 });
 
 it("a standalone dialog (no action running) still backs out one menu level with Escape", () => {
@@ -127,7 +151,7 @@ it("a standalone dialog (no action running) still backs out one menu level with 
   expect(game.dialogOpen).toBe(false);
 });
 
-it("the stop hint is drawn while a cancellable action runs, and not for notes or when idle", () => {
+it("the stop hint is drawn while an action runs, notes included, and not when idle", () => {
   vi.stubGlobal("document", {
     createElement: () => ({ width: 0, height: 0, getContext: () => new Proxy({}, { get: () => () => {}, set: () => true }) }),
   });
@@ -148,9 +172,9 @@ it("the stop hint is drawn while a cancellable action runs, and not for notes or
   idle.update(dt, press);
   expect(count(idle)).toBeGreaterThan(idleCount + 8); // "ESC TO STOP" and the progress bar
   const notes = go(t("n", { activity: { type: "notes", count: 2 } }));
+  const notesIdle = count(notes);
   notes.update(dt, press);
-  const waitCount = count(idle);
-  expect(count(notes)).toBeLessThan(waitCount);
+  expect(count(notes)).toBeGreaterThan(notesIdle + 8);
 });
 
 // The apartment's flags and counts (not the clock or energy, which tick by themselves).

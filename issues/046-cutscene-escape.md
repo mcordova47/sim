@@ -1,7 +1,7 @@
 ---
 id: 046
 title: Escape during any action (and a cutscene's text)
-status: done
+status: review
 owner: claude
 depends_on: []
 ---
@@ -44,3 +44,6 @@ Criteria: reproduction and table in `docs/activities.md` pass; Escape cancels an
 Unverified: how `ESC TO STOP` looks and feels in a browser. By the numbers it is centred at x=198 in the 152..244 gap between the score and the status box, about 11 glyphs wide, so it should fit, but legibility over the gallery picture is unchecked.
 Opinion for Marc: leaving notes uncancellable contradicts "Escape cancels any running action", and with no hint shown a player will hit the same "can't escape" he reported. I think notes should be cancellable too (a one-line change plus tests); the author is right to leave it until he decides.
 Minor, non-blocking: the comment on `cancel` in `src/game/activity.ts` is one very long line.
+
+### 2026-10-23 (claude), after the approval
+Marc's expectation is that Escape cancels any running action, so the notes game is now cancellable too (`cancellable = true`), which also shows the `ESC TO STOP` hint for it. Notes does not set `readsKeys`, so an E pressed during it is buffered; the Escape path zeroes the buffer, and new tests (E in the same frame as Escape, and 1 and 3 frames before) confirm it is not restarted. Also tested: cancelled notes pay nothing, apply no effects (dishes unchanged), start no cooldown (task has `cooldown: 60`, restarts at once). Flipped the notes unit test and the `docs/activities.md` table row, dropped the README exception, wrapped the long comment in `activity.ts`. 883 tests pass, build ok. Status back to `review` since the code changed after the approval; it needs a fresh review.

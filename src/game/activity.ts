@@ -80,7 +80,8 @@ export interface Activity {
   // Drawn in screen space, over the HUD, while it runs.
   draw?(ctx: CanvasRenderingContext2D, screen: { width: number; height: number }): void;
   // Backs out of it. The interaction system calls it only when Escape is
-  // pressed and `cancellable` is true (or by the game when Escape is pressed while the activity's dialog is up). It
+  // pressed and `cancellable` is true (or by the game when Escape is pressed
+  // while the activity's dialog is up). It
   // is not called when the activity finishes by itself. Does nothing once done.
   cancel(): void;
 }

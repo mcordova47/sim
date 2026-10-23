@@ -14,6 +14,8 @@ type Outcome = "hit" | "miss";
 // up. A wrong direction or running out of time is a miss. Quality is the share
 // of notes hit.
 export class NotesActivity extends BaseActivity {
+  cancellable = true;
+
   readonly outcomes: (Outcome | null)[];
 
   private index = 0;

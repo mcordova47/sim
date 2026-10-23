@@ -60,12 +60,12 @@ What happened before and after issue 046 (reproduced on the real `Game`; `src/ga
 | cutscene | `ask` menu up | Escape closed the menu (a cancelled answer) and the scene carried on | cancels |
 | cutscene | `view` picture and `say` | same as `say` | cancels, picture cleared |
 | typing | running | cancels | cancels |
-| notes | running | ignored | ignored, on purpose (it is short). `cancellable = false`; the hint is not shown. Open question for Marc whether this should change |
+| notes | running | ignored | cancels (made cancellable at Marc's request; no points, effects or cooldown, and a buffered E cannot restart it) |
 
 ## How it scores
 
 - **Quality.** A mini-game reports how well it went, from 0 to 1. That scales the task's points between `ACTIVITY.minQualityFactor` (0.5) and `maxQualityFactor` (1.5) in `config.ts`; the award popup shows `NICE X1.30` or `SLOPPY X0.80` (two decimals). A NaN quality counts as 0. An activity with no quality (a wait, a cutscene, a dialog) pays its usual points.
-- **Backing out.** `cancel()` is called by the interaction system only when Escape is pressed and the activity is `cancellable` (everything is except the notes game, see the table below). It is not called when an activity ends by itself. A cutscene's cancel is a plain cancel, not a skip that pays. A task that is backed out of scores nothing, changes nothing in the apartment and starts no cooldown, so it can be tried again at once. `completed: false` means exactly this: no points, no effects, no cooldown, `taskCancelled` fires, the combo is untouched. The press that backs out never starts a task again (the buffered interact press is dropped). An activity that throws (in its factory, `start`, `update` or `cancel`) is treated the same way: it is reported to the console, cancelled, and the game carries on.
+- **Backing out.** `cancel()` is called by the interaction system only when Escape is pressed and the activity is `cancellable` (everything is). It is not called when an activity ends by itself. A cutscene's cancel is a plain cancel, not a skip that pays. A task that is backed out of scores nothing, changes nothing in the apartment and starts no cooldown, so it can be tried again at once. `completed: false` means exactly this: no points, no effects, no cooldown, `taskCancelled` fires, the combo is untouched. The press that backs out never starts a task again (the buffered interact press is dropped). An activity that throws (in its factory, `start`, `update` or `cancel`) is treated the same way: it is reported to the console, cancelled, and the game carries on.
 - Points bonuses, repeat penalties and the variety combo apply on top, as for any task.
 - The task's `effects` (dishes, energy, the clock) apply when it completes, never when it is cancelled.
 

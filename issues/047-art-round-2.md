@@ -1,7 +1,7 @@
 ---
 id: 047
 title: Art round 2 from the 034 playtest
-status: review
+status: done
 owner: agent
 depends_on: []
 ---

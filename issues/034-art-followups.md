@@ -18,4 +18,13 @@ The art that is left, and the small fixes the reviews noted. Do these after 031 
 - Other outfits (casual, out, pajamas) as `player-<outfit>-...`, and held-item overlays (mug, laptop, guitar, book) as separate sprites.
 - `npm run sprites`, `npm test` and `npm run build` pass.
 
+- **Marc's notes from playing the sprite build (2026-10-23)**, to be judged in the running game at 1x:
+  1. `lamp-table`: the lamp reads more side-on than everything else; redraw to the same top-down angle (Marc may send a reference photo of the lamp).
+  2. Close-up labeled photos of the paintings and other art: Marc offered; list which ones to ask for (desk print, barn drawing, gallery wall, robin linocut).
+  3. `guitar`: fine as is if it looks better, but try flipping it and shortening it so it hangs on the west wall (1x1 or 1x2, hanging, not leaning). Check the floor plan: the guitar tile may then be free floor or wall.
+  4. Doors: Marc doesn't read them. For the main room to kitchen passage, draw an open passage (no door leaf) rather than a door: change the doorway tile for those two tiles (`doorway-*` or a new `opening-*`). Review the bath and front door doorways for the same readability problem.
+  5. A reference picture of a mug and of the lamp from Marc will improve `table` (mug) and `lamp-table`.
+  6. The front door is white (old, painted many times): redraw `front-door` white with layers of paint (chipped edges, a bit of an off-white or yellowed tint), not tangerine.
+  7. Clutter piles on the desk: this is issue 042 (waits on this issue's art). Draw the piles as separate variants when 042 starts.
+
 ## Progress log

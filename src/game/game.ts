@@ -13,13 +13,16 @@ import { drawProgress, drawPrompt } from "../render/world-ui";
 import { pickVariant, type Appearance } from "./appearance";
 import { DEBUG, DIALOG, ENERGY, MOOD, TILE, VIEW } from "./config";
 import type { ActivityHost } from "./activity";
+import type { Interactable } from "./interactable";
 import { DialogRunner, type DialogNode, type DialogResult } from "./dialog";
 import { DELTA, DIRECTIONS, type Direction } from "./direction";
 import { Emitter, type GameEvents } from "./events";
 import { Grid } from "./grid";
 import { InteractionSystem } from "./interaction";
 import { validateLevel, type Door, type Level, type Piece } from "./level";
+import { outfitPrefix } from "./outfits";
 import { Player } from "./player";
+import { CARRIED, POSES, heldSprite, type PoseDef } from "./poses";
 import { ApartmentState } from "./state";
 import { STATE_VARS } from "./state-vars";
 import { boundsOf, type Rect, type Solid } from "./world";
@@ -94,6 +97,9 @@ export class Game {
   private readonly random: () => number;
   private readonly painter: RoomPainter;
   private readonly spriteDrawer: SpriteDrawer | undefined;
+  // The piece the player was facing when the running task started, which is
+  // what its pose is drawn on.
+  private doing: { item: Interactable; piece: Piece | null } | null = null;
 
   constructor(level: Level, options: GameOptions = {}) {
     this.state = options.state ?? new ApartmentState(STATE_VARS);
@@ -127,7 +133,10 @@ export class Game {
       this.popups.add(zone.x + zone.w / 2, zone.y, lines);
       this.events.emit("taskComplete", { item, award });
     }, this.state);
-    this.interaction.onStart = (item) => this.events.emit("taskStart", { item });
+    this.interaction.onStart = (item) => {
+      this.doing = { item, piece: this.facedPiece() };
+      this.events.emit("taskStart", { item });
+    };
     this.interaction.onCancelled = (item) => this.events.emit("taskCancelled", { item });
     this.interaction.host = this.activityHost();
     this.dialog = new DialogRunner({
@@ -433,6 +442,27 @@ export class Game {
     }
   }
 
+  // The piece on the tile the player is facing, if any.
+  private facedPiece(): Piece | null {
+    const target = this.player.target;
+    if (!target) return null;
+    const col = target.x / TILE;
+    const row = target.y / TILE;
+    return this.level.pieces.find((p) => p.tiles.some((t) => t.col === col && t.row === row)) ?? null;
+  }
+
+  // The pose the player is in right now: the running task's, if it belongs to
+  // the piece it was started at and its art exists (otherwise the plain
+  // player is drawn, and the missing file is logged once).
+  private currentPose(): { def: PoseDef; piece: Piece } | null {
+    const active = this.interaction.active?.item;
+    if (!active?.pose || this.doing?.item !== active || !this.doing.piece) return null;
+    const def = POSES[active.pose];
+    const piece = this.doing.piece;
+    if (!def || piece.sprite !== def.on || !this.painter.available(def.sprite)) return null;
+    return { def, piece };
+  }
+
   private playerCentre(): { x: number; y: number } {
     return { x: this.player.x + this.player.w / 2, y: this.player.y + this.player.h / 2 };
   }
@@ -450,6 +480,7 @@ export class Game {
 
     const walled = painter.active && level.walls !== undefined;
     const drawables: { bottom: number; draw: () => void }[] = [];
+    const pose = this.currentPose();
     // Tiles whose rectangle is not needed because a sprite covers them, and
     // every tile that belongs to some piece (the rest of the solids are walls).
     const covered = new Set<string>();
@@ -486,6 +517,7 @@ export class Game {
       if (!piece.sprite || changing(piece) || !painter.available(piece.sprite)) continue;
       const { x, y, h } = piece.bounds;
       for (const t of piece.tiles) covered.add(tileKey(t.col, t.row));
+      if (pose?.def.replacesPiece && pose.piece === piece) continue;
       drawables.push({ bottom: y + h, draw: () => painter.draw(ctx, piece.sprite!, x, y) });
     }
 
@@ -502,7 +534,15 @@ export class Game {
         },
       });
     }
-    drawables.push({ bottom: actor.y + actor.h, draw: () => this.drawPlayer(ctx, actor) });
+    if (pose) {
+      // Over the piece it is on, and in front of anything it overlaps.
+      const { def, piece } = pose;
+      const x = piece.bounds.x + def.at.x;
+      const y = piece.bounds.y + def.at.y;
+      drawables.push({ bottom: y + def.size.h, draw: () => painter.draw(ctx, def.sprite, x, y) });
+    } else {
+      drawables.push({ bottom: actor.y + actor.h, draw: () => this.drawPlayer(ctx, actor) });
+    }
     // The sort is stable, so on a tie the player (added last) is in front.
     drawables.sort((a, b) => a.bottom - b.bottom);
     for (const d of drawables) d.draw();
@@ -519,10 +559,19 @@ export class Game {
   // rectangle with a small mark on the side it is facing.
   private drawPlayer(ctx: CanvasRenderingContext2D, actor: Actor): void {
     const { player, painter } = this;
-    const frame = playerFrame(player.facing, player.stepping, player.stepsTaken, (n) =>
-      painter.has(n),
-    );
-    if (painter.draw(ctx, frame.name, actor.x, actor.y, frame.flip)) return;
+    const prefix = outfitPrefix(this.state.get("outfit"));
+    // An outfit with no art for this frame falls back to the everyday clothes,
+    // and the missing file is logged once.
+    const step = (has: (n: string) => boolean) =>
+      playerFrame(player.facing, player.stepping, player.stepsTaken, has, prefix);
+    if (prefix !== outfitPrefix(0)) painter.available(step(() => true).name);
+    const frame = step((n) => painter.has(n));
+    const drawn = painter.draw(ctx, frame.name, actor.x, actor.y, frame.flip);
+    // What is in their hands: the running task's item, else a coffee they are carrying.
+    const held =
+      this.interaction.active?.item.held ?? (this.state.get(CARRIED.var) >= 1 ? CARRIED.item : null);
+    if (held) painter.draw(ctx, heldSprite(held, player.facing), actor.x, actor.y);
+    if (drawn) return;
     ctx.fillStyle = COLOR.brick;
     ctx.fillRect(actor.x, actor.y, actor.w, actor.h);
     const { dc, dr } = DELTA[player.facing];

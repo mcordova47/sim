@@ -151,9 +151,9 @@ describe("AchievementsFeature", () => {
   it("copes with a variable the game has that the save does not, and one the save has that the game lost", () => {
     const storage = new FakeStorage();
     storage.setItem(KEY, JSON.stringify({ version: 1, unlocked: [], stats: {}, world: { vars: { dishes: 3, gone: 1 }, room: "main", col: 3, row: 4, facing: "down" } }));
-    const vars = [...STATE_VARS, { id: "outfit", initial: 2, min: 0, max: 5, meaning: "test" }];
+    const vars = [...STATE_VARS, { id: "extra", initial: 2, min: 0, max: 5, meaning: "test" }];
     const { game } = setup(storage, vars);
-    expect(game.state.get("outfit")).toBe(2);
+    expect(game.state.get("extra")).toBe(2);
     expect(game.state.get("dishes")).toBe(3);
     expect(game.state.has("gone")).toBe(false);
   });

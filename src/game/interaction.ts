@@ -2,6 +2,7 @@ import type { Controls } from "../input/controls";
 import { DEFAULT_TASK_COOLDOWN, INTERACT_BUFFER_TIME } from "./config";
 import type { Interactable } from "./interactable";
 import { Scoreboard, type Award } from "./scoring";
+import type { ApartmentState } from "./state";
 import { overlaps, type Rect } from "./world";
 
 export interface CompletionEvent {
@@ -36,7 +37,8 @@ export class InteractionSystem {
   // Optional hooks for things that react to a task starting, or to the player
   // pressing interact when the task in reach is still cooling down.
   onStart?: (item: Interactable) => void;
-  onBlocked?: (item: Interactable, reason: "cooldown") => void;
+  // `message` is the unmet requirement's reason when `reason` is "requirement".
+  onBlocked?: (item: Interactable, reason: "cooldown" | "requirement", message?: string) => void;
 
   private readyAt = new Map<string, number>();
   // Seconds left on a remembered interact press.
@@ -45,6 +47,7 @@ export class InteractionSystem {
   constructor(
     private items: Interactable[],
     private onComplete?: (event: CompletionEvent) => void,
+    private readonly state?: ApartmentState,
   ) {}
 
   get busy(): boolean {
@@ -54,6 +57,18 @@ export class InteractionSystem {
   // 0 when the task can be started now.
   cooldownRemaining(item: Interactable): number {
     return Math.max(0, (this.readyAt.get(item.id) ?? 0) - this.time);
+  }
+
+  // Why the task can't be done now (its first unmet requirement), or null.
+  unavailableReason(item: Interactable): string | null {
+    if (!item.requires?.length) return null;
+    if (!this.state) throw new Error(`Task "${item.id}" has requirements but there is no state`);
+    return this.state.unmetReason(item.requires);
+  }
+
+  // Off cooldown and every requirement met.
+  canStart(item: Interactable): boolean {
+    return this.cooldownRemaining(item) === 0 && this.unavailableReason(item) === null;
   }
 
   // 0..1 progress of the running task.
@@ -79,23 +94,17 @@ export class InteractionSystem {
     // faced, so the prompt always names the task the key will start.
     const target = player.target;
     const inReach = target ? this.items.filter((i) => overlaps(target, i.zone)) : [];
-    this.nearby = inReach.find((i) => this.cooldownRemaining(i) === 0) ?? inReach[0] ?? null;
+    this.nearby = inReach.find((i) => this.canStart(i)) ?? inReach[0] ?? null;
 
-    if (
-      this.nearby &&
-      this.interactBuffer > 0 &&
-      this.cooldownRemaining(this.nearby) === 0
-    ) {
+    if (this.nearby && this.interactBuffer > 0 && this.canStart(this.nearby)) {
       this.interactBuffer = 0;
       this.active = { item: this.nearby, elapsed: 0 };
       this.onStart?.(this.nearby);
       if (this.nearby.duration <= 0) this.finish(this.nearby);
-    } else if (
-      this.nearby &&
-      controls.interactPressed &&
-      this.cooldownRemaining(this.nearby) > 0
-    ) {
-      this.onBlocked?.(this.nearby, "cooldown");
+    } else if (this.nearby && controls.interactPressed) {
+      const message = this.unavailableReason(this.nearby);
+      if (message !== null) this.onBlocked?.(this.nearby, "requirement", message);
+      else if (this.cooldownRemaining(this.nearby) > 0) this.onBlocked?.(this.nearby, "cooldown");
     }
   }
 
@@ -103,7 +112,12 @@ export class InteractionSystem {
     this.active = null;
     this.readyAt.set(item.id, this.time + (item.cooldown ?? DEFAULT_TASK_COOLDOWN));
 
-    const award = this.scoreboard.complete(item, this.time);
+    // The bonus is worked out before the effects, which may use up what it counts.
+    const bonus = item.pointsBonus
+      ? Math.round(item.pointsBonus.perUnit * (this.state?.get(item.pointsBonus.var) ?? 0))
+      : 0;
+    this.state?.applyEffects(item.effects);
+    const award = this.scoreboard.complete({ id: item.id, points: item.points + bonus }, this.time);
     this.lastCompletion = { item, award, time: this.time };
     this.onComplete?.(this.lastCompletion);
   }

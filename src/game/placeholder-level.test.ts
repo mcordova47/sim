@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 import { GLYPHS } from "../render/font";
 import { DELTA, DIRECTIONS } from "./direction";
 import { TILE } from "./config";
+import { ApartmentState } from "./state";
+import { STATE_VARS } from "./state-vars";
 import { Grid } from "./grid";
 import { PLACEHOLDER_LEVEL as level } from "./placeholder-level";
 import { overlaps } from "./world";
@@ -59,5 +61,33 @@ describe("the placeholder level", () => {
         }
       }
     }
+  });
+
+  const fontOk = (text: string) =>
+    [...text.toUpperCase()].every((ch) => ch === " " || GLYPHS[ch] !== undefined);
+
+  it("only uses characters the font has in unmet-requirement reasons and variant labels", () => {
+    for (const item of level.interactables) {
+      for (const r of item.requires ?? []) expect(fontOk(r.reason), `${item.id}: ${r.reason}`).toBe(true);
+    }
+    for (const { variants } of level.appearances ?? []) {
+      for (const v of variants) expect(fontOk(v.label ?? ""), v.sprite).toBe(true);
+    }
+  });
+
+  it("only refers to state variables that exist, and every variant list has a fallback", () => {
+    const state = new ApartmentState(STATE_VARS);
+    const used: string[] = [];
+    for (const item of level.interactables) {
+      for (const r of item.requires ?? []) used.push(...("anyOf" in r ? r.anyOf.map((c) => c.var) : [r.var]));
+      for (const e of item.effects ?? []) used.push(e.var);
+      if (item.pointsBonus) used.push(item.pointsBonus.var);
+    }
+    for (const { variants } of level.appearances ?? []) {
+      expect(variants.some((v) => !v.when), "a variant with no rule").toBe(true);
+      for (const v of variants) used.push(...(v.when ?? []).map((c) => c.var));
+    }
+    expect(used.length).toBeGreaterThan(0);
+    for (const id of used) expect(state.has(id), id).toBe(true);
   });
 });

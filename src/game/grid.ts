@@ -7,11 +7,16 @@ import { overlaps, type Rect } from "./world";
 export class Grid {
   readonly cols: number;
   readonly rows: number;
-  private readonly blocked: boolean[];
+  private blocked: boolean[] = [];
 
   constructor(size: { width: number; height: number }, solids: Rect[]) {
     this.cols = Math.ceil(size.width / TILE);
     this.rows = Math.ceil(size.height / TILE);
+    this.setSolids(solids);
+  }
+
+  // Replaces what blocks the grid, for solids that come and go with state.
+  setSolids(solids: Rect[]): void {
     this.blocked = [];
     for (let row = 0; row < this.rows; row++) {
       for (let col = 0; col < this.cols; col++) {

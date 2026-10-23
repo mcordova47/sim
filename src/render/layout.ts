@@ -9,6 +9,9 @@ export interface Box {
 // are kept out of it.
 export const HUD_BOX: Box = { x: 0, y: 0, w: 152, h: 38 };
 
+// Screen area of the clock and energy meter, top right.
+export const STATUS_BOX: Box = { x: 244, y: 0, w: 76, h: 38 };
+
 const MARGIN = 2;
 
 function intersects(a: Box, b: Box): boolean {

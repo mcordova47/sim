@@ -8,6 +8,8 @@ interface Step {
   toCol: number;
   toRow: number;
   elapsed: number;
+  // How long this step takes, fixed when it starts.
+  duration: number;
 }
 
 export interface TileEvent {
@@ -41,6 +43,8 @@ export class Player {
   arrivedThisUpdate: TileEvent | null = null;
   bumpedThisUpdate: TileEvent | null = null;
   turnedThisUpdate = false;
+  // Multiplies how long the next step takes (above 1 is slower), e.g. when tired.
+  stepTimeScale = 1;
 
   private step: Step | null = null;
   // Time left before a fresh turn can become a step.
@@ -80,7 +84,7 @@ export class Player {
     // Loop so a long update can finish one step and carry on into the next.
     while (time > 0) {
       if (this.step) {
-        const left = WALK.stepTime - this.step.elapsed;
+        const left = this.step.duration - this.step.elapsed;
         if (time < left) {
           this.step.elapsed += time;
           break;
@@ -129,7 +133,7 @@ export class Player {
       return false;
     }
     this.bumpReported = false;
-    this.step = { toCol, toRow, elapsed: 0 };
+    this.step = { toCol, toRow, elapsed: 0, duration: WALK.stepTime * this.stepTimeScale };
     return true;
   }
 
@@ -150,7 +154,7 @@ export class Player {
       this.y = fromY;
       return;
     }
-    const t = Math.min(1, this.step.elapsed / WALK.stepTime);
+    const t = Math.min(1, this.step.elapsed / this.step.duration);
     this.x = fromX + (this.step.toCol * TILE - fromX) * t;
     this.y = fromY + (this.step.toRow * TILE - fromY) * t;
   }

@@ -1,5 +1,6 @@
 import { COLOR } from "../render/colors";
 import { TILE } from "./config";
+import type { Appearance, Variant } from "./appearance";
 import type { Interactable } from "./interactable";
 import type { Level } from "./level";
 import type { Rect, Solid } from "./world";
@@ -19,6 +20,13 @@ export interface ObjectDef {
   // Placeholder colour (a name from the palette) until there is art.
   color?: keyof typeof COLOR;
   task?: Omit<Interactable, "zone">;
+  // Several tasks on one object (the first that can be done is offered).
+  tasks?: Omit<Interactable, "zone">[];
+  // Ways the object looks depending on state; see appearance.ts. The object is
+  // drawn from these instead of from `color`.
+  variants?: Variant[];
+  // Only blocks while all of these hold (see Solid.blockedWhen).
+  blockedWhen?: Solid["blockedWhen"];
 }
 
 export function parseTileMap(rows: string[], legend: Record<string, ObjectDef>): Level {
@@ -51,25 +59,36 @@ export function parseTileMap(rows: string[], legend: Record<string, ObjectDef>):
       tiles.push({ col, row });
       tilesByChar.set(ch, tiles);
       if (def.solid !== false) {
-        solids.push({ ...rect, color: def.color ? COLOR[def.color] : COLOR.mist });
+        solids.push({
+          ...rect,
+          color: def.color ? COLOR[def.color] : COLOR.mist,
+          ...(def.blockedWhen && { blockedWhen: def.blockedWhen }),
+          ...(def.variants && { hidden: true }),
+        });
       }
     });
   });
   if (!spawn) throw new Error("The map has no start (@)");
 
   const interactables: Interactable[] = [];
+  const appearances: Appearance[] = [];
   for (const [ch, tiles] of tilesByChar) {
     if (!isOneObject(tiles)) {
       throw new Error(`The tiles for "${ch}" are not all touching; give each object its own letter`);
     }
-    const task = legend[ch].task;
-    if (task) interactables.push({ ...task, zone: boundingRect(tiles) });
+    const def = legend[ch];
+    const zone = boundingRect(tiles);
+    for (const task of [...(def.task ? [def.task] : []), ...(def.tasks ?? [])]) {
+      interactables.push({ ...task, zone });
+    }
+    if (def.variants) appearances.push({ area: zone, variants: def.variants });
   }
 
   return {
     size: { width: cols * TILE, height: rows.length * TILE },
     solids,
     interactables,
+    appearances,
     spawn,
   };
 }

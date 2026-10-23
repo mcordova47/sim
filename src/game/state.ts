@@ -1,0 +1,124 @@
+import { CLOCK, ENERGY } from "./config";
+
+// One thing about the apartment or the character that tasks can read and
+// change. The list lives in state-vars.ts; adding a variable is a data change.
+export interface StateVar {
+  id: string;
+  initial: number;
+  min: number;
+  max: number;
+  // A one-line meaning, for whoever reads the data file.
+  meaning: string;
+  // Going past the end comes back round the other side (the clock) instead of stopping.
+  wrap?: boolean;
+}
+
+// True when the variable is between `min` and `max`, both inclusive and both optional.
+export interface Check {
+  var: string;
+  min?: number;
+  max?: number;
+}
+
+// Something that must be true for a task to start. `reason` is what the
+// prompt says when it is not, so it may only use characters the font has.
+// `anyOf` is true if any one of its checks is.
+export type Requirement = { reason: string } & ({ anyOf: Check[] } | Check);
+
+// A change a finished task makes. `set` wins over `add`; either is clamped
+// to the variable's range (or wrapped, for a wrapping variable).
+export interface Effect {
+  var: string;
+  add?: number;
+  set?: number;
+}
+
+export interface StateChange {
+  id: string;
+  value: number;
+  previous: number;
+}
+
+export class ApartmentState {
+  // Called after a variable changes. Changes from the passing of time only
+  // count when the rounded value changes, so the clock reports once an hour
+  // and energy once a point rather than every frame.
+  onChange?: (change: StateChange) => void;
+
+  private readonly defs = new Map<string, StateVar>();
+  private readonly values = new Map<string, number>();
+
+  constructor(vars: StateVar[]) {
+    for (const v of vars) {
+      if (this.defs.has(v.id)) throw new Error(`State variable "${v.id}" is listed twice`);
+      if (v.min > v.max || v.initial < v.min || v.initial > v.max) {
+        throw new Error(`State variable "${v.id}" starts outside its range`);
+      }
+      this.defs.set(v.id, v);
+      this.values.set(v.id, v.initial);
+    }
+  }
+
+  has(id: string): boolean {
+    return this.defs.has(id);
+  }
+
+  get(id: string): number {
+    const value = this.values.get(id);
+    if (value === undefined) throw new Error(`Unknown state variable "${id}"`);
+    return value;
+  }
+
+  matches(check: Check): boolean {
+    const value = this.get(check.var);
+    return (check.min === undefined || value >= check.min) &&
+      (check.max === undefined || value <= check.max);
+  }
+
+  matchesAll(checks: Check[] = []): boolean {
+    return checks.every((c) => this.matches(c));
+  }
+
+  // The reason for the first requirement that is not met, or null if all are.
+  unmetReason(requirements: Requirement[] = []): string | null {
+    for (const r of requirements) {
+      const ok = "anyOf" in r ? r.anyOf.some((c) => this.matches(c)) : this.matches(r);
+      if (!ok) return r.reason;
+    }
+    return null;
+  }
+
+  applyEffects(effects: Effect[] = []): void {
+    for (const e of effects) {
+      this.write(e.var, e.set ?? this.get(e.var) + (e.add ?? 0), false);
+    }
+  }
+
+  // Passes `dt` seconds of game time: the clock runs on and energy drains.
+  tick(dt: number): void {
+    const hours = (dt * CLOCK.minutesPerSecond) / 60;
+    if (this.has("clock")) this.write("clock", this.get("clock") + hours, true);
+    if (this.has("energy")) this.write("energy", this.get("energy") - hours * ENERGY.fallPerHour, true);
+  }
+
+  private write(id: string, wanted: number, fromTime: boolean): void {
+    const def = this.defs.get(id);
+    if (!def) throw new Error(`Unknown state variable "${id}"`);
+    const span = def.max - def.min;
+    const value = def.wrap
+      ? def.min + ((((wanted - def.min) % span) + span) % span)
+      : Math.min(def.max, Math.max(def.min, wanted));
+    const previous = this.get(id);
+    this.values.set(id, value);
+    const changed = fromTime ? Math.round(value) !== Math.round(previous) : value !== previous;
+    if (changed) this.onChange?.({ id, value, previous });
+  }
+}
+
+// "7:30 AM" for a time given in hours since midnight.
+export function formatClock(hours: number): string {
+  const total = Math.floor(hours * 60) % (24 * 60);
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  return `${h % 12 === 0 ? 12 : h % 12}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
+}

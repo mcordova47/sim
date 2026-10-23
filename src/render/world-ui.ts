@@ -24,7 +24,9 @@ interface View {
   height: number;
 }
 
-function promptLabel(item: Interactable, cooldownRemaining: number): string {
+// An unmet requirement's reason replaces the verb ("NO DIRTY DISHES").
+function promptLabel(item: Interactable, cooldownRemaining: number, unavailable: string | null): string {
+  if (unavailable) return unavailable;
   return cooldownRemaining > 0
     ? `${item.prompt} (${Math.ceil(cooldownRemaining)} SEC)`
     : item.prompt;
@@ -32,9 +34,9 @@ function promptLabel(item: Interactable, cooldownRemaining: number): string {
 
 // Size of the prompt box, so layout (and tests over the real task data) can
 // measure it without drawing.
-export function promptSize(item: Interactable, cooldownRemaining: number) {
-  const keyW = cooldownRemaining > 0 ? 0 : KEY_WIDTH;
-  return { w: 3 + keyW + textWidth(promptLabel(item, cooldownRemaining)) + 3, h: 13 };
+export function promptSize(item: Interactable, cooldownRemaining: number, unavailable: string | null = null) {
+  const keyW = cooldownRemaining > 0 || unavailable ? 0 : KEY_WIDTH;
+  return { w: 3 + keyW + textWidth(promptLabel(item, cooldownRemaining, unavailable)) + 3, h: 13 };
 }
 
 export function progressSize(item: Interactable) {
@@ -42,7 +44,7 @@ export function progressSize(item: Interactable) {
 }
 
 // "[E] Make coffee", or the name greyed out with a countdown while the task
-// is cooling down. `actor` is in screen coordinates. `avoid` lists other boxes
+// is cooling down, or the reason greyed out when it can't be done now. `actor` is in screen coordinates. `avoid` lists other boxes
 // (such as live popups) the label should stay clear of, besides the HUD.
 export function drawPrompt(
   ctx: CanvasRenderingContext2D,
@@ -51,10 +53,11 @@ export function drawPrompt(
   cooldownRemaining: number,
   view: View,
   avoid: Box[] = [],
+  unavailable: string | null = null,
 ): void {
-  const cooling = cooldownRemaining > 0;
-  const label = promptLabel(item, cooldownRemaining);
-  const size = promptSize(item, cooldownRemaining);
+  const cooling = cooldownRemaining > 0 || unavailable !== null;
+  const label = promptLabel(item, cooldownRemaining, unavailable);
+  const size = promptSize(item, cooldownRemaining, unavailable);
 
   const box = placeLabel(
     { x: actor.x + actor.w / 2, top: actor.y, bottom: actor.y + actor.h },

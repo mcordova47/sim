@@ -1,8 +1,9 @@
-import { SCORING } from "../game/config";
+import { ENERGY, SCORING } from "../game/config";
 import type { Scoreboard } from "../game/scoring";
+import { formatClock, type ApartmentState } from "../game/state";
 import { COLOR, withAlpha } from "./colors";
 import { drawText } from "./font";
-import { HUD_BOX } from "./layout";
+import { HUD_BOX, STATUS_BOX } from "./layout";
 
 const PANEL = withAlpha(COLOR.ink, 0.6);
 const LABEL = COLOR.mist;
@@ -23,7 +24,7 @@ export class Hud {
     return Math.round(this.shown);
   }
 
-  draw(ctx: CanvasRenderingContext2D, scoreboard: Scoreboard, now: number): void {
+  draw(ctx: CanvasRenderingContext2D, scoreboard: Scoreboard, now: number, state: ApartmentState): void {
     ctx.fillStyle = PANEL;
     ctx.fillRect(HUD_BOX.x + 4, HUD_BOX.y + 4, HUD_BOX.w - 8, HUD_BOX.h - 8);
 
@@ -47,5 +48,24 @@ export class Hud {
       ctx.fillStyle = GOLD;
       ctx.fillRect(96, 33, filled, 2);
     }
+
+    this.drawStatus(ctx, state);
+  }
+
+  // Top right: the time of day and the energy meter.
+  private drawStatus(ctx: CanvasRenderingContext2D, state: ApartmentState): void {
+    const { x, y, w, h } = STATUS_BOX;
+    ctx.fillStyle = PANEL;
+    ctx.fillRect(x + 4, y + 4, w - 8, h - 8);
+
+    drawText(ctx, formatClock(state.get("clock")), x + 8, 8, { color: TEXT });
+    drawText(ctx, "ENERGY", x + 8, 17, { color: LABEL });
+
+    const energy = state.get("energy");
+    const barWidth = w - 16;
+    ctx.fillStyle = COLOR.ink;
+    ctx.fillRect(x + 8, 27, barWidth, 3);
+    ctx.fillStyle = energy < ENERGY.lowBelow ? COLOR.brick : COLOR.leaf;
+    ctx.fillRect(x + 8, 27, Math.round(barWidth * (energy / 100)), 3);
   }
 }

@@ -50,6 +50,27 @@ export const WALK = {
   turnTime: 0.08,
 };
 
+// The game clock. The day starts at the `initial` clock value in state-vars.ts.
+export const CLOCK = {
+  // Game minutes that pass per second of play (2 makes a day last 12 minutes).
+  minutesPerSecond: 2,
+  // From this hour on (and until `lateUntil`) it counts as late.
+  lateFrom: 22,
+  lateUntil: 5,
+};
+
+// Energy runs from 0 to 100 (see state-vars.ts).
+export const ENERGY = {
+  // Points lost per game hour just from being awake.
+  fallPerHour: 4,
+  // Below this the character is tired.
+  lowBelow: 25,
+  // While tired, a step takes this many times as long.
+  tiredStepFactor: 1.6,
+  // Below this a tired person can lie down and sleep.
+  sleepBelow: 60,
+};
+
 // Debug drawing, off in normal play.
 export const DEBUG = {
   // Outline the task zones.

@@ -1,7 +1,7 @@
 ---
 id: 005
 title: Floor plan and task list
-status: review
+status: done
 owner: marc + agent
 depends_on: []
 ---
@@ -43,3 +43,4 @@ Photos are placed in `reference-photos/` (gitignored). Read them by path. Do not
 - 2026-10-22: Re-checked against 002's real constants (`PLAYER` in `src/game/config.ts` on main: jumpHeight 40 px = 2.5 tiles, player 10x14 px, TILE 16). First run failed: bookshelf (3 ft step from the 2 ft desk) and the wall-guitar task zone. Fixes: desk 2 -> 3 ft (standing desk), guitar zone and decor lowered to start at 3 ft. Re-run with rise 2.5 and gaps of 2 and 3: all pieces and tasks reachable, nothing hits the ceiling. `tsc --strict` clean. Updated `docs/floor-plan.md`. Files touched: `src/game/room.ts`, `src/game/tasks.ts`, `docs/floor-plan.md`, this file.
   - Open for planner: player is 14 px tall, about 10 in at 1 tile = 1 ft, so scale needs a decision. The level is 35x12 tiles (560x192 px) vs the 320x192 `VIEW`. `room.ts` still uses its own `Rect` and `Solid` types in tiles, not 002's pixel `Solid`; the integration will need a tile-to-pixel conversion.
   - Marc said "lgtm" in chat on the layout; not yet recorded as a review sign-off.
+- 2026-10-22: Marc approved the layout and the reachability re-check; closed as done at their request.

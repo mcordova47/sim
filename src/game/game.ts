@@ -87,6 +87,9 @@ export class Game {
   // face. Score, combos, cooldowns, popups, events and layers carry on.
   loadLevel(level: Level, col: number, row: number, facing: Direction): void {
     validateLevel(level);
+    if (!Number.isInteger(col) || !Number.isInteger(row)) {
+      throw new Error(`Can't enter ${level.id ?? "the room"} at col ${col}, row ${row}: not a whole tile`);
+    }
     if (new Grid(level.size, level.solids).isBlocked(col, row)) {
       throw new Error(`Can't enter ${level.id ?? "the room"} at col ${col}, row ${row}: it is blocked`);
     }

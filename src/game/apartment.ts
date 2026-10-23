@@ -4,101 +4,114 @@ import { parseTileMap, type ObjectDef } from "./tilemap";
 
 // The real apartment as three top-down rooms, one tile to a foot, each a
 // screen of its own. docs/floor-plan.md explains the choices. Maps are drawn as
-// the player sees them: the top of the map is the far wall.
+// the player sees them: the top of the map is the far (north) wall.
 //
-// Each map includes the one-tile wall around the room. Doorways are tiles in
-// that wall; `arrive` is the floor tile just inside the room on the other side.
+// Each map includes the one-tile wall around the room (and solid filler where
+// the room is not a rectangle). Doorways are tiles in that wall; `arrive` is
+// the floor tile just inside the room on the other side.
 //
-//   kitchen <-> main room   (kitchen east wall, main room west wall)
-//   kitchen <-> bath        (kitchen south wall, bath north wall)
+//   main room <-> kitchen   a two-tile passage: main west wall, kitchen east wall
+//   kitchen   <-> bath      kitchen leg west wall, bath east wall
 //
 // `sprite` names come from docs/art-style.md; most are not drawn yet, and
 // `color` is only the placeholder until they are.
 
 // -- Main room: 17 by 8 feet ------------------------------------------------
-// Far (north) wall, west to east: table, desk, bookshelf, a walkway with the
-// window above it, then the queen bed in the east end. The sofa is on the near
-// (south) wall, its arm sticking out at the east end (an L shape), with the
-// guitar by its west end and the record stand by its east end.
+// Far (north) wall, west to east: table, desk (with its chair), bookshelf
+// standing out from the wall as a divider, then the queen bed in the east end
+// with the nightstand above it and the radiator and windows on the east wall.
+// There is one lane to walk: down the west side of the bed and along its foot.
+// The sofa is on the south wall, which steps down toward the front door (the
+// door is decoration for now): guitar by the sofa's west end, lamp table and
+// record stand by its east end. The passage to the kitchen is in the west wall
+// between the table and the sofa.
 const MAIN_MAP = [
-  "##########W########",
-  "#TTTTDDDDH.BBBBBBB#",
-  "#TTTTDDDDH.BBBBBBB#",
-  "#.......MH.BBBBBBB#",
-  "1..........BBBBBBB#",
-  "#..........BBBBBBB#",
-  "#.....@..S........#",
-  "#...SSSSSS........#",
-  "#..GSSSSSSR.......#",
-  "#####gggg##########",
+  "##pp###qq#####uuu##",
+  "#TTTT.DDDDH...NNNr#",
+  "#TTTT.DDDDH.BBBBBr#",
+  "1.......C.H.BBBBBrw",
+  "2....@....H.BBBBBrw",
+  "#GSSSSSS....BBBBB.#",
+  "#GSSSSSSL...BBBBB.W",
+  "########.R..BBBBB.W",
+  "##########........#",
+  "##########ff#######",
 ];
 
 const MAIN: Record<string, ObjectDef> = {
   T: { name: "dining table", sprite: "table", color: "tangerine", tasks: ["coffee", "reheat", "eat-dinner"] },
   D: { name: "standing desk", sprite: "desk", color: "butter", tasks: ["work", "journal"] },
-  M: { name: "mic stand and key light", sprite: "mic-stand", color: "ink" },
+  C: { name: "desk chair", sprite: "desk-chair", color: "ink" },
   H: { name: "cube bookshelf", sprite: "bookshelf", color: "butter", tasks: ["water-plant", "sort-records"] },
-  W: { name: "window and blinds", sprite: "window-blinds", color: "mist", tasks: ["open-blinds"] },
+  N: { name: "nightstand", sprite: "nightstand", color: "tangerine" },
   B: { name: "queen bed", sprite: "bed-made", color: "mist", tasks: ["make-bed", "work", "doomscroll"] },
+  r: { name: "radiator", sprite: "radiator", color: "paper" },
+  w: { name: "window", sprite: "window-blinds", color: "mist" },
+  W: { name: "window and blinds", sprite: "window-blinds", color: "mist", tasks: ["open-blinds"] },
   S: { name: "sofa", sprite: "sofa-td", color: "brick", tasks: ["doomscroll", "work"] },
   G: { name: "guitar", sprite: "guitar", color: "tangerine", tasks: ["guitar"] },
+  L: { name: "lamp table", sprite: "lamp-table", color: "butter" },
   R: { name: "record stand", sprite: "record-stand", color: "paper", tasks: ["record-play"] },
-  g: { name: "gallery wall", sprite: "gallery-wall", color: "paper" },
-  "1": { door: { to: "kitchen", arrive: { col: 11, row: 4, facing: "left" } } },
+  p: { name: "painting over the table", sprite: "painting", color: "paper" },
+  q: { name: "painting over the desk", sprite: "painting", color: "paper" },
+  u: { name: "painting over the nightstand", sprite: "painting", color: "paper" },
+  f: { name: "front door (decoration for now)", sprite: "front-door", color: "tangerine" },
+  "1": { door: { to: "kitchen", arrive: { col: 11, row: 3, facing: "left" } } },
+  "2": { door: { to: "kitchen", arrive: { col: 11, row: 4, facing: "left" } } },
 };
 
-// -- Kitchen: 11 by 8 feet --------------------------------------------------
-// North wall, west to east: fridge with the side rack, then the bin and the
-// tote bag by the door. The L-shaped counter with the sink and the stove run
-// along the south wall, the box stack is in the south-east corner. The door to
-// the main room is in the east wall, the door to the bath in the south wall.
+// -- Kitchen: an L, 11 by 8 feet ---------------------------------------------
+// The bar runs along the top (11 by 4): the sink, counter and stove against its
+// south wall (the wall above the bath), the window in the west wall, the
+// recycling, bin and boxes in the north-east corner. The leg drops down the
+// east side (4 by 4) with the fridge against the east wall. The passage to the
+// main room is in the east wall of the bar; the bath door is in the west wall
+// of the leg. The solid block at the bottom left is the bath.
 const KITCHEN_MAP = [
   "#############",
-  "#.FFK.....NO#",
-  "#.FF........#",
-  "#...........#",
-  "#.........@.1",
-  "#...........#",
-  "#...C.......#",
-  "c...C..VVV.X#",
-  "c...CCCVVV.X#",
-  "##2####hhh###",
+  "#.......YNXX#",
+  "c..........O#",
+  "cCCCVVV.....1",
+  "#CCCVVV.....2",
+  "####hhh#.@..#",
+  "########..FF#",
+  "#######3..FF#",
+  "########....#",
+  "#############",
 ];
 
 const KITCHEN: Record<string, ObjectDef> = {
-  F: { name: "fridge", sprite: "fridge", color: "mist", tasks: ["fridge-stare", "humidifier"] },
-  K: { name: "side rack", sprite: "spice-rack", color: "paper" },
-  N: { name: "trash bin", sprite: "bin", color: "slate", tasks: ["take-trash"] },
-  O: { name: "tote bag and shoes", sprite: "tote", color: "ink" },
-  C: { name: "counter and sink", sprite: "counter", color: "butter", tasks: ["dishes"] },
+  C: { name: "sink and counter", sprite: "counter", color: "butter", tasks: ["dishes"] },
   V: { name: "stove", sprite: "stove", color: "ink", tasks: ["cook"] },
-  X: { name: "box stack", sprite: "boxes", color: "tangerine", tasks: ["flatten-boxes"] },
   h: { name: "range hood", sprite: "hood", color: "paper" },
+  Y: { name: "recycling", sprite: "recycling", color: "leaf", tasks: ["take-trash"] },
+  N: { name: "trash bin", sprite: "bin", color: "slate", tasks: ["take-trash"] },
+  X: { name: "box stack and pantry", sprite: "boxes", color: "tangerine", tasks: ["flatten-boxes"] },
+  O: { name: "tote bag and shoes", sprite: "tote", color: "ink" },
+  F: { name: "fridge", sprite: "fridge", color: "mist", tasks: ["fridge-stare", "humidifier"] },
   c: { name: "window curtain", sprite: "window-curtain", color: "mist" },
-  "1": { door: { to: "main", arrive: { col: 1, row: 4, facing: "right" } } },
-  "2": { door: { to: "bath", arrive: { col: 1, row: 1, facing: "down" } } },
+  "1": { door: { to: "main", arrive: { col: 1, row: 3, facing: "right" } } },
+  "2": { door: { to: "main", arrive: { col: 1, row: 4, facing: "right" } } },
+  "3": { door: { to: "bath", arrive: { col: 7, row: 3, facing: "left" } } },
 };
 
-// -- Bath: 4 by 7 feet ------------------------------------------------------
-// Along the east wall, north to south: vanity, toilet, tub. The door is in the
-// north wall, at the west end, with a walkway beside the fixtures.
+// -- Bath: 7 by 4 feet -------------------------------------------------------
+// The tub down the west wall, the toilet and the vanity sink against the north
+// wall, and the door in the east wall, opening into the kitchen's leg.
 const BATH_MAP = [
-  "#2####",
-  "#@.VV#",
-  "#..VV#",
-  "#..QQ#",
-  "#..QQ#",
-  "#..UU#",
-  "#..UU#",
-  "#..UU#",
-  "######",
+  "#########",
+  "#UU.QQVV#",
+  "#UU.QQVV#",
+  "#UU.....1",
+  "#UU....@#",
+  "#########",
 ];
 
 const BATH: Record<string, ObjectDef> = {
-  V: { name: "vanity sink", sprite: "vanity", color: "paper", tasks: ["brush-teeth"] },
-  Q: { name: "toilet", sprite: "toilet", color: "paper", tasks: ["sit"] },
   U: { name: "tub and curtain", sprite: "tub", color: "mist", tasks: ["shower"] },
-  "2": { door: { to: "kitchen", arrive: { col: 2, row: 8, facing: "up" } } },
+  Q: { name: "toilet", sprite: "toilet", color: "paper", tasks: ["sit"] },
+  V: { name: "vanity sink", sprite: "vanity", color: "paper", tasks: ["brush-teeth"] },
+  "1": { door: { to: "kitchen", arrive: { col: 8, row: 7, facing: "right" } } },
 };
 
 export interface Apartment {
@@ -112,6 +125,6 @@ export const APARTMENT: Apartment = {
   rooms: {
     main: parseTileMap(MAIN_MAP, MAIN, { id: "main", tasks: TASKS, facing: "down" }),
     kitchen: parseTileMap(KITCHEN_MAP, KITCHEN, { id: "kitchen", tasks: TASKS, facing: "left" }),
-    bath: parseTileMap(BATH_MAP, BATH, { id: "bath", tasks: TASKS, facing: "down" }),
+    bath: parseTileMap(BATH_MAP, BATH, { id: "bath", tasks: TASKS, facing: "left" }),
   },
 };

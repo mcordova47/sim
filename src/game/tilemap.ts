@@ -64,10 +64,11 @@ export function parseTileMap(
     if (RESERVED.includes(ch)) {
       throw new Error(`${where}Legend key "${ch}" is built in (# wall, . floor, @ start)`);
     }
-    if (def.color && !(def.color in COLOR)) {
+    if (def.color && !Object.hasOwn(COLOR, def.color)) {
       throw new Error(`${where}Legend "${ch}" has an unknown colour "${def.color}"`);
     }
     if (def.door && def.solid) throw new Error(`${where}Legend "${ch}" is a door, so it can't be solid`);
+    if (def.door && def.tasks?.length) throw new Error(`${where}Legend "${ch}" is a door, so it can't offer tasks`);
     for (const id of def.tasks ?? []) {
       if (!tasksById.has(id)) throw new Error(`${where}Legend "${ch}" names an unknown task "${id}"`);
     }

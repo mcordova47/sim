@@ -4,59 +4,68 @@ The apartment as three top-down rooms. Data lives in `src/game/apartment.ts` (th
 
 ## Decisions (Marc, 2026-10-23)
 - **Rooms are separate screens** joined by doorways, the Pokemon way. Walking onto a doorway tile moves the player to the next room, standing just inside its doorway and facing away from it. Score, combos, cooldowns, popups and events carry over.
-- **1 tile = 1 foot, furniture to scale.** The character is one tile, so it is chunky next to a 7-foot bed, but the real arrangement survives. Every room fits the 20x12-tile view, so the camera never scrolls; a smaller room is centred sideways and sits at the bottom of the view (the HUD lives in the strip above it).
-- **Orientation:** from Marc's corrections to the first sketch: the main room is mirrored left to right (kitchen door at the west end, bed at the east end), the kitchen is turned 180 degrees, and the bath is turned 90 degrees clockwise and sits south of the kitchen. The top of each map is the far wall, which matches the art guide: the main room is seen from the sofa side.
+- **1 tile = 1 foot, furniture to scale.** The character is one tile, so it is chunky next to a 7-foot bed, but the real arrangement and its cramped feel survive. Every room fits the 20x12-tile view, so the camera never scrolls; a smaller room is centred sideways and sits at the bottom of the view (the HUD lives in the strip above it).
+- **The layout follows Marc's hand sketch** (not to scale, but the gaps between things are roughly right). The top of each map is the north wall. The main room is seen from the sofa side, as in the art guide.
+- **Three screens, and the kitchen is an L.** The front door is decoration for now.
 
 ## Rooms
-Sizes are inside the walls; each map adds a one-tile wall all round.
+Sizes are inside the walls; each map adds a one-tile wall all round (plus solid filler where a room is not a rectangle).
 
 | Room | Inside | Map |
 |---|---|---|
 | main | 17 x 8 | 19 x 10 tiles |
-| kitchen | 11 x 8 | 13 x 10 |
-| bath | 4 x 7 | 6 x 9 |
+| kitchen | 11 x 8, an L | 13 x 10 |
+| bath | 7 x 4 | 9 x 6 |
 
-Doorways (each pairs with one back; a test checks it): main west wall <-> kitchen east wall; kitchen south wall <-> bath north wall.
+Doorways (each pairs with one back; a test checks it):
+- **Main room west wall <-> kitchen east wall:** a two-tile passage (two door tiles side by side), in the middle of the west wall. Wall on either side: the table's side and the sofa's side.
+- **Kitchen leg west wall <-> bath east wall:** one door.
 
-### Main room (columns and rows counted inside the walls, from the top left)
+### Main room
+Columns and rows counted inside the walls, from the top left (col 0, row 0).
+
 | Piece | Tiles | Where | Tasks |
 |---|---|---|---|
-| Dining table | 4 x 2 at col 0, row 0 | far wall, by the kitchen door | coffee, reheat, eat dinner |
-| Standing desk | 4 x 2 at col 4, row 0 | far wall | work, journal |
-| Mic stand and key light | 1 at col 7, row 2 | below the desk's east end | (decor) |
-| Cube bookshelf | 1 x 3 at col 8, row 0 | far wall, a divider before the bed | water plant, sort records |
-| Window and blinds | 1, in the far wall at col 9 | above the walkway | open blinds |
-| Queen bed | 7 x 5 at col 10, row 0 | east end, head against the far wall | make bed, work, doomscroll |
-| Sofa | 6 x 2 at col 3, row 6, plus its arm at col 8, row 5 (an L) | near wall | doomscroll, work |
-| Guitar | 1 at col 2, row 7 | by the sofa's west end | guitar |
-| Record stand | 1 at col 9, row 7 | by the sofa's east end | flip record |
-| Gallery wall | 4, in the near wall | above the sofa | (decor) |
+| Dining table | 4 x 2 at col 0, row 0 | north wall, west end | coffee, reheat, eat dinner |
+| Standing desk | 4 x 2 at col 5, row 0 | north wall | work, journal |
+| Desk chair | 1 at col 7, row 2 | under the desk | (decor) |
+| Cube bookshelf | 1 x 4 at col 9, row 0 | stands out from the north wall, a divider | water plant, sort records |
+| Queen bed | 5 x 6 at col 11, row 1 | east end | make bed, work, doomscroll |
+| Nightstand | 3 x 1 at col 13, row 0 | north wall, above the bed | (decor) |
+| Radiator | 1 x 4 at col 16, row 0 | east wall, in front of the upper window | (decor) |
+| Windows | east wall, rows 2-3 (behind the radiator) and rows 5-6 | | open blinds (the lower one) |
+| Sofa | 6 x 2 at col 1, row 4 | south wall | doomscroll, work |
+| Guitar | 1 x 2 at col 0, rows 4-5 | by the sofa's west end | guitar |
+| Lamp table | 1 at col 7, row 5 | by the sofa's east end | (decor) |
+| Record stand | 1 at col 8, row 6 | | flip record |
+| Front door | 2, in the south wall at cols 9-10 | | (decoration) |
+| Paintings | north wall over the table, desk and nightstand | | (decor) |
 
-The player starts at col 5, row 5, facing the sofa.
+The south wall steps down toward the front door: it is at row 6 along the sofa, row 7 at cols 7-8, and row 8 from col 9 east. There is **one lane** to walk around the bed: down its west side (col 10) and along its foot (row 7). The player starts at col 4, row 3, facing the sofa.
 
 ### Kitchen
-Fridge 2x2 (fridge stare, refill humidifier) with the side rack beside it, bin and tote bag in the north-east corner by the door, the box stack (1x2) in the south-east corner, the L-shaped counter with the sink (dishes) and the stove 3x2 (cook) along the south wall under the range hood, and the curtained window in the west wall. Doors: east wall to the main room, south wall (west end) to the bath.
+The bar runs along the top (11 x 4): the sink and counter (3 wide) and the stove (3 wide), both 2 deep against the south wall of the bar (the wall above the bath), the window in the west wall, the recycling, bin and box stack/pantry in the north-east corner, and the tote bag beside them. The leg drops down the east side (4 x 4) with the fridge (2 x 2) against the east wall. The bath is the solid block at the bottom left.
 
 ### Bath
-A 2-wide walkway along the west side; vanity (brush teeth), toilet (take a moment) and tub (shower) stacked along the east wall. Door in the north wall.
+The tub (2 x 4) down the west wall, the toilet and the vanity sink (each 2 x 2) against the north wall, a walkway across the south, and the door in the east wall.
 
 ## Doing the same task from different places
 A task is placed on an object by id, so the same task can be on several objects. **Work** is on the desk, the sofa and the bed; **doomscroll** is on the sofa and the bed. They share one cooldown and repeat penalty (they are the same task), so working from the couch after working at the desk counts as a repeat. When an object has several tasks (the table has three), the interact key starts the first one that is off cooldown, so they rotate until the choice menu (issue 023).
 
 ## Spots
-A spot is a walkable tile to stand on and the direction to face. `taskSpots` in `plan-checks.ts` works them out from the map: every walkable tile next to a tile of the object. A test walks from the start, through the doorways, and fails if any task has no reachable spot. Examples: coffee at the table is done from the four tiles under it, facing up; the guitar from the tile above it (facing down) or the one to its east (facing west); work on the sofa from the whole row above it and the east side; the sink counter from its inner corner too, but never by facing the empty corner of its L.
+A spot is a walkable tile to stand on and the direction to face. `taskSpots` in `plan-checks.ts` works them out from the map: every walkable tile next to a tile of the object. A test walks from the start, through the doorways, and fails if any task has no reachable spot. For example, coffee at the table is done from the four tiles south of it, facing up; the guitar from the tile north of it, facing down; and the blinds from the east-wall lane, facing east.
 
 ## L-shaped objects
-A task's zones are one rectangle per tile of the object, not the box around it. The sofa (with its arm) and the counter are L-shaped, and a test checks that facing the empty corner does nothing.
+A task's zones are one rectangle per tile of the object, not the box around it, so an L-shaped counter or sofa has no usable gap in its corner. No piece in the apartment is an L right now (the L is the kitchen); the rule is tested on small maps in `tilemap.test.ts` and `game.test.ts`.
 
 ## Choices to review
-- **Bookshelf as a divider.** 1 wide and 3 deep, sticking out from the far wall beside the bed (as in the photos), not 3 wide against the wall as in the side view.
-- **Bed** 7 x 5, head against the far wall. The queen is about 6.7 x 5 ft.
-- **Window** is a tile in the far wall above the walkway beside the bed; the real window position was not checked.
-- **Kitchen** reads the first sketch Marc turned 180 degrees (fridge in the north-west, stove and counter on the south wall). The photos show a narrow galley; the 11 x 8 size is the earlier measurement.
-- **Left out:** the dark wooden bench in the middle of the main room (in the photos) and the mirror on the kitchen door. The photos show a lot of loose stuff; only furniture and fixtures are in the data.
-- **Doors** are one tile wide and open (no animation or fade).
-- **Placeholder drawing:** each tile of furniture is a coloured rectangle. `sprite` names follow `docs/art-style.md` (`bed-made`, `sofa-td` exist; the rest are the names the furniture batches should use).
+- **Bookshelf** is 1 x 4 and stands out from the wall, as in the sketch.
+- **Bed** 5 x 6, the sketch's size; the queen is about 5 x 6.7 ft.
+- **The sofa** is a plain 6 x 2 block; the sketch shows an arm and a seat cushion, left for the art.
+- **Kitchen sizes** follow the measurement (11 x 8 bounding box). The sketch's kitchen is a little tighter.
+- **Left out:** the dark wooden bench in the middle of the main room (in the photos), the mirror on the kitchen door, and the "painting" in the corridor north of the kitchen. Only furniture and fixtures are in the data.
+- **Doors** are open tiles (no animation or fade).
+- **Placeholder drawing:** each tile of furniture is a coloured rectangle. `sprite` names follow `docs/art-style.md` (`bed-made` and `sofa-td` exist; the rest are the names the furniture batches should use).
 
 ## Privacy
 Descriptions list furniture type, size and layout only. No address and no belongings beyond furniture and fixtures. Photos stay in `reference-photos/`, which is gitignored.

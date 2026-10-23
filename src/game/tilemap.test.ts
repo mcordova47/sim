@@ -111,6 +111,12 @@ describe("parseTileMap", () => {
     expect(() => parseTileMap(["@A"], { A: bad })).toThrow('unknown colour "chartreuse"');
   });
 
+  it("rejects palette lookalikes such as toString, and doors that offer tasks", () => {
+    expect(() => parseTileMap(["@A"], { A: { color: "toString" as never } })).toThrow("unknown colour");
+    const door = { to: "x", arrive: { col: 0, row: 0, facing: "down" as const } };
+    expect(() => parseTileMap(["@D"], { D: { door, tasks: ["t"] } }, { tasks })).toThrow("can't offer tasks");
+  });
+
   it("rejects a task id that is not in the task list", () => {
     expect(() => parseTileMap(["@A"], { A: { tasks: ["nope"] } }, { tasks })).toThrow('unknown task "nope"');
   });

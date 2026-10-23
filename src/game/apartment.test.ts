@@ -19,14 +19,14 @@ describe("the apartment", () => {
     for (const [id, room] of Object.entries(rooms)) expect(room.id).toBe(id);
   });
 
-  it("sizes the rooms in feet: 17x8, 11x8 and 4x7 inside the walls", () => {
+  it("sizes the rooms in feet: 17x8, 11x8 and 7x4 inside the walls", () => {
     const inside = (id: string) => ({
       w: rooms[id].size.width / TILE - 2,
       h: rooms[id].size.height / TILE - 2,
     });
     expect(inside("main")).toEqual({ w: 17, h: 8 });
     expect(inside("kitchen")).toEqual({ w: 11, h: 8 });
-    expect(inside("bath")).toEqual({ w: 4, h: 7 });
+    expect(inside("bath")).toEqual({ w: 7, h: 4 });
   });
 
   it("fits every room on one screen, so the camera never has to scroll", () => {
@@ -49,9 +49,16 @@ describe("doorways", () => {
     expect(doorProblems(rooms)).toEqual([]);
   });
 
-  it("has the doors the plan says: main-kitchen and kitchen-bath", () => {
+  it("has the doors the plan says: a two-tile passage main-kitchen and one kitchen-bath door", () => {
     const links = Object.entries(rooms).flatMap(([id, r]) => r.doors.map((d) => `${id}>${d.to}`));
-    expect(links.sort()).toEqual(["bath>kitchen", "kitchen>bath", "kitchen>main", "main>kitchen"]);
+    expect(links.sort()).toEqual([
+      "bath>kitchen",
+      "kitchen>bath",
+      "kitchen>main",
+      "kitchen>main",
+      "main>kitchen",
+      "main>kitchen",
+    ]);
   });
 
   it("lets the player reach every doorway, and the floor inside each one, from the start", () => {
@@ -152,14 +159,9 @@ describe("furniture", () => {
     }
   });
 
-  it("has L-shaped pieces whose empty corner is not usable: the sofa and the counter", () => {
-    for (const [id, name] of [["main", "sofa"], ["kitchen", "counter and sink"]] as const) {
-      const piece = rooms[id].pieces.find((p) => p.name === name)!;
-      expect(piece.tiles.length).toBeLessThan((piece.bounds.w / TILE) * (piece.bounds.h / TILE));
-      const item = rooms[id].interactables.find((i) =>
-        i.zones.some((z) => piece.tiles.some((t) => t.col * TILE === z.x && t.row * TILE === z.y)),
-      )!;
-      expect(item.zones).toHaveLength(piece.tiles.length);
-    }
+  it("makes the kitchen an L: the leg is open floor, the corner under the bar is the bath's wall", () => {
+    const grid = new Grid(rooms.kitchen.size, rooms.kitchen.solids);
+    expect(grid.isBlocked(9, 8)).toBe(false); // bottom of the leg
+    expect(grid.isBlocked(2, 8)).toBe(true); // under the bar, where the bath is
   });
 });

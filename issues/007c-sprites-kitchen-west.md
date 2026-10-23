@@ -1,7 +1,7 @@
 ---
 id: 007c
 title: "Furniture sprites: Kitchen, west half: entry step, bin, stove and counter"
-status: todo
+status: review
 owner: agent
 depends_on: [005, 006]
 ---
@@ -40,3 +40,6 @@ The sprites should look like Marc's real pieces, so work from the photos in `ref
 - Scale: the player is about 14px tall at 1 tile = 16px, so the player is tiny next to a 96px fridge. That is intended.
 
 ## Progress log
+
+- 2026-10-22: Started. Plan: draw the six sprites from the kitchen photos, validate with `npm run sprites`, check the contact sheet.
+- 2026-10-22: Done, ready for review. Drew `tote`, `bin`, `stove`, `counter`, `window-curtain`, `hood` (art/src/*.sprite + public/sprites/*.png). Palette only, ink outline, top-left light, Materials table followed (steel 5/6/4 on the stove, black plastic 3/4/2 for bin, tote and granite, light wood 9/a/8 for cabinets). Palette notes: granite top uses black-plastic tones (3/4/2); the dish towel uses `a` (cream), the paper cup `a`, the bin bag `5/6/4`; none needed a new colour. Counter top slab is at row 6 with the dish pile and faucet rising above it; stove and bin tops sit near the top edge so the player stands on the visible surface. Checked: `npm run sprites` (no errors), contact sheet viewed at 4x, `npm run build` passes. Not checked: how they look in-game next to other batches (none merged) or in a browser.

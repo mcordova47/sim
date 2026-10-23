@@ -1,7 +1,7 @@
 ---
 id: 008
 title: Player character sprite
-status: in-progress
+status: review
 owner: agent
 depends_on: [006]
 ---
@@ -33,3 +33,8 @@ A player character with enough animation to feel alive.
   - Changes needed:
     - [ ] Redraw walk-1..walk-4 so they form a distinct cycle: no frame identical to idle or to another walk frame, with a visible contact/passing pose on each side (for example, alternate which leg forward, plus a 1px body bob or arm swing). Keep the body at cols 3-12, rows 2-15 and palette-only colours, then re-run `npm run sprites`.
     - [ ] Optional: make jump arms read as "up" more clearly (currently only 2px beside the torso, similar to fall).
+
+- 2026-10-22: Round 2, addressing review (changes needed).
+  - [x] Redrew walk-1..4 as a real cycle: walk-1 and walk-3 are opposite wide-stride contact poses with opposite arm swing; walk-2 and walk-4 are different passing poses. Verified in the generator that no two frames are pixel-identical (walk-3 is no longer idle).
+  - [x] Fall now has arms out to the sides at hip height, distinct from jump (arms up at shoulder height).
+  - Contact sheet re-viewed. Build passes. Still unverified: motion feel in a browser (issue 016).

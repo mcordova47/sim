@@ -1,7 +1,7 @@
 ---
 id: 007b
 title: "Furniture sprites: Main room, east: dining table, records and sofa"
-status: in-progress
+status: review
 owner: agent
 depends_on: [005, 006]
 ---
@@ -64,3 +64,9 @@ The sprites should look like Marc's real pieces, so work from the photos in `ref
     - [ ] Decide on the table stretcher and the 1 to 3px tops on record-stand and sofa, and note the decision.
     - [ ] Re-run `npm run sprites` and view the sheet again.
   - **Unverified** (cannot be checked here): how the sprites look in the running game (the level is not drawn with sprites until 016); Marc's approval of the overall look; comparison with other batches (none merged).
+- 2026-10-22: Round 2, addressing the review checklist (all ticked).
+  - [x] Outlines added: table stretcher and jar, sofa-arm bottom rail, guitar neck (4px incl. outline), record-stand cables (ink lines) and record sleeves, guitar tuning pegs and body top/bottom. Own check (non-ink pixel next to transparent, 4-neighbour) now reports 0 for all six sprites.
+  - [x] Box edges: guitar head starts at row 1 and the hook is removed; gallery-wall frames moved off the top row and right column.
+  - [x] Table stretcher moved down to rows 28 to 31, so a 14px player standing on the floor clears it (top of player at row 18, slab bottom at row 15).
+  - [x] Flush tops: record-stand turntable now starts at row 0 and the sofa outline at row 0, matching the sofa-arm. The table's standable surface is the top of the clutter at the box top; the slab is at row 10 by design (items sit on it within the one-way top tile).
+  - `npm run sprites` passes; contact sheet viewed at 4x. Still not checked: in-game look, Marc's approval, comparison with other batches.

@@ -1,7 +1,7 @@
 ---
 id: 038
 title: Mood (morale) state
-status: review
+status: done
 owner: claude
 depends_on: []
 ---
@@ -35,3 +35,20 @@ Done:
 
 Not checked: how the HUD looks in a browser (not rendered), and the sigh popup is not covered by a test (popups are private to Game).
 Likely conflicts: `tasks.ts` (admire-art, with 040; shower or mirror task, with 041).
+
+### 2026-10-23, review (independent reviewer)
+Verdict: **approve**.
+
+Checks run: `npm test` (578 pass), `npm run build` (ok), plus my own edge script outside the repo (vite-node, not committed).
+- Criterion 1, `mood` var and HUD bar: **pass** for the var (0 to 100, start 60, in `state-vars.ts`). HUD drawn against a recording canvas: label at y 33, bar at 252,43 (60 wide, 3 high), same style as energy, fill 0/14/15/60 px at mood 0/24/25/100, brick below 25. Draws without throwing when the state has no mood var. Real look in a browser: **can't verify**. Geometry note: the mood bar bottom (y 46) sits flush with the panel bottom (STATUS_BOX 4..46), with no padding below it, unlike the 4px above the clock text. Cosmetic, check by eye. Prompts and popups already avoid STATUS_BOX (`game.ts` drawWorldUi), so the taller box does not move labels onto the HUD; nothing else is drawn in the top-right.
+- Criterion 2, task effects, `docs/tasks.md`, no requires on mood: **pass**. No task `requires` mood (checked over all 33 tasks). Largest single change is 10. Guitar (0.3) and journal (0.2) use `pointsBonus`, which is worked out before effects.
+- Criterion 3, one visible low-mood effect: **pass in code, can't verify visually**. The SIGH popup fires on crossing below 25 in `Game.stateChanged`; no test covers the popup and I did not run it in a browser. Drift can only move mood toward 50, so a sigh comes only from effects. Left for later is stated.
+- Criterion 4, `stateChanged` and drift: **pass**. From 0, 100, 50, 50.5, 49.2, 24.9 and 25, 20000 ticks of 0.5s each: always monotone, never past 50, ends exactly at 50, no mood event once at rest. Effects clamp at 0 and 100 (set then add, and sequential adds). Tick order in the event log: clock, energy, mood; time-driven events report only on a floor change, like energy.
+- Criterion 5, tests: **pass**; each rule has a test except the popup.
+
+Beyond the criteria:
+- Scope: only the 038 issue file, docs/tasks.md, config, state, tasks, game, HUD, layout, new test, and two older tests renamed from "mood" to "cheer" (fair, they used it as an unknown name). PLAN.md untouched. No reference-photos or personal details.
+- A state built without `mood` does not throw on `tick`, but 23 of 33 tasks have a mood effect and would throw if completed in such a state. Level load already runs `validateStateNames`, so a custom room without mood fails at build time, not in play. This matters for 009c: saved states from before mood must be filled with the default for `mood` when loaded.
+- Minor, not blocking: `docs/state.md` line 46 still says a tick moves "the clock and energy"; it now also moves mood. Not updated.
+- Unverified: HUD in a browser, sigh popup, how the drift and bonus numbers feel in play.
+- Likely merge conflicts (author noted): `tasks.ts` with 040 and 041.

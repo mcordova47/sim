@@ -41,9 +41,9 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 007c | [Sprites: kitchen west](issues/007c-sprites-kitchen-west.md) | agent | done | 005, 006 |
 | 007d | [Sprites: kitchen east and bath](issues/007d-sprites-kitchen-east-and-bath.md) | agent | done | 005, 006 |
 | 008 | [Player character sprite](issues/008-player-sprite.md) | agent | done | 006 |
-| 009 | [Polish (umbrella)](issues/009-polish.md) | marc + claude | blocked | 009a-d |
+| 009 | [Polish (umbrella)](issues/009-polish.md) | marc + claude | done | 009a-d |
 | 009a | [Polish: sound effects](issues/009a-sound.md) | agent | done | |
-| 009b | [Polish: particles](issues/009b-particles.md) | agent | todo | |
+| 009b | [Polish: particles](issues/009b-particles.md) | agent | done | |
 | 009c | [Polish: achievements and saved progress](issues/009c-achievements.md) | agent | done | |
 | 009d | [Polish: time of day](issues/009d-time-of-day.md) | agent | done | |
 | 010 | [Scrolling camera](issues/010-scrolling-camera.md) | claude | done | 005 |

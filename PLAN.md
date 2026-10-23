@@ -44,7 +44,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 009 | [Polish (umbrella)](issues/009-polish.md) | marc + claude | blocked | 009a-d |
 | 009a | [Polish: sound effects](issues/009a-sound.md) | agent | blocked | 017 |
 | 009b | [Polish: particles](issues/009b-particles.md) | agent | blocked | 017 |
-| 009c | [Polish: achievements and saved progress](issues/009c-achievements.md) | agent | todo | |
+| 009c | [Polish: achievements and saved progress](issues/009c-achievements.md) | agent | done | |
 | 009d | [Polish: time of day](issues/009d-time-of-day.md) | agent | blocked | 017 |
 | 010 | [Scrolling camera](issues/010-scrolling-camera.md) | claude | done | 005 |
 | 011 | [Integrate the floor plan and task data](issues/011-integrate-floor-plan.md) | claude | done | 005, 003 |

@@ -5,10 +5,13 @@ export const VIEW = {
   height: 12 * TILE,
 };
 
-// Game events. A touchdown slower than this (px/s) is not announced, which
-// skips settling onto the floor at spawn and tiny steps down.
+// Game events. A touchdown slower than this (px/s) is not announced. Speed is
+// sqrt(2 * gravity * drop): 100 is a drop of about 5 px, a one-tile (16 px)
+// step down is about 165 and a full jump lands at about 260. This skips
+// settling onto the floor at spawn and tiny lips; features should still scale
+// what they do by the speed they are given.
 export const EVENTS = {
-  minLandSpeed: 40,
+  minLandSpeed: 100,
 };
 
 // Camera tuning. Distances are pixels.

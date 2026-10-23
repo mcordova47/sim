@@ -15,26 +15,34 @@ export interface GameEvents {
 
 type Listener<T> = (payload: T) => void;
 
+// Each subscription is its own entry, so subscribing the same function twice
+// calls it twice and each unsubscribe removes just its own.
+interface Entry {
+  call: Listener<never>;
+}
+
 // A tiny typed event emitter. A listener that throws is reported and skipped,
-// so one broken feature can't stop the game or the other listeners.
+// so one broken feature can't stop the game or the other listeners. Every
+// listener of an event gets the same payload object, so treat it as read-only.
 export class Emitter<E extends object> {
-  private listeners = new Map<keyof E, Set<Listener<never>>>();
+  private listeners = new Map<keyof E, Set<Entry>>();
 
   // Returns a function that removes the listener again.
   on<K extends keyof E>(name: K, listener: Listener<E[K]>): () => void {
     let set = this.listeners.get(name);
     if (!set) this.listeners.set(name, (set = new Set()));
-    set.add(listener as Listener<never>);
+    const entry: Entry = { call: listener as Listener<never> };
+    set.add(entry);
     return () => {
-      set.delete(listener as Listener<never>);
+      set.delete(entry);
     };
   }
 
   emit<K extends keyof E>(name: K, payload: E[K]): void {
     // Copy first, so listeners can unsubscribe themselves while being called.
-    for (const listener of [...(this.listeners.get(name) ?? [])]) {
+    for (const entry of [...(this.listeners.get(name) ?? [])]) {
       try {
-        (listener as Listener<E[K]>)(payload);
+        (entry.call as Listener<E[K]>)(payload);
       } catch (error) {
         console.error(`Listener for "${String(name)}" threw`, error);
       }

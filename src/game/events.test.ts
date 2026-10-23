@@ -68,6 +68,19 @@ describe("Emitter", () => {
     expect(error).toHaveBeenCalledTimes(1);
   });
 
+  it("treats subscribing the same function twice as two subscriptions", () => {
+    const e = new Emitter<Events>();
+    let calls = 0;
+    const listener = () => calls++;
+    const offFirst = e.on("ping", listener);
+    e.on("ping", listener);
+    e.emit("ping", { n: 0 });
+    expect(calls).toBe(2);
+    offFirst();
+    e.emit("ping", { n: 0 });
+    expect(calls).toBe(3);
+  });
+
   it("does nothing when nobody is listening", () => {
     expect(() => new Emitter<Events>().emit("pong", { text: "x" })).not.toThrow();
   });

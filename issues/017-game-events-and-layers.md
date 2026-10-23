@@ -1,7 +1,7 @@
 ---
 id: 017
 title: Game events and drawing layers
-status: done
+status: review
 owner: claude
 depends_on: []
 ---
@@ -46,3 +46,12 @@ Sound, particles, achievements and the day/night cycle (issues 009a to 009d) all
     6. Event order inside one `update`: `taskStart`/`taskComplete` fire (during `interaction.update`) before `jump`/`land`, and all before camera, popups and HUD update, so listeners see the camera one step stale. With a long dt (tests, tools; the real loop is fixed 1/60) a buffered jump after a landing in the same update emits `jump` before `land` (589 cases in 1.6M random updates, never at 1/60).
     7. Smaller: `update(0)` makes `grounded` false (pre-existing physics), and the next frame is a 15 px/s touchdown that the threshold hides. The `Emitter` stores listeners in a Set, so subscribing the same function twice counts once and the first unsubscribe removes both. Payload objects (including `award`) are shared by all listeners, so one listener mutating `award` is seen by the next. A layer added during `update` or draw runs in that same frame. `taskBlocked` is not emitted for an interact press made in the air and refused on landing.
   - PLAN.md table needs updating by the planner (017 done).
+- 2026-10-22 (round 2, author): Fixed the defects the review found before the polish features build on this. The review itself approved all criteria; these are changes made afterwards, so the issue is back in `review` for a second look at them.
+  - **A layer removing itself skipped the next layer** (the loop mutated the array it was iterating). `Game` now walks a snapshot, skips any layer removed earlier in the same pass, and runs a layer added mid-frame from the next frame.
+  - **A throwing layer froze the game** (the throw escaped `update` and stopped the loop from scheduling the next frame, and a throw in `drawWorld` also left a `save()` with no `restore()`). Every layer hook is now guarded: the error is logged once and that layer is removed, and the others carry on.
+  - **Canvas state leaked between layers and frames.** Each draw hook now runs between its own `save()` and `restore()` (only when the layer has that hook), so a layer can set `globalAlpha`, a fill style or a transform without cleaning up.
+  - **Layers got the live camera object.** Each call now gets its own copy.
+  - **Emitter:** subscribing the same function twice counted once and the first unsubscribe removed both. Each subscription is now its own entry. The doc comment now says payloads are shared between listeners and should be read-only.
+  - **Landing threshold raised from 40 to 100 px/s.** The review measured that 40 is only about a 1 px drop; 100 is about 5 px. A one-tile step down (about 165) and a full jump (about 260) still announce a landing, and features should still scale by the speed they are given.
+  - Left as documented behaviour (noted in the `Layer` and `Emitter` comments, not changed): events fire during `update` before the camera, popups and HUD update for that step; a long step that lands and immediately buffered-jumps can emit `jump` before `land` (never at 1/60); `taskBlocked` is not emitted for a press made in the air and refused on landing.
+  - Checks: `npm run build` passes; `npm test` 132 pass (123 before, plus 9 new). I confirmed the new layer tests fail against the previous `game.ts` (7 fail there: self-removal, added mid-frame, throwing in update, throwing in draw, alpha leak, camera copy, and the reworked draw-order test) and pass now. I re-ran my replay comparison against `main` (9,000 updates, rendering every second frame, score 1,499): identical on all 4,500 sampled frames.

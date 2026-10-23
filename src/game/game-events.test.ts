@@ -165,11 +165,37 @@ describe("Game layers", () => {
     return { ctx, calls };
   }
 
+  // A stand-in that really tracks globalAlpha through save and restore, to see
+  // whether state leaks from one layer (or frame) into the next.
+  function statefulContext() {
+    let alpha = 1;
+    const stack: number[] = [];
+    const alphaAtFill: number[] = [];
+    const ctx = new Proxy(
+      {},
+      {
+        get: (_t, name: string) => {
+          if (name === "globalAlpha") return alpha;
+          if (name === "save") return () => stack.push(alpha);
+          if (name === "restore") return () => void (alpha = stack.pop() ?? 1);
+          if (name === "fillRect") return () => void alphaAtFill.push(alpha);
+          return () => {};
+        },
+        set: (_t, name: string, value: unknown) => {
+          if (name === "globalAlpha") alpha = value as number;
+          return true;
+        },
+      },
+    ) as unknown as CanvasRenderingContext2D;
+    return { ctx, stack, alphaAtFill, alpha: () => alpha };
+  }
+
   function stubDocument() {
     vi.stubGlobal("document", {
       createElement: () => ({ width: 0, height: 0, getContext: () => fakeContext().ctx }),
     });
   }
+  const count = (calls: string[], what: string) => calls.filter((c) => c === what).length;
 
   it("updates layers in the order they were added, with the step size", () => {
     const game = new Game(level());
@@ -180,7 +206,7 @@ describe("Game layers", () => {
     expect(order).toEqual(["a:0.0167", "b:0.0167"]);
   });
 
-  it("draws world layers inside the camera, after the player, and HUD layers last", () => {
+  it("draws world layers inside the camera, after the player, and HUD layers outside it", () => {
     stubDocument();
     const game = new Game(level());
     const worldCams: { x: number; y: number }[] = [];
@@ -201,21 +227,25 @@ describe("Game layers", () => {
 
     const idx = (c: string) => calls.indexOf(c);
     const cam = game.camera.position(1);
-    const save = idx("save()");
     const translate = idx(`translate(${-cam.x},${-cam.y})`);
-    const restore = idx("restore()");
-    const player = calls.findIndex((c, i) => i > translate && c.startsWith("fillRect(") && c.includes(",10,14)"));
-
-    expect(translate).toBeGreaterThan(save);
+    const player = calls.findIndex(
+      (c, i) => i > translate && c.startsWith("fillRect(") && c.includes(",10,14)"),
+    );
+    expect(translate).toBeGreaterThan(-1);
     expect(player).toBeGreaterThan(translate);
     expect(idx("fillText(world-a,0,0)")).toBeGreaterThan(player);
     expect(idx("fillText(world-b,0,0)")).toBeGreaterThan(idx("fillText(world-a,0,0)"));
-    expect(idx("fillText(world-b,0,0)")).toBeLessThan(restore);
-    // HUD layers come after the world is restored, in order, with no transform.
-    expect(idx("fillText(hud-a,0,0)")).toBeGreaterThan(restore);
+    expect(idx("fillText(hud-a,0,0)")).toBeGreaterThan(idx("fillText(world-b,0,0)"));
     expect(idx("fillText(hud-b,0,0)")).toBeGreaterThan(idx("fillText(hud-a,0,0)"));
-    expect(calls.slice(restore).some((c) => c.startsWith("translate"))).toBe(false);
-    // The layer is told where the camera is.
+
+    // Just before the first HUD layer draws, exactly one save is still open:
+    // that layer's own. So the camera transform has already been undone.
+    const before = calls.slice(0, idx("fillText(hud-a,0,0)"));
+    expect(count(before, "save()") - count(before, "restore()")).toBe(1);
+    // The camera transform is applied once per frame and never again.
+    expect(calls.filter((c) => c.startsWith("translate"))).toHaveLength(1);
+    // And everything is balanced at the end.
+    expect(count(calls, "save()")).toBe(count(calls, "restore()"));
     expect(worldCams[0]).toEqual(cam);
     vi.unstubAllGlobals();
   });
@@ -253,7 +283,7 @@ describe("Game layers", () => {
     vi.unstubAllGlobals();
   });
 
-  it("changes nothing about the screen when there are no layers", () => {
+  it("changes nothing about the screen when a layer has no hooks", () => {
     stubDocument();
     const withLayer = new Game(level());
     withLayer.addLayer({});
@@ -269,5 +299,177 @@ describe("Game layers", () => {
     expect(a.calls).toEqual(b.calls);
     expect(VIEW.width).toBeGreaterThan(0);
     vi.unstubAllGlobals();
+  });
+
+  describe("when layers misbehave", () => {
+    it("doesn't skip the next layer when a layer removes itself", () => {
+      const game = new Game(level());
+      const calls: string[] = [];
+      const removeA = game.addLayer({
+        update: () => {
+          calls.push("a");
+          removeA();
+        },
+      });
+      game.addLayer({ update: () => calls.push("b") });
+      game.addLayer({ update: () => calls.push("c") });
+      game.update(dt, NO_INPUT);
+      game.update(dt, NO_INPUT);
+      expect(calls).toEqual(["a", "b", "c", "b", "c"]);
+    });
+
+    it("doesn't call a layer that an earlier layer removed in the same frame", () => {
+      const game = new Game(level());
+      const calls: string[] = [];
+      let removeB = () => {};
+      game.addLayer({
+        update: () => {
+          calls.push("a");
+          removeB();
+        },
+      });
+      removeB = game.addLayer({ update: () => calls.push("b") });
+      game.addLayer({ update: () => calls.push("c") });
+      game.update(dt, NO_INPUT);
+      expect(calls).toEqual(["a", "c"]);
+    });
+
+    it("runs a layer added during a frame from the next frame", () => {
+      const game = new Game(level());
+      const calls: string[] = [];
+      let added = false;
+      game.addLayer({
+        update: () => {
+          calls.push("a");
+          if (!added) {
+            added = true;
+            game.addLayer({ update: () => calls.push("late") });
+          }
+        },
+      });
+      game.update(dt, NO_INPUT);
+      expect(calls).toEqual(["a"]);
+      game.update(dt, NO_INPUT);
+      expect(calls).toEqual(["a", "a", "late"]);
+    });
+
+    it("keeps the game going when a layer throws in update, and removes that layer", () => {
+      const error = vi.spyOn(console, "error").mockImplementation(() => {});
+      const game = new Game(level());
+      const calls: string[] = [];
+      game.addLayer({
+        update: () => {
+          calls.push("bad");
+          throw new Error("broken feature");
+        },
+      });
+      game.addLayer({ update: () => calls.push("good") });
+      expect(() => game.update(dt, NO_INPUT)).not.toThrow();
+      expect(() => game.update(dt, NO_INPUT)).not.toThrow();
+      // Reported once, then gone; the other layer carried on both frames.
+      expect(calls).toEqual(["bad", "good", "good"]);
+      expect(error).toHaveBeenCalledTimes(1);
+    });
+
+    it("leaves the canvas balanced when a layer throws while drawing", () => {
+      stubDocument();
+      vi.spyOn(console, "error").mockImplementation(() => {});
+      const game = new Game(level());
+      game.addLayer({
+        drawWorld: (ctx) => {
+          ctx.fillText("before-throw", 0, 0);
+          throw new Error("broken feature");
+        },
+        drawHud: () => {
+          throw new Error("broken feature");
+        },
+      });
+      game.addLayer({
+        drawWorld: (ctx) => ctx.fillText("world-ok", 0, 0),
+        drawHud: (ctx) => ctx.fillText("hud-ok", 0, 0),
+      });
+      const { ctx, calls } = fakeContext();
+      expect(() => game.render(ctx, 1)).not.toThrow();
+      expect(count(calls, "save()")).toBe(count(calls, "restore()"));
+      // The other layer still drew, in both passes.
+      expect(calls).toContain("fillText(world-ok,0,0)");
+      expect(calls).toContain("fillText(hud-ok,0,0)");
+      // The broken layer was dropped, so the next frame doesn't repeat it.
+      const next = fakeContext();
+      game.render(next.ctx, 1);
+      expect(next.calls).not.toContain("fillText(before-throw,0,0)");
+      vi.unstubAllGlobals();
+    });
+
+    it("doesn't let one layer's globalAlpha leak into the next layer or frame", () => {
+      stubDocument();
+      const game = new Game(level());
+      game.addLayer({
+        drawWorld: (ctx) => {
+          ctx.globalAlpha = 0.3; // never reset
+        },
+        drawHud: (ctx) => {
+          ctx.globalAlpha = 0.2; // never reset
+        },
+      });
+      let worldSeen = -1;
+      let hudSeen = -1;
+      game.addLayer({
+        drawWorld: (ctx) => {
+          worldSeen = ctx.globalAlpha;
+        },
+        drawHud: (ctx) => {
+          hudSeen = ctx.globalAlpha;
+        },
+      });
+      const first = statefulContext();
+      game.render(first.ctx, 1);
+      expect(worldSeen).toBe(1);
+      expect(hudSeen).toBe(1);
+      expect(first.alpha()).toBe(1);
+      expect(first.stack).toHaveLength(0);
+
+      // The next frame starts clean, background included.
+      const second = statefulContext();
+      game.render(second.ctx, 1);
+      expect(second.alphaAtFill[0]).toBe(1);
+      vi.unstubAllGlobals();
+    });
+
+    it("gives each layer its own copy of the camera position", () => {
+      stubDocument();
+      const game = new Game(level());
+      const seen: number[] = [];
+      game.addLayer({
+        drawWorld: (_ctx, cam) => {
+          cam.x = 9999;
+          cam.y = 9999;
+        },
+      });
+      game.addLayer({ drawWorld: (_ctx, cam) => seen.push(cam.x) });
+      const { ctx } = fakeContext();
+      game.render(ctx, 1);
+      expect(seen).toEqual([game.camera.position(1).x]);
+      vi.unstubAllGlobals();
+    });
+  });
+});
+
+describe("landing threshold", () => {
+  // Spawn above the floor so the player falls a known distance.
+  function dropFrom(height: number): GameEvents["land"][] {
+    const game = new Game({ ...level(), spawn: { x: 50, y: 86 - height } });
+    const landings: GameEvents["land"][] = [];
+    game.events.on("land", (e) => landings.push(e));
+    run(game, 2);
+    return landings;
+  }
+
+  it("ignores settling and tiny drops, and announces a one-tile step down", () => {
+    expect(dropFrom(0)).toHaveLength(0);
+    expect(dropFrom(3)).toHaveLength(0);
+    const step = dropFrom(16);
+    expect(step).toHaveLength(1);
+    expect(step[0].speed).toBeGreaterThan(150);
   });
 });

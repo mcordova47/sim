@@ -12,6 +12,13 @@ import { Player } from "./player";
 
 // An extra thing the game updates and draws, added with `Game.addLayer`. Every
 // hook is optional. Layers run in the order they were added.
+//
+// Each draw hook runs between its own `save()` and `restore()`, so a layer can
+// change `globalAlpha`, the fill style or the transform without cleaning up.
+// A layer may remove itself or another layer from inside a hook, and it gets a
+// copy of the camera position. A layer that throws is reported and removed, so
+// one broken feature can't stop the game. A layer added during a frame first
+// runs on the next one.
 export interface Layer {
   update?(dt: number): void;
   // Drawn in world space, inside the camera transform, after the player.
@@ -74,7 +81,7 @@ export class Game {
     this.camera.update(dt, this.playerCentre());
     this.popups.update(dt);
     this.hud.update(dt, this.interaction.scoreboard.score);
-    for (const layer of this.layers) layer.update?.(dt);
+    this.eachLayer((layer) => layer.update?.(dt));
   }
 
   render(ctx: CanvasRenderingContext2D, alpha: number): void {
@@ -96,14 +103,42 @@ export class Game {
     ctx.save();
     ctx.translate(-cam.x, -cam.y);
     this.drawWorld(ctx, actor);
-    for (const layer of this.layers) layer.drawWorld?.(ctx, cam);
+    this.eachLayer((layer) => this.drawLayer(ctx, () => layer.drawWorld?.(ctx, { ...cam }), layer.drawWorld));
     ctx.restore();
 
     // World UI is laid out in screen space (it must stay on screen and clear
     // of the HUD), so it gets screen positions, then the HUD goes on top.
     this.drawWorldUi(ctx, { ...actor, x: actor.x - cam.x, y: actor.y - cam.y }, cam);
     this.drawHud(ctx);
-    for (const layer of this.layers) layer.drawHud?.(ctx);
+    this.eachLayer((layer) => this.drawLayer(ctx, () => layer.drawHud?.(ctx), layer.drawHud));
+  }
+
+  // Runs `fn` for each layer, in order. It works on a snapshot, so layers can
+  // add or remove layers (including themselves) while it runs without anyone
+  // being skipped or called twice; a layer removed earlier in the pass is not
+  // called. A layer that throws is reported and removed.
+  private eachLayer(fn: (layer: Layer) => void): void {
+    for (const layer of [...this.layers]) {
+      if (!this.layers.includes(layer)) continue;
+      try {
+        fn(layer);
+      } catch (error) {
+        console.error("A layer threw and was removed", error);
+        const i = this.layers.indexOf(layer);
+        if (i >= 0) this.layers.splice(i, 1);
+      }
+    }
+  }
+
+  // Runs one draw hook inside its own save/restore, but only if there is one.
+  private drawLayer(ctx: CanvasRenderingContext2D, draw: () => void, hook: unknown): void {
+    if (!hook) return;
+    ctx.save();
+    try {
+      draw();
+    } finally {
+      ctx.restore();
+    }
   }
 
   private playerCentre(): { x: number; y: number } {

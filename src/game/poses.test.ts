@@ -65,7 +65,7 @@ const plain = (names: string[]) => names.filter((n) => /^player-(idle|walk)/.tes
 describe("doing poses", () => {
   // [task, start tile, facing, state to make it startable, the pose, where it goes]
   const cases: [string, number, number, Direction, Record<string, number>, string, number, number][] = [
-    ["doomscroll", 5, 4, "down", {}, "player-sit-sofa", 80, 80],
+    ["doomscroll", 5, 4, "down", {}, "player-sit-sofa", 93, 80],
     ["work", 6, 3, "up", {}, "player-type-desk", 128, 32],
     ["drink-coffee", 2, 3, "up", { mug: 1 }, "player-eat-table", 40, 32],
     ["guitar", 1, 4, "down", {}, "player-guitar", 16, 64],

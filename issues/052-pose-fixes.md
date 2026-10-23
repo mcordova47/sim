@@ -1,7 +1,7 @@
 ---
 id: 052
 title: Fix the sleeping and sofa-sitting poses
-status: todo
+status: review
 owner: agent
 depends_on: []
 ---
@@ -18,3 +18,14 @@ From Marc's playtest of the pose build (2026-10-23): "head is detached from body
 - Reference photos in `/Users/marccordova/Dev/repos/mcordova47/life/reference-photos/` (absolute path, never copied). The character brief is `docs/character-brief.md`.
 
 ## Progress log
+
+- 2026-10-23 (agent): started. Plan: redraw `player-sleep-bed` so head, shoulders and body are one figure; redraw `player-sit-sofa` / `player-read-sofa` as person-only overlays; check the desk and table poses against the current sprites.
+- 2026-10-23 (agent): done, set to review.
+  - **Sleep:** `player-sleep-bed` is now `bed-made` (unchanged pixels) plus a head on the west pillow (hair, face, closed eyes) and the covers pulled up over shoulders that start right under the chin and taper down to the feet, so it is one connected figure. The duvet stripes carry on over it. Cause of the old bug: the head ended at row 16 and the lump began at row 21 with a different width.
+  - **Sofa:** `player-sit-sofa` (16x32) and `player-read-sofa` (32x32) are now person-only overlays: head and shoulders from behind in rows 2..14, the rest transparent, no furniture of their own, so the real `sofa-td` backrest and back rail show through. They are 32 tall (empty lower half) only so the draw order puts them in front of the sofa (a pose sorts by its bottom edge; at 16 tall the sofa covered it, which I saw in the first render).
+  - **Placement:** the person sits on the **right-hand** seat cushion (the sofa's cushions are x 7..46 and 49..88 of 96; seam at x 47..48), centred at x 69. `sit-sofa` is `at {x: 61, y: 0}` (abs 93, 80 in the main room); `read-sofa` is `at {x: 45, y: 0}` (the book is on the left half of its sprite, the person on the right half, same spot). `poses.test.ts` expected x updated from 80 to 93.
+  - **Other poses checked, no change needed:** `player-type-desk` rows 0..5 match `desk` rows 16..21 at x 32 exactly, and its chair rows 4..14 match `desk-chair` (only the person differs); `player-eat-table` rows 0..3 and 7 match `table` rows 16..19 and 23 at x 24, the only difference is the bowl drawn on the table's front edge (rows 4..6), which is a deliberate addition, not a stale copy. Both still sit right in the real game.
+  - **Verified:** rendered each in the real game (headless Chrome, the game's own `drawWorld` with the real sprites, no UI) at 1x and 4x/6x: sleep over `bed-made` (bedMade 1), doomscroll and work-sofa on the sofa, `read-sofa` forced in place of `sit-sofa` (no task uses it yet), desk and table before and after. `npm run sprites`, `npm test` (980 pass) and `npm run build` pass.
+  - **Not checked:** how it feels in a live browser (animation, the banner over the bed); the book hand pixel in `player-read-sofa` is a small guess.
+  - **Follow-ups (outside scope):** `docs/art-style.md` line 84 and 150 still describe the old poses (column x 48..63, "draws the furniture too"); a planner edit. No task uses `read-sofa` yet.
+  - Files: art/src/player-sleep-bed.sprite, art/src/player-sit-sofa.sprite, art/src/player-read-sofa.sprite, public/sprites/ (3 regenerated PNGs), src/game/poses.ts, src/game/poses.test.ts, this file.

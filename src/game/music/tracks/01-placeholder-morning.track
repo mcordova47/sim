@@ -1,0 +1,12 @@
+# PLACEHOLDER: a starter track so the record player works. Replace it with your own.
+title: Morning (placeholder)
+note: A slow starter tune.
+tempo: 84
+
+[lead triangle 0.9]
+E4:1 G4:1 A4:2 | G4:1 E4:1 D4:2 | C4:1 D4:1 E4:2 | D4:3 R:1
+E4:1 G4:1 A4:2 | B4:1 A4:1 G4:2 | E4:1 D4:1 C4:2 | C4:3 R:1
+
+[bass sine 0.9]
+C3:4 | G2:4 | A2:4 | G2:4
+C3:4 | G2:4 | A2:4 | C3:4

@@ -148,6 +148,8 @@ export class AchievementsFeature implements Layer {
   private check(): void {
     const fresh = this.unlocks.check(this.stats, this.ctx);
     for (const a of fresh) this.toasts.push(a.name, a.description);
+    // A named moment, for sound and the like to react to.
+    if (fresh.length > 0) this.game.events.emit("cue", { name: "achievement" });
     if (fresh.length > 0) this.save();
   }
 

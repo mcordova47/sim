@@ -1,0 +1,16 @@
+# PLACEHOLDER: a starter track so the record player works. Replace it with your own.
+title: Lamplight (placeholder)
+note: Mellow, with a soft beat.
+tempo: 100
+
+[lead square 0.5]
+A4:1 R:0.5 C5:0.5 E5:1 C5:1 | D5:1 R:0.5 B4:0.5 G4:2
+A4:1 R:0.5 C5:0.5 E5:1 C5:1 | B4:1 G4:1 A4:2
+
+[bass triangle 0.8]
+A2:2 E3:2 | G2:2 D3:2
+A2:2 E3:2 | G2:2 A2:2
+
+[beat drums 0.6]
+K:1 H:0.5 H:0.5 S:1 H:1 | K:1 H:0.5 H:0.5 S:1 H:1
+K:1 H:0.5 H:0.5 S:1 H:1 | K:1 H:0.5 H:0.5 S:1 K:0.5 K:0.5

@@ -243,3 +243,172 @@ export const TIME_DEV = {
   backKey: "BracketLeft",
   forwardKey: "BracketRight",
 };
+
+// Sound (issue 009a). Everything is made in code with Web Audio; nothing here
+// is a file. Marc tunes by editing these numbers. Times are in seconds, pitches
+// in Hz, loudness is 0 to 1 per voice (before the master volume).
+export type ToneWave = "sine" | "square" | "triangle" | "sawtooth";
+
+// One oscillator: it glides from `freq` to `endFreq` (if given) over `length`.
+export interface ToneVoice {
+  wave: ToneWave;
+  freq: number;
+  endFreq?: number;
+  // Seconds after the effect starts (for a little melody).
+  delay?: number;
+  length: number;
+  gain: number;
+}
+
+// A burst of filtered noise (a footstep, a thump).
+export interface NoiseVoice {
+  noise: "lowpass" | "bandpass" | "highpass";
+  // The filter's centre or cut-off frequency.
+  freq: number;
+  q?: number;
+  delay?: number;
+  length: number;
+  gain: number;
+}
+
+export type Voice = ToneVoice | NoiseVoice;
+
+export interface EffectDef {
+  voices: Voice[];
+  // "low" effects (footsteps, typing, text blips) are dropped first when many
+  // sounds are already playing, so they never push out a chime.
+  priority?: "low" | "normal";
+}
+
+// A note from the pentatonic scale, as a semitone offset from `base`.
+const note = (semitones: number, base = 440) => Math.round(base * 2 ** (semitones / 12) * 100) / 100;
+
+export const SOUND = {
+  // Whole-game loudness, 0 to 1. Kept modest on purpose.
+  master: 0.35,
+  // How loud the music is next to the effects (the music bus multiplies by this).
+  musicLevel: 0.7,
+  // At most this many effect voices (oscillators and noise bursts) at once;
+  // low-priority effects need `maxVoices - lowReserve` or fewer already playing.
+  maxVoices: 14,
+  lowReserve: 6,
+  // Mute toggle (a KeyboardEvent.code). Not Tab, Escape, E, X, L or the arrows,
+  // which other features use. The typing game reads letters, so M is ignored while it runs.
+  muteKey: "KeyM",
+  // Where the sound settings are saved (muted, and the record on the player).
+  storageKey: "life.sound.v1",
+  // The small "MUTE" tag shows while muted, and "SOUND ON" shows this long after unmuting.
+  indicatorSeconds: 1.5,
+  // The line that names the record shows this long after a record is chosen,
+  // and any time the player faces the record player.
+  nowPlayingSeconds: 4,
+  // Footsteps (issue 009a). Which floor each room has, and how each floor sounds.
+  floors: { main: "wood", kitchen: "stone", bath: "tile" } as Record<string, string>,
+  defaultFloor: "wood",
+  // How loud a step is when tired (energy below ENERGY.lowBelow), and the
+  // random wobble in pitch (0.1 is up to 10 percent either way).
+  tiredStepGain: 0.55,
+  stepPitchWobble: 0.12,
+  // Combo (a variety chain of 2 or more): the pitch climbs by this many
+  // semitones for each link after the first, and stops climbing at `maxSteps` links.
+  combo: { semitonesPerStep: 2, maxSteps: 7 },
+  // Text blips: one per this many characters that appear in a dialog.
+  blipEveryChars: 3,
+  // Mini-game keys. The notes game plays a different note for each arrow.
+  noteKeys: { up: note(7), down: note(-5), left: note(0), right: note(4) } as Record<string, number>,
+  effects: {
+    stepWood: { priority: "low", voices: [{ noise: "lowpass", freq: 520, q: 0.7, length: 0.06, gain: 0.22 }] },
+    stepStone: { priority: "low", voices: [{ noise: "bandpass", freq: 1500, q: 1.1, length: 0.045, gain: 0.2 }] },
+    stepTile: { priority: "low", voices: [{ noise: "highpass", freq: 2600, q: 0.8, length: 0.035, gain: 0.14 }] },
+    bump: {
+      voices: [
+        { wave: "sine", freq: 130, endFreq: 70, length: 0.09, gain: 0.35 },
+        { noise: "lowpass", freq: 380, length: 0.05, gain: 0.15 },
+      ],
+    },
+    taskStart: { voices: [{ wave: "triangle", freq: note(0, 392), endFreq: note(2, 392), length: 0.08, gain: 0.22 }] },
+    // A pleasant chime: three rising notes (a major arpeggio).
+    taskComplete: {
+      voices: [
+        { wave: "triangle", freq: note(0, 523.25), length: 0.16, gain: 0.3 },
+        { wave: "triangle", freq: note(4, 523.25), delay: 0.09, length: 0.16, gain: 0.3 },
+        { wave: "triangle", freq: note(7, 523.25), delay: 0.18, length: 0.34, gain: 0.3 },
+      ],
+    },
+    // The combo effect is played after the chime; its pitch is raised for longer chains.
+    combo: {
+      voices: [
+        { wave: "square", freq: 660, length: 0.07, gain: 0.12 },
+        { wave: "square", freq: 880, delay: 0.07, length: 0.12, gain: 0.12 },
+      ],
+    },
+    // A small sparkle for finishing a task at its good hour.
+    goodHour: {
+      voices: [
+        { wave: "sine", freq: 1320, delay: 0.3, length: 0.1, gain: 0.14 },
+        { wave: "sine", freq: 1760, delay: 0.38, length: 0.2, gain: 0.14 },
+      ],
+    },
+    taskCancelled: { voices: [{ wave: "triangle", freq: 330, endFreq: 247, length: 0.1, gain: 0.18 }] },
+    // A low blip when something is not ready (cooldown or a missing requirement).
+    taskBlocked: { voices: [{ wave: "square", freq: 110, length: 0.07, gain: 0.16 }] },
+    door: {
+      voices: [
+        { noise: "lowpass", freq: 300, length: 0.09, gain: 0.25 },
+        { wave: "sine", freq: 180, endFreq: 120, length: 0.1, gain: 0.18 },
+      ],
+    },
+    // Dialog text blips and menu picks.
+    blip: { priority: "low", voices: [{ wave: "square", freq: 520, length: 0.025, gain: 0.07 }] },
+    menuPick: { voices: [{ wave: "triangle", freq: 660, length: 0.06, gain: 0.16 }] },
+    key: { priority: "low", voices: [{ noise: "bandpass", freq: 1800, q: 0.9, length: 0.02, gain: 0.12 }] },
+    noteKey: { priority: "low", voices: [{ wave: "triangle", freq: 440, length: 0.14, gain: 0.22 }] },
+    // An achievement toast: a short, bright two-note figure.
+    toast: {
+      voices: [
+        { wave: "square", freq: note(0, 659.25), length: 0.1, gain: 0.12 },
+        { wave: "square", freq: note(7, 659.25), delay: 0.1, length: 0.25, gain: 0.12 },
+      ],
+    },
+    // The needle landing on a record: a soft crackle.
+    needle: {
+      voices: [
+        { noise: "highpass", freq: 3000, length: 0.18, gain: 0.1 },
+        { wave: "sine", freq: 90, length: 0.1, gain: 0.12 },
+      ],
+    },
+    unmute: { voices: [{ wave: "triangle", freq: 523.25, length: 0.07, gain: 0.18 }] },
+  } as Record<string, EffectDef>,
+  // Named moments in a cutscene (`{ cue: "name" }`) that make a sound.
+  cues: { "record-spin": "needle", "achievement": "toast" } as Record<string, string>,
+};
+
+// Music (issue 009a). Tracks are text files in src/game/music/tracks (see
+// docs/music.md for the format); the record player picks one.
+export const MUSIC = {
+  // Loudness of one note in a channel, before the channel's own volume.
+  noteGain: 0.2,
+  // A note sounds for this much of its length, so repeated notes stay separate.
+  legato: 0.92,
+  attack: 0.008,
+  // Seconds of notes scheduled ahead of the clock.
+  lookahead: 0.25,
+  // A note whose time has already passed by more than this is skipped (the tab
+  // was in the background) instead of all played at once.
+  skipLate: 0.08,
+  // Lift to mood while a record plays (issue 038): `moodPerStep` more mood
+  // every `everyGameMinutes` of game time, but never past `moodCap`.
+  moodPerStep: 1,
+  everyGameMinutes: 10,
+  moodCap: 80,
+  // Drum sounds for the "drums" channel: K kick, S snare, H hat. `length` is
+  // how long the sound lasts, in seconds, whatever the note's length.
+  drums: {
+    K: [{ wave: "sine", freq: 150, endFreq: 45, length: 0.14, gain: 1.6 }],
+    S: [
+      { noise: "bandpass", freq: 1800, q: 0.8, length: 0.1, gain: 1.1 },
+      { wave: "triangle", freq: 220, endFreq: 160, length: 0.07, gain: 0.7 },
+    ],
+    H: [{ noise: "highpass", freq: 6500, q: 0.7, length: 0.035, gain: 0.7 }],
+  } as Record<string, Voice[]>,
+};

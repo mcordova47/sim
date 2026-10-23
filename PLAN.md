@@ -54,7 +54,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 015 | [Extract the game scene from main.ts](issues/015-extract-game-scene.md) | claude | done | |
 | 016 | [Draw the level and player with sprites](issues/016-draw-level-with-sprites.md) | agent | done | 007, 008, 010, 011 |
 | 017 | [Game events and drawing layers](issues/017-game-events-and-layers.md) | claude | done | |
-| 018 | [Layer hardening](issues/018-layer-hardening.md) | claude | todo | 017 |
+| 018 | [Layer hardening](issues/018-layer-hardening.md) | claude | done | 017 |
 | 019 | [Top-down foundation (grid steps, facing, interact)](issues/019-topdown-foundation.md) | claude | done | |
 | 020 | [Top-down floor plan of the apartment](issues/020-topdown-floor-plan.md) | marc + agent | todo | 019 |
 | 021 | [Apartment state and tasks that change it](issues/021-apartment-state.md) | claude | done | 019 |

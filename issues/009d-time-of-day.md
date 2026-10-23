@@ -31,6 +31,9 @@ Keep it all testable without a browser: put the logic in plain functions and cla
 ## Note from the 021 review
 The clock now lives in the apartment state (issue 021: `CLOCK` in `config.ts`, the `clock` variable, `formatClock`). Build the lighting on that clock, not on a new one. Its `stateChanged` event fires when the rounded value changes (about 25 times a day, with an extra one at midnight), so do not rely on it for exact hours; issue 027 decides what this feature can rely on. Read the exact time each frame if you need a smooth tint.
 
+## Note from the 018 review
+The canvas reset between layers covers the transform, `globalAlpha` and the compositing mode only. A layer that sets `clip`, `shadowBlur`, `filter` or similar and doesn't balance its own `save`/`restore` can leave those set for the layers after it. Balance your own `save`/`restore` (the game also wraps each draw hook in one), and if this feature uses clipping, shadows or filters, say so in the progress log so the reset can be widened.
+
 ## Blocked on the top-down switch
 On 2026-10-22 the game changed direction from a side-view platformer to a top-down, Pokemon-style game (issues 019 onward). Do not start this issue yet. It needs revisiting once the foundation (019) is in: the `jump` and `land` events no longer exist (they become `step` and `bump`), the particles and sounds the issue describes need to suit walking, and the day and night cycle should build on the clock from the apartment state (021). The planner will rewrite the affected criteria before releasing it.
 

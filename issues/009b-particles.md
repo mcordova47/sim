@@ -26,6 +26,9 @@ Keep it all testable without a browser: put the logic in plain functions and cla
 - Amounts, speeds, gravity, lifetimes and colours live in `config.ts`.
 - A recording-canvas test shows particles draw inside the camera transform and never draw once expired.
 
+## Note from the 018 review
+The canvas reset between layers covers the transform, `globalAlpha` and the compositing mode only. A layer that sets `clip`, `shadowBlur`, `filter` or similar and doesn't balance its own `save`/`restore` can leave those set for the layers after it. Balance your own `save`/`restore` (the game also wraps each draw hook in one), and if this feature uses clipping, shadows or filters, say so in the progress log so the reset can be widened.
+
 ## Blocked on the top-down switch
 On 2026-10-22 the game changed direction from a side-view platformer to a top-down, Pokemon-style game (issues 019 onward). Do not start this issue yet. It needs revisiting once the foundation (019) is in: the `jump` and `land` events no longer exist (they become `step` and `bump`), the particles and sounds the issue describes need to suit walking, and the day and night cycle should build on the clock from the apartment state (021). The planner will rewrite the affected criteria before releasing it.
 

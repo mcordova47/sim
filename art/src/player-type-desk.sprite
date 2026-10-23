@@ -1,10 +1,11 @@
-# Typing at the desk, seen from behind: laptop lid beyond the head, chair back in front. 16x32 (one tile wide, two tall).
+# Typing at the desk (issue 034): the desk's lower row at the chair's column (desk x 32..47, y 16) plus the new wooden chair, the player seen from behind with hair and shoulders over the front edge. 16x32; draw it at the desk's x 32..47 and y 16 (the desk's lower tile row and the chair tile).
 size: 16x32
-..111111111111..
-..155555555551..
-..155566555551..
-..155555555551..
-..144444444441..
+1111111111119999
+8888888888888888
+8888888888888888
+1111111111111111
+8888888888888888
+1111111111111111
 ....11.1111.....
 ...1998998881...
 ..189889898881..
@@ -14,21 +15,20 @@ size: 16x32
 ..189889898981..
 ..1ihhhhhhhhh1..
 ..1hhhhhhhhhh1..
-.1ahhhhhhhhhha1.
-.1ahhhhhhhhhha1.
-..1hhhhhhhhhh1..
-..1hhhhhhhhhh1..
+..1ahhhhhhhha1..
+..1ahhhhhhhha1..
+.1hhhhhhhhhhhh1.
+.7hhhhhhhhhhhh7.
+.71111111111117.
+.71666666666687.
+.71eeeeeeeeee87.
+.71666666666687.
+.71eeeeeeeeee87.
+.71666666666687.
+.71eeeeeeeeee87.
+.71555555555587.
+.71166666666187.
+.711eeeeeeee187.
+.71888888888887.
 .11111111111111.
-.13333333333331.
-.13444444444431.
-.13444444444431.
-.13444444444431.
-.13444444444431.
-.13444444444431.
-.13444444444431.
-.13444444444431.
-.13444444444431.
-.13333333333331.
-.11111111111111.
-..11........11..
-..11........11..
+................

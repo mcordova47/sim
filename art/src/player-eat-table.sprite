@@ -1,18 +1,34 @@
-# Eating at the table, facing down: the table edge and a bowl in front. 16x16.
-size: 16x16
+# Eating at the table (issue 034): the player on a stool at the table's south side, seen from behind (the table is on the north wall), head and shoulders over the table's front edge, a bowl on it. 16x32; draw it at table x 24..39, y 16 (the table's lower row) and the tile south of it.
+size: 16x32
+1111118888888888
+8888888888888888
+7777777777777777
+7777777777777777
+11111ffffff11111
+8888166666618888
+7777111111117777
+1111111111111111
+................
 ....11.1111.....
 ...1998998881...
 ..189889898881..
-..18899aaaa881..
-..18aa1aa1aa81..
-..18aaaaaaaa81..
-..1811aaaa1181..
+..188998988981..
+..189889889881..
+..188988998881..
+..189889898981..
 ..1ihhhhhhhhh1..
-..1hhhhhhhhhhh1.
+..1hhhhhhhhhh1..
 ..1ahhhhhhhha1..
-1999999999999991
-199116666119991.
-188816661888881.
-1777777777777771
-1111111111111111
-................
+..1ahhhhhhhha1..
+..hhhhhhhhhhhh..
+.1hhhhhhhhhhhh1.
+.11111111111111.
+.18888888888881.
+.18887888888881.
+.18888888888881.
+.18888888888881.
+..188888888881..
+...1188888811...
+....1881111881..
+....1881771881..
+.....11.11.11...

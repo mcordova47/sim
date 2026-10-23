@@ -62,7 +62,8 @@ describe("player sprites (home outfit)", () => {
     return n;
   };
   const dirs = ["down", "up", "left", "right"];
-  const poses = { "player-sit-sofa": [16, 16], "player-type-desk": [16, 32], "player-guitar": [32, 16], "player-read-sofa": [32, 16], "player-sleep-bed": [32, 48], "player-eat-table": [16, 16] };
+  // Sizes after issue 034: poses are drawn on the real furniture (sofa 6x2, desk 4x2, table 4x2, bed 5x6).
+  const poses = { "player-sit-sofa": [16, 32], "player-type-desk": [16, 32], "player-guitar": [16, 48], "player-read-sofa": [32, 32], "player-sleep-bed": [80, 96], "player-eat-table": [16, 32] };
 
   it.each(dirs)("has idle and two walk frames facing %s, 16x16, that differ clearly", (d) => {
     const idle = load(`player-idle-${d}`);
@@ -77,5 +78,20 @@ describe("player sprites (home outfit)", () => {
   it.each(Object.entries(poses))("%s exists at the documented size", (name, size) => {
     const img = load(name);
     expect([img.width, img.height]).toEqual(size);
+  });
+
+  it.each(["casual", "out", "pajamas"])("has the %s outfit for every idle and walk frame, 16x16", (outfit) => {
+    for (const d of dirs) for (const f of ["idle", "walk-1", "walk-2"]) {
+      const frame = f === "idle" ? `idle-${d}` : `walk-${d}-${f.slice(-1)}`;
+      const img = load(`player-${outfit}-${frame}`);
+      expect([img.width, img.height]).toEqual([16, 16]);
+    }
+  });
+
+  it.each(["mug", "laptop", "book", "guitar"])("has a held-%s overlay for every facing, 16x16", (item) => {
+    for (const d of dirs) {
+      const img = load(`held-${item}-${d}`);
+      expect([img.width, img.height]).toEqual([16, 16]);
+    }
   });
 });

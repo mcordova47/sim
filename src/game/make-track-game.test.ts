@@ -12,6 +12,8 @@ import { FakeAudioContext } from "./sound/fake-audio";
 import { SoundFeature, type KeyEventLike, type Listenable } from "./sound/feature";
 import { TASKS } from "./tasks";
 import { parseTileMap } from "./tilemap";
+import { AchievementsFeature } from "./achievements/feature";
+import { DemoStore as Store } from "./music/demo-store";
 
 const dt = 1 / 60;
 const press: Controls = { ...NO_INPUT, interactPressed: true };
@@ -165,7 +167,7 @@ describe("saving pays through the normal scoring path", () => {
     frames(game, 3);
     expect(game.interaction.busy).toBe(false);
     expect(game.interaction.scoreboard.score).toBe(0);
-    expect(events).toEqual(["cancelled"]);
+    expect(events).toEqual([]); // leaving is a quiet end, not a cancel
     expect(store.count).toBe(0);
     expect(store.draft()).not.toBeNull();
     game.update(dt, press);
@@ -532,5 +534,57 @@ describe("the editor and the sound", () => {
     tap(p.game, "KeyN");
     p.keys.press("KeyM");
     expect(p.feature.muted).toBe(false);
+  });
+});
+
+describe("leaving the editor is not a cancelled task", () => {
+  it("three visits leave the cancelled stat at 0 and 'Changed My Mind' locked", () => {
+    const game = new Game(level(real("make-track")), { random: () => 0.5 });
+    const feature = new AchievementsFeature(game, { storage: new FakeStorage(), keys: undefined, visibility: undefined });
+    const cancelled: string[] = [];
+    game.events.on("taskCancelled", () => cancelled.push("x"));
+    for (let i = 0; i < 12; i++) game.update(dt, NO_INPUT);
+    for (let visit = 0; visit < 3; visit++) {
+      game.update(dt, press);
+      expect(game.interaction.busy).toBe(true);
+      tap(game, "KeyE", "KeyP");
+      game.update(dt, esc);
+      frames(game, 3);
+      expect(game.interaction.busy).toBe(false);
+      expect(game.inputLocked).toBe(false);
+      expect(game.dialogOpen).toBe(false);
+    }
+    expect(cancelled).toEqual([]);
+    expect(feature.stats.number("cancelled")).toBe(0);
+    expect(feature.unlocks.ids()).not.toContain("cancel-3");
+    expect(game.interaction.scoreboard.score).toBe(0);
+    expect(store.draft()).not.toBeNull();
+  });
+
+  it("other activities still count Escape as a cancel", () => {
+    const game = new Game(level(real("work")), { random: () => 0.5 });
+    const feature = new AchievementsFeature(game, { storage: new FakeStorage(), keys: undefined, visibility: undefined });
+    for (let i = 0; i < 12; i++) game.update(dt, NO_INPUT);
+    game.update(dt, press);
+    game.update(dt, esc);
+    expect(feature.stats.number("cancelled")).toBe(1);
+  });
+});
+
+describe("hand-edited storage is capped on load", () => {
+  it("limits the track count, the text size and the cooldown", () => {
+    const g = emptyGrid("Ok");
+    placeNote(g, "melody", 0, 60, 1);
+    const good = new Store(new FakeStorage(), M.storageKey, { reserved: () => [], log: () => {} });
+    good.save(null, g);
+    const text = good.list()[0].text;
+    const tracks = Array.from({ length: 40 }, (_, i) => ({ id: `demo-${i + 1}`, text: text.replace("Ok", `T${i}`), made: 1 }));
+    tracks.splice(1, 0, { id: "demo-99", text: "title: " + "x".repeat(M.maxTextBytes + 5), made: 1 });
+    const st = new FakeStorage();
+    st.setItem(M.storageKey, JSON.stringify({ version: 1, tracks, nextId: 100, reward: { cooldownLeft: 1e300, times: 1 } }));
+    const loaded = new Store(st, M.storageKey, { reserved: () => [], log: () => {} });
+    expect(loaded.count).toBe(M.maxTracks);
+    expect(loaded.list().every((d) => d.text.length <= M.maxTextBytes)).toBe(true);
+    expect(loaded.rewardLeft()).toBeLessThanOrEqual(M.reward.cooldownHours * 60);
   });
 });

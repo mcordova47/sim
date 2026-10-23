@@ -153,6 +153,12 @@ export class MakeTrackActivity extends BaseActivity {
   // -- Leaving ----------------------------------------------------------------------
 
   // Every way out (Escape, an error, finishing) stops the preview and the paste listener.
+  // Leaving is the normal way out of a free-form tool, so it ends quietly: no
+  // payout, no cooldown, and not counted as a cancelled task.
+  cancel(): void {
+    this.finish({ completed: false, quiet: true });
+  }
+
   protected finish(result: ActivityResult): void {
     if (this.done) return;
     super.finish(result);

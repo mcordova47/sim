@@ -25,6 +25,10 @@ import type { Effect } from "./state";
 // and does not affect the score.
 export interface ActivityResult {
   completed: boolean;
+  // With `completed: false`: the activity is simply over, and that is not a
+  // cancel. Nothing is paid, no cooldown starts and `taskCancelled` does not
+  // fire (the track editor's normal exit). Ignored when `completed` is true.
+  quiet?: boolean;
   quality?: number;
   data?: unknown;
 }

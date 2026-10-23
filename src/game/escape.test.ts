@@ -47,6 +47,8 @@ interface Case {
   keys?: string[];
   // Something is saved, so the track editor opens with its start menu.
   saved?: boolean;
+  // Leaving is a quiet end (the track editor): no taskCancelled event.
+  quiet?: boolean;
 }
 
 const cases: Case[] = [
@@ -59,10 +61,10 @@ const cases: Case[] = [
   { name: "cutscene: ask up", task: t("cs4", { activity: { type: "cutscene", steps: [{ ask: menu("Which?", [choice("A"), choice("B")]) }] }, effects: base.effects }), settle: 5, expectDialog: true },
   { name: "cutscene: view and say", task: t("cs5", { activity: { type: "cutscene", steps: [{ view: "view-x" }, { say: "Look." }, { unview: true }] }, effects: base.effects }), settle: 120, expectDialog: true },
   { name: "cutscene: walking", task: t("cs6", { activity: { type: "cutscene", steps: [{ walk: ["down", "down"] }] }, effects: base.effects }), settle: 4, moved: true },
-  { name: "track editor", task: t("mk", { activity: { type: "make-track" }, effects: base.effects }), settle: 20 },
-  { name: "track editor: playing", task: t("mk2", { activity: { type: "make-track" }, effects: base.effects }), settle: 20, keys: ["KeyE", "KeyP"] },
-  { name: "track editor: typing a name", task: t("mk3", { activity: { type: "make-track" }, effects: base.effects }), settle: 20, keys: ["KeyN", "KeyA"] },
-  { name: "track editor: start menu", task: t("mk4", { activity: { type: "make-track" }, effects: base.effects }), settle: 5, expectDialog: true, saved: true },
+  { name: "track editor", task: t("mk", { activity: { type: "make-track" }, effects: base.effects }), quiet: true, settle: 20 },
+  { name: "track editor: playing", task: t("mk2", { activity: { type: "make-track" }, effects: base.effects }), quiet: true, settle: 20, keys: ["KeyE", "KeyP"] },
+  { name: "track editor: typing a name", task: t("mk3", { activity: { type: "make-track" }, effects: base.effects }), quiet: true, settle: 20, keys: ["KeyN", "KeyA"] },
+  { name: "track editor: start menu", task: t("mk4", { activity: { type: "make-track" }, effects: base.effects }), quiet: true, settle: 5, expectDialog: true, saved: true },
   { name: "typing", task: t("ty", { activity: { type: "typing", lines: 1 }, effects: base.effects }), settle: 20 },
 ];
 
@@ -103,7 +105,7 @@ describe("Escape cancels every action at any time", () => {
       expect(game.state.get("dishes")).toBe(dishes);
       expect(log).not.toContain("taskComplete");
       expect(log.filter((n) => n === "taskStart").length).toBe(1);
-      expect(log.filter((n) => n === "taskCancelled").length).toBe(1);
+      expect(log.filter((n) => n === "taskCancelled").length).toBe(c.quiet ? 0 : 1);
       // No cooldown: it starts again at once.
       if (!c.moved) {
         game.update(dt, press);

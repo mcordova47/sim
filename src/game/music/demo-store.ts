@@ -109,6 +109,9 @@ export class DemoStore {
     }
     const seen = new Set<string>();
     for (const t of raw.tracks) {
+      // Hand-edited saves: no more than the limit, and nothing over the size limit.
+      if (this.entries.length >= M.maxTracks) break;
+      if (record(t) && typeof t.text === "string" && t.text.length > M.maxTextBytes) continue;
       if (!record(t) || typeof t.id !== "string" || !ID.test(t.id) || typeof t.text !== "string" || seen.has(t.id)) continue;
       seen.add(t.id);
       this.entries.push({ id: t.id, text: t.text, made: typeof t.made === "number" && Number.isFinite(t.made) ? t.made : 0 });
@@ -125,7 +128,7 @@ export class DemoStore {
       const left = raw.reward.cooldownLeft;
       const times = raw.reward.times;
       this.reward = {
-        left: typeof left === "number" && Number.isFinite(left) && left > 0 ? left : 0,
+        left: typeof left === "number" && Number.isFinite(left) && left > 0 ? Math.min(left, M.reward.cooldownHours * 60) : 0,
         times: whole(times) && times > 0 ? times : 0,
       };
     }

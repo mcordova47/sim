@@ -283,7 +283,7 @@ export class InteractionSystem {
     // Backed out: no points, no changes to the apartment and no cooldown, so
     // it can be tried again at once.
     if (!result.completed) {
-      this.onCancelled?.(item);
+      if (!result.quiet) this.onCancelled?.(item);
       return;
     }
     this.readyAt.set(item.id, this.time + (item.cooldown ?? DEFAULT_TASK_COOLDOWN));

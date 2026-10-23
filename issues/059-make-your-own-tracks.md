@@ -1,7 +1,7 @@
 ---
 id: 059
 title: Make your own tracks in the game (mix-in mini-game)
-status: done
+status: review
 owner: marc + claude
 depends_on: []
 ---
@@ -55,3 +55,4 @@ Layout A (piano roll); opens at the desk laptop as a new task (it appears in the
   - **Minor, not blocking (hand-edited storage only):** on load there is no cap on the number of saved tracks (40 stored ids all list), on a track's text size (a 3 MB title was listed), or on `cooldownLeft` (1e300 means no more rewards); none of this can be reached through the game. Pasting over unsaved work replaces the draft with no question (the old draft is gone), and pasting while a name is typed is ignored with no message.
   - **Unverified (cannot be checked here):** how the preview sounds, `MusicPlayer.swap` timing by ear (the scheduled times above are right, the sound is not heard), real Ctrl+V and the clipboard permission in a normal browser tab, Firefox and Safari, and I did not drive headless Chrome so the look of the editor at 320x192 rests on the author's screenshots plus the unit tests. Marc should try it: make a track, preview while editing, save, open the record player, pick the demo, delete it, paste a track.
   - **Verdict: approve.** Stage 4 (play a demo at the recording gear) remains a follow-up. PLAN.md table needs updating by the planner.
+- 2026-10-23 (after review, planner's decision on deviation 4): leaving the editor is no longer a cancelled task. New optional `quiet` on `ActivityResult` (`completed: false, quiet: true`): `InteractionSystem.finish` ends the task with no payout, no cooldown and no `taskCancelled` event; every other activity is unchanged, and the 046 Escape rows pass as before (my four editor rows now expect no cancel event). The editor's `cancel()` ends this way, still stopping the preview (so the record comes back), releasing the lock and closing dialogs; the draft is already saved and the clock resumes. Nothing fires in sound, particles or achievements for the exit. Also capped hand-edited storage on load: at most 12 tracks, tracks over 2 KB dropped, `cooldownLeft` at most the cooldown. New tests in `make-track-game.test.ts`: three visits leave the `cancelled` stat at 0 and `cancel-3` locked, work-task Escape still counts, storage caps. `npm test` (1420) and `npm run build` pass; the random-key fuzz tests still pass. Status back to review for a new independent review.

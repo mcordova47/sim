@@ -1,7 +1,7 @@
 ---
 id: 009a
 title: "Polish: sound effects"
-status: review
+status: in-progress
 owner: agent
 depends_on: []
 ---
@@ -76,6 +76,37 @@ Verification (acceptance criteria)
 
 Could not check
 - How it sounds and feels in a real browser (levels, pitch, whether the footsteps are annoying, loop timing against the real audio clock), and how the bottom now-playing line and top MUTE tag look on screen (placement was chosen from the layout constants, not seen). Marc will tune by ear.
+
+### 2026-10-23: review (independent reviewer): changes needed
+Ran `npm test` (1159 pass), `npx tsc --noEmit` (clean), `npm run build` (ok). Wrote separate edge-case tests outside the repo (malformed tracks, scheduling after a 100000 s stall, voice cap under a 16000-call storm, mute before audio starts, record then Escape, damaged settings, storage that throws, M in the typing and notes games, factory that throws or returns null, resume that throws or rejects, key presses before audio exists). All of those behaved correctly except the points below.
+
+Criteria
+- Effects generated in code (jump/landing replaced by footsteps and bump per the current-state note): pass (config table, every effect played against the fake context).
+- Audio starts on first key press, never throws or logs before or without audio: pass (also: silent through a whole record-menu run before any key; all four failure modes of the factory and resume are swallowed).
+- Mute on M, saved, fails silently without storage: pass. M is ignored in the typing game (verified) and works in the guitar game. Mute before audio starts stays muted after unlock. Held-key repeat does not toggle. Indicator look and placement: see item 1, not verified visually.
+- Config-driven volume, pitch, length, loudness; voice cap: pass (peak 14 of 14 under a storm; a context whose clock never advances stays bounded).
+- Decisions are plain tested functions: pass.
+- Scheduling tested against a fake context, no browser: pass. A 100000 s stall schedules about one note, not a burst.
+- Nothing in game logic imports audio: pass for audio. Note `tasks.ts` imports `music/records.ts`, so deleting the `features.ts` line leaves the record menu (and its points and mood bump) with no sound. Acceptable, but the claim "removes sound completely" is a little loose.
+- Record player: pass. Choose pays once; Escape at the menu, or during the reply text, pays nothing and leaves the track unchanged; saved choice reloads and an unknown saved id gives silence. Mood lift works (60 to 65 in a minute of play), is capped at 80 and does not pull mood down when already higher.
+- Damaged or old settings (null, arrays, strings, wrong types, bad JSON, unknown track, throwing storage): pass.
+- Out-of-module edits and settings key: see judgements below.
+
+Unverified (cannot be checked without a browser)
+- How it sounds: levels, loop timing against the real clock, whether footsteps annoy.
+- How the MUTE tag and the NOW PLAYING line actually look. See item 1 for a layout problem found by arithmetic only.
+
+Judgements
+- `dialogView` getter in `game.ts`: acceptable (read-only, no behaviour change, needed for typewriter blips).
+- One `cue` emit in `achievements/feature.ts`: acceptable (uses the existing `cue` event, no import of audio).
+- Own localStorage key `life.sound.v1` instead of the 009c save: acceptable and arguably better (the 009c store rewrites the whole blob, so a field there would couple the modules; delete-the-line stays true). Consequence to know: a future "reset progress" in 009c will not clear sound settings.
+
+Changes needed (checklist)
+- [ ] 1. The top-centre tag is placed from a guess and by the constants it overlaps other HUD. `MUTE` is 23 px wide, so its box spans x 146 to 172 at y 2 to 13. The score and combo panel (`HUD_BOX`) reaches x 152, and `ESC TO STOP` (drawn at the centre of the gap, x about 166 to 231, y 3) runs during every stoppable task. So while muted, the tag sits over the edge of the score panel and over the start of `ESC TO STOP`. `SOUND ON` (box x 130 to 183) is worse. Place the tag inside the free gap (`HUD_BOX.x + HUD_BOX.w` to `STATUS_BOX.x`, using `render/layout.ts`), clear of the stop hint (for example on the line below it), and look at it in a browser or a rendered frame.
+- [ ] 2. The NOW PLAYING line is at the bottom centre (y 179 to 190) while the interact prompt for the record player is drawn near the player and clamped to the view; facing the record player near the bottom may overlap it. Check by eye and move if so (not verified).
+- [ ] 3. Track parser accepts absurdly short notes: `C4:1/100000` at tempo 300 makes one frame schedule 10000 oscillators (guard limit) with no voice cap on the music bus. Add a smallest note length (for example 1/16 beat) in `parseBeats` and a test.
+- [ ] 4. Parser accepts octave 9 (`C9`) though the docs say 0 to 8; make the code match the docs (or the docs the code) and add a test.
+- [ ] 5. Optional: ignore M when Ctrl, Meta or Alt is held (Cmd+M minimises on a Mac and would also toggle mute).
 
 ## Note from Marc (2026-10-23)
 Listening to music could play 8-bit music, and Marc may design the tracks himself. When this issue is picked up, plan for a small music player (a song list, play and stop tied to the record and guitar tasks and maybe an ambient track) and a format Marc can write by hand (for example a text score of notes and lengths, or a tiny tracker file) that the game plays with Web Audio.

@@ -1,7 +1,7 @@
 ---
 id: 023
 title: Dialog box and choice menus
-status: review
+status: in-progress
 owner: claude
 depends_on: [019]
 ---
@@ -41,3 +41,28 @@ A Pokemon-style text box and choice menus, so cutscenes, thoughts and abstract t
     - The text box and choice box positions and sizes are placeholders for the look; a real frame, a speaker portrait or a different layout is an art-and-layout job for later.
   - **Not checked in a browser:** how the typing speed (45 characters a second) and the menu feel in real time; keyboard handling with a real keyboard (Escape and X, key repeat).
   - Notes for the planner: `docs/dialogs.md` is the how-to for the content issues and for 024's task list. `dialog-data.test.ts` finds dialogs reachable from the placeholder room's tasks; the real level (020) and the content issue must add theirs to its `roots`, or make the test discover them from the real level.
+- 2026-10-23: **Review (independent): changes needed.** Build passes, `npm test` 244 pass. I wrote my own checks outside the repo (not committed): a seeded fuzz of `DialogRunner` over 3000 random trees (cycles, empty text, long words, one-choice menus, dt of 0, 0.001, 0.02, 0.5 and 1e6, random interact, cancel and dir presses together), 20000 random `wrapText` inputs, a fuzz of the real `Game` with random controls, random extra locks and random `openDialog` calls (300 runs x 1500 frames), a glyph sheet rendered to PNG and looked at, and box geometry for 1 to 8 choices with wide labels.
+  - **Criteria**
+    - Text box, typewriter, wrapping, pages, speaker: **pass.** No lost or repeated characters, lines never wider than the box, `waiting` true exactly when the page is fully shown, onOpen and onClose exactly once per dialog, a second `start` returns false.
+    - Menus, cursor wrap, choose, cancel, nesting as data: **fail in one case.** See the checklist: cancel is wrong after a menu is reached through a reply.
+    - World frozen, one shared lock: **pass.** In the Game fuzz the player never started or blocked a task while open, the clock never moved while open (`pauseClock` true), the lock count returned to zero after every close, and independent locks did not release each other. Events are isolated by the Emitter, so a throwing listener cannot leave the dialog open or locked.
+    - Clock choice documented in `config.ts`: **pass** (the `pauseClock: false` path was read, not run; see the minor note on the stale interact buffer).
+    - Font and coverage test: **pass** with notes. All 19 new glyphs are well formed and none duplicates another. On the rendered sheet they are legible; `{` and `(` and `<` are the closest pair but are told apart.
+    - Events: **pass.** Order for a dialog task is taskStart, dialogOpen, taskComplete; a dialogClose listener that opens a new dialog works.
+    - Tests without a browser: **pass.**
+  - **Changes needed (checklist)**
+    - [ ] **Cancel after a cycle or a menu reached through a reply is wrong.** The runner only pushes history when a choice leads straight to a menu. Menu T, choice to submenu S (history [T]), choice to a reply, reply's `next` is T (the loop pattern `docs/dialogs.md` recommends): at T the first Escape does nothing visible (it "goes back" to T) and only the second closes. Also, A to M2 to reply to M3, then cancel at M3 jumps to A (skips M2) and leaves a stale `path`, so the next choose reports `toM2>toM2`. Fix: make history match what was shown (for example clear or reset history when a `say` is passed, or push every menu visited) and keep `path` in step; add a test for the loop through a reply (cancel at the top menu closes at once).
+    - [ ] `wrapText` never ends and eats memory when `maxWidth` is smaller than one character (0, negative, or 3 with width-5 glyphs): the over-long word loop cuts to length 0 for a one-character remainder. Not reachable with today's `DIALOG.textWidth`, but make it always take at least one character per line, and add a test.
+  - **Lower-risk findings (fix now or note for later)**
+    - A task with a dialog scores and starts its cooldown when the dialog opens, whatever the player picks, even "Nothing, actually" or backing out. 022 needs a result from the dialog to fix this.
+    - A menu label wider than the box (over about 48 characters) is drawn past the frame and off screen; the box is only clamped. The data test should check label width.
+    - Stale interact buffer: `interaction.update` is not run during a dialog, so a buffered press from just before a code-opened `openDialog` fires when it closes. With `pauseClock: false` the buffer could start a task during the dialog. Narrow edge.
+    - `wrapText` can split a surrogate pair (emoji) if given one; the coverage test keeps such text out of real data.
+    - Escape and X: Escape gets no `preventDefault` and has no page effect in normal play; X conflicts with nothing. Not tried in a real browser.
+  - **API risks for 022 and cutscenes**
+    - No way to await a dialog closing or to get a result out of a choice: only `dialogChoose` and `dialogClose` events, with no dialog identity (the payload is empty or has labels only), so two features listening cannot tell whose dialog it was. Suggest `openDialog` returns a promise or takes an `onClose(result)`, and a choice can carry a value.
+    - Dialogs are static data only: no dynamic text (a score, a name), no conditions, no actions on a choice. Cutscenes will want at least a callback on a choice.
+    - `openDialog` returns false when one is already open, with nothing queued; a script that opens two in a row must check. Lock tokens are anonymous, so a feature that forgets to release locks the game forever; there is no `Game` teardown that releases them.
+    - A `say` ignores cancel, so a long reply cannot be skipped.
+  - **Scope:** only dialog files, `font.ts`, controls, game, config, events, `interactable.ts`, the placeholder level, tests, `docs/dialogs.md` and one README controls line changed. `PLAN.md` and other issues untouched. Colour guard test passes; the dialog code uses only `COLOR` palette entries.
+  - **Not verified:** typing speed and feel in real time, real keyboard handling in a browser, and the author's screenshots (I did not run the dev server). Nothing here is verified by Marc.

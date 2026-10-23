@@ -1,7 +1,7 @@
 ---
 id: 009d
 title: "Polish: time of day"
-status: review
+status: done
 owner: agent
 depends_on: []
 ---
@@ -71,3 +71,35 @@ Not checked
 - Smooth fading seen live, and the `[` `]` keys in a real keyboard session (tested with fakes).
 - Popup text looked at on screen (tested through the popup call, not seen).
 - Window light (optional) was not added.
+
+### 2026-10-23 review (independent)
+Verdict: approve.
+
+Checks run: `npx tsc --noEmit` clean; `npm run build` ok; `npm test` 1010 passed. Wrote a throwaway edge-case test file (deleted afterwards, not committed) and looked at headless Chrome frames (640x400) of main, kitchen and bath at 3:00, 6:30, 12:00, 19:30 and 23:00.
+
+Criteria
+- Game clock advances with game time, config-driven, pauses: pass. Clock is the existing `clock` var (wrap, 0 to 24) and ticks only in `state.tick`, which a dialog stops (unless `DIALOG.pauseClock` is off).
+- Tint layer, palette colours with alpha, inside camera transform after the world: pass. `drawWorld` only, so prompts, popups, HUD, dialogs, activity and `view` pictures are untinted. Hours -1, 24, 24.0001, 48, +-1e9 all give valid palette colours and alpha 0 to 1; `lightAt(0)` equals `lightAt(24)` (no midnight jump). Largest per-minute change of the composited colour over a grey is 0.58 of a shade (at 19:30), so it fades smoothly. Drawing the layer on a recording canvas for five hours in the kitchen only calls `fillRect` (no clip, shadow or filter), `globalAlpha` stays 1.
+- Clock readout not overlapping score and combo: pass (existing 021 HUD panel, seen at the right of every frame, clear of score and combo).
+- Task bonuses through one hook: pass. `goodHours` data on tasks, `timeFactor` through `Scoreboard.complete`, `pointsBonus` untouched. Coffee is good at 10.99 and not at 11; sleep is good at 23 and 3.9, not at 4 or 16 (the hour is read before the +7). Real task windows are valid per the author's test.
+- Prompt hint only at good hours: pass in code (not shown on cooldown or blocked). Not seen on screen in my frames; unverified visually.
+- Award popup says the bonus: pass in code (`GOOD HOUR X1.5`, font-legal characters per the author's test); not seen on screen.
+- Tests: pass (30 new): wrap, pause, palette and alpha, smoothness, wrapping windows, hint.
+
+Beyond the criteria
+- Legibility: pass. Night frames in all three rooms keep furniture, the player, the prompt and the HUD readable. Bath at night is dim but fine. The lamp glow at 3:00 is visible and faint.
+- Dev shortcuts: pass. With `dev: false` the feature ignores `?hour` and `?room` and registers no key listener; the real wiring gates on `import.meta.env.DEV`. Odd inputs (`?hour=30` gives 6, `-5` gives 19; `abc`, empty and `Infinity` ignored; `?room=__proto__` or `constructor` logs a caught error and stays put) are harmless.
+- Scope: files touched match the log. `game.ts` was edited (currentLevel getter, popup line, hint flag), which the popup path needs. PLAN.md untouched. Nothing from reference-photos.
+- No clip, shadow or filter used, as the author said.
+
+Minor notes (not blocking)
+- The hint is judged when the prompt shows, the bonus when the task finishes, and tasks take game time (2 game minutes per second). Starting a task just before a window edge can show GOOD HOUR and then pay no bonus, or the reverse.
+- The `tasks.ts` comment says the mirror windows "match MIRROR", but mirror-morning is 6 to 10 (MIRROR morning is 5 to 12) and mirror-night is 21 to 24 (MIRROR night runs to 5). Narrower bonus windows are fine; only the comment is off. `mirror-day` has no good hours.
+- The log says sleep and nap are judged "by when they ended"; they are judged by the hour just before their effects run (end of the task's own duration, before the +7 or nap jump). Sensible behaviour.
+- The optional window light was not added (the issue allowed this).
+
+Unverified (not passed)
+- Feel at 1x in a real browser over a long play.
+- Live smoothness of the fade (only step size and stills checked).
+- The `[` and `]` keys with a real keyboard (only fakes).
+- The prompt hint and the award popup line rendered on screen.

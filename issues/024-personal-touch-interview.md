@@ -1,7 +1,7 @@
 ---
 id: 024
 title: Personal touch interview
-status: review
+status: done
 owner: marc + agent
 depends_on: []
 ---
@@ -37,3 +37,13 @@ Make the game feel like Marc's life, not a generic one. An agent interviews Marc
 - 2026-10-22: Started. Plan: interview Marc one question at a time across the themes, then write docs/about-marc.md, docs/tasks-v2.md and the character brief for his approval. Documents only.
 - 2026-10-23: Interview done (9 questions, themes covered: day, work, work spots, music, reading and listening, side projects, tone, character, boundaries). Habits and small objects left open at Marc's request. Drafted `docs/about-marc.md`, `docs/tasks-v2.md` and `docs/character-brief.md` in the worktree, **not committed**: Marc must read and edit about-marc.md first. Waiting on Marc's approval before committing and requesting review. Not checked: whether the tone is right and whether any task is wrong (his call).
 - 2026-10-23: Marc read and approved all three docs ("looks great"). Set status: review. Files: docs/about-marc.md, docs/tasks-v2.md, docs/character-brief.md. Open items left in tasks-v2.md for later: song names, book/album picks, more habits. Not independently checked yet.
+
+- 2026-10-23 REVIEW (independent): verdict **approve**. Documents only; branch diff is docs/about-marc.md, docs/tasks-v2.md, docs/character-brief.md and this file. No code, PLAN.md or other issues touched; nothing from reference-photos/ (gitignored) in the diff.
+  - Interview short/skippable, one question at a time, stops when Marc says: can't verify (conversation not available); log records 9 questions, habits left open at Marc's request.
+  - about-marc.md: pass. No employer (grepped for employer names), no full name, no city or address, no names of people in his life (kept generic). Named people are only authors and artists in book/album lists. Not pushed (branch has two local commits). Marc approval recorded in log; not verifiable by me.
+  - tasks-v2.md: pass. Script parsed all 58 task rows, plus 10 contemplate topic/reply pairs, against the GLYPHS keys in src/render/font.ts (uppercased, plus space): 0 prompts, flavor lines, topics or replies use a character outside the font. Contemplate has 10 topics (needs 8), each with a reply. Spots cover table, couch, desk and bed as separate work tasks. Each row has spot, kind, changes, time, points, flavor and art.
+  - Reading/listening copyright: pass. No lyrics, no long quotes (only short Marc quotes in about-marc.md). Public-domain claims look right (Prufrock, Williams 1923, pre-1930 cummings, Wyllie Metamorphosis, Garnett, Heart of Darkness, Study in Scarlet, Room of One's Own); Animal Farm, A Moveable Feast etc. are correctly marked paraphrase only. Albums by name only. The one real-text risk (a Joyce line) is flagged for Marc.
+  - Character brief: pass. Appearance, outfits, feel, four-direction notes present; says nothing is from a photo; no photo committed.
+  - Marc approval before closing: log says approved. Tone feels right to Marc: UNVERIFIED (his judgement).
+  - Minor, non-blocking notes for the content issue: (1) Conventions say points are 20 to 100 but 8 tasks are 5 to 15. (2) "Watch something while eating" has no separate prompt (name only, 28 chars); the longest prompts are 26 to 27 chars (about 160 px at scale 1), so check they fit the HUD/dialog width. (3) Several spots do not exist in docs/floor-plan.md (closet or dresser, mail pile, hamper, floor, mat, bookshelf as a reading spot is the cube bookshelf, front door is decoration there, standing desk not plain desk); tasks-v2 defers this to 020, but the content issue must map them. (4) A few kinds are ambiguous ("wait or watch TV option", "mini or wait"). (5) Open items for Marc (song names, picks, habits) remain, as the issue allows.
+  - PLAN.md row for 024 needs updating by the planner (todo -> done).

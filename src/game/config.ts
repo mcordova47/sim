@@ -71,6 +71,37 @@ export const ENERGY = {
   sleepBelow: 60,
 };
 
+// Activities (issue 022): what a task can be besides waiting.
+export const ACTIVITY = {
+  // How well a mini-game went (quality 0 to 1) scales the task's points between
+  // these two. A task with no quality (a wait, a cutscene) is worth its usual points.
+  minQualityFactor: 0.5,
+  maxQualityFactor: 1.5,
+};
+
+// The key-mashing "work" mini-game: every key press types one more character.
+export const TYPING = {
+  // Characters per second that count as the best and the worst speed (quality 1 and 0).
+  fastCps: 9,
+  slowCps: 3,
+  // If it isn't finished by then, it ends with quality 0.
+  maxSeconds: 30,
+  // How many lines of code to type, by default.
+  lines: 2,
+};
+
+// The key-notes mini-game: arrows appear one at a time and you press the same
+// direction before the time is up.
+export const NOTES = {
+  // How many notes, by default.
+  count: 6,
+  // Seconds each note waits to be pressed.
+  window: 1.2,
+  // Seconds between notes, and before the first.
+  gap: 0.3,
+  leadIn: 0.6,
+};
+
 // Dialog boxes and menus.
 export const DIALOG = {
   // How fast text appears, in characters per second.

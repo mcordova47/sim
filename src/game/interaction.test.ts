@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { NO_INPUT, type Controls } from "../input/controls";
 import { DEFAULT_TASK_COOLDOWN, INTERACT_BUFFER_TIME, SCORING } from "./config";
 import type { Interactable } from "./interactable";
+import { WaitActivity } from "./activities";
 import { InteractionSystem, type CompletionEvent } from "./interaction";
 
 const dt = 1 / 60;
@@ -104,7 +105,7 @@ describe("InteractionSystem", () => {
     // Mid-task progress is never NaN either.
     const zero = { ...instant, id: "zero" };
     const s2 = new InteractionSystem([zero]);
-    s2.active = { item: zero, elapsed: 0 };
+    s2.active = { item: zero, activity: new WaitActivity(0) };
     expect(s2.progress).toBe(1);
   });
 

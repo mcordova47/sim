@@ -9,6 +9,8 @@ export interface Award {
   multiplier: number;
   // Number of different tasks in the combo chain, including this one.
   chain: number;
+  // How well a mini-game went, as a multiplier (1 for tasks without a quality).
+  qualityFactor: number;
 }
 
 interface Completion {
@@ -25,7 +27,7 @@ export class Scoreboard {
   private lastTime = -Infinity;
   private recent: Completion[] = [];
 
-  complete(task: { id: string; points: number }, now: number): Award {
+  complete(task: { id: string; points: number }, now: number, qualityFactor = 1): Award {
     if (!this.chainAlive(now)) this.chain = [];
 
     this.recent = this.recent.filter((c) => now - c.time <= SCORING.repeatWindow);
@@ -39,7 +41,7 @@ export class Scoreboard {
     const multiplier = chainMultiplier(this.chain.length);
     const points = Math.max(
       SCORING.minPoints,
-      Math.round(task.points * repeatFactor * multiplier),
+      Math.round(task.points * repeatFactor * multiplier * qualityFactor),
     );
 
     this.recent.push({ id: task.id, time: now });
@@ -52,6 +54,7 @@ export class Scoreboard {
       repeatFactor,
       multiplier,
       chain: this.chain.length,
+      qualityFactor,
     };
   }
 

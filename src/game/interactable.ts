@@ -1,4 +1,5 @@
 import type { Effect, Requirement } from "./state";
+import type { ActivitySpec } from "./activity";
 import type { DialogNode } from "./dialog";
 import type { Rect } from "./world";
 
@@ -25,9 +26,13 @@ export interface Interactable {
   // Extra points on top of `points`: `perUnit` for each unit the variable
   // holds when the task finishes (before its effects change it).
   pointsBonus?: { var: string; perUnit: number };
-  // A dialog or menu to open when the task starts (for example "contemplate").
-  // Until activities exist (issue 022) a task with one is instant, and the
-  // dialog runs on top of it.
+  // What the task is while it runs: `{ type: "typing" }`, a cutscene, and so
+  // on (see activities/). Without one, it is a plain wait of `duration`
+  // seconds, or the `dialog` below if there is one.
+  activity?: ActivitySpec;
+  // A dialog or menu that is the task ("contemplate"). Shorthand for
+  // `activity: { type: "dialog" }`: the task is over, and scores, when the
+  // dialog closes (and not at all if the player backs out of it).
   dialog?: DialogNode;
   // The tiles of the object, as one rectangle per tile (so an L-shaped counter
   // is exactly its tiles). It is used by standing next to a tile and facing it.

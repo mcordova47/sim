@@ -9,6 +9,7 @@ import { STATUS_BOX } from "../render/layout";
 import { drawProgress, drawPrompt } from "../render/world-ui";
 import { pickVariant } from "./appearance";
 import { DEBUG, DIALOG, ENERGY, TILE, VIEW } from "./config";
+import type { ActivityHost } from "./activity";
 import { DialogRunner, type DialogNode, type DialogResult } from "./dialog";
 import { DELTA, type Direction } from "./direction";
 import { Emitter, type GameEvents } from "./events";
@@ -58,6 +59,9 @@ export interface GameOptions {
   // The apartment and character state; a fresh one by default (a saved one
   // can be passed in).
   state?: ApartmentState;
+  // A random number from 0 up to 1, for the mini-games. Math.random by default;
+  // tests pass a seeded one.
+  random?: () => number;
 }
 
 // The running game: owns the player, tasks, scoring and the UI built on them.
@@ -81,11 +85,13 @@ export class Game {
   private releaseDialogLock: (() => void) | null = null;
   // The other levels the level's doorways lead to, by id.
   private readonly rooms: Readonly<Record<string, Level>>;
+  private readonly random: () => number;
 
   constructor(level: Level, options: GameOptions = {}) {
     validateLevel(level);
     this.level = level;
     this.rooms = options.rooms ?? {};
+    this.random = options.random ?? Math.random;
     this.state = options.state ?? new ApartmentState(STATE_VARS);
     this.grid = new Grid(level.size, this.activeSolids());
     this.state.onChange = (change) => this.stateChanged(change);
@@ -100,14 +106,20 @@ export class Game {
       if (award.repeatFactor < 1) {
         lines.push({ text: `REPEAT X${award.repeatFactor.toFixed(2)}`, color: COLOR.mist });
       }
+      // How well a mini-game went, when it made a difference.
+      if (Math.abs(award.qualityFactor - 1) > 0.005) {
+        lines.push({
+          text: `${award.qualityFactor > 1 ? "NICE" : "SLOPPY"} X${award.qualityFactor.toFixed(2)}`,
+          color: award.qualityFactor > 1 ? COLOR.leaf : COLOR.mist,
+        });
+      }
       const zone = boundsOf(item.zones);
       this.popups.add(zone.x + zone.w / 2, zone.y, lines);
       this.events.emit("taskComplete", { item, award });
     }, this.state);
-    this.interaction.onStart = (item) => {
-      this.events.emit("taskStart", { item });
-      if (item.dialog) this.openDialog(item.dialog);
-    };
+    this.interaction.onStart = (item) => this.events.emit("taskStart", { item });
+    this.interaction.onCancelled = (item) => this.events.emit("taskCancelled", { item });
+    this.interaction.host = this.activityHost();
     this.dialog = new DialogRunner({
       onOpen: () => {
         this.releaseDialogLock?.();
@@ -124,6 +136,33 @@ export class Game {
     });
     this.interaction.onBlocked = (item, reason, message) =>
       this.events.emit("taskBlocked", { item, reason, ...(message && { message }) });
+  }
+
+  // What activities (cutscenes, dialogs, mini-games) are allowed to ask of the game.
+  private activityHost(): ActivityHost {
+    const player = this.player;
+    return {
+      openDialog: (node, onDone) => this.openDialog(node, onDone),
+      cue: (name) => this.events.emit("cue", { name }),
+      player: {
+        get col() {
+          return player.col;
+        },
+        get row() {
+          return player.row;
+        },
+        get facing() {
+          return player.facing;
+        },
+        get stepping() {
+          return player.stepping;
+        },
+        face: (direction) => {
+          player.facing = direction;
+        },
+      },
+      random: () => this.random(),
+    };
   }
 
   // The solids that block right now: those with no condition, or whose condition holds.
@@ -223,9 +262,11 @@ export class Game {
       this.interaction.update(dt, this.player, this.inputLocked ? NO_INPUT : controls);
     }
     this.player.stepTimeScale = this.state.get("energy") < ENERGY.lowBelow ? ENERGY.tiredStepFactor : 1;
-    // Locked in place while a task runs or something else has the controls.
+    // Free to walk unless a task is running or something else has the controls.
+    // A running activity may walk the player by script (a cutscene).
     const walking = !this.inputLocked && !this.interaction.busy;
-    this.player.update(dt, walking ? controls : NO_INPUT, this.grid);
+    const scripted = this.inputLocked ? null : this.interaction.playerControls;
+    this.player.update(dt, walking ? controls : (scripted ?? NO_INPUT), this.grid);
     if (this.player.arrivedThisUpdate) this.events.emit("step", this.player.arrivedThisUpdate);
     if (this.player.bumpedThisUpdate) this.events.emit("bump", this.player.bumpedThisUpdate);
     const arrived = this.player.arrivedThisUpdate;
@@ -268,6 +309,8 @@ export class Game {
     // of the HUD), so it gets screen positions, then the HUD goes on top.
     this.drawWorldUi(ctx, { ...actor, x: actor.x - cam.x, y: actor.y - cam.y }, cam);
     this.drawHud(ctx);
+    // A mini-game's own picture, then any dialog on top of it.
+    this.interaction.active?.activity.draw?.(ctx, VIEW);
     const dialogView = this.dialog.view;
     if (dialogView) drawDialog(ctx, dialogView);
     this.eachLayer((layer) => this.drawLayer(ctx, () => layer.drawHud?.(ctx), layer.drawHud));

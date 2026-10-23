@@ -90,8 +90,24 @@ const STATE_RULES: Record<string, Partial<Task>> = {
   cook: { requires: [NO_CLEAN_PLATES], effects: [dirty(2), { var: "energy", add: 5 }] },
   work: {
     cooldown: 30,
+    // Mash keys to type. How fast it goes decides how well the work went.
+    activity: { type: "typing", lines: 2 },
     requires: [{ var: "energy", min: 10, reason: "TOO TIRED TO WORK" }],
     effects: [{ var: "energy", add: -15 }],
+  },
+  // Press the arrows that appear.
+  guitar: { activity: { type: "notes", count: 6 } },
+  // A short scene.
+  "record-play": {
+    activity: {
+      type: "cutscene",
+      steps: [
+        { say: "You lift the needle." },
+        { cue: "record-spin" },
+        { wait: 1.5 },
+        { say: "Side B is the one you actually like." },
+      ],
+    },
   },
 };
 

@@ -79,11 +79,17 @@ describe("dialogs and the apartment state", () => {
     expect(game.state.get("energy")).toBe(26);
   });
 
-  it("still reports a dialog task's points and effects", () => {
+  it("scores a dialog task when the dialog closes, not when it opens", () => {
     const game = new Game(level());
     run(game, 0.2);
     game.update(dt, press);
     expect(game.dialogOpen).toBe(true);
+    expect(game.interaction.scoreboard.score).toBe(0);
+    game.update(dt, press); // choose "Yes"
+    run(game, 1);
+    game.update(dt, press); // close
+    game.update(dt, NO_INPUT);
+    expect(game.dialogOpen).toBe(false);
     expect(game.interaction.scoreboard.score).toBeGreaterThan(0);
   });
 });

@@ -38,7 +38,7 @@ function run(game: Game, seconds: number, controls: Controls = NO_INPUT) {
 function listen(game: Game) {
   const log: { name: keyof GameEvents; payload: unknown }[] = [];
   for (const name of [
-    "taskStart", "taskComplete", "taskBlocked", "dialogOpen", "dialogChoose", "dialogClose",
+    "taskStart", "taskComplete", "taskCancelled", "taskBlocked", "dialogOpen", "dialogChoose", "dialogClose",
   ] as const) {
     game.events.on(name, (payload) => log.push({ name, payload }));
   }
@@ -92,8 +92,10 @@ describe("Game dialogs", () => {
     const game = new Game(level());
     const log = listen(game);
     game.update(dt, press);
-    // The dialog opens as the task starts; the task itself is instant.
-    expect(names(log)).toEqual(["taskStart", "dialogOpen", "taskComplete"]);
+    // The dialog opens as the task starts. The task is over, and scores, when
+    // the dialog closes.
+    expect(names(log)).toEqual(["taskStart", "dialogOpen"]);
+    expect(game.interaction.scoreboard.score).toBe(0);
     expect(game.dialogOpen).toBe(true);
     expect(game.inputLocked).toBe(true);
     run(game, 1, hold("left"));
@@ -133,7 +135,10 @@ describe("Game dialogs", () => {
     game.update(dt, press);
     game.update(dt, { ...NO_INPUT, cancelPressed: true });
     expect(game.dialogOpen).toBe(false);
-    expect(names(log)).toEqual(["taskStart", "dialogOpen", "taskComplete", "dialogClose"]);
+    // Backing out of the dialog backs out of the task: no points.
+    game.update(dt, NO_INPUT);
+    expect(names(log)).toEqual(["taskStart", "dialogOpen", "dialogClose", "taskCancelled"]);
+    expect(game.interaction.scoreboard.score).toBe(0);
     expect(game.inputLocked).toBe(false);
   });
 

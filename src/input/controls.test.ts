@@ -9,6 +9,7 @@ function fakeKeyboard() {
   const keyboard = {
     isDown: (code: string) => down.has(code),
     wasPressed: (code: string) => pressed.has(code),
+    pressedKeys: () => [...pressed],
   } as unknown as Keyboard;
   return {
     keyboard,
@@ -84,9 +85,19 @@ describe("readControls", () => {
     }
   });
 
+  it("lists every key that went down this frame", () => {
+    const k = fakeKeyboard();
+    k.press("KeyA");
+    k.press("Space");
+    expect(readControls(k.keyboard).keys.sort()).toEqual(["KeyA", "Space"]);
+    k.endFrame();
+    expect(readControls(k.keyboard).keys).toEqual([]);
+  });
+
   it("has no jump control any more", () => {
     const k = fakeKeyboard();
     k.press("Space");
-    expect(readControls(k.keyboard)).toEqual(NO_INPUT);
+    // Space is just a key now: no movement, no interact, no cancel.
+    expect(readControls(k.keyboard)).toEqual({ ...NO_INPUT, keys: ["Space"] });
   });
 });

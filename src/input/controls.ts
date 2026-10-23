@@ -18,6 +18,9 @@ export interface Controls {
   interactPressed: boolean;
   // Back out of a menu.
   cancelPressed: boolean;
+  // The code of every key that went down this frame, for mini-games that read
+  // typing or particular keys (for example "KeyA", "Space", "Escape").
+  keys: string[];
 }
 
 // What the player gets while locked into a task.
@@ -26,6 +29,7 @@ export const NO_INPUT: Controls = {
   dirPressed: null,
   interactPressed: false,
   cancelPressed: false,
+  keys: [],
 };
 
 const anyDown = (keyboard: Keyboard, codes: string[]) =>
@@ -54,5 +58,6 @@ export function readControls(keyboard: Keyboard): Controls {
     dirPressed,
     interactPressed: INTERACT.some((c) => keyboard.wasPressed(c)),
     cancelPressed: CANCEL.some((c) => keyboard.wasPressed(c)),
+    keys: keyboard.pressedKeys(),
   };
 }

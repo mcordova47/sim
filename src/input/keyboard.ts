@@ -37,6 +37,11 @@ export class Keyboard {
     return this.pressed.has(code);
   }
 
+  // The codes of every key that went down since the last endFrame().
+  pressedKeys(): string[] {
+    return [...this.pressed];
+  }
+
   // Call once at the end of each update step.
   endFrame(): void {
     this.pressed.clear();

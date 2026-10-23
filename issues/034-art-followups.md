@@ -3,7 +3,7 @@ id: 034
 title: Art follow-ups from 028 to 030
 status: todo
 owner: agent
-depends_on: [031]
+depends_on: []
 ---
 
 ## Goal
@@ -26,5 +26,9 @@ The art that is left, and the small fixes the reviews noted. Do these after 031 
   5. A reference picture of a mug and of the lamp from Marc will improve `table` (mug) and `lamp-table`.
   6. The front door is white (old, painted many times): redraw `front-door` white with layers of paint (chipped edges, a bit of an off-white or yellowed tint), not tangerine.
   7. Clutter piles on the desk: this is issue 042 (waits on this issue's art). Draw the piles as separate variants when 042 starts.
+
+- **Reference photos (Marc renamed and completed them, 2026-10-23):** `ls /Users/marccordova/Dev/repos/mcordova47/life/reference-photos/` and read what is relevant by absolute path; the names say what each shows (art close-ups, gallery wall by piece, the mics, stool, chairs, books and records, coffee station, mail on the table, desk clutter, kitchen and bath, overhead chair, silkscreen over the bed, and so on). Never copy a photo, caption or readable text into the repo (poster, book and record titles stay unreadable; no names).
+- Redo the paintings (`painting`, `painting-desk`, `painting-wide`) and the `gallery-wall` strip from the new close-ups so they are better impressions of the real pieces; add `painting-robin` and a piece for the silkscreen over the bed if there is a wall slot (check the floor plan; propose a slot if not, do not edit the map).
+- Use the new references to improve whatever else they show: mic stand, stool, chair and desk-chair (overhead), books and records on the shelf, coffee station and mug on the table, nightstand, fridge, kitchen counter, microwave and mail on the table, desk clutter (for 042), made and unmade bed.
 
 ## Progress log

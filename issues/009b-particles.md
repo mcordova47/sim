@@ -1,7 +1,7 @@
 ---
 id: 009b
 title: "Polish: particles"
-status: todo
+status: review
 owner: agent
 depends_on: []
 ---
@@ -29,3 +29,50 @@ The game is top-down (issues 019 onward). Events now are `step` and `bump` (no j
 The canvas reset between layers covers the transform, `globalAlpha` and the compositing mode only. A layer that sets `clip`, `shadowBlur`, `filter` or similar and doesn't balance its own `save`/`restore` can leave those set for the layers after it. Balance your own `save`/`restore` (the game also wraps each draw hook in one), and if this feature uses clipping, shadows or filters, say so in the progress log so the reset can be widened.
 
 ## Progress log
+
+### 2026-10-23: start
+Plan: a self-contained module `src/game/particles/` (pool and simulation, effect builders, the feature layer) subscribing to `step`, `bump`, `taskComplete`, `stateChanged` and `room`, plus reading the running task and a few state values each frame for the continuous effects (steam, bubbles, z, notes). All numbers and the per-task effect table go in `config.ts` (`PARTICLES`). One line in `features.ts`, placed after the time-of-day line so particles draw after the tint. Verify with a temporary headless Chrome harness (deleted afterwards) rendering the real game.
+
+### 2026-10-23: built, ready for review
+What changed
+- New module `src/game/particles/`: `pool.ts` (fixed pool, simulation, steps-not-smooth fade, whole-pixel drawing), `effects.ts` (pure decisions: step dust by floor and energy, burst plan by chain and repeat, where the clock icon sits in the popup), `feature.ts` (the layer and event wiring), `seeded.ts` (test random), and tests (`pool`, `effects`, `feature`, `config`; 72 new tests).
+- `config.ts`: `PARTICLES` (budget, kinds, shapes, step, bump, burst, sparkle, sigh, `taskEmitters` keyed by task id, `ambientEmitters`). Adding an effect to a task is one line in `taskEmitters`.
+- `features.ts`: `attachParticles` added after the time-of-day line, and `attachSound(game)` now keeps its result (`const sound = ...`) so the record-playing notes can ask the sound feature whether a record plays and is not muted. So that file changed by two lines, not one (the extra one is the `const sound =`). Particles do not import sound; they get a `musicPlaying` function.
+- `render/colors.ts`: one line, `export const paletteColor = pick;`, so data files can name any palette color (COLOR has only ten). Not in the issue's scope list; a one-line export.
+- `game.ts` was not touched.
+
+How each criterion was checked
+- Walking: dust at the tile just left, wood 2 to 3 specks, stone 1 to 2, tile none, none when energy is below `ENERGY.lowBelow` (unit tests with the real game; seen in headless frames at 3x on wood and stone). Bump puff: once per push (the bump is latched; test holds the key 3 seconds and counts spawns; pushing again after letting go gives a second puff).
+- Completion: burst from inside the zone; count and colors grow with the chain; chain 3 or more is palette confetti (9 colors); repeats (`repeatFactor` below 1) are smaller, in mist and taupe, 1 pixel. Cancelled, blocked and start events make nothing (tested). Seen in frames: single task, a repeat, a chain of 3.
+- Task effects: steam from the kettle and dripper while making coffee, steam from the carried mug (placed by facing direction) while you are free and the mug waits, and at the mug during the drink pose; bubbles over the sink basin for dishes; z from the pillow when sleeping and from the sofa seat on a nap; notes from the guitar neck during the guitar task and from the record stand while a record plays (every 1 to 2 seconds, only in the room that has the stand, only when a record is on and not muted); a plus-shaped sparkle around the clock icon in the award popup when `timeFactor` is above 1 (the icon's place is worked out from the popup's layout, see `popupIconSpot`). All data in `PARTICLES.taskEmitters` / `ambientEmitters`.
+- Low mood: puff of three or four mist squares over the head on the same crossing as the SIGH popup, once (tested: not repeated while low, again after recovering).
+- World space, whole pixels, palette only: yes (`config.test.ts` checks every color name is in `art/palette.json`; the recording-canvas test checks integer coordinates and 1 by 1 squares). Day and night: the layer is added after the time of day, so particles are not tinted. At `?hour=23` it reads fine: confetti and the z stay bright; the dust specks are a bit brighter than the dim room around them, which I left as it is (a small glow that suits the sparkle idea). Say if Marc wants it dimmer.
+- Budget: 200; when full a new one replaces the oldest (tests with a small pool and 1000 spawns; a 3000-frame run stays far below the budget). Slots are reused: nothing is allocated while playing.
+- Random is injected (`random` option, a seeded one in tests). Unit tests for each effect, budget and expiry.
+- Pause: while a dialog is open (and `DIALOG.pauseClock`) or something else holds the controls with no task running (the achievements list), neither emitters nor particles move. They use game `dt`. Tested with a real dialog and `lockInput`.
+- Never over a full-screen view or a dialog: the feature has only `drawWorld`, and the game draws views and dialogs after the world pass. Looked at: a burst alive while "Admire the art" showed its picture; no particle shows over it.
+- Recording-canvas test: particle fills fall between the camera translate and the restore, whole numbers, and there are none after expiry.
+- Clip, shadow, filter: none used; `save`/`restore` are the game's own (the layer adds none); the test checks no `clip`.
+- `npm test` 1236 pass, `npx tsc --noEmit` and `npm run build` pass.
+- Rendered the real game (temporary Vite page and headless Chrome through the DevTools protocol, deleted afterwards) with the real sprites and features, at 1x full frame and 3x or 4x crops: walking (wood, stone, tired, tile, bump), coffee (during and carried mug), dishes, sleeping, nap, guitar, record player notes, sigh, good hour sparkle, a chain of 3 on the bed, the view picture over particles, and the night frames at `?hour=23`.
+
+How Marc can see each in the dev build (`npm run dev` in the worktree)
+- Walking: walk around the main room (wood) and the kitchen (stone); the bath (tile) shows none. Walk into a wall and keep holding: one small puff. Tired: let energy fall below 25 (play a while) and the dust stops.
+- Coffee (and the good-hour sparkle): the game starts at 8:00, inside coffee's good hours. Stand below the table (row under it, west half) facing up and press E: steam over the kettle and dripper for the 6 seconds; at the end `+105` with the clock icon and plus-shaped sparkles around it. Then walk around with the mug: steam from the mug in your hand until you drink it (press E at the table again: steam at the mug while you drink).
+- Dishes: `?room=kitchen`, face the sink counter from the row above it (west of the stove), press E: bubbles over the sink basin.
+- Sleeping: `?hour=23`, face the bed from the lane on its west side (first E makes the bed, second E sleeps): a blue z drifts from the pillow. Nap: needs energy below 75 and the sofa's earlier tasks out of the way (see the follow-up below); a white z comes up from the sofa seat.
+- Guitar: face the guitar at the west end of the sofa (it hangs by the left wall) and press E: notes leave the neck during the mini-game.
+- Records: face the record stand (south of the lamp table, east end of the sofa), press E, pick a record; notes rise from the stand every second or two while it plays, and stop when you pick "Stop the music" or press M to mute.
+- Long variety chain: within 25 seconds of each other do three different tasks (for example coffee, water the plant at the bookshelf, make the bed): the third gives a multicolor spray over the task's object and the popup says COMBO X2.0.
+- Repeat: do the same quick task twice within 90 seconds (water the plant): the second burst is smaller and grey, with REPEAT X0.50.
+- Sigh: let mood fall below 25 (doomscrolling repeatedly): a few grey puffs by the head with the SIGH popup.
+- Night check: add `?hour=23` to the address (`?hour=23&room=bath` also works).
+
+Not checked
+- How it feels at 1x in a live browser over a play session (frames only; at 1x the particles are very small, which is the intent but Marc should judge).
+- Whether the nap and sleep are easy to reach: at the sofa the first startable task wins (doomscroll, then contemplate, then work, then nap), so a nap needs those on cooldown. That is existing behavior (issue 039 is about it). The headless run disabled the others to get to the nap.
+- Sound: notes depend on the sound feature's saved record (`life.sound.v1` in localStorage), which headless Chrome starts empty, so I set one through the page. Not run with a real audio device.
+
+Open items for the planner
+- `features.ts` has two changed lines instead of one, and `render/colors.ts` one added line (both explained above).
+- Possible follow-up: a slumped walk for low mood is still not done (the issue said not to).

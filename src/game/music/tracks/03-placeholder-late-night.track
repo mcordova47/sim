@@ -1,0 +1,12 @@
+# PLACEHOLDER: a starter track so the record player works. Replace it with your own.
+title: Late Night (placeholder)
+note: Quiet and slow.
+tempo: 70
+
+[lead sine 0.8]
+D5:2 A4:2 | F4:2 A4:2 | G4:2 E4:2 | D4:4
+D5:2 A4:2 | F4:2 A4:2 | E4:2 G4:2 | D4:4
+
+[pad triangle 0.5]
+D3:4 | F3:4 | C3:4 | D3:4
+D3:4 | F3:4 | C3:4 | D3:4

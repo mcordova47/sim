@@ -244,11 +244,11 @@ describe("a cutscene in the game", () => {
 });
 
 describe("the real task list", () => {
-  it("gives work to the typing game, the guitar to the notes game and the record player to a scene", () => {
+  it("gives work to the typing game, the guitar to the notes game and the record player to a menu", () => {
     const byId = new Map(TASKS.map((t) => [t.id, t]));
     expect(byId.get("work")!.activity?.type).toBe("typing");
     expect(byId.get("guitar")!.activity?.type).toBe("notes");
-    expect(byId.get("record-play")!.activity?.type).toBe("cutscene");
+    expect(byId.get("record-play")!.dialog?.type).toBe("menu");
   });
 
   it("only uses characters the pixel font can draw in every cutscene's text", () => {

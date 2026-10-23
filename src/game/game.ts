@@ -14,7 +14,7 @@ import { pickVariant, type Appearance } from "./appearance";
 import { DEBUG, DIALOG, ENERGY, MOOD, TILE, VIEW } from "./config";
 import type { ActivityHost } from "./activity";
 import type { Interactable } from "./interactable";
-import { DialogRunner, type DialogNode, type DialogResult } from "./dialog";
+import { DialogRunner, type DialogNode, type DialogResult, type DialogView } from "./dialog";
 import { DELTA, DIRECTIONS, type Direction } from "./direction";
 import { Emitter, type GameEvents } from "./events";
 import { Grid } from "./grid";
@@ -303,6 +303,12 @@ export class Game {
 
   get dialogOpen(): boolean {
     return this.dialog.open;
+  }
+
+  // What the open dialog shows right now (for features that react to its text
+  // appearing, like sound), or null.
+  get dialogView(): DialogView | null {
+    return this.dialog.view;
   }
 
   // Opens a dialog or menu. Returns false if one is already open. `onDone` is

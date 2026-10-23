@@ -4,6 +4,7 @@ import { SIDE_PROJECTS, sideProjectTask } from "./side-projects";
 import type { Requirement } from "./state";
 import type { Interactable } from "./interactable";
 import type { HourWindow } from "./time-of-day/hours";
+import { RECORD_MENU } from "./music/records";
 import { CODE_LINES, EMAIL_LINES, MIXED_LINES } from "./typing-text";
 
 // Task content from the first version of the game: names, prompts, durations,
@@ -40,8 +41,7 @@ const CONTENT: Task[] = [
     flavor: 'It was a pile. It is now several smaller piles.' },
   { id: 'journal', name: 'Write in the journal', prompt: 'Write in the journal', duration: 5, points: 50,
     flavor: 'Dear diary, I made coffee. It was a lot.' },
-  { id: 'record-play', name: 'Flip the record', prompt: 'Flip the record', duration: 2, points: 25,
-    flavor: 'Side B is the one you actually like.' },
+  { id: 'record-play', name: 'Choose a record', prompt: 'Choose a record', duration: 2, points: 25 },
 
   // Table
   { id: 'coffee', name: 'Make pour-over coffee', prompt: 'Make coffee', duration: 6, points: 70,
@@ -203,18 +203,13 @@ const STATE_RULES: Record<string, Partial<Task>> = {
     effects: [{ var: "mood", add: 10 }],
     pointsBonus: { var: "mood", perUnit: 0.3 },
   },
-  // A short scene.
+  // The record player picks the soundtrack (issue 009a): a menu of the records
+  // in music/tracks, and one to stop. Choosing pays like playing guitar does and
+  // lifts mood a little; while a record plays, mood climbs more (sound feature).
+  // Backing out of the menu pays nothing.
   "record-play": {
     effects: [{ var: "mood", add: 5 }],
-    activity: {
-      type: "cutscene",
-      steps: [
-        { say: "You lift the needle." },
-        { cue: "record-spin" },
-        { wait: 1.5 },
-        { say: "Side B is the one you actually like." },
-      ],
-    },
+    dialog: RECORD_MENU,
   },
 };
 

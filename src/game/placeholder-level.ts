@@ -1,4 +1,5 @@
 import { CLOCK, ENERGY } from "./config";
+import { CONTEMPLATE } from "./dialog-data";
 import type { Level } from "./level";
 import { parseTileMap } from "./tilemap";
 
@@ -10,7 +11,7 @@ const MAP = [
   "#.BB...........FF..#",
   "#.BB...........FF..#",
   "#..................#",
-  "#......TTT.........#",
+  "#......TTT......CC.#",
   "#......TTT.........#",
   "#..................#",
   "#.......@..........#",
@@ -116,6 +117,18 @@ export const PLACEHOLDER_LEVEL: Level = parseTileMap(MAP, {
       flavor: "Per my last email, you are doing great.",
       requires: [{ var: "energy", min: 10, reason: "TOO TIRED TO WORK" }],
       effects: [{ var: "energy", add: -15 }],
+    },
+  },
+  C: {
+    color: "leaf",
+    task: {
+      id: "contemplate",
+      name: "Contemplate",
+      prompt: "Contemplate",
+      duration: 0,
+      points: 5,
+      cooldown: 30,
+      dialog: CONTEMPLATE,
     },
   },
   T: { color: "tangerine" },

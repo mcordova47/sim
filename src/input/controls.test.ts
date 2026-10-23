@@ -64,6 +64,26 @@ describe("readControls", () => {
     expect(readControls(k.keyboard).dir).toBeNull();
   });
 
+  it("reports a direction that went down this frame, for menus", () => {
+    const k = fakeKeyboard();
+    k.press("ArrowDown");
+    expect(readControls(k.keyboard)).toMatchObject({ dir: "down", dirPressed: "down" });
+    k.endFrame();
+    expect(readControls(k.keyboard)).toMatchObject({ dir: "down", dirPressed: null });
+    k.press("KeyW");
+    expect(readControls(k.keyboard).dirPressed).toBe("up");
+  });
+
+  it("reads Escape and X as cancel, for one frame", () => {
+    for (const key of ["Escape", "KeyX"]) {
+      const k = fakeKeyboard();
+      k.press(key);
+      expect(readControls(k.keyboard).cancelPressed, key).toBe(true);
+      k.endFrame();
+      expect(readControls(k.keyboard).cancelPressed, key).toBe(false);
+    }
+  });
+
   it("has no jump control any more", () => {
     const k = fakeKeyboard();
     k.press("Space");

@@ -14,7 +14,7 @@ npm test          # unit tests
 npm run sprites   # render art/src/*.sprite to public/sprites/ and a contact sheet
 ```
 
-Controls: WASD or arrow keys to walk (a new direction turns you first, holding it steps), E to use what you are facing.
+Controls: WASD or arrow keys to walk (a new direction turns you first, holding it steps), E to use what you are facing. In menus: arrows or W and S to move, E to choose, Escape or X to go back. See `docs/dialogs.md` for writing dialogs.
 
 ## Layout
 

@@ -18,6 +18,14 @@ export interface GameEvents {
   // A state variable changed: by a task's effects, or (for time-driven
   // changes) when its rounded value did, so the clock reports once an hour.
   stateChanged: { id: string; value: number; previous: number };
+  // A dialog or menu opened or closed.
+  dialogOpen: Record<string, never>;
+  // `path` is every label picked in the dialog (empty if none); `cancelled` is
+  // true if the player backed out of a menu to end it.
+  dialogClose: { path: string[]; cancelled: boolean };
+  // The player picked an entry in a menu. `path` is every label picked so far
+  // in this dialog, oldest first, ending with `label`.
+  dialogChoose: { label: string; path: string[] };
 }
 
 type Listener<T> = (payload: T) => void;

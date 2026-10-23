@@ -50,6 +50,13 @@ export class InteractionSystem {
     private readonly state?: ApartmentState,
   ) {}
 
+  // Forgets a remembered interact press. Called when something else takes the
+  // controls (a dialog), so a press made just before doesn't start a task
+  // when the controls come back.
+  clearPressBuffer(): void {
+    this.interactBuffer = 0;
+  }
+
   get busy(): boolean {
     return this.active !== null;
   }

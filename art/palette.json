@@ -1,0 +1,26 @@
+{
+  "tile": 16,
+  "colors": {
+    "1": { "name": "ink",        "hex": "#1a1a2e" },
+    "2": { "name": "night",      "hex": "#2b2d42" },
+    "3": { "name": "slate",      "hex": "#3b3e5c" },
+    "4": { "name": "dusk",       "hex": "#6b6f94" },
+    "5": { "name": "mist",       "hex": "#a9adc9" },
+    "6": { "name": "paper",      "hex": "#edf2f4" },
+    "7": { "name": "walnut",     "hex": "#4a2c2a" },
+    "8": { "name": "oak",        "hex": "#7a4a35" },
+    "9": { "name": "tan",        "hex": "#b5835a" },
+    "a": { "name": "cream",      "hex": "#e8c9a0" },
+    "b": { "name": "brick",      "hex": "#d64550" },
+    "c": { "name": "tangerine",  "hex": "#f08a4b" },
+    "d": { "name": "butter",     "hex": "#f7d154" },
+    "e": { "name": "fern",       "hex": "#2f6b4f" },
+    "f": { "name": "leaf",       "hex": "#5fae6b" },
+    "g": { "name": "teal",       "hex": "#3a9ca6" },
+    "h": { "name": "denim",      "hex": "#4a78c2" },
+    "i": { "name": "sky",        "hex": "#9fd3f0" },
+    "j": { "name": "plum",       "hex": "#7b5ea7" },
+    "k": { "name": "blush",      "hex": "#f2a7c0" }
+  },
+  "transparent": "."
+}

@@ -216,6 +216,7 @@ export class Game {
       reward: (points, effects) => this.interaction.award(points, effects)?.points ?? null,
       gameMinutes: () => this.minutes,
       sprites: this.spriteDrawer,
+      getState: (id) => this.state.get(id),
       random: () => this.random(),
     };
   }

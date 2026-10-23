@@ -21,7 +21,7 @@ Lists: `src/game/typing-text.ts`.
 ## New
 - **Clean the desk** (`tidy-desk`, desk): points and a flavor line only; changes nothing; cooldown 90 s.
 - **Take a nap** (`nap`, sofa): needs energy under `NAP.below`; adds `NAP.energy` and an hour; leaves the bed alone.
-- **Admire the art** (`admire-art`, sofa): a scene that shows a full-screen picture of the south gallery wall (`view-gallery-wall`), says two lines and takes it away. Nobody walks; the map is unchanged.
+- **Admire the art** (`admire-art`, sofa): a scene that shows a full-screen picture of the south gallery wall (`view-gallery-wall`), then pushes in on one of the ten pieces (2x, 4x, 8x, scaled from the same picture, so the last is big square pixels) with a serious line at each level, and takes it away. A different piece each time, in the order of `src/game/art-pieces.ts` (the `artPiece` state variable, which wraps); that file holds all the text. Nobody walks; the map is unchanged.
 
 ## Notes
 - The blinds use `window-blinds-open` and `window-blinds-closed`.

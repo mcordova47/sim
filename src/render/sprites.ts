@@ -23,6 +23,14 @@ export interface SpriteDrawer {
     size?: SpriteSize,
     flip?: boolean,
   ): void;
+  // Draws one window of a picture, scaled to fill `into` (a whole-number scale, so
+  // the pixels stay sharp). Optional; without it a zoom shows the whole picture.
+  drawRegion?(
+    ctx: CanvasRenderingContext2D,
+    name: string,
+    from: { x: number; y: number; w: number; h: number },
+    into: SpriteSize,
+  ): void;
 }
 
 export class Sprites implements SpriteDrawer {
@@ -36,6 +44,20 @@ export class Sprites implements SpriteDrawer {
 
   has(name: string): boolean {
     return !!this.images.get(name);
+  }
+
+  drawRegion(
+    ctx: CanvasRenderingContext2D,
+    name: string,
+    from: { x: number; y: number; w: number; h: number },
+    into: SpriteSize,
+  ): void {
+    const image = this.images.get(name);
+    if (!image) return this.draw(ctx, name, 0, 0, into);
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(image, from.x, from.y, from.w, from.h, 0, 0, into.width, into.height);
+    ctx.restore();
   }
 
   // `size` is only used for the fallback rectangle; real sprites use their own dimensions.

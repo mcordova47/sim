@@ -34,9 +34,13 @@ In a task (in `tasks.ts`, or in a tile-map legend):
 { back: true }                      // walk back to the tile the scene began on and face the way you did
 { view: "view-gallery-wall" }       // cover the world and HUD with that full-screen (320x192) picture
 { unview: true }                    // take the picture away again
+{ zoom: { to: {x, y, w, h}, ms } }  // push the shown picture in or out to that window (issue 061)
+{ pick: { var, scenes } }           // play the scene (a list of steps) the state variable points at
 ```
 
 `view` shows a static picture (a sprite named `view-...`, same size as the screen) over the world and the HUD. The step takes no time: the picture stays up while the steps after it run, so follow it with `say` (waits for a key) and `wait` (waits for time), and finish with `unview`. A dialog is drawn over the picture. The world is frozen behind it as for any running task: nobody walks, and the scene holds the controls. The picture belongs to the scene, so it goes away however the scene ends (the last step, Escape, an error) even without an `unview`. The sprite is loaded at start (the names are collected from the tasks' `view` steps); a missing file shows a labelled panel.
+
+`zoom` moves the window onto the `view` picture. `to` is a window in picture pixels and must be a whole-number zoom of the screen (320x192 at 1x, 160x96 at 2x, 80x48 at 4x, 40x24 at 8x), with whole-number `x` and `y`, inside the picture; anything else is refused at load. The step takes `ms` milliseconds: the old window holds for a beat, then the view steps through each whole-number scale on the way (1x to 8x shows 2x, then 4x, then 8x), sliding toward the target. Never a blend, so the pixels stay crisp, and the picture is drawn with smoothing off. A `view` starts at the whole picture, and the zoom goes with the picture on every end path. `pick` reads the state variable (wrapping) and plays the matching scene in place of the step. The `admire-art` scene is built from `src/game/art-pieces.ts`, which also holds all of its text.
 
 `goto` and `back` plan their own route (breadth first over the room's walkable tiles, from wherever the player is when the step starts), so a scene works from any tile it can be started from. A tile with no way to it skips the step, so a scene never sticks. Use `face` after a `goto` to look at something.
 

@@ -4,6 +4,7 @@ import { NO_INPUT } from "../../input/controls";
 import { BaseActivity, needHost, registerActivity, type ActivityHost, type ValidationContext } from "../activity";
 import { say, type DialogNode, type DialogResult } from "../dialog";
 import { DIRECTIONS, type Direction } from "../direction";
+import { FULL_VIEW, pushedView, zoomProblem, type ViewRect } from "../view-zoom";
 
 // One step of a cutscene, written as data:
 //   { say: "text", speaker?: "name" }   show text and wait for it to be read
@@ -16,6 +17,9 @@ import { DIRECTIONS, type Direction } from "../direction";
 //   { back: true }                      walk back to the tile the scene began on, and face as before
 //   { view: "sprite-name" }             cover the world with that full-screen picture (dialogs draw over it)
 //   { unview: true }                    take the picture away again
+//   { zoom: { to: {x, y, w, h}, ms } }  push the shown picture in (or out) to that window, over ms milliseconds,
+//                                       in whole-number scales (1x, 2x, 4x, 8x), never blurred
+//   { pick: { var, scenes } }           play the one of `scenes` (lists of steps) that the state variable points at
 //   { set: { var: "mood", value: 1 } }  set a state variable (a flag)
 // The answer of the last `ask` ends up in the result's `data`.
 export type CutsceneStep =
@@ -29,6 +33,8 @@ export type CutsceneStep =
   | { back: true }
   | { view: string }
   | { unview: true }
+  | { zoom: { to: ViewRect; ms: number } }
+  | { pick: { var: string; scenes: CutsceneStep[][] } }
   | { set: { var: string; value: number } };
 
 // How long a single scripted step is given before it counts as blocked.
@@ -55,12 +61,19 @@ export class CutsceneActivity extends BaseActivity {
   // The full-screen picture being shown, if any. Cleared by `end`, so it goes
   // away however the scene finishes (the last step, Escape, an error).
   private viewSprite: string | null = null;
+  // Which window of that picture is shown (the whole of it unless zoomed), and
+  // where a zoom in progress started from.
+  private viewRect: ViewRect = FULL_VIEW;
+  private zoomFrom: ViewRect | null = null;
+  // The steps, which a `pick` adds to.
+  private readonly steps: CutsceneStep[];
 
   constructor(
-    private readonly steps: CutsceneStep[],
+    steps: CutsceneStep[],
     private readonly host: ActivityHost,
   ) {
     super();
+    this.steps = [...steps];
     this.origin = { col: host.player.col, row: host.player.row, facing: host.player.facing };
     if (steps.length === 0) this.end();
   }
@@ -70,12 +83,24 @@ export class CutsceneActivity extends BaseActivity {
   // walk; the game closes a dialog the scene had open). `set` steps that already
   // ran stay applied.
   cancel(): void {
-    this.viewSprite = null;
+    this.clearView();
     this.finish({ completed: false });
   }
 
-  private end(): void {
+  // The picture, its zoom and any push under way, all gone.
+  private clearView(): void {
     this.viewSprite = null;
+    this.viewRect = FULL_VIEW;
+    this.zoomFrom = null;
+  }
+
+  // The window of the picture on screen now (the whole picture when not zoomed).
+  get shownView(): ViewRect {
+    return this.viewRect;
+  }
+
+  private end(): void {
+    this.clearView();
     this.finish({ completed: true, ...(this.answer !== undefined && { data: this.answer }) });
   }
 
@@ -85,7 +110,9 @@ export class CutsceneActivity extends BaseActivity {
     if (this.viewSprite === null || this.done) return;
     const sprites = this.host.sprites;
     if (sprites?.has(this.viewSprite)) {
-      sprites.draw(ctx, this.viewSprite, 0, 0, screen);
+      const r = this.viewRect;
+      if (r.w !== FULL_VIEW.w && sprites.drawRegion) sprites.drawRegion(ctx, this.viewSprite, r, screen);
+      else sprites.draw(ctx, this.viewSprite, 0, 0, screen);
       return;
     }
     ctx.fillStyle = COLOR.ink;
@@ -121,10 +148,31 @@ export class CutsceneActivity extends BaseActivity {
     if ("ask" in step) return this.openAndWait(step.ask, true);
     if ("view" in step) {
       this.viewSprite = step.view;
+      this.viewRect = FULL_VIEW;
+      this.zoomFrom = null;
       return "done";
     }
     if ("unview" in step) {
-      this.viewSprite = null;
+      this.clearView();
+      return "done";
+    }
+    if ("zoom" in step) {
+      this.zoomFrom ??= this.viewRect;
+      this.timer += dt;
+      const progress = step.zoom.ms > 0 ? (this.timer * 1000) / step.zoom.ms : 1;
+      if (progress < 1) {
+        this.viewRect = pushedView(this.zoomFrom, step.zoom.to, progress);
+        return "waiting";
+      }
+      this.viewRect = step.zoom.to;
+      this.zoomFrom = null;
+      return "done";
+    }
+    if ("pick" in step) {
+      const scenes = step.pick.scenes;
+      const value = Math.floor(this.host.getState?.(step.pick.var) ?? 0);
+      // The chosen scene's steps play next, in place of this step.
+      this.steps.splice(this.index + 1, 0, ...scenes[((value % scenes.length) + scenes.length) % scenes.length]);
       return "done";
     }
     if ("set" in step) {
@@ -210,8 +258,8 @@ function validateStep(step: unknown, where: string, context?: ValidationContext)
   };
   if (typeof step !== "object" || step === null || Array.isArray(step)) return bad("a step must be an object");
   const s = step as Record<string, unknown>;
-  const keys = ["say", "ask", "wait", "cue", "face", "walk", "goto", "back", "view", "unview", "set"].filter((k) => k in s);
-  if (keys.length !== 1) return bad("a step needs exactly one of say, ask, wait, cue, face, walk, goto, back, view, unview, set");
+  const keys = ["say", "ask", "wait", "cue", "face", "walk", "goto", "back", "view", "unview", "zoom", "pick", "set"].filter((k) => k in s);
+  if (keys.length !== 1) return bad("a step needs exactly one of say, ask, wait, cue, face, walk, goto, back, view, unview, zoom, pick, set");
   switch (keys[0]) {
     case "say":
     case "cue":
@@ -245,6 +293,23 @@ function validateStep(step: unknown, where: string, context?: ValidationContext)
     case "unview":
       if (s.unview !== true) bad("unview must be true");
       break;
+    case "zoom": {
+      const z = s.zoom as { to?: unknown; ms?: unknown } | null;
+      if (typeof z !== "object" || z === null) return bad("zoom needs { to, ms }");
+      const problem = zoomProblem(z.to);
+      if (problem) bad(problem);
+      if (typeof z.ms !== "number" || !Number.isFinite(z.ms) || z.ms < 0) bad("zoom needs ms, a number of milliseconds, 0 or more");
+      break;
+    }
+    case "pick": {
+      const p = s.pick as { var?: unknown; scenes?: unknown } | null;
+      if (!p || typeof p.var !== "string" || !Array.isArray(p.scenes) || p.scenes.length === 0 || p.scenes.some((l) => !Array.isArray(l) || l.length === 0)) {
+        return bad("pick needs { var, scenes } with a variable name and one or more lists of steps");
+      }
+      if (context && !context.hasState(p.var)) bad(`pick names an unknown state variable "${p.var}"`);
+      (p.scenes as unknown[][]).forEach((list, i) => list.forEach((st, j) => validateStep(st, `${where}, scene ${i + 1} step ${j + 1}`, context)));
+      break;
+    }
     case "set": {
       const v = s.set as { var?: unknown; value?: unknown } | null;
       if (!v || typeof v.var !== "string" || typeof v.value !== "number" || !Number.isFinite(v.value)) {

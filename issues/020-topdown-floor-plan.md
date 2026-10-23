@@ -1,7 +1,7 @@
 ---
 id: 020
 title: Top-down floor plan of the apartment
-status: todo
+status: in-progress
 owner: marc + agent
 depends_on: [019]
 ---
@@ -28,3 +28,4 @@ Re-plan the real apartment as top-down tile maps. The side view forced the sofa 
 Same rules as before: photos stay in `reference-photos/` (gitignored); the repo gets text and sprites only, and nothing that identifies an address.
 
 ## Progress log
+- 2026-10-23: Started. Marc decided: rooms are **separate screens** joined by doorways, **1 tile = 1 ft**, furniture to scale. Marc's corrections to my first layout sketch: the main room is mirrored left to right (kitchen door at the west end, bed at the east end), the kitchen is turned 180 degrees, and the bath is turned 90 degrees clockwise and sits south of the kitchen. Plan: per-tile task zones (fixes the L-shape bug), a way for `Game` to switch levels, tile-map hardening, three room maps in `src/game/apartment.ts` with doors, a walkable-path test across rooms, and `docs/floor-plan.md` rewritten for the top-down plan.

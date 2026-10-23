@@ -3,7 +3,7 @@ id: 031
 title: Draw the top-down game with sprites
 status: todo
 owner: claude
-depends_on: [028, 029, 030]
+depends_on: [033]
 ---
 
 ## Goal
@@ -19,5 +19,7 @@ Replace the colored rectangles and labels with the sprites: floors and walls, fu
 
 ## Notes
 - Placeholder labels for state variants (`BED MADE`, `DISHES 3+`) go away once the sprites show the state.
+
+- From the art logs: use the room-specific wall and doorway tiles (`-kitchen`, `-bath`) per room; `floor-kitchen` and `floor-bath`; `painting-wide`, `window` and `wall-front` names come from 033; the hood sits in the wall row below the stove; the sprites carry their own bounds, so place each at its map box top-left (see `scripts/main-room-mockup.mjs` and `scripts/room-mockup-kitchen-bath.mjs`).
 
 ## Progress log

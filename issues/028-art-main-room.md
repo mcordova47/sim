@@ -1,7 +1,7 @@
 ---
 id: 028
 title: Top-down art: main room
-status: todo
+status: review
 owner: agent
 depends_on: [020, 025]
 ---
@@ -27,3 +27,14 @@ Draw every top-down piece in the main room, to the rules in `docs/art-style.md` 
 - Do not wire the sprites into the game; that is issue 031.
 
 ## Progress log
+
+- 2026-10-23: Started in worktree `../life-worktrees/028-art-main-room`. Plan: look at reference photos, draw the pieces as `.sprite` files by script-assisted generation where patterns repeat, extend `scripts/room-mockup.mjs` with a main-room mockup built from the level data, view the contact sheet and mockup, then verify and review.
+- 2026-10-23: Drawn, ready for review.
+  - Sprites (in `art/src/`, sizes checked against the list): `table` 64x32, `desk` 64x32, `desk-chair` 16x16, `bookshelf` 16x64, `nightstand` 48x16, `bed-made` and `bed-unmade` 80x96, `radiator` 16x64, `painting` 32x16, `window-blinds` 16x32, `sofa-td` 96x32, `guitar` 16x32, `lamp-table` 16x16, `record-stand` 16x16, `front-door` 32x16.
+  - **Extra names I had to add** (the list gave one name for two sizes, or the map uses a piece the list leaves out): `painting-wide` 48x16 (the 3x1 over the nightstand; `painting` is the 2x1), `window` 16x32 (the upper east window has no blinds; `apartment.ts` gives both `w` and `W` the `window-blinds` sprite), `wall-front` 16x16 (the near, south wall seen from above; the tileset had no tile for it). For 031: point `u` at `painting-wide` and `w` at `window`, and use `wall-front` for the south wall. Corner and solid-filler tiles are not drawn; the map's `#` filler needs a decision in 031 (the mockup uses `wall-front`).
+  - Redrawn: `sofa-td` (from behind: seat cushions above, wooden back rail and fabric panel facing the player, wooden arms; red and teal pattern from the photo) and `bed-made` (cream striped duvet, white and striped pillows, buttons, turned-down sheet). `bed-unmade`: same footprint, crooked pillows, sheet thrown back in a triangle, diagonal wrinkles, so it differs at a glance at 1x. `guitar` adapts the side-view sprite (neck trimmed to 32 rows).
+  - Deleted side-view `bed` and `sofa` (replaced; nothing in `src` or `scripts` names them). The other side-view sprites stay for 029, 030 and sprites the main room does not list (`sofa-arm`, `mic-stand`, `gallery-wall`).
+  - Tooling: new `scripts/main-room-mockup.mjs` reads `MAIN_MAP` and the sprite names from `src/game/apartment.ts` and composes the whole room (bed made and unmade) at 4x. Added `art/main-room-mockup*.png` to `.gitignore`.
+  - **To view:** `npm run sprites -- --sheet=table,desk,bookshelf,nightstand,bed-,radiator,window,painting,sofa-td,guitar,lamp-table,record-stand,front-door,wall-front` then open `art/contact-sheet.png`; `node scripts/main-room-mockup.mjs` then open `art/main-room-mockup.png` and `art/main-room-mockup-unmade.png`.
+  - Checked: `npm run sprites` (51 sprites, palette-only enforced), `npm test` (375 pass), `npm run build`; looked at the contact sheet and both mockups.
+  - Not checked / limits: the mockup puts every piece at its map box top-left, which is what 031 should do but is my reading of it. Pieces are small-scale impressions, not photo matches. Sprites contain no text or identifying detail (paintings are abstract colour blocks, not the real artworks). A top-down photo of the sofa back and the bed would improve those two; the radiator, windows and nightstand were drawn from the map and photo glimpses.

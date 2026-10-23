@@ -111,13 +111,18 @@ describe("tasks", () => {
     expect(TASKS.map((t) => t.id).filter((id) => !placed.has(id))).toEqual([]);
   });
 
-  it("offers working from more than one place: desk, sofa and bed", () => {
-    const places = rooms.main.pieces.filter((p) =>
-      rooms.main.interactables.some(
-        (i) => i.id === "work" && i.zones.some((z) => p.tiles.some((t) => t.col * TILE === z.x && t.row * TILE === z.y)),
-      ),
-    );
-    expect(places.map((p) => p.name).sort()).toEqual(["queen bed", "sofa", "standing desk"]);
+  it("offers working from more than one place: desk, sofa and bed (a task of its own at each)", () => {
+    const placesOf = (id: string) =>
+      rooms.main.pieces
+        .filter((p) =>
+          rooms.main.interactables.some(
+            (i) => i.id === id && i.zones.some((z) => p.tiles.some((t) => t.col * TILE === z.x && t.row * TILE === z.y)),
+          ),
+        )
+        .map((p) => p.name);
+    expect(placesOf("work")).toEqual(["standing desk"]);
+    expect(placesOf("work-sofa")).toEqual(["sofa"]);
+    expect(placesOf("work-bed")).toEqual(["queen bed"]);
   });
 
   it("only uses characters the pixel font can draw, in names, prompts and flavor", () => {

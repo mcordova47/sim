@@ -1,24 +1,12 @@
 import type { Controls } from "../../input/controls";
 import { COLOR } from "../../render/colors";
-import { GLYPH_H, drawText, textWidth } from "../../render/font";
+import { GLYPH_H, drawText, textWidth, unsupportedChars } from "../../render/font";
 import { BaseActivity, needHost, registerActivity, type ActivityHost } from "../activity";
 import { TYPING } from "../config";
+import { CODE_LINES } from "../typing-text";
 
-// Lines of code to "type" at work. Only characters the pixel font can draw.
-export const SNIPPETS = [
-  "const energy = 0;",
-  "if (coffee) ship();",
-  "while (!done) wait();",
-  "// TODO: sleep",
-  "git commit -m 'fix'",
-  "npm run build",
-  "return null;",
-  "let agents = 4;",
-  "await agent.done();",
-  "console.log('ok');",
-  "if (tired) { nap(); }",
-  "import { luck } from 'x';",
-];
+// The default lines to type: code. A task can bring its own (see `text`).
+export const SNIPPETS = CODE_LINES;
 
 // Keys that type a character: letters, digits, space and the punctuation keys.
 // Escape (backing out), arrows and the like do not.
@@ -121,13 +109,46 @@ function lineCount(spec: Record<string, unknown>, item: { id: string }): number 
   return count;
 }
 
+// The lines a task brings in its `text` list, or null if it has none.
+function ownText(spec: Record<string, unknown>, item: { id: string }): string[] | null {
+  if (spec.text === undefined) return null;
+  const where = `Task "${item.id}": typing`;
+  const text = spec.text;
+  if (!Array.isArray(text) || text.length === 0) throw new Error(`${where} text needs a list of lines, one or more`);
+  for (const line of text) {
+    if (typeof line !== "string" || line.trim() === "") throw new Error(`${where} text lines must be words, not empty`);
+    const bad = unsupportedChars(line);
+    if (bad.length) throw new Error(`${where} text "${line}" uses characters the font can't draw: ${bad.join(" ")}`);
+    if (textWidth(line) > TYPING.maxLineWidth) {
+      throw new Error(`${where} text "${line}" is too wide for the screen (${textWidth(line)} px, at most ${TYPING.maxLineWidth})`);
+    }
+  }
+  return text as string[];
+}
+
+// `count` lines from `pool`: no repeats until the pool runs out.
+function pick(pool: readonly string[], count: number, random: () => number): string[] {
+  const left = [...pool];
+  const lines: string[] = [];
+  while (lines.length < count) {
+    if (left.length === 0) left.push(...pool);
+    lines.push(left.splice(Math.floor(random() * left.length), 1)[0]);
+  }
+  return lines;
+}
+
 registerActivity(
   "typing",
   (spec, item, host) => {
     const h: ActivityHost = needHost(host, `Task "${item.id}"`);
     const count = lineCount(spec, item);
+    const own = ownText(spec, item);
+    if (own) return new TypingActivity(pick(own, count, () => h.random()));
     const lines = Array.from({ length: count }, () => SNIPPETS[Math.floor(h.random() * SNIPPETS.length)]);
     return new TypingActivity(lines);
   },
-  (spec, item) => void lineCount(spec, item),
+  (spec, item) => {
+    lineCount(spec, item);
+    ownText(spec, item);
+  },
 );

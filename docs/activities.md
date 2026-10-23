@@ -16,7 +16,7 @@ In a task (in `tasks.ts`, or in a tile-map legend):
 | `wait` | hold still for `duration` seconds (the default) | none |
 | `dialog` | a conversation or menu; also what a task with a `dialog` field is. It is over when the dialog closes; backing out of the dialog backs out of the task | none (uses the task's `dialog`) |
 | `cutscene` | a short script of steps (below) | `steps` |
-| `typing` | key mashing: every key press types a character of some lines of code | `lines` (default 2, at most 6) |
+| `typing` | key mashing: every key press types a character of some lines (code by default) | `lines` (default 2, at most 6); `text`, a list of lines to pick from (no repeats until it runs out), each drawable by the font and under `TYPING.maxLineWidth` pixels. Lists live in `typing-text.ts` |
 | `notes` | arrows appear one at a time; press the matching direction before time runs out | `count` (default 6, at most 14) |
 
 ### Cutscene steps
@@ -29,7 +29,11 @@ In a task (in `tasks.ts`, or in a tile-map legend):
 { face: "left" }                    // turn the player
 { walk: ["left", "left", "up"] }    // walk the player exactly one tile per direction
 { set: { var: "bedMade", value: 1 } } // set a state variable (a flag), clamped to its range
+{ goto: { col: 5, row: 1 } }        // walk to that tile of this room, around furniture and not through doorways
+{ back: true }                      // walk back to the tile the scene began on and face the way you did
 ```
+
+`goto` and `back` plan their own route (breadth first over the room's walkable tiles, from wherever the player is when the step starts), so a scene works from any tile it can be started from. A tile with no way to it skips the step, so a scene never sticks. Use `face` after a `goto` to look at something.
 
 The answer of the last `ask` is passed on as the result's `data` (and in the completion event). Every step is checked when the level is built. A `set` step must name a state variable the game knows (an unknown one is rejected at load, naming the task), so it cannot fail halfway through a scene. `set` steps apply as they run and stay applied if the scene is skipped with Escape; they are not rolled back.
 

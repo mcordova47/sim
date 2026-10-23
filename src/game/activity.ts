@@ -44,6 +44,10 @@ export interface ActivityHost {
   // Sets a variable of the apartment's state (a flag), clamped to its range.
   setState(id: string, value: number): void;
   readonly player: PlayerView;
+  // The steps (one direction per tile) from where the player stands to the
+  // tile `col`, `row` in this room, around furniture and not through doorways,
+  // or null if there is no way. Empty if they are already there.
+  route?(col: number, row: number): Direction[] | null;
   // A random number from 0 up to 1. Injected, so tests are deterministic.
   random(): number;
 }

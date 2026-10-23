@@ -39,16 +39,16 @@ export const MAIN_MAP = [
 ];
 
 const MAIN: Record<string, ObjectDef> = {
-  T: { name: "dining table", sprite: "table", color: "tangerine", tasks: ["coffee", "reheat", "eat-dinner"] },
-  D: { name: "standing desk", sprite: "desk", color: "butter", tasks: ["work", "journal"] },
+  T: { name: "dining table", sprite: "table", color: "tangerine", tasks: ["coffee", "drink-coffee", "reheat", "eat-dinner"] },
+  D: { name: "standing desk", sprite: "desk", color: "butter", tasks: ["work", "journal", "tidy-desk"] },
   C: { name: "desk chair", sprite: "desk-chair", color: "ink" },
-  H: { name: "cube bookshelf", sprite: "bookshelf", color: "butter", tasks: ["water-plant", "sort-records"] },
+  H: { name: "cube bookshelf", sprite: "bookshelf", color: "butter", tasks: ["water-plant", "sort-records", "sort-records-year", "sort-records-fav", "sort-records-color"] },
   N: { name: "nightstand", sprite: "nightstand", color: "tangerine" },
   B: {
     name: "queen bed",
     sprite: "bed-made",
     color: "mist",
-    tasks: ["make-bed", "sleep", "work", "doomscroll"],
+    tasks: ["make-bed", "sleep", "work-bed", "doomscroll"],
     // Shows whether it is made.
     variants: [
       { sprite: "bed-made", when: [{ var: "bedMade", min: 1 }], color: "leaf" },
@@ -57,8 +57,19 @@ const MAIN: Record<string, ObjectDef> = {
   },
   r: { name: "radiator", sprite: "radiator", color: "paper" },
   w: { name: "window", sprite: "window", color: "mist" },
-  W: { name: "window and blinds", sprite: "window-blinds", color: "mist", tasks: ["open-blinds"] },
-  S: { name: "sofa", sprite: "sofa-td", color: "brick", tasks: ["doomscroll", "contemplate", "work"] },
+  W: {
+    name: "window and blinds",
+    sprite: "window-blinds",
+    color: "mist",
+    tasks: ["open-blinds", "close-blinds"],
+    // Open or closed. Both use the one sprite there is until issue 036 draws
+    // `window-blinds-open` and `window-blinds-closed`; then name them here.
+    variants: [
+      { sprite: "window-blinds", when: [{ var: "blinds", min: 1 }], label: "BLINDS OPEN", color: "leaf" },
+      { sprite: "window-blinds", label: "BLINDS CLOSED", color: "mist" },
+    ],
+  },
+  S: { name: "sofa", sprite: "sofa-td", color: "brick", tasks: ["doomscroll", "contemplate", "work-sofa", "nap", "admire-art"] },
   G: { name: "guitar", sprite: "guitar", color: "tangerine", tasks: ["guitar"] },
   L: { name: "lamp table", sprite: "lamp-table", color: "butter" },
   R: { name: "record stand", sprite: "record-stand", color: "paper", tasks: ["record-play"] },

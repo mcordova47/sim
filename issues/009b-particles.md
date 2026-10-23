@@ -1,9 +1,9 @@
 ---
 id: 009b
 title: "Polish: particles"
-status: blocked
+status: todo
 owner: agent
-depends_on: [017]
+depends_on: []
 ---
 
 ## Goal

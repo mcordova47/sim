@@ -3,7 +3,7 @@ id: 042
 title: Clutter that moves (desk, dirty clothes, mail)
 status: todo
 owner: claude
-depends_on: [034]
+depends_on: []
 ---
 
 ## Goal

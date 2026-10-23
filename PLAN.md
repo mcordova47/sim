@@ -43,7 +43,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 008 | [Player character sprite](issues/008-player-sprite.md) | agent | done | 006 |
 | 009 | [Polish (umbrella)](issues/009-polish.md) | marc + claude | blocked | 009a-d |
 | 009a | [Polish: sound effects](issues/009a-sound.md) | agent | done | |
-| 009b | [Polish: particles](issues/009b-particles.md) | agent | blocked | 017 |
+| 009b | [Polish: particles](issues/009b-particles.md) | agent | todo | |
 | 009c | [Polish: achievements and saved progress](issues/009c-achievements.md) | agent | done | |
 | 009d | [Polish: time of day](issues/009d-time-of-day.md) | agent | done | |
 | 010 | [Scrolling camera](issues/010-scrolling-camera.md) | claude | done | 005 |
@@ -78,7 +78,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 039 | [Choosing a task at an object](issues/039-choose-or-cycle.md) | marc + claude | todo | |
 | 040 | [Admire the art: a view of just the gallery wall](issues/040-admire-art-view.md) | claude | done | |
 | 041 | [Look in the mirror (bathroom)](issues/041-bathroom-mirror.md) | claude | done | |
-| 042 | [Clutter that moves (desk, clothes, mail)](issues/042-clutter-states.md) | claude | todo | 034 |
+| 042 | [Clutter that moves (desk, clothes, mail)](issues/042-clutter-states.md) | claude | todo | |
 | 043 | [Random encounters (explore the idea)](issues/043-random-encounters.md) | marc + claude | todo | |
 | 044 | [Place the new art on the map](issues/044-place-new-art.md) | claude | done | 034 |
 | 045 | [Draw the doing poses, outfits and held items](issues/045-draw-poses-outfits-items.md) | claude | done | 034 |

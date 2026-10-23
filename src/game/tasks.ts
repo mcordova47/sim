@@ -1,5 +1,6 @@
 import { CLOCK, ENERGY, MIRROR, NAP } from "./config";
 import { CONTEMPLATE, MIRROR_DAY, MIRROR_MORNING, MIRROR_NIGHT, MIRROR_TIRED } from "./dialog-data";
+import { ART_SCENES } from "./art-pieces";
 import { SIDE_PROJECTS, sideProjectTask } from "./side-projects";
 import type { Requirement } from "./state";
 import type { Interactable } from "./interactable";
@@ -174,16 +175,14 @@ const STATE_RULES: Record<string, Partial<Task>> = {
   },
   "admire-art": {
     cooldown: 60,
-    effects: [{ var: "mood", add: 8 }],
+    effects: [{ var: "mood", add: 8 }, { var: "artPiece", add: 1 }],
     activity: {
       type: "cutscene",
       steps: [
-        // No walk: the view is a picture of the south gallery wall.
+        // No walk: the view is a picture of the south gallery wall. It pushes in
+        // on one piece, then the next time on another (art-pieces.ts has the text).
         { view: "view-gallery-wall" },
-        { say: "Frames on a wall. A few of them straight." },
-        { wait: 0.6 },
-        { say: "You stand here long enough that it becomes a decision." },
-        { unview: true },
+        { pick: { var: "artPiece", scenes: ART_SCENES } },
       ],
     },
   },

@@ -1,4 +1,5 @@
 import type { StateVar } from "./state";
+import { ART_PIECES } from "./art-pieces";
 
 // What the game tracks about the apartment and the character. Add a line to
 // track something new (hunger, laundry, tidiness); tasks and objects refer to
@@ -19,5 +20,13 @@ export const STATE_VARS: StateVar[] = [
     max: 4,
     wrap: true,
     meaning: "Which way the records get sorted next: 0 alphabetical, 1 by year, 2 by favorites, 3 by color, then round to 0.",
+  },
+  {
+    id: "artPiece",
+    initial: 0,
+    min: 0,
+    max: ART_PIECES.length,
+    wrap: true,
+    meaning: "Which piece of art \"Admire the art\" zooms in on next, in the order of art-pieces.ts, then round to the first.",
   },
 ];

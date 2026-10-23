@@ -210,6 +210,7 @@ export class Game {
       },
       route: (col, row) => this.routeTo(col, row),
       sprites: this.spriteDrawer,
+      getState: (id) => this.state.get(id),
       random: () => this.random(),
     };
   }

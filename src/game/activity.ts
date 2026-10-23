@@ -51,6 +51,8 @@ export interface ActivityHost {
   route?(col: number, row: number): Direction[] | null;
   // Where full-screen pictures come from (a cutscene's `view`). Missing in tests.
   readonly sprites?: SpriteDrawer;
+  // Reads a variable of the apartment's state. Missing in tests.
+  getState?(id: string): number;
   // A random number from 0 up to 1. Injected, so tests are deterministic.
   random(): number;
 }

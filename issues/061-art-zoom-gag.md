@@ -1,7 +1,7 @@
 ---
 id: 061
 title: Admire the art: zoom in on a piece and comment very seriously
-status: todo
+status: review
 owner: marc + claude
 depends_on: []
 ---
@@ -17,3 +17,15 @@ Marc's gag ideas (2026-10-23): (1) the Ferris Bueller painting zoom: the view pu
 - Tests: the zoom steps validate at load (rectangles inside the picture), scale only by integer steps, restore the view on Escape at any step; a rendered frame for each zoom level; `npm test` and `npm run build` pass. Marc plays it and reads the lines.
 
 ## Progress log
+
+- 2026-10-23: started. Plan: a `zoom` cutscene step and a `pick` step (choose a scene by a state variable) on the existing `view` machinery; all text and piece rectangles in `src/game/art-pieces.ts`; `artPiece` wrapping state variable; scale the wall picture (no new art).
+- 2026-10-23: done, status review.
+  - Mechanism: `{ zoom: { to: {x,y,w,h}, ms } }` in `src/game/activities/cutscene.ts`, with the window maths in `src/game/view-zoom.ts` (`zoomProblem` validates at load: whole numbers, exactly 320x192, 160x96, 80x48 or 40x24, inside the picture; `pushedView` gives the push: hold the old window a beat, then each whole-number scale on the way, centre sliding, never a blend). The picture is drawn with a new optional `SpriteDrawer.drawRegion` (smoothing off). `{ pick: { var, scenes } }` plays the scene the variable points at (wraps). The zoom is cleared with the view in `clearView()`, used by `end()`, `cancel()` and `unview`, so Escape, the last step and errors all restore the room; no input lock is taken by the scene (it is a running task), the dialog lock is the game's. `ActivityHost.getState` added (optional) for `pick`.
+  - Task: `admire-art` is now `view`, `pick {artPiece}`; effects gained `artPiece +1` (so Escape, which applies no effects, replays the same piece). Mood and points unchanged. `artPiece` is in `state-vars.ts`, max = number of pieces, wraps, like `recordSort`.
+  - Scene per piece: wait 0.6 on the whole wall, push to 2x (500 ms) with line 1 (what it is, composition), 4x with line 2 (brushwork), 8x with line 3 (pixels, the last line), then back to the room.
+  - Text: three lines for each of the ten pieces, all in `src/game/art-pieces.ts` for the text pass (037). Deadpan and sincere, no names, no artists, nothing about who made them. A test checks every character is in the pixel font. `docs/text-review.md` is not touched (037 owns it; the planner may want to add this file to it).
+  - Art decision: scaled the existing `view-gallery-wall` (no drawn close-ups). At 8x each piece is a few large square pixels, which is the joke; the wolf and the landscape read well at 4x and 8x, so no extra pictures were needed. Piece rectangles were read from the sprite source. The piece centre is placed about 38% down the screen so it sits above the dialog box.
+  - Checks: `npm test` (1327 pass, 71 new in `src/game/art-zoom.test.ts`), `npm run build` pass. Criteria: (1) zoom 1x/2x/4x/8x crisp steps, timed push, built on `view`, Escape and every exit clear the view: tests (Escape at every third frame of the whole scene, with no score, mood or piece change and the lock released) and a 60-seed fuzz of random Escape timing, random E presses, and outside input locks taken and released mid-scene. (2) ten pieces in turn, no back-to-back repeat, wraps (12 runs in a real `Game`, final window checked each time); text in one file, font-safe. (3) last line at the 8x pixels, then the room; points and mood unchanged. (4) scaling, with the reason above. (5) zoom steps validated at load, integer scales only, Escape restores at any step.
+  - Rendered in the real game headless (dev server, puppeteer-core with Chrome for Testing, outside the repo; Tab x3 at the sofa, E) at 1x and 4x: wall, 2x, 4x and 8x for the landscape (piece 0), and 2x and 8x for the wolf (piece 6); looked at them. The dialog box covers the bottom of each; the "ESC TO STOP" hint is over the top. Looks right.
+  - Not checked: how it feels in a real browser (the push timing, reading speed of the lines); the other eight pieces rendered (only checked by geometry in tests); the night tint (the view is drawn above it, as 060 noted). Marc plays it and reads the lines.
+  - Files: src/game/art-pieces.ts (new), src/game/view-zoom.ts (new), src/game/art-zoom.test.ts (new), src/game/activities/cutscene.ts, src/game/activity.ts, src/game/game.ts, src/game/tasks.ts, src/game/state-vars.ts, src/render/sprites.ts, docs/activities.md, docs/tasks.md. Likely conflicts with issue 059: `src/game/tasks.ts` (imports, STATE_RULES near `admire-art`) and `src/game/state-vars.ts` (list end).

@@ -1,7 +1,7 @@
 ---
 id: 056
 title: Redraw the mic stand; take the robin print off the map
-status: todo
+status: review
 owner: agent
 depends_on: []
 ---
@@ -18,3 +18,8 @@ From Marc's playtest of 044 (2026-10-23):
 - Render the main room at 1x and 4x and look at it; `npm run sprites`, `npm test` and `npm run build` pass.
 
 ## Progress log
+
+- 2026-10-23: Plan: remove `k`, redraw `mic-stand` (bluebird) plus `mic-stand-vintage`, update tests and docs.
+- 2026-10-23: Done. Removed piece `k` from `MAIN_MAP` (col 5 row 0 is now `#`) and `WALL_PIECES.main` (now `pquwWf12`); the wall-tiles picture is unchanged (col 5 is still `b`). Kept `painting-robin.sprite` unused; `art-style.md` and `floor-plan.md` updated (robin hangs on the west wall, off camera, possible future cutscene). Tests updated in `apartment.test.ts` and `wall-tiles.test.ts` (no robin piece; col 5 row 0 is `#`/back).
+  - `mic-stand` redrawn: bluebird-style mic 10 px tall incl. shock mount and XLR (grille, blue body), 2 px pole about 15 px, tripod base. `mic-stand-vintage` added (slatted silver and blue mic on a yoke), same stand, unplaced. Footprint stays col 5 rows 1-2; map unchanged for it.
+  - Checked: `npm run sprites`, `npm test` (1033 pass), `npm run build` pass. Looked at the main room at 4x (mockup script and headless Chrome at 960x576, day and `?hour=23`) and at 1x (320x192); the north wall is plain between the table and the desk and the stand reads as a tall thin stand with a small mic. Reachability tests are in `npm test` and pass. Not checked: the vintage variant in-room (contact sheet only); how it feels in a real browser.

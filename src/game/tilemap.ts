@@ -3,7 +3,8 @@ import { TILE } from "./config";
 import type { Appearance, Variant } from "./appearance";
 import type { Direction } from "./direction";
 import type { Interactable } from "./interactable";
-import { pieceBounds, validateLevel, type Door, type Level, type Piece } from "./level";
+import { pieceBounds, validateLevel, type Door, type Level, type Piece, type WallTile } from "./level";
+import { doorwayName, wallKind, wallTileName } from "./wall-tiles";
 import type { Solid } from "./world";
 
 // Builds a level from a picture drawn in text, one character per tile:
@@ -57,6 +58,11 @@ export interface MapOptions {
   // Defaults to the real list in state-vars.ts; pass this for a room meant
   // for a game with its own variables.
   knownVars?: (id: string) => boolean;
+  // Draw the room with the tileset: the floor sprite, and the characters
+  // (besides `#`) that sit in a wall line (see wall-tiles.ts). Without these
+  // the level has no `floor` or `walls`.
+  floor?: string;
+  wallPieces?: string;
 }
 
 const RESERVED = ["#", ".", "@"];
@@ -150,7 +156,13 @@ export function parseTileMap(
       doors.push({ ...def.door, col: tiles[0].col, row: tiles[0].row });
       continue;
     }
-    pieces.push({ name: def.name ?? ch, sprite: def.sprite, tiles, bounds: pieceBounds(tiles) });
+    pieces.push({
+      name: def.name ?? ch,
+      sprite: def.sprite,
+      tiles,
+      bounds: pieceBounds(tiles),
+      ...(def.color && { color: def.color }),
+    });
     const zones = tiles.map((t) => ({ x: t.col * TILE, y: t.row * TILE, w: TILE, h: TILE }));
     const tasks = [
       ...(def.task ? [def.task] : []),
@@ -158,6 +170,30 @@ export function parseTileMap(
     ];
     for (const task of tasks) interactables.push({ ...task, zones });
     if (def.variants) appearances.push({ area: pieceBounds(tiles), variants: def.variants });
+  }
+
+  const tiled = options.floor !== undefined && options.wallPieces !== undefined;
+  const walls: WallTile[] = [];
+  const floorTiles: { col: number; row: number }[] = [];
+  if (tiled) {
+    const room = options.id ?? "";
+    rows.forEach((line, row) =>
+      [...line].forEach((ch, col) => {
+        if (ch !== "#" && !options.wallPieces!.includes(ch)) {
+          floorTiles.push({ col, row });
+          return;
+        }
+        const kind = wallKind(rows, options.wallPieces!, col, row);
+        if (!kind) return;
+        walls.push({
+          col,
+          row,
+          kind,
+          sprite: wallTileName(kind, room),
+          ...(legend[ch]?.door && { doorSprite: doorwayName(kind, room) }),
+        });
+      }),
+    );
   }
 
   const level: Level = {
@@ -168,6 +204,7 @@ export function parseTileMap(
     appearances,
     doors,
     pieces,
+    ...(tiled && { floor: { sprite: options.floor!, tiles: floorTiles }, walls }),
     spawn,
     facing: options.facing,
   };

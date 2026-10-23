@@ -33,6 +33,9 @@ export class Player {
   col: number;
   row: number;
   facing: Direction;
+  // How many steps have been finished. Its parity picks which foot the walk
+  // animation shows (see render/player-sprite.ts).
+  stepsTaken = 0;
 
   readonly w = TILE;
   readonly h = TILE;
@@ -158,6 +161,7 @@ export class Player {
     this.col = this.step.toCol;
     this.row = this.step.toRow;
     this.step = null;
+    this.stepsTaken++;
     this.arrivedThisUpdate = { col: this.col, row: this.row, direction: this.facing };
   }
 

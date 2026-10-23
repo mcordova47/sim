@@ -12,6 +12,13 @@ export function wallTileName(kind: WallKind, room: string): string {
   return `wall-side-${kind}${suffix}`;
 }
 
+// The doorway sprite drawn over a door's wall tile. The main room has the one
+// `doorway`; the kitchen and bath have left- and right-facing versions.
+export function doorwayName(kind: WallKind, room: string): string {
+  if ((room !== "kitchen" && room !== "bath") || (kind !== "left" && kind !== "right")) return "doorway";
+  return `doorway-${kind}-${room}`;
+}
+
 // The kind of wall under tile (col, row), or null when nothing is drawn there
 // (a corner or filler: no floor beside it) or when the tile is not in a wall
 // line at all. A tile is in a wall line if it is `#` or one of `wallPieces`.

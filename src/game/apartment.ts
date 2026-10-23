@@ -13,8 +13,8 @@ import { parseTileMap, type ObjectDef } from "./tilemap";
 //   main room <-> kitchen   a two-tile passage: main west wall, kitchen east wall
 //   kitchen   <-> bath      kitchen leg west wall, bath east wall
 //
-// `sprite` names come from docs/art-style.md; most are not drawn yet, and
-// `color` is only the placeholder until they are.
+// `sprite` names come from docs/art-style.md; `color` is only the placeholder
+// drawn when a sprite is missing.
 
 // -- Main room: 17 by 8 feet ------------------------------------------------
 // Far (north) wall, west to east: table, desk (with its chair), bookshelf
@@ -49,10 +49,10 @@ const MAIN: Record<string, ObjectDef> = {
     sprite: "bed-made",
     color: "mist",
     tasks: ["make-bed", "sleep", "work", "doomscroll"],
-    // Shows whether it is made (placeholder labels until the art exists).
+    // Shows whether it is made.
     variants: [
-      { sprite: "bed-made", when: [{ var: "bedMade", min: 1 }], label: "BED MADE", color: "leaf" },
-      { sprite: "bed-unmade", label: "BED UNMADE", color: "brick" },
+      { sprite: "bed-made", when: [{ var: "bedMade", min: 1 }], color: "leaf" },
+      { sprite: "bed-unmade", color: "brick" },
     ],
   },
   r: { name: "radiator", sprite: "radiator", color: "paper" },
@@ -96,12 +96,12 @@ const KITCHEN: Record<string, ObjectDef> = {
     sprite: "counter",
     color: "butter",
     tasks: ["dishes"],
-    // Shows how many dirty dishes there are (placeholder labels until the art exists).
+    // Shows how many dirty dishes there are.
     variants: [
-      { sprite: "dishes-3", when: [{ var: "dishes", min: 3 }], label: "DISHES 3+", color: "brick" },
-      { sprite: "dishes-2", when: [{ var: "dishes", min: 2 }], label: "DISHES 2", color: "tangerine" },
-      { sprite: "dishes-1", when: [{ var: "dishes", min: 1 }], label: "DISHES 1", color: "butter" },
-      { sprite: "dishes-0", label: "CLEAN", color: "butter" },
+      { sprite: "dishes-3", when: [{ var: "dishes", min: 3 }], color: "brick" },
+      { sprite: "dishes-2", when: [{ var: "dishes", min: 2 }], color: "tangerine" },
+      { sprite: "dishes-1", when: [{ var: "dishes", min: 1 }], color: "butter" },
+      { sprite: "dishes-0", color: "butter" },
     ],
   },
   V: { name: "stove", sprite: "stove", color: "ink", tasks: ["cook"] },
@@ -154,8 +154,14 @@ export interface Apartment {
 export const APARTMENT: Apartment = {
   start: "main",
   rooms: {
-    main: parseTileMap(MAIN_MAP, MAIN, { id: "main", tasks: TASKS, facing: "down" }),
-    kitchen: parseTileMap(KITCHEN_MAP, KITCHEN, { id: "kitchen", tasks: TASKS, facing: "left" }),
-    bath: parseTileMap(BATH_MAP, BATH, { id: "bath", tasks: TASKS, facing: "left" }),
+    main: parseTileMap(MAIN_MAP, MAIN, {
+      id: "main", tasks: TASKS, facing: "down", floor: "floor-wood", wallPieces: WALL_PIECES.main,
+    }),
+    kitchen: parseTileMap(KITCHEN_MAP, KITCHEN, {
+      id: "kitchen", tasks: TASKS, facing: "left", floor: "floor-kitchen", wallPieces: WALL_PIECES.kitchen,
+    }),
+    bath: parseTileMap(BATH_MAP, BATH, {
+      id: "bath", tasks: TASKS, facing: "left", floor: "floor-bath", wallPieces: WALL_PIECES.bath,
+    }),
   },
 };

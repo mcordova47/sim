@@ -13,6 +13,8 @@ export interface SpriteSize {
 // while art is still being made.
 // What the game needs to draw a sprite; tests substitute a recorder.
 export interface SpriteDrawer {
+  // True once the sprite has loaded (false for one that failed or was never asked for).
+  has(name: string): boolean;
   draw(
     ctx: CanvasRenderingContext2D,
     name: string,

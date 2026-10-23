@@ -105,7 +105,7 @@ xfffffffx
 The `.` tiles are not wall lines. Where the sofa wall steps down, a wall tile with an open tile to its north is front even if one is also to its east (the step's end).
 
 ## Doing the same task from different places
-A task is placed on an object by id, so the same task can be on several objects. **Work** is on the desk, the sofa and the bed; **doomscroll** is on the sofa and the bed. They share one cooldown and repeat penalty (they are the same task), so working from the couch after working at the desk counts as a repeat. When an object has several tasks (the table has three), the interact key starts the first one that is off cooldown, so they rotate until the choice menu (issue 023).
+A task is placed on an object by id, so the same task can be on several objects. **Work** is on the desk, the sofa and the bed; **doomscroll** is on the sofa and the bed. They share one cooldown and repeat penalty (they are the same task), so working from the couch after working at the desk counts as a repeat. When an object has several tasks (the table has three), the interact key starts the one shown in the prompt: the first that can start, or the one the player cycled to with Tab (issue 039, `docs/tasks.md`).
 
 ## Spots
 A spot is a walkable tile to stand on and the direction to face. `taskSpots` in `plan-checks.ts` works them out from the map: every walkable tile next to a tile of the object. A test walks from the start, through the doorways, and fails if any task has no reachable spot. For example, coffee at the table is done from the four tiles south of it, facing up; the guitar from the tile north of it, facing down; and the blinds from the east-wall lane, facing east.

@@ -1,7 +1,7 @@
 ---
 id: 039
 title: Choosing a task at an object (options, not only first-available)
-status: todo
+status: review
 owner: claude
 depends_on: []
 ---
@@ -24,3 +24,13 @@ An object with several tasks currently offers the first one that can start, so t
 - A rendered frame of the prompt with and without a choice at 1x; the longest prompt with the indicator fits one line. `npm test` and `npm run build` pass. Marc plays it.
 
 ## Progress log
+
+- 2026-10-23: Started. Plan: selection logic in `InteractionSystem.update`, Tab/Q read from `controls.keys`, count in the prompt, tests, docs.
+- 2026-10-23: Done, ready for review.
+  - Changed: `src/game/interaction.ts` (`choices`, `choiceIndex`, cycling, memory), `src/input/keyboard.ts` (Tab no longer moves focus), `src/render/world-ui.ts` and `src/game/game.ts` (`<2/4>` after the verb), `docs/tasks.md`, `docs/floor-plan.md`. Tests: `src/game/task-choice.test.ts` (cycling, wrap, Shift/Q, reset, memory, availability changes, no cycling during tasks/dialogs/locks, real desk/sofa/bed, a seeded fuzz of random keys, Escape, dialogs and locks), `src/render/choice-prompt.test.ts`.
+  - Decision: only a pick the player made is remembered. Remembering the automatic fallback broke an existing test (`offers the first task on an object that can be done now`) and would pin the wrong task; with the rule, the existing tests pass unchanged.
+  - Decision: the cycle key is ignored on the frame a task ends, so a Tab typed into the typing game can't cycle.
+  - Checked: `npm test` (1191 pass), `npm run build`. Rendered the real game in headless Chrome at 1x (320x192, harness deleted): open-blinds with no choice (as before, with good-hour icon), desk `WORK ON SIDE PROJECT <2/4>`, sofa `DOOMSCROLL <3/3>`. Longest real prompt with the count and good-hour hint is tested to fit one line.
+  - Survey of real data over random states: choices now appear at the desk (work, side project, journal, tidy), sofa, bed, dining table (coffee/reheat/dinner), fridge (stare/humidifier), vanity (mirror and brush teeth) and bookshelf (water plant and a sort). The blinds and records stay automatic.
+  - For the planner: at the vanity the mirror variants can overlap (`mirror-tired` with `mirror-day`, etc.), so the cycle can show two entries both called "Look in mirror". Not changed (outside the design as written); 041 could make them exclusive.
+  - Not checked: how it feels in a browser, Tab behaviour in real browsers (preventDefault is on the window keydown).

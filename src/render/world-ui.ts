@@ -42,16 +42,26 @@ export const GOOD_HOUR_ICON = "icon-good-hour";
 export const GOOD_HOUR_ICON_SIZE = 9;
 const HINT_GAP = 5;
 
+// Where the player is among the tasks offered at an object (issue 039), shown
+// after the verb as "<1/3>" when there is more than one.
+export interface Choice {
+  index: number;
+  count: number;
+}
+const choiceLabel = (c: Choice) => `<${c.index + 1}/${c.count}>`;
+const choiceWidth = (c?: Choice | null) => (c && c.count > 1 ? HINT_GAP + textWidth(choiceLabel(c)) : 0);
+
 export function promptSize(
   item: Interactable,
   cooldownRemaining: number,
   unavailable: string | null = null,
   goodTime = false,
   iconReady = false,
+  choice: Choice | null = null,
 ) {
   const keyW = cooldownRemaining > 0 || unavailable ? 0 : KEY_WIDTH;
   const hintW = goodTime ? HINT_GAP + (iconReady ? GOOD_HOUR_ICON_SIZE : textWidth(GOOD_HOUR_HINT)) : 0;
-  return { w: 3 + keyW + textWidth(promptLabel(item, cooldownRemaining, unavailable)) + hintW + 3, h: 13 };
+  return { w: 3 + keyW + textWidth(promptLabel(item, cooldownRemaining, unavailable)) + choiceWidth(choice) + hintW + 3, h: 13 };
 }
 
 export function progressSize(item: Interactable) {
@@ -71,11 +81,12 @@ export function drawPrompt(
   unavailable: string | null = null,
   goodTime = false,
   sprites?: SpriteDrawer,
+  choice: Choice | null = null,
 ): void {
   const cooling = cooldownRemaining > 0 || unavailable !== null;
   const label = promptLabel(item, cooldownRemaining, unavailable);
   const icon = !!sprites?.has(GOOD_HOUR_ICON);
-  const size = promptSize(item, cooldownRemaining, unavailable, goodTime, icon);
+  const size = promptSize(item, cooldownRemaining, unavailable, goodTime, icon, choice);
 
   const box = placeLabel(
     { x: actor.x + actor.w / 2, top: actor.y, bottom: actor.y + actor.h },
@@ -95,8 +106,13 @@ export function drawPrompt(
     textX += KEY_WIDTH;
   }
   drawText(ctx, label, textX, box.y + 3, { color: cooling ? DIM : TEXT, shadow: null });
+  let afterX = textX + textWidth(label);
+  if (choice && choice.count > 1 && !cooling) {
+    drawText(ctx, choiceLabel(choice), afterX + HINT_GAP, box.y + 3, { color: DIM, shadow: null });
+    afterX += choiceWidth(choice);
+  }
   if (goodTime && !cooling) {
-    const hintX = textX + textWidth(label) + HINT_GAP;
+    const hintX = afterX + HINT_GAP;
     if (icon) sprites!.draw(ctx, GOOD_HOUR_ICON, hintX, box.y + 2);
     else drawText(ctx, GOOD_HOUR_HINT, hintX, box.y + 3, { color: ACCENT, shadow: null });
   }

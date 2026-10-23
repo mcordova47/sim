@@ -15,6 +15,11 @@ export interface GameEvents {
   room: { id: string; level: Level };
   taskStart: { item: Interactable };
   taskComplete: { item: Interactable; award: Award };
+  // A task's activity ended without finishing (the player backed out): no
+  // points, no changes to the apartment, no cooldown.
+  taskCancelled: { item: Interactable };
+  // A named moment in a cutscene (for sound and animation features to react to).
+  cue: { name: string };
   // The player pressed interact but the task in reach is not ready yet.
   // `message` is the reason shown to the player when `reason` is "requirement".
   taskBlocked: { item: Interactable; reason: "cooldown" | "requirement"; message?: string };

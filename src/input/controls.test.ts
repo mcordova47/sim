@@ -6,9 +6,13 @@ import type { Keyboard } from "./keyboard";
 function fakeKeyboard() {
   const down = new Set<string>();
   const pressed = new Set<string>();
+  const released = new Set<string>();
   const keyboard = {
     isDown: (code: string) => down.has(code),
     wasPressed: (code: string) => pressed.has(code),
+    pressedKeys: () => [...pressed],
+    heldKeys: () => [...down],
+    releasedKeys: () => [...released],
   } as unknown as Keyboard;
   return {
     keyboard,
@@ -17,10 +21,11 @@ function fakeKeyboard() {
       pressed.add(code);
     },
     release(code: string) {
-      down.delete(code);
+      if (down.delete(code)) released.add(code);
     },
     endFrame() {
       pressed.clear();
+      released.clear();
     },
   };
 }
@@ -84,9 +89,33 @@ describe("readControls", () => {
     }
   });
 
+  it("lists every key that went down this frame", () => {
+    const k = fakeKeyboard();
+    k.press("KeyA");
+    k.press("Space");
+    expect(readControls(k.keyboard).keys.sort()).toEqual(["KeyA", "Space"]);
+    k.endFrame();
+    expect(readControls(k.keyboard).keys).toEqual([]);
+  });
+
   it("has no jump control any more", () => {
     const k = fakeKeyboard();
     k.press("Space");
-    expect(readControls(k.keyboard)).toEqual(NO_INPUT);
+    // Space is just a key now: no movement, no interact, no cancel.
+    expect(readControls(k.keyboard)).toEqual({ ...NO_INPUT, keys: ["Space"], keysDown: ["Space"] });
+  });
+
+  it("lists the keys held, and the keys let go this frame", () => {
+    const k = fakeKeyboard();
+    k.press("KeyA");
+    k.press("KeyB");
+    expect(readControls(k.keyboard).keysDown.sort()).toEqual(["KeyA", "KeyB"]);
+    expect(readControls(k.keyboard).keysReleased).toEqual([]);
+    k.endFrame();
+    k.release("KeyA");
+    expect(readControls(k.keyboard).keysDown).toEqual(["KeyB"]);
+    expect(readControls(k.keyboard).keysReleased).toEqual(["KeyA"]);
+    k.endFrame();
+    expect(readControls(k.keyboard).keysReleased).toEqual([]);
   });
 });

@@ -1,7 +1,7 @@
 ---
 id: 009b
 title: "Polish: particles"
-status: review
+status: done
 owner: agent
 depends_on: []
 ---
@@ -76,3 +76,27 @@ Not checked
 Open items for the planner
 - `features.ts` has two changed lines instead of one, and `render/colors.ts` one added line (both explained above).
 - Possible follow-up: a slumped walk for low mood is still not done (the issue said not to).
+
+### 2026-10-23: review (independent)
+Verdict: approve.
+
+Checks I ran myself (not the author's tests): `npm test` 1236 pass, `npx tsc --noEmit` clean, `npm run build` ok. A throwaway vitest file (deleted) that completes every interactable in every room with chains 1 to 6, repeats and good hours (no throw, never above the 200 budget); 20 s of holding into a wall (one bump puff of 4) and tapping; a dialog opened over a live burst (ages and positions frozen); mug steam then a room change (pool cleared); mood crossing down, staying low, recovering and crossing again; 100 updates of dt = 5 s (stays within budget); a full pool drawn through a recording proxy (every fillRect integer, only fillRect used, alpha back to 1, no clip/shadow/filter, no save/restore of its own). Emitter anchors checked per room: kitchen and bath return null for the record stand (no notes there), and every task emitter resolves in its own room. A temporary Vite page plus headless Chrome through the DevTools protocol (deleted) rendered the real game with all features, with fresh progress each run, at 1x full frame and 4x/6x crops, day and `?hour=23`.
+
+Criteria
+- Walking: pass. Wood dust and stone dust seen; bath none (tests); tired (energy 10) leaves zero particles; bump puff is one burst per hold, a second after letting go.
+- Task completion: pass. Single burst, chain of 3 (coffee, water-plant, make-bed) gives multicolor squares plus COMBO X2.0; repeat is a smaller grey burst (unit tests and burstPlan); cancelled and blocked make nothing.
+- Task effects: pass. Seen: steam at the kettle and dripper, carried mug steam (facing down and left), bubbles at the sink, blue z from the bed pillow at night, white z from the sofa on a nap (others disabled in the harness to reach it), notes from the guitar neck, a note from the record stand with a record selected, plus-shaped sparkles around the clock in the popup. The drink pose steam sat behind the progress banner in my frame, so only unit-tested. Table-driven in `PARTICLES.taskEmitters` / `ambientEmitters`.
+- Low mood: pass. Mist puff beside the head with the SIGH popup, once per crossing.
+- World space, whole pixels, palette: pass. Drawn in drawWorld after the time-of-day layer (so not tinted); at `?hour=23` dust, z, and confetti read fine and stay bright. Popups, HUD, views and dialogs are drawn by game.ts after the world pass, so particles cannot cover them.
+- Budget: pass. 200, oldest replaced, slots reused. Nit (not blocking): `emitAll` builds a `Set` and a key array each frame, a few tiny allocations per update; not meaningful.
+- Injected random and unit tests: pass.
+- Pause: pass. Dialog open (pauseClock true) freezes particles and emitters; locked-controls-without-a-task pauses too; tasks running carry on (like popups).
+- Config: pass. Numbers and colors in `PARTICLES`.
+- Recording-canvas test: pass (exists, and my own proxy check agrees).
+- Marc looks at it: frames rendered; Marc's own look at 1x is still his to do. The how-to-see list in the log is accurate for what I reproduced.
+- Canvas balance note: pass. No clip, shadow, filter, or own save/restore.
+
+Scope: `game.ts` untouched. Changes limited to `src/game/particles/`, `config.ts` additions, `features.ts`, `render/colors.ts`, and this issue file. features.ts is two changed lines (the extra is `const sound =` so the layer can ask whether a record plays) and colors.ts one added export line (`paletteColor`). Both are small and sensibly justified; acceptable, though the planner should know the "one line in features.ts" wording was stretched. No reference-photos content in the repo.
+
+Could not verify: feel in a live browser over a session (frames only; particles are very small at 1x, as intended); real audio for the record player (I only checked the notes spawn with a track set in `life.sound.v1`, no audio device); reaching the nap at the sofa in normal play (needed doomscroll, contemplate, work and art removed; existing behaviour, issue 039).
+Note for whoever drives the dev build: progress persists in `life.progress.v1`, so a low mood or energy left from an earlier session changes which effects you see.

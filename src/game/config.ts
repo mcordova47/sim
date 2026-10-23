@@ -5,6 +5,12 @@ export const VIEW = {
   height: 12 * TILE,
 };
 
+// Game events. A touchdown slower than this (px/s) is not announced, which
+// skips settling onto the floor at spawn and tiny steps down.
+export const EVENTS = {
+  minLandSpeed: 40,
+};
+
 // Camera tuning. Distances are pixels.
 export const CAMERA = {
   // How quickly the view catches up with the player, per second. Higher is snappier.

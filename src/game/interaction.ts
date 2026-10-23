@@ -30,6 +30,11 @@ export class InteractionSystem {
   active: ActiveTask | null = null;
   lastCompletion: CompletionEvent | null = null;
 
+  // Optional hooks for things that react to a task starting, or to the player
+  // pressing interact when the task in reach is still cooling down.
+  onStart?: (item: Interactable) => void;
+  onBlocked?: (item: Interactable, reason: "cooldown") => void;
+
   private readyAt = new Map<string, number>();
   // Seconds left on a remembered interact press.
   private interactBuffer = 0;
@@ -80,7 +85,15 @@ export class InteractionSystem {
     ) {
       this.interactBuffer = 0;
       this.active = { item: this.nearby, elapsed: 0 };
+      this.onStart?.(this.nearby);
       if (this.nearby.duration <= 0) this.finish(this.nearby);
+    } else if (
+      this.nearby &&
+      controls.interactPressed &&
+      player.grounded &&
+      this.cooldownRemaining(this.nearby) > 0
+    ) {
+      this.onBlocked?.(this.nearby, "cooldown");
     }
   }
 

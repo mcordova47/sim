@@ -26,6 +26,12 @@ export class Player {
   grounded = false;
   facing: 1 | -1 = 1;
 
+  // What happened during the most recent update(), for things that react to it
+  // (sound, particles). They are reset at the start of each update.
+  jumpedThisUpdate = false;
+  // Speed in px/s of the hardest touchdown after being airborne, else 0.
+  landingSpeed = 0;
+
   readonly w = PLAYER.width;
   readonly h = PLAYER.height;
 
@@ -40,6 +46,8 @@ export class Player {
   update(dt: number, controls: Controls, solids: Solid[]): void {
     this.prevX = this.x;
     this.prevY = this.y;
+    this.jumpedThisUpdate = false;
+    this.landingSpeed = 0;
 
     this.resolveOverlaps(solids);
 
@@ -116,6 +124,7 @@ export class Player {
       this.jumpBuffer = 0;
       this.coyote = 0;
       this.grounded = false;
+      this.jumpedThisUpdate = true;
     }
 
     // Variable jump height: letting go early cuts the rise short.
@@ -135,6 +144,7 @@ export class Player {
 
   private moveY(dt: number, solids: Solid[]): void {
     const prevBottom = this.y + this.h;
+    const wasGrounded = this.grounded;
     this.y += this.vy * dt;
     this.grounded = false;
 
@@ -143,6 +153,8 @@ export class Player {
       if (this.vy > 0) {
         // One-way platforms only catch us if we were above them last step.
         if (s.oneWay && prevBottom > s.y) continue;
+        // Touching down after being airborne, as opposed to standing still.
+        if (!wasGrounded) this.landingSpeed = Math.max(this.landingSpeed, this.vy);
         this.y = s.y - this.h;
         this.vy = 0;
         this.grounded = true;

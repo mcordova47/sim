@@ -4,10 +4,22 @@ import { COLOR } from "../render/colors";
 import { Hud } from "../render/hud";
 import { Popups, type PopupLine } from "../render/popups";
 import { drawProgress, drawPrompt } from "../render/world-ui";
-import { VIEW } from "./config";
+import { EVENTS, VIEW } from "./config";
+import { Emitter, type GameEvents } from "./events";
 import { InteractionSystem } from "./interaction";
 import type { Level } from "./level";
 import { Player } from "./player";
+
+// An extra thing the game updates and draws, added with `Game.addLayer`. Every
+// hook is optional. Layers run in the order they were added.
+export interface Layer {
+  update?(dt: number): void;
+  // Drawn in world space, inside the camera transform, after the player.
+  // `camera` is the world position of the top-left of the view.
+  drawWorld?(ctx: CanvasRenderingContext2D, camera: { x: number; y: number }): void;
+  // Drawn in screen space, after the HUD.
+  drawHud?(ctx: CanvasRenderingContext2D): void;
+}
 
 // The running game: owns the player, tasks, scoring and the UI built on them.
 // It never touches the keyboard or the loop, so it can be driven by tests.
@@ -15,8 +27,11 @@ export class Game {
   readonly player: Player;
   readonly interaction: InteractionSystem;
   readonly camera: Camera;
+  // Announces jumps, landings and task starts, completions and refusals.
+  readonly events = new Emitter<GameEvents>();
   private readonly hud = new Hud();
   private readonly popups = new Popups();
+  private readonly layers: Layer[] = [];
 
   constructor(private readonly level: Level) {
     this.player = new Player(level.spawn.x, level.spawn.y);
@@ -31,16 +46,35 @@ export class Game {
         lines.push({ text: `REPEAT X${award.repeatFactor.toFixed(2)}`, color: COLOR.mist });
       }
       this.popups.add(item.zone.x + item.zone.w / 2, item.zone.y, lines);
+      this.events.emit("taskComplete", { item, award });
     });
+    this.interaction.onStart = (item) => this.events.emit("taskStart", { item });
+    this.interaction.onBlocked = (item, reason) =>
+      this.events.emit("taskBlocked", { item, reason });
+  }
+
+  // Adds an extra layer (sound, particles, toasts, lighting...). Returns a
+  // function that removes it again.
+  addLayer(layer: Layer): () => void {
+    this.layers.push(layer);
+    return () => {
+      const i = this.layers.indexOf(layer);
+      if (i >= 0) this.layers.splice(i, 1);
+    };
   }
 
   update(dt: number, controls: Controls): void {
     this.interaction.update(dt, this.player, controls);
     // Locked in place while a task runs.
     this.player.update(dt, this.interaction.busy ? NO_INPUT : controls, this.level.solids);
+    if (this.player.jumpedThisUpdate) this.events.emit("jump", {});
+    if (this.player.landingSpeed >= EVENTS.minLandSpeed) {
+      this.events.emit("land", { speed: this.player.landingSpeed });
+    }
     this.camera.update(dt, this.playerCentre());
     this.popups.update(dt);
     this.hud.update(dt, this.interaction.scoreboard.score);
+    for (const layer of this.layers) layer.update?.(dt);
   }
 
   render(ctx: CanvasRenderingContext2D, alpha: number): void {
@@ -62,12 +96,14 @@ export class Game {
     ctx.save();
     ctx.translate(-cam.x, -cam.y);
     this.drawWorld(ctx, actor);
+    for (const layer of this.layers) layer.drawWorld?.(ctx, cam);
     ctx.restore();
 
     // World UI is laid out in screen space (it must stay on screen and clear
     // of the HUD), so it gets screen positions, then the HUD goes on top.
     this.drawWorldUi(ctx, { ...actor, x: actor.x - cam.x, y: actor.y - cam.y }, cam);
     this.drawHud(ctx);
+    for (const layer of this.layers) layer.drawHud?.(ctx);
   }
 
   private playerCentre(): { x: number; y: number } {

@@ -25,7 +25,7 @@ import { parseTileMap, type ObjectDef } from "./tilemap";
 // door is decoration for now): guitar by the sofa's west end, lamp table and
 // record stand by its east end. The passage to the kitchen is in the west wall
 // between the table and the sofa.
-const MAIN_MAP = [
+export const MAIN_MAP = [
   "##pp###qq#####uuu##",
   "#TTTT.DDDDH...NNNr#",
   "#TTTT.DDDDH.BBBBBr#",
@@ -77,7 +77,7 @@ const MAIN: Record<string, ObjectDef> = {
 // east side (4 by 4) with the fridge against the east wall. The passage to the
 // main room is in the east wall of the bar; the bath door is in the west wall
 // of the leg. The solid block at the bottom left is the bath.
-const KITCHEN_MAP = [
+export const KITCHEN_MAP = [
   "#############",
   "#.......YNXX#",
   "c..........O#",
@@ -120,7 +120,7 @@ const KITCHEN: Record<string, ObjectDef> = {
 // -- Bath: 7 by 4 feet -------------------------------------------------------
 // The tub down the west wall, the toilet and the vanity sink against the north
 // wall, and the door in the east wall, opening into the kitchen's leg.
-const BATH_MAP = [
+export const BATH_MAP = [
   "#########",
   "#UU.QQVV#",
   "#UU.QQVV#",
@@ -134,6 +134,15 @@ const BATH: Record<string, ObjectDef> = {
   Q: { name: "toilet", sprite: "toilet", color: "paper", tasks: ["sit"] },
   V: { name: "vanity sink", sprite: "vanity", color: "paper", tasks: ["brush-teeth"] },
   "1": { door: { to: "kitchen", arrive: { col: 8, row: 7, facing: "right" } } },
+};
+
+// The map characters, besides `#`, that sit in a wall line rather than on the
+// floor: windows, doors, paintings, the front door, the kitchen curtain and
+// the range hood. See wall-tiles.ts for how the wall under them is drawn.
+export const WALL_PIECES: Record<string, string> = {
+  main: "pquwWf12",
+  kitchen: "c123h",
+  bath: "1",
 };
 
 export interface Apartment {

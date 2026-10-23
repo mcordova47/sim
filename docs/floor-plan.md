@@ -50,19 +50,58 @@ The bar runs along the top (11 x 4): the sink and counter (3 wide) and the stove
 The tub (2 x 4) down the west wall, the toilet and the vanity sink (each 2 x 2) against the north wall, a walkway across the south, and the door in the east wall.
 
 ## Wall tiles
-Every `#` in a map is one of these, picked from its orthogonal neighbours. "Open" means any tile that is not `#` (floor, furniture, a door or a wall decoration such as a window or painting). Take the first rule that matches:
+`wallKind(map, wallPieces, col, row)` in `src/game/wall-tiles.ts` is the rule; issue 031 draws with it, and `wall-tiles.test.ts` pins the result for every tile of the three maps. `wallTileName(kind, room)` gives the sprite name.
 
-| Kind | Tile | Where it applies |
+A tile is in a **wall line** if it is `#` or a wall piece: a character that sits in a wall rather than on the floor (`WALL_PIECES` in `apartment.ts`). Main room: paintings `p q u`, windows `w W`, front door `f`, doors `1 2`. Kitchen: curtain `c`, doors `1 2 3`, range hood `h`. Bath: door `1`. A tile is **open** if it is anything else (floor, furniture). Wall pieces and doors are never open, so a door beside a wall tile does not change what that wall tile is.
+
+Every wall-line tile, pieces included, gets the tile below, drawn under the piece. First match wins:
+
+| Kind | Tile | When |
 |---|---|---|
-| Back wall | `wall-back` | `#` with an open tile directly south: the north wall, and the wall below the main room's north-wall pieces |
-| Left wall | `wall-side-left` | `#` with an open tile directly east: a west wall |
-| Right wall | `wall-side-right` | `#` with an open tile directly west: an east wall |
-| Front wall | `wall-front` | `#` with an open tile directly north and none of the above: a south wall (the sofa wall, the front-door steps, the bar's south wall under the sink, stove and hood, and the south wall of the bath and of the kitchen leg) |
-| Corners and filler | nothing | `#` with no open orthogonal neighbour: the outer corners, the solid block that is the bath seen from the kitchen, the step-down corners. Left undrawn, so the canvas background (ink) shows. This removes the heavy grey bands |
+| back | `wall-back` | open tile directly south (the north walls, under the paintings too) |
+| front | `wall-front` | open tile directly north (south walls: sofa wall, front-door steps, the kitchen bar's south wall under the sink, stove and hood including the tiles at both ends, the bath's and the leg's south walls) |
+| left | `wall-side-left` | open tile directly east (west walls, and the west faces of the kitchen leg's wall and bath door) |
+| right | `wall-side-right` | open tile directly west (east walls) |
+| none | not drawn | no open orthogonal neighbour: the outer corners, the solid block that is the bath seen from the kitchen, other filler. The ink background shows, so there are no grey bands |
 
-Wall decorations (`p`, `q`, `u` paintings; `w`, `W` and `c` windows and curtain; `f` front door; doors `1`, `2`, `3`) sit in a wall tile of the kind above, so the wall tile is drawn under them first.
+Per room, `back` and `front` are `wall-back` and `wall-front` everywhere; `left` and `right` take the room's own tiles: main `wall-side-left`/`wall-side-right`, kitchen `wall-side-left-kitchen`/`wall-side-right-kitchen`, bath `wall-side-left-bath`/`wall-side-right-bath`. Floors are `floor-wood` (main), `floor-kitchen`, `floor-bath`. Doors draw their doorway sprite over the wall tile: `doorway` (main), `doorway-left-kitchen`, `doorway-right-kitchen`, `doorway-right-bath`.
 
-Per room, the side walls and floors use the room's own tiles: main room `floor-wood`, `wall-side-left`, `wall-side-right`, `doorway`; kitchen `floor-kitchen`, `wall-side-left-kitchen`, `wall-side-right-kitchen`, `doorway-left-kitchen`, `doorway-right-kitchen`; bath `floor-bath`, `wall-side-left-bath`, `wall-side-right-bath`, `doorway-right-bath`. `wall-back` and `wall-front` are shared by all three rooms. Issue 031 does the drawing.
+Resulting pictures (b back, f front, l left, r right, x none):
+
+```
+main
+xbbbbbbbbbbbbbbbbbx
+l.................r
+l.................r
+l.................r
+l.................r
+l.................r
+l.................r
+xfffffff..........r
+xxxxxxxxff........r
+xxxxxxxxxxffffffffx
+
+kitchen
+xbbbbbbbbbbbx
+l...........r
+l...........r
+l...........r
+l...........r
+xfffffff....r
+xxxxxxxl....r
+xxxxxxxl....r
+xxxxxxxl....r
+xxxxxxxxffffx
+
+bath
+xbbbbbbbx
+l.......r
+l.......r
+l.......r
+l.......r
+xfffffffx
+```
+The `.` tiles are not wall lines. Where the sofa wall steps down, a wall tile with an open tile to its north is front even if one is also to its east (the step's end).
 
 ## Doing the same task from different places
 A task is placed on an object by id, so the same task can be on several objects. **Work** is on the desk, the sofa and the bed; **doomscroll** is on the sofa and the bed. They share one cooldown and repeat penalty (they are the same task), so working from the couch after working at the desk counts as a repeat. When an object has several tasks (the table has three), the interact key starts the first one that is off cooldown, so they rotate until the choice menu (issue 023).

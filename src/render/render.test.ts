@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { GLYPHS, GLYPH_H, GLYPH_W, textWidth } from "./font";
-import { HUD_BOX, placeLabel, type Box } from "./layout";
+import { HUD_BOX, fitBox, placeLabel, type Box } from "./layout";
 import { Popups } from "./popups";
 
 const view = { width: 320, height: 192 };
@@ -75,14 +75,123 @@ describe("placeLabel", () => {
   });
 });
 
+describe("placeLabel with wide labels", () => {
+  const overlaps = (a: Box, b: Box) =>
+    a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+
+  it("clears the HUD even when too wide to slide beside it", () => {
+    // 200px can't fit to the right of the 152px HUD on a 320px screen.
+    const size = { w: 200, h: 13 };
+    for (let x = 0; x <= 320; x += 10) {
+      for (let top = 0; top <= 120; top += 6) {
+        const box = placeLabel({ x, top, bottom: top + 14 }, size, view);
+        expect(overlaps(box, HUD_BOX), `x=${x} top=${top}`).toBe(false);
+        expect(box.x).toBeGreaterThanOrEqual(0);
+        expect(box.x + box.w).toBeLessThanOrEqual(view.width);
+      }
+    }
+  });
+
+  it("also keeps clear of extra boxes such as popups", () => {
+    const popup: Box = { x: 150, y: 80, w: 40, h: 20 };
+    const box = placeLabel({ x: 170, top: 100, bottom: 114 }, { w: 60, h: 13 }, view, [
+      HUD_BOX,
+      popup,
+    ]);
+    expect(overlaps(box, popup)).toBe(false);
+    expect(overlaps(box, HUD_BOX)).toBe(false);
+  });
+});
+
+describe("fitBox", () => {
+  const overlaps = (a: Box, b: Box) =>
+    a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+
+  it("leaves a box that is already fine alone", () => {
+    const box = { x: 200, y: 100, w: 40, h: 10 };
+    expect(fitBox(box, view)).toEqual(box);
+  });
+
+  it("pulls a box back on screen on every side", () => {
+    expect(fitBox({ x: -30, y: 100, w: 40, h: 10 }, view).x).toBeGreaterThanOrEqual(0);
+    const right = fitBox({ x: 310, y: 100, w: 40, h: 10 }, view);
+    expect(right.x + right.w).toBeLessThanOrEqual(view.width);
+    expect(fitBox({ x: 200, y: -20, w: 40, h: 10 }, view).y).toBeGreaterThanOrEqual(0);
+    const bottom = fitBox({ x: 200, y: 200, w: 40, h: 10 }, view);
+    expect(bottom.y + bottom.h).toBeLessThanOrEqual(view.height);
+  });
+
+  it("moves a box out of the HUD the shortest way", () => {
+    // Just inside the HUD's right edge: easier to go right than down.
+    const nearRight = fitBox({ x: 140, y: 10, w: 40, h: 10 }, view);
+    expect(overlaps(nearRight, HUD_BOX)).toBe(false);
+    expect(nearRight.y).toBe(10);
+    // Just above the HUD's bottom edge, far from the right: easier to go down.
+    const nearBottom = fitBox({ x: 10, y: 30, w: 40, h: 10 }, view);
+    expect(overlaps(nearBottom, HUD_BOX)).toBe(false);
+    expect(nearBottom.x).toBe(10);
+  });
+});
+
 describe("Popups", () => {
+  const popupText = (text: string, scale = 1) => [{ text, color: "#fff", scale }];
+
   it("expires popups after their lifetime", () => {
     const p = new Popups();
-    p.add(10, 10, [{ text: "+5", color: "#fff" }]);
+    p.add(10, 10, popupText("+5"));
     expect(p.count).toBe(1);
     p.update(0.5);
     expect(p.count).toBe(1);
     p.update(2);
     expect(p.count).toBe(0);
+  });
+
+  it("keeps popups of every size fully on screen at every edge", () => {
+    const lines = [
+      { text: "+45", color: "#fff", scale: 2 },
+      { text: "COMBO X3.0", color: "#fff" },
+      { text: "REPEAT X0.50", color: "#fff" },
+    ];
+    for (const x of [0, 5, 20, 35, 160, 285, 300, 319, 400]) {
+      for (const y of [0, 4, 30, 100, 180, 192]) {
+        for (const age of [0, 0.4, 1.2]) {
+          const p = new Popups();
+          p.add(x, y, lines);
+          p.update(age);
+          const [box] = p.boxes(view);
+          const at = `x=${x} y=${y} age=${age}`;
+          expect(box.x, at).toBeGreaterThanOrEqual(0);
+          expect(box.y, at).toBeGreaterThanOrEqual(0);
+          expect(box.x + box.w, at).toBeLessThanOrEqual(view.width);
+          expect(box.y + box.h, at).toBeLessThanOrEqual(view.height);
+        }
+      }
+    }
+  });
+
+  it("keeps popups out of the HUD", () => {
+    const overlaps = (a: Box, b: Box) =>
+      a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+    for (const x of [10, 60, 120, 150]) {
+      const p = new Popups();
+      p.add(x, 20, popupText("+45", 2));
+      const [box] = p.boxes(view);
+      expect(overlaps(box, HUD_BOX), `x=${x}`).toBe(false);
+    }
+  });
+
+  it("measures the real widest line, not a fixed margin", () => {
+    const p = new Popups();
+    p.add(160, 100, [{ text: "REPEAT X0.50", color: "#fff" }]);
+    const [box] = p.boxes(view);
+    expect(box.w).toBe(textWidth("REPEAT X0.50"));
+  });
+
+  it("reports boxes in screen coordinates relative to the camera", () => {
+    const p = new Popups();
+    p.add(500, 100, popupText("+9"));
+    const [a] = p.boxes(view, { x: 400, y: 0 });
+    const [b] = p.boxes(view, { x: 440, y: 0 });
+    expect(a.x - b.x).toBe(40);
   });
 });

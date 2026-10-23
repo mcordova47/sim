@@ -1,5 +1,6 @@
 import { NO_INPUT, type Controls } from "../input/controls";
 import { Camera } from "../render/camera";
+import { COLOR } from "../render/colors";
 import { Hud } from "../render/hud";
 import { Popups, type PopupLine } from "../render/popups";
 import { drawProgress, drawPrompt } from "../render/world-ui";
@@ -22,12 +23,12 @@ export class Game {
     this.camera = new Camera(level.size, VIEW);
     this.camera.snapTo(this.playerCentre());
     this.interaction = new InteractionSystem(level.interactables, ({ item, award }) => {
-      const lines: PopupLine[] = [{ text: `+${award.points}`, color: "#ffd166", scale: 2 }];
+      const lines: PopupLine[] = [{ text: `+${award.points}`, color: COLOR.butter, scale: 2 }];
       if (award.multiplier > 1) {
-        lines.push({ text: `COMBO X${award.multiplier.toFixed(1)}`, color: "#ef476f" });
+        lines.push({ text: `COMBO X${award.multiplier.toFixed(1)}`, color: COLOR.tangerine });
       }
       if (award.repeatFactor < 1) {
-        lines.push({ text: `REPEAT X${award.repeatFactor.toFixed(2)}`, color: "#8d99ae" });
+        lines.push({ text: `REPEAT X${award.repeatFactor.toFixed(2)}`, color: COLOR.mist });
       }
       this.popups.add(item.zone.x + item.zone.w / 2, item.zone.y, lines);
     });
@@ -52,7 +53,7 @@ export class Game {
       h: player.h,
     };
 
-    ctx.fillStyle = "#2b2d42";
+    ctx.fillStyle = COLOR.night;
     ctx.fillRect(0, 0, VIEW.width, VIEW.height);
 
     // The world is drawn shifted by the camera. Everything uses the same
@@ -75,21 +76,21 @@ export class Game {
 
   private drawWorld(ctx: CanvasRenderingContext2D, actor: Actor): void {
     for (const s of this.level.solids) {
-      ctx.fillStyle = s.oneWay ? "#8d99ae" : "#4a4e69";
+      ctx.fillStyle = s.oneWay ? COLOR.mist : COLOR.dusk;
       ctx.fillRect(s.x, s.y, s.w, s.h);
     }
 
     ctx.globalAlpha = 0.25;
-    ctx.fillStyle = "#ffd166";
+    ctx.fillStyle = COLOR.butter;
     for (const item of this.level.interactables) {
       ctx.fillRect(item.zone.x, item.zone.y, item.zone.w, item.zone.h);
     }
     ctx.globalAlpha = 1;
 
-    ctx.fillStyle = "#ef233c";
+    ctx.fillStyle = COLOR.brick;
     ctx.fillRect(actor.x, actor.y, actor.w, actor.h);
     // Eye on the facing side so direction is visible.
-    ctx.fillStyle = "#edf2f4";
+    ctx.fillStyle = COLOR.paper;
     ctx.fillRect(actor.x + (this.player.facing > 0 ? actor.w - 3 : 1), actor.y + 3, 2, 2);
   }
 
@@ -101,13 +102,15 @@ export class Game {
     cam: { x: number; y: number },
   ): void {
     const { interaction } = this;
+    // Labels keep clear of any popup that is still floating up.
+    const popupBoxes = this.popups.boxes(VIEW, cam);
     if (interaction.active) {
-      drawProgress(ctx, actor, interaction.active.item, interaction.progress, VIEW);
+      drawProgress(ctx, actor, interaction.active.item, interaction.progress, VIEW, popupBoxes);
     } else if (interaction.nearby) {
       const cooldown = interaction.cooldownRemaining(interaction.nearby);
-      drawPrompt(ctx, actor, interaction.nearby, cooldown, VIEW);
+      drawPrompt(ctx, actor, interaction.nearby, cooldown, VIEW, popupBoxes);
     }
-    this.popups.draw(ctx, VIEW.width, cam);
+    this.popups.draw(ctx, VIEW, cam);
   }
 
   private drawHud(ctx: CanvasRenderingContext2D): void {

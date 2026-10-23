@@ -1,4 +1,5 @@
 import { TILE } from "../game/config";
+import { COLOR } from "./colors";
 
 const SPRITE_DIR = "sprites";
 
@@ -59,11 +60,11 @@ export class Sprites {
       canvas.width = width;
       canvas.height = height;
       const ctx = canvas.getContext("2d")!;
-      ctx.fillStyle = "#d64550";
+      ctx.fillStyle = COLOR.brick;
       ctx.fillRect(0, 0, width, height);
-      ctx.strokeStyle = "#1a1a2e";
+      ctx.strokeStyle = COLOR.ink;
       ctx.strokeRect(0.5, 0.5, width - 1, height - 1);
-      ctx.fillStyle = "#edf2f4";
+      ctx.fillStyle = COLOR.paper;
       ctx.font = "6px monospace";
       ctx.textBaseline = "top";
       ctx.fillText(name.slice(0, Math.floor(width / 4)), 2, 2);

@@ -1,6 +1,8 @@
 // A small built-in 5x7 bitmap font, so text stays crisp at any integer scale
 // and needs no external files. Text is drawn uppercase.
 
+import { COLOR } from "./colors";
+
 export const GLYPH_W = 5;
 export const GLYPH_H = 7;
 const ADVANCE = GLYPH_W + 1;
@@ -117,7 +119,7 @@ export function drawText(
   text: string,
   x: number,
   y: number,
-  { color = "#edf2f4", align = "left", shadow = "#000000", scale = 1 }: TextOptions = {},
+  { color = COLOR.paper, align = "left", shadow = COLOR.ink, scale = 1 }: TextOptions = {},
 ): void {
   const upper = text.toUpperCase();
   const width = textWidth(upper, scale);

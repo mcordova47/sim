@@ -1,7 +1,7 @@
 ---
 id: 033
 title: Floor plan fixes found while drawing the art
-status: review
+status: in-progress
 owner: claude
 depends_on: []
 ---
@@ -26,3 +26,15 @@ Small map and level-data changes the art batches (028 to 030) showed are needed,
   - `docs/art-style.md`: removed the `shower-curtain` row and adjusted the redraw count (8 -> 7).
   - Verified: `npm test` (510 pass) and `npm run build` pass. Not viewed in a browser (no drawing change in this issue).
   - For 031/planner: `scripts/main-room-mockup.mjs` and `room-mockup-kitchen-bath.mjs` still use the old wall logic and a fridge position read from the map; not touched (out of scope).
+- 2026-10-23: Review (independent). Verdict: **changes needed** (one criterion fails on substance; the rest pass).
+  - Fridge: pass. `KITCHEN_MAP` rows 6-8: row 6 `########....#`, rows 7-8 `FF` at cols 10-11, south wall row 9 below. Bath door `3` (col 7, row 7) arrives at (8,7), still floor. Own BFS over the raw maps (parsed from source, not the game's Grid): every task in all three rooms has a reachable walkable adjacent tile; kitchen `fridge-stare` and `humidifier` have 4 spots each. The only unreached floor tile is main (8,7), a pre-existing sealed pocket (main map untouched).
+  - Sprite names: pass. `u` -> `painting-wide`, `w` -> `window`, `W` -> `window-blinds`; all three files exist. Mutation checks: breaking each of the three names made both new tests fail (2 failed each time); changes reverted. Exists-test covers pieces and appearance variants.
+  - Wall-tile rules: **fail** (see list below). I ran the rule (south open -> back; east open -> left; west open -> right; north open -> front; else none) over every `#` in the three maps. Each `#` gets exactly one tile, but several are not sensible and the doc is silent on decorations.
+  - Art doc: pass. `shower-curtain` row removed, no other mention in src/docs/scripts. Redraw rows other than the player row: bed, boxes, desk, mic-stand, table, toilet, tub = 7, so "7 redraw" is correct.
+  - `npm test` 510 pass, `npm run build` pass.
+  - Scope: pass. Only art-style.md, floor-plan.md, apartment.ts, apartment.test.ts and this file; PLAN.md and other issues untouched.
+  - Changes needed:
+    - [ ] The doc does not say which tile sits under the non-`#` wall pieces: east-wall windows `w`/`W` (main col 18 rows 3,4,6,7), west doors `1`/`2`, kitchen `c` curtain, kitchen doors/bath door, front door `f`, paintings. "A wall tile of the kind above" is undefined for them since the rules only classify `#`. State the tile (for example: treat decorations as `#` when classifying, or name it per piece).
+    - [ ] First-match order gives side walls the wrong tile where the wall sits above or below a door/window, because "open" counts doors and decorations: main (0,2), main (18,2), main (18,5), kitchen (12,2), kitchen (7,6), bath (8,2) all come out `wall-back` though they are part of a side wall. Fix by counting doors/side-wall decorations as wall for classification, or by checking east/west before south for those, and state it.
+    - [ ] Kitchen (3,5) and (7,5) (the bar's south wall either side of the hood) come out `wall-side-left`, contradicting the doc's own line that the bar's south wall under the sink, stove and hood is `wall-front`. The hood `h` counts as an open neighbour. Say how the hood row is classified.
+    - [ ] Optional: add a test or a script that prints the classification so 031 does not reimplement it differently; the mockup scripts still use the old logic (author already noted).

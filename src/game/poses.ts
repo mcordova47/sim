@@ -19,9 +19,13 @@ export interface PoseDef {
 }
 
 export const POSES: Record<string, PoseDef> = {
-  // Sitting in the middle cushion of the sofa, seen from behind.
-  "sit-sofa": { sprite: "player-sit-sofa", size: { w: 16, h: 32 }, on: "sofa-td", at: { x: 48, y: 0 } },
-  "read-sofa": { sprite: "player-read-sofa", size: { w: 32, h: 32 }, on: "sofa-td", at: { x: 48, y: 0 } },
+  // Sitting on the right-hand seat cushion of the sofa (x 49..88 of its 96 px),
+  // seen from behind. The sprite is only the person, with no furniture of its
+  // own, so the sofa's backrest and back rail show through below the shoulders. It is
+  // as tall as the sofa (the lower half is empty) so it is drawn in front of it.
+  "sit-sofa": { sprite: "player-sit-sofa", size: { w: 16, h: 32 }, on: "sofa-td", at: { x: 61, y: 0 } },
+  // The same seat with a book held up on its left (the sprite is 32 wide, with the person on its right half).
+  "read-sofa": { sprite: "player-read-sofa", size: { w: 32, h: 32 }, on: "sofa-td", at: { x: 45, y: 0 } },
   // On the desk chair, with the desk's lower edge in front.
   "type-desk": { sprite: "player-type-desk", size: { w: 16, h: 32 }, on: "desk", at: { x: 32, y: 16 } },
   // On the stool south of the table.

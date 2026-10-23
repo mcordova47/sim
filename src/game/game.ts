@@ -1,4 +1,5 @@
 import { NO_INPUT, type Controls } from "../input/controls";
+import { Camera } from "../render/camera";
 import { Hud } from "../render/hud";
 import { Popups, type PopupLine } from "../render/popups";
 import { drawProgress, drawPrompt } from "../render/world-ui";
@@ -12,11 +13,14 @@ import { Player } from "./player";
 export class Game {
   readonly player: Player;
   readonly interaction: InteractionSystem;
+  readonly camera: Camera;
   private readonly hud = new Hud();
   private readonly popups = new Popups();
 
   constructor(private readonly level: Level) {
     this.player = new Player(level.spawn.x, level.spawn.y);
+    this.camera = new Camera(level.size, VIEW);
+    this.camera.snapTo(this.playerCentre());
     this.interaction = new InteractionSystem(level.interactables, ({ item, award }) => {
       const lines: PopupLine[] = [{ text: `+${award.points}`, color: "#ffd166", scale: 2 }];
       if (award.multiplier > 1) {
@@ -33,6 +37,7 @@ export class Game {
     this.interaction.update(dt, this.player, controls);
     // Locked in place while a task runs.
     this.player.update(dt, this.interaction.busy ? NO_INPUT : controls, this.level.solids);
+    this.camera.update(dt, this.playerCentre());
     this.popups.update(dt);
     this.hud.update(dt, this.interaction.scoreboard.score);
   }
@@ -50,11 +55,22 @@ export class Game {
     ctx.fillStyle = "#2b2d42";
     ctx.fillRect(0, 0, VIEW.width, VIEW.height);
 
-    // World pass, then world-space UI, then the screen-space HUD. The camera
-    // (issue 010) wraps the first two and leaves the HUD alone.
+    // The world is drawn shifted by the camera. Everything uses the same
+    // whole-pixel camera offset, so nothing shimmers against anything else.
+    const cam = this.camera.position(alpha);
+    ctx.save();
+    ctx.translate(-cam.x, -cam.y);
     this.drawWorld(ctx, actor);
-    this.drawWorldUi(ctx, actor);
+    ctx.restore();
+
+    // World UI is laid out in screen space (it must stay on screen and clear
+    // of the HUD), so it gets screen positions, then the HUD goes on top.
+    this.drawWorldUi(ctx, { ...actor, x: actor.x - cam.x, y: actor.y - cam.y }, cam);
     this.drawHud(ctx);
+  }
+
+  private playerCentre(): { x: number; y: number } {
+    return { x: this.player.x + this.player.w / 2, y: this.player.y + this.player.h / 2 };
   }
 
   private drawWorld(ctx: CanvasRenderingContext2D, actor: Actor): void {
@@ -77,8 +93,13 @@ export class Game {
     ctx.fillRect(actor.x + (this.player.facing > 0 ? actor.w - 3 : 1), actor.y + 3, 2, 2);
   }
 
-  // Coordinates here are world positions; the camera will convert them.
-  private drawWorldUi(ctx: CanvasRenderingContext2D, actor: Actor): void {
+  // `actor` is in screen coordinates; `cam` is the world position of the
+  // top-left of the view, for things (popups) that live at world positions.
+  private drawWorldUi(
+    ctx: CanvasRenderingContext2D,
+    actor: Actor,
+    cam: { x: number; y: number },
+  ): void {
     const { interaction } = this;
     if (interaction.active) {
       drawProgress(ctx, actor, interaction.active.item, interaction.progress, VIEW);
@@ -86,7 +107,7 @@ export class Game {
       const cooldown = interaction.cooldownRemaining(interaction.nearby);
       drawPrompt(ctx, actor, interaction.nearby, cooldown, VIEW);
     }
-    this.popups.draw(ctx, VIEW.width);
+    this.popups.draw(ctx, VIEW.width, cam);
   }
 
   private drawHud(ctx: CanvasRenderingContext2D): void {

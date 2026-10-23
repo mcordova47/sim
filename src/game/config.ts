@@ -5,6 +5,15 @@ export const VIEW = {
   height: 12 * TILE,
 };
 
+// Camera tuning. Distances are pixels.
+export const CAMERA = {
+  // How quickly the view catches up with the player, per second. Higher is snappier.
+  followSpeed: 6,
+  // The player can move this far from the centre of the view before it scrolls.
+  deadzoneX: 24,
+  deadzoneY: 16,
+};
+
 export const TIMESTEP = 1 / 60;
 // Longest frame we simulate in one go; protects against a spiral after a tab switch.
 export const MAX_FRAME_TIME = 0.25;

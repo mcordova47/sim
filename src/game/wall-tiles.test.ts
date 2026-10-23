@@ -68,7 +68,10 @@ describe("wall tiles", () => {
     for (const col of [3, 4, 5, 6, 7]) expect(wallKind(KITCHEN_MAP, WALL_PIECES.kitchen, col, 5)).toBe("front");
   });
   it("names the tiles per room", () => {
-    expect(wallTileName("back", "bath")).toBe("wall-back");
+    expect(wallTileName("back", "main")).toBe("wall-back");
+    expect(wallTileName("back", "bath")).toBe("wall-back-bath");
+    expect(wallTileName("front", "kitchen")).toBe("wall-front-kitchen");
+    expect(wallTileName("front", "main")).toBe("wall-front");
     expect(wallTileName("left", "main")).toBe("wall-side-left");
     expect(wallTileName("right", "kitchen")).toBe("wall-side-right-kitchen");
     expect(wallTileName("left", "bath")).toBe("wall-side-left-bath");

@@ -64,7 +64,7 @@ Every wall-line tile, pieces included, gets the tile below, drawn under the piec
 | right | `wall-side-right` | open tile directly west (east walls) |
 | none | not drawn | no open orthogonal neighbour: the outer corners, the solid block that is the bath seen from the kitchen, other filler. The ink background shows, so there are no grey bands |
 
-Per room, `back` and `front` are `wall-back` and `wall-front` everywhere; `left` and `right` take the room's own tiles: main `wall-side-left`/`wall-side-right`, kitchen `wall-side-left-kitchen`/`wall-side-right-kitchen`, bath `wall-side-left-bath`/`wall-side-right-bath`. Floors are `floor-wood` (main), `floor-kitchen`, `floor-bath`. Doors draw their doorway sprite over the wall tile: `doorway` (main), `doorway-left-kitchen`, `doorway-right-kitchen`, `doorway-right-bath`.
+Per room, all four kinds take the room's own tiles (issue 054, from Marc's answer on the real materials): the main room's are the base names (`wall-back`, `wall-front`, `wall-side-left`, `wall-side-right`; stippled plaster), the kitchen's add `-kitchen` (smooth painted drywall, white baseboard) and the bath's add `-bath` (white glossy tile with grout every 8 px). Floors are `floor-wood` (main), `floor-kitchen`, `floor-bath`. Doors draw their doorway sprite over the wall tile: `doorway` (main), `doorway-left-kitchen`, `doorway-right-kitchen`, `doorway-right-bath`.
 
 Resulting pictures (b back, f front, l left, r right, x none):
 

@@ -4,11 +4,12 @@
 
 export type WallKind = "back" | "front" | "left" | "right";
 
-// The tile name for a kind of wall in a room. The back and front walls are
-// shared by all rooms; side walls and doorways have kitchen and bath versions.
+// The tile name for a kind of wall in a room. The main room uses the base
+// names (plaster); the kitchen (drywall) and bath (tile) have their own set of
+// all four kinds, as do doorways.
 export function wallTileName(kind: WallKind, room: string): string {
-  if (kind === "back" || kind === "front") return `wall-${kind}`;
   const suffix = room === "kitchen" || room === "bath" ? `-${room}` : "";
+  if (kind === "back" || kind === "front") return `wall-${kind}${suffix}`;
   return `wall-side-${kind}${suffix}`;
 }
 

@@ -14,7 +14,7 @@ import { pickVariant, type Appearance } from "./appearance";
 import { DEBUG, DIALOG, ENERGY, TILE, VIEW } from "./config";
 import type { ActivityHost } from "./activity";
 import { DialogRunner, type DialogNode, type DialogResult } from "./dialog";
-import { DELTA, type Direction } from "./direction";
+import { DELTA, DIRECTIONS, type Direction } from "./direction";
 import { Emitter, type GameEvents } from "./events";
 import { Grid } from "./grid";
 import { InteractionSystem } from "./interaction";
@@ -175,8 +175,45 @@ export class Game {
           player.facing = direction;
         },
       },
+      route: (col, row) => this.routeTo(col, row),
       random: () => this.random(),
     };
+  }
+
+  // The shortest walk from the player's tile to another in this room that
+  // does not step on a doorway (that would take them to another room), or null.
+  private routeTo(col: number, row: number): Direction[] | null {
+    const key = (c: number, r: number) => `${c},${r}`;
+    const start = { col: this.player.col, row: this.player.row };
+    const doors = new Set(this.level.doors.map((d) => key(d.col, d.row)));
+    const open = (c: number, r: number) => !this.grid.isBlocked(c, r) && !doors.has(key(c, r));
+    if (!open(col, row)) return null;
+    const via = new Map<string, { from: string; dir: Direction }>();
+    const seen = new Set([key(start.col, start.row)]);
+    let frontier = [start];
+    while (frontier.length && !seen.has(key(col, row))) {
+      const next: typeof frontier = [];
+      for (const here of frontier) {
+        for (const dir of DIRECTIONS) {
+          const c = here.col + DELTA[dir].dc;
+          const r = here.row + DELTA[dir].dr;
+          const k = key(c, r);
+          if (seen.has(k) || !open(c, r)) continue;
+          seen.add(k);
+          via.set(k, { from: key(here.col, here.row), dir });
+          next.push({ col: c, row: r });
+        }
+      }
+      frontier = next;
+    }
+    if (!seen.has(key(col, row))) return null;
+    const steps: Direction[] = [];
+    for (let k = key(col, row); k !== key(start.col, start.row); ) {
+      const v = via.get(k)!;
+      steps.unshift(v.dir);
+      k = v.from;
+    }
+    return steps;
   }
 
   // The solids that block right now: those with no condition, or whose condition holds.

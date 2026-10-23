@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { NO_INPUT } from "../../input/controls";
-import { createActivity } from "../activity";
+import { createActivity, validateActivity } from "../activity";
 import type { Interactable } from "../interactable";
 import { choice, menu } from "../dialog";
 import { CutsceneActivity, type CutsceneStep } from "./cutscene";
@@ -222,5 +222,59 @@ describe("making one from a task", () => {
     expect(() => createActivity(task({ type: "cutscene" }), fakeHost().host)).toThrow(
       'Task "scene": a cutscene needs a list of steps',
     );
+  });
+});
+
+describe("goto and back", () => {
+  // A host with a route planner that returns what the test says.
+  function planned(route: (c: number, r: number) => ("up" | "down" | "left" | "right")[] | null) {
+    const f = fakeHost();
+    f.host.route = route;
+    return f;
+  }
+  const make = (steps: CutsceneStep[], f: ReturnType<typeof fakeHost>) => new CutsceneActivity(steps, f.host);
+
+  // Plays a walk: each update the player takes the step the scene is holding.
+  function walkThrough(a: CutsceneActivity, f: ReturnType<typeof fakeHost>) {
+    const delta = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] } as const;
+    for (let i = 0; i < 2000 && !a.done; i++) {
+      const dir = a.playerControls?.dir;
+      if (dir && !f.player.stepping) {
+        f.player.col += delta[dir][0];
+        f.player.row += delta[dir][1];
+      }
+      a.update(1 / 60, NO_INPUT);
+    }
+  }
+
+  it("walks the planned route to a tile, then back to where it began, facing as before", () => {
+    const f = planned((c, r) => (c === 5 && r === 1 ? ["up", "up", "left"] : ["right", "down", "down"]));
+    f.player.col = 6;
+    f.player.row = 3;
+    f.player.facing = "down";
+    const a = make([{ goto: { col: 5, row: 1 } }, { face: "up" }, { back: true }], f);
+    walkThrough(a, f);
+    expect(a.done).toBe(true);
+    expect({ col: f.player.col, row: f.player.row }).toEqual({ col: 6, row: 3 });
+    expect(f.player.facing).toBe("down");
+  });
+
+  it("skips a goto that has no way, rather than sticking", () => {
+    const f = planned(() => null);
+    const a = make([{ goto: { col: 9, row: 9 } }, { cue: "after" }], f);
+    walkThrough(a, f);
+    expect(a.done).toBe(true);
+    expect(f.cues).toEqual(["after"]);
+  });
+
+  it("is checked when the level is built", () => {
+    const check = (step: unknown) => () =>
+      validateActivity({ id: "t", name: "t", prompt: "t", duration: 0, points: 1, zones: [], activity: { type: "cutscene", steps: [step] } });
+    expect(check({ goto: { col: 1, row: 2 } })).not.toThrow();
+    expect(check({ back: true })).not.toThrow();
+    expect(check({ goto: { col: 1.5, row: 2 } })).toThrow(/goto needs/);
+    expect(check({ goto: 3 })).toThrow(/goto needs/);
+    expect(check({ back: false })).toThrow(/back must be true/);
+    expect(check({ back: true, wait: 1 })).toThrow(/exactly one/);
   });
 });

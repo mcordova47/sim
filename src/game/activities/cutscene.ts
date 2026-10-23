@@ -11,6 +11,8 @@ import { DIRECTIONS, type Direction } from "../direction";
 //   { cue: "record-spin" }              announce a named moment (sound, animation)
 //   { face: "left" }                    turn the player
 //   { walk: ["left", "left", "up"] }    walk the player that many tiles
+//   { goto: { col: 5, row: 1 } }        walk to that tile of the room, around furniture
+//   { back: true }                      walk back to the tile the scene began on, and face as before
 //   { set: { var: "mood", value: 1 } }  set a state variable (a flag)
 // The answer of the last `ask` ends up in the result's `data`.
 export type CutsceneStep =
@@ -20,6 +22,8 @@ export type CutsceneStep =
   | { cue: string }
   | { face: Direction }
   | { walk: Direction[] }
+  | { goto: { col: number; row: number } }
+  | { back: true }
   | { set: { var: string; value: number } };
 
 // How long a single scripted step is given before it counts as blocked.
@@ -37,6 +41,10 @@ export class CutsceneActivity extends BaseActivity {
   private waiting = false;
   private walkIndex = 0;
   private walkFrom: { col: number; row: number } | null = null;
+  // Where the scene began, for `back`.
+  private readonly origin: { col: number; row: number; facing: Direction };
+  // The route a `goto` or `back` found, once it has.
+  private route: Direction[] | null = null;
   // What the last `ask` was answered with.
   private answer: DialogResult | undefined;
 
@@ -45,6 +53,7 @@ export class CutsceneActivity extends BaseActivity {
     private readonly host: ActivityHost,
   ) {
     super();
+    this.origin = { col: host.player.col, row: host.player.row, facing: host.player.facing };
     if (steps.length === 0) this.end();
   }
 
@@ -75,6 +84,7 @@ export class CutsceneActivity extends BaseActivity {
       this.timer = 0;
       this.walkIndex = 0;
       this.walkFrom = null;
+      this.route = null;
     }
   }
 
@@ -98,7 +108,21 @@ export class CutsceneActivity extends BaseActivity {
       this.host.player.face(step.face);
       return "done";
     }
+    if ("goto" in step || "back" in step) {
+      // Work out the way once, when the step starts. No way (or a host that
+      // cannot plan one) means the step is skipped, so a scene never sticks.
+      if (this.route === null) this.route = this.host.route?.(...this.destination(step)) ?? [];
+      const walked = this.walk(this.route, dt);
+      // Home again: face the way they were facing (the sofa).
+      if (walked === "done" && "back" in step) this.host.player.face(this.origin.facing);
+      return walked;
+    }
     return this.walk(step.walk, dt);
+  }
+
+  private destination(step: { goto: { col: number; row: number } } | { back: true }): [number, number] {
+    const to = "goto" in step ? step.goto : this.origin;
+    return [to.col, to.row];
   }
 
   private openAndWait(node: DialogNode, keepAnswer = false): "waiting" | "done" {
@@ -151,8 +175,8 @@ function validateStep(step: unknown, where: string, context?: ValidationContext)
   };
   if (typeof step !== "object" || step === null || Array.isArray(step)) return bad("a step must be an object");
   const s = step as Record<string, unknown>;
-  const keys = ["say", "ask", "wait", "cue", "face", "walk", "set"].filter((k) => k in s);
-  if (keys.length !== 1) return bad("a step needs exactly one of say, ask, wait, cue, face, walk, set");
+  const keys = ["say", "ask", "wait", "cue", "face", "walk", "goto", "back", "set"].filter((k) => k in s);
+  if (keys.length !== 1) return bad("a step needs exactly one of say, ask, wait, cue, face, walk, goto, back, set");
   switch (keys[0]) {
     case "say":
     case "cue":
@@ -171,6 +195,14 @@ function validateStep(step: unknown, where: string, context?: ValidationContext)
       if (!Array.isArray(s.walk) || s.walk.some((d) => !DIRECTIONS.includes(d as Direction))) {
         bad("walk needs a list of up, down, left or right");
       }
+      break;
+    case "goto": {
+      const g = s.goto as { col?: unknown; row?: unknown } | null;
+      if (!g || !Number.isInteger(g.col) || !Number.isInteger(g.row)) bad("goto needs { col, row } with whole numbers");
+      break;
+    }
+    case "back":
+      if (s.back !== true) bad("back must be true");
       break;
     case "set": {
       const v = s.set as { var?: unknown; value?: unknown } | null;

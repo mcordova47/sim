@@ -1,5 +1,8 @@
-import { TILE, VIEW } from "./game/config";
+import { VIEW } from "./game/config";
 import { startLoop } from "./game/loop";
+import { Player } from "./game/player";
+import { PLACEHOLDER_SOLIDS, PLACEHOLDER_SPAWN } from "./game/placeholder-room";
+import { readControls } from "./input/controls";
 import { Keyboard } from "./input/keyboard";
 import { createScreen } from "./render/canvas";
 
@@ -7,30 +10,31 @@ const canvas = document.getElementById("game") as HTMLCanvasElement;
 const { ctx } = createScreen(canvas);
 const keyboard = new Keyboard();
 
-// Placeholder scene: proves the loop, input and scaling work. Replaced in issue 002.
-let heldLabel = "";
+const solids = PLACEHOLDER_SOLIDS;
+const player = new Player(PLACEHOLDER_SPAWN.x, PLACEHOLDER_SPAWN.y);
 
-function update(_dt: number) {
-  heldLabel = ["KeyA", "KeyD", "Space", "KeyE"]
-    .filter((code) => keyboard.isDown(code))
-    .join(" ");
+function update(dt: number) {
+  player.update(dt, readControls(keyboard), solids);
   keyboard.endFrame();
 }
 
-function render(_alpha: number) {
+function render(alpha: number) {
   ctx.fillStyle = "#2b2d42";
   ctx.fillRect(0, 0, VIEW.width, VIEW.height);
 
-  ctx.fillStyle = "#3b3e5c";
-  for (let y = 0; y < VIEW.height; y += TILE) {
-    for (let x = 0; x < VIEW.width; x += TILE) {
-      if (((x + y) / TILE) % 2 === 0) ctx.fillRect(x, y, TILE, TILE);
-    }
+  for (const s of solids) {
+    ctx.fillStyle = s.oneWay ? "#8d99ae" : "#4a4e69";
+    ctx.fillRect(s.x, s.y, s.w, s.h);
   }
 
+  // Interpolate between the last two simulation states for smooth motion.
+  const x = Math.round(player.prevX + (player.x - player.prevX) * alpha);
+  const y = Math.round(player.prevY + (player.y - player.prevY) * alpha);
+  ctx.fillStyle = "#ef233c";
+  ctx.fillRect(x, y, player.w, player.h);
+  // Eye on the facing side so direction is visible.
   ctx.fillStyle = "#edf2f4";
-  ctx.font = "8px monospace";
-  ctx.fillText(`keys: ${heldLabel}`, 4, 10);
+  ctx.fillRect(x + (player.facing > 0 ? player.w - 3 : 1), y + 3, 2, 2);
 }
 
 startLoop({ update, render });

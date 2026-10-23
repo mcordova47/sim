@@ -111,7 +111,7 @@ Sorted for the top-down view. **Reuse:** use as-is (wall-mounted or flat). **Ada
 | vanity | 32x48 | Adapt | Front-facing; add a top slice. |
 | window-blinds, window-curtain | 32x64 | Reuse | Hang on the back wall; trim height to fit the wall band. |
 
-Verdict totals: 5 reuse, 10 adapt, 9 redraw (plus the 8 player poses, all redraw).
+Verdict totals: 6 reuse, 10 adapt, 8 redraw (plus the 8 player poses, all redraw).
 
 ## Samples in the repo (for approval)
 `floor-wood`, `floor-tile`, `rug`, `wall-back`, `wall-side-left`, `wall-side-right`, `doorway` (the tileset); `sofa-td` (adapted) and `bed-made` (new); `player-idle-down` and `player-walk-down-1` (the character, 16x16). Run `npm run sprites -- --sheet=floor-,rug,wall-,doorway,bed-,sofa-td,player-idle-down,player-walk-down` and `node scripts/room-mockup.mjs`, then open `art/contact-sheet.png` and `art/room-mockup.png`. Left-over rules from the side view (outline, palette) are unchanged. Furniture batches are not drawn until Marc approves this look.

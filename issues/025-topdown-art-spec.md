@@ -1,7 +1,7 @@
 ---
 id: 025
 title: Top-down art spec
-status: in-progress
+status: review
 owner: marc + agent
 depends_on: []
 ---
@@ -26,3 +26,10 @@ Decide how top-down art is drawn before anyone draws it, and prove it with a few
 ## Progress log
 
 - 2026-10-22: Started. Marc chose a 16x16 character (one tile). Plan: rewrite docs/art-style.md for top-down, audit the 32 existing sprites, draw sample tileset, one reused and one new furniture piece, and player-idle-down + walk frame; render a contact sheet and a room mockup; keep pipeline changes minimal.
+- 2026-10-22: Done, ready for review. Marc chose a **16x16 player** (one tile), so the size rule needed no relaxing.
+  - `docs/art-style.md` rewritten for top-down: perspective, overhang rule, grid, shadows, naming (variants, stages, directional frames, doing poses), reuse audit table of all 24 side-view pieces (6 reuse, 10 adapt, 8 redraw), and how to view the samples. Palette, Materials, outline and no-semi-transparency rules kept.
+  - Samples in `art/src/`: `floor-wood`, `floor-tile`, `rug`, `wall-back`, `wall-side-left`, `wall-side-right`, `doorway`, `sofa-td` (adapted from `sofa`), `bed-made` (new, 32x48), `player-idle-down`, `player-walk-down-1`.
+  - Pipeline: shared code split into `scripts/sprite-lib.mjs` (palette, parse/validate, rasterize, PNG), added a kebab-case name check, `--sheet=prefix,...` to filter the contact sheet, and `scripts/room-mockup.mjs` (sample room to `art/room-mockup.png`, gitignored). Tests in `scripts/sprite-lib.test.mjs` (49, include every file in `art/src`).
+  - Checked: `npm run sprites` (43 sprites), `npm test`, `npm run build` pass; looked at the contact sheet and room mockup.
+  - **Not done:** the last criterion (every sprite referenced by level data exists) depends on 020; no level data to check yet. **Not checked:** Marc's approval of the look (needed before any furniture batch). Up/left/right character frames and the "doing" poses are named and sized in the doc but not drawn.
+  - Follow-up for planner: `art/src` still holds the old side-view player sprites; remove them when the game switches over (019/020).

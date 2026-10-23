@@ -1,9 +1,9 @@
 ---
 id: 009c
 title: "Polish: achievements and saved progress"
-status: blocked
+status: todo
 owner: agent
-depends_on: [017]
+depends_on: []
 ---
 
 ## Goal
@@ -33,7 +33,13 @@ Keep it all testable without a browser: put the logic in plain functions and cla
 ## Note: persistence now includes the apartment state
 The apartment state system (issue 021, merged) holds dishes, the bed, energy and the clock as values in `ApartmentState`. Per the persistence decision in `PLAN.md`, saving progress between sessions must include those values (and restore them on load, validating them against `state-vars.ts` so a stale or corrupt saved value is ignored), as well as the score, achievements and settings. Keep the storage wrapped in try/catch, as decided.
 
-## Blocked on the top-down switch
-On 2026-10-22 the game changed direction from a side-view platformer to a top-down, Pokemon-style game (issues 019 onward). Do not start this issue yet. It needs revisiting once the foundation (019) is in: the `jump` and `land` events no longer exist (they become `step` and `bump`), the particles and sounds the issue describes need to suit walking, and the day and night cycle should build on the clock from the apartment state (021). The planner will rewrite the affected criteria before releasing it.
+## Current state of the game (2026-10-23, replaces the old "blocked" note)
+The game is top-down now (issues 019 to 047). What this changes for this issue:
+- Events: `step` and `bump` replace `jump` and `land`; also `taskStart`, `taskComplete`, `taskCancelled`, `taskBlocked`, `stateChanged` (with id, value, previous), `room`, dialog open and close. Drop jump stats; per-task counts, total points, best chain, steps taken, rooms visited and cancelled tasks are fair stats. Look at `src/game/events.ts` and `features.ts` for how to attach.
+- State variables to save and restore, validated against `state-vars.ts`: dishes, bedMade, energy, clock, blinds, mug, recordSort, mood (and any added later). A save from before a variable existed must load with that variable at its default and never throw; unknown saved ids are ignored. The player's room, tile and facing are saved too (default to the start if the saved tile is blocked or the room is unknown).
+- Achievement names and descriptions: plain and a little wry, not gag machines. Marc finds some text too jokey (issue 037 text pass); he will review the list. Use only characters the font draws (`unsupportedChars`).
+- The list screen opens with a key that is not Tab, Escape, E, X or arrow keys (039 may use Tab to cycle tasks); pick one (for example L) and say which.
+- Escape cancels actions (046); do not use it for the list screen while an action runs.
+- Saving must not happen mid-task in a way that loses effects: save on `taskComplete` and every N seconds, and on `visibilitychange`.
 
 ## Progress log

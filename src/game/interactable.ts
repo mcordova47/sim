@@ -7,9 +7,10 @@ export interface Interactable {
   name: string;
   // Verb phrase shown when the player is in range, e.g. "Make coffee".
   prompt: string;
-  // Seconds the player is locked in place doing it.
+  // Seconds the player is locked in place doing it. 0 completes instantly.
   duration: number;
-  // Points for the first completion. Repeats and combos scale this.
+  // Points for the first completion. Repeats and combos scale this. Every
+  // completion is worth at least SCORING.minPoints, so 0 here still pays that.
   points: number;
   // Seconds before it can be done again; defaults to DEFAULT_TASK_COOLDOWN.
   cooldown?: number;

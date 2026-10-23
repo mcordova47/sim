@@ -1,7 +1,7 @@
 ---
 id: 012
 title: Interaction edge cases
-status: todo
+status: review
 owner: claude
 depends_on: []
 ---
@@ -17,3 +17,12 @@ Fix the minor findings from the review of issue 003. None are visible today; the
 - Each fix has a unit test.
 
 ## Progress log
+
+- 2026-10-22: Started. Plan: guard zero duration, add a buffered interact press (`INTERACT_BUFFER_TIME` in config), pick the first off-cooldown task in reach for both `nearby` and the start, and document that `minPoints` applies to 0-point tasks (the tasks data has none; no validator exists to extend).
+- 2026-10-22: Done, ready for review.
+  - `duration: 0` completes the frame it starts; `progress` returns 1 for a running zero-duration task, never NaN.
+  - Interact press is remembered for `INTERACT_BUFFER_TIME` (0.15s) in `interaction.ts`, including presses made during a task, which can start the next task the frame the previous one finishes. Side effect: a press just before walking into a zone or landing also counts.
+  - `nearby` is the first in-reach task off cooldown, else the first in reach, so the prompt matches what starts.
+  - 0 base points: decision is "`minPoints` applies", documented on `Interactable.points`; tested.
+  - Files: `src/game/config.ts`, `interaction.ts`, `interactable.ts`, `interaction.test.ts`.
+  - Checked: `npm test` (35 pass, 6 new), `npm run build`. Not checked: how the buffer feels in a browser.

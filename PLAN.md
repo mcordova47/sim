@@ -35,12 +35,22 @@ A single-room platformer set in Marc's real studio apartment. There is no win co
 | 007 | [Furniture sprites](issues/007-furniture-sprites.md) | agent | todo | 005, 006 |
 | 008 | [Player character sprite](issues/008-player-sprite.md) | agent | todo | 006 |
 | 009 | [Polish: sound, particles, achievements, time of day](issues/009-polish.md) | agent | todo | 004, 007 |
+| 010 | [Scrolling camera](issues/010-scrolling-camera.md) | claude | todo | 005 |
+| 011 | [Integrate the floor plan and task data](issues/011-integrate-floor-plan.md) | claude | todo | 005, 003 |
+| 012 | [Interaction edge cases](issues/012-interaction-edge-cases.md) | claude | todo | |
+| 013 | [Physics robustness](issues/013-physics-robustness.md) | claude | todo | |
 
 ## Order of work
 1. **Playable skeleton first:** 001, 002, 003, 004 with rectangles for art.
 2. **In parallel:** Marc supplies photos and measurements (005) while 006 builds the sprite pipeline.
-3. **Art:** 007 and 008 once the floor plan and style guide exist.
-4. **Polish:** 009.
+3. **Real level:** 011 (integrate the floor plan) and 010 (scrolling camera, since the real room is wider than the screen) once 005 is merged.
+4. **Art:** 007 and 008 once the floor plan, camera and style guide exist.
+5. **Polish:** 009.
+6. **Cleanup, any time:** 012 and 013 (minor findings from reviews of 003 and 002).
+
+## Decisions
+- **Level wider than the screen:** scrolling camera (issue 010), chosen over smaller tiles or a compressed room.
+- **Combo rule:** rewards variety (different tasks in quick succession), not repetition.
 
 ## Open questions
 - Is the final player character agent-drawn or generated with an external tool?

@@ -10,7 +10,8 @@ import { playerFrame } from "../render/player-sprite";
 import { RoomPainter, drawFloorAndWalls } from "../render/room-painter";
 import type { SpriteDrawer } from "../render/sprites";
 import { GOOD_HOUR_ICON, GOOD_HOUR_ICON_SIZE, drawProgress, drawPrompt } from "../render/world-ui";
-import { pickVariant, type Appearance } from "./appearance";
+import { pickVariant, type Appearance, type Variant } from "./appearance";
+import { Decor } from "./decor";
 import { CLOCK, DEBUG, DIALOG, ENERGY, MOOD, TILE, VIEW } from "./config";
 import type { ActivityHost } from "./activity";
 import type { Interactable } from "./interactable";
@@ -66,6 +67,9 @@ export interface GameOptions {
   // The apartment and character state; a fresh one by default (a saved one
   // can be passed in).
   state?: ApartmentState;
+  // What is on the walls and shelves (issue 062); today's room by default (a
+  // saved one can be passed in).
+  decor?: Decor;
   // A random number from 0 up to 1, for the mini-games. Math.random by default;
   // tests pass a seeded one.
   random?: () => number;
@@ -87,6 +91,8 @@ export class Game {
 
   // The apartment and character: dishes, the bed, energy and the clock.
   readonly state: ApartmentState;
+  // The decor you own and where it is placed. Drawn from every frame, so a change shows at once.
+  readonly decor: Decor;
   // Announces steps, bumps into things, and task starts, completions and refusals.
   readonly events = new Emitter<GameEvents>();
   private readonly hud = new Hud();
@@ -116,7 +122,10 @@ export class Game {
 
   constructor(level: Level, options: GameOptions = {}) {
     this.state = options.state ?? new ApartmentState(STATE_VARS);
+    this.decor = options.decor ?? new Decor();
     validateLevel(level, this.validation());
+    this.decor.checkLevel(level);
+    for (const room of Object.values(options.rooms ?? {})) this.decor.checkLevel(room);
     this.level = level;
     this.rooms = options.rooms ?? {};
     this.random = options.random ?? Math.random;
@@ -511,6 +520,14 @@ export class Game {
     return { def, piece, sprite };
   }
 
+  // The look of an object that changes: the item in its decor slot, or the first
+  // variant whose state holds. A slot item with no art is a labelled box.
+  private appearanceLook(appearance: Appearance): Variant | null {
+    if (appearance.slot === undefined) return pickVariant(appearance.variants, this.state);
+    const { sprite, color, label } = this.decor.look(appearance.slot, this.state);
+    return { sprite, ...(color && { color }), label };
+  }
+
   private playerCentre(): { x: number; y: number } {
     return { x: this.player.x + this.player.w / 2, y: this.player.y + this.player.h / 2 };
   }
@@ -537,12 +554,13 @@ export class Game {
     for (const piece of level.pieces) for (const t of piece.tiles) pieceTiles.add(tileKey(t.col, t.row));
 
     const looksChange = new Set<Appearance>();
+    const slotDrawables = new Map<Appearance, { bottom: number; draw: () => void }>();
     for (const appearance of level.appearances ?? []) {
       looksChange.add(appearance);
-      const variant = pickVariant(appearance.variants, this.state);
+      const variant = this.appearanceLook(appearance);
       if (!variant) continue;
       const { area } = appearance;
-      drawables.push({
+      const drawable = {
         bottom: area.y + area.h,
         draw: () => {
           if (painter.draw(ctx, variant.sprite, area.x, area.y)) return;
@@ -556,12 +574,22 @@ export class Game {
             });
           }
         },
-      });
+      };
+      // A decor slot is drawn where its piece would be, so the order of drawing
+      // (and so what is in front on a tie) is the same as for a plain piece.
+      if (appearance.slot !== undefined) slotDrawables.set(appearance, drawable);
+      else drawables.push(drawable);
     }
     // Pieces that look the same whatever the state are drawn from their sprite.
     const changing = (piece: Piece) =>
       [...looksChange].some((a) => sameRect(a.area, piece.bounds));
     for (const piece of level.pieces) {
+      const slotted = [...slotDrawables].find(([a]) => sameRect(a.area, piece.bounds));
+      if (slotted) {
+        drawables.push(slotted[1]);
+        slotDrawables.delete(slotted[0]);
+        continue;
+      }
       if (!piece.sprite || changing(piece) || !painter.available(piece.sprite)) continue;
       const { x, y, h } = piece.bounds;
       for (const t of piece.tiles) covered.add(tileKey(t.col, t.row));
@@ -569,9 +597,13 @@ export class Game {
       drawables.push({ bottom: y + h, draw: () => painter.draw(ctx, piece.sprite!, x, y) });
     }
 
+    for (const left of slotDrawables.values()) drawables.push(left);
+
     // Props sit on top of their piece: drawn with it, in front of it.
     for (const prop of level.props ?? []) {
-      const variant = pickVariant(prop.variants ?? [], this.state);
+      const variant = this.decor.hasSlot(prop.slot)
+        ? this.decor.look(prop.slot, this.state)
+        : pickVariant(prop.variants ?? [], this.state);
       const sprite = variant?.sprite ?? prop.sprite;
       const { x, y, w, h } = prop.area;
       drawables.push({

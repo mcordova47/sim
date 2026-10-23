@@ -3,8 +3,8 @@ import { NO_INPUT } from "../input/controls";
 import { spriteNames } from "../render/sprite-names";
 import { FakeStorage } from "./achievements/fake-storage";
 import { AchievementsFeature } from "./achievements/feature";
-import { pickVariant } from "./appearance";
 import { APARTMENT } from "./apartment";
+import { Decor } from "./decor";
 import { CLOCK, PARTICLES, PLANT } from "./config";
 import { Game } from "./game";
 import { attachParticles } from "./particles/feature";
@@ -57,6 +57,8 @@ function plantOnly(): Game {
   const main = { ...rooms.main, interactables: rooms.main.interactables.filter((i) => /plant/.test(i.id)) };
   return new Game(main, { rooms: { ...rooms, main }, random: () => 0.5 });
 }
+// The plant's sprite now comes from the plant item in the decor slot (issue 062).
+const plantSprite = (s: ApartmentState) => new Decor().look("plant-shelf", s).sprite;
 const stageOf = (g: Game) => g.state.get("plantStage");
 
 describe("the state", () => {
@@ -202,7 +204,7 @@ describe("drooping", () => {
     const s = newState();
     set(s, "plantDry", 0);
     s.tick(hoursToSeconds(PLANT.droopAfterHours - 1));
-    const sprite = () => pickVariant(rooms.main.props![0].variants!, s)!.sprite;
+    const sprite = () => plantSprite(s);
     expect(sprite()).toBe("plant-1");
     s.tick(hoursToSeconds(2));
     expect(sprite()).toBe("plant-wilted");
@@ -215,7 +217,7 @@ describe("drooping", () => {
     s.tick(hoursToSeconds(100_000));
     expect(s.get("plantStage")).toBe(2);
     expect(s.get("plantGrowth")).toBe(0);
-    expect(pickVariant(rooms.main.props![0].variants!, s)!.sprite).toBe("plant-wilted");
+    expect(plantSprite(s)).toBe("plant-wilted");
   });
 
   it("one watering perks it up, with its own task, and it keeps the stage it had", () => {
@@ -226,7 +228,7 @@ describe("drooping", () => {
     expect(waterNow(game)).toBe("water-plant-droop");
     expect(stageOf(game)).toBe(2);
     expect(game.state.get("plantDry")).toBeCloseTo(0, 1);
-    expect(pickVariant(rooms.main.props![0].variants!, game.state)!.sprite).toBe("plant-2");
+    expect(plantSprite(game.state)).toBe("plant-2");
   });
 
   it("sleeping and napping let the soil dry for the hours they skip", () => {
@@ -242,12 +244,11 @@ describe("drooping", () => {
 });
 
 describe("how it looks", () => {
-  const variants = rooms.main.props![0].variants!;
   const look = (stage: number, dry = 0) => {
     const s = newState();
     set(s, "plantStage", stage);
     set(s, "plantDry", dry);
-    return pickVariant(variants, s)!.sprite;
+    return plantSprite(s);
   };
 
   it("has a look for each stage and for drooping, chosen from state", () => {

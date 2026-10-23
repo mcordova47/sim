@@ -1,6 +1,17 @@
 # Decor: things you collect and arrange (design note, issue 062)
 
-Status: design only. Nothing here is built. Marc picks from the open questions at the end; then stage 1 becomes a build issue.
+Status: Marc picked (2026-10-23, see issue 062). **Stage 1 is built** (data and drawing from state, no visible change); stages 2 to 4 are not. "What stage 1 built" below says exactly what exists and where it differs from the first draft of this note. The rest is the design the later stages follow.
+
+## What stage 1 built
+- `src/game/decor-data.ts`: the slots table (main room: `art-table`, `art-desk`, `art-bed`, `plant-shelf`, `lamp-sofa`), the items table (today's three paintings, the snake plant and the lamp) and the per-family sprite rules (`FAMILIES`). Limits for saved data are `DECOR` in `config.ts`.
+- `src/game/decor.ts`: the `Decor` store (`owned` ids, `placed` slot to item), `parseDecor`, `validateDecorData` and `Decor.look(slot, state)`. `Game.decor` holds the store; the game draws from it every frame.
+- Drawing goes through the existing appearance path. A map legend entry with `slot: "art-table"` makes an `Appearance` with a `slot`; its look is the item in that slot. A `Prop` already had a `slot` and now draws the same way. The piece keeps its sprite name, so the lamp glow still finds it. A slot object is drawn where its piece was, so draw order on a tie is unchanged.
+- Saving: `ProgressStore` writes an optional `decor` field (no version bump). `AchievementsFeature` loads it into `game.decor` and saves it with the rest. Resetting progress resets the decor.
+- **Ids start with their kind** (`art-barn`, `plant-snake`, `lamp-table`), as the owned-list rule below says, not the sprite name (so the barn drawing is `art-barn`, and the sprite `painting` is only what it draws).
+- **Today's paintings are tied to their own wall** (`slots: [...]` on the item). All three are 32x16 or 48x16 art, so without this the table and desk could swap their paintings on the first day and the swap task (stage 2) would show up in a fresh game. Marc can loosen this when he wants the paintings to move around.
+- **No `empty` slot yet** (rug and props come later). Every slot always shows an item.
+- Validation: at startup `Decor` checks its tables (repeated ids, id starts with kind, defaults exist and fit, known families, names the font can draw, slot names on items), and `Game` checks that each slot object in the rooms is the slot's size and place. A hand-edited save is cut down (`parseDecor`), never an error.
+- Proof that nothing changed: `src/game/main-room-frames.golden.test.ts` renders the main room headless over nine states (start, the plant at each stage and drooping, night with the lamp glow, dusk with the blinds open, morning) for four frames each, and compares every drawing call, in order, with a record made on `main` before the change.
 
 ## The rule that shapes everything
 Marc's decision (2026-10-23, in PLAN.md Decisions): collecting is a **quiet side effect**, a zen garden. It is not a goal, a ladder or a shop you grind for. So:
@@ -35,7 +46,7 @@ interface DecorSlot {
   area: Rect;            // pixel position and size in the room (the item's sprite is drawn here)
   kinds: DecorKind[];    // which kinds fit: ["art"]
   default: string;       // item id shown on a fresh game, and the fallback if a saved one is gone
-  empty?: boolean;       // true if "nothing" is allowed (rug, props); art and lamps always show something
+  empty?: boolean;       // (not in stage 1) true if "nothing" is allowed (rug, props); art and lamps always show something
   object?: string;       // the map piece you stand at to change it (where the swap task is)
 }
 ```
@@ -45,11 +56,12 @@ An item fits a slot if its kind is in the slot's `kinds` and its sprite size equ
 ### First slots (main room, pixels from the top left; one tile is 16)
 | Slot id | Area (x, y, w, h) | Kind | Default (today) | Changed at |
 |---|---|---|---|---|
-| `art-table` | 32, 0, 32x16 | art | `painting` (barn drawing) | dining table |
-| `art-desk` | 112, 0, 32x16 | art | `painting-desk` | standing desk |
-| `art-bed` | 224, 0, 48x16 | art | `painting-wide` (silkscreen) | nightstand |
-| `plant-shelf` | on the bookshelf top, 16x16 (063 decides the exact tile) | plant | snake plant | bookshelf |
+| `art-table` | 32, 0, 32x16 | art | `art-barn` (sprite `painting`, barn drawing) | dining table |
+| `art-desk` | 112, 0, 32x16 | art | `art-abstract` (sprite `painting-desk`) | standing desk |
+| `art-bed` | 224, 0, 48x16 | art | `art-silkscreen` (sprite `painting-wide`) | nightstand |
+| `plant-shelf` | 160, 52, 16x16 (the overlay piece 063 built, on the bookshelf) | plant | `plant-snake` (family `plant`) | bookshelf |
 | `lamp-sofa` | 128, 96, 16x16 (the lamp table) | lamp | `lamp-table` | lamp table |
+(The five rows above are what stage 1 has. The rows after are later.)
 | `rug-floor` | open floor, 64x32, drawn under the player, no solid | rug | none | sofa |
 | `prop-nightstand` | a 16x16 corner of the nightstand | prop | none | nightstand |
 | `prop-desk` | a 16x16 corner of the desk top | prop | none | standing desk |
@@ -64,7 +76,7 @@ Later: the gallery wall (ten pieces, seen in the admire-art view, issue 040), a 
 ## Items
 ```ts
 interface DecorItem {
-  id: string;            // "painting-robin"
+  id: string;            // starts with its kind: "art-robin"
   name: string;          // shown in the list: "ROBIN PRINT" (capitals, digits, basic punctuation only: the font)
   kind: DecorKind;
   sprite: string;        // sprite name; a family name for growing plants (see below)
@@ -72,6 +84,8 @@ interface DecorItem {
   note?: string;         // one deadpan line shown when you pick it up or put it up
   // Optional, for later and for source tracking. Nothing reads these in stages 1 to 3 except `how`.
   how?: "start" | "gift" | "find" | "delivery" | "browse";
+  slots?: string[];      // if set, fits only these slots (today's paintings: their own wall)
+  family?: string;       // sprites chosen by rules from state (plants), see FAMILIES
   tags?: string[];       // "set:gallery", "warm": room for a goal or a theme later
 }
 ```
@@ -197,7 +211,7 @@ Drawn from real things in the apartment first (the Photos rule: photos stay in `
 | Barn drawing `painting` (exists) | 32x16 | barn painting photo |
 | `painting-desk` (exists) | 32x16 | the gold and orange abstract |
 | `painting-wide` (exists) | 48x16 | the silkscreen over the bed |
-| `painting-robin` (exists, 16x16, drawn but off camera) | 16x16: needs a 32x16 mat version, 1 new | the robin print |
+| `art-robin` (sprite `painting-robin`, exists, 16x16, drawn but off camera) | 16x16: needs a 32x16 mat version, 1 new | the robin print |
 | Swamp | 32x16 | gallery wall |
 | Italy architecture | 32x16 | gallery wall |
 | Insect painting (two of them) | 32x16, 2 new | gallery wall |
@@ -243,8 +257,8 @@ The same pattern, one `owned` set with kinds, so the player has one idea: "my th
 
 - **Plants (063).** A plant item is a decor item of kind `plant`, placed in a `plant` slot. **What the plant is** (item, species) is decor: owned, placed, swapped. **How the plant is doing** (stage, wilted, days since watering) is state, the `plantStage` variable, which changes with the clock. 063 builds one plant first (the snake plant on the shelf). So that 062 can later swap it:
   - 063 should draw the plant as **its own overlay piece** (not inside the bookshelf sprite), so it can be a decor slot (`plant-shelf`). 063's note says it will pick: bookshelf variant per stage or overlay. This note asks for the overlay. If 063 ships a bookshelf variant per stage instead, the plant slot just is that variant, and stage 1 here adapts; either works.
-  - Sprite names stay `plant-0..3` and `plant-wilted`. For other plants, the family name is the item's `sprite` and the stage is added: `<family>-0..3`, `<family>-wilted`. The `plant` slot code draws `${item.sprite}-${stage}` for growing items and `item.sprite` for items that never grow.
-  - **Stage belongs to the slot, not the item** (a state variable per plant slot: `plantStage` for the shelf, `plantStage<slot>` for others). When you swap plants, the new one starts at a small stage. This is a choice to confirm (open questions).
+  - **Built in 063 and stage 1:** the plant is its own overlay piece (a `Prop`, slot `plant-shelf`). Its sprite names are `plant-0..3` and `plant-wilted`. For other plants the item has a `family`, and `FAMILIES` says how many stages the family has and whether it droops: `<family>-0..` for the stage, `<family>-wilted` when drooping. A plant that never grows (dried flowers: `stages: 0, droops: false`) always shows the item's own `sprite`, so it never droops. A family with fewer stages than the shelf's stage uses its last stage. The snake plant draws exactly as 063 made it.
+  - **Stage belongs to the slot, not the item** (the slot names its variables, `stageVar` and `dryVar`: `plantStage` and `plantDry` for the shelf; another plant slot gets its own). When you swap plants, the new one starts at a small stage. This is a choice to confirm (open questions).
   - A plant arrives as a normal item. It is not a pet: it never dies (063), and not watering it never takes it away.
 - **Track editor plugins (064).** A plugin is an item with kind `plugin` in the **same owned list**, with the same sources (gifts, finds, a calm reward for making a track, a delivery). The difference is the **place**: a plugin has no slot in the room; it appears in the editor's plugin menu. So `DecorKind` gets `"plugin"` and a plugin item has `slot: none`. `owned` gives the editor its list. One thing to decide with 064: one list for everything or a second list named `plugins` in the same save. Recommendation: **one `owned` list**, ids prefixed by kind (`plugin-echo`), because the sources, the arrival line and the save tolerance are all the same. Plugin behaviour and format details are in `docs/plugins.md` (064), not here.
 
@@ -254,11 +268,12 @@ If both turn out to be a different shape, the owned list stays a list of ids and
 Saved in the existing progress JSON (`life.progress.v1`, `ProgressStore`) as a new optional field, **no version bump**:
 ```json
 { "version": 1, "unlocked": [], "stats": {}, "world": {},
-  "decor": { "owned": ["painting-robin"], "placed": { "art-table": "painting-robin" } } }
+  "decor": { "owned": ["art-barn", "art-robin"], "placed": { "art-table": "art-robin" } } }
 ```
 Why there and not a new key: it is one player's progress, saved with the rest (009c), and the store is already tolerant. (Tracks stay in `life.tracks.v1`; plugins would be in `owned` here and **referenced** by the editor.)
 
 ### Tolerance rules (a function `parseDecor(raw, data)`, like `parseWorld`, with tests)
+Built in stage 1 (`parseDecor` in `decor.ts`, tests in `decor.test.ts` including fuzzed data). Limits for hand-edited data are in `DECOR` in `config.ts`: at most 500 owned ids, ids up to 64 characters, 200 placement entries read; anything beyond is cut.
 - Missing `decor` (old save): `owned` = the starting set, `placed` = `{}`. The room looks exactly as today.
 - Not an object, or the wrong shape: ignore it and use the defaults (never throw).
 - `owned`: keep only strings; remove duplicates. **An id the game no longer has is kept in the saved list but ignored** (it is not offered, not drawn), so a build that brings an item back restores it. A removed item is never an error.
@@ -270,7 +285,7 @@ Why there and not a new key: it is one player's progress, saved with the rest (0
 ## Staged build plan
 Each stage is its own issue, small, and leaves the game working. Stages 1 and 2 are testable without art.
 
-**Stage 1: data and rendering from state (default = today).**
+**Stage 1: data and rendering from state (default = today). Built; see "What stage 1 built".**
 - `decor-data.ts` (slots, items, starting set), a `Decor` class, `parseDecor`, `ProgressStore` field.
 - The three paintings become decor slots drawn through `Appearance.slot`; the game looks **exactly** as today (compare rendered frames).
 - Tests: defaults, `place` rejects a wrong kind or size, saves round trip, old save, removed item, duplicates, unknown slot, damaged data; a data check that each item's size equals its slots'.

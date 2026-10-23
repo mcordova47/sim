@@ -25,6 +25,9 @@ export interface SavedProgress {
   // Lifetime stats, including the best score. Loaded by Stats, which is tolerant.
   stats: unknown;
   world: WorldSave | null;
+  // The optional `decor` field, as saved. Read by Decor.load, which is tolerant
+  // (an old save has none: the room is today's).
+  decor?: unknown;
 }
 
 const VERSION = 1;
@@ -69,6 +72,7 @@ export class ProgressStore {
         unlocked: Array.isArray(raw.unlocked) ? raw.unlocked.filter((id): id is string => typeof id === "string") : [],
         stats: raw.stats,
         world: parseWorld(raw.world),
+        decor: raw.decor,
       };
     } catch {
       return emptyProgress();
@@ -76,10 +80,14 @@ export class ProgressStore {
   }
 
   // Returns false if it could not save (nowhere to save to, or a write error).
-  save(unlocked: string[], stats: StatsData, world: WorldSave | null): boolean {
+  // `decor` is left out of the saved value when not given.
+  save(unlocked: string[], stats: StatsData, world: WorldSave | null, decor?: unknown): boolean {
     if (!this.storage) return false;
     try {
-      this.storage.setItem(this.key, JSON.stringify({ version: VERSION, unlocked, stats, world }));
+      this.storage.setItem(
+        this.key,
+        JSON.stringify({ version: VERSION, unlocked, stats, world, ...(decor !== undefined && { decor }) }),
+      );
       return true;
     } catch {
       return false;

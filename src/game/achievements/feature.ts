@@ -76,6 +76,8 @@ export class AchievementsFeature implements Layer {
     this.stats.load(saved.stats);
     this.unlocks.load(saved.unlocked);
     if (saved.world) this.restoreWorld(saved.world);
+    // A missing decor field (an old save) leaves the room as it is today.
+    if (saved.decor !== undefined) this.game.decor.load(saved.decor);
     this.stats.visited(this.room);
 
     game.events.on("step", () => this.after(() => this.stats.stepped()));
@@ -136,7 +138,7 @@ export class AchievementsFeature implements Layer {
   save(): boolean {
     this.sinceSave = 0;
     // Round trip the snapshot through the parser so anything we write can be read back.
-    return this.store.save(this.unlocks.ids(), this.stats.toJSON(), parseWorld(this.snapshot()));
+    return this.store.save(this.unlocks.ids(), this.stats.toJSON(), parseWorld(this.snapshot()), this.game.decor.toJSON());
   }
 
   // Runs a stats change, then unlocks whatever it earned.
@@ -159,6 +161,7 @@ export class AchievementsFeature implements Layer {
     this.unlocks.clear();
     this.toasts.clear();
     this.store.clear();
+    this.game.decor.reset();
     this.confirmReset = false;
     try {
       this.game.state.applyEffects(STATE_VARS.map((v) => ({ var: v.id, set: v.initial })));

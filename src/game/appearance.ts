@@ -14,9 +14,15 @@ export interface Variant {
 }
 
 // An object whose look depends on state, covering `area`.
+//
+// With a `slot` (a decor slot id, issue 062) the look is the item in that slot of
+// the decor store instead of the first variant that holds. `variants` still
+// holds today's look (the default item), which is what is used when there is no
+// store, and keeps the sprite names and state checks listed in one place.
 export interface Appearance {
   area: Rect;
   variants: Variant[];
+  slot?: string;
 }
 
 export function pickVariant(variants: Variant[], state: ApartmentState): Variant | null {

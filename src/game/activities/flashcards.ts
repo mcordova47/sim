@@ -7,6 +7,7 @@ import { FLASHCARDS as F } from "../config";
 import { studyBackend } from "../flashcards/backend";
 import { keyFromText, studyStore, type StudyStore } from "../flashcards/key";
 import type { CardView, Grade, StudyBackend, StudySession } from "../flashcards/study";
+import { wrapText } from "../dialog";
 import { typedChar } from "./make-track";
 
 // Studying Spanish at the computer (issue 026, docs/flashcards.md). The game is
@@ -44,6 +45,7 @@ export class FlashcardsActivity extends BaseActivity {
   paid = 0;
 
   private session: StudySession | null = null;
+  private shown: { at: number; slug: string; view: CardView } | null = null;
   private unlisten: (() => void) | null = null;
 
   constructor(
@@ -55,9 +57,15 @@ export class FlashcardsActivity extends BaseActivity {
     super();
   }
 
+  // The card on screen. Looked up once per card: the real core reads the whole
+  // saved progress to answer, which is too much to do every frame.
   get card(): CardView | null {
     const slug = this.queue[this.index];
-    return this.session && slug !== undefined ? this.session.card(slug) : null;
+    if (!this.session || slug === undefined) return null;
+    if (this.shown?.at !== this.index || this.shown.slug !== slug) {
+      this.shown = { at: this.index, slug, view: this.session.card(slug) };
+    }
+    return this.shown.view;
   }
 
   start(): void {
@@ -83,6 +91,7 @@ export class FlashcardsActivity extends BaseActivity {
 
   private opened(key: string, result: Awaited<ReturnType<StudyBackend["open"]>>): void {
     if (result === "offline") return this.fail("No connection. Nothing was saved.");
+    if (result === "unreadable") return this.fail("The saved cards could not be read.");
     if (result === "bad-key") {
       this.store.forgetKey();
       this.typed = "";
@@ -256,13 +265,19 @@ export class FlashcardsActivity extends BaseActivity {
     const card = this.card;
     if (!card) return;
     line(`Card ${Math.min(this.index + 1, this.queue.length)} of ${this.queue.length}`, 8, COLOR.slate);
-    line(card.prompt, 30, COLOR.paper, 2);
+    // Big when it fits on one line, small and wrapped (two lines at most) when not.
+    const block = (text: string, ty: number, color: string) => {
+      const room = w - 16;
+      if (textWidth(text, 2) <= room) return line(text, ty, color, 2);
+      wrapText(text, room).slice(0, 2).forEach((part, i) => line(part, ty + 3 + i * 10, color));
+    };
+    block(card.prompt, 22, COLOR.paper);
     if (this.phase === "front") {
       line("E: flip", h - 14, COLOR.mist);
       return;
     }
-    line(card.answer, 52, COLOR.butter, 2);
-    if (card.hint) line(card.hint, 72, COLOR.mist);
+    block(card.answer, 46, COLOR.butter);
+    if (card.hint) wrapText(card.hint, w - 16).slice(0, 2).forEach((part, i) => line(part, 68 + i * 9, COLOR.mist));
     const saving = this.phase === "saving";
     GRADES.forEach((g, i) => {
       const bx = x + 28 + i * (w / 2 - 14);

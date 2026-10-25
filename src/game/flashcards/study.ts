@@ -26,7 +26,9 @@ export interface StudySession {
   grade(slug: string, grade: Grade): Promise<boolean>;
 }
 
-export type OpenResult = StudySession | "bad-key" | "offline";
+// "unreadable": the server holds cards this version of the core refuses (a newer
+// format, or damage). Nothing is written.
+export type OpenResult = StudySession | "bad-key" | "offline" | "unreadable";
 
 export interface StudyBackend {
   // Whether delivered answers earn game points (the demo's do not).

@@ -682,7 +682,17 @@ export const FLASHCARDS = {
   // Where a missed card comes back in the session, counted from the one just
   // missed (used by the demo deck; the real core owns this once it is wired).
   requeueGap: 5,
-  // Stage 1 has no server: "demo" studies a small built-in deck and pays
-  // nothing. Stage 2 switches this to "real".
-  backend: "demo" as "demo" | "real",
+  // Where the flashcards app lives: its progress endpoint and its compiled
+  // core. A Vite build can point elsewhere with `VITE_FLASHCARDS_ORIGIN` (a
+  // preview deploy). The app's CORS list allows `*.mcord.dev` and Vite's dev
+  // server on localhost:5173.
+  origin: "https://palabras.mcord.dev",
+  // The core's contract version. The game imports `core.v<version>.js` and
+  // refuses a module that reports another, so a breaking change on the app's
+  // side is a decision here too.
+  coreVersion: 1,
+  language: "es",
+  // "demo" studies a small built-in deck with no server and pays nothing (for
+  // trying the screens); "real" talks to the app.
+  backend: "real" as "demo" | "real",
 };

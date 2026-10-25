@@ -1,6 +1,6 @@
 import { APARTMENT } from "./game/apartment";
 import { attachFeatures } from "./game/features";
-import { ownFromSearch } from "./game/decor-dev";
+import { deliverFromSearch, ownFromSearch } from "./game/decor-dev";
 import { Game } from "./game/game";
 import { startLoop } from "./game/loop";
 import { readControls } from "./input/controls";
@@ -44,6 +44,14 @@ try {
 // the dev server; a built game ignores it.
 try {
   if (import.meta.env.DEV) ownFromSearch(game.decor, location.search);
+} catch {
+  // No address to read (never in a browser).
+}
+
+// Also dev only (issue 062 stage 3a): `?deliver=test` switches on the dev gift
+// checkpoints (TEST items), or `?deliver=id,id` sends those items to the door.
+try {
+  if (import.meta.env.DEV) deliverFromSearch(game.deliveries, location.search);
 } catch {
   // No address to read (never in a browser).
 }

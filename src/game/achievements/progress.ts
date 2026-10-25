@@ -28,6 +28,8 @@ export interface SavedProgress {
   // The optional `decor` field, as saved. Read by Decor.load, which is tolerant
   // (an old save has none: the room is today's).
   decor?: unknown;
+  // The optional `deliveries` field (issue 062 stage 3a), read by Deliveries.load, which is tolerant.
+  deliveries?: unknown;
 }
 
 const VERSION = 1;
@@ -73,6 +75,7 @@ export class ProgressStore {
         stats: raw.stats,
         world: parseWorld(raw.world),
         decor: raw.decor,
+        deliveries: raw.deliveries,
       };
     } catch {
       return emptyProgress();
@@ -81,12 +84,12 @@ export class ProgressStore {
 
   // Returns false if it could not save (nowhere to save to, or a write error).
   // `decor` is left out of the saved value when not given.
-  save(unlocked: string[], stats: StatsData, world: WorldSave | null, decor?: unknown): boolean {
+  save(unlocked: string[], stats: StatsData, world: WorldSave | null, decor?: unknown, deliveries?: unknown): boolean {
     if (!this.storage) return false;
     try {
       this.storage.setItem(
         this.key,
-        JSON.stringify({ version: VERSION, unlocked, stats, world, ...(decor !== undefined && { decor }) }),
+        JSON.stringify({ version: VERSION, unlocked, stats, world, ...(decor !== undefined && { decor }), ...(deliveries !== undefined && { deliveries }) }),
       );
       return true;
     } catch {

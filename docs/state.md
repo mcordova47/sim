@@ -40,6 +40,8 @@ A solid can also be conditional with `blockedWhen` (a pile in the way); the grid
 `validateLevel` (run by `parseTileMap` and by `Game` for every room it loads) checks every variable name used by a task's `requires`, `effects` and `pointsBonus`, a cutscene's `set` steps, a variant's `when` and a solid's `blockedWhen`. A room meant for a game with its own variables passes `knownVars` in the `parseTileMap` options (and the `Game` checks against its own state). The error names the room and the task or object, for example `main: task "dishes" effects uses the unknown state variable "dishs"`. So a typo in the task list stops the game at load and in the tests, not when the task is first used.
 
 ## Decor is not state
+The package by the front door follows the delivery queue through the derived variable `parcel` (0 or 1, set by the game each frame, never by a task; `docs/decor.md`, stage 3a). Sleeping and napping move the clock by an effect, and `State.onClockSkip` tells the delivery queue how many hours were skipped.
+
 Which painting, plant or lamp is in a slot is kept in the decor store (`game.decor`, issue 062, `docs/decor.md`), not in state variables: it is a list of ids, not numbers. The plant's growth and dryness stay state variables (`plantStage`, `plantDry`); the decor slot says which sprites they choose between.
 
 ## Events

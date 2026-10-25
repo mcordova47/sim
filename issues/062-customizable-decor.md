@@ -1,7 +1,7 @@
 ---
 id: 062
 title: Customizable decor (inventory, swap, buy new things) (explore)
-status: in-progress
+status: review
 owner: marc + claude
 depends_on: []
 ---
@@ -75,3 +75,10 @@ Build the delivery queue before any trigger is chosen: a saved list of pending d
   - **Nits, no action needed now:** a swap is saved only by the next periodic save (10 s), when the page is hidden, or at the next completed task, since `decor.onChange` is not wired to a save; closing the tab inside that window loses the swap. The `admire-art` zoom still shows the original paintings whatever hangs on the wall (stage 4 or later). The list box covers the score and clock while open (fine).
   - **Correction to the author's note:** "no sound is made" is not quite right: the existing sound feature plays the `taskStart` blip when the list opens (and nothing on E or Escape, since neither completes nor cancels).
   - **Unverified:** how it feels with a real keyboard held for long (the dev-server run used single key taps), and how the sound feels (not heard). The blip on opening is read from the code only.
+- 2026-10-25 (stage 3a, branch `issue/062-decor-stage-3a`): started. Plan: a saved delivery queue on a monotonic game-hours total (ticks and sleep skips), `deliver(itemId, delayHours)`, a non-solid box by the front door, checkpoints data (empty in production) and a dev `?deliver=`.
+- 2026-10-25 (stage 3a done, ready for review): stage 3a only (no random-on-screens source, no ad encounters, no real gifts). Details in `docs/decor.md`, "What stage 3a built".
+  - **Built:** `src/game/deliveries.ts` (`Deliveries`, `parseDeliveries`), `delivery-checkpoints.ts` (`CHECKPOINTS` empty, `DEV_CHECKPOINTS` TEST items), `activities/collect-delivery.ts`, task `collect-delivery`, `Interactable.delivery`, `State.onClockSkip`, state var `parcel`, map tile `x` at main col 10 row 8, sprite `art/src/delivery-box.sprite`, optional `deliveries` field in the progress save, `DELIVERIES` limits, dev `?deliver=` (`decor-dev.ts`, `main.ts`).
+  - **Choices I made that Marc may want to change:** the item is added when you open the box (E), not on arrival; arrival says `A PACKAGE HAS ARRIVED.` (no item name), opening says `OPENED: <ITEM NAME>`; one E opens everything waiting; the box is not solid (you can walk over it) so it cannot break reachability; `days` is game hours played divided by 24 (sleep counts); a checkpoint is remembered as fired even if its item was refused; the box tile is the floor right in front of the door.
+  - **Golden frame test:** passes unchanged (no box when nothing waits); nothing re-recorded.
+  - **How checked:** `src/game/deliveries.test.ts` (29 tests: validation, order, caps, pause with a dialog, sleep skipping, reload resume, malformed and huge saves, checkpoints once, dev shortcut, box offered only while waiting, quiet open with no score or mood change, walkable tile, box drawn only while waiting). Full suite and `npm run build` pass. Rendered at 1x in headless Chrome with the dev server (`?deliver=art-test-barn` with a temporary zero delay): the line and the box by the door.
+  - **Not checked:** the real 15-second wait in a browser (headless virtual time does not run the game loop), and how the box reads at normal play size.

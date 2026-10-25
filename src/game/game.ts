@@ -12,6 +12,7 @@ import type { SpriteDrawer } from "../render/sprites";
 import { GOOD_HOUR_ICON, GOOD_HOUR_ICON_SIZE, drawProgress, drawPrompt } from "../render/world-ui";
 import { pickVariant, type Appearance, type Variant } from "./appearance";
 import { Decor } from "./decor";
+import { Deliveries } from "./deliveries";
 import { CLOCK, DEBUG, DIALOG, ENERGY, MOOD, TILE, VIEW } from "./config";
 import type { ActivityHost } from "./activity";
 import type { Interactable } from "./interactable";
@@ -93,6 +94,8 @@ export class Game {
   readonly state: ApartmentState;
   // The decor you own and where it is placed. Drawn from every frame, so a change shows at once.
   readonly decor: Decor;
+  // Items on their way to the door, and the package waiting there (issue 062 stage 3a).
+  readonly deliveries: Deliveries;
   // Announces steps, bumps into things, and task starts, completions and refusals.
   readonly events = new Emitter<GameEvents>();
   private readonly hud = new Hud();
@@ -123,6 +126,7 @@ export class Game {
   constructor(level: Level, options: GameOptions = {}) {
     this.state = options.state ?? new ApartmentState(STATE_VARS);
     this.decor = options.decor ?? new Decor();
+    this.deliveries = new Deliveries(this.decor);
     validateLevel(level, this.validation());
     this.decor.checkLevel(level);
     for (const room of Object.values(options.rooms ?? {})) this.decor.checkLevel(room);
@@ -134,6 +138,9 @@ export class Game {
     this.painter = new RoomPainter(options.sprites);
     this.grid = new Grid(level.size, this.activeSolids());
     this.state.onChange = (change) => this.stateChanged(change);
+    // Sleeping and napping skip hours, and a delivery due in that time arrives when you wake.
+    this.state.onClockSkip = (hours) => this.deliveries.advance(hours);
+    this.deliveries.onArrive = () => this.say("A PACKAGE HAS ARRIVED.");
     this.player = new Player(level.spawn.x, level.spawn.y, level.facing);
     this.camera = new Camera(level.size, VIEW);
     this.camera.snapTo(this.playerCentre());
@@ -174,7 +181,8 @@ export class Game {
     this.interaction.onCancelled = (item) => this.events.emit("taskCancelled", { item });
     this.interaction.host = this.activityHost();
     // A swap with nothing to swap to is not offered (no prompt, not in the choice cycle).
-    this.interaction.hidden = (item) => item.decorSlot !== undefined && this.decor.choices(item.decorSlot).length < 2;
+    this.interaction.hidden = (item) =>
+      (item.decorSlot !== undefined && this.decor.choices(item.decorSlot).length < 2) || (item.delivery === true && !this.deliveries.waiting);
     this.dialog = new DialogRunner({
       onOpen: () => {
         this.releaseDialogLock?.();
@@ -228,6 +236,7 @@ export class Game {
       reward: (points, effects) => this.interaction.award(points, effects)?.points ?? null,
       gameMinutes: () => this.minutes,
       decor: this.decor,
+      collectDeliveries: () => this.collectDeliveries(),
       sprites: this.spriteDrawer,
       getState: (id) => this.state.get(id),
       random: () => this.random(),
@@ -273,6 +282,16 @@ export class Game {
   // The solids that block right now: those with no condition, or whose condition holds.
   private activeSolids(level: Level = this.level): Solid[] {
     return level.solids.filter((s) => !s.blockedWhen || this.state.matchesAll(s.blockedWhen));
+  }
+
+  // One plain line over the player.
+  private say(text: string): void {
+    this.popups.add(this.player.x + TILE / 2, this.player.y, [{ text, color: COLOR.paper }]);
+  }
+
+  // Opens the waiting packages: the items are added, and each one is named in one line.
+  private collectDeliveries(): void {
+    for (const id of this.deliveries.collect()) this.say(`OPENED: ${this.decor.item(id)?.name ?? "A PACKAGE"}`);
   }
 
   private stateChanged(change: { id: string; value: number; previous: number }): void {
@@ -412,6 +431,10 @@ export class Game {
     if (this.interaction.active?.activity.holdsClock) return;
     this.state.tick(dt);
     this.minutes += dt * CLOCK.minutesPerSecond;
+    this.deliveries.advance((dt * CLOCK.minutesPerSecond) / 60);
+    // The box by the door shows while a package waits (the state variable only follows the queue).
+    const parcel = this.deliveries.waiting ? 1 : 0;
+    if (this.state.has("parcel") && this.state.get("parcel") !== parcel) this.state.applyEffects([{ var: "parcel", set: parcel }]);
   }
 
   render(ctx: CanvasRenderingContext2D, alpha: number): void {

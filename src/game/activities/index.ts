@@ -8,6 +8,7 @@ import "./typing";
 import "./notes";
 import "./make-track";
 import "./swap-decor";
+import "./collect-delivery";
 import "./flashcards";
 
 export { WaitActivity } from "./wait";

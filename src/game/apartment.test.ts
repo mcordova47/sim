@@ -141,6 +141,8 @@ describe("tasks", () => {
     for (const room of Object.values(rooms)) {
       const grid = new Grid(room.size, room.solids);
       for (const item of room.interactables) {
+        // The package spot is floor on purpose (a box that never blocks, issue 062 stage 3a).
+        if (item.delivery) continue;
         for (const z of item.zones) expect(grid.isBlocked(z.x / TILE, z.y / TILE), item.id).toBe(true);
       }
     }

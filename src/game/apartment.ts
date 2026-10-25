@@ -34,7 +34,7 @@ export const MAIN_MAP = [
   "#GSSSSSS....BBBBB.#",
   "#.SSSSSSL...BBBBB.W",
   "########.R..BBBBB.W",
-  "##########........#",
+  "##########x.......#",
   "##########ff#######",
 ];
 
@@ -95,6 +95,16 @@ const MAIN: Record<string, ObjectDef> = {
   p: { name: "painting over the table", sprite: "painting", color: "paper", slot: "art-table" },
   q: { name: "painting over the desk", sprite: "painting-desk", color: "paper", slot: "art-desk" },
   u: { name: "painting over the nightstand", sprite: "painting-wide", color: "paper", slot: "art-bed" },
+  // The package spot (issue 062 stage 3a): the floor in front of the front door.
+  // Walkable, so it never blocks the room. The box is drawn, and the task offered,
+  // only while a package waits (the `parcel` state follows the delivery queue).
+  x: {
+    name: "package by the door",
+    solid: false,
+    color: "tangerine",
+    tasks: ["collect-delivery"],
+    variants: [{ sprite: "delivery-box", when: [{ var: "parcel", min: 1 }], label: "PACKAGE", color: "tangerine" }],
+  },
   f: { name: "front door (decoration for now)", sprite: "front-door", color: "tangerine" },
   "1": { door: { to: "kitchen", arrive: { col: 11, row: 3, facing: "left" } } },
   "2": { door: { to: "kitchen", arrive: { col: 11, row: 4, facing: "left" } } },

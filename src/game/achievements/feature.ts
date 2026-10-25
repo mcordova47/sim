@@ -69,7 +69,7 @@ export class AchievementsFeature implements Layer {
     this.store = new ProgressStore(options.storage === undefined ? browserStorage() : options.storage, UI.storageKey);
     const ids = new Set<string>();
     // Changing the decor ends quietly and is never a completion, so it is not part of "every task".
-    for (const level of Object.values(this.rooms)) for (const item of level.interactables) if (item.decorSlot === undefined) ids.add(item.id);
+    for (const level of Object.values(this.rooms)) for (const item of level.interactables) if (item.decorSlot === undefined && !item.delivery) ids.add(item.id);
     this.ctx = { allTaskIds: [...ids] };
     this.room = options.start ?? APARTMENT.start;
 
@@ -82,6 +82,11 @@ export class AchievementsFeature implements Layer {
     if (saved.decor !== undefined) this.game.decor.load(saved.decor);
     // Owning or placing an item saves at once, so closing the tab right after a swap keeps it.
     this.game.decor.onChange = () => {
+      if (!this.resetting) this.save();
+    };
+    // A missing deliveries field (an old save) means nothing is queued.
+    if (saved.deliveries !== undefined) this.game.deliveries.load(saved.deliveries);
+    this.game.deliveries.onChange = () => {
       if (!this.resetting) this.save();
     };
     this.stats.visited(this.room);
@@ -144,7 +149,7 @@ export class AchievementsFeature implements Layer {
   save(): boolean {
     this.sinceSave = 0;
     // Round trip the snapshot through the parser so anything we write can be read back.
-    return this.store.save(this.unlocks.ids(), this.stats.toJSON(), parseWorld(this.snapshot()), this.game.decor.toJSON());
+    return this.store.save(this.unlocks.ids(), this.stats.toJSON(), parseWorld(this.snapshot()), this.game.decor.toJSON(), this.game.deliveries.toJSON());
   }
 
   // Runs a stats change, then unlocks whatever it earned.
@@ -154,6 +159,9 @@ export class AchievementsFeature implements Layer {
   }
 
   private check(): void {
+    // Checkpoints for gifts (issue 062 stage 3a): quiet, each fires once.
+    const s = this.stats.toJSON();
+    this.game.deliveries.check({ points: s.totalPoints, tasks: this.stats.completions, days: this.game.deliveries.hours / 24 });
     const fresh = this.unlocks.check(this.stats, this.ctx);
     for (const a of fresh) this.toasts.push(a.name, a.description);
     // A named moment, for sound and the like to react to.
@@ -170,6 +178,7 @@ export class AchievementsFeature implements Layer {
     this.resetting = true;
     try {
       this.game.decor.reset();
+      this.game.deliveries.reset();
     } finally {
       this.resetting = false;
     }

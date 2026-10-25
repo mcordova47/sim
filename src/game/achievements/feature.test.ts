@@ -325,4 +325,17 @@ describe("AchievementsFeature", () => {
       expect(feature.unlocks.has("coffee-3")).toBe(true);
     });
   });
+
+  it("saves the decor right after a swap, and a reset does not write a save", () => {
+    const storage = new FakeStorage();
+    const { game, feature } = setup(storage);
+    const swap = game.decor.testItemIds().find((id) => id.startsWith("art-"))!;
+    game.decor.own(swap);
+    expect(game.decor.place("art-table", swap)).toBe(true);
+    const saved = JSON.parse(storage.getItem(KEY)!);
+    expect(saved.decor.placed["art-table"]).toBe(swap);
+    storage.removeItem(KEY);
+    feature.reset();
+    expect(storage.getItem(KEY)).toBeNull();
+  });
 });

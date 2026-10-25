@@ -57,6 +57,7 @@ export class AchievementsFeature implements Layer {
   private listOpen = false;
   private cursor = 0;
   private confirmReset = false;
+  private resetting = false;
   private releaseLock: (() => void) | null = null;
   private sinceSave = 0;
   private sinceCheck = 0;
@@ -79,6 +80,10 @@ export class AchievementsFeature implements Layer {
     if (saved.world) this.restoreWorld(saved.world);
     // A missing decor field (an old save) leaves the room as it is today.
     if (saved.decor !== undefined) this.game.decor.load(saved.decor);
+    // Owning or placing an item saves at once, so closing the tab right after a swap keeps it.
+    this.game.decor.onChange = () => {
+      if (!this.resetting) this.save();
+    };
     this.stats.visited(this.room);
 
     game.events.on("step", () => this.after(() => this.stats.stepped()));
@@ -162,7 +167,12 @@ export class AchievementsFeature implements Layer {
     this.unlocks.clear();
     this.toasts.clear();
     this.store.clear();
-    this.game.decor.reset();
+    this.resetting = true;
+    try {
+      this.game.decor.reset();
+    } finally {
+      this.resetting = false;
+    }
     this.confirmReset = false;
     try {
       this.game.state.applyEffects(STATE_VARS.map((v) => ({ var: v.id, set: v.initial })));

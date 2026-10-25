@@ -40,6 +40,7 @@ Never merge, push, rebase onto other branches or remove the worktree. Merging is
 - Go through the acceptance criteria one at a time. For each, say how you checked it (command run, screenshot or contact sheet viewed, behavior exercised).
 - Run `npm run build` and any available tests or type checks if the project has them.
 - For visual work, render the result and look at it before claiming it's done.
+- If you changed how the main room looks on purpose (art, map, lighting, draw order), the golden frame test (`src/game/main-room-frames.golden.test.ts`) fails. Look at the rendered room, then re-record with `UPDATE_GOLDEN=1 npm test` and commit the new `src/game/golden/main-room-frames.json` with a line in your log about what changed. If it fails and you did not change the room, that is a bug.
 - If a criterion can't be met or checked, say so plainly. Do not mark it as passing.
 
 ## 6. Finish

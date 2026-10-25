@@ -11,8 +11,11 @@ npm install
 npm run dev       # dev server
 npm run build     # type check and production build
 npm test          # unit tests
+UPDATE_GOLDEN=1 npm test   # re-record the main-room golden frames (see below)
 npm run sprites   # render art/src/*.sprite to public/sprites/ and a contact sheet
 ```
+
+**Golden frames.** `src/game/main-room-frames.golden.test.ts` renders the main room headless over nine states (start, the plant at each stage and drooping, night with the lamp glow, dusk with the blinds, morning) and compares every drawing call, in order, with `src/game/golden/main-room-frames.json`. It fails on purpose when the main room changes: new or redrawn furniture or wall art, a map edit, a lighting change or a new draw order. That is the cue to look at the room (render it and check that the change is what you meant), then run `UPDATE_GOLDEN=1 npm test` to re-record the file and commit it with the change, saying in the commit message what changed. `DUMP_DIR=<dir> npm test` also writes each frame's full log for diffing two builds by hand. If it fails and you did not mean to change how the room looks, something broke.
 
 Controls: WASD or arrow keys to walk (a new direction turns you first, holding it steps), E to use what you are facing. In menus: arrows or W and S to move, E to choose, Escape or X to go back. Escape also stops any running action (the top of the screen says ESC TO STOP). See `docs/dialogs.md` for writing dialogs.
 

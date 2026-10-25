@@ -23,6 +23,13 @@ export interface DecorSlot {
   // stage and dryness live in (stage belongs to the slot, not the item).
   stageVar?: string;
   dryVar?: string;
+  // The variable counting waterings toward the next stage. A swapped-in plant
+  // starts small, so the swap puts the stage, this and the dry count back to 0.
+  growthVar?: string;
+  // The map piece you stand at to change it (its name in the room's legend). The
+  // swap task (`swap-<slot id>`, issue 062 stage 2) is offered there, only when
+  // there is something else to put in the slot. Checked against the room at startup.
+  object?: string;
 }
 
 export interface DecorItem {
@@ -47,8 +54,10 @@ export interface DecorItem {
   color?: keyof typeof COLOR;
   // One deadpan line for when it goes up (stage 2 on).
   note?: string;
-  // Where it came from, for later. Nothing reads these in stage 1.
+  // Where it came from, for later. Nothing reads these.
   how?: "start" | "gift" | "find" | "delivery" | "browse";
+  // "test" marks an item that only exists so the swap can be tried before there
+  // is a way to get anything (stage 2). Stage 4 removes them; `?own=` is the only way to get one.
   tags?: string[];
 }
 
@@ -63,14 +72,16 @@ export interface FamilyRules {
 export const FAMILIES: Record<string, FamilyRules> = {
   // The snake plant: plant-0 to plant-3 and plant-wilted (issue 063).
   plant: { stages: 4, droops: true },
+  // TEST: a plant that never grows or droops (like dried flowers will), drawn with its own sprite.
+  "plant-test": { stages: 0, droops: false },
 };
 
 export const DECOR_SLOTS: DecorSlot[] = [
-  { id: "art-table", room: "main", name: "ART OVER THE TABLE", area: { x: 32, y: 0, w: 32, h: 16 }, kinds: ["art"], default: "art-barn" },
-  { id: "art-desk", room: "main", name: "ART OVER THE DESK", area: { x: 112, y: 0, w: 32, h: 16 }, kinds: ["art"], default: "art-abstract" },
-  { id: "art-bed", room: "main", name: "ART OVER THE BED", area: { x: 224, y: 0, w: 48, h: 16 }, kinds: ["art"], default: "art-silkscreen" },
-  { id: "plant-shelf", room: "main", name: "PLANT ON THE SHELF", area: { x: 160, y: 52, w: 16, h: 16 }, kinds: ["plant"], default: "plant-snake", stageVar: "plantStage", dryVar: "plantDry" },
-  { id: "lamp-sofa", room: "main", name: "LAMP BY THE SOFA", area: { x: 128, y: 96, w: 16, h: 16 }, kinds: ["lamp"], default: "lamp-table" },
+  { id: "art-table", room: "main", name: "ART OVER THE TABLE", area: { x: 32, y: 0, w: 32, h: 16 }, kinds: ["art"], default: "art-barn", object: "dining table" },
+  { id: "art-desk", room: "main", name: "ART OVER THE DESK", area: { x: 112, y: 0, w: 32, h: 16 }, kinds: ["art"], default: "art-abstract", object: "standing desk" },
+  { id: "art-bed", room: "main", name: "ART OVER THE BED", area: { x: 224, y: 0, w: 48, h: 16 }, kinds: ["art"], default: "art-silkscreen", object: "nightstand" },
+  { id: "plant-shelf", room: "main", name: "PLANT ON THE SHELF", area: { x: 160, y: 52, w: 16, h: 16 }, kinds: ["plant"], default: "plant-snake", stageVar: "plantStage", dryVar: "plantDry", growthVar: "plantGrowth", object: "cube bookshelf" },
+  { id: "lamp-sofa", room: "main", name: "LAMP BY THE SOFA", area: { x: 128, y: 96, w: 16, h: 16 }, kinds: ["lamp"], default: "lamp-table", object: "lamp table" },
 ];
 
 // Today's room, as items. These are the starting set: owned from the first run.
@@ -82,13 +93,27 @@ export const DECOR_ITEMS: DecorItem[] = [
   { id: "lamp-table", name: "LAMP", kind: "lamp", sprite: "lamp-table", w: 16, h: 16, color: "butter", how: "start" },
 ];
 
+// TEST items (issue 062 stage 2): borrowed sprites, so the swap can be tried and
+// reviewed before gifts and finds (stage 3) or new art (stage 4) exist. They are
+// not owned by anyone; `?own=test` in the dev server gives them all. Every id
+// starts with "-test-" and every name with "TEST" so they cannot be mistaken
+// for real items. Stage 4 deletes this list.
+export const TEST_ITEMS: DecorItem[] = [
+  { id: "art-test-desk", name: "TEST GOLD ABSTRACT", kind: "art", sprite: "painting-desk", w: 32, h: 16, color: "paper", tags: ["test"] },
+  { id: "art-test-barn", name: "TEST BARN DRAWING", kind: "art", sprite: "painting", w: 32, h: 16, color: "paper", tags: ["test"] },
+  { id: "plant-test-grown", name: "TEST GROWN PLANT", kind: "plant", sprite: "plant-3", family: "plant-test", w: 16, h: 16, color: "leaf", tags: ["test"] },
+  { id: "lamp-test-stool", name: "TEST STOOL LAMP", kind: "lamp", sprite: "stool", w: 16, h: 16, color: "butter", tags: ["test"] },
+];
+
+export const isTestItem = (item: DecorItem): boolean => item.tags?.includes("test") === true;
+
 export interface DecorData {
   slots: readonly DecorSlot[];
   items: readonly DecorItem[];
   families: Readonly<Record<string, FamilyRules>>;
 }
 
-export const DECOR_DATA: DecorData = { slots: DECOR_SLOTS, items: DECOR_ITEMS, families: FAMILIES };
+export const DECOR_DATA: DecorData = { slots: DECOR_SLOTS, items: [...DECOR_ITEMS, ...TEST_ITEMS], families: FAMILIES };
 
 // Every sprite name an item can ask for, so they are loaded before the first frame.
 export function itemSprites(item: DecorItem, families: DecorData["families"] = FAMILIES): string[] {

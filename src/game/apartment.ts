@@ -56,11 +56,11 @@ const MAIN_PROPS: PropDef[] = [
 ];
 
 const MAIN: Record<string, ObjectDef> = {
-  T: { name: "dining table", sprite: "table", color: "tangerine", tasks: ["coffee", "drink-coffee", "reheat", "eat-dinner"] },
-  D: { name: "standing desk", sprite: "desk", color: "butter", tasks: ["work", "side-project-game", "journal", "tidy-desk", "make-track"] },
+  T: { name: "dining table", sprite: "table", color: "tangerine", tasks: ["coffee", "drink-coffee", "reheat", "eat-dinner", "swap-art-table"] },
+  D: { name: "standing desk", sprite: "desk", color: "butter", tasks: ["work", "side-project-game", "journal", "tidy-desk", "make-track", "swap-art-desk"] },
   C: { name: "desk chair", sprite: "desk-chair", color: "ink" },
-  H: { name: "cube bookshelf", sprite: "bookshelf", color: "butter", tasks: ["water-plant-droop", "water-plant", "check-plant", "sort-records", "sort-records-year", "sort-records-fav", "sort-records-color"] },
-  N: { name: "nightstand", sprite: "nightstand", color: "tangerine" },
+  H: { name: "cube bookshelf", sprite: "bookshelf", color: "butter", tasks: ["water-plant-droop", "water-plant", "check-plant", "sort-records", "sort-records-year", "sort-records-fav", "sort-records-color", "swap-plant-shelf"] },
+  N: { name: "nightstand", sprite: "nightstand", color: "tangerine", tasks: ["swap-art-bed"] },
   B: {
     name: "queen bed",
     sprite: "bed-made",
@@ -87,7 +87,7 @@ const MAIN: Record<string, ObjectDef> = {
   },
   S: { name: "sofa", sprite: "sofa-td", color: "brick", tasks: ["doomscroll", "contemplate", "work-sofa", "nap", "admire-art"] },
   G: { name: "guitar", sprite: "guitar", color: "tangerine", tasks: ["guitar"] },
-  L: { name: "lamp table", sprite: "lamp-table", color: "butter", slot: "lamp-sofa" },
+  L: { name: "lamp table", sprite: "lamp-table", color: "butter", slot: "lamp-sofa", tasks: ["swap-lamp-sofa"] },
   R: { name: "record stand", sprite: "record-stand", color: "paper", tasks: ["record-play"] },
   M: { name: "mic stand", sprite: "mic-stand", color: "ink" },
   // The paintings are decor slots (issue 062): what hangs there comes from the

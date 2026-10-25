@@ -67,7 +67,8 @@ export class AchievementsFeature implements Layer {
     this.unlocks = new Unlocks(this.list);
     this.store = new ProgressStore(options.storage === undefined ? browserStorage() : options.storage, UI.storageKey);
     const ids = new Set<string>();
-    for (const level of Object.values(this.rooms)) for (const item of level.interactables) ids.add(item.id);
+    // Changing the decor ends quietly and is never a completion, so it is not part of "every task".
+    for (const level of Object.values(this.rooms)) for (const item of level.interactables) if (item.decorSlot === undefined) ids.add(item.id);
     this.ctx = { allTaskIds: [...ids] };
     this.room = options.start ?? APARTMENT.start;
 

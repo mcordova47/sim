@@ -1,5 +1,6 @@
 import { APARTMENT } from "./game/apartment";
 import { attachFeatures } from "./game/features";
+import { ownFromSearch } from "./game/decor-dev";
 import { Game } from "./game/game";
 import { startLoop } from "./game/loop";
 import { readControls } from "./input/controls";
@@ -34,6 +35,15 @@ try {
     const { player } = game;
     game.loadLevel(game.currentLevel, player.col, player.row, player.facing);
   }
+} catch {
+  // No address to read (never in a browser).
+}
+
+// A dev shortcut to own decor you cannot get yet (issue 062 stage 2): `?own=test`
+// owns every TEST item, or list ids: `?own=art-test-barn,lamp-test-stool`. Only in
+// the dev server; a built game ignores it.
+try {
+  if (import.meta.env.DEV) ownFromSearch(game.decor, location.search);
 } catch {
   // No address to read (never in a browser).
 }

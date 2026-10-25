@@ -4,6 +4,7 @@ import type { Direction } from "./direction";
 import type { SpriteDrawer } from "../render/sprites";
 import type { Interactable } from "./interactable";
 import type { Track } from "./music/track";
+import type { Decor } from "./decor";
 import type { Effect } from "./state";
 
 // An activity is what a task is while the player is doing it. Today's timed
@@ -70,6 +71,8 @@ export interface ActivityHost {
   // Pays points and applies `effects` for the running task right now, as if it
   // had finished, without ending it. Returns the points, or null if nothing was paid.
   reward?(points: number, effects: Effect[]): number | null;
+  // The decor you own and have placed (the swap list). Missing in tests.
+  readonly decor?: Decor;
   // Game minutes played so far (the clock held still by an activity does not count).
   gameMinutes?(): number;
 }

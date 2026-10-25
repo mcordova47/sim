@@ -52,6 +52,10 @@ export interface Interactable {
   // An item shown in the player's hands while it runs (poses.ts), when no pose
   // is drawn.
   held?: string;
+  // A task that changes this decor slot (issue 062). It is only offered while the
+  // slot has something else to put in it, so a game with nothing to swap shows
+  // nothing new. It has no points, mood or cooldown and always ends quietly.
+  decorSlot?: string;
   // The tiles of the object, as one rectangle per tile (so an L-shaped counter
   // is exactly its tiles). It is used by standing next to a tile and facing it.
   zones: Rect[];

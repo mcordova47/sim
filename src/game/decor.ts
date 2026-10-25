@@ -1,6 +1,6 @@
 import { unsupportedChars } from "../render/font";
-import { DECOR, PLANT } from "./config";
-import { DECOR_DATA, itemSprites, type DecorData, type DecorItem, type DecorSlot } from "./decor-data";
+import { DECOR, PLANT, TILE } from "./config";
+import { DECOR_DATA, isTestItem, itemSprites, type DecorData, type DecorItem, type DecorSlot } from "./decor-data";
 import type { Level } from "./level";
 import type { ApartmentState } from "./state";
 import type { Rect } from "./world";
@@ -73,6 +73,8 @@ export class Decor {
   private readonly items = new Map<string, DecorItem>();
   private owned = new Set<string>();
   private placed = new Map<string, string>();
+  // An item shown in a slot only while you look at the swap list (never saved).
+  private previewed: { slot: string; item: string } | null = null;
 
   constructor(private readonly data: DecorData = DECOR_DATA) {
     validateDecorData(data);
@@ -85,6 +87,7 @@ export class Decor {
   reset(announce = true): void {
     this.owned = new Set(this.starting());
     this.placed = new Map();
+    this.previewed = null;
     if (announce) this.onChange?.();
   }
 
@@ -105,11 +108,38 @@ export class Decor {
     return this.items.get(itemId);
   }
 
-  // The item in the slot: the placed one, or the slot's default. Throws for a slot that does not exist.
+  // The item in the slot: the one being previewed, the placed one, or the slot's
+  // default. Throws for a slot that does not exist.
   itemIn(slotId: string): DecorItem {
     const slot = this.slots.get(slotId);
     if (!slot) throw new Error(`Unknown decor slot "${slotId}"`);
+    const shown = this.previewed?.slot === slotId ? this.previewed.item : undefined;
+    return this.items.get(shown ?? this.placed.get(slotId) ?? slot.default)!;
+  }
+
+  // The item that is really in the slot, whatever is being previewed.
+  placedIn(slotId: string): DecorItem {
+    const slot = this.slots.get(slotId);
+    if (!slot) throw new Error(`Unknown decor slot "${slotId}"`);
     return this.items.get(this.placed.get(slotId) ?? slot.default)!;
+  }
+
+  get previewing(): boolean {
+    return this.previewed !== null;
+  }
+
+  // Shows an item in a slot without placing it: only for what you could place
+  // (owned and fitting). It is not saved, does not count as a change, and
+  // `clearPreview` (or `place`, `reset`, `load`) puts the room back. Anything
+  // else clears the preview. One preview at a time.
+  preview(slotId: string, itemId: string): boolean {
+    const ok = this.choices(slotId).some((i) => i.id === itemId);
+    this.previewed = ok ? { slot: slotId, item: itemId } : null;
+    return ok;
+  }
+
+  clearPreview(): void {
+    this.previewed = null;
   }
 
   owns(itemId: string): boolean {
@@ -122,6 +152,11 @@ export class Decor {
     this.owned.add(itemId);
     this.onChange?.();
     return true;
+  }
+
+  // The ids of the TEST items (dev only, see decor-dev.ts).
+  testItemIds(): string[] {
+    return this.data.items.filter(isTestItem).map((i) => i.id);
   }
 
   // The items that can go in the slot: owned ones that fit, the default first.
@@ -138,6 +173,7 @@ export class Decor {
     const slot = this.slots.get(slotId);
     const item = this.items.get(itemId);
     if (!slot || !item || !fits(slot, item) || !this.owned.has(itemId)) return false;
+    this.previewed = null;
     const before = this.itemIn(slotId).id;
     if (itemId === slot.default) this.placed.delete(slotId);
     else this.placed.set(slotId, itemId);
@@ -190,11 +226,35 @@ export class Decor {
     for (const p of level.props ?? []) check(`prop "${p.name}"`, p.slot, p.area, false);
   }
 
+  // What is wrong with the swap tasks in a room, in words (none if all is well):
+  // a slot that names its object must have its swap task on exactly that
+  // object's tiles. Only for a room whose id is the slot's room. Checked by a
+  // test over the real apartment (tests that strip a room's tasks are fine).
+  swapProblems(level: Level): string[] {
+    const bad: string[] = [];
+    for (const slot of this.data.slots) {
+      if (!slot.object || level.id !== slot.room) continue;
+      const piece = level.pieces.find((p) => p.name === slot.object);
+      if (!piece) {
+        bad.push(`slot "${slot.id}" names the object "${slot.object}", which is not in the room`);
+        continue;
+      }
+      const task = level.interactables.find((i) => i.decorSlot === slot.id);
+      const tiles = new Set(piece.tiles.map((t) => `${t.col * TILE},${t.row * TILE}`));
+      const zones = task?.zones.map((z) => `${z.x},${z.y}`) ?? [];
+      if (!task || zones.length !== tiles.size || !zones.every((z) => tiles.has(z))) {
+        bad.push(`slot "${slot.id}" needs its swap task on the "${slot.object}"`);
+      }
+    }
+    return bad;
+  }
+
   // Reads a saved `decor` value and replaces the store's contents with what is usable.
   load(raw: unknown): void {
     const parsed = parseDecor(raw, this.data);
     this.owned = new Set(parsed.owned);
     this.placed = new Map(Object.entries(parsed.placed));
+    this.previewed = null;
     this.onChange?.();
   }
 

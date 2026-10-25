@@ -1,7 +1,7 @@
 ---
 id: 062
 title: Customizable decor (inventory, swap, buy new things) (explore)
-status: in-progress
+status: review
 owner: marc + claude
 depends_on: []
 ---

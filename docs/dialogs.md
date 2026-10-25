@@ -38,5 +38,5 @@ menu("Contemplate what?", [           // a list of choices, with an optional pro
 - The pixel font is uppercase only, so text is drawn in capitals whatever case you write it in.
 - It covers A-Z, 0-9 and `. , : ; ! ? ' " ( ) / % + - * & # @ $ = _ < > [ ] { } | \ ^ ~` and the back tick.
 - Curly quotes, dashes (en, em), the ellipsis character and odd spaces are replaced by plain ones automatically, so text pasted from a book works.
-- Anything else (accented letters, emoji) can't be drawn. `src/game/dialog-data.test.ts` checks every dialog reachable from the game's tasks and fails with the text and the characters named. Add your dialog to that test's `roots` if it isn't reachable from a task.
+- It also draws the Spanish capitals `Á É Í Ó Ú Ñ` (lowercase ones are drawn as capitals, so `canción` works). Anything else (other accents, `¿ ¡`, emoji) can't be drawn. `src/game/dialog-data.test.ts` checks every dialog reachable from the game's tasks and fails with the text and the characters named. Add your dialog to that test's `roots` if it isn't reachable from a task.
 - Keep choice labels short (the box is as wide as the longest label; one that doesn't fit is cut at the box edge, and the data test fails before that), at most eight choices in a menu, and replies to a few pages. The same test checks these.

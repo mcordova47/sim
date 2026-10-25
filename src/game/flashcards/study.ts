@@ -1,0 +1,35 @@
+// What the study activity needs from the flashcards app, and nothing more. The
+// real thing (issue 026 stage 2) is the app's own compiled core plus its sync
+// server; tests and the demo use `demo.ts`. The names follow the core's planned
+// API (session, card, grade, requeue) and are provisional until the flashcards
+// repo confirms them.
+
+export type Grade = "again" | "gotit";
+
+// One card as the screen shows it: the front, the back and an optional hint.
+export interface CardView {
+  slug: string;
+  prompt: string;
+  answer: string;
+  hint?: string;
+}
+
+export interface StudySession {
+  // The slugs to study this session, in order.
+  queue(): string[];
+  card(slug: string): CardView;
+  // `queue` with the card at `position` (which was missed) put back a few places on.
+  requeue(queue: string[], position: number, slug: string): string[];
+  // Records the answer with the real server. Resolves false if it could not be
+  // delivered; the answer is then not kept anywhere, so the app's schedule is
+  // never silently wrong.
+  grade(slug: string, grade: Grade): Promise<boolean>;
+}
+
+export type OpenResult = StudySession | "bad-key" | "offline";
+
+export interface StudyBackend {
+  // Whether delivered answers earn game points (the demo's do not).
+  readonly paysPoints: boolean;
+  open(key: string): Promise<OpenResult>;
+}

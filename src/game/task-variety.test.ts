@@ -100,7 +100,7 @@ describe("typing text matches the task", () => {
     expect(bad("hello")).toThrow(/needs a list/);
     expect(bad([""])).toThrow(/not empty/);
     expect(bad([3])).toThrow(/not empty/);
-    expect(bad(["café"])).toThrow(/can't draw/);
+    expect(bad(["日本"])).toThrow(/can't draw/);
     expect(bad(["W".repeat(80)])).toThrow(/too wide/);
     expect(bad(["fine"])).not.toThrow();
   });

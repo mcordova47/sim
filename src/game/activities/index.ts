@@ -8,6 +8,7 @@ import "./typing";
 import "./notes";
 import "./make-track";
 import "./swap-decor";
+import "./flashcards";
 
 export { WaitActivity } from "./wait";
 export { DialogActivity } from "./dialog";
@@ -16,3 +17,4 @@ export { TypingActivity, SNIPPETS, isTypingKey } from "./typing";
 export { NotesActivity, ARROW } from "./notes";
 export { MakeTrackActivity } from "./make-track";
 export { SwapDecorActivity } from "./swap-decor";
+export { FlashcardsActivity } from "./flashcards";

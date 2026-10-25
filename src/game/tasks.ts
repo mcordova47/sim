@@ -56,6 +56,9 @@ const CONTENT: Task[] = [
   // it is always open to you; saving a track pays (activities/make-track.ts).
   { id: 'make-track', name: 'Make a track', prompt: 'Make a track', duration: 0, points: 0, cooldown: 0 },
 
+  // The real flashcards app, played through the computer (issue 026, docs/flashcards.md).
+  { id: 'study-spanish', name: 'Study Spanish', prompt: 'Study Spanish', duration: 0, points: 0, cooldown: 0 },
+
   // Table
   { id: 'coffee', name: 'Make pour-over coffee', prompt: 'Make coffee', duration: 6, points: 70,
     flavor: 'Weigh, grind, bloom, wait. Peak civilization.' },
@@ -222,6 +225,8 @@ const STATE_RULES: Record<string, Partial<Task>> = {
   // lifts mood a little; while a record plays, mood climbs more (sound feature).
   // Backing out of the menu pays nothing.
   "make-track": { activity: { type: "make-track" } },
+  // Pays per delivered card from inside the activity, so no points of its own.
+  "study-spanish": { activity: { type: "flashcards" } },
   "record-play": {
     effects: [{ var: "mood", add: 5 }],
     // Built when the player presses E, so it lists demos made since the game loaded.
@@ -266,6 +271,7 @@ const LOOKS: Record<string, Pick<Task, "pose" | "held">> = {
   nap: { pose: "sit-sofa" },
   "work-bed": { held: "laptop" },
   work: { pose: "type-desk", held: "laptop" },
+  "study-spanish": { pose: "type-desk", held: "laptop" },
   journal: { held: "book" },
   guitar: { pose: "guitar", held: "guitar" },
   sleep: { pose: "sleep-bed" },

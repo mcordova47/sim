@@ -89,6 +89,28 @@ describe("FlashcardsActivity: the key", () => {
     expect(t.opens).toEqual([KEY.slice(0, -1) + "a"]);
   });
 
+  it("does not type the V of Ctrl+V or Cmd+V after a paste, nor other shortcuts", async () => {
+    for (const mod of ["ControlLeft", "MetaLeft", "AltRight"]) {
+      const t = setup(() => new Session(CARDS));
+      t.a.start();
+      t.pastes[0](`https://palabras.mcord.dev/?pair=${KEY}`);
+      await t.step({ ...keys("KeyV"), keysDown: [mod, "KeyV"] });
+      await t.step({ ...keys("KeyA"), keysDown: [mod, "KeyA"] });
+      expect(t.a.typed.endsWith("v"), mod).toBe(false);
+      expect(t.a.typed.endsWith("a"), mod).toBe(false);
+      await t.step(keys("Enter"));
+      await flush();
+      expect(t.opens, mod).toEqual([KEY]);
+    }
+  });
+
+  it("finds the key in a link longer than the paste limit", async () => {
+    const t = setup(() => new Session(CARDS));
+    t.a.start();
+    t.pastes[0](`https://palabras.mcord.dev/?${"x=1&".repeat(100)}pair=${KEY}`);
+    expect(t.a.typed).toBe(KEY);
+  });
+
   it("uses a remembered key without asking", async () => {
     const storage = new FakeStorage();
     new StudyStore(storage).saveKey(KEY);

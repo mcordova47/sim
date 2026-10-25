@@ -1,7 +1,7 @@
 ---
 id: 026
 title: Spanish flashcards on the in-game computer (stretch)
-status: in-progress
+status: review
 owner: marc + claude
 depends_on: [021, 022, 023]
 ---
@@ -113,3 +113,4 @@ The app is "Mil Palabras" (palabras.mcord.dev): PureScript, Netlify, spaced repe
   - Checklist for the author:
     - [ ] Ignore text keys while Control, Meta or Alt is held in `updateKey` (as `make-track.ts` does), and add a test for paste followed by the `KeyV` press with Control or Meta held.
     - [ ] Optional: persist the remaining window on leave or tick, and cap the paste at the length check after parsing, not before.
+- 2026-10-25: **Review round 1 changes worked.** Fixed: `updateKey` now ignores text keys while Control, Meta or Alt is held (Ctrl+V no longer leaves a stray "v"), with a test for a paste followed by the V press under each modifier; a pasted link longer than the limit is reduced to its key before the cut. Left as noted by the reviewer (minor): the cap window is re-saved only on a paid card (it can only stretch, never shorten), a clock that goes backwards keeps the window closed until it catches up, Escape while connecting forgets a key that was then accepted, and decomposed (NFD) accents are not handled by the font (check the real deck in stage 2). Still unverified: how it looks and feels in a browser.

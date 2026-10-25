@@ -109,7 +109,8 @@ export class FlashcardsActivity extends BaseActivity {
 
   private paste(text: string): void {
     if (this.done || this.phase !== "key") return;
-    this.typed = text.trim().slice(0, F.maxPastedChars);
+    // A very long link is reduced to its key first, so a `pair=` past the cut still works.
+    this.typed = keyFromText(text) ?? text.trim().slice(0, F.maxPastedChars);
     this.message = "";
   }
 
@@ -136,6 +137,9 @@ export class FlashcardsActivity extends BaseActivity {
 
   private updateKey(controls: Controls): void {
     const shift = controls.keysDown.includes("ShiftLeft") || controls.keysDown.includes("ShiftRight");
+    // Ctrl, Cmd and Alt keys are the browser's: Ctrl+V pastes through its own
+    // event, and its V must not be typed as well.
+    const command = controls.keysDown.some((k) => /^(Control|Meta|Alt)(Left|Right)$/.test(k));
     for (const code of controls.keys) {
       if (code === "Enter" || code === "NumpadEnter") {
         const key = keyFromText(this.typed);
@@ -145,7 +149,7 @@ export class FlashcardsActivity extends BaseActivity {
         this.typed = this.typed.slice(0, -1);
         this.message = "";
       } else {
-        const ch = typedChar(code, shift);
+        const ch = command ? null : typedChar(code, shift);
         if (ch && this.typed.length < F.maxPastedChars) {
           this.typed += ch;
           this.message = "";

@@ -13,7 +13,7 @@ import { isMet } from "./unlock";
 const taskIds = new Set(Object.values(APARTMENT.rooms).flatMap((r) => r.interactables.map((i) => i.id)));
 
 const taskIdsIn = (c: Condition): string[] =>
-  "task" in c ? [c.task] : "tasks" in c ? c.tasks : [];
+  "task" in c ? [c.task] : "anyOf" in c ? c.anyOf : "tasks" in c ? c.tasks : [];
 
 describe("achievement data", () => {
   it("lists at least 15 achievements with unique ids and names", () => {
@@ -72,6 +72,8 @@ describe("achievement data", () => {
         }
       } else if ("task" in w) {
         for (let i = 0; i < w.atLeast; i++) s.completed({ id: w.task }, { points: 1, chain: 1, repeatFactor: 1 }, 1);
+      } else if ("anyOf" in w) {
+        for (let i = 0; i < w.atLeast; i++) s.completed({ id: w.anyOf[i % w.anyOf.length] }, { points: 1, chain: 1, repeatFactor: 1 }, 1);
       } else {
         for (const id of "tasks" in w ? w.tasks : ctx.allTaskIds) s.completed({ id }, { points: 1, chain: 1, repeatFactor: 1 }, 1);
       }
@@ -87,5 +89,17 @@ describe("achievement data", () => {
     expect(has((c) => "stat" in c && c.stat === "bestChain")).toBe(true);
     expect(has((c) => "stat" in c && c.stat === "bestAward")).toBe(true);
     expect(has((c) => "stat" in c && c.stat === "minAwards")).toBe(true);
+  });
+
+  it("counts both ways of watering the plant toward Green Thumb", () => {
+    const plant = ACHIEVEMENTS.find((a) => a.id === "plant-3")!;
+    const ctx = { allTaskIds: [...taskIds] };
+    const s = new Stats();
+    const award = { points: 1, chain: 1, repeatFactor: 1 };
+    s.completed({ id: "water-plant" }, award, 1);
+    s.completed({ id: "water-plant-droop" }, award, 1);
+    expect(isMet(plant.when, s, ctx)).toBe(false);
+    s.completed({ id: "water-plant-droop" }, award, 1);
+    expect(isMet(plant.when, s, ctx)).toBe(true);
   });
 });

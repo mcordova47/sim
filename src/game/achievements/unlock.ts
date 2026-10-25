@@ -10,6 +10,7 @@ export interface UnlockContext {
 export function isMet(when: Condition, stats: Stats, ctx: UnlockContext): boolean {
   if ("stat" in when) return stats.number(when.stat) >= when.atLeast;
   if ("task" in when) return stats.taskCount(when.task) >= when.atLeast;
+  if ("anyOf" in when) return when.anyOf.reduce((n, id) => n + stats.taskCount(id), 0) >= when.atLeast;
   if ("tasks" in when) return when.tasks.every((id) => stats.taskCount(id) > 0);
   return ctx.allTaskIds.length > 0 && ctx.allTaskIds.every((id) => stats.taskCount(id) > 0);
 }

@@ -7,6 +7,8 @@ export type Condition =
   | { stat: NumberStat; atLeast: number }
   // One task has been done this many times.
   | { task: string; atLeast: number }
+  // Any of these tasks (variants of one thing) done this many times in total.
+  | { anyOf: string[]; atLeast: number }
   // Every task in the list has been done at least once.
   | { tasks: string[] }
   // Every task in the game has been done at least once.
@@ -32,7 +34,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: "dishes-3", name: "Sink Duty", description: "Do the dishes three times.", when: { task: "dishes", atLeast: 3 } },
   { id: "guitar-3", name: "Same Three Chords", description: "Play guitar three times.", when: { task: "guitar", atLeast: 3 } },
   { id: "bed-3", name: "Hospital Corners", description: "Make the bed three times.", when: { task: "make-bed", atLeast: 3 } },
-  { id: "plant-3", name: "Green Thumb", description: "Water the snake plant three times.", when: { task: "water-plant", atLeast: 3 } },
+  { id: "plant-3", name: "Green Thumb", description: "Water the snake plant three times.", when: { anyOf: ["water-plant", "water-plant-droop"], atLeast: 3 } },
   { id: "contemplate-3", name: "Deep Thoughts", description: "Contemplate three times.", when: { task: "contemplate", atLeast: 3 } },
   { id: "sleep-3", name: "Asleep Again", description: "Go to sleep three times.", when: { task: "sleep", atLeast: 3 } },
 

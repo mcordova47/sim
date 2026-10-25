@@ -60,6 +60,9 @@ export class InteractionSystem {
   onBlocked?: (item: Interactable, reason: "cooldown" | "requirement", message?: string) => void;
   // The player backed out of a task's activity.
   onCancelled?: (item: Interactable) => void;
+  // Tasks it says are not offered at all right now (no prompt, not in the cycle).
+  // The game uses it for decor swaps that have nothing to swap to.
+  hidden?: (item: Interactable) => boolean;
   // What activities that talk to the game (a cutscene, a dialog) are given.
   host: ActivityHost | null = null;
 
@@ -171,7 +174,7 @@ export class InteractionSystem {
     // the task the key will start. With none startable, the first being faced
     // is shown, with why it can't be done.
     const target = player.target;
-    const inReach = target ? this.items.filter((i) => i.zones.some((z) => overlaps(target, z))) : [];
+    const inReach = target ? this.items.filter((i) => i.zones.some((z) => overlaps(target, z)) && !this.hidden?.(i)) : [];
     const reach = inReach.map((i) => i.id).join("|");
     // Walking away, or facing another object, forgets the pick.
     if (reach !== this.reach) this.selectedId = null;

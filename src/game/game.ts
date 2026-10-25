@@ -173,6 +173,8 @@ export class Game {
     };
     this.interaction.onCancelled = (item) => this.events.emit("taskCancelled", { item });
     this.interaction.host = this.activityHost();
+    // A swap with nothing to swap to is not offered (no prompt, not in the choice cycle).
+    this.interaction.hidden = (item) => item.decorSlot !== undefined && this.decor.choices(item.decorSlot).length < 2;
     this.dialog = new DialogRunner({
       onOpen: () => {
         this.releaseDialogLock?.();
@@ -225,6 +227,7 @@ export class Game {
       blip: (freq) => this.events.emit("blip", { freq }),
       reward: (points, effects) => this.interaction.award(points, effects)?.points ?? null,
       gameMinutes: () => this.minutes,
+      decor: this.decor,
       sprites: this.spriteDrawer,
       getState: (id) => this.state.get(id),
       random: () => this.random(),
@@ -363,6 +366,8 @@ export class Game {
   }
 
   update(dt: number, controls: Controls): void {
+    // A swap preview lasts only while the swap list is open, whatever closed it.
+    if (this.decor.previewing && !this.interaction.active) this.decor.clearPreview();
     // Escape backs out of the running action even while its text or menu is up
     // (the dialog would otherwise own the key). The action is cancelled first, so
     // when the dialog's close reaches it, it is already over.
@@ -445,7 +450,7 @@ export class Game {
     this.drawActivity(ctx);
     const dialogView = this.dialog.view;
     if (dialogView) drawDialog(ctx, dialogView);
-    if (this.interaction.active?.activity.cancellable) this.hud.drawStopHint(ctx);
+    if (this.interaction.active?.activity.cancellable && this.interaction.active.item.decorSlot === undefined) this.hud.drawStopHint(ctx);
     this.eachLayer((layer) => this.drawLayer(ctx, () => layer.drawHud?.(ctx), layer.drawHud));
   }
 
@@ -686,8 +691,9 @@ export class Game {
     const popupBoxes = [...this.popups.boxes(VIEW, cam), STATUS_BOX];
     // No prompt while a dialog is open: it would only sit behind the boxes.
     if (!this.dialog.open) {
+      // (A decor swap draws its own list, which hides what it is changing otherwise.)
       if (interaction.active) {
-        drawProgress(ctx, actor, interaction.active.item, interaction.progress, VIEW, popupBoxes);
+        if (interaction.active.item.decorSlot === undefined) drawProgress(ctx, actor, interaction.active.item, interaction.progress, VIEW, popupBoxes);
       } else if (interaction.nearby) {
         const cooldown = interaction.cooldownRemaining(interaction.nearby);
         const unavailable = interaction.unavailableReason(interaction.nearby);

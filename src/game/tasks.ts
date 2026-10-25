@@ -1,6 +1,7 @@
 import { CLOCK, ENERGY, MIRROR, NAP } from "./config";
 import { CONTEMPLATE, MIRROR_DAY, MIRROR_MORNING, MIRROR_NIGHT, MIRROR_TIRED } from "./dialog-data";
 import { ART_SCENES } from "./art-pieces";
+import { DECOR_SLOTS, type DecorKind } from "./decor-data";
 import { REVIVE_REQUIRES, WATER_EFFECTS, WATER_REQUIRES } from "./plant";
 import { SIDE_PROJECTS, sideProjectTask } from "./side-projects";
 import type { Requirement } from "./state";
@@ -311,6 +312,21 @@ const GOOD_HOURS: Record<string, HourWindow[]> = {
   contemplate: [at(22, 3)],
 };
 
+// Changing the decor (issue 062 stage 2): one task per slot that names an object.
+// It opens the swap list (activities/swap-decor.ts) and is only offered when the
+// slot has something else to put in it. It pays nothing, changes no mood and has
+// no cooldown: arranging your things is not a chore to score.
+const SWAP_PROMPT: Partial<Record<DecorKind, string>> = {
+  art: "Change the painting",
+  plant: "Change the plant",
+  lamp: "Change the lamp",
+};
+export const swapTaskId = (slotId: string) => `swap-${slotId}`;
+const SWAPS: Task[] = DECOR_SLOTS.filter((s) => s.object).map((s) => {
+  const prompt = SWAP_PROMPT[s.kinds[0]] ?? "Change it";
+  return { id: swapTaskId(s.id), name: prompt, prompt, duration: 0, points: 0, cooldown: 0, decorSlot: s.id, activity: { type: "swap-decor" } };
+});
+
 // Tasks that need the state or a dialog, so they are not in the content list above.
 const EXTRA: Task[] = [
   {
@@ -341,6 +357,7 @@ const EXTRA: Task[] = [
     ],
   },
   ...MIRRORS,
+  ...SWAPS,
   ...SIDE_PROJECTS.map(sideProjectTask),
   {
     id: "contemplate",

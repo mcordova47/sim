@@ -4,8 +4,8 @@ The desk offers "Study Spanish". It is a front end for Marc's real flashcards ap
 
 ## Stages
 
-1. **Stage 1 (this): the game side with a stand-in.** The key screen, the card screen, the points rule and the `StudyBackend` interface, all tested without a network. `FLASHCARDS.backend` in `config.ts` is `"demo"`: a built-in ten-card deck, any well-formed key is accepted, nothing is sent anywhere and nothing is paid.
-2. **Stage 2: the real backend.** Loads the app's compiled core (`/core.js`) at runtime and syncs through `GET/PUT /api/progress/<key>/es`. Needs the flashcards repo's #169 to settle its API names and CORS.
+1. **Stage 1: the game side with a stand-in.** The key screen, the card screen, the points rule and the `StudyBackend` interface, all tested without a network. `demo.ts` is a built-in ten-card deck that accepts any well-formed key, sends nothing and pays nothing; `FLASHCARDS.backend = "demo"` in `config.ts` selects it.
+2. **Stage 2 (this): the real backend** (`FLASHCARDS.backend = "real"`, the default). See below.
 3. **Stage 3: mumblespeak.** Per-letter blips when the Spanish side is "spoken".
 4. **Later, optional: offline study** (cache the core and the last blob, sync when back).
 
@@ -16,9 +16,21 @@ The desk offers "Study Spanish". It is a front end for Marc's real flashcards ap
 - **Delivery.** Each answer is sent as it is given. If it cannot be delivered the screen says so, nothing is paid, and the answer is not kept, so the real schedule is never silently wrong.
 - **Points.** `FLASHCARDS.pointsPerCard` (4) for each delivered "got it", at most `dailyCardCap` (20) per `capResetHours` (24) game hours. "Again" pays nothing; there are no streaks or penalties. The apartment's clock stands still while studying.
 
+## The real backend
+
+The game imports the app's own compiled core, `https://palabras.mcord.dev/core.v1.js` (`FLASHCARDS.origin`, `coreVersion`), and does not reimplement the scheduler, deck, grading or merge. `flashcards/core.ts` checks what it got (the `version` must equal `coreVersion`, and `session`, `card`, `grade`, `merge` and `requeue` must be functions) and fails with a message saying what is wrong. `flashcards/real.ts` runs the app's study loop against `GET/PUT <origin>/api/progress/<key>/es`:
+
+- open: GET the blob (404 means no progress yet), then `core.session` for the queue;
+- each answer: `core.grade`, GET again, `core.merge`, PUT. The local copy moves on only after the PUT succeeded, so an answer that could not be delivered is not kept anywhere;
+- open results: a 400 means the key was refused (forgotten); a network error, a server error or a core that fails to load or check means "no connection"; a core that refuses what the server holds (a newer format, damage) means "the saved cards could not be read" and nothing is written.
+
+The card screen shows `prompt`, then `answers` joined with commas, and `example` as a hint when there is one. Accents from the core are normalised to NFC so the font sees one letter. A build can point at another origin with `VITE_FLASHCARDS_ORIGIN`; the app's CORS list allows `https://*.mcord.dev` and Vite's dev server on `localhost:5173` and `127.0.0.1:5173`, so other origins (a Netlify preview URL) will be refused by the browser.
+
+Only the self-graded vocabulary cards (the `es` blob) are used. The drills are not.
+
 ## The interface
 
-`flashcards/study.ts` is all the activity knows: `StudyBackend.open(key)` gives a `StudySession` with `queue()`, `card(slug)`, `requeue(queue, position, slug)` and `grade(slug, grade)` (resolves false when it could not be delivered). The names follow the core's planned API and are provisional. `flashcards/demo.ts` is the stand-in used by stage 1 and the tests.
+`flashcards/study.ts` is all the activity knows: `StudyBackend.open(key)` gives a `StudySession` with `queue()`, `card(slug)`, `requeue(queue, position, slug)` and `grade(slug, grade)` (resolves false when it could not be delivered). `flashcards/demo.ts` is the stand-in used by stage 1 and the tests.
 
 ## Text
 

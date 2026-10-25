@@ -20,6 +20,11 @@ Planner's way to make the logic work (for the design note to test and Marc to pi
 - **Presentation:** a short full-screen scene like the art views (a `view` picture of a stylized email or ad card, then a small menu), not a battle UI; escapes cleanly (046).
 - **Link to 062:** the delivery is the acquisition source for stage 3: each purchase becomes an owned item that arrives after a while, announced with one plain line. This keeps 'getting things' a quiet side effect.
 
+## Two ways to pace what arrives (Marc, 2026-10-25), for the design note to compare
+1. **Random chance, on screens only** (the encounters above). Repeats must be allowed (an encounter can show something you already have, or offer a duplicate) so you do not collect everything too quickly; the odds, the cooldown and a daily cap set the rate.
+2. **Fixed checkpoints.** Things arrive at set milestones (lifetime points, game days played, tasks done, achievements), so the rate of accumulation is under control and predictable.
+Either feeds the same **delivery** mechanism (issue 062 stage 3a, built first): an item is queued, arrives after a delay, and is announced in one plain line. The note should recommend one or a mix (for example checkpoints guarantee a slow trickle, encounters add the occasional extra).
+
 ## Acceptance criteria
 - A short design note in `docs/random-encounters.md` with three or four concrete ideas (for example: walking the floor sometimes triggers a thought, a text from a friend, a neighbour noise, a pigeon at the window, an unexpected delivery), what each does (a dialog, a small choice, an effect on mood or energy), how often, and how it avoids being annoying. Marc picks.
 - If Marc picks one: a minimal build (a rate per step or per tile zone, a short dialog from a list, a cooldown, a way for the player to turn them off), using the dialog system and state.

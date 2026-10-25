@@ -1,7 +1,7 @@
 ---
 id: 026
 title: Spanish flashcards on the in-game computer (stretch)
-status: blocked
+status: review
 owner: marc + claude
 depends_on: [021, 022, 023]
 ---
@@ -67,7 +67,28 @@ The app is "Mil Palabras" (palabras.mcord.dev): PureScript, Netlify, spaced repe
 - **Deck source:** copy `es-1000.csv` into the game (simplest) or fetch a static JSON the flashcards app publishes (needs that app hosted and CORS on it). Decide when picked up.
 - **Points:** whether real answers earn game points, how much, and whether there is a daily cap. Left open.
 
-## Acceptance criteria (draft, to refine later)
+## Decisions (2026-10-25, Marc)
+- Copying `es-1000.csv` is dropped: the flashcards app (#169) will serve its compiled core at `/core.js` and the game runs that instead of porting the scheduler, deck, grading or merge. Planned API (provisional): `session`, `card`, `grade`, `requeue`, `merge`, plus a version number the game checks.
+- Points: small, capped (4 per delivered "got it", 20 per game day, no penalty for "again"). Mumblespeak means per-letter blips. Offline study is put off. Production origin is `*.mcord.dev`; dev is Vite's default `http://localhost:5173`.
+- Text entry (023 has none): built into this activity (keydown plus paste).
+
+## Stages
+1. Game side against a stand-in backend: key screen, card screen, points, accented capitals in the font, the desk task. **Done, in review.**
+2. The real backend: `core.js` adapter with a version check and shape check, the GET/grade/merge/PUT loop, "no connection" handling, `FLASHCARDS.backend = "real"`.
+3. Mumblespeak.
+4. Offline (later, optional).
+
+## Acceptance criteria, stage 1
+- "Study Spanish" is offered at the desk computer and starts a `flashcards` activity.
+- A text-entry screen takes a pairing link (paste) or a typed bare key, parsed by the app's rule, remembered in localStorage only after the backend accepts it, forgotten if refused. Never in the code or bundle.
+- The activity talks to the flashcards app only through a `StudyBackend` interface; tests use fakes with no network.
+- A card screen shows front, flip, then Again or Got it; a miss is requeued; every answer is delivered as given; an undelivered answer is reported, pays nothing and is not kept.
+- The font draws the Spanish accented capitals.
+- Points per delivered got-it, capped per game day, none for again, none from the demo backend.
+- Escape leaves from any state; the clock stands still while studying.
+- Build, tests and types pass.
+
+## Acceptance criteria (original draft, for stages 2 and 3)
 - A "study Spanish" interaction on the computer starts a `flashcards` activity.
 - The activity loads due cards from the real server through a thin client module with the network layer injected, so it is tested without a network.
 - Answers are posted back to the server; failures are handled on purpose and tested.
@@ -79,3 +100,8 @@ The app is "Mil Palabras" (palabras.mcord.dev): PureScript, Netlify, spaced repe
 ## Progress log
 - 2026-10-22: Researched the flashcards repo; findings above. Marc answered the questions: hosting possible, flashcards changes welcome, loose homage UI, mumblespeak audio, key typed in by Marc and never in the code. Deck source and points left open on purpose.
 - 2026-10-22: Recorded as an idea by Marc. Status is blocked until 021 to 023 exist and the core game has passed its decision gate.
+- 2026-10-25: Marc unblocked it and chose stages (see Decisions). Starting stage 1 in worktree ../life-worktrees/026-spanish-flashcards, branch issue/026-spanish-flashcards: font accents, `src/game/flashcards/` (study interface, key parser and store with the points cap, demo backend), `activities/flashcards.ts`, the `study-spanish` task at the desk, docs, tests.
+- 2026-10-25: **Stage 1 done, in review.** Files: `src/render/font.ts` (Á É Í Ó Ú Ñ as 9-row glyphs drawn 2px above the cap line), `src/game/flashcards/{study,key,demo,backend}.ts` and `key.test.ts`, `src/game/activities/flashcards.ts` and `.test.ts`, `config.ts` (`FLASHCARDS`), `tasks.ts` and `apartment.ts` (`study-spanish` at the desk), `docs/flashcards.md`, `docs/activities.md`, `docs/dialogs.md`, small updates to four existing tests (the desk's choice list, the allowed activity types, and two tests that used `é` as the example of a character the font cannot draw). `npm run build`, `tsc` and `npm test` (1605) pass. Golden frame unchanged (the room did not change).
+  - **In demo mode** any well-formed key is accepted and kept in localStorage, so the key screen is real but nothing talks to a server and nothing pays.
+  - **Not checked:** how it looks and feels in a browser. The accents touch the letter below them (two accent rows directly over a 7-row capital); legible on paper, unseen at game scale. No "forget key" button yet (a refused key is forgotten); say if wanted before stage 2.
+  - **For the planner:** stage 2 needs the flashcards #169 API names and CORS for `http://localhost:5173` and `*.mcord.dev`. Likely conflict surface with main: `tasks.ts`, `apartment.ts`, `config.ts`, `font.ts` (all additive).

@@ -7,6 +7,7 @@ import "./cutscene";
 import "./typing";
 import "./notes";
 import "./make-track";
+import "./flashcards";
 
 export { WaitActivity } from "./wait";
 export { DialogActivity } from "./dialog";
@@ -14,3 +15,4 @@ export { CutsceneActivity, type CutsceneStep } from "./cutscene";
 export { TypingActivity, SNIPPETS, isTypingKey } from "./typing";
 export { NotesActivity, ARROW } from "./notes";
 export { MakeTrackActivity } from "./make-track";
+export { FlashcardsActivity } from "./flashcards";

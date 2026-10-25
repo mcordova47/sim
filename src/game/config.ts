@@ -662,3 +662,27 @@ export const PARTICLES = {
     },
   ] as { when: AmbientWhen; emitter: EmitterDef }[],
 };
+
+// Studying Spanish at the computer (issue 026, docs/flashcards.md). The cards
+// and the schedule belong to the real flashcards app; these are only the
+// game's own numbers.
+export const FLASHCARDS = {
+  // Where the sync key and the points cap are remembered. The key is typed in
+  // by the player and is never in the code. Bump the number to start afresh.
+  storageKey: "life.flashcards.v1",
+  // A sync key is 32 characters of a-z and 0-9; a pasted link is longer.
+  keyLength: 32,
+  maxPastedChars: 300,
+  // Points for each card answered "got it" and delivered to the server, and how
+  // many such cards pay before the cap resets (a game day). "Again" pays nothing,
+  // and nothing here is a streak or a penalty.
+  pointsPerCard: 4,
+  dailyCardCap: 20,
+  capResetHours: 24,
+  // Where a missed card comes back in the session, counted from the one just
+  // missed (used by the demo deck; the real core owns this once it is wired).
+  requeueGap: 5,
+  // Stage 1 has no server: "demo" studies a small built-in deck and pays
+  // nothing. Stage 2 switches this to "real".
+  backend: "demo" as "demo" | "real",
+};

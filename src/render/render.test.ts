@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { GLYPHS, GLYPH_H, GLYPH_W, normalizeText, textWidth, unsupportedChars } from "./font";
+import { ACCENT_ROWS, GLYPHS, GLYPH_H, GLYPH_W, normalizeText, textWidth, unsupportedChars } from "./font";
 import { HUD_BOX, fitBox, placeLabel, type Box } from "./layout";
 import { Popups } from "./popups";
 
@@ -8,7 +8,7 @@ const view = { width: 320, height: 192 };
 describe("font", () => {
   it("has well-formed glyphs", () => {
     for (const [ch, rows] of Object.entries(GLYPHS)) {
-      expect(rows, ch).toHaveLength(GLYPH_H);
+      expect([GLYPH_H, GLYPH_H + ACCENT_ROWS], ch).toContain(rows.length);
       for (const row of rows) expect(row, ch).toMatch(new RegExp(`^[#.]{${GLYPH_W}}$`));
     }
   });
@@ -23,6 +23,12 @@ describe("font", () => {
     for (const ch of "\"; & # @ $ = _ < > [ ] { } | \\ ^ ~ `".replace(/ /g, "")) {
       expect(GLYPHS[ch], ch).toBeDefined();
     }
+  });
+
+  it("draws the Spanish accented capitals, and lowercase ones as capitals", () => {
+    for (const ch of "ÁÉÍÓÚÑ") expect(GLYPHS[ch], ch).toHaveLength(GLYPH_H + ACCENT_ROWS);
+    expect(unsupportedChars("canción, él, niño, café, más, tú")).toEqual([]);
+    expect(unsupportedChars("¿")).toEqual(["¿"]);
   });
 
   it("replaces typographic characters with plain ones", () => {
@@ -40,7 +46,7 @@ describe("font", () => {
 
   it("lists the characters it can't draw, once each", () => {
     expect(unsupportedChars("Hello, world! (it\u2019s fine)")).toEqual([]);
-    expect(unsupportedChars("caf\u00E9 \u00E9\u00E9 \u2603")).toEqual(["\u00C9", "\u2603"]);
+    expect(unsupportedChars("caf\u00E9 \u00EB\u00EB \u2603")).toEqual(["\u00CB", "\u2603"]);
   });
 
   it("measures text", () => {

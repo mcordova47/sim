@@ -78,6 +78,22 @@ export const GLYPHS: Record<string, string[]> = {
   "`": ["#....", ".#...", "..#..", ".....", ".....", ".....", "....."],
 };
 
+// Accented capitals (issue 026: Spanish cards need them). Each is a normal
+// capital with two rows of accent above it, so these have GLYPH_H + 2 rows and
+// are drawn two pixels higher than the cap line (the line gap has room).
+export const ACCENT_ROWS = 2;
+const ACUTE = ["...#.", "..#.."];
+const TILDE = [".##.#", "#.##."];
+const withAccent = (accent: string[], base: string) => [...accent, ...GLYPHS[base]];
+Object.assign(GLYPHS, {
+  Á: withAccent(ACUTE, "A"),
+  É: withAccent(ACUTE, "E"),
+  Í: withAccent(ACUTE, "I"),
+  Ó: withAccent(ACUTE, "O"),
+  Ú: withAccent(ACUTE, "U"),
+  Ñ: withAccent(TILDE, "N"),
+});
+
 // Text from books and the web has typographic characters the font doesn't
 // have. They are replaced by plain ones before measuring, drawing or checking:
 // curly quotes, dashes, the ellipsis, and odd spaces.
@@ -127,7 +143,7 @@ function glyphCanvas(ch: string, color: string): HTMLCanvasElement | null {
   if (!canvas) {
     canvas = document.createElement("canvas");
     canvas.width = GLYPH_W;
-    canvas.height = GLYPH_H;
+    canvas.height = rows.length;
     const g = canvas.getContext("2d")!;
     g.fillStyle = color;
     rows.forEach((row, y) => {
@@ -152,7 +168,9 @@ function drawRun(
     const ch = text[i];
     if (ch === " ") continue;
     const glyph = glyphCanvas(ch, color) ?? glyphCanvas("?", color)!;
-    ctx.drawImage(glyph, x + i * ADVANCE * scale, y, GLYPH_W * scale, GLYPH_H * scale);
+    // A tall (accented) glyph reaches above the cap line.
+    const above = glyph.height - GLYPH_H;
+    ctx.drawImage(glyph, x + i * ADVANCE * scale, y - above * scale, GLYPH_W * scale, glyph.height * scale);
   }
 }
 

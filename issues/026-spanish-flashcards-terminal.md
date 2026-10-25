@@ -1,7 +1,7 @@
 ---
 id: 026
 title: Spanish flashcards on the in-game computer (stretch)
-status: review
+status: done
 owner: marc + claude
 depends_on: [021, 022, 023]
 ---
@@ -114,3 +114,6 @@ The app is "Mil Palabras" (palabras.mcord.dev): PureScript, Netlify, spaced repe
     - [ ] Ignore text keys while Control, Meta or Alt is held in `updateKey` (as `make-track.ts` does), and add a test for paste followed by the `KeyV` press with Control or Meta held.
     - [ ] Optional: persist the remaining window on leave or tick, and cap the paste at the length check after parsing, not before.
 - 2026-10-25: **Review round 1 changes worked.** Fixed: `updateKey` now ignores text keys while Control, Meta or Alt is held (Ctrl+V no longer leaves a stray "v"), with a test for a paste followed by the V press under each modifier; a pasted link longer than the limit is reduced to its key before the cut. Left as noted by the reviewer (minor): the cap window is re-saved only on a paid card (it can only stretch, never shorten), a clock that goes backwards keeps the window closed until it catches up, Escape while connecting forgets a key that was then accepted, and decomposed (NFD) accents are not handled by the font (check the real deck in stage 2). Still unverified: how it looks and feels in a browser.
+- 2026-10-25: **Review (stage 1, round 2, independent): approve.** Diff since the round-1 review touches only `flashcards.ts`, its test and this file. `npm run build`, `tsc` and `npm test` (1607) pass. My own checks (outside the repo, 20 tests): for each of ControlLeft/Right, MetaLeft/Right, AltLeft/Right, a paste followed by the V press (paste-then-keydown, the order that failed) leaves `typed` as exactly the key; keydown-then-paste is fine too; plain V, Shift+V and digits still type; typing resumes once the modifier is let go; Ctrl+Backspace still deletes and Enter still submits; a second paste replaces the first; paste variants (whitespace, `?`/`#`/`&` separators, first `pair=` wins, invalid first `pair=` is not skipped, uppercase or 31-char keys left as typed text so Enter says not a key, a key after 5,000 characters of prefix is found); 5 MB pastes (`&`, `?`, `pair=` repeated, a long query then the key) run in under 1.5 s each and `typed` stays at or under 300; a pasted link then Enter opens the backend with the bare key; a paste after leaving the key phase is ignored; the key screen still shows only asterisks and a character count. Round-1 fail is fixed. Round-1 minor items were left as noted by the author and are not blocking.
+  - Side effect to know: a paste that holds a key is now replaced by the bare key (32 characters, masked on screen), not the link. Harmless.
+  - **Unverified, not passed:** real browser look and feel; real keyboard and paste event order (the modifier fix relies on Control/Meta still being in `keysDown` on the frame the V is read; if Ctrl is let go in the same 16 ms frame as the V press, a stray v could still appear, not reproducible here); how the accented capitals look at game scale.

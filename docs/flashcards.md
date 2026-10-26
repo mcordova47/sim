@@ -34,6 +34,10 @@ The game never uses the browser's text-to-speech. When the Spanish side of a car
 
 A recognition card (the Spanish word is the prompt) speaks when it is shown; a production card (the English is the prompt) speaks its answer when it is turned over. R says it again while the Spanish is showing. Answering or leaving stops it.
 
+## Trying the screens and the voice without the app
+
+In a dev build, open the game with `?flashcards=demo` (for example `http://localhost:5173/?flashcards=demo`). "Study Spanish" then uses the practice deck in `flashcards/demo.ts`: fifteen cards with both directions (Spanish first and English first), accents, a long word, a long phrase and hint sentences. There is no server and no key screen, no key is remembered and nothing is paid. It is ignored in a production build. `FLASHCARDS.backend = "demo"` in `config.ts` does the same for every page load. Tune the voice in `FLASHCARDS.mumble` and the `mumble` effect (both in `config.ts`) and the page reloads.
+
 ## The interface
 
 `flashcards/study.ts` is all the activity knows: `StudyBackend.open(key)` gives a `StudySession` with `queue()`, `card(slug)`, `requeue(queue, position, slug)` and `grade(slug, grade)` (resolves false when it could not be delivered). `flashcards/demo.ts` is the stand-in used by stage 1 and the tests.

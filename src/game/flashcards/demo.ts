@@ -1,21 +1,46 @@
 import { FLASHCARDS as F } from "../config";
 import type { CardView, Grade, OpenResult, StudyBackend, StudySession } from "./study";
 
-// A stand-in for the flashcards app, for stage 1 and for tests: a few cards,
-// no server, no schedule. It pays no points. The real backend replaces it in
-// stage 2 (config `FLASHCARDS.backend`).
+// The practice deck (issue 026): no server, no key, no schedule and no points.
+// It is for trying the screens and tuning the mumblespeak voice without
+// depending on the state of the real app. Open the game with `?flashcards=demo`
+// in a dev build, or set `FLASHCARDS.backend` to "demo". It has both kinds of
+// card (Spanish shown first, and English shown first), accents, a long word, a
+// long phrase and a hint sentence, so each way the voice gets used is in reach.
+
+const recognition = (slug: string, spanish: string, english: string, hint?: string): CardView => ({
+  slug,
+  prompt: spanish,
+  answer: english,
+  ...(hint ? { hint } : {}),
+  spoken: spanish,
+  speaks: "front",
+});
+const production = (slug: string, english: string, spanish: string, hint?: string): CardView => ({
+  slug,
+  prompt: english,
+  answer: spanish,
+  ...(hint ? { hint } : {}),
+  spoken: spanish,
+  speaks: "back",
+});
 
 export const DEMO_CARDS: CardView[] = [
-  { slug: "yo", prompt: "I", answer: "yo" },
-  { slug: "querer", prompt: "to want", answer: "querer" },
-  { slug: "casa", prompt: "house", answer: "casa" },
-  { slug: "tambien", prompt: "also", answer: "también" },
-  { slug: "nino", prompt: "boy, child", answer: "niño" },
-  { slug: "cancion", prompt: "song", answer: "canción" },
-  { slug: "cafe", prompt: "coffee", answer: "café" },
-  { slug: "manana", prompt: "tomorrow, morning", answer: "mañana" },
-  { slug: "tiempo", prompt: "time, weather", answer: "tiempo" },
-  { slug: "dormir", prompt: "to sleep", answer: "dormir" },
+  recognition("yo", "yo", "I"),
+  production("querer", "to want", "querer", "Yo quiero un café."),
+  recognition("casa", "casa", "house"),
+  production("tambien", "also", "también"),
+  recognition("nino", "niño", "boy, child", "El niño duerme."),
+  production("cancion", "song", "canción"),
+  recognition("manana", "mañana", "tomorrow, morning"),
+  production("cafe", "coffee", "café"),
+  recognition("aeiou", "aeiou", "vowels only"),
+  production("ferrocarril", "railway", "ferrocarril"),
+  recognition("hasta", "hasta luego", "see you later"),
+  production("noche", "good night", "buenas noches", "Que descanses."),
+  recognition("murcielago", "murciélago", "bat"),
+  production("pronto", "see you soon", "hasta pronto"),
+  recognition("larga", "dónde está la biblioteca", "where is the library"),
 ];
 
 export class DemoSession implements StudySession {
@@ -47,6 +72,7 @@ export class DemoSession implements StudySession {
 
 export const demoBackend: StudyBackend = {
   paysPoints: false,
+  usesKey: false,
   async open(): Promise<OpenResult> {
     return new DemoSession();
   },

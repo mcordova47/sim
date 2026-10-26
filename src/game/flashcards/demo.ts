@@ -8,39 +8,43 @@ import type { CardView, Grade, OpenResult, StudyBackend, StudySession } from "./
 // card (Spanish shown first, and English shown first), accents, a long word, a
 // long phrase and a hint sentence, so each way the voice gets used is in reach.
 
-const recognition = (slug: string, spanish: string, english: string, hint?: string): CardView => ({
+// `ipa` is a hand-written es-MX transcription (broad, stress with ˈ), standing in
+// for the flashcards app's `IPA es-MX` column until that exists.
+const recognition = (slug: string, spanish: string, english: string, ipa: string, hint?: string): CardView => ({
   slug,
   prompt: spanish,
   answer: english,
   ...(hint ? { hint } : {}),
   spoken: spanish,
+  ipa,
   speaks: "front",
 });
-const production = (slug: string, english: string, spanish: string, hint?: string): CardView => ({
+const production = (slug: string, english: string, spanish: string, ipa: string, hint?: string): CardView => ({
   slug,
   prompt: english,
   answer: spanish,
   ...(hint ? { hint } : {}),
   spoken: spanish,
+  ipa,
   speaks: "back",
 });
 
 export const DEMO_CARDS: CardView[] = [
-  recognition("yo", "yo", "I"),
-  production("querer", "to want", "querer", "Yo quiero un café."),
-  recognition("casa", "casa", "house"),
-  production("tambien", "also", "también"),
-  recognition("nino", "niño", "boy, child", "El niño duerme."),
-  production("cancion", "song", "canción"),
-  recognition("manana", "mañana", "tomorrow, morning"),
-  production("cafe", "coffee", "café"),
-  recognition("aeiou", "aeiou", "vowels only"),
-  production("ferrocarril", "railway", "ferrocarril"),
-  recognition("hasta", "hasta luego", "see you later"),
-  production("noche", "good night", "buenas noches", "Que descanses."),
-  recognition("murcielago", "murciélago", "bat"),
-  production("pronto", "see you soon", "hasta pronto"),
-  recognition("larga", "dónde está la biblioteca", "where is the library"),
+  recognition("yo", "yo", "I", "ˈʝo"),
+  production("querer", "to want", "querer", "keˈɾeɾ", "Yo quiero un café."),
+  recognition("casa", "casa", "house", "ˈkasa"),
+  production("tambien", "also", "también", "tamˈbjen"),
+  recognition("nino", "niño", "boy, child", "ˈniɲo", "El niño duerme."),
+  production("cancion", "song", "canción", "kanˈsjon"),
+  recognition("manana", "mañana", "tomorrow, morning", "maˈɲana"),
+  production("cafe", "coffee", "café", "kaˈfe"),
+  recognition("aeiou", "aeiou", "vowels only", "ˈaeiou"),
+  production("ferrocarril", "railway", "ferrocarril", "ferokaˈril"),
+  recognition("hasta", "hasta luego", "see you later", "ˈasta ˈlweɡo"),
+  production("noche", "good night", "buenas noches", "ˈbwenas ˈnotʃes", "Que descanses."),
+  recognition("murcielago", "murciélago", "bat", "muɾˈsjelaɡo"),
+  production("pronto", "see you soon", "hasta pronto", "ˈasta ˈpɾonto"),
+  recognition("larga", "dónde está la biblioteca", "where is the library", "ˈdonde esˈta la bibljoˈteka"),
 ];
 
 export class DemoSession implements StudySession {

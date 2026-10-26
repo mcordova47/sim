@@ -240,7 +240,7 @@ export class Game {
       route: (col, row) => this.routeTo(col, row),
       previewTrack: (track, live = false) => this.events.emit("preview", { track, live }),
       blip: (freq) => this.events.emit("blip", { freq }),
-      voice: (pitch) => this.events.emit("voice", { pitch }),
+      voice: (sound) => this.events.emit("voice", sound),
       records: () => this.jukebox?.() ?? { playingId: null, payoutReady: true },
       recordChosen: (id, paid) => this.events.emit("record", { id, paid }),
       reward: (points, effects) => this.interaction.award(points, effects)?.points ?? null,

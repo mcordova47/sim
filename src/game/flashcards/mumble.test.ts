@@ -31,7 +31,7 @@ describe("mumbleNotes", () => {
 describe("Mumble", () => {
   it("plays the letters over time at the configured rate, skipping rests", () => {
     const got: number[] = [];
-    const m = new Mumble((p) => got.push(p));
+    const m = new Mumble((s) => got.push(s.pitch));
     m.say("a a");
     expect(m.speaking).toBe(true);
     m.update(0);
@@ -43,7 +43,7 @@ describe("Mumble", () => {
 
   it("a new say replaces the old, and stop silences it", () => {
     const got: number[] = [];
-    const m = new Mumble((p) => got.push(p));
+    const m = new Mumble((s) => got.push(s.pitch));
     m.say("aaaaaaaa");
     m.update(0.2);
     const heard = got.length;
@@ -59,7 +59,7 @@ describe("Mumble", () => {
 
   it("does nothing with no text, and a huge step plays each letter once", () => {
     const got: number[] = [];
-    const m = new Mumble((p) => got.push(p));
+    const m = new Mumble((s) => got.push(s.pitch));
     m.update(1);
     m.say("hola");
     m.update(1e6);

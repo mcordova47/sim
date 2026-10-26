@@ -7,6 +7,7 @@ import { fakeHost } from "../activities/fake-host";
 import { wrapText } from "../dialog";
 import { wantsDemo } from "./backend";
 import { DEMO_CARDS, demoBackend } from "./demo";
+import { FLASHCARDS as F } from "../config";
 import { StudyStore } from "./key";
 
 describe("the practice deck", () => {
@@ -54,5 +55,31 @@ describe("the practice deck", () => {
     await new Promise((r) => setTimeout(r, 0));
     expect(f.rewards).toHaveLength(0);
     expect(storage.data.size).toBe(0);
+  });
+
+  it("voices a card by its IPA, V switches to spelling, and R repeats in the chosen voice", async () => {
+    const f = fakeHost();
+    const clipboard = { copy: async () => true, read: async () => null, onPaste: () => () => {} };
+    const a = new FlashcardsActivity(f.host, demoBackend, new StudyStore(new FakeStorage()), clipboard);
+    a.start();
+    await new Promise((r) => setTimeout(r, 0));
+    const run = (seconds: number) => {
+      for (let i = 0; i < Math.round(seconds * 60); i++) a.update(1 / 60, NO_INPUT);
+    };
+    // The first card is "yo", Spanish first, with an IPA transcription: ʝ o.
+    run(1);
+    expect(f.voices.map((v) => v.effect)).toEqual([F.voice.symbols.j.effect, F.voice.stress.effect]);
+    f.voices.length = 0;
+    a.update(1 / 60, { ...NO_INPUT, keys: ["KeyV"], keysDown: ["KeyV"] });
+    expect(a.ipaVoice).toBe(false);
+    run(1);
+    expect(f.voices.map((v) => v.effect)).toEqual(["mumble", "mumble"]);
+    f.voices.length = 0;
+    a.update(1 / 60, { ...NO_INPUT, keys: ["KeyR"], keysDown: ["KeyR"] });
+    run(1);
+    expect(f.voices.every((v) => v.effect === "mumble")).toBe(true);
+    // Shift+V does nothing.
+    a.update(1 / 60, { ...NO_INPUT, keys: ["KeyV"], keysDown: ["ShiftLeft", "KeyV"] });
+    expect(a.ipaVoice).toBe(false);
   });
 });

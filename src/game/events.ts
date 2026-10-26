@@ -33,6 +33,8 @@ export interface GameEvents {
   preview: { track: Track | null; live: boolean };
   // The track editor sounded a note at `freq` Hz.
   blip: { freq: number };
+  // A "spoken" letter of mumblespeak (the flashcards): pitch as a multiple of the base blip.
+  voice: { pitch: number };
   // A dialog or menu opened or closed.
   dialogOpen: Record<string, never>;
   // `path` is every label picked in the dialog (empty if none); `cancelled` is

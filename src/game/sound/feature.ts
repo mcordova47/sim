@@ -124,6 +124,7 @@ export class SoundFeature implements Layer {
       }
     });
     events.on("preview", ({ track, live }) => this.preview(track, live));
+    events.on("voice", ({ pitch }) => this.engine.play("mumble", { pitch }));
     events.on("blip", ({ freq }) => this.engine.play("noteKey", { pitch: freq / 440 }));
     events.on("cue", ({ name }) => {
       const effect = SOUND.cues[name];

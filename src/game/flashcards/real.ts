@@ -37,11 +37,16 @@ class RealSession implements StudySession {
 
   card(slug: string): CardView {
     const c = this.core.card(this.local, slug, F.language);
+    const answer = nfc(c.answers.join(", "));
+    const recognition = c.direction === "recognition";
     return {
       slug,
       prompt: nfc(c.prompt),
-      answer: nfc(c.answers.join(", ")),
+      answer,
       ...(c.example ? { hint: nfc(c.example) } : {}),
+      // Recognition shows the Spanish word first; production turns it over to reveal it.
+      spoken: recognition ? nfc(c.prompt) : answer,
+      speaks: recognition ? "front" : "back",
     };
   }
 

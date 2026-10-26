@@ -325,3 +325,63 @@ describe("FlashcardsActivity: studying", () => {
     expect(calls.length).toBeGreaterThan(0);
   });
 });
+
+describe("FlashcardsActivity: mumblespeak", () => {
+  const spoken = (cards: CardView[]) => studying({}, cards);
+  const run = async (t: Awaited<ReturnType<typeof studying>>, seconds: number) => {
+    for (let i = 0; i < Math.round(seconds * 60); i++) t.a.update(1 / 60, NO_INPUT);
+  };
+
+  it("speaks the answer when the card is turned over, one blip per letter", async () => {
+    const t = await spoken([{ slug: "a", prompt: "one", answer: "uno" }]);
+    await run(t, 1);
+    expect(t.f.voices).toHaveLength(0); // the English side is silent
+    await t.step(E);
+    await run(t, 1);
+    expect(t.f.voices).toHaveLength(3);
+  });
+
+  it("speaks the front when that is the Spanish side, and R says it again", async () => {
+    const t = await spoken([{ slug: "a", prompt: "perro", answer: "dog", spoken: "perro", speaks: "front" }]);
+    await run(t, 1);
+    expect(t.f.voices).toHaveLength(5);
+    await t.step(keys("KeyR"));
+    await run(t, 1);
+    expect(t.f.voices).toHaveLength(10);
+    await t.step(E);
+    await run(t, 1);
+    expect(t.f.voices).toHaveLength(10); // turning it over does not repeat it
+  });
+
+  it("R says it again only when the Spanish is showing, and not with Shift held", async () => {
+    const t = await spoken([{ slug: "a", prompt: "one", answer: "uno" }]);
+    await t.step(keys("KeyR"));
+    await run(t, 1);
+    expect(t.f.voices).toHaveLength(0);
+    await t.step(E);
+    await run(t, 1);
+    await t.step({ ...keys("KeyR"), keysDown: ["ShiftLeft", "KeyR"] });
+    await run(t, 1);
+    expect(t.f.voices).toHaveLength(3);
+    await t.step(keys("KeyR"));
+    await run(t, 1);
+    expect(t.f.voices).toHaveLength(6);
+  });
+
+  it("stops speaking when an answer is given or the activity ends", async () => {
+    const t = await spoken([{ slug: "a", prompt: "one", answer: "a very long answer indeed" }]);
+    await t.step(E);
+    t.a.update(0.1, NO_INPUT);
+    const heard = t.f.voices.length;
+    expect(heard).toBeGreaterThan(0);
+    await t.step(keys("Digit2"));
+    await run(t, 3);
+    expect(t.f.voices).toHaveLength(heard);
+    const u = await spoken([{ slug: "a", prompt: "one", answer: "a very long answer indeed" }]);
+    await u.step(E);
+    u.a.cancel();
+    const after = u.f.voices.length;
+    await run(u, 3);
+    expect(u.f.voices).toHaveLength(after);
+  });
+});

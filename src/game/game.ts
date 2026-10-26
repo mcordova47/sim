@@ -223,6 +223,7 @@ export class Game {
       route: (col, row) => this.routeTo(col, row),
       previewTrack: (track, live = false) => this.events.emit("preview", { track, live }),
       blip: (freq) => this.events.emit("blip", { freq }),
+      voice: (pitch) => this.events.emit("voice", { pitch }),
       reward: (points, effects) => this.interaction.award(points, effects)?.points ?? null,
       gameMinutes: () => this.minutes,
       sprites: this.spriteDrawer,

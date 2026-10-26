@@ -427,6 +427,8 @@ export const SOUND = {
     blip: { priority: "low", voices: [{ wave: "square", freq: 520, length: 0.025, gain: 0.07 }] },
     menuPick: { voices: [{ wave: "triangle", freq: 660, length: 0.06, gain: 0.16 }] },
     key: { priority: "low", voices: [{ noise: "bandpass", freq: 1800, q: 0.9, length: 0.02, gain: 0.12 }] },
+    // Mumblespeak: one short soft blip per letter of Spanish being "spoken" (issue 026).
+    mumble: { priority: "low", voices: [{ wave: "triangle", freq: 330, length: 0.05, gain: 0.16 }] },
     noteKey: { priority: "low", voices: [{ wave: "triangle", freq: 440, length: 0.14, gain: 0.22 }] },
     // An achievement toast: a short, bright two-note figure.
     toast: {
@@ -692,6 +694,20 @@ export const FLASHCARDS = {
   // side is a decision here too.
   coreVersion: 1,
   language: "es",
+  // Mumblespeak: the Spanish side is "spoken" as a run of short blips, one per
+  // letter (a space or a mark is a rest), in the manner of Animal Crossing. The
+  // pitch of a letter is fixed, so a word always sounds the same. A pitch is a
+  // multiple of the blip's base frequency.
+  mumble: {
+    lettersPerSecond: 13,
+    // Longest run spoken, so a long example sentence does not drone on.
+    maxChars: 40,
+    // Vowels sit in a higher, rounder band; consonants wobble below them.
+    vowelPitch: { a: 1.0, e: 1.25, i: 1.5, o: 0.85, u: 0.7 } as Record<string, number>,
+    consonantPitches: [0.6, 0.66, 0.75, 0.8, 0.9, 0.95, 1.1, 1.2],
+    // The key that says it again.
+    repeatKey: "KeyR",
+  },
   // "demo" studies a small built-in deck with no server and pays nothing (for
   // trying the screens); "real" talks to the app.
   backend: "real" as "demo" | "real",

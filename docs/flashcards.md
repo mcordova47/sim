@@ -6,7 +6,7 @@ The desk offers "Study Spanish". It is a front end for Marc's real flashcards ap
 
 1. **Stage 1: the game side with a stand-in.** The key screen, the card screen, the points rule and the `StudyBackend` interface, all tested without a network. `demo.ts` is a built-in ten-card deck that accepts any well-formed key, sends nothing and pays nothing; `FLASHCARDS.backend = "demo"` in `config.ts` selects it.
 2. **Stage 2 (this): the real backend** (`FLASHCARDS.backend = "real"`, the default). See below.
-3. **Stage 3: mumblespeak.** Per-letter blips when the Spanish side is "spoken".
+3. **Stage 3: mumblespeak.** Per-letter blips when the Spanish side is "spoken" (below).
 4. **Later, optional: offline study** (cache the core and the last blob, sync when back).
 
 ## How it plays
@@ -27,6 +27,12 @@ The game imports the app's own compiled core, `https://palabras.mcord.dev/core.v
 The card screen shows `prompt`, then `answers` joined with commas, and `example` as a hint when there is one. Accents from the core are normalised to NFC so the font sees one letter. A build can point at another origin with `VITE_FLASHCARDS_ORIGIN`; the app's CORS list allows `https://*.mcord.dev` and Vite's dev server on `localhost:5173` and `127.0.0.1:5173`, so other origins (a Netlify preview URL) will be refused by the browser.
 
 Only the self-graded vocabulary cards (the `es` blob) are used. The drills are not.
+
+## Mumblespeak
+
+The game never uses the browser's text-to-speech. When the Spanish side of a card appears it is "spoken" as a run of short soft blips, one per letter (`flashcards/mumble.ts`, tuned in `FLASHCARDS.mumble`): thirteen letters a second, vowels at distinct pitches, consonants wobbling below them, a space or a mark as a rest, at most 40 characters. An accented letter sounds like its plain one, and a word always sounds the same. The activity asks the host for each letter (`host.voice(pitch)`, the `voice` event), and the sound feature plays the `mumble` effect for it, so mute (M) and the voice cap work as for any effect.
+
+A recognition card (the Spanish word is the prompt) speaks when it is shown; a production card (the English is the prompt) speaks its answer when it is turned over. R says it again while the Spanish is showing. Answering or leaving stops it.
 
 ## The interface
 

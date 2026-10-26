@@ -67,6 +67,8 @@ export interface ActivityHost {
   previewTrack?(track: Track | null, live?: boolean): void;
   // A short note sounded for a key press, at `freq` Hz (the track editor).
   blip?(freq: number): void;
+  // One letter of mumblespeak, at `pitch` times the base blip (the flashcards). Missing in tests.
+  voice?(pitch: number): void;
   // Pays points and applies `effects` for the running task right now, as if it
   // had finished, without ending it. Returns the points, or null if nothing was paid.
   reward?(points: number, effects: Effect[]): number | null;

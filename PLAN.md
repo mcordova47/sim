@@ -62,7 +62,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 023 | [Dialog box and choice menus](issues/023-dialog-and-menus.md) | claude | done | 019 |
 | 024 | [Personal touch interview](issues/024-personal-touch-interview.md) | marc + agent | done | |
 | 025 | [Top-down art spec](issues/025-topdown-art-spec.md) | marc + agent | done | |
-| 026 | [Spanish flashcards on the in-game computer (stretch)](issues/026-spanish-flashcards-terminal.md) | marc + claude | in-progress (stages 1 and 2 of 4 done) | |
+| 026 | [Spanish flashcards on the in-game computer (stretch)](issues/026-spanish-flashcards-terminal.md) | marc + claude | in-progress (stages 1, 2 and 3a done) | |
 | 027 | [State hardening](issues/027-state-hardening.md) | claude | done | 021 |
 | 028 | [Top-down art: main room](issues/028-art-main-room.md) | agent | done | 020, 025 |
 | 029 | [Top-down art: kitchen and bath](issues/029-art-kitchen-bath.md) | agent | done | 020, 025 |
@@ -98,7 +98,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 059 | [Make your own tracks in the game](issues/059-make-your-own-tracks.md) | marc + claude | done | |
 | 060 | [Draw the gallery wall view](issues/060-gallery-wall-view.md) | agent | done | |
 | 061 | [Admire the art: zoom in and comment very seriously](issues/061-art-zoom-gag.md) | marc + claude | done | |
-| 062 | [Customizable decor (inventory, swap, buy) (explore)](issues/062-customizable-decor.md) | marc + claude | in-progress (stages 1 and 2 of 4 done) | |
+| 062 | [Customizable decor (inventory, swap, buy) (explore)](issues/062-customizable-decor.md) | marc + claude | in-progress (stages 1, 2 and 3a done) | |
 | 063 | [Plants that grow in stages](issues/063-plant-growth.md) | marc + claude | done | |
 | 064 | [Plugins (VSTs) for the track editor (explore)](issues/064-track-editor-plugins.md) | marc + claude | todo | |
 | 065 | [Both windows' blinds; the dinner plate only when there is dinner](issues/065-blinds-and-plate.md) | claude | todo | |

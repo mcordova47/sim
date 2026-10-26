@@ -63,7 +63,7 @@ The small yellow clock icon (`icon-good-hour`, 9x9) means "this pays extra now".
 | Play three chords +10 | music (also pays +0.3 points per mood point) |
 | Eat dinner +6, Cook dinner +4, Drink the coffee +4, Make coffee +2, Reheat +2 | food |
 | Open the blinds +5 | light |
-| Admire the art +8, Flip the record +5 | art and music |
+| Admire the art +8, Flip the record +5 (only for a different record, at most once per 10 game minutes; no cooldown) | art and music |
 | Write in the journal +6 (pays +0.2 per mood point), Take a shower +6 | small rituals |
 | Water the plant +3, Make the bed +3, Brush teeth +2, Take out the trash +2, Take a moment +2 | |
 

@@ -2,12 +2,12 @@ import { COLOR, withAlpha } from "../../render/colors";
 import { drawText, textWidth } from "../../render/font";
 import { APARTMENT } from "../apartment";
 import type { KeyValueStorage } from "../achievements/progress";
-import { CLOCK, DIALOG, SOUND, VIEW } from "../config";
+import { CLOCK, DIALOG, MUSIC, SOUND, VIEW } from "../config";
 import { isTypingKey } from "../activities/typing";
 import type { Game, Layer } from "../game";
 import { demoStore } from "../music/demo-library";
 import type { DemoStore } from "../music/demo-store";
-import { RECORD_TASK, STOP_LABEL, TRACKS, trackForLabel } from "../music/records";
+import { RECORD_TASK, TRACKS } from "../music/records";
 import type { Track } from "../music/track";
 import { browserAudio, type AudioFactory } from "./audio-types";
 import { MoodLift, comboPitch, floorOf, noteKeyPitch, stepEffect, stepGain, stepPitch } from "./decisions";
@@ -66,9 +66,8 @@ export class SoundFeature implements Layer {
   private readonly lift = new MoodLift();
   private room: string;
   private selected: Track | null = null;
-  // What the record player's menu picked, applied when the task finishes (and
-  // dropped if the player backs out). `undefined` means nothing picked.
-  private picked: { track: Track | null } | undefined;
+  // Game minutes left before a record choice pays again (issue 068).
+  private payoutLeft = 0;
   // Seconds left on the "now playing" line and on the mute indicator.
   private nowPlayingFor = 0;
   private indicatorFor = 0;
@@ -87,6 +86,8 @@ export class SoundFeature implements Layer {
     const saved = this.store.load();
     this.engine.muted = saved.muted;
     this.selected = this.everyTrack().find((t) => t.id === saved.track) ?? null;
+    this.payoutLeft = saved.payoutLeft;
+    game.jukebox = () => ({ playingId: this.selected?.id ?? null, payoutReady: !(this.payoutLeft > 0), tracks: this.everyTrack() });
     this.engine.music.play(this.selected);
 
     const { events } = game;
@@ -96,32 +97,26 @@ export class SoundFeature implements Layer {
       this.room = id;
       this.engine.play("door");
     });
-    events.on("taskStart", () => {
-      this.picked = undefined;
-      this.engine.play("taskStart");
-    });
-    events.on("taskComplete", ({ item, award }) => {
+    events.on("taskStart", () => this.engine.play("taskStart"));
+    events.on("taskComplete", ({ award }) => {
       this.engine.play("taskComplete");
       if (award.chain > 1) this.engine.play("combo", { pitch: comboPitch(award.chain) });
       if (award.timeFactor > 1) this.engine.play("goodHour");
-      if (item.id === RECORD_TASK && this.picked) this.setTrack(this.picked.track);
-      this.picked = undefined;
       // The editor pays while it is still open; its preview goes on then.
       if (!game.interaction.active) this.endPreview();
     });
     events.on("taskCancelled", () => {
-      this.picked = undefined;
       if (!game.interaction.active) this.endPreview();
       this.engine.play("taskCancelled");
     });
     events.on("taskBlocked", () => this.engine.play("taskBlocked"));
-    events.on("dialogChoose", ({ label }) => {
-      this.engine.play("menuPick");
-      if (game.interaction.active?.item.id === RECORD_TASK) {
-        // Only a record, a demo or "stop" is a pick ("Demos..." just opens a list).
-        const track = trackForLabel(label, this.everyTrack());
-        if (track || label === STOP_LABEL) this.picked = { track };
-      }
+    events.on("dialogChoose", () => this.engine.play("menuPick"));
+    // The record player's choice (a change, or silence), sent as its task ends.
+    events.on("record", ({ id, paid }) => {
+      const track = id === null ? null : (this.everyTrack().find((t) => t.id === id) ?? undefined);
+      if (track === undefined) return;
+      if (paid) this.payoutLeft = MUSIC.payoutEveryMinutes;
+      this.setTrack(track);
     });
     events.on("preview", ({ track, live }) => this.preview(track, live));
     events.on("voice", ({ pitch }) => this.engine.play("mumble", { pitch }));
@@ -200,7 +195,7 @@ export class SoundFeature implements Layer {
   }
 
   private save(): void {
-    this.store.save({ muted: this.engine.muted, track: this.selected?.id ?? null });
+    this.store.save({ muted: this.engine.muted, track: this.selected?.id ?? null, payoutLeft: this.payoutLeft });
   }
 
   private step(): void {
@@ -260,10 +255,12 @@ export class SoundFeature implements Layer {
   // still while a dialog is open (DIALOG.pauseClock), and so does this.
   private liftMood(dt: number): void {
     const { state } = this.game;
-    if (!this.selected || !state.has("mood")) return;
     if (this.game.dialogOpen && DIALOG.pauseClock) return;
     // The editor holds the clock: no mood from the music while it is open.
     if (this.game.interaction.active?.activity.holdsClock) return;
+    // The payout window runs in game time, with or without a record on.
+    if (this.payoutLeft > 0) this.payoutLeft = Math.max(0, this.payoutLeft - dt * CLOCK.minutesPerSecond);
+    if (!this.selected || !state.has("mood")) return;
     const effect = this.lift.advance(dt * CLOCK.minutesPerSecond, state.get("mood"));
     if (effect) state.applyEffects([effect]);
   }

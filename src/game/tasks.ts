@@ -51,7 +51,9 @@ const CONTENT: Task[] = [
     flavor: 'It was a pile. It is now several smaller piles.' },
   { id: 'journal', name: 'Write in the journal', prompt: 'Write in the journal', duration: 5, points: 50,
     flavor: 'Dear diary, I made coffee. It was a lot.' },
-  { id: 'record-play', name: 'Choose a record', prompt: 'Choose a record', duration: 2, points: 25 },
+  // No cooldown (issue 068): the menu is always open to you. It pays only for a change of
+  // record, at most once per MUSIC.payoutEveryMinutes (activities/record-player.ts).
+  { id: 'record-play', name: 'Choose a record', prompt: 'Choose a record', duration: 2, points: 25, cooldown: 0 },
   // The track editor (issue 059): no points of its own and no cooldown, since
   // it is always open to you; saving a track pays (activities/make-track.ts).
   { id: 'make-track', name: 'Make a track', prompt: 'Make a track', duration: 0, points: 0, cooldown: 0 },
@@ -222,13 +224,15 @@ const STATE_RULES: Record<string, Partial<Task>> = {
   },
   // The record player picks the soundtrack (issue 009a): a menu of the records
   // in music/tracks, and one to stop. Choosing pays like playing guitar does and
-  // lifts mood a little; while a record plays, mood climbs more (sound feature).
-  // Backing out of the menu pays nothing.
+  // lifts mood a little, but only when it is a different record from the one on and
+  // the payout window is over (issue 068); every other way out ends quietly. While a
+  // record plays, mood climbs more (sound feature).
   "make-track": { activity: { type: "make-track" } },
   // Pays per delivered card from inside the activity, so no points of its own.
   "study-spanish": { activity: { type: "flashcards" } },
   "record-play": {
     effects: [{ var: "mood", add: 5 }],
+    activity: { type: "record-player" },
     // Built when the player presses E, so it lists demos made since the game loaded.
     dialog: currentRecordMenu,
   },

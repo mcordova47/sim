@@ -1,4 +1,5 @@
 import type { KeyValueStorage } from "../achievements/progress";
+import { MUSIC } from "../config";
 
 // What is remembered between visits: whether sound is muted and which record
 // is on the player (null for none). Every read and write is guarded, so
@@ -6,9 +7,12 @@ import type { KeyValueStorage } from "../achievements/progress";
 export interface SoundSettings {
   muted: boolean;
   track: string | null;
+  // Game minutes left before choosing a record pays again (issue 068). Saved so a
+  // reload cannot skip the wait; it counts down in game time while the game runs.
+  payoutLeft: number;
 }
 
-export const DEFAULT_SETTINGS: SoundSettings = { muted: false, track: null };
+export const DEFAULT_SETTINGS: SoundSettings = { muted: false, track: null, payoutLeft: 0 };
 
 export class SettingsStore {
   constructor(
@@ -26,6 +30,7 @@ export class SettingsStore {
       return {
         muted: r.muted === true,
         track: typeof r.track === "string" ? r.track : null,
+        payoutLeft: typeof r.payoutLeft === "number" && Number.isFinite(r.payoutLeft) ? Math.min(MUSIC.payoutEveryMinutes, Math.max(0, r.payoutLeft)) : 0,
       };
     } catch {
       return { ...DEFAULT_SETTINGS };

@@ -10,6 +10,7 @@ import "./make-track";
 import "./swap-decor";
 import "./collect-delivery";
 import "./flashcards";
+import "./record-player";
 
 export { WaitActivity } from "./wait";
 export { DialogActivity } from "./dialog";

@@ -480,6 +480,10 @@ export const MUSIC = {
   moodPerStep: 1,
   everyGameMinutes: 10,
   moodCap: 80,
+  // Choosing a record pays (the task's points and mood) at most once per this many
+  // game minutes (issue 068). A change inside the window still switches the record,
+  // with no payout. Kept in the sound feature and saved with its settings.
+  payoutEveryMinutes: 10,
   // Drum sounds for the "drums" channel: K kick, S snare, H hat. `length` is
   // how long the sound lasts, in seconds, whatever the note's length.
   drums: {

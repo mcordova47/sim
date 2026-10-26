@@ -14,7 +14,7 @@ import { pickVariant, type Appearance, type Variant } from "./appearance";
 import { Decor } from "./decor";
 import { Deliveries } from "./deliveries";
 import { CLOCK, DEBUG, DIALOG, ENERGY, MOOD, TILE, VIEW } from "./config";
-import type { ActivityHost } from "./activity";
+import type { ActivityHost, RecordState } from "./activity";
 import type { Interactable } from "./interactable";
 import { DialogRunner, type DialogNode, type DialogResult, type DialogView } from "./dialog";
 import { DELTA, DIRECTIONS, type Direction } from "./direction";
@@ -103,6 +103,9 @@ export class Game {
   private readonly layers: Layer[] = [];
   // Game minutes that have gone by (the clock held still by an activity does not count).
   private minutes = 0;
+  // Set by the sound feature: what is on the record player (issue 068). Without it
+  // nothing is playing and every choice may pay.
+  jukebox: (() => RecordState) | null = null;
   private level: Level;
   private grid: Grid;
   private readonly dialog: DialogRunner;
@@ -238,6 +241,8 @@ export class Game {
       previewTrack: (track, live = false) => this.events.emit("preview", { track, live }),
       blip: (freq) => this.events.emit("blip", { freq }),
       voice: (pitch) => this.events.emit("voice", { pitch }),
+      records: () => this.jukebox?.() ?? { playingId: null, payoutReady: true },
+      recordChosen: (id, paid) => this.events.emit("record", { id, paid }),
       reward: (points, effects) => this.interaction.award(points, effects)?.points ?? null,
       gameMinutes: () => this.minutes,
       decor: this.decor,

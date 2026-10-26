@@ -1,7 +1,7 @@
 ---
 id: 026
 title: Spanish flashcards on the in-game computer (stretch)
-status: review
+status: done
 owner: marc + claude
 depends_on: [021, 022, 023]
 ---
@@ -176,3 +176,10 @@ The app is "Mil Palabras" (palabras.mcord.dev): PureScript, Netlify, spaced repe
   - **Checklist for the author:** (a) make `speak()` fall back to the spelling voice when `ipaScript(card.ipa)` is empty (and add a test with `ipa: "ˈ"` and `ipa: "ʔʔ"`), or change the docs sentence.
   - **Unverified, not passing:** how it actually sounds in a browser (every pitch, length, gain and the noise filter frequencies are guesses; whether `voiceVowel` reads as a vowel and `voiceHiss` as an s; whether stress is audible); real Web Audio scheduling.
 - 2026-10-26: **IPA voice review round 1 changes worked.** Fixed: a card whose transcription gives no sounds (only unknown symbols, marks or slashes) now falls back to the spelling voice instead of staying silent, with a test over five such inputs. Left as the reviewer noted: stress is mostly length and loudness (a stressed `o` still sits lower than an unstressed `e`, which may blur stress by ear; tune `FLASHCARDS.voice.stress.pitch` or the vowel pitches), input past 40 phonemes is cut silently, and `gain` on voice events is not used yet. Still unchecked: how it sounds.
+- 2026-10-26: **Review of IPA voice round 2 (fix commit 89f2493, diff f61fa27..HEAD): approve.** `npx tsc --noEmit`, `npm test` (1822, one new) and `npm run build` pass; the tree was clean. The diff touches only `activities/flashcards.ts` (4 lines in `speak()`), `demo.test.ts` and this file; PLAN.md untouched. My own checks ran outside the repo (vitest root in the scratchpad, the real `FlashcardsActivity` with `fakeHost` and a one-card `DemoSession`), 18 tests, all pass:
+  - **Round-1 item (a): pass.** `speak()` now plays the IPA script only when it is non-empty, else the spelling voice. For each of `""`, whitespace (`"   \t\n"`, `" "`), `ʔʔ`, `ˈ`, `ˌ`, `ː`, `/ /`, `[]`, emoji, `ˈ🙂`, a lone combining mark, NUL and `undefined`: on showing the card, after V (to spelling), after V again (back to IPA) and after R, the card voices exactly the spelling script ("perro", every sound a `mumble`); never silent, never doubled. A back-speaking card with such an ipa speaks after the reveal. R twice mid-phrase restarts rather than stacks.
+  - **Valid ipa unchanged: pass.** `ˈpero` voices exactly `ipaScript` (same effects, same order) on show and on R; V gives the spelling voice, V again the IPA voice. An ipa with some unknown symbols (`ʔpeʔro`) still uses the IPA voice (not the fallback).
+  - **Could the fix have broken anything: no.** The only change is the condition; `ipaVoice` off, the key phase, the real backend (no ipa) and the rest of the suite are unchanged and pass. The one new test is meaningful (it fails on the old code: those inputs gave no voices) and covers five inputs.
+  - **Notes, not blocking:** a card whose spelling is itself empty would still be silent (nothing to say); the three round-1 notes the author left (stress mostly length and loudness, cut at 40 phonemes, unused `gain`) are still true and were accepted.
+  - **Unverified, not passing:** how it sounds in a browser (pitches, lengths, gains, whether stress is audible, real Web Audio scheduling).
+  - **Verdict: approve.** Branch to merge: issue/026-ipa-voice. PLAN.md table needs updating by the planner.

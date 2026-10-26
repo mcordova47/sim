@@ -42,6 +42,7 @@ A solid can also be conditional with `blockedWhen` (a pile in the way); the grid
 ## Variables added later
 - `blinds` (0 closed, 1 open): both east windows follow it (issue 065).
 - `plate` (0 or 1, issue 065): a dinner plate is out on the dining table. Reheat leftovers and Cook dinner set it to 1, Eat dinner sets it to 0, sleeping leaves it. Eating dinner does not require it. The table's variant list picks `table-plate` or `table` from it.
+- `mug` also controls the `coffee mug` prop on the table (a prop with a `when` rule, `mug` max 0; slot id `prop-table`, not registered for swapping): it shows while the mug rests on the table and hides while a full mug is carried or waiting.
 
 ## Decor is not state
 Which painting, plant or lamp is in a slot is kept in the decor store (`game.decor`, issue 062, `docs/decor.md`), not in state variables: it is a list of ids, not numbers. The plant's growth and dryness stay state variables (`plantStage`, `plantDry`); the decor slot says which sprites they choose between.

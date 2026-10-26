@@ -3,6 +3,7 @@ import { TILE } from "./config";
 import type { Appearance, Variant } from "./appearance";
 import type { Direction } from "./direction";
 import type { Interactable } from "./interactable";
+import type { Check } from "./state";
 import { pieceBounds, validateLevel, type Door, type Level, type Piece, type Prop, type WallTile } from "./level";
 import { doorwayName, wallKind, wallTileName } from "./wall-tiles";
 import type { Solid } from "./world";
@@ -62,6 +63,8 @@ export interface PropDef {
   size: { w: number; h: number };
   sprite?: string;
   variants?: Variant[];
+  // Drawn only while all of these hold (issue 065: the mug on the table).
+  when?: Check[];
   color?: keyof typeof COLOR;
 }
 
@@ -214,6 +217,7 @@ export function parseTileMap(
       on,
       ...(def.sprite && { sprite: def.sprite }),
       ...(def.variants && { variants: def.variants }),
+      ...(def.when && { when: def.when }),
       ...(def.color && { color: def.color }),
     };
   });

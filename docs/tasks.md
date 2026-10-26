@@ -6,7 +6,7 @@ Where the original task list is in `src/game/tasks.ts`; this lists what issue 03
 | State | Tasks | How it alternates |
 |---|---|---|
 | `blinds` (0 closed, 1 open) | Open the blinds, Close the blinds | each requires the other state; both east windows (issue 065) follow `blinds` and offer the task that applies, so either one changes both |
-| `plate` (0 none, 1 on the table) | Reheat leftovers, Cook dinner (set it), Eat dinner (clears it) | not an alternation: Eat dinner is still allowed with no plate out (it just leaves it at 0). Sleeping does not clear it. The table draws `table-plate` at 1, `table` (bare wood and a small mug) at 0 |
+| `plate` (0 none, 1 on the table) | Reheat leftovers, Cook dinner (set it), Eat dinner (clears it) | not an alternation: Eat dinner is still allowed with no plate out (it just leaves it at 0). Sleeping does not clear it. The table draws `table-plate` at 1, `table` (bare wood) at 0 |
 | `mug` (0 empty, 1 full) | Make pour-over coffee, Drink the coffee | making needs an empty mug, drinking a full one |
 | `recordSort` (0 to 3, wraps) | Alphabetize, Arrange by year, Rank by favorites, Arrange by color | automatic: each ordering needs its turn, finishing moves it on; after color it is alphabetical again. No menu |
 
@@ -26,6 +26,7 @@ Lists: `src/game/typing-text.ts`.
 
 ## Notes
 - The blinds use `window-blinds-open` and `window-blinds-closed`, on both east windows. The plain `window` sprite is kept for later use.
+- The coffee mug on the table (issue 065) is a prop (`mug-table`, 8x6 inside a 16x16 cell) drawn only while `mug` is 0: making coffee takes it off the table (the player carries the held-mug overlay) and drinking puts it back.
 - The dinner plate (issue 065): the `plate` state variable, saved like the others; an old save without it starts at 0.
 - `view-gallery-wall` is a labelled placeholder (320x192) until an art issue draws it from Marc's photos.
 

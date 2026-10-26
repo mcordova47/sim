@@ -53,6 +53,19 @@ const MAIN_PROPS: PropDef[] = [
     sprite: "plant-0",
     color: "leaf",
   },
+  // The mug waiting on the dining table (issue 065): there while nobody is
+  // carrying coffee (`mug` 0), gone when a full mug is made (held-mug overlay) and
+  // back after drinking it. Its own piece, so it could become a decor prop later.
+  {
+    name: "coffee mug",
+    slot: "prop-table",
+    on: "T",
+    at: { x: 38, y: 9 },
+    size: { w: 16, h: 16 },
+    sprite: "mug-table",
+    when: [{ var: "mug", max: 0 }],
+    color: "tangerine",
+  },
 ];
 
 const WINDOW_BLINDS: ObjectDef = {

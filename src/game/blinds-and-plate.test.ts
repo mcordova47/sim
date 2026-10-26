@@ -81,6 +81,41 @@ describe("blinds on both windows", () => {
   });
 });
 
+describe("the mug on the table", () => {
+  const mugProp = () => rooms.main.props!.find((p) => p.sprite === "mug-table")!;
+  const shown = (g: Game) => g.state.matchesAll(mugProp().when);
+  it("is a prop on the table that shows only while no full mug is carried or waiting", () => {
+    expect(mugProp()).toBeDefined();
+    expect(mugProp().on.name).toBe("dining table");
+    const game = newGame();
+    expect(game.state.get("mug")).toBe(0);
+    expect(shown(game)).toBe(true);
+    game.state.applyEffects([{ var: "mug", set: 1 }]);
+    expect(shown(game)).toBe(false);
+    game.state.applyEffects([{ var: "mug", set: 0 }]);
+    expect(shown(game)).toBe(true);
+  });
+  it("leaves the table when coffee is made and comes back when it is drunk", () => {
+    const game = onlyGame("coffee", "drink-coffee");
+    game.state.applyEffects([{ var: "dishes", set: 0 }]);
+    expect(shown(game)).toBe(true);
+    runTask(game, "coffee");
+    expect(game.state.get("mug")).toBe(1);
+    expect(shown(game)).toBe(false);
+    for (let i = 0; i < 60 * 30; i++) game.update(dt, NO_INPUT);
+    runTask(game, "drink-coffee");
+    expect(game.state.get("mug")).toBe(0);
+    expect(shown(game)).toBe(true);
+  });
+  it("stays clear of the eat-table pose (table x 24..39) and sits within the table", () => {
+    const m = mugProp();
+    const table = m.on.bounds;
+    const left = m.area.x - table.x + 4; // the mug starts 4 px into its 16x16 cell
+    expect(left).toBeGreaterThanOrEqual(40);
+    expect(m.area.x + m.area.w).toBeLessThanOrEqual(table.x + table.w);
+  });
+});
+
 describe("the dinner plate", () => {
   const plate = (g: Game) => g.state.get("plate");
   it("starts off, and is a saved state variable", () => {

@@ -1,7 +1,7 @@
 ---
 id: 065
 title: Both windows' blinds; the dinner plate only when there is dinner
-status: done
+status: review
 owner: claude
 depends_on: []
 ---
@@ -38,3 +38,4 @@ From Marc's playtest of 062 stage 3a (2026-10-26):
   - **Headless renders at 1x/4x of the full room:** I did not re-render the full room in a browser; I relied on the golden test, the sprite composites above and the author's renders (I did not view those, they are gitignored). Treat the full-room look as author-verified only.
   - **Scope and privacy: pass.** Only files named by the issue changed (apartment, tasks, state-vars, main-room-frames, golden, tests, sprites, docs, the mockup script). No `PLAN.md` or other issue edits; nothing from `reference-photos/` copied.
   - **Minor, no action needed:** README's golden paragraph still says "nine states" (now 11). Expect merge conflicts with 062 stage 3a in `apartment.ts` and the golden JSON; re-record the golden after merging. `PLAN.md` table needs updating by the planner.
+- 2026-10-26 (fix after Marc's playtest): the tangerine mug painted into `table.sprite` looked like a flat orange circle and stayed on the table while the player carried the coffee. Removed it: `table.sprite` is now bare wood where the plate was (and `table-plate` is unchanged). The mug is now a prop, `coffee mug` in `MAIN_PROPS` (`apartment.ts`), sprite `mug-table` (16x16 cell, the 8x6 mug inside it: 3/4 top-down, ink outline, a handle, dark coffee opening, butter highlight and brick shade), at table x 38, y 9 so the mug sits at table x 42..49, y 13..18 east of the plate and clear of the eat-table pose (x 24..39). New optional `when` on a prop (`PropDef`/`Prop` in `tilemap.ts`, `level.ts`, checked by `validateLevel`, used in `game.ts`): the prop draws only while its rules hold. Here `mug` max 0, so it rests on the table at `mug` 0, vanishes when coffee is made (the held-mug overlay shows instead) and returns when it is drunk. It has the decor slot id `prop-table` but no swapping was built. Tests: three new ones in `blinds-and-plate.test.ts` (appears and disappears with `mug`, make then drink coffee, stays clear of the pose). Golden re-recorded (the default table loses the mug-in-sprite and gains the mug prop; new scenario `mug-carried`). Rendered at 1x and 4x with `mug` 0 and 1 (`?set=mug:N,plate:1`) and looked: mug on the table at 0, gone with the held mug in the player's hand at 1. The mug's rim touches the kettle foot (it is in front of it); judge it in a play session. `npm test` (1688), `npm run sprites` and `npm run build` pass. The earlier review (approve) covered the version before this fix, so this fix has not been independently reviewed.

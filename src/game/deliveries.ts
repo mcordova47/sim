@@ -1,5 +1,6 @@
 import { DELIVERIES } from "./config";
 import type { Decor } from "./decor";
+import { CHECKPOINTS } from "./delivery-checkpoints";
 
 // The delivery queue (issue 062 stage 3a, docs/decor.md). Anything that wants to
 // give you a decor item calls `deliver(itemId, delayHours)`; some game hours
@@ -84,7 +85,7 @@ export class Deliveries {
   // Told when packages arrive, with the item ids (for the one plain line).
   onArrive?: (ids: string[]) => void;
   // The checkpoints in use. The production list is empty (real items need art).
-  milestones: readonly Milestone[] = [];
+  milestones: readonly Milestone[] = CHECKPOINTS;
 
   private total = 0;
   private pending: Pending[] = [];
@@ -184,9 +185,10 @@ export class Deliveries {
     this.pending = s.pending.sort((a, b) => a.at - b.at);
     this.waitingIds = s.waiting;
     this.fired = new Set(s.fired);
-    // What you already own cannot arrive again.
-    this.pending = this.pending.filter((p) => !this.decor.owns(p.id));
-    this.waitingIds = this.waitingIds.filter((id) => !this.decor.owns(id));
+    // What you already own cannot arrive again, and an item this build does not know would be an empty package.
+    const usable = (id: string) => this.decor.item(id) !== undefined && !this.decor.owns(id);
+    this.pending = this.pending.filter((p) => usable(p.id));
+    this.waitingIds = this.waitingIds.filter(usable);
     this.onChange?.();
   }
 

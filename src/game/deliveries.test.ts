@@ -245,6 +245,13 @@ describe("saving and reload", () => {
     expect(twice.pending).toEqual([{ id: "b", at: 1 }]);
   });
 
+  it("drops saved deliveries of items this build does not know", () => {
+    const { d } = make();
+    d.load({ pending: [{ id: "art-gone", at: 1 }, { id: BARN, at: 2 }], waiting: ["plant-gone", PLANT] });
+    expect(d.pendingItems.map((p) => p.id)).toEqual([BARN]);
+    expect(d.waitingItems).toEqual([PLANT]);
+  });
+
   it("drops saved deliveries of things you already own", () => {
     const decor = new Decor();
     decor.own(BARN);
@@ -323,6 +330,21 @@ describe("checkpoints", () => {
     play(game, 6); // the feature checks every few seconds
     expect(game.deliveries.hasFired("d")).toBe(true);
     expect(game.deliveries.waitingItems).toEqual([BARN]);
+  });
+
+  it("uses the production list by default, so a real milestone fires in a real game", async () => {
+    const mod = await import("./delivery-checkpoints");
+    expect(new Deliveries(new Decor()).milestones).toBe(mod.CHECKPOINTS);
+    const list = mod.CHECKPOINTS as Milestone[];
+    list.push({ id: "prod-test", stat: "tasks", atLeast: 0, item: BARN, delayHours: 0 });
+    try {
+      const { game } = newGame();
+      play(game, 0.2);
+      expect(game.deliveries.hasFired("prod-test")).toBe(true);
+      expect(game.deliveries.waitingItems).toEqual([BARN]);
+    } finally {
+      list.pop();
+    }
   });
 
   it("the dev shortcut ?deliver= picks the list or queues ids", () => {

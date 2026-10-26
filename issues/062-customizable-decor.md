@@ -1,7 +1,7 @@
 ---
 id: 062
 title: Customizable decor (inventory, swap, buy new things) (explore)
-status: in-progress
+status: review
 owner: marc + claude
 depends_on: []
 ---
@@ -99,3 +99,4 @@ Build the delivery queue before any trigger is chosen: a saved list of pending d
   - **Checklist for the author:**
     - [ ] Wire `CHECKPOINTS` as the default `Deliveries.milestones` and add a test that a non-empty production list fires once in a real game.
     - [ ] (optional) Drop unknown item ids when loading `pending` and `waiting`.
+- 2026-10-26 (stage 3a, review round 1 fixes): `Deliveries.milestones` now defaults to the production `CHECKPOINTS` (it was never read; only the dev shortcut set a list), with a test that a non-empty production list fires once in a real game. Saved deliveries of ids this build does not know are dropped on load (no empty packages), with a test. 1692 tests and tsc pass. Status back to `review`.

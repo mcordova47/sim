@@ -12,6 +12,7 @@ import type { SpriteDrawer } from "../render/sprites";
 import { GOOD_HOUR_ICON, GOOD_HOUR_ICON_SIZE, drawProgress, drawPrompt } from "../render/world-ui";
 import { pickVariant, type Appearance, type Variant } from "./appearance";
 import { Decor } from "./decor";
+import { Deliveries } from "./deliveries";
 import { CLOCK, DEBUG, DIALOG, ENERGY, MOOD, TILE, VIEW } from "./config";
 import type { ActivityHost } from "./activity";
 import type { Interactable } from "./interactable";
@@ -93,6 +94,8 @@ export class Game {
   readonly state: ApartmentState;
   // The decor you own and where it is placed. Drawn from every frame, so a change shows at once.
   readonly decor: Decor;
+  // Items on their way to the door, and the package waiting there (issue 062 stage 3a).
+  readonly deliveries: Deliveries;
   // Announces steps, bumps into things, and task starts, completions and refusals.
   readonly events = new Emitter<GameEvents>();
   private readonly hud = new Hud();
@@ -123,6 +126,7 @@ export class Game {
   constructor(level: Level, options: GameOptions = {}) {
     this.state = options.state ?? new ApartmentState(STATE_VARS);
     this.decor = options.decor ?? new Decor();
+    this.deliveries = new Deliveries(this.decor);
     validateLevel(level, this.validation());
     this.decor.checkLevel(level);
     for (const room of Object.values(options.rooms ?? {})) this.decor.checkLevel(room);
@@ -134,6 +138,13 @@ export class Game {
     this.painter = new RoomPainter(options.sprites);
     this.grid = new Grid(level.size, this.activeSolids());
     this.state.onChange = (change) => this.stateChanged(change);
+    // Sleeping and napping skip hours, and a delivery due in that time arrives when you wake.
+    this.state.onClockSkip = (hours) => this.deliveries.advance(hours);
+    this.deliveries.canArrive = () => !this.onPackageSpot();
+    this.deliveries.onArrive = () => {
+      this.syncParcel();
+      this.say("A PACKAGE HAS ARRIVED.");
+    };
     this.player = new Player(level.spawn.x, level.spawn.y, level.facing);
     this.camera = new Camera(level.size, VIEW);
     this.camera.snapTo(this.playerCentre());
@@ -174,7 +185,8 @@ export class Game {
     this.interaction.onCancelled = (item) => this.events.emit("taskCancelled", { item });
     this.interaction.host = this.activityHost();
     // A swap with nothing to swap to is not offered (no prompt, not in the choice cycle).
-    this.interaction.hidden = (item) => item.decorSlot !== undefined && this.decor.choices(item.decorSlot).length < 2;
+    this.interaction.hidden = (item) =>
+      (item.decorSlot !== undefined && this.decor.choices(item.decorSlot).length < 2) || (item.delivery === true && !this.deliveries.waiting);
     this.dialog = new DialogRunner({
       onOpen: () => {
         this.releaseDialogLock?.();
@@ -228,6 +240,7 @@ export class Game {
       reward: (points, effects) => this.interaction.award(points, effects)?.points ?? null,
       gameMinutes: () => this.minutes,
       decor: this.decor,
+      collectDeliveries: () => this.collectDeliveries(),
       sprites: this.spriteDrawer,
       getState: (id) => this.state.get(id),
       random: () => this.random(),
@@ -273,6 +286,35 @@ export class Game {
   // The solids that block right now: those with no condition, or whose condition holds.
   private activeSolids(level: Level = this.level): Solid[] {
     return level.solids.filter((s) => !s.blockedWhen || this.state.matchesAll(s.blockedWhen));
+  }
+
+  // True if the player is on (or stepping onto) the tile where the package box goes.
+  private onPackageSpot(): boolean {
+    for (const item of this.level.interactables) {
+      if (!item.delivery) continue;
+      if (item.zones.some((z) => this.player.occupies(z.x / TILE, z.y / TILE))) return true;
+    }
+    return false;
+  }
+
+  // The box by the door shows (and blocks its tile) while a package waits. The state
+  // variable only follows the queue, and is brought in step the moment the queue
+  // changes, so no step can be taken into a box that has arrived but is not blocking yet.
+  private syncParcel(): void {
+    const parcel = this.deliveries.waiting ? 1 : 0;
+    if (this.state.has("parcel") && this.state.get("parcel") !== parcel) this.state.applyEffects([{ var: "parcel", set: parcel }]);
+  }
+
+  // One plain line over the player.
+  private say(text: string): void {
+    this.popups.add(this.player.x + TILE / 2, this.player.y, [{ text, color: COLOR.paper }]);
+  }
+
+  // Opens the waiting packages: the items are added, and each one is named in one line.
+  private collectDeliveries(): void {
+    const got = this.deliveries.collect();
+    this.syncParcel();
+    for (const id of got) this.say(`OPENED: ${this.decor.item(id)?.name ?? "A PACKAGE"}`);
   }
 
   private stateChanged(change: { id: string; value: number; previous: number }): void {
@@ -366,6 +408,8 @@ export class Game {
   }
 
   update(dt: number, controls: Controls): void {
+    // After a load the saved box state may not match the queue (a save written as a package arrived).
+    this.syncParcel();
     // A swap preview lasts only while the swap list is open, whatever closed it.
     if (this.decor.previewing && !this.interaction.active) this.decor.clearPreview();
     // Escape backs out of the running action even while its text or menu is up
@@ -412,6 +456,8 @@ export class Game {
     if (this.interaction.active?.activity.holdsClock) return;
     this.state.tick(dt);
     this.minutes += dt * CLOCK.minutesPerSecond;
+    this.deliveries.advance((dt * CLOCK.minutesPerSecond) / 60);
+    this.syncParcel();
   }
 
   render(ctx: CanvasRenderingContext2D, alpha: number): void {

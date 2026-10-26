@@ -99,6 +99,18 @@ export const DECOR = {
   maxPlaced: 200,
 };
 
+// Deliveries (issue 062 stage 3a, docs/decor.md). Times are game hours.
+export const DELIVERIES = {
+  // Most items waiting to arrive plus waiting at the door; `deliver` refuses more.
+  maxQueued: 20,
+  // Longest delay kept (a longer one is cut to this).
+  maxDelayHours: 24 * 14,
+  // Most milestone ids remembered as fired in the save.
+  maxFired: 200,
+  // Largest game-hours total read from a save (a damaged number cannot go past this).
+  maxHours: 1e7,
+};
+
 // Energy runs from 0 to 100 (see state-vars.ts).
 export const ENERGY = {
   // Points lost per game hour just from being awake.

@@ -17,6 +17,8 @@ export const STATE_VARS: StateVar[] = [
   { id: "plantStage", initial: 1, min: 0, max: 3, meaning: "How far the snake plant has grown: 0 sprout, 1 small, 2 full, 3 flowering." },
   { id: "plantGrowth", initial: 0, min: 0, max: 9, meaning: "Waterings that counted toward the next stage of the snake plant." },
   { id: "plantDry", initial: 12, min: 0, max: 999, meaning: "Game hours since the snake plant was last watered. Past PLANT.droopAfterHours it droops; watering fixes it." },
+  // Derived, never set by a task: 1 while a delivered package waits by the front door (issue 062).
+  { id: "parcel", initial: 0, min: 0, max: 1, meaning: "1 while a package waits by the front door, 0 if not. Follows the delivery queue (deliveries.ts); no task sets it." },
   {
     id: "recordSort",
     initial: 0,

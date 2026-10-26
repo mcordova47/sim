@@ -56,6 +56,9 @@ export interface Interactable {
   // slot has something else to put in it, so a game with nothing to swap shows
   // nothing new. It has no points, mood or cooldown and always ends quietly.
   decorSlot?: string;
+  // The task of opening a delivered package (issue 062 stage 3a). Only offered
+  // while a package waits, ends quietly and pays nothing.
+  delivery?: boolean;
   // The tiles of the object, as one rectangle per tile (so an L-shaped counter
   // is exactly its tiles). It is used by standing next to a tile and facing it.
   zones: Rect[];

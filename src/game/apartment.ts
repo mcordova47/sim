@@ -34,7 +34,7 @@ export const MAIN_MAP = [
   "#GSSSSSS....BBBBB.#",
   "#.SSSSSSL...BBBBB.W",
   "########.R..BBBBB.W",
-  "##########........#",
+  "##########x.......#",
   "##########ff#######",
 ];
 
@@ -95,6 +95,18 @@ const MAIN: Record<string, ObjectDef> = {
   p: { name: "painting over the table", sprite: "painting", color: "paper", slot: "art-table" },
   q: { name: "painting over the desk", sprite: "painting-desk", color: "paper", slot: "art-desk" },
   u: { name: "painting over the nightstand", sprite: "painting-wide", color: "paper", slot: "art-bed" },
+  // The package spot (issue 062 stage 3a): the floor in front of the front door.
+  // Plain floor until a package waits (the `parcel` state follows the delivery
+  // queue); then a box is drawn here, it blocks the tile (you face it from the
+  // next tile and press E) and the task is offered. The other tile in front of
+  // the door stays open, so nothing is closed off.
+  x: {
+    name: "package by the door",
+    blockedWhen: [{ var: "parcel", min: 1 }],
+    color: "tangerine",
+    tasks: ["collect-delivery"],
+    variants: [{ sprite: "delivery-box", when: [{ var: "parcel", min: 1 }], label: "PACKAGE", color: "tangerine" }],
+  },
   f: { name: "front door (decoration for now)", sprite: "front-door", color: "tangerine" },
   "1": { door: { to: "kitchen", arrive: { col: 11, row: 3, facing: "left" } } },
   "2": { door: { to: "kitchen", arrive: { col: 11, row: 4, facing: "left" } } },

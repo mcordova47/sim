@@ -50,6 +50,10 @@ export class ApartmentState {
   // every frame. The event carries the exact new value; to read the exact
   // time every frame, use `get("clock")`.
   onChange?: (change: StateChange) => void;
+  // Told when an effect moves the clock forward (sleeping, napping), with the hours
+  // skipped. Ordinary ticking does not call it. Things that run on game time use
+  // it so time that is skipped still counts (issue 062 deliveries).
+  onClockSkip?: (hours: number) => void;
 
   private readonly defs = new Map<string, StateVar>();
   private readonly values = new Map<string, number>();
@@ -110,6 +114,9 @@ export class ApartmentState {
       this.write(e.var, e.set ?? this.get(e.var) + (e.add ?? 0), changes);
     }
     this.announce(changes, false);
+    for (const e of effects) {
+      if (e.var === "clock" && e.set === undefined && typeof e.add === "number" && Number.isFinite(e.add) && e.add > 0) this.onClockSkip?.(e.add);
+    }
   }
 
   // Passes `dt` seconds of game time: the clock runs on, energy drains and mood

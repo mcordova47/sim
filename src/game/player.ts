@@ -80,6 +80,11 @@ export class Player {
     this.turnedThisUpdate = false;
   }
 
+  // True if the player is on this tile or stepping onto it.
+  occupies(col: number, row: number): boolean {
+    return (this.col === col && this.row === row) || (this.step?.toCol === col && this.step?.toRow === row);
+  }
+
   get stepping(): boolean {
     return this.step !== null;
   }

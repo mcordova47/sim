@@ -333,8 +333,12 @@ const SWAPS: Task[] = DECOR_SLOTS.filter((s) => s.object).map((s) => {
   return { id: swapTaskId(s.id), name: prompt, prompt, duration: 0, points: 0, cooldown: 0, decorSlot: s.id, activity: { type: "swap-decor" } };
 });
 
+// Opening a delivered package (issue 062 stage 3a): no points, no cooldown, a quiet end.
+const COLLECT: Task = { id: "collect-delivery", name: "Open the package", prompt: "Open the package", duration: 0, points: 0, cooldown: 0, delivery: true, activity: { type: "collect-delivery" } };
+
 // Tasks that need the state or a dialog, so they are not in the content list above.
 const EXTRA: Task[] = [
+  COLLECT,
   {
     id: "sleep",
     name: "Go to sleep",

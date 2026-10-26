@@ -73,6 +73,8 @@ export interface ActivityHost {
   reward?(points: number, effects: Effect[]): number | null;
   // The decor you own and have placed (the swap list). Missing in tests.
   readonly decor?: Decor;
+  // Opens the packages waiting by the door (adds the items, shows one line each). Missing in tests.
+  collectDeliveries?(): void;
   // Game minutes played so far (the clock held still by an activity does not count).
   gameMinutes?(): number;
 }

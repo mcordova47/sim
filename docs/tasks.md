@@ -86,5 +86,8 @@ No per-object setting. An object offers the tasks that **can start right now** (
 - The key is read from the pressed-key list (`Controls.keys`, with Shift from `keysDown`) inside `InteractionSystem.update`. It does nothing while a task runs (and not the frame one ends, so a Tab typed in the typing game cannot cycle), while a dialog is open, or while input is locked: all of those hand the system `NO_INPUT` or return before the check.
 - Code: `InteractionSystem.choices` (the offered tasks when two or more), `nearby` (the shown one), `choiceIndex`; the prompt count is drawn by `drawPrompt` in `src/render/world-ui.ts`. Tests: `src/game/task-choice.test.ts`, `src/render/choice-prompt.test.ts`.
 
+## Flatten the boxes and opening packages (issue 066)
+The boxes in the kitchen are the state variable `boxes`: 1 is the stack, 0 is flat. Flatten the boxes (45 points, its usual cooldown) is only offered with a stack, says `NO BOXES TO FLATTEN` otherwise, and sets it to 0. Opening a package at the front door (`collect-delivery`) sets it back to 1, so there is always something to flatten after a delivery. It does this even while flattening is still cooling down: the cooldown only holds back the task, not the stack. Several waiting packages give the same single stack. Sprites: `boxes` (the stack) and `boxes-flat`, both 32x16.
+
 ## Variants of one task (`exclusive`)
 Tasks that are variants of one thing share an `exclusive` name on the task (the four mirror tasks use `"mirror"`). When more than one could start, only the first is offered, so the choice cycle never lists the same thing twice. Order in the task list decides which wins (worn out beats the hour).

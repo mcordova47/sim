@@ -320,6 +320,8 @@ export class Game {
   private collectDeliveries(): void {
     const got = this.deliveries.collect();
     this.syncParcel();
+    // The new package's box joins the pile, so there is always something to flatten (issue 066).
+    if (got.length > 0 && this.state.has("boxes")) this.state.applyEffects([{ var: "boxes", set: 1 }]);
     for (const id of got) this.say(`OPENED: ${this.decor.item(id)?.name ?? "A PACKAGE"}`);
   }
 

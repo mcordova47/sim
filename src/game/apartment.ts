@@ -177,7 +177,18 @@ const KITCHEN: Record<string, ObjectDef> = {
   h: { name: "range hood", sprite: "hood", color: "paper" },
   Y: { name: "recycling", sprite: "recycling", color: "leaf", tasks: ["take-trash"] },
   N: { name: "trash bin", sprite: "bin", color: "slate", tasks: ["take-trash"] },
-  X: { name: "box stack and pantry", sprite: "boxes", color: "tangerine", tasks: ["flatten-boxes"] },
+  // The boxes follow the state variable `boxes` (issue 066): a stack, or flattened
+  // after "Flatten the boxes". A package opened at the front door brings the stack back.
+  X: {
+    name: "box stack and pantry",
+    sprite: "boxes",
+    color: "tangerine",
+    tasks: ["flatten-boxes"],
+    variants: [
+      { sprite: "boxes", when: [{ var: "boxes", min: 1 }], color: "tangerine" },
+      { sprite: "boxes-flat", color: "tangerine" },
+    ],
+  },
   O: { name: "tote bag and shoes", sprite: "tote", color: "ink" },
   F: { name: "fridge", sprite: "fridge", color: "mist", tasks: ["fridge-stare", "humidifier"] },
   c: { name: "window curtain", sprite: "window-curtain", color: "mist" },

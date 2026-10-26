@@ -77,8 +77,23 @@ export interface ActivityHost {
   readonly decor?: Decor;
   // Opens the packages waiting by the door (adds the items, shows one line each). Missing in tests.
   collectDeliveries?(): void;
+  // What the record player is doing, for the record menu's payout rule (issue 068).
+  // Missing when there is no sound feature: nothing is playing and a choice may pay.
+  records?(): RecordState;
+  // Tells the sound feature the choice made at the record player (`id` null for
+  // silence) and whether it pays. Missing in tests.
+  recordChosen?(id: string | null, paid: boolean): void;
   // Game minutes played so far (the clock held still by an activity does not count).
   gameMinutes?(): number;
+}
+
+// The id of the record or demo on the player (null: none) and whether a choice
+// may pay now (the payout window has run out).
+export interface RecordState {
+  playingId: string | null;
+  payoutReady: boolean;
+  // The records and demos the menu may have picked from (the game's own when missing).
+  tracks?: readonly Track[];
 }
 
 export interface Activity {

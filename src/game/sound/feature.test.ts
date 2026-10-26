@@ -72,8 +72,11 @@ function chooseRecord(s: ReturnType<typeof setup>, index: number) {
   for (let i = 0; i < index; i++) s.game.update(dt, down);
   s.game.update(dt, press); // pick
   s.run(0.5); // let the reply type out
-  s.game.update(dt, press);
-  s.game.update(dt, press);
+  // The task has no cooldown, so a press too many would open the menu again.
+  for (let i = 0; i < 4 && s.game.dialogOpen; i++) {
+    s.game.update(dt, press);
+    s.run(0.1);
+  }
   s.run(0.2);
 }
 

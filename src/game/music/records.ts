@@ -65,3 +65,15 @@ export const RECORD_MENU = recordMenu(TRACKS);
 export function trackForLabel(label: string, tracks: readonly Track[] = TRACKS): Track | null {
   return tracks.find((t) => t.title === label) ?? null;
 }
+
+// What the player picked in the record menu, from the labels chosen: a record or
+// demo (`track`), or silence (`track` null). Undefined when nothing was picked
+// (`Demos...` only opens a list). The last pick counts.
+export function pickedFrom(path: readonly string[], tracks: readonly Track[]): { track: Track | null } | undefined {
+  for (let i = path.length - 1; i >= 0; i--) {
+    if (path[i] === STOP_LABEL) return { track: null };
+    const track = trackForLabel(path[i], tracks);
+    if (track) return { track };
+  }
+  return undefined;
+}

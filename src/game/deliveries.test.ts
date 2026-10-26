@@ -494,6 +494,60 @@ describe("the package by the door", () => {
     expect(game.state.get("parcel")).toBe(1);
   });
 
+  it("blocks the tile the moment a package arrives, even with the clock paused by a dialog", () => {
+    const { game } = newGame();
+    const { col, row } = spot();
+    game.player.placeAt(col + 1, row, "left");
+    game.update(1 / 60, NO_INPUT);
+    game.openDialog(say("HELLO"));
+    game.update(1 / 60, NO_INPUT);
+    expect(game.dialogOpen).toBe(true);
+    game.deliveries.deliver(BARN, 0); // arrives while the clock is held
+    expect(game.deliveries.waiting).toBe(true);
+    expect(game.state.get("parcel")).toBe(1);
+    // Close the dialog with E while holding left: the step must be refused.
+    for (let i = 0; i < 10 && game.dialogOpen; i++) game.update(1 / 60, { ...press, dir: "left", dirPressed: "left" });
+    expect(game.dialogOpen).toBe(false);
+    walk(game, hold("left"), 1);
+    expect(game.player.col).toBe(col + 1);
+    expect(game.player.occupies(col, row)).toBe(false);
+  });
+
+  it("blocks the tile on a sleep skip too, and opening the box frees it at once", () => {
+    const { game } = newGame();
+    const { col, row } = spot();
+    game.deliveries.deliver(BARN, 3);
+    game.state.applyEffects([{ var: "clock", add: 7 }]);
+    expect(game.state.get("parcel")).toBe(1);
+    game.player.placeAt(col + 1, row, "left");
+    game.update(1 / 60, NO_INPUT);
+    game.update(1 / 60, press);
+    walk(game, NO_INPUT, 0.2);
+    expect(game.state.get("parcel")).toBe(0);
+  });
+
+  it("brings the box in step with the queue after a load that has a stale parcel", () => {
+    const { game, feature, storage } = newGame();
+    game.deliveries.deliver(BARN, 0);
+    feature.save();
+    // A save written as the package arrived: the queue says waiting, the world says parcel 0.
+    const key = [...storage.data.keys()][0];
+    const raw = JSON.parse(storage.data.get(key)!);
+    raw.world.vars.parcel = 0;
+    storage.data.set(key, JSON.stringify(raw));
+    const again = newGame(storage).game;
+    expect(again.deliveries.waiting).toBe(true);
+    again.update(1 / 60, NO_INPUT);
+    expect(again.state.get("parcel")).toBe(1);
+    // And the other way: a stale parcel 1 with nothing waiting.
+    raw.deliveries = { hours: 1, pending: [], waiting: [], fired: [] };
+    raw.world.vars.parcel = 1;
+    storage.data.set(key, JSON.stringify(raw));
+    const third = newGame(storage).game;
+    third.update(1 / 60, NO_INPUT);
+    expect(third.state.get("parcel")).toBe(0);
+  });
+
   it("holds a package back while the player is stepping onto its tile", () => {
     const { game } = newGame();
     const { col, row } = spot();

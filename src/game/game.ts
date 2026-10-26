@@ -141,7 +141,10 @@ export class Game {
     // Sleeping and napping skip hours, and a delivery due in that time arrives when you wake.
     this.state.onClockSkip = (hours) => this.deliveries.advance(hours);
     this.deliveries.canArrive = () => !this.onPackageSpot();
-    this.deliveries.onArrive = () => this.say("A PACKAGE HAS ARRIVED.");
+    this.deliveries.onArrive = () => {
+      this.syncParcel();
+      this.say("A PACKAGE HAS ARRIVED.");
+    };
     this.player = new Player(level.spawn.x, level.spawn.y, level.facing);
     this.camera = new Camera(level.size, VIEW);
     this.camera.snapTo(this.playerCentre());
@@ -294,6 +297,14 @@ export class Game {
     return false;
   }
 
+  // The box by the door shows (and blocks its tile) while a package waits. The state
+  // variable only follows the queue, and is brought in step the moment the queue
+  // changes, so no step can be taken into a box that has arrived but is not blocking yet.
+  private syncParcel(): void {
+    const parcel = this.deliveries.waiting ? 1 : 0;
+    if (this.state.has("parcel") && this.state.get("parcel") !== parcel) this.state.applyEffects([{ var: "parcel", set: parcel }]);
+  }
+
   // One plain line over the player.
   private say(text: string): void {
     this.popups.add(this.player.x + TILE / 2, this.player.y, [{ text, color: COLOR.paper }]);
@@ -301,7 +312,9 @@ export class Game {
 
   // Opens the waiting packages: the items are added, and each one is named in one line.
   private collectDeliveries(): void {
-    for (const id of this.deliveries.collect()) this.say(`OPENED: ${this.decor.item(id)?.name ?? "A PACKAGE"}`);
+    const got = this.deliveries.collect();
+    this.syncParcel();
+    for (const id of got) this.say(`OPENED: ${this.decor.item(id)?.name ?? "A PACKAGE"}`);
   }
 
   private stateChanged(change: { id: string; value: number; previous: number }): void {
@@ -395,6 +408,8 @@ export class Game {
   }
 
   update(dt: number, controls: Controls): void {
+    // After a load the saved box state may not match the queue (a save written as a package arrived).
+    this.syncParcel();
     // A swap preview lasts only while the swap list is open, whatever closed it.
     if (this.decor.previewing && !this.interaction.active) this.decor.clearPreview();
     // Escape backs out of the running action even while its text or menu is up
@@ -442,9 +457,7 @@ export class Game {
     this.state.tick(dt);
     this.minutes += dt * CLOCK.minutesPerSecond;
     this.deliveries.advance((dt * CLOCK.minutesPerSecond) / 60);
-    // The box by the door shows while a package waits (the state variable only follows the queue).
-    const parcel = this.deliveries.waiting ? 1 : 0;
-    if (this.state.has("parcel") && this.state.get("parcel") !== parcel) this.state.applyEffects([{ var: "parcel", set: parcel }]);
+    this.syncParcel();
   }
 
   render(ctx: CanvasRenderingContext2D, alpha: number): void {

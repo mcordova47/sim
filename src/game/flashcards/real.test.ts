@@ -135,8 +135,15 @@ describe("realBackend.open", () => {
 describe("a real session", () => {
   it("shows cards through the core: prompt, joined answers, example as the hint", async () => {
     const session = (await open(fakeServer())) as StudySession;
-    expect(session.card("a")).toEqual({ slug: "a", prompt: "A", answer: "a1, a2", hint: "ejemplo" });
-    expect(session.card("b")).toEqual({ slug: "b", prompt: "B", answer: "b1, b2" });
+    // The fake's cards are recognition: the prompt is the Spanish, so it is spoken first.
+    expect(session.card("a")).toEqual({ slug: "a", prompt: "A", answer: "a1, a2", hint: "ejemplo", spoken: "A", speaks: "front" });
+    expect(session.card("b")).toEqual({ slug: "b", prompt: "B", answer: "b1, b2", spoken: "B", speaks: "front" });
+  });
+
+  it("speaks the answer, on turning over, when the card is in production", async () => {
+    const core = fakeCore({ card: (_p, slug) => ({ slug, prompt: "dog", answers: ["perro"], example: "", direction: "production" }) });
+    const session = (await open(fakeServer(), core)) as StudySession;
+    expect(session.card("a")).toMatchObject({ prompt: "dog", answer: "perro", spoken: "perro", speaks: "back" });
   });
 
   it("composes accents so the font sees one letter", async () => {

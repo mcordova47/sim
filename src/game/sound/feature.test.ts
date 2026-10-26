@@ -233,6 +233,16 @@ describe("effects from game events", () => {
     expect(sounds(s.ctx)).toBe(waiting);
   });
 
+  it("plays a soft blip for each mumbled letter (issue 026), and nothing before audio is unlocked", () => {
+    const s = setup(RECORD_TASK);
+    s.game.events.emit("voice", { pitch: 1 });
+    expect(sounds(s.ctx)).toBe(0);
+    s.unlock();
+    const before = sounds(s.ctx);
+    s.game.events.emit("voice", { pitch: 1.25 });
+    expect(sounds(s.ctx)).toBe(before + 1);
+  });
+
   it("keeps the voice count capped under a storm of events", () => {
     const s = setup();
     s.unlock();

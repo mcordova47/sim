@@ -5,6 +5,7 @@ import { GLYPH_H, drawText, textWidth } from "../../render/font";
 import { BaseActivity, needHost, registerActivity, type ActivityHost, type ActivityResult } from "../activity";
 import { FLASHCARDS as F } from "../config";
 import { studyBackend } from "../flashcards/backend";
+import { Mumble } from "../flashcards/mumble";
 import { keyFromText, studyStore, type StudyStore } from "../flashcards/key";
 import type { CardView, Grade, StudyBackend, StudySession } from "../flashcards/study";
 import { wrapText } from "../dialog";
@@ -47,6 +48,7 @@ export class FlashcardsActivity extends BaseActivity {
   private session: StudySession | null = null;
   private shown: { at: number; slug: string; view: CardView } | null = null;
   private unlisten: (() => void) | null = null;
+  private readonly mumble: Mumble;
 
   constructor(
     private readonly host: ActivityHost,
@@ -55,6 +57,7 @@ export class FlashcardsActivity extends BaseActivity {
     private readonly clipboard: ClipboardLike = browserClipboard,
   ) {
     super();
+    this.mumble = new Mumble((pitch) => host.voice?.(pitch));
   }
 
   // The card on screen. Looked up once per card: the real core reads the whole
@@ -108,6 +111,7 @@ export class FlashcardsActivity extends BaseActivity {
       this.phase = "done";
     } else {
       this.phase = "front";
+      this.speakIf("front");
     }
   }
 
@@ -123,11 +127,16 @@ export class FlashcardsActivity extends BaseActivity {
     this.message = "";
   }
 
-  update(_dt: number, controls: Controls): void {
+  update(dt: number, controls: Controls): void {
     if (this.done) return;
+    this.mumble.update(dt);
     if (this.phase === "key") return this.updateKey(controls);
+    if (this.phase === "front" || this.phase === "back") this.repeat(controls);
     if (this.phase === "front") {
-      if (controls.interactPressed || controls.keys.includes("Space")) this.phase = "back";
+      if (controls.interactPressed || controls.keys.includes("Space")) {
+        this.phase = "back";
+        this.speakIf("back");
+      }
       return;
     }
     if (this.phase === "back") {
@@ -142,6 +151,22 @@ export class FlashcardsActivity extends BaseActivity {
     if ((this.phase === "problem" || this.phase === "done") && (controls.interactPressed || controls.keys.includes("Enter"))) {
       this.finish({ completed: false, quiet: true });
     }
+  }
+
+  // "Says" the card's Spanish if it is on the side that has just appeared.
+  private speakIf(side: "front" | "back"): void {
+    const card = this.card;
+    if (!card) return;
+    if ((card.speaks ?? "back") === side) this.mumble.say(card.spoken ?? card.answer);
+  }
+
+  // R says the Spanish again, once it is showing.
+  private repeat(controls: Controls): void {
+    if (!controls.keys.includes(F.mumble.repeatKey) || controls.keysDown.some((k) => /^Shift/.test(k))) return;
+    const card = this.card;
+    if (!card) return;
+    const showing = this.phase === "back" || (card.speaks ?? "back") === "front";
+    if (showing) this.mumble.say(card.spoken ?? card.answer);
   }
 
   private updateKey(controls: Controls): void {
@@ -172,6 +197,7 @@ export class FlashcardsActivity extends BaseActivity {
     const card = this.card;
     if (!session || !card) return;
     this.phase = "saving";
+    this.mumble.stop();
     session.grade(card.slug, grade).then(
       (ok) => {
         if (this.done) return;
@@ -204,11 +230,13 @@ export class FlashcardsActivity extends BaseActivity {
       this.phase = "done";
     } else {
       this.phase = "front";
+      this.speakIf("front");
     }
   }
 
   // Both ways out (finishing and Escape) stop listening for pastes.
   protected finish(result: ActivityResult): void {
+    this.mumble.stop();
     this.unlisten?.();
     this.unlisten = null;
     super.finish(result);
@@ -265,6 +293,9 @@ export class FlashcardsActivity extends BaseActivity {
     const card = this.card;
     if (!card) return;
     line(`Card ${Math.min(this.index + 1, this.queue.length)} of ${this.queue.length}`, 8, COLOR.slate);
+    if (this.phase === "back" || (card.speaks ?? "back") === "front") {
+      drawText(ctx, "R: say it", x + w - 8, y + 8, { align: "right", color: COLOR.slate, shadow: null });
+    }
     // Big when it fits on one line, small and wrapped (two lines at most) when not.
     const block = (text: string, ty: number, color: string) => {
       const room = w - 16;

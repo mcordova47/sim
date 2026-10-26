@@ -12,6 +12,10 @@ export interface CardView {
   prompt: string;
   answer: string;
   hint?: string;
+  // The Spanish that gets "spoken" (mumblespeak) and the side it appears on.
+  // Without them the answer is spoken when the card is flipped.
+  spoken?: string;
+  speaks?: "front" | "back";
 }
 
 export interface StudySession {

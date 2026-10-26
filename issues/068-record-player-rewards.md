@@ -1,7 +1,7 @@
 ---
 id: 068
 title: Record player: no cooldown, pay only for a real change
-status: review
+status: done
 owner: claude
 depends_on: []
 ---
@@ -30,3 +30,13 @@ Marc's decision (2026-10-26): changing the record should have no cooldown. Today
   - **Files:** `src/game/activities/record-player.ts` (new), `activities/index.ts`, `activity.ts` (host `records`, `recordChosen`, `RecordState`), `events.ts` (`record`), `game.ts` (`jukebox`, host), `config.ts`, `tasks.ts` (cooldown, spec; small, may conflict with 065), `music/records.ts` (`pickedFrom`), `sound/feature.ts`, `sound/settings.ts`, tests, `docs/music.md`, `docs/tasks.md`.
   - **Tests:** new `src/game/record-player.test.ts` (real Game, task and sound feature): no cooldown, payout on a change from silence, none for the same record, none for stop, none inside the window, payout after it (game time), demos (switch, same, after the window, deleted demo), Escape paths (menu, cancel key, reply line) with the cancelled stat held at 0, save round trip, damaged saves, a huge saved wait, the window not running while a dialog is open, no sound feature, and a seeded fuzz of 40 seeds x 4000 frames (menu keys, Escape, cancel, mute, demo add and delete, sleeps) checking: no payout without a real change and not inside the window, cooldown always 0, cancelled stat 0, mood and points finite. I also ran it once at 500 seeds x 6000 frames (a temporary copy, deleted): all pass. `npm test` (1782) and `npm run build` pass.
   - **Not checked:** how it feels and sounds in a browser (needle sound, the line), real play with a clock.
+
+- 2026-10-26: **Review** (independent). Verdict: **approve**.
+  - `npm test` 1782 pass (incl. escape.test.ts 277, golden frame); `npm run build` ok.
+  - cooldown 0, `record-player` activity, `MUSIC.payoutEveryMinutes`: pass (code read, author tests plus mine).
+  - Pays only for a different record/demo from the one on: pass. Same record, Stop, Escape/cancel on menu and reply line, change inside window: quiet (`quiet: true`, so no `taskCancelled`, cancelled stat untouched): pass (code in interaction.ts finish; tests).
+  - Payout window in game time, saved with `life.sound.v1`, damaged/NaN/huge values clamped: pass.
+  - Demos count as records: pass. My extra test (deleted): a demo re-saved under a new name while playing keeps its id and is "the same record", no payout after the window.
+  - Own extra checks (scratch tests, deleted): sound feature attached late (no jukebox: any record pays, then attaching works), muted still pays and switches, cancel key then Escape on the open menu fires no events and plays nothing, NaN mood effect does not make points non-finite. All pass.
+  - Good hour/combo untouched (a paid pick is a normal award). Docs updated. Scope: only the listed files; tasks.ts touch is small and may conflict with 065 (noted by author).
+  - Can't verify: feel and sound in a real browser (needle sound, the line, real clock). Sleeping counts only its waiting seconds toward the window (author flagged for Marc).

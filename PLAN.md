@@ -101,6 +101,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 062 | [Customizable decor (inventory, swap, buy) (explore)](issues/062-customizable-decor.md) | marc + claude | in-progress (stages 1 and 2 of 4 done) | |
 | 063 | [Plants that grow in stages](issues/063-plant-growth.md) | marc + claude | done | |
 | 064 | [Plugins (VSTs) for the track editor (explore)](issues/064-track-editor-plugins.md) | marc + claude | todo | |
+| 065 | [Both windows' blinds; the dinner plate only when there is dinner](issues/065-blinds-and-plate.md) | claude | todo | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

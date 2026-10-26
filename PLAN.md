@@ -101,7 +101,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 062 | [Customizable decor (inventory, swap, buy) (explore)](issues/062-customizable-decor.md) | marc + claude | in-progress (stages 1, 2 and 3a done; 3b and 4 remain) | |
 | 063 | [Plants that grow in stages](issues/063-plant-growth.md) | marc + claude | done | |
 | 064 | [Plugins (VSTs) for the track editor (explore)](issues/064-track-editor-plugins.md) | marc + claude | todo | |
-| 065 | [Both windows' blinds; the dinner plate only when there is dinner](issues/065-blinds-and-plate.md) | claude | in-progress (review pending) | |
+| 065 | [Both windows' blinds; the dinner plate only when there is dinner](issues/065-blinds-and-plate.md) | claude | done | |
 | 066 | [Flattened boxes and collected packages are linked](issues/066-boxes-and-packages.md) | claude | todo | |
 | 068 | [Record player: no cooldown, pay only for a real change](issues/068-record-player-rewards.md) | claude | todo | |
 

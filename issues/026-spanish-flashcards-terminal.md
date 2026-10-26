@@ -1,7 +1,7 @@
 ---
 id: 026
 title: Spanish flashcards on the in-game computer (stretch)
-status: in-progress
+status: review
 owner: marc + claude
 depends_on: [021, 022, 023]
 ---
@@ -175,3 +175,4 @@ The app is "Mil Palabras" (palabras.mcord.dev): PureScript, Netlify, spaced repe
   - **Earlier behaviour: pass.** The whole suite incl. the golden frame test and stage 1 to 3 tests passes unchanged except `mumble.test.ts`/`fake-host.ts` adapting to the new callback shape; the real-backend path and key flow are not touched; scope is flashcards, config, activity/host/events, sound feature, docs, tests and this file; PLAN.md untouched.
   - **Checklist for the author:** (a) make `speak()` fall back to the spelling voice when `ipaScript(card.ipa)` is empty (and add a test with `ipa: "ˈ"` and `ipa: "ʔʔ"`), or change the docs sentence.
   - **Unverified, not passing:** how it actually sounds in a browser (every pitch, length, gain and the noise filter frequencies are guesses; whether `voiceVowel` reads as a vowel and `voiceHiss` as an s; whether stress is audible); real Web Audio scheduling.
+- 2026-10-26: **IPA voice review round 1 changes worked.** Fixed: a card whose transcription gives no sounds (only unknown symbols, marks or slashes) now falls back to the spelling voice instead of staying silent, with a test over five such inputs. Left as the reviewer noted: stress is mostly length and loudness (a stressed `o` still sits lower than an unstressed `e`, which may blur stress by ear; tune `FLASHCARDS.voice.stress.pitch` or the vowel pitches), input past 40 phonemes is cut silently, and `gain` on voice events is not used yet. Still unchecked: how it sounds.

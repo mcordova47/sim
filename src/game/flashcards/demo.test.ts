@@ -6,7 +6,7 @@ import { FlashcardsActivity } from "../activities/flashcards";
 import { fakeHost } from "../activities/fake-host";
 import { wrapText } from "../dialog";
 import { wantsDemo } from "./backend";
-import { DEMO_CARDS, demoBackend } from "./demo";
+import { DEMO_CARDS, DemoSession, demoBackend } from "./demo";
 import { FLASHCARDS as F } from "../config";
 import { StudyStore } from "./key";
 
@@ -81,5 +81,18 @@ describe("the practice deck", () => {
     // Shift+V does nothing.
     a.update(1 / 60, { ...NO_INPUT, keys: ["KeyV"], keysDown: ["ShiftLeft", "KeyV"] });
     expect(a.ipaVoice).toBe(false);
+  });
+
+  it("falls back to the spelling voice when the transcription gives no sounds", async () => {
+    for (const ipa of ["", "ʔʔ", "ˈ", "/ /", "🙂"]) {
+      const f = fakeHost();
+      const clipboard = { copy: async () => true, read: async () => null, onPaste: () => () => {} };
+      const backend = { paysPoints: false, usesKey: false, open: async () => new DemoSession([{ slug: "a", prompt: "perro", answer: "dog", spoken: "perro", ipa, speaks: "front" }]) };
+      const a = new FlashcardsActivity(f.host, backend, new StudyStore(new FakeStorage()), clipboard);
+      a.start();
+      await new Promise((r) => setTimeout(r, 0));
+      for (let i = 0; i < 120; i++) a.update(1 / 60, NO_INPUT);
+      expect(f.voices.map((v) => v.effect), JSON.stringify(ipa)).toEqual(["mumble", "mumble", "mumble", "mumble", "mumble"]);
+    }
   });
 });

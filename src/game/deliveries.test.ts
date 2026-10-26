@@ -12,9 +12,8 @@ import { DEV_CHECKPOINTS, CHECKPOINTS } from "./delivery-checkpoints";
 import { Deliveries, parseDeliveries, type Milestone } from "./deliveries";
 import { say } from "./dialog";
 import { Game } from "./game";
-import { taskSpots } from "./plan-checks";
+import { reachablePlaces, taskSpots } from "./plan-checks";
 import { STATE_VARS } from "./state-vars";
-import { Grid } from "./grid";
 import { TILE } from "./config";
 
 // Issue 062 stage 3a: the delivery queue, the box by the door, the checkpoints.
@@ -399,12 +398,112 @@ describe("the package by the door", () => {
     expect(game.decor.owns(BARN) && game.decor.owns(PLANT)).toBe(true);
   });
 
-  it("is on a tile that is walkable, so it never blocks the apartment", () => {
-    const room = APARTMENT.rooms.main;
-    const task = room.interactables.find((i) => i.id === "collect-delivery")!;
-    const grid = new Grid(room.size, room.solids);
-    for (const z of task.zones) expect(grid.isBlocked(z.x / TILE, z.y / TILE)).toBe(false);
-    expect(task.delivery).toBe(true);
+  const room = () => APARTMENT.rooms.main;
+  const spot = () => {
+    const z = room().interactables.find((i) => i.id === "collect-delivery")!.zones[0];
+    return { col: z.x / TILE, row: z.y / TILE };
+  };
+  const hold = (dir: "up" | "down" | "left" | "right"): Controls => ({ ...NO_INPUT, dir, dirPressed: dir });
+  const walk = (game: Game, c: Controls, seconds = 1) => {
+    for (let t = 0; t < seconds; t += 1 / 60) game.update(1 / 60, c);
+  };
+
+  it("is floor you can walk on until a package waits, and a solid box while one does", () => {
+    const { game } = newGame();
+    const { col, row } = spot();
+    game.player.placeAt(col + 1, row, "left");
+    game.update(1 / 60, NO_INPUT);
+    walk(game, hold("left"), 0.6); // nothing waits: walk onto it
+    expect(game.player.col).toBe(col);
+    game.player.placeAt(col + 1, row, "left");
+    game.deliveries.deliver(BARN, 0);
+    game.update(1 / 60, NO_INPUT);
+    expect(game.state.get("parcel")).toBe(1);
+    walk(game, hold("left"), 1); // the box blocks it
+    expect(game.player.col).toBe(col + 1);
+    expect(game.interaction.nearby?.id).toBe("collect-delivery");
+    game.update(1 / 60, press);
+    walk(game, NO_INPUT, 0.2);
+    expect(game.decor.owns(BARN)).toBe(true);
+    walk(game, hold("left"), 0.6); // collected: the tile is open again
+    expect(game.player.col).toBe(col);
+  });
+
+  it("collects with E from each open neighbour, and a walking player cannot enter it", () => {
+    const { col, row } = spot();
+    const sides: [number, number, "left" | "right" | "up" | "down"][] = [
+      [col + 1, row, "left"],
+      [col, row - 1, "down"],
+    ];
+    for (const [c, r, face] of sides) {
+      const { game } = newGame();
+      game.deliveries.deliver(BARN, 0);
+      game.update(1 / 60, NO_INPUT);
+      game.player.placeAt(c, r, face);
+      game.update(1 / 60, NO_INPUT);
+      expect(game.interaction.nearby?.id, `${c},${r}`).toBe("collect-delivery");
+      game.update(1 / 60, press);
+      walk(game, NO_INPUT, 0.2);
+      expect(game.decor.owns(BARN), `${c},${r}`).toBe(true);
+    }
+    // Walking straight at it from further away stops beside it.
+    const { game } = newGame();
+    game.deliveries.deliver(BARN, 0);
+    game.update(1 / 60, NO_INPUT);
+    game.player.placeAt(col + 3, row, "left");
+    walk(game, hold("left"), 3);
+    expect(game.player.col).toBe(col + 1);
+  });
+
+  it("is not a trap: with a package waiting every walkable tile of the room is still reachable and the other tile by the door is open", () => {
+    const main = room();
+    const { col, row } = spot();
+    const places = (solids: typeof main.solids) => {
+      const lvl = { ...main, solids };
+      const start = { room: "main", col: 5, row: 4 };
+      return reachablePlaces({ ...APARTMENT.rooms, main: lvl }, start);
+    };
+    const withBox = places(main.solids); // the box solid is in the static list, blocked while a package waits
+    const free = places(main.solids.filter((x) => !x.blockedWhen));
+    expect(withBox.has(`main,${col + 1},${row}`)).toBe(true);
+    expect(withBox.has(`main,${col},${row}`)).toBe(false);
+    expect(free.has(`main,${col},${row}`)).toBe(true);
+    // Everything but the box tile can be reached in both states.
+    for (const k of free.keys()) if (k !== `main,${col},${row}`) expect(withBox.has(k), k).toBe(true);
+    // Every task keeps a stand spot that can be reached while the box is there.
+    for (const t of main.interactables) {
+      const spots = taskSpots({ ...main, solids: main.solids }).filter((sp) => sp.id === t.id);
+      expect(spots.some((sp) => withBox.has(`main,${sp.stand.col},${sp.stand.row}`)), t.id).toBe(true);
+    }
+  });
+
+  it("holds a package back while the player stands on its tile, then lets it arrive when they step off", () => {
+    const { game } = newGame();
+    const { col, row } = spot();
+    game.player.placeAt(col, row, "right");
+    game.update(1 / 60, NO_INPUT);
+    game.deliveries.deliver(BARN, 0);
+    walk(game, NO_INPUT, 1);
+    expect(game.deliveries.waiting).toBe(false);
+    expect(game.state.get("parcel")).toBe(0);
+    expect(game.deliveries.pendingItems.map((p) => p.id)).toEqual([BARN]);
+    walk(game, hold("right"), 0.6);
+    walk(game, NO_INPUT, 0.2);
+    expect(game.player.col).toBeGreaterThan(col);
+    expect(game.deliveries.waitingItems).toEqual([BARN]);
+    expect(game.state.get("parcel")).toBe(1);
+  });
+
+  it("holds a package back while the player is stepping onto its tile", () => {
+    const { game } = newGame();
+    const { col, row } = spot();
+    game.player.placeAt(col + 1, row, "left");
+    game.update(1 / 60, NO_INPUT);
+    game.player.update(0.01, hold("left"), (game as never as { grid: never }).grid);
+    expect(game.player.stepping).toBe(true);
+    expect(game.player.occupies(col, row)).toBe(true);
+    game.deliveries.deliver(BARN, 0);
+    expect(game.deliveries.waiting).toBe(false);
   });
 
   it("the parcel state variable exists and starts at 0", () => {

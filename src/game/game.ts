@@ -140,6 +140,7 @@ export class Game {
     this.state.onChange = (change) => this.stateChanged(change);
     // Sleeping and napping skip hours, and a delivery due in that time arrives when you wake.
     this.state.onClockSkip = (hours) => this.deliveries.advance(hours);
+    this.deliveries.canArrive = () => !this.onPackageSpot();
     this.deliveries.onArrive = () => this.say("A PACKAGE HAS ARRIVED.");
     this.player = new Player(level.spawn.x, level.spawn.y, level.facing);
     this.camera = new Camera(level.size, VIEW);
@@ -282,6 +283,15 @@ export class Game {
   // The solids that block right now: those with no condition, or whose condition holds.
   private activeSolids(level: Level = this.level): Solid[] {
     return level.solids.filter((s) => !s.blockedWhen || this.state.matchesAll(s.blockedWhen));
+  }
+
+  // True if the player is on (or stepping onto) the tile where the package box goes.
+  private onPackageSpot(): boolean {
+    for (const item of this.level.interactables) {
+      if (!item.delivery) continue;
+      if (item.zones.some((z) => this.player.occupies(z.x / TILE, z.y / TILE))) return true;
+    }
+    return false;
   }
 
   // One plain line over the player.

@@ -96,11 +96,13 @@ const MAIN: Record<string, ObjectDef> = {
   q: { name: "painting over the desk", sprite: "painting-desk", color: "paper", slot: "art-desk" },
   u: { name: "painting over the nightstand", sprite: "painting-wide", color: "paper", slot: "art-bed" },
   // The package spot (issue 062 stage 3a): the floor in front of the front door.
-  // Walkable, so it never blocks the room. The box is drawn, and the task offered,
-  // only while a package waits (the `parcel` state follows the delivery queue).
+  // Plain floor until a package waits (the `parcel` state follows the delivery
+  // queue); then a box is drawn here, it blocks the tile (you face it from the
+  // next tile and press E) and the task is offered. The other tile in front of
+  // the door stays open, so nothing is closed off.
   x: {
     name: "package by the door",
-    solid: false,
+    blockedWhen: [{ var: "parcel", min: 1 }],
     color: "tangerine",
     tasks: ["collect-delivery"],
     variants: [{ sprite: "delivery-box", when: [{ var: "parcel", min: 1 }], label: "PACKAGE", color: "tangerine" }],

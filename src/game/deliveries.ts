@@ -84,6 +84,9 @@ export class Deliveries {
   onChange?: () => void;
   // Told when packages arrive, with the item ids (for the one plain line).
   onArrive?: (ids: string[]) => void;
+  // Asked before a package arrives; false holds it back (still queued) until it is true.
+  // The game uses it so a box never appears on the tile the player is standing on.
+  canArrive?: () => boolean;
   // The checkpoints in use. The production list is empty (real items need art).
   milestones: readonly Milestone[] = CHECKPOINTS;
 
@@ -136,7 +139,7 @@ export class Deliveries {
 
   private arrive(): boolean {
     const now: string[] = [];
-    while (this.pending.length > 0 && this.pending[0].at <= this.total) now.push(this.pending.shift()!.id);
+    while (this.pending.length > 0 && this.pending[0].at <= this.total && (this.canArrive?.() ?? true)) now.push(this.pending.shift()!.id);
     if (now.length === 0) return false;
     this.waitingIds.push(...now);
     this.onArrive?.(now);

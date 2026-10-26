@@ -74,6 +74,7 @@ export class FlashcardsActivity extends BaseActivity {
   start(): void {
     this.store.clock = () => this.host.gameMinutes?.() ?? 0;
     this.unlisten = this.clipboard.onPaste((text) => this.paste(text));
+    if (this.backend.usesKey === false) return this.connect("");
     const key = this.store.key();
     if (key) this.connect(key);
     else this.phase = "key";
@@ -102,7 +103,7 @@ export class FlashcardsActivity extends BaseActivity {
       this.phase = "key";
       return;
     }
-    this.store.saveKey(key);
+    if (this.backend.usesKey !== false) this.store.saveKey(key);
     this.session = result;
     this.queue = result.queue();
     this.index = 0;

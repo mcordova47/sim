@@ -12,9 +12,24 @@ function origin(): string {
   return fromBuild || F.origin;
 }
 
-// The backend the game studies against (config `FLASHCARDS.backend`).
-export function studyBackend(): StudyBackend {
-  if (F.backend === "demo") return demoBackend;
+// The practice deck is asked for with `?flashcards=demo` in a dev build (never
+// in a production build), so a different backend needs no edit to the config.
+export function wantsDemo(search: string, dev: boolean): boolean {
+  return dev && new URLSearchParams(search).get("flashcards") === "demo";
+}
+
+function currentSearch(): string {
+  try {
+    return typeof location === "undefined" ? "" : location.search;
+  } catch {
+    return "";
+  }
+}
+
+// The backend the game studies against: the practice deck when asked for, else
+// the one in the config (`FLASHCARDS.backend`).
+export function studyBackend(search: string = currentSearch(), dev: boolean = import.meta.env.DEV): StudyBackend {
+  if (F.backend === "demo" || wantsDemo(search, dev)) return demoBackend;
   return realBackend({
     origin: origin(),
     core: () => {

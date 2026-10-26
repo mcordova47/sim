@@ -37,5 +37,8 @@ export type OpenResult = StudySession | "bad-key" | "offline" | "unreadable";
 export interface StudyBackend {
   // Whether delivered answers earn game points (the demo's do not).
   readonly paysPoints: boolean;
+  // False for a backend with no account (the practice deck): the key screen is
+  // skipped and no key is remembered. Default true.
+  readonly usesKey?: boolean;
   open(key: string): Promise<OpenResult>;
 }

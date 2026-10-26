@@ -28,6 +28,9 @@ export const SCENARIOS: Scenario[] = [
   { name: "plant-wilted", vars: { plantStage: 2, plantDry: 120 }, at: [9, 4] },
   { name: "night", vars: { clock: 22 }, at: [8, 5] },
   { name: "dusk-blinds", vars: { clock: 19.5, blinds: 1, bedMade: 1, dishes: 5 }, at: [11, 6] },
+  { name: "mug-carried", vars: { mug: 1, clock: 9 }, at: [2, 3] },
+  { name: "plate", vars: { plate: 1, clock: 19 }, at: [2, 3] },
+  { name: "blinds-closed-day", vars: { clock: 12, blinds: 0 }, at: [17, 4] },
   { name: "morning", vars: { clock: 6.5, mood: 90, energy: 20 }, at: [3, 3] },
 ];
 

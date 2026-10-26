@@ -39,6 +39,11 @@ A solid can also be conditional with `blockedWhen` (a pile in the way); the grid
 ## Typos fail when the level is built
 `validateLevel` (run by `parseTileMap` and by `Game` for every room it loads) checks every variable name used by a task's `requires`, `effects` and `pointsBonus`, a cutscene's `set` steps, a variant's `when` and a solid's `blockedWhen`. A room meant for a game with its own variables passes `knownVars` in the `parseTileMap` options (and the `Game` checks against its own state). The error names the room and the task or object, for example `main: task "dishes" effects uses the unknown state variable "dishs"`. So a typo in the task list stops the game at load and in the tests, not when the task is first used.
 
+## Variables added later
+- `blinds` (0 closed, 1 open): both east windows follow it (issue 065).
+- `plate` (0 or 1, issue 065): a dinner plate is out on the dining table. Reheat leftovers and Cook dinner set it to 1, Eat dinner sets it to 0, sleeping leaves it. Eating dinner does not require it. The table's variant list picks `table-plate` or `table` from it.
+- `mug` also controls the `coffee mug` prop on the table (a prop with a `when` rule, `mug` max 0; slot id `prop-table`, not registered for swapping): it shows while the mug rests on the table and hides while a full mug is carried or waiting.
+
 ## Decor is not state
 The package by the front door follows the delivery queue through the derived variable `parcel` (0 or 1, set by the game each frame, never by a task; `docs/decor.md`, stage 3a). Sleeping and napping move the clock by an effect, and `State.onClockSkip` tells the delivery queue how many hours were skipped.
 

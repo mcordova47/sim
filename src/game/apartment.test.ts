@@ -189,11 +189,12 @@ describe("furniture", () => {
     expect(new Set(three).size).toBe(3);
   });
 
-  it("uses the wide painting over the nightstand and the plain window above the blinds", () => {
+  it("uses the wide painting over the nightstand and blinds on both east windows", () => {
     const sprite = (name: string) => rooms.main.pieces.find((p) => p.name === name)?.sprite;
     expect(sprite("painting over the nightstand")).toBe("painting-wide");
-    expect(sprite("window")).toBe("window");
-    expect(sprite("window and blinds")).toBe("window-blinds");
+    // Issue 065: both east windows have blinds now; the plain `window` sprite is kept for later.
+    expect(sprite("window")).toBeUndefined();
+    expect(rooms.main.pieces.filter((p) => p.name === "window and blinds").map((p) => p.sprite)).toEqual(["window-blinds", "window-blinds"]);
   });
 
   it("places the mic stand, the 1x1 guitar and the 1x3 radiator (issues 044, 056)", () => {

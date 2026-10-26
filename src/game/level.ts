@@ -50,6 +50,8 @@ export interface Prop {
   // Used when no variant applies.
   sprite?: string;
   variants?: Variant[];
+  // Drawn only while all of these hold.
+  when?: Check[];
   color?: keyof typeof COLOR;
 }
 
@@ -153,6 +155,7 @@ export function validateStateNames(level: Level, known: (id: string) => boolean)
     for (const v of variants) checks(`variant "${v.sprite}"`, v.when);
   }
   for (const prop of level.props ?? []) {
+    checks(`prop "${prop.slot}" when`, prop.when);
     for (const v of prop.variants ?? []) checks(`prop "${prop.slot}" variant "${v.sprite}"`, v.when);
   }
   for (const s of level.solids) checks(`a solid at x ${s.x}, y ${s.y} blockedWhen`, s.blockedWhen);

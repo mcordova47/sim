@@ -204,9 +204,9 @@ const STATE_RULES: Record<string, Partial<Task>> = {
       ],
     },
   },
-  reheat: { requires: [NO_CLEAN_PLATES], effects: [dirty(1), { var: "energy", add: 8 }, { var: "mood", add: 2 }] },
-  "eat-dinner": { requires: [NO_CLEAN_PLATES], effects: [dirty(2), { var: "energy", add: 15 }, { var: "mood", add: 6 }] },
-  cook: { requires: [NO_CLEAN_PLATES], effects: [dirty(2), { var: "energy", add: 5 }, { var: "mood", add: 4 }] },
+  reheat: { requires: [NO_CLEAN_PLATES], effects: [dirty(1), { var: "plate", set: 1 }, { var: "energy", add: 8 }, { var: "mood", add: 2 }] },
+  "eat-dinner": { requires: [NO_CLEAN_PLATES], effects: [dirty(2), { var: "plate", set: 0 }, { var: "energy", add: 15 }, { var: "mood", add: 6 }] },
+  cook: { requires: [NO_CLEAN_PLATES], effects: [dirty(2), { var: "plate", set: 1 }, { var: "energy", add: 5 }, { var: "mood", add: 4 }] },
   // Mash keys to type. How fast it goes decides how well the work went. What
   // is typed depends on where: emails at the desk, code on the couch, a bit of
   // both in bed.

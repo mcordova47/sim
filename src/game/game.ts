@@ -653,6 +653,7 @@ export class Game {
 
     // Props sit on top of their piece: drawn with it, in front of it.
     for (const prop of level.props ?? []) {
+      if (prop.when && !this.state.matchesAll(prop.when)) continue;
       const variant = this.decor.hasSlot(prop.slot)
         ? this.decor.look(prop.slot, this.state)
         : pickVariant(prop.variants ?? [], this.state);

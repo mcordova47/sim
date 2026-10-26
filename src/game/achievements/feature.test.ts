@@ -129,6 +129,16 @@ describe("AchievementsFeature", () => {
     expect(second.game.player.col).toBe(APARTMENT.rooms.kitchen.spawn.x / TILE);
   });
 
+  it("saves the dinner plate, and an old save without it starts with no plate (issue 065)", () => {
+    const first = setup();
+    first.game.state.applyEffects([{ var: "plate", set: 1 }]);
+    first.feature.save();
+    expect(setup(first.storage).game.state.get("plate")).toBe(1);
+    const old = new FakeStorage();
+    old.setItem(KEY, JSON.stringify({ version: 1, unlocked: [], stats: {}, world: { vars: { dishes: 2 }, room: "main", col: 3, row: 4, facing: "left" } }));
+    expect(setup(old).game.state.get("plate")).toBe(0);
+  });
+
   it("accepts a save from before a variable existed, and ignores unknown or bad ones", () => {
     const storage = new FakeStorage();
     storage.setItem(

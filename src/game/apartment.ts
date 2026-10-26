@@ -60,7 +60,7 @@ const MAIN_PROPS: PropDef[] = [
     name: "coffee mug",
     slot: "prop-table",
     on: "T",
-    at: { x: 38, y: 9 },
+    at: { x: 38, y: 11 },
     size: { w: 16, h: 16 },
     sprite: "mug-table",
     when: [{ var: "mug", max: 0 }],

@@ -1,6 +1,6 @@
 # Eating at the table (issue 034): the player on a stool at the table's south side, seen from behind (the table is on the north wall), head and shoulders over the table's front edge, a bowl on it. 16x32; draw it at table x 24..39, y 16 (the table's lower row) and the tile south of it.
 size: 16x32
-1111118888888888
+......8888888888
 8888888888888888
 7777777777777777
 7777777777777777

@@ -1,7 +1,7 @@
 ---
 id: 065
 title: Both windows' blinds; the dinner plate only when there is dinner
-status: done
+status: review
 owner: claude
 depends_on: []
 ---
@@ -50,3 +50,8 @@ From Marc's playtest of 062 stage 3a (2026-10-26):
   - **Build/tests/PNGs: pass.** `npm run sprites` leaves git clean, `npm test` 1688 pass, `npm run build` passes.
   - **Merge into current main (throwaway clone of main at 1765f10, `git merge --no-commit --no-ff`, aborted, real main untouched): NO conflicts.** apartment.ts, game.ts, tasks.ts, state-vars.ts and docs/state.md auto-merged; main's 062 stage 3a left the golden JSON alone and main-room hashes unaffected. On the merged tree `tsc --noEmit` is clean and `npm test` passes 78 files, 1729 tests, including the golden. So the expected conflict and the re-record are not needed; the planner should still rerun the golden test after merging.
   - **Findings, ranked:** (1, low) mug butts against the kettle foot, see above. (2, low) pose artifact: when eating or drinking coffee with `plate` 0 (drink-coffee always, eat-dinner without a plate) the `eat-table` pose draws a short dark dash (about 6 px, table y 16) on the bare wood where the pose's bowl edge was meant to meet the plate; invisible with the plate out. Pre-existing pose art, now visible because the table is bare by default. (3, nit) README golden paragraph still says "nine states" (now 12). (4, nit) the prop's slot id `prop-table` is unused; harmless. Scope and privacy clean (no PLAN.md or other issue edits, nothing from reference-photos).
+- 2026-10-26 (two fixes after Marc's look at the reviewed branch):
+  - **Mug crowded the kettle:** the mug prop moved 2 px down (`at` y 9 to 11), so it now sits at table x 42..49, y 15..20 with a clear 2 px gap under the kettle foot, about 1 to 2 px from the dripper foot, and still clear of the plate and of the eat-table pose (x 24..39). Its bottom overlaps the table's front lip a little, like a mug at the table edge.
+  - **Stray dash:** the dash was the first row of `player-eat-table` (ink pixels at x 0..5, drawn at table y 16), which the plate's own bottom outline used to hide. Those six pixels are now transparent in `art/src/player-eat-table.sprite`, so the pose no longer draws on bare wood; with the plate out, the plate's own outline shows in exactly the same pixels, so that frame looks the same. The rest of the pose is unchanged. Checked by drawing the pose over `table` and `table-plate` at 8x.
+  - README golden paragraph (and the same phrase in `docs/decor.md`) no longer gives a number of states.
+  - Golden re-recorded: only the mug's position (and the pose sprite's pixels, which the headless log lists only by name) changed. Rendered the room at 1x and 4x with plate 0/1 and mug 0/1 and looked. `npm test` (1688), `npm run sprites` and `npm run build` pass. These two fixes have not been independently reviewed.

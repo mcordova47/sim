@@ -1,7 +1,7 @@
 ---
 id: 065
 title: Both windows' blinds; the dinner plate only when there is dinner
-status: review
+status: done
 owner: claude
 depends_on: []
 ---
@@ -28,3 +28,13 @@ From Marc's playtest of 062 stage 3a (2026-10-26):
   - **Checks:** rendered main room at 1x and 4x, plate on and off x blinds open and closed, day (clock 12) and `?hour=23`, all 16, and looked at them (both windows follow the blinds in the game at the right edge, and in the mockup `art/main-room-mockup*.png`, which is gitignored); plate and mug read on the table. `npm run sprites`, `npm test` (1684 pass) and `npm run build` pass.
   - **Tests:** `src/game/blinds-and-plate.test.ts` (both windows reachable, each offers the right task, either changes both, variants; plate rules, eat without plate, sleep, table variants), a save round trip and old-save case in `achievements/feature.test.ts`, `apartment.test.ts` updated for the windows. Docs: `docs/tasks.md`, `docs/state.md`, `docs/floor-plan.md`.
   - **Not checked:** how it feels in a play session (the table's eat pose with a plate in a real run was checked only by compositing the sprites). Expect conflicts with issue 062 stage 3a in `apartment.ts` and `golden/main-room-frames.json` at merge (re-record the golden after merging).
+
+- 2026-10-26: **Review** (independent, fresh agent). Verdict: **approve** (status done). Not verified: how it feels in a live play session in a browser (unverified, not passing).
+  - **Blinds: pass.** `w` and `W` share one `WINDOW_BLINDS` object (`apartment.ts`); the plain `window` sprite file stays. Own check (scratch vitest outside the repo): 3 window tiles have spots (18,4 from the west at row 4; 18,6 and 18,7), all 6 spots reachable from spawn via `reachablePlaces`; at every spot, in both blinds states, the offered task is exactly `open-blinds` (closed) or `close-blinds` (open). Ten alternating toggles from the upper and lower windows never desynced, and both windows' variants matched `blinds` every time. The top tile (18,3) has no spot (radiator to its west), as the log says. Lighting: `roomWashes` is untouched and reads `blinds`; closed adds a dim by day and none with full lamps (night), checked.
+  - **Plate state: pass.** `plate` is 0/1, initial 0; `reheat` and `cook` set 1, `eat-dinner` sets 0, `sleep` leaves it (ran a real sleep with plate 1: still 1). Cook run for real in the kitchen: plate 1. Repeated sets and `add: 5` stay clamped at 1. Only those three tasks touch it. `eat-dinner` still has no plate requirement (the log says so). Save round trip and an old save without `plate` give 0 (author's test, read and run).
+  - **Table variants and art: pass.** `table-plate.sprite` body is identical to the old table (diffed, header comment aside); `table.sprite` has bare wood and a small tangerine mug at x41..46, outside the pose's x24..39. I composited both tables with and without `player-eat-table` at 4x (and 1x scale content is the same pixels): no clash, both read as a table. Nit: the mug is only a few pixels and reads weakly as a mug at 1x; not a failure.
+  - **Docs and tests: pass.** `docs/tasks.md`, `docs/state.md`, `docs/floor-plan.md`, `state-vars.ts` updated. New tests are meaningful, apart from the "sleeping does not clear it" test, which only inspects task data and does not run sleep (my own run covers it). `npm run sprites`, `npm test` (77 files, 1684 tests) and `npm run build` pass; `git status` clean after `npm run sprites` (rendered PNGs match the committed ones).
+  - **Golden frames: pass.** The change is in table and window draw calls only, plus two new scenarios (`plate`, `blinds-closed-day`); the reason is recorded in the log.
+  - **Headless renders at 1x/4x of the full room:** I did not re-render the full room in a browser; I relied on the golden test, the sprite composites above and the author's renders (I did not view those, they are gitignored). Treat the full-room look as author-verified only.
+  - **Scope and privacy: pass.** Only files named by the issue changed (apartment, tasks, state-vars, main-room-frames, golden, tests, sprites, docs, the mockup script). No `PLAN.md` or other issue edits; nothing from `reference-photos/` copied.
+  - **Minor, no action needed:** README's golden paragraph still says "nine states" (now 11). Expect merge conflicts with 062 stage 3a in `apartment.ts` and the golden JSON; re-record the golden after merging. `PLAN.md` table needs updating by the planner.

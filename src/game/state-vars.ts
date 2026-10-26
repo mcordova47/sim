@@ -10,7 +10,8 @@ export const STATE_VARS: StateVar[] = [
   { id: "energy", initial: 80, min: 0, max: 100, meaning: "How awake you are. Falls with time and work, sleep restores it." },
   { id: "mood", initial: 60, min: 0, max: 100, meaning: "How good you feel. Doomscrolling and work wear it down; music, food, light and art lift it. Drifts back toward the middle." },
   { id: "clock", initial: 8, min: 0, max: 24, wrap: true, meaning: "Time of day in hours since midnight (8.5 is 8:30 AM)." },
-  { id: "blinds", initial: 0, min: 0, max: 1, meaning: "1 if the blinds are open, 0 if closed (the one window that has blinds)." },
+  { id: "blinds", initial: 0, min: 0, max: 1, meaning: "1 if the blinds are open, 0 if closed (both east windows follow it)." },
+  { id: "plate", initial: 0, min: 0, max: 1, meaning: "1 if a dinner plate is out on the dining table (reheating or cooking puts it there, eating dinner clears it), 0 if not." },
   { id: "mug", initial: 0, min: 0, max: 1, meaning: "1 if a full mug of coffee is waiting to be drunk, 0 if not." },
   { id: "outfit", initial: 0, min: 0, max: 3, meaning: "What you are wearing: 0 everyday clothes, 1 casual, 2 out, 3 pajamas (see outfits.ts)." },
   // The snake plant on the bookshelf (issue 063, rules in plant.ts and PLANT in config.ts).

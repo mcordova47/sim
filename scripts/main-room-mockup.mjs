@@ -10,6 +10,9 @@ const src = readFileSync(join(root, "src", "game", "apartment.ts"), "utf8");
 const map = src.match(/const MAIN_MAP = \[([\s\S]*?)\];/)[1].match(/"([^"]*)"/g).map((s) => s.slice(1, -1));
 const defs = src.match(/const MAIN: [^=]*= \{([\s\S]*?)\n\};/)[1];
 const spriteOf = {};
+// Issue 065: `w` and `W` both use the shared WINDOW_BLINDS object.
+const shared = { WINDOW_BLINDS: "window-blinds" };
+for (const m of defs.matchAll(/^\s+(?:"(\w)"|(\w)): (WINDOW_BLINDS),/gm)) spriteOf[m[1] ?? m[2]] = shared[m[3]];
 for (const m of defs.matchAll(/^\s+(?:"(\w)"|(\w)): \{[^{}]*?sprite: "([\w-]+)"/gm)) spriteOf[m[1] ?? m[2]] = m[3];
 
 const load = (name) => {
@@ -58,7 +61,6 @@ for (const bed of ["bed-made", "bed-unmade"]) {
   for (const b of Object.values(boxes)) {
     let name = spriteOf[b.ch];
     if (name === "bed-made") name = bed;
-    if (name === "window-blinds" && b.ch === "w") name = "window";
     // 036: show both blind states, open in the made-bed picture and closed in the unmade one.
     if (name === "window-blinds") name = bed === "bed-made" ? "window-blinds-open" : "window-blinds-closed";
     const img = load(name);

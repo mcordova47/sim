@@ -1,7 +1,7 @@
 ---
 id: 065
 title: Both windows' blinds; the dinner plate only when there is dinner
-status: todo
+status: review
 owner: claude
 depends_on: []
 ---
@@ -18,3 +18,13 @@ From Marc's playtest of 062 stage 3a (2026-10-26):
 - Render the main room headless at 1x and 4x with the plate on and off, and the east wall with blinds open and closed, and look at them. `npm run sprites`, `npm test` and `npm run build` pass.
 
 ## Progress log
+
+- 2026-10-26: started. Plan: share one blinds object between `w` and `W`, add `plate` state and the table variants, two table sprites, tests, docs, re-record the golden.
+- 2026-10-26: done (an interrupted session was resumed from the uncommitted diff; nothing was redone).
+  - **Blinds:** `w` and `W` now use one `WINDOW_BLINDS` object in `apartment.ts` (sprite `window-blinds`, variants `-open`/`-closed` from `blinds`, tasks open and close). Either window changes both. The upper window can only be reached from row 4 (the radiator is west of its top tile); the lower from rows 6 and 7. The plain `window` sprite file stays. `scripts/main-room-mockup.mjs` no longer forces `w` to the plain window. Daylight dimming is unchanged (it reads `blinds`, not a window).
+  - **Plate:** new state `plate` (0/1, initial 0, saved with the other vars; an old save keeps 0). `reheat` and `cook` set 1, `eat-dinner` sets 0. `eat-dinner` still has no plate requirement (it just leaves it at 0). `sleep` has no plate effect. Table variants: `table-plate` when `plate` >= 1, else `table`.
+  - **Art:** `table-plate.sprite` is the old table (palette only, 64x32); `table.sprite` has the plate area (x22..29, y14..16) redrawn as bare wood and a small tangerine mug at the east side (x41..46, y15..17), placed outside x24..39 so the `player-eat-table` pose (which redraws the table's lower row from x24) does not cut it. Looked at both at 8x with the pose drawn over them: no clash.
+  - **Golden re-recorded** (`UPDATE_GOLDEN=1 npm test`): the table no longer draws the plate by default (every scenario with the table changed), both east windows draw the blinds sprite instead of the plain window, and I added two scenarios (`plate`: plate 1 at 19:00; `blinds-closed-day`: closed blinds at noon) so the new looks are guarded. That adds frames to the JSON. Rendered with the dev server in headless Chrome first.
+  - **Checks:** rendered main room at 1x and 4x, plate on and off x blinds open and closed, day (clock 12) and `?hour=23`, all 16, and looked at them (both windows follow the blinds in the game at the right edge, and in the mockup `art/main-room-mockup*.png`, which is gitignored); plate and mug read on the table. `npm run sprites`, `npm test` (1684 pass) and `npm run build` pass.
+  - **Tests:** `src/game/blinds-and-plate.test.ts` (both windows reachable, each offers the right task, either changes both, variants; plate rules, eat without plate, sleep, table variants), a save round trip and old-save case in `achievements/feature.test.ts`, `apartment.test.ts` updated for the windows. Docs: `docs/tasks.md`, `docs/state.md`, `docs/floor-plan.md`.
+  - **Not checked:** how it feels in a play session (the table's eat pose with a plate in a real run was checked only by compositing the sprites). Expect conflicts with issue 062 stage 3a in `apartment.ts` and `golden/main-room-frames.json` at merge (re-record the golden after merging).

@@ -55,8 +55,30 @@ const MAIN_PROPS: PropDef[] = [
   },
 ];
 
+const WINDOW_BLINDS: ObjectDef = {
+  name: "window and blinds",
+  sprite: "window-blinds",
+  color: "mist",
+  tasks: ["open-blinds", "close-blinds"],
+  // Open or closed.
+  variants: [
+    { sprite: "window-blinds-open", when: [{ var: "blinds", min: 1 }], label: "BLINDS OPEN", color: "leaf" },
+    { sprite: "window-blinds-closed", label: "BLINDS CLOSED", color: "mist" },
+  ],
+};
+
 const MAIN: Record<string, ObjectDef> = {
-  T: { name: "dining table", sprite: "table", color: "tangerine", tasks: ["coffee", "drink-coffee", "reheat", "eat-dinner", "swap-art-table"] },
+  T: {
+    name: "dining table",
+    sprite: "table",
+    color: "tangerine",
+    tasks: ["coffee", "drink-coffee", "reheat", "eat-dinner", "swap-art-table"],
+    // The dinner plate is there only after reheating or cooking, until you eat (issue 065).
+    variants: [
+      { sprite: "table-plate", when: [{ var: "plate", min: 1 }], color: "tangerine" },
+      { sprite: "table", color: "tangerine" },
+    ],
+  },
   D: { name: "standing desk", sprite: "desk", color: "butter", tasks: ["work", "side-project-game", "journal", "tidy-desk", "make-track", "study-spanish", "swap-art-desk"] },
   C: { name: "desk chair", sprite: "desk-chair", color: "ink" },
   H: { name: "cube bookshelf", sprite: "bookshelf", color: "butter", tasks: ["water-plant-droop", "water-plant", "check-plant", "sort-records", "sort-records-year", "sort-records-fav", "sort-records-color", "swap-plant-shelf"] },
@@ -73,18 +95,10 @@ const MAIN: Record<string, ObjectDef> = {
     ],
   },
   r: { name: "radiator", sprite: "radiator", color: "paper" },
-  w: { name: "window", sprite: "window", color: "mist" },
-  W: {
-    name: "window and blinds",
-    sprite: "window-blinds",
-    color: "mist",
-    tasks: ["open-blinds", "close-blinds"],
-    // Open or closed.
-    variants: [
-      { sprite: "window-blinds-open", when: [{ var: "blinds", min: 1 }], label: "BLINDS OPEN", color: "leaf" },
-      { sprite: "window-blinds-closed", label: "BLINDS CLOSED", color: "mist" },
-    ],
-  },
+  // Both east windows have blinds and follow the one `blinds` state (issue 065),
+  // so either window's task changes both. The plain `window` sprite stays for later.
+  w: WINDOW_BLINDS,
+  W: WINDOW_BLINDS,
   S: { name: "sofa", sprite: "sofa-td", color: "brick", tasks: ["doomscroll", "contemplate", "work-sofa", "nap", "admire-art"] },
   G: { name: "guitar", sprite: "guitar", color: "tangerine", tasks: ["guitar"] },
   L: { name: "lamp table", sprite: "lamp-table", color: "butter", slot: "lamp-sofa", tasks: ["swap-lamp-sofa"] },

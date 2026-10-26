@@ -39,6 +39,10 @@ A solid can also be conditional with `blockedWhen` (a pile in the way); the grid
 ## Typos fail when the level is built
 `validateLevel` (run by `parseTileMap` and by `Game` for every room it loads) checks every variable name used by a task's `requires`, `effects` and `pointsBonus`, a cutscene's `set` steps, a variant's `when` and a solid's `blockedWhen`. A room meant for a game with its own variables passes `knownVars` in the `parseTileMap` options (and the `Game` checks against its own state). The error names the room and the task or object, for example `main: task "dishes" effects uses the unknown state variable "dishs"`. So a typo in the task list stops the game at load and in the tests, not when the task is first used.
 
+## Variables added later
+- `blinds` (0 closed, 1 open): both east windows follow it (issue 065).
+- `plate` (0 or 1, issue 065): a dinner plate is out on the dining table. Reheat leftovers and Cook dinner set it to 1, Eat dinner sets it to 0, sleeping leaves it. Eating dinner does not require it. The table's variant list picks `table-plate` or `table` from it.
+
 ## Decor is not state
 Which painting, plant or lamp is in a slot is kept in the decor store (`game.decor`, issue 062, `docs/decor.md`), not in state variables: it is a list of ids, not numbers. The plant's growth and dryness stay state variables (`plantStage`, `plantDry`); the decor slot says which sprites they choose between.
 

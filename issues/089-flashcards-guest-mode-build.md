@@ -93,3 +93,26 @@ Verdict: approve. `PLAN.md` needs the planner to update the table for 089.
 - K on the done screen no longer forgets anything. A key holder's K opens the key screen and the saved key stays until a new one is accepted (saving it replaces the old one); Escape leaves everything as it was. A guest's K likewise changes no mode until a key is accepted (`saveKey` clears the mode). A refused key forgets the saved key only if it is the saved key (a refused different key leaves it).
 - A guest's answer that the core could not record now says "That answer was not saved." (no "no connection").
 - Tests added that fail on the old behaviour (K then Escape left no key in storage): K keeps the key; a refused different key keeps it and an accepted one replaces it; guest K changes nothing; the guest failure text. Step 3 of "How Marc tries it" rewritten.
+
+### 2026-10-27 (claude, independent review of HEAD 334fbb9, fresh): approve
+Read the whole issue diff and `git show HEAD` and wrote my own edge-case tests outside the repo (15 tests against the real activity, store, guest backend and key path, using a spy storage). 14 pass; the one that failed was my own mistake (it expected cards still due on a second visit after I had answered all three, and the app correctly showed the done page with `guest` true). Re-ran `npm test` (109 files, 2572 tests), `npx tsc --noEmit` and `npm run build`: pass. No art or map change, so goldens are untouched. Worktree was clean before this entry.
+
+**The latest commit, checked case by case.**
+- Key holder, done screen, K: the key screen opens and the stored record is byte-identical; Escape leaves the key, the record and the guest blob unchanged. Pass.
+- Key holder, K, a different key refused: the saved key stays (memory and storage). Same key (the saved one) refused: forgotten. A saved key refused at open: forgotten, guest blob kept. Pass.
+- Key holder, K, a different key accepted: it replaces the key, mode is cleared, the guest blob is untouched. Pass.
+- Guest with no key, K: no mode or key change; a refused key then Escape leaves mode `guest`, no key, blob intact, and the next visit is a guest again. Pass.
+- Guest with a saved key plus mode guest: K reconnects with the saved key; a refused saved key is forgotten (as it should be), mode and blob stay; with the key backend offline the problem screen shows and the key and mode are both still saved. Pass.
+- Key holder, G then answers then K: key kept the whole way, mode `guest` while in guest, the blob only changes through answers, K returns to the key path and clears the mode only after the key is accepted. Pass.
+- K and G are read only on the done screen (nothing on front or back); typing `g`, `k` on the key screen types letters and does not switch. Pass.
+- A guest's unrecorded answer (the core throws on `grade`) reads exactly "That answer was not saved." and writes nothing; the key holder's wording is unchanged ("No connection. That answer was not saved."). Both strings fit the 248 px box. Pass.
+- Store: a failed write on `saveKey` does not throw and the key stays in memory. Pass.
+No path found in the K, G, key screen or choice screen flows that deletes the saved key or the guest blob, other than: a refused saved key (intended), Start again with its confirm, and the game's reset (intended).
+
+**Whole-issue criteria.** Unchanged from the earlier review and still holding: tests for each listed behaviour (author's plus mine), `npm test`, `tsc` and build pass, goldens unchanged, bundle has no dev shortcut or personal data and the only new network path is the existing core load. "Keep it small" simplifications still match Marc's rule. The earlier note about K deleting a key holder's saved key and the misleading "No connection" wording for a guest are both resolved by HEAD. Scope: only the issue file, `flashcards.ts` and its test changed in HEAD; PLAN.md untouched.
+
+**Minor, not blocking.** G from a key holder sets mode `guest` before the guest cards open; if they turn out unreadable and the player leaves, the next visit opens as a guest (key still saved, K gets back). Nothing is lost.
+
+**Unverified.** How any screen looks in a browser (layout checked by arithmetic only); real blocked storage in a browser (only fakes that throw); sound; the real `core.v1.js` (all tests use stand-in cores, so `session(null)`, the real `grade` round trip and how it refuses a damaged blob are untested here); Marc's own try with no key.
+
+Verdict: approve. `status: done`. `PLAN.md` needs the planner to update the table for 089.

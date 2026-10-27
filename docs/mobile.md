@@ -125,37 +125,38 @@ The idea: the page is a generic handheld console of our own, seen from the front
 **2.5.1 Layout at real sizes (CSS px, standalone web app, DPR 3).**
 
 ```
-iPhone 14, 390 x 844 phone; below, y runs over the full 844 and 763 is what is left after the insets (47 + 34). Screen scale 3 dev = 1.0 css.
+iPhone 14, 390 x 844 phone. The shell body is painted behind the notch and the home indicator,
+but everything below sits inside the usable area, 390 x 763 (844 - 47 - 34). y starts at the top
+of the usable area. Screen scale 3 dev = 1.0 css.
 x: 0         35                      355        390
 y=0   +-----------------------------------------+
-      |  (notch area: shell body colour, 47 px)  |
-y=47  |  LIFE                       (power LED)  |  label strip, 18 px
-y=65  | +-------------------------------------+ |
+      |  LIFE                       (power LED)  |  label strip, 18 px
+y=18  | +-------------------------------------+ |
       | |  bezel 12 px                        | |  window frame 344 x 216 (x 23..367)
-y=77  | |  ###############################    | |
+y=30  | |  ###############################    | |
       | |  # GAME SCREEN 320 x 192 css   #    | |  the picture, crisp 1.0x
-      | |  ###############################    | |  (x 35..355, y 77..269)
-y=269 | |  bezel 12 px                        | |
-y=281 | +-------------------------------------+ |
-y=289 |   +-------------------------------+     |  status panel 320 x 56, a second small
+      | |  ###############################    | |  (x 35..355, y 30..222)
+y=222 | |  bezel 12 px                        | |
+y=234 | +-------------------------------------+ |
+y=242 |   +-------------------------------+     |  status panel 320 x 56, a second small
       |   | ENERGY ##### MOOD ##   09:40  |     |  "screen" (issue 048 decides what is here)
-y=345 |   +-------------------------------+     |
-      |                                         |
-y=380 |    [  ^  ]                       (A)    |  d-pad: 150 x 150 centred at (105, 455)
-      |  [ < ][ > ]                              |  A: 68 px at (322, 420)  = E
-      |    [  v  ]                  (B)         |  B: 68 px at (252, 475)  = ESC
-y=530 |                                         |  (A upper right, B lower left of it,
+y=298 |   +-------------------------------+     |
+y=345 |    [  ^  ]                    (A)       |  d-pad 150 x 150, x 30..180, y 345..495
+      |  [ < ][ > ]                             |  A: 68 px, x 290..358, y 361..429 = E
+y=418 |    [  v  ]           (B)                |  B: 64 px, x 206..270, y 418..482 = ESC
+y=495 |                                         |  (A upper right, B lower left of it,
       |                                         |   the diagonal that thumbs find easily)
-y=590 |    [CHOICE]   [LIST]   [SOUND]          |  pills 88 x 44: Tab, L, M
-y=650 |            \\\\\\\ grille (CSS)    |  decoration, 6 slots, 44 px tall
-y=729 |  (home indicator safe area, 34 px)       |
-y=763 +-----------------------------------------+
+y=520 |  [CHOICE]    [LIST]    [SOUND]          |  pills 88 x 44 at x 30, 151, 272: Tab, L, M
+y=564 |                                         |
+y=600 |            \\\\ grille (CSS)          |  decoration, 90 px tall, dropped first
+y=690 |                                         |
+y=763 +-----------------------------------------+  (the home indicator inset lies below this line)
 ```
-Widths on the 390 phone: the d-pad spans x 30..180 (150 px), B x 206..270 and A x 290..358 (64 and 68 px, a 20 px gap between them, 3 mm). The diagram's A and B coordinates are those. All tap targets are at least 44 x 44 CSS px (7 mm), the main ones 64 to 72 (10 to 11 mm), section 3.
+The 390 phone's numbers are the diagram's: the d-pad spans x 30..180 (150 px), B x 206..270 and A x 290..358 (64 and 68 px, a 20 px gap between them, 3 mm); the buttons are staggered (A higher than B) as on a handheld. All tap targets are at least 44 x 44 CSS px (7 mm), the main ones 64 to 72 (10 to 11 mm), section 3.
 
 **Pro Max, 430 x 932 (usable 430 x 839), scale 4 dev = 1.33 css: screen 427 x 256, bezel only 1.5 px at the sides.** The side bezel is whatever the phone gives (full-bleed), the frame is drawn above and below only; the rule is "largest crisp scale, the frame takes what is left" (a fixed minimum bezel of 4 px would force the 430 phone back down to 1.0x, which is worse). Controls start at y about 400 and everything has 40 px more air.
 
-**Small or short viewports** (SE 375 x 553, Safari with bars 390 x 664): the shell drops things in this order until it fits: the speaker grille, the label strip, the status strip (the in-canvas HUD is then the only HUD, as on desktop), then shrinks the controls down to 48 px targets. The screen itself is never shrunk below 1x. Minimum usable height (already inside the safe areas) for the full shell: about 18 + 216 + 56 + 330 = 620; the screen plus controls alone fit in about 520.
+**Small or short viewports** (SE 375 x 553, Safari with bars 390 x 664): the shell drops things in this order until it fits: the speaker grille, the label strip, the status strip (the in-canvas HUD is then the only HUD, as on desktop), then shrinks the controls down to 48 px targets. The screen itself is never shrunk below 1x. Minimum usable height (already inside the safe areas) for the full shell: about 18 + 216 + 8 + 56 + 330 = 628 (the 763 of the iPhone 14 leaves 135 px to spare, so the grille and pills fit with room); the screen plus controls alone fit in about 520.
 
 **2.5.2 Where the status panel goes (issue 048).** Three places, cheapest first:
 1. **Nothing extra.** The in-canvas HUD stays exactly as 048 designs it, drawn on the picture; the strip under the screen is then used for a hint line (DOM text, for example "E: USE  ESC: BACK") or left out. Zero coupling; this is stage 1.
@@ -207,7 +208,7 @@ The touch layer is a small module (`src/input/touch.ts`) plus a DOM overlay in `
 
 **Handedness.** One stored flag swaps the d-pad and the buttons (section 2.3); first release: right-handed only is acceptable, the flag is one CSS class (`.mirror`) and a settings entry, a stage 3 item.
 
-**Haptics.** `navigator.vibrate(10)` on a button press: **supported on Android Chrome, not on iOS Safari** (no `vibrate` at all, and no haptic web API). So: a 10 ms tick on A, B and the d-pad edge change where available, behind a setting (default on, and off when `prefers-reduced-motion` is set or the sound mute is on), never required to play. It is a stage 3 nicety; nothing depends on it.
+**Haptics.** `navigator.vibrate(10)` on a button press: **supported on Android Chrome, not on iOS Safari** (no `vibrate` at all, and no real haptic API; the one trick is that iOS 17.4 and later give a haptic tick when a switch-style checkbox, `<input type=checkbox switch>`, is toggled, which a hidden control can do on a tap; it is undocumented behaviour, so treat it as a bonus, not a feature). So: a 10 ms tick on A, B and the d-pad edge change where available, behind a setting (default on, and off when `prefers-reduced-motion` is set or the sound mute is on), never required to play. It is a stage 3 nicety; nothing depends on it.
 
 **Visual feedback:** pressed state (a lighter fill); the buttons use the game's palette and pixel look (drawn with CSS `image-rendering: pixelated` sprites or flat CSS shapes), 35% opacity idle and 70% pressed in landscape overlay, so the picture is not hidden.
 
@@ -245,7 +246,7 @@ Skipped on phones at first: the track editor, the L screen's key toggles, typing
 
 **Wake lock.** `navigator.wakeLock.request("screen")` keeps the screen on; it is supported in Chrome, and in Safari 16.4 and later (also for installed apps after a fix in 18.4). It needs a secure context (HTTPS or localhost, so the dev server on a LAN address does not have it, section 8) and a user gesture or a visible page; the lock is released when the tab hides, so listen for `visibilitychange` and request it again. Wrap in try/catch and feature-detect; if missing, nothing happens (the screen dims after the system timeout, as for any web page). The game has idle parts (the sleep sequence, a long wait) with no touches, which is exactly when a phone would sleep, so request the lock on the first touch and drop it when the page hides.
 
-**iOS audio unlock.** The sound engine creates and resumes the `AudioContext` in `unlock()` on a key press. A phone has no key press: the first real `pointerup` (iOS wants a `touchend` or `click`-class gesture; whether `pointerup` alone counts is unconfirmed, so also unlock on `touchend` and `click`) on the touch layer must call `engine.unlock()` directly, because the synthetic key events are not trusted gestures and the context would stay suspended. It must be called on **every** touch until `ctx.state === "running"` (the context also gets suspended when the page is hidden and iOS interrupts it after a call or when the silent switch is on; the iPhone's ring/silent switch mutes Web Audio on iOS 16 and earlier for media elements, not Web Audio, so mention in the settings that a muted ringer may silence music on old iOS). Also resume on `visibilitychange` back to visible.
+**iOS audio unlock.** The sound engine creates and resumes the `AudioContext` in `unlock()` on a key press. A phone has no key press: the first real `pointerup` (iOS wants a `touchend` or `click`-class gesture; whether `pointerup` alone counts is unconfirmed, so also unlock on `touchend` and `click`) on the touch layer must call `engine.unlock()` directly, because the synthetic key events are not trusted gestures and the context would stay suspended. It must be called on **every** touch until `ctx.state === "running"` (the context also gets suspended when the page is hidden, and iOS interrupts it after a call). The iPhone's ring/silent switch silences Web Audio unless a media element is playing, so a phone on silent may play no sound at all; say so in the settings (a muted-looking state is not a bug). Also resume on `visibilitychange` back to visible.
 
 **Saved progress.** Progress is in `localStorage` (009c, `life.*` keys, flashcards key). On a phone, Safari can clear the storage of a site not visited for about seven days (Intelligent Tracking Prevention) unless it is an installed home-screen app, and private tabs and "clear website data" erase it. One line for the player: a save is only as safe as the phone browser's storage; installing the game to the home screen protects it from the seven-day clearing (but an installed iOS app has its own empty storage at first install), and a later export/import (a text code to copy) is the real answer if saves matter (a separate issue; `navigator.storage.persist()` is a cheap extra request, a no-op on iOS tabs).
 

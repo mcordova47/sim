@@ -4,6 +4,7 @@ import { FakeStorage } from "./achievements/fake-storage";
 import { AchievementsFeature } from "./achievements/feature";
 import { ACHIEVEMENTS } from "./achievements/data";
 import { APARTMENT } from "./apartment";
+import { DELIVERIES } from "./config";
 import { Decor } from "./decor";
 import { DECOR_DATA, GIFT_ITEMS, flickerAt, isTestItem } from "./decor-data";
 import { CHECKPOINTS } from "./delivery-checkpoints";
@@ -137,14 +138,31 @@ describe("the milestone type", () => {
     expect(d.pendingItems.length).toBe(1);
   });
   it("a full queue does not lose the gift: it fires later", () => {
-    const { d } = make();
-    d.milestones = [{ id: "m", stat: "days", atLeast: 1, item: "art-robin", delayHours: 0 }];
-    const ids = DECOR_DATA.items.filter((i) => !isTestItem(i) && i.id !== "art-robin").map((i) => i.id);
-    for (const id of ids.slice(0, 20)) d.deliver(id, 100);
-    // Fill to the cap with whatever exists (fall back to test items).
-    for (const i of DECOR_DATA.items) d.deliver(i.id, 100);
-    d.check({ points: 0, tasks: 0, days: 1 });
-    if (d.pendingItems.length + d.waitingItems.length >= 20 && !d.pendingItems.some((p) => p.id === "art-robin")) expect(d.hasFired("m")).toBe(false);
+    // Lower the cap to the number of items that are not the gift, so the queue really is full
+    // (with the real item list it cannot reach the production cap of 20).
+    const cap = DELIVERIES as { maxQueued: number };
+    const saved = cap.maxQueued;
+    try {
+      const { d, decor } = make();
+      d.milestones = [{ id: "m", stat: "days", atLeast: 1, item: "art-robin", delayHours: 0 }];
+      // Items that can be queued: not the gift, and not owned already (the defaults are owned).
+      const others = DECOR_DATA.items.filter((i) => i.id !== "art-robin" && !decor.owns(i.id)).map((i) => i.id);
+      cap.maxQueued = others.length;
+      for (const id of others) expect(d.deliver(id, 100)).toBe(true);
+      expect(d.pendingItems.length + d.waitingItems.length).toBe(cap.maxQueued); // full
+      d.check({ points: 0, tasks: 0, days: 1 });
+      expect(d.hasFired("m")).toBe(false); // refused for lack of room: not burned
+      expect([...d.waitingItems, ...d.pendingItems.map((p) => p.id)]).not.toContain("art-robin");
+      // Room appears (the queue empties): the same milestone now fires and the gift is queued once.
+      cap.maxQueued = others.length + 1;
+      d.check({ points: 0, tasks: 0, days: 1 });
+      expect(d.hasFired("m")).toBe(true);
+      // (a delay of 0 arrives at once, so it is waiting at the door rather than pending)
+      const queued = [...d.waitingItems, ...d.pendingItems.map((p) => p.id)];
+      expect(queued.filter((id) => id === "art-robin")).toHaveLength(1);
+    } finally {
+      cap.maxQueued = saved;
+    }
   });
 });
 

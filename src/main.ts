@@ -97,9 +97,10 @@ sprites.load(spriteNames(Object.values(APARTMENT.rooms))).then(() => {
       touch.afterFrame();
     },
     render(alpha) {
-      // The phone's narrow view shows full-screen pictures (ad cards, cutscene views) at 320 x 192.
+      // The phone's narrow view shows full-screen pictures (ad cards, cutscene views) at 320 x 192,
+      // and turned sideways it is not used at all: there is room across for the whole 320 x 192.
       if (NARROW) {
-        setView(game.showsFullPicture ? DESKTOP_VIEW : NARROW_VIEW);
+        setView(game.showsFullPicture || screen.landscape ? DESKTOP_VIEW : NARROW_VIEW);
         screen.sync();
       }
       game.render(screen.ctx, alpha);

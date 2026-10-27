@@ -1,7 +1,7 @@
 ---
 id: 078
 title: A sleep sequence instead of just a timer
-status: todo
+status: in-progress
 owner: marc + claude
 depends_on: []
 ---
@@ -22,3 +22,6 @@ Marc's idea (2026-10-27): "Go to sleep" is a 6 second timer with the sleep pose.
 - Tests for the sequence timing, Escape at every moment (lighting and music restored, no payout, clock unchanged), mute, the record player ducking and returning, nap, saves; the golden main-room frames unchanged for the normal game; `npm test` and `npm run build` pass; render frames of the sequence at 1x and look at them.
 
 ## Progress log
+
+### 2026-10-27 (design note)
+Wrote `docs/sleep.md` (design only, nothing built): the timeline and one config table (`SLEEP`: sleep 2+5+2 s, nap 1+2.5+1.5 s), light options with a recommendation (visual overlay, clock jump at the end), breathing (1 px band via `drawRegion` on the bed pose, whole-sprite bob on the sofa), snore and lullaby sound design (new `sleep` bus, system track folder, record ducking by bus ramp), nap, Escape matrix, saves, deliveries, z, banner, storyboard, tests, a five-stage build plan and 11 open questions for Marc. Found: the clock ticks during waits today, so the note recommends `holdsClock` for the sequence; game state is not saved, so a reload mid-sleep needs no restore. No code or sprite changes. Waiting on Marc to pick (or say "just build it").

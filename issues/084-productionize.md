@@ -3,8 +3,14 @@ id: 084
 title: Put the game on the internet (hosting, domain, repo name, privacy pass)
 status: todo
 owner: marc + claude
-depends_on: [085]
+depends_on: []
 ---
+
+## Staging (Marc, 2026-10-27: start the productionizing arc)
+- **Stage A, a deployable build (no repo needed):** `netlify.toml`, headers and cache rules, title, favicon and social metadata, a short how-to-play line, the production checks, and a smoke-test list. A site can be deployed from this machine with the Netlify CLI (`netlify deploy` for a draft URL, `--prod` later) **without pushing the repo anywhere**, so issue 085 (personal info) does not block it. Marc runs `netlify login` and approves each deploy himself; an agent never publishes.
+- **Stage B, the domain:** `sim.mcord.dev` (or the chosen name) pointed at the Netlify site, HTTPS on. Marc's DNS.
+- **Stage C, the repo on GitHub** (rename, then push): only after issue 085. Branch deploy previews (`*.netlify.app`) come with a connected repo; until then use CLI draft deploys.
+- Note for testing: a `*.netlify.app` address is refused by the flashcards progress endpoint (CORS allows `*.mcord.dev`), so Study Spanish with a key only works on the real domain; the guest mode of issue 089 works anywhere.
 
 ## Goal
 Marc (2026-10-27): track getting the game online. He is leaning to Netlify (familiar), open to others (GitHub Pages was mentioned), thinking of `sim.mcord.dev`, and wondering whether to rename the repo before putting it on GitHub. Nothing is built until he has chosen; this issue holds the decisions and the checklist.

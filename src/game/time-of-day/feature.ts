@@ -3,6 +3,7 @@ import { TILE, TIME_DEV, TIME_OF_DAY, VIEW } from "../config";
 import type { Game, Layer } from "../game";
 import type { Level } from "../level";
 import { COLOR, withAlpha } from "../../render/colors";
+import { flickerAt } from "../decor-data";
 import { lightAt, roomWashes, sleepLight } from "./tint";
 
 // The parts of a window the dev shortcuts listen to, so tests can pass fakes.
@@ -146,7 +147,9 @@ export class TimeOfDayFeature implements Layer {
       const glows: { x: number; y: number; radius: number; alpha: number }[] = [];
       for (const a of level.appearances ?? []) {
         const glow = a.slot === undefined ? undefined : this.game.decor.itemIn(a.slot).glow;
-        if (glow) glows.push({ x: a.area.x + a.area.w / 2, y: a.area.y + a.area.h / 2, ...glow });
+        if (!glow) continue;
+        const wander = glow.flicker ? flickerAt(glow.flicker, this.game.deliveries.hours) : { alpha: 1, radius: 1 };
+        glows.push({ x: a.area.x + a.area.w / 2, y: a.area.y + a.area.h / 2, radius: glow.radius * wander.radius, alpha: glow.alpha * wander.alpha });
       }
       for (const glow of TIME_OF_DAY.glows) {
         for (const piece of level.pieces) {

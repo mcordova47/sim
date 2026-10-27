@@ -1,6 +1,6 @@
 import { APARTMENT } from "./game/apartment";
 import { attachFeatures } from "./game/features";
-import { deliverFromSearch, ownFromSearch } from "./game/decor-dev";
+import { deliverFromSearch, ownFromSearch, skipDaysFromSearch } from "./game/decor-dev";
 import { Game } from "./game/game";
 import { startLoop } from "./game/loop";
 import { readControls } from "./input/controls";
@@ -52,6 +52,8 @@ try {
 // checkpoints (TEST items), or `?deliver=id,id` sends those items to the door.
 try {
   if (import.meta.env.DEV) deliverFromSearch(game.deliveries, location.search);
+  // `?days=3` skips three game days (the real gifts fire; each arrives 2 game hours later).
+  if (import.meta.env.DEV) skipDaysFromSearch(game.deliveries, location.search);
 } catch {
   // No address to read (never in a browser).
 }

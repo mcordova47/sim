@@ -314,8 +314,8 @@ describe("checkpoints", () => {
     expect(d.pendingItems).toEqual([]);
   });
 
-  it("has an empty production list, and a dev list that only uses TEST items", () => {
-    expect(CHECKPOINTS).toEqual([]);
+  it("has a production list (stage A tests: checkpoints-stage-a.test.ts), and a dev list that only uses TEST items", () => {
+    expect(CHECKPOINTS.length).toBe(10);
     const decor = new Decor();
     expect(DEV_CHECKPOINTS.length).toBeGreaterThan(0);
     for (const m of DEV_CHECKPOINTS) expect(decor.testItemIds()).toContain(m.item);

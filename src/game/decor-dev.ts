@@ -27,3 +27,15 @@ export function deliverFromSearch(deliveries: Deliveries, search: string): strin
   }
   return queued;
 }
+
+// Dev shortcut (issue 043 stage A): `?days=N` moves the delivery clock on by N game
+// days at once, so the real checkpoints (day gifts) fire without playing for
+// minutes: each gift arrives 2 game hours later (about a minute of play). Dev
+// server only (main.ts). Returns the hours skipped.
+export function skipDaysFromSearch(deliveries: Deliveries, search: string): number {
+  const n = Number(new URLSearchParams(search).get("days"));
+  if (!Number.isFinite(n) || n <= 0) return 0;
+  const hours = Math.min(n, 400) * 24;
+  deliveries.advance(hours);
+  return hours;
+}

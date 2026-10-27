@@ -31,15 +31,23 @@ export interface DeliverySave {
   fired: string[];
 }
 
-// A checkpoint: the first time a number reaches `atLeast`, deliver `item`.
+// A checkpoint: the first time a number reaches `atLeast` (`stat`), or the first
+// time an achievement is unlocked (`achievement`, an id from achievements/data.ts),
+// deliver `item`. A list of items is "the first one you do not own"; if you own the
+// item (or all of them) it gives nothing, and the checkpoint still counts as fired
+// (docs/random-encounters.md section 3: only new things arrive).
 export type MilestoneStat = "points" | "days" | "tasks";
 export interface Milestone {
   id: string;
-  stat: MilestoneStat;
-  atLeast: number;
-  item: string;
+  stat?: MilestoneStat;
+  atLeast?: number;
+  achievement?: string;
+  item: string | string[];
   delayHours: number;
 }
+
+// What `check` is told: the current numbers, and which achievements are unlocked.
+export type MilestoneValues = Readonly<Record<MilestoneStat, number>>;
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
 const goodId = (v: unknown): v is string => typeof v === "string" && v.length > 0 && v.length <= 64;
@@ -87,7 +95,7 @@ export class Deliveries {
   // Asked before a package arrives; false holds it back (still queued) until it is true.
   // The game uses it so a box never appears on the tile the player is standing on.
   canArrive?: () => boolean;
-  // The checkpoints in use. The production list is empty (real items need art).
+  // The checkpoints in use. The production list is in delivery-checkpoints.ts.
   milestones: readonly Milestone[] = CHECKPOINTS;
 
   private total = 0;
@@ -160,16 +168,29 @@ export class Deliveries {
   // Fires each checkpoint whose number has been reached and that has not fired
   // before: it is remembered (even if the delivery is refused, so it never
   // retries) and calls `deliver`. `values` holds the current numbers.
-  check(values: Readonly<Record<MilestoneStat, number>>): void {
+  // `unlocked` says whether an achievement is unlocked (for `achievement` milestones).
+  // A milestone whose item is owned, queued or unknown gives nothing and is marked
+  // fired. The one case that is not fired is a full queue: it tries again later,
+  // so a gift is never lost to a busy door.
+  check(values: MilestoneValues, unlocked: (achievementId: string) => boolean = () => false): void {
     let changed = false;
     for (const m of this.milestones) {
-      if (this.fired.has(m.id) || !(values[m.stat] >= m.atLeast)) continue;
+      if (this.fired.has(m.id)) continue;
+      const reached = m.achievement !== undefined ? unlocked(m.achievement) : m.stat !== undefined && values[m.stat] >= (m.atLeast ?? 0);
+      if (!reached) continue;
       if (this.fired.size >= DELIVERIES.maxFired) break;
+      const items = typeof m.item === "string" ? [m.item] : m.item;
+      const pick = items.find((id) => this.decor.item(id) !== undefined && !this.decor.owns(id));
+      if (pick !== undefined && this.queueFull()) continue;
       this.fired.add(m.id);
       changed = true;
-      this.deliver(m.item, m.delayHours);
+      if (pick !== undefined) this.deliver(pick, m.delayHours);
     }
     if (changed) this.onChange?.();
+  }
+
+  private queueFull(): boolean {
+    return this.pending.length + this.waitingIds.length >= DELIVERIES.maxQueued;
   }
 
   hasFired(id: string): boolean {

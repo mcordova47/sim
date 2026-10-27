@@ -1,7 +1,7 @@
 ---
 id: 086
 title: HUD ribbon, stage 1: icons and small bars in the empty top band
-status: in-progress
+status: review
 owner: claude
 depends_on: [048]
 ---

@@ -136,7 +136,9 @@ export class FlashcardsActivity extends BaseActivity {
       return this.fail("The saved cards could not be read.");
     }
     if (result === "bad-key") {
-      this.store.forgetKey();
+      // Only a saved key that the server refuses is forgotten; a different key typed in
+      // from the K control that is refused leaves the saved one alone.
+      if (key === this.store.key()) this.store.forgetKey();
       this.typed = "";
       this.message = "That key was not accepted.";
       this.phase = "key";
@@ -270,13 +272,13 @@ export class FlashcardsActivity extends BaseActivity {
     if (this.backend.usesKey === false) return false;
     if (controls.keys.includes("KeyK")) {
       if (this.guest) {
+        // Nothing is saved yet: the mode and the key change only when a key is accepted.
         this.guest = false;
-        this.store.setMode(null);
         const key = this.store.key();
         if (key) this.connect(key);
         else this.toKeyScreen();
       } else {
-        this.store.forgetKey();
+        // The saved key stays until a new one has been accepted (Escape leaves everything as it was).
         this.toKeyScreen();
       }
       return true;
@@ -342,7 +344,7 @@ export class FlashcardsActivity extends BaseActivity {
     session.grade(card.slug, grade).then(
       (ok) => {
         if (this.done) return;
-        if (!ok) return this.fail("No connection. That answer was not saved.");
+        if (!ok) return this.fail(this.guest ? "That answer was not saved." : "No connection. That answer was not saved.");
         this.answered(card.slug, grade);
       },
       () => {

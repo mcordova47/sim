@@ -627,16 +627,69 @@ describe("FlashcardsActivity: a guest", () => {
     expect(t.store.key()).toBe(KEY); // the key stays saved
   });
 
-  it("K from a key holder forgets the key and asks for another; K from a guest goes to the key", async () => {
+  it("K from a key holder opens the key screen but keeps the saved key (leaving with Escape changes nothing)", async () => {
     const storage = new FakeStorage();
     new StudyStore(storage).saveKey(KEY);
     const t = guestSetup({ storage });
     t.a.start();
     await flush();
     t.a.phase = "done";
+    const before = storage.getItem(F.storageKey);
     await t.step(keys("KeyK"));
     expect(t.a.phase).toBe("key");
-    expect(t.store.key()).toBeNull();
+    expect(t.store.key()).toBe(KEY);
+    expect(storage.getItem(F.storageKey)).toBe(before); // Escape would leave exactly this
+    expect(new StudyStore(storage).key()).toBe(KEY);
+  });
+
+  it("a different key from K that the server refuses leaves the saved key; one that is accepted replaces it", async () => {
+    const OTHER = "zyxwvutsrq9876543210zyxwvutsrq98";
+    const storage = new FakeStorage();
+    new StudyStore(storage).saveKey(KEY);
+    const t = guestSetup({ storage, keyBackend: () => (t.opens[t.opens.length - 1] === OTHER && refuse ? "bad-key" : new Session(CARDS)) });
+    let refuse = true;
+    t.a.start();
+    await flush();
+    t.a.phase = "done";
+    await t.step(keys("KeyK"));
+    t.a.typed = OTHER;
+    await t.step(keys("Enter"));
+    await flush();
+    expect(t.a.phase).toBe("key");
+    expect(t.a.message).toMatch(/not accepted/i);
+    expect(t.store.key()).toBe(KEY);
+    refuse = false;
+    t.a.typed = OTHER;
+    await t.step(keys("Enter"));
+    await flush();
+    expect(t.store.key()).toBe(OTHER);
+  });
+
+  it("K from a guest with no saved key changes nothing until a key is accepted", async () => {
+    const storage = new FakeStorage();
+    new StudyStore(storage).setMode("guest");
+    const t = guestSetup({ storage });
+    t.a.start();
+    await flush();
+    t.a.phase = "done";
+    const before = storage.getItem(F.storageKey);
+    await t.step(keys("KeyK"));
+    expect(t.a.phase).toBe("key");
+    expect(storage.getItem(F.storageKey)).toBe(before);
+    expect(new StudyStore(storage).mode()).toBe("guest");
+  });
+
+  it("a guest's answer the core could not record says so without 'no connection'", async () => {
+    const storage = new FakeStorage();
+    new StudyStore(storage).setMode("guest");
+    const t = guestSetup({ storage, core: { ...core(), grade: () => { throw new Error("bad"); } } });
+    t.a.start();
+    await flush();
+    await t.step(E);
+    await t.step(E);
+    await t.step(E);
+    expect(t.a.phase).toBe("problem");
+    expect(t.a.message).toBe("That answer was not saved.");
   });
 
   it("does not offer the switch mid-card", async () => {

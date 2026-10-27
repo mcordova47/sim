@@ -76,7 +76,7 @@ const CONTENT: Task[] = [
     flavor: 'One more. Okay, one more. Where did forty minutes go.' },
   { id: 'work-sofa', name: 'Code from the couch', prompt: 'Work from the couch', duration: 8, points: 60,
     flavor: 'Your back files a complaint.' },
-  { id: 'nap', name: 'Take a nap', prompt: 'Take a nap', duration: 5, points: 30,
+  { id: 'nap', name: 'Take a nap', prompt: 'Take a nap', duration: 5, points: 30, // duration = SLEEP.nap total
     flavor: 'Twenty minutes, said the plan. The light has moved.' },
   { id: 'admire-art', name: 'Admire the art', prompt: 'Admire the art', duration: 0, points: 25,
     flavor: 'Nobody asked you to look at it this long.' },
@@ -216,6 +216,7 @@ const STATE_RULES: Record<string, Partial<Task>> = {
   "tidy-desk": { cooldown: 90 },
   nap: {
     cooldown: 60,
+    activity: { type: "sleep", kind: "nap" },
     requires: [{ var: "energy", max: NAP.below, reason: "NOT SLEEPY ENOUGH" }],
     // The bed stays as it is: this is the sofa.
     effects: [{ var: "energy", add: NAP.energy }, { var: "clock", add: NAP.hours }, { var: "plantDry", add: NAP.hours }, { var: "mood", add: 3 }],
@@ -374,9 +375,10 @@ const EXTRA: Task[] = [
     id: "sleep",
     name: "Go to sleep",
     prompt: "Go to sleep",
-    duration: 6,
+    duration: 9, // = SLEEP.sleep total (fall + asleep + wake)
     points: 40,
     cooldown: 60,
+    activity: { type: "sleep", kind: "sleep" },
     flavor: "Just five minutes. It was not five minutes.",
     requires: [
       {

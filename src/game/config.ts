@@ -143,6 +143,57 @@ export const NAP = {
   hours: 1,
 };
 
+// The sleep sequence (issue 078, docs/sleep.md): one table, two versions. Seconds
+// unless marked. Stage 1 and 2 use the timings, the dark and the banner; the
+// breath, snore, lullaby and ducking numbers are listed here for the later stages.
+export interface SleepSettings {
+  // Fall asleep (the light dims), asleep (dark), wake (the light comes up to the new hour).
+  fall: number;
+  asleep: number;
+  wake: number;
+  // Extra night wash at full dark, on top of the hour's own light.
+  darkAlpha: number;
+  // The lamps' strength is multiplied by this at full dark (1: no change).
+  darkLamps: number;
+  // Seconds the banner takes to fade out at the start, and back in at the end.
+  bannerFade: number;
+  // After Escape: seconds for the light to go back to the hour you lay down at.
+  escapeRestore: number;
+  // Later stages (breath, z, sound); not read yet.
+  breathPeriod: number;
+  breathPixels: number;
+  snore: boolean;
+  snoreGain: number;
+  lullaby: boolean;
+  lullabyGain: number;
+  lullabyIn: number;
+  lullabyInDelay: number;
+  lullabyOut: number;
+  duckTo: number;
+  duckDown: number;
+  duckUp: number;
+  zEvery: [number, number];
+  // The clock stands still during the sequence; the jump comes with the task's effects.
+  holdClock: boolean;
+}
+
+export const SLEEP: { sleep: SleepSettings; nap: SleepSettings } = {
+  sleep: {
+    fall: 2, asleep: 5, wake: 2,
+    darkAlpha: 0.38, darkLamps: 0.25, bannerFade: 1, escapeRestore: 0.4,
+    breathPeriod: 3, breathPixels: 1, snore: true, snoreGain: 0.07,
+    lullaby: true, lullabyGain: 0.55, lullabyIn: 1.5, lullabyInDelay: 0.3, lullabyOut: 2,
+    duckTo: 0.12, duckDown: 1, duckUp: 1.5, zEvery: [1.4, 2.2], holdClock: true,
+  },
+  nap: {
+    fall: 1, asleep: 2.5, wake: 1.5,
+    darkAlpha: 0.2, darkLamps: 0.6, bannerFade: 0.5, escapeRestore: 0.4,
+    breathPeriod: 2.4, breathPixels: 1, snore: false, snoreGain: 0,
+    lullaby: false, lullabyGain: 0, lullabyIn: 0, lullabyInDelay: 0, lullabyOut: 0,
+    duckTo: 1, duckDown: 0, duckUp: 0, zEvery: [1.2, 1.8], holdClock: true,
+  },
+};
+
 // Activities (issue 022): what a task can be besides waiting.
 export const ACTIVITY = {
   // How well a mini-game went (quality 0 to 1) scales the task's points between

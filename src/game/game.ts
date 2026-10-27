@@ -28,6 +28,7 @@ import { settlePlant } from "./plant";
 import { CARRIED, POSES, heldSprite, type PoseDef } from "./poses";
 import { ApartmentState } from "./state";
 import { STATE_VARS } from "./state-vars";
+import type { SleepScene } from "./sleep";
 import { boundsOf, type Rect, type Solid } from "./world";
 
 // An extra thing the game updates and draws, added with `Game.addLayer`. Every
@@ -384,6 +385,13 @@ export class Game {
 
   get inputLocked(): boolean {
     return this.locks.size > 0;
+  }
+
+  // The look of the sleep sequence this frame, or null when nobody is asleep
+  // (finished, cancelled and an error all read as null: everything that reads it
+  // goes back to normal by itself).
+  get sleepScene(): SleepScene | null {
+    return this.interaction.active?.activity.scene ?? null;
   }
 
   get dialogOpen(): boolean {
@@ -760,7 +768,16 @@ export class Game {
     if (!this.dialog.open) {
       // (A decor swap draws its own list, which hides what it is changing otherwise.)
       if (interaction.active) {
-        if (interaction.active.item.decorSlot === undefined) drawProgress(ctx, actor, interaction.active.item, interaction.progress, VIEW, popupBoxes);
+        if (interaction.active.item.decorSlot === undefined) {
+          // The banner fades while asleep, so it is not over the sleeper's head (issue 078).
+          const alpha = this.sleepScene?.bannerAlpha ?? 1;
+          if (alpha >= 1) drawProgress(ctx, actor, interaction.active.item, interaction.progress, VIEW, popupBoxes);
+          else if (alpha > 0.01) {
+            ctx.globalAlpha = alpha;
+            drawProgress(ctx, actor, interaction.active.item, interaction.progress, VIEW, popupBoxes);
+            ctx.globalAlpha = 1;
+          }
+        }
       } else if (interaction.nearby) {
         const cooldown = interaction.cooldownRemaining(interaction.nearby);
         const unavailable = interaction.unavailableReason(interaction.nearby);

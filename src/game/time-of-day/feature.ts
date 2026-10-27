@@ -3,7 +3,7 @@ import { TILE, TIME_DEV, TIME_OF_DAY, VIEW } from "../config";
 import type { Game, Layer } from "../game";
 import type { Level } from "../level";
 import { COLOR, withAlpha } from "../../render/colors";
-import { lightAt, roomWashes } from "./tint";
+import { lightAt, roomWashes, sleepLight } from "./tint";
 
 // The parts of a window the dev shortcuts listen to, so tests can pass fakes.
 export interface KeyEventLike {
@@ -34,6 +34,18 @@ export interface TimeOfDayOptions {
 export class TimeOfDayFeature implements Layer {
   readonly name = "time-of-day";
 
+  // What the sleep scene has done to the light so far (issue 078). They follow
+  // the scene exactly while it runs; once it is gone they ease back to 0 (after
+  // Escape: `escapeRestore`) or snap to 0 (it finished: the clock has jumped
+  // and the light of the new hour is the plain one).
+  private dark = 0;
+  private morning = 0;
+  private skipHours = 0;
+  private darkAlpha = 0;
+  private darkLamps = 1;
+  private restore = 0.4;
+  private sceneClock = 0;
+
   constructor(private readonly game: Game, options: TimeOfDayOptions = {}) {
     if (options.dev) {
       const rooms = options.rooms ?? APARTMENT.rooms;
@@ -41,6 +53,38 @@ export class TimeOfDayFeature implements Layer {
       options.keys?.addEventListener("keydown", (e) => this.devKey(e));
     }
     game.addLayer(this);
+  }
+
+  // How far the sleep sequence has darkened and brightened the light right now (for tests).
+  get sleepDark(): number {
+    return this.dark;
+  }
+  get sleepMorning(): number {
+    return this.morning;
+  }
+
+  update(dt: number): void {
+    const scene = this.game.sleepScene;
+    if (scene) {
+      this.dark = scene.dark;
+      this.morning = scene.morning;
+      this.skipHours = scene.skipHours;
+      this.darkAlpha = scene.settings.darkAlpha;
+      this.darkLamps = scene.settings.darkLamps;
+      this.restore = scene.settings.escapeRestore;
+      this.sceneClock = this.game.state.get("clock");
+    } else if (this.dark > 0 || this.morning > 0) {
+      // The finish moved the clock by the whole jump; after Escape it only ticks on a little.
+      const moved = (((this.game.state.get("clock") - this.sceneClock) % 24) + 24) % 24;
+      if (this.skipHours > 0 && moved >= this.skipHours - 0.01) {
+        this.dark = 0;
+        this.morning = 0;
+      } else {
+        const step = this.restore > 0 ? dt / this.restore : 1;
+        this.dark = Math.max(0, this.dark - step);
+        this.morning = Math.max(0, this.morning - step);
+      }
+    }
   }
 
   // Moves the clock by `hours` (dev shortcut).
@@ -79,8 +123,14 @@ export class TimeOfDayFeature implements Layer {
   drawWorld(ctx: CanvasRenderingContext2D, camera: { x: number; y: number }): void {
     const { state } = this.game;
     const level = this.game.currentLevel;
-    const light = lightAt(state.get("clock"));
+    const clock = state.get("clock");
+    const asleep = this.dark > 0 || this.morning > 0;
+    const sleep = asleep ? sleepLight(clock, this.skipHours, this.dark, this.morning, this.darkAlpha, this.darkLamps) : null;
+    const light = sleep ? sleep.base : lightAt(clock);
     const washes = roomWashes(light, level.id, state.has("blinds") ? state.get("blinds") >= 1 : true);
+    // The extra night wash of the sleep sequence goes over the hour's own light.
+    if (sleep?.extra) washes.push(sleep.extra);
+    const lamps = sleep ? sleep.lamps : light.lamps;
 
     // The wash covers everything the camera sees, the dark around the room too,
     // so the kitchen's filler blocks and the empty edge shift together.
@@ -90,7 +140,7 @@ export class TimeOfDayFeature implements Layer {
     }
 
     // Lamps shine over the wash, in the main room only (the one with lamps).
-    if (light.lamps > 0.01 && level.id === "main") {
+    if (lamps > 0.01 && level.id === "main") {
       // The glow of what is in each decor slot first (issue 069: the item decides,
       // not the slot or the sprite), then the pieces that glow by their sprite.
       const glows: { x: number; y: number; radius: number; alpha: number }[] = [];
@@ -107,7 +157,7 @@ export class TimeOfDayFeature implements Layer {
       for (const glow of glows) {
         // Three rings, so the edge steps down instead of ending sharply.
         for (const ring of [1, 0.66, 0.33]) {
-          ctx.fillStyle = withAlpha(COLOR.butter, glow.alpha * light.lamps * 0.5);
+          ctx.fillStyle = withAlpha(COLOR.butter, glow.alpha * lamps * 0.5);
           ctx.beginPath();
           ctx.arc(glow.x, glow.y, glow.radius * ring, 0, Math.PI * 2);
           ctx.fill();

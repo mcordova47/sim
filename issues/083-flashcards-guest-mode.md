@@ -1,7 +1,7 @@
 ---
 id: 083
 title: Flashcards for someone who is not Marc: a mode with no sync key (design first)
-status: in-progress
+status: done
 owner: marc + claude
 depends_on: [026]
 ---

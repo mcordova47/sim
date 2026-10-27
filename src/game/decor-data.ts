@@ -52,6 +52,11 @@ export interface DecorItem {
   h: number;
   // Placeholder colour while the art is missing.
   color?: keyof typeof COLOR;
+  // The night glow this item gives (issue 069): `radius` in pixels and `alpha`
+  // (the strength at full night), as the time-of-day light draws it (config.ts
+  // TIME_OF_DAY.glows has the same two numbers for things that are not decor).
+  // An item without `glow` gives no light, whatever its sprite or slot.
+  glow?: { radius: number; alpha: number };
   // One deadpan line for when it goes up (stage 2 on).
   note?: string;
   // Where it came from, for later. Nothing reads these.
@@ -90,7 +95,7 @@ export const DECOR_ITEMS: DecorItem[] = [
   { id: "art-abstract", name: "GOLD ABSTRACT", kind: "art", sprite: "painting-desk", w: 32, h: 16, color: "paper", how: "start", slots: ["art-desk"] },
   { id: "art-silkscreen", name: "SILKSCREEN", kind: "art", sprite: "painting-wide", w: 48, h: 16, color: "paper", how: "start", slots: ["art-bed"] },
   { id: "plant-snake", name: "SNAKE PLANT", kind: "plant", sprite: "plant-1", family: "plant", w: 16, h: 16, color: "leaf", how: "start" },
-  { id: "lamp-table", name: "LAMP", kind: "lamp", sprite: "lamp-table", w: 16, h: 16, color: "butter", how: "start" },
+  { id: "lamp-table", name: "LAMP", kind: "lamp", sprite: "lamp-table", w: 16, h: 16, color: "butter", how: "start", glow: { radius: 40, alpha: 0.2 } },
 ];
 
 // TEST items (issue 062 stage 2): borrowed sprites, so the swap can be tried and
@@ -102,7 +107,9 @@ export const TEST_ITEMS: DecorItem[] = [
   { id: "art-test-desk", name: "TEST GOLD ABSTRACT", kind: "art", sprite: "painting-desk", w: 32, h: 16, color: "paper", tags: ["test"] },
   { id: "art-test-barn", name: "TEST BARN DRAWING", kind: "art", sprite: "painting", w: 32, h: 16, color: "paper", tags: ["test"] },
   { id: "plant-test-grown", name: "TEST GROWN PLANT", kind: "plant", sprite: "plant-3", family: "plant-test", w: 16, h: 16, color: "leaf", tags: ["test"] },
-  { id: "lamp-test-stool", name: "TEST STOOL LAMP", kind: "lamp", sprite: "stool", w: 16, h: 16, color: "butter", tags: ["test"] },
+  // The bare stool gives no light; the same stool with a small lamp on it does (issue 069).
+  { id: "lamp-test-stool", name: "TEST STOOL", kind: "lamp", sprite: "stool", w: 16, h: 16, color: "butter", tags: ["test"] },
+  { id: "lamp-test-stool-lamp", name: "TEST STOOL AND LAMP", kind: "lamp", sprite: "stool-lamp", w: 16, h: 16, color: "butter", tags: ["test"], glow: { radius: 24, alpha: 0.2 } },
 ];
 
 export const isTestItem = (item: DecorItem): boolean => item.tags?.includes("test") === true;

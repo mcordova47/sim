@@ -91,18 +91,26 @@ export class TimeOfDayFeature implements Layer {
 
     // Lamps shine over the wash, in the main room only (the one with lamps).
     if (light.lamps > 0.01 && level.id === "main") {
+      // The glow of what is in each decor slot first (issue 069: the item decides,
+      // not the slot or the sprite), then the pieces that glow by their sprite.
+      const glows: { x: number; y: number; radius: number; alpha: number }[] = [];
+      for (const a of level.appearances ?? []) {
+        const glow = a.slot === undefined ? undefined : this.game.decor.itemIn(a.slot).glow;
+        if (glow) glows.push({ x: a.area.x + a.area.w / 2, y: a.area.y + a.area.h / 2, ...glow });
+      }
       for (const glow of TIME_OF_DAY.glows) {
         for (const piece of level.pieces) {
           if (piece.sprite !== glow.sprite) continue;
-          const cx = piece.bounds.x + piece.bounds.w / 2;
-          const cy = piece.bounds.y + piece.bounds.h / 2;
-          // Three rings, so the edge steps down instead of ending sharply.
-          for (const ring of [1, 0.66, 0.33]) {
-            ctx.fillStyle = withAlpha(COLOR.butter, glow.alpha * light.lamps * 0.5);
-            ctx.beginPath();
-            ctx.arc(cx, cy, glow.radius * ring, 0, Math.PI * 2);
-            ctx.fill();
-          }
+          glows.push({ x: piece.bounds.x + piece.bounds.w / 2, y: piece.bounds.y + piece.bounds.h / 2, ...glow });
+        }
+      }
+      for (const glow of glows) {
+        // Three rings, so the edge steps down instead of ending sharply.
+        for (const ring of [1, 0.66, 0.33]) {
+          ctx.fillStyle = withAlpha(COLOR.butter, glow.alpha * light.lamps * 0.5);
+          ctx.beginPath();
+          ctx.arc(glow.x, glow.y, glow.radius * ring, 0, Math.PI * 2);
+          ctx.fill();
         }
       }
     }

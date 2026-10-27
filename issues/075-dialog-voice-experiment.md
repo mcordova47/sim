@@ -1,7 +1,7 @@
 ---
 id: 075
 title: Experiment: a per-letter voice for dialog text, behind a toggle
-status: review
+status: done
 owner: claude
 depends_on: []
 ---
@@ -27,3 +27,12 @@ Marc (2026-10-27): keep the beepy dialog voice as the default, but try the idea 
   - The `?dialogvoice=` override is dev only and is not saved; toggling in game saves.
   - Not checked: how the letters voice sounds in a browser (Marc listens); tuning values are in `SOUND.dialogLetters`.
 
+- 2026-10-27: Review (independent reviewer). Verdict: **approve**.
+  - Setting `dialogVoice` (beep default, letters), saved in `life.sound.v1`, tolerant of old/junk values: pass (settings.ts diff read; tests for missing field, "shout", 5, null; saves keep other fields).
+  - Letters behaviour (per-letter `mumbleNotes` pitch at each blip slot, rests for space/marks, soft gain 0.5, seeded wobble, silent on skip >8 chars, stops on close, one sound per slot so cap holds): pass by reading `SoundFeature.letters()` and the author's tests; 45 chars/s is 0.75 chars per frame so a normal frame never trips the skip threshold. Mute/first-key unlock go through the engine as before: pass (tested).
+  - L screen: D toggles (`!shiftKey`, list open only, input already locked so D does not move the player); hint `ARROWS: LOOK   D: VOICE   L: CLOSE   SHIFT+R: RESET` fits 320 wide (tested with textWidth); the state label is drawn right-aligned on the picked-name row, width-tested against the widest achievement name; no overlap with the legend (top row). Keys used: L, arrows, D, Shift+R then Y: documented. `?dialogvoice=` is dev-only and not saved: pass (unit test). Real in-browser L screen with the sprite legend icon: UNVERIFIED (not seen by anyone; the author's render had no sprite).
+  - Beep unchanged: pass. My own check, not the author's test: extracted main at 6df97fc with `git archive` to a scratch dir, ran my own scenario recorder (3 seeds x 2 pacing modes; 14 texts including empty, 1-4 chars, spaces only, punctuation only, accents, newlines, 200 chars, multi-page with speaker, a menu with a reply, pre-unlock, muted, closed early) on main and on the branch, recording every oscillator type/frequency/start/stop, every gain call, and source/start counts. The two 1.6 MB outputs are byte-identical. I also mutated the beep pitch (0.95 to 0.96) and the committed golden test failed, so the golden is a real comparison (it was recorded from main per the log, and the branch's beep branch is the old code unchanged). Weak spot: the golden only covers dialogs; popups/typing/notes games are covered by the existing untouched tests and by the diff (only the `blips()` method changed).
+  - Docs (`docs/music.md`): pass. `npm test`: 88 files, 2000 tests pass. `npm run build`: pass.
+  - Scope: only the issue's files plus its tests, golden, docs; no other issues, PLAN.md or reference-photos touched. The mumble import of the flashcards voice is read-only, so flashcard voices are untouched.
+  - UNVERIFIED: how the letters voice sounds in a real browser (Marc listens); the real L screen with sprites in a browser.
+  - Minor, not blocking: when the setting is toggled to letters while a page is already partly typed, nothing breaks (shown is tracked in both modes). PLAN.md table needs updating by the planner.

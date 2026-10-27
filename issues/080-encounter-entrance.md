@@ -1,7 +1,7 @@
 ---
 id: 080
 title: Ad encounter entrance: a battle-style flash and bar wipe
-status: in-progress
+status: review
 owner: claude
 depends_on: [043]
 ---
@@ -41,3 +41,5 @@ Marc (2026-10-27): ad encounters should enter like a Pokemon or FFVII battle. Pl
     - [ ] Wire reduced motion in `src/main.ts`: pass `reducedMotion: () => matchMedia("(prefers-reduced-motion: reduce)").matches` (guarded where `matchMedia` is missing) to `new Game(...)`.
     - [ ] Add a check that the option is really supplied (for example a small helper that main.ts uses, tested), since the current test only injects it by hand.
     - [ ] Correct the log/docs line if the wording changes.
+
+- 2026-10-27 (round 2): Fixed the review finding: the main.ts edit had not been applied. `src/main.ts` now passes `reducedMotion: () => reducedMotionAsked()` (new `src/game/reduced-motion.ts`, guarded where `matchMedia` is missing) to `new Game`; test in `src/game/reduced-motion.test.ts`. Log and docs wording now true. Back in review.

@@ -3,6 +3,7 @@ import { attachFeatures } from "./game/features";
 import { deliverFromSearch, encounterFromSearch, ownFromSearch, skipDaysFromSearch } from "./game/decor-dev";
 import { Game } from "./game/game";
 import { startLoop } from "./game/loop";
+import { reducedMotionAsked } from "./game/reduced-motion";
 import { readControls } from "./input/controls";
 import { Keyboard } from "./input/keyboard";
 import { createScreen } from "./render/canvas";
@@ -13,7 +14,11 @@ const canvas = document.getElementById("game") as HTMLCanvasElement;
 const { ctx } = createScreen(canvas);
 const keyboard = new Keyboard();
 const sprites = new Sprites();
-const game = new Game(APARTMENT.rooms[APARTMENT.start], { rooms: APARTMENT.rooms, sprites });
+const game = new Game(APARTMENT.rooms[APARTMENT.start], {
+  rooms: APARTMENT.rooms,
+  sprites,
+  reducedMotion: () => reducedMotionAsked(),
+});
 attachFeatures(game);
 
 // A dev shortcut for looking at a state without playing to it: `?set=plantStage:3`

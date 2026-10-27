@@ -42,7 +42,7 @@ const TWO = [
   parseTrack("title: Two\n[a square]\nD4:1", "2.track", "two"),
 ];
 
-function setup(taskId = RECORD_TASK, options: { storage?: FakeStorage | null; audio?: () => FakeAudioContext | null } = {}) {
+function setup(taskId = RECORD_TASK, options: { storage?: FakeStorage | null; audio?: () => FakeAudioContext | null; dialogVoice?: "beep" | "letters" } = {}) {
   const ctx = new FakeAudioContext();
   const keys = new FakeKeys();
   const storage = options.storage === undefined ? new FakeStorage() : options.storage;
@@ -56,6 +56,7 @@ function setup(taskId = RECORD_TASK, options: { storage?: FakeStorage | null; au
     random: () => 0.5,
     tracks: TWO,
     start: "main",
+    ...(options.dialogVoice ? { dialogVoice: options.dialogVoice } : {}),
   });
   const run = (seconds: number, controls: Controls = NO_INPUT) => {
     for (let i = 0; i < Math.round(seconds / dt); i++) game.update(dt, controls);
@@ -220,15 +221,17 @@ describe("effects from game events", () => {
     expect(sounds(s.ctx)).toBe(before);
   });
 
-  it("blips as dialog text appears, then stops while it waits", () => {
-    const s = setup(RECORD_TASK);
+  // The beep keeps its old bar (more than 3 in half a second); the letters voice rests
+// on spaces and marks, so it makes 3 in the same time (issue 077).
+it.each([["beep", 3], ["letters", 2]] as const)("(%s voice) blips as dialog text appears, then stops while it waits", (dialogVoice, atLeast) => {
+    const s = setup(RECORD_TASK, { dialogVoice });
     s.unlock();
     s.game.openDialog({ type: "say", text: "Hello there, this is some text to read." });
     s.game.update(dt, NO_INPUT);
     const start = sounds(s.ctx);
     s.run(0.5);
     const typing = sounds(s.ctx) - start;
-    expect(typing).toBeGreaterThan(3);
+    expect(typing).toBeGreaterThan(atLeast);
     s.run(3); // the page is fully shown
     s.ctx.currentTime += 10;
     const waiting = sounds(s.ctx);

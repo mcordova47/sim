@@ -1,7 +1,7 @@
 ---
 id: 077
 title: Make the per-letter voice the default for dialog text
-status: todo
+status: review
 owner: claude
 depends_on: []
 ---
@@ -17,3 +17,21 @@ Marc (2026-10-27), after trying issue 075: he likes `dialogvoice=letters` better
 - `npm test` and `npm run build` pass.
 
 ## Progress log
+- 2026-10-27: plan: flip `DEFAULT_SETTINGS.dialogVoice` to `letters` (settings.ts reads only an explicit `"beep"` as beep), have `SoundFeature` take its starting voice from `DEFAULT_SETTINGS`, put `letters` first in `SOUND.dialogVoices` (the comment says first is the default; the toggle is explicit, so order does not change it), then fix the tests that assumed beep.
+- 2026-10-27: done. Files: `src/game/config.ts`, `src/game/sound/{settings,feature}.ts`, tests `src/game/sound/{dialog-voice,settings,feature}.test.ts`, `docs/music.md`. Golden `dialog-beep-voices.json` NOT re-recorded (git shows it unchanged); the beep test now runs with the setting explicitly `beep` and still passes against it.
+  - The `?dialogvoice=beep` dev override already existed (devDialogVoice accepts both); docs now name it first. L screen label reads from the active mode, so it shows LETTERS by default and BEEP after D (tested). Beep/popup/typing-game/cutscene blips are untouched code; only `SoundFeature.blips()` for dialog depends on the setting.
+  - Tests changed (12 failed after the flip; every check kept, none weakened):
+    1. dialog-voice "beep (the default)" > byte-identical to golden: setup now passes `dialogVoice: "beep"`; describe renamed "beep (the other option)".
+    2. dialog-voice > stays the beep when saved as beep / asked for beep: base is now explicit beep (was default); added a check that base equals the golden.
+    3. dialog-voice letters > same every time: the "differs from" comparison now against explicit beep (was default).
+    4. saving and switching > saves and loads next visit: start is letters, first toggle gives beep (saved and reloaded), second toggle back to letters; same round trip, directions swapped.
+    5. labels the setting: LETTERS first, BEEP after the toggle.
+    6. old save/junk: renamed; junk and missing field now expect letters; added explicit `beep` save stays beep, and storage: null gives letters.
+    7. keeps other settings when switched: the toggle from letters now writes beep; other fields still checked.
+    8. URL override: uses `dialogVoice: "beep"` override, expects saved value stays letters and next visit letters.
+    9. settings.test defaults (nothing saved, no storage, damaged data): defaults now letters.
+    10. settings.test saves the dialog voice: junk values now expect letters; added save/load of explicit beep.
+    11. settings.test storage throws: load default is letters (saves still beep literals, which are just inputs).
+    12. feature.test "blips as dialog text appears": now runs for both voices. Beep keeps its exact bar (>3 in 0.5 s); letters makes 3 in 0.5 s (rests on spaces) so its bar is >2. Both check silence while waiting.
+  - Checked and left alone: achievements/feature.test.ts uses a fake voice (no default assumed). All other dialog-using tests pass under the letters default unchanged (they don't count dialog blips).
+  - `npm test`: 2016 passed. `npm run build`: ok. Not checked: how letters feels by ear in a browser (Marc already tried it).

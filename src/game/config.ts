@@ -537,7 +537,7 @@ export const SOUND = {
   // was skipped) plays nothing.
   dialogLetters: { gain: 0.5, wobble: 0.04, skipAbove: 8 },
   // The dialog voices a player can choose between (the first is the default).
-  dialogVoices: ["beep", "letters"] as const,
+  dialogVoices: ["letters", "beep"] as const,
   // Mini-game keys. The notes game plays a different note for each arrow.
   noteKeys: { up: note(7), down: note(-5), left: note(0), right: note(4) } as Record<string, number>,
   effects: {

@@ -13,7 +13,7 @@ import { browserAudio, type AudioFactory } from "./audio-types";
 import { MoodLift, comboPitch, floorOf, noteKeyPitch, stepEffect, stepGain, stepPitch } from "./decisions";
 import { SoundEngine } from "./engine";
 import { mumbleNotes } from "../flashcards/mumble";
-import { SettingsStore, type DialogVoice } from "./settings";
+import { DEFAULT_SETTINGS, SettingsStore, type DialogVoice } from "./settings";
 
 // The parts of a window the feature listens to, so tests can pass fakes.
 export interface KeyEventLike {
@@ -78,8 +78,8 @@ export class SoundFeature implements Layer {
   // Characters of dialog text that had appeared at the last frame.
   private shown = 0;
   // How dialog text sounds now, and what is saved (they differ under the URL override).
-  private voiceMode: DialogVoice = "beep";
-  private voiceSaved: DialogVoice = "beep";
+  private voiceMode: DialogVoice = DEFAULT_SETTINGS.dialogVoice;
+  private voiceSaved: DialogVoice = DEFAULT_SETTINGS.dialogVoice;
 
   constructor(private readonly game: Game, options: SoundOptions = {}) {
     this.random = options.random ?? Math.random;

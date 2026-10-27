@@ -2,7 +2,11 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#111111" />
     <title>Life</title>
     <style>
       html, body {
@@ -10,20 +14,104 @@
         height: 100%;
         background: #111;
         overflow: hidden;
+        overscroll-behavior: none;
+        touch-action: none;
+        user-select: none;
+        -webkit-user-select: none;
+        -webkit-touch-callout: none;
+        -webkit-tap-highlight-color: transparent;
       }
       body {
+        position: fixed;
+        inset: 0;
         display: flex;
         align-items: center;
         justify-content: center;
+      }
+      @supports (height: 100dvh) {
+        body { height: 100dvh; }
       }
       canvas {
         image-rendering: pixelated;
         image-rendering: crisp-edges;
       }
+
+      /* The touch layer (issue 087). Nothing here applies unless body has the class "touch",
+         which the script sets on a touch screen or with ?touch=1. */
+      #touch-ui {
+        display: none;
+        font: 700 13px/1 system-ui, -apple-system, sans-serif;
+        letter-spacing: 0.05em;
+        color: #e8e4dc;
+      }
+      body.touch #touch-ui { display: block; }
+      .tp-dpad, .tp-btn, .tp-pill { touch-action: none; cursor: pointer; }
+      .tp-dpad { position: relative; width: 150px; height: 150px; }
+      .tp-arm, .tp-hub { position: absolute; background: #4a4640; pointer-events: none; }
+      .tp-up { left: 50px; top: 0; width: 50px; height: 62px; border-radius: 10px 10px 0 0; }
+      .tp-down { left: 50px; top: 88px; width: 50px; height: 62px; border-radius: 0 0 10px 10px; }
+      .tp-left { left: 0; top: 50px; width: 62px; height: 50px; border-radius: 10px 0 0 10px; }
+      .tp-right { left: 88px; top: 50px; width: 62px; height: 50px; border-radius: 0 10px 10px 0; }
+      .tp-hub { left: 50px; top: 50px; width: 50px; height: 50px; }
+      .tp-dpad.tp-on-up .tp-up,
+      .tp-dpad.tp-on-down .tp-down,
+      .tp-dpad.tp-on-left .tp-left,
+      .tp-dpad.tp-on-right .tp-right { background: #8a847a; }
+      .tp-btn {
+        position: absolute;
+        border-radius: 50%;
+        background: #6b3f3f;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 18px;
+      }
+      .tp-a { width: 72px; height: 72px; right: 0; top: 0; }
+      .tp-b { width: 64px; height: 64px; right: 92px; top: 56px; }
+      .tp-pill {
+        min-width: 88px; height: 44px; padding: 0 8px; box-sizing: border-box;
+        border-radius: 22px; background: #4a4640;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .tp-btn.tp-held, .tp-pill.tp-held { background: #8a847a; }
+      .tp-face { position: relative; width: 164px; height: 120px; }
+      .tp-pills { display: flex; gap: 12px; justify-content: space-between; }
+
+      /* Portrait: the picture on top, the controls below it. */
+      @media (orientation: portrait) {
+        body.touch {
+          flex-direction: column;
+          justify-content: flex-start;
+          padding-top: max(12px, env(safe-area-inset-top));
+          box-sizing: border-box;
+        }
+        body.touch #touch-ui {
+          flex: 1;
+          width: 100%;
+          max-width: 430px;
+          box-sizing: border-box;
+          display: grid;
+          grid-template-columns: auto auto;
+          justify-content: space-between;
+          align-content: start;
+          gap: 28px 0;
+          padding: 36px max(24px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(24px, env(safe-area-inset-left));
+        }
+        body.touch .tp-pills { grid-column: 1 / 3; }
+      }
+
+      /* Landscape: the same buttons float over the picture's corners. */
+      @media (orientation: landscape) {
+        body.touch #touch-ui { position: fixed; inset: 0; pointer-events: none; }
+        body.touch #touch-ui > * { pointer-events: auto; opacity: 0.55; }
+        body.touch .tp-dpad { position: fixed; left: max(12px, env(safe-area-inset-left)); bottom: max(12px, env(safe-area-inset-bottom)); }
+        body.touch .tp-face { position: fixed; right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom)); }
+        body.touch .tp-pills { position: fixed; top: max(8px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); gap: 8px; }
+        body.touch .tp-pill { min-width: 64px; height: 36px; }
+      }
     </style>
   </head>
   <body>
     <canvas id="game"></canvas>
+    <div id="touch-ui"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

@@ -6,12 +6,13 @@ import { startLoop } from "./game/loop";
 import { reducedMotionAsked } from "./game/reduced-motion";
 import { readControls } from "./input/controls";
 import { Keyboard } from "./input/keyboard";
+import { mountTouchUi } from "./input/touch-ui";
 import { createScreen } from "./render/canvas";
 import { spriteNames } from "./render/sprite-names";
 import { Sprites } from "./render/sprites";
 
 const canvas = document.getElementById("game") as HTMLCanvasElement;
-const { ctx } = createScreen(canvas);
+const screen = createScreen(canvas);
 const keyboard = new Keyboard();
 const sprites = new Sprites();
 const game = new Game(APARTMENT.rooms[APARTMENT.start], {
@@ -19,7 +20,7 @@ const game = new Game(APARTMENT.rooms[APARTMENT.start], {
   sprites,
   reducedMotion: () => reducedMotionAsked(),
 });
-attachFeatures(game);
+const features = attachFeatures(game);
 
 // A dev shortcut for looking at a state without playing to it: `?set=plantStage:3`
 // or `?set=plantStage:1,plantDry:100` (the plant drooping). Comma separated
@@ -65,6 +66,26 @@ try {
   // No address to read (never in a browser).
 }
 
+// The touch layer (issue 087): shown on a touch screen (or with `?touch=1`), it raises the same
+// key events as the keyboard. It switches the screen to the phone fit when it shows.
+const touch = mountTouchUi({
+  root: document.getElementById("touch-ui") as HTMLElement,
+  onGesture: () => features.unlockAudio(),
+  onVisible: (on) => screen.setTouch(on),
+});
+screen.setTouch(touch.visible);
+
+// Keep the browser from zooming or selecting when a finger is on the game.
+document.addEventListener("contextmenu", (e) => {
+  if (touch.visible) e.preventDefault();
+});
+document.addEventListener("gesturestart", (e) => {
+  if (touch.visible) e.preventDefault();
+});
+document.addEventListener("touchmove", (e) => {
+  if (touch.visible && e.touches.length > 1) e.preventDefault();
+}, { passive: false });
+
 // Load every sprite before the first frame. A missing one draws as a coloured
 // rectangle (and is logged) rather than blocking the game.
 sprites.load(spriteNames(Object.values(APARTMENT.rooms))).then(() => {
@@ -72,9 +93,11 @@ sprites.load(spriteNames(Object.values(APARTMENT.rooms))).then(() => {
     update(dt) {
       game.update(dt, readControls(keyboard));
       keyboard.endFrame();
+      touch.afterFrame();
     },
     render(alpha) {
-      game.render(ctx, alpha);
+      game.render(screen.ctx, alpha);
+      screen.present();
     },
   });
 });

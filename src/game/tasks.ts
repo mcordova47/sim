@@ -147,6 +147,11 @@ const STATE_RULES: Record<string, Partial<Task>> = {
     // More dishes, more points.
     pointsBonus: { var: "dishes", perUnit: 10 },
   },
+  // The boxes are a stack or flat (issue 066). Opening a package at the door puts the stack back.
+  "flatten-boxes": {
+    requires: [{ var: "boxes", min: 1, reason: "NO BOXES TO FLATTEN" }],
+    effects: [{ var: "boxes", set: 0 }],
+  },
   // Coffee alternates: the mug is empty, so you make it; it is full, so you drink it.
   coffee: {
     requires: [NO_CLEAN_PLATES, { var: "mug", max: 0, reason: "COFFEE IS WAITING" }],

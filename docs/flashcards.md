@@ -50,7 +50,7 @@ The original IPA voice (style 1) tells vowels apart by pitch, and its pitches ar
 2. **Intonation (style 3).** Pitch drifts down across the phrase, the stressed vowel gets a small bump and the last vowel falls (`FLASHCARDS.voice.intonation`, fractions of the pitch; a few percent each, never more than a few semitones).
 3. **Jitter (style 4).** Every sound is a few percent off (`FLASHCARDS.voice.jitter`), in a fixed pattern seeded by its place in the word, so no two vowels are quite alike and a word still sounds the same every time.
 
-In the practice deck the best voice is the default and V steps down from it: diphthongs, murmurs, glides, filtered+, filtered, jitter, intonation, formants, ipa and spelling, then back to the best (the tag shows which) and R says the card again, so the parts can be heard against each other on the same card. `FLASHCARDS.voice.style` is the voice a card gets before V is pressed: 9, the best (diphthongs), for real cards too.
+In the practice deck V steps between the two voices being compared, `faster` and `fastest` (the tag shows which); add `&voices=all` to the address to step through every voice, in the order of `VOICE_CYCLE` (9 to 13, then 8 down to spelling), from wherever the current voice is in that list and R says the card again, so the parts can be heard against each other on the same card. `FLASHCARDS.voice.style` is the voice a card gets before V is pressed, for real cards too: 11 (faster) while it and 13 (fastest) are being compared, and the voices V steps between are `DEMO_VOICES` in `flashcards/demo.ts`.
 
 ### The source-filter voice (styles 5 and 6)
 
@@ -83,6 +83,18 @@ Listening to the filtered voice showed three things still made the old way, as s
 - **The /l/ (style 8).** The /l/ was a 50 ms triangle tone sliding between two pitches, the worst consonant once the others were fixed. It is now the vowel source through a low resonance (360 Hz) and one around 1300 Hz (`voiceFiltL`).
 - **Style 9, diphthongs.** In style 7 a glide and its vowel were two separate sounds back to back, so the join was discontinuous. Now a vowel with a glide before it (`bien`, `agua`), after it (`aire`, `hoy`) or both (the triphthong of `estudiáis`) is one sound whose resonances move from the first to the second, with one loudness for the whole thing. The movement is most of the sound: they reach the vowel 60 percent of the way into a glide-vowel, leave it 30 percent of the way into a vowel-glide, and the sound stays at full level until 85 percent of the way so the end of the movement is heard (`DIPHTHONG_SHAPE` in `config.ts`; an offline model of the first version showed a vowel-glide (`hoy`) as 150 ms of steady vowel with the glide only during the fade, 20 dB down, and a glide-vowel (`bien`) as a 50 ms sweep followed by 100 ms of steady vowel, which is why it sounded like one held vowel) (`voiceDiphJE`, `voiceDiphAJ`, `voiceDiphJAJ` and their `Stress` twins; 80 are generated from `FORMANTS`). Two vowels in a row (`día`, `río`) are a hiatus, two syllables, and stay two separate sounds, so they keep the break. A glide between two vowels (`aya`) goes with the vowel after it. A glide next to no vowel keeps its old sound.
 
+### Timing variants (styles 10 to 12)
+
+With the diphthongs fixed they sound longer and fuller than the single vowels around them. A diphthong is held at full level and is 0.16 to 0.28 s before the slowdown (0.18 to 0.32 s after it); a single vowel dies away at once, so it is audible for only about 50 to 100 ms whatever its length: stretching a vowel only lengthens the tail. Three variants to hear against style 9, each in `FLASHCARDS.voice.variants` and stepped to by V (tags `longer`, `faster`, `consfast`):
+
+- **Style 10, `longer`:** single vowels last `longerVowels` times as long (1.4), both the sound and the time it takes, and are held at full level at the diphthongs' level and hold (`voiceHeldA` and its `Stress` twin, with the plain vowel's resonances) so they sound as long as they are and sit with the diphthongs. Diphthongs and everything else keep their time. Words come out about 20 percent longer than style 9.
+- **Style 11, `faster`:** style 10 with every time (sounds, gaps, the pauses between words) scaled by `faster` (0.82), which brings the words back to about as long as style 9's.
+- **Style 12, `consfast`:** style 10 instead with only the consonants quicker, by `quickConsonants` (0.75): the sound and the time it takes. The vowels, diphthongs and the pauses between words keep their time. Keep this at 0.7 or above: the shortest sound, the burst of `b d g`, reaches the engine's attack time at about 0.7 and would stop being a sound of its own.
+
+- **Style 13, `fastest`:** style 11 a little faster again, by `fastest` (0.74, about 10 percent quicker than `faster`), so words are about 74 percent of style 10's length and roughly 10 percent shorter than style 9's. Added when `faster` was liked and a slightly faster version was asked for. Everything is scaled alike, as in style 11, so the shortest sound (the burst of `b d g`) is 17 ms, still over the engine's attack time.
+
+None of the three changes which sounds are made or at what pitch, only their shape and the time they take. `FLASHCARDS.voice.style` is 11 (faster) while 11 and 13 are being compared.
+
 ### Turning the levels
 
 - **Diphthongs:** `DIPHTHONG_SHAPE.level` in `config.ts` (0.11; 1.4 times that when stressed). It was 0.22, which with the held loudness made a diphthong about 9 dB louder than a vowel.
@@ -102,7 +114,7 @@ The deck has four sets, in this order when you ask for all of them, or one with 
 - **consonants:** each consonant between two a's (`aba`, `ada`, `aga`, ...), the usual way to compare consonants. Both the tap (`ara`) and the trill (`arra`) are there.
 - **words:** the first practice deck, single words, both card directions.
 
-V steps down from the best voice (diphthongs) through each earlier one to spelling and back (the tag shows which) and R says the card again, to hear them against each other on the same card.
+V steps between `faster` and `fastest` (the tag shows which; `&voices=all` for every voice, see above) and R says the card again, to hear them against each other on the same card.
 
 ## The interface
 

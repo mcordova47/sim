@@ -29,6 +29,11 @@ const production = (slug: string, english: string, spanish: string, ipa: string,
   speaks: "back",
 });
 
+// The voices V steps between in the practice deck while two are being compared
+// (indexes into `VOICE_STYLES`: 11 faster, 13 fastest; 12 consfast is still there with `&voices=all`). `&voices=all` in the
+// address steps through every voice.
+export const DEMO_VOICES: readonly number[] = [11, 13];
+
 // Four sets, to hear the voice on different things:
 // - sentences: phonetically rich sentences that, between them, use every sound the
 //   voice has (the audio equivalent of "the quick brown fox");
@@ -123,11 +128,13 @@ export class DemoSession implements StudySession {
 
 // The practice backend over one of the sets (`?flashcards=demo&set=diphthongs`),
 // or over all of them.
-export function demoBackendFor(set?: string | null): StudyBackend {
+export function demoBackendFor(set?: string | null, voices?: string | null): StudyBackend {
   const cards = set && Object.hasOwn(DEMO_SETS, set) ? DEMO_SETS[set as DemoSet] : DEMO_CARDS;
   return {
     paysPoints: false,
     usesKey: false,
+    // V steps between the voices being compared; `&voices=all` brings back them all.
+    ...(voices === "all" ? {} : { voiceCycle: DEMO_VOICES }),
     async open(): Promise<OpenResult> {
       return new DemoSession(cards);
     },

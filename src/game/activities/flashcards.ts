@@ -46,9 +46,9 @@ export class FlashcardsActivity extends BaseActivity {
   again = 0;
   paid = 0;
   // How a card is voiced (an index into `VOICE_STYLES`): 0 by spelling, higher by
-  // its IPA, each style adding to the one before, and the highest is the default.
-  // V steps down through them in the practice deck (`VOICE_CYCLE`), to hear what
-  // each part adds.
+  // its IPA, each style adding to the one before; `FLASHCARDS.voice.style` is the
+  // default. V steps through the practice deck's voices (the backend's
+  // `voiceCycle`, or `VOICE_CYCLE` for all of them), to hear what each part adds.
   voiceStyle: number = F.voice.style;
 
   private session: StudySession | null = null;
@@ -187,8 +187,9 @@ export class FlashcardsActivity extends BaseActivity {
   private switchVoice(controls: Controls): void {
     if (this.backend.usesKey !== false || !controls.keys.includes("KeyV")) return;
     if (controls.keysDown.some((k) => /^(Shift|Control|Meta|Alt)/.test(k))) return;
-    // The next voice down the list from the best, and back to the best after spelling.
-    this.voiceStyle = VOICE_CYCLE[(VOICE_CYCLE.indexOf(this.voiceStyle) + 1) % VOICE_CYCLE.length];
+    // The next voice in the cycle (the first one if the current voice is not in it).
+    const cycle = this.backend.voiceCycle ?? VOICE_CYCLE;
+    this.voiceStyle = cycle[(cycle.indexOf(this.voiceStyle) + 1) % cycle.length];
     this.repeat({ ...controls, keys: [F.mumble.repeatKey], keysDown: [] });
   }
 

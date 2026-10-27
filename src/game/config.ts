@@ -529,6 +529,34 @@ const diphthongEffect = (on: string, vowel: string, off: string, stress: boolean
     ],
   };
 };
+// A single vowel shaped like a diphthong: the same source and resonances as a
+// plain filtered vowel but held at full level for `DIPHTHONG_SHAPE.hold` of its
+// length and at `DIPHTHONG_SHAPE.level`, so it sits with the diphthongs (style 10
+// on). A plain vowel dies away at once, which makes it sound short whatever its
+// length: stretching it only lengthens the tail. `voiceHeldA` and `voiceHeldAStress`.
+const heldVowelEffect = (vowel: string, stress: boolean): EffectDef => ({
+  priority: "low",
+  voices: [
+    {
+      source: "sawtooth",
+      freq: SOURCE_F0,
+      formants: [
+        { freq: FORMANTS[vowel].f1, q: SOURCE_FORMANT.q, gain: SOURCE_FORMANT.level[0] },
+        { freq: FORMANTS[vowel].f2, q: SOURCE_FORMANT.q, gain: SOURCE_FORMANT.level[1] },
+      ],
+      length: stress ? VOWEL_TIME.stress : VOWEL_TIME.plain,
+      hold: DIPHTHONG_SHAPE.hold,
+      gain: DIPHTHONG_SHAPE.level * (stress ? 1.4 : 1),
+    },
+  ],
+});
+const heldVowelEffects = (): Record<string, EffectDef> =>
+  Object.fromEntries(
+    Object.keys(FORMANTS).flatMap((vowel) => [
+      [`voiceHeld${vowel.toUpperCase()}`, heldVowelEffect(vowel, false)],
+      [`voiceHeld${vowel.toUpperCase()}Stress`, heldVowelEffect(vowel, true)],
+    ]),
+  );
 const diphthongEffects = (): Record<string, EffectDef> => {
   const out: Record<string, EffectDef> = {};
   for (const on of ["", "j", "w"]) {
@@ -668,6 +696,7 @@ export const SOUND = {
     ...filteredEffects(),
     ...glideEffects(),
     ...diphthongEffects(),
+    ...heldVowelEffects(),
     voiceFiltM: nasalEffect(1100),
     voiceFiltN: nasalEffect(1600),
     voiceFiltNY: nasalEffect(2200),
@@ -1047,12 +1076,25 @@ export const FLASHCARDS = {
     // through resonances, so no vowel is higher than another, and the whole voice
     // slowed by `slow` (2 is half speed; the sounds are stretched too).
     slow: 1.15,
+    // Three timing variants of the diphthong voice to hear against it (V steps to
+    // them after it): style 10 makes the single vowels longer (`longerVowels`, a
+    // multiple of their length) and holds them at full level like a diphthong, so
+    // they sit with the diphthongs; style 11 adds speed to everything (`faster`, a
+    // multiple of the time it takes, 0.82 so that the words are about as long as
+    // style 9's, which the longer vowels had made 20 percent longer); style 12
+    // instead makes only the consonants quicker (`quickConsonants`) and leaves the
+    // vowels and the pauses; style 13 is style 11 a little faster again (`fastest`,
+    // 0.74, about 10 percent quicker than `faster`).
+    variants: { longerVowels: 1.4, faster: 0.82, quickConsonants: 0.75, fastest: 0.74 },
     // Which voice a card gets before V is pressed (an index into `VOICE_STYLES`):
     // 0 spelling, 1 ipa (the original), 2 formants, 3 intonation, 4 jitter, 5
     // filtered (the source-filter voice slowed), 6 filtered with intonation and
-    // jitter, 7 glides, 8 murmurs, 9 diphthongs. The best one is the default, and V
-    // steps from it down through the earlier ones.
-    style: 9,
+    // jitter, 7 glides, 8 murmurs, 9 diphthongs, 10 longer vowels, 11 faster, 12
+    // quicker consonants, 13 fastest. The default is 11 while it and 13 are being
+    // compared; V steps between those two in the practice deck (`DEMO_VOICES`), or through
+    // every voice with `&voices=all` (the default, the newest candidates, then each
+    // earlier one down to spelling).
+    style: 11,
     longer: 1.5,
     symbols: {
       a: { effect: "voiceVowel", pitch: 1, length: 0.1, vowel: true },

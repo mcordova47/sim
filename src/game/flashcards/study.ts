@@ -43,5 +43,8 @@ export interface StudyBackend {
   // False for a backend with no account (the practice deck): the key screen is
   // skipped and no key is remembered. Default true.
   readonly usesKey?: boolean;
+  // The voices V steps through (indexes into `VOICE_STYLES`), if not all of them:
+  // the practice deck is limited to the ones being compared.
+  readonly voiceCycle?: readonly number[];
   open(key: string): Promise<OpenResult>;
 }

@@ -14,7 +14,8 @@ function origin(): string {
 
 // The practice deck is asked for with `?flashcards=demo` in a dev build (never
 // in a production build), so a different backend needs no edit to the config.
-// `&set=sentences|diphthongs|consonants|words` picks one set of its cards.
+// `&set=sentences|diphthongs|consonants|words` picks one set of its cards, and
+// `&voices=all` lets V step through every voice, not only the two being compared.
 export function wantsDemo(search: string, dev: boolean): boolean {
   return dev && new URLSearchParams(search).get("flashcards") === "demo";
 }
@@ -30,7 +31,10 @@ function currentSearch(): string {
 // The backend the game studies against: the practice deck when asked for, else
 // the one in the config (`FLASHCARDS.backend`).
 export function studyBackend(search: string = currentSearch(), dev: boolean = import.meta.env.DEV): StudyBackend {
-  if (F.backend === "demo" || wantsDemo(search, dev)) return demoBackendFor(new URLSearchParams(search).get("set"));
+  if (F.backend === "demo" || wantsDemo(search, dev)) {
+    const params = new URLSearchParams(search);
+    return demoBackendFor(params.get("set"), params.get("voices"));
+  }
   return realBackend({
     origin: origin(),
     core: () => {

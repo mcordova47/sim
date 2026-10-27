@@ -244,7 +244,7 @@ describe("the practice deck", () => {
     expect([...new Set(glyphs.filter((g) => g.h === 7 && g.dy >= panelTop + 60 && g.dy < panelTop + 90).map((g) => g.dy))]).toEqual([panelTop + 68]);
     // No transcription is drawn in real play (the IPA font's glyphs are 9 high).
     expect(glyphs.some((g) => g.h === 9)).toBe(false);
-    expect(calls.filter((c) => c[0] === "fillRect" && c[3] === 120)).not.toHaveLength(0);
+    expect(calls.filter((c) => c[0] === "fillRect" && c[4] === 120)).not.toHaveLength(0);
     vi.unstubAllGlobals();
   });
 });

@@ -6,9 +6,9 @@ import type { Rect } from "./world";
 // here and a sprite, adding a slot is a line here and a `slot` on the object.
 // Nothing here costs anything or is ever required.
 
-// A slow, small, seeded wander of a glow: `alpha` and `radius` are the most it
+// A small, seeded, quick wander of a glow: `alpha` and `radius` are the most it
 // moves each, as a fraction (0.15 is plus or minus 15 percent); `seed` makes two
-// flickers differ. Never a strobe (see `flickerAt`).
+// flickers differ. Steps about twelve times a second, never a strobe (see `flickerAt`).
 export interface GlowFlicker {
   alpha: number;
   radius: number;
@@ -174,17 +174,20 @@ export function itemSprites(item: DecorItem, families: DecorData["families"] = F
 // The wander of a flickering glow at `hours` of game time, as multipliers near 1:
 // `alpha` within 1 plus or minus `flicker.alpha`, `radius` within 1 plus or minus
 // `flicker.radius`. Pure: the same seed and time always give the same numbers.
-// It is a sum of three slow sine waves (periods of about 3, 5 and 9 seconds of
+// It is a sum of three sine waves (periods of about 0.4, 0.7 and 1.3 seconds of
 // play, since a game hour is 30 seconds) with phases and slight speeds taken from
-// the seed, so it drifts and never jumps or strobes: at 60 frames a second it
-// moves by well under a percent of the glow per frame.
+// the seed, read in steps of 1/12 of a second so it ticks like a small sprite
+// animation instead of sliding. Each step is a fraction of the range, so it is
+// lively but never a strobe.
 export function flickerAt(flicker: GlowFlicker, hours: number): { alpha: number; radius: number } {
+  const step = 1 / 360; // game hours in 1/12 of a second
+  hours = Math.floor(hours / step) * step;
   const wave = (k: number, period: number, t: number) => {
     const phase = (((flicker.seed * 2654435761 + k * 40503) >>> 0) % 6283) / 1000;
     const speed = 1 + ((((flicker.seed + k) * 2246822519) >>> 0) % 1000) / 10000;
     return Math.sin((t / period) * Math.PI * 2 * speed + phase);
   };
-  const a = (wave(1, 0.1, hours) + wave(2, 0.17, hours) + wave(3, 0.3, hours)) / 3;
-  const r = (wave(4, 0.13, hours) + wave(5, 0.23, hours) + wave(6, 0.37, hours)) / 3;
+  const a = (wave(1, 0.0133, hours) + wave(2, 0.0233, hours) + wave(3, 0.0433, hours)) / 3;
+  const r = (wave(4, 0.0167, hours) + wave(5, 0.0267, hours) + wave(6, 0.05, hours)) / 3;
   return { alpha: 1 + flicker.alpha * a, radius: 1 + flicker.radius * r };
 }

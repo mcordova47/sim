@@ -303,11 +303,17 @@ describe("the candle flicker", () => {
     expect(hi - lo).toBeGreaterThan(0.1);
     expect(flickerAt({ ...f, seed: 12 }, 1)).not.toEqual(flickerAt(f, 1));
   });
-  it("never strobes: frame to frame it moves by under 1 percent", () => {
-    const frame = (1 / 60) * (2 / 60); // game hours per frame
-    let worst = 0;
-    for (let t = 0; t < 20; t += frame) worst = Math.max(worst, Math.abs(flickerAt(f, t + frame).alpha - flickerAt(f, t).alpha));
-    expect(worst).toBeLessThan(0.01);
+  it("ticks about twelve times a second and no step is a strobe", () => {
+    const step = 1 / 360; // game hours in 1/12 of a second
+    expect(flickerAt(f, 1 + step * 0.1)).toEqual(flickerAt(f, 1 + step * 0.9));
+    let worst = 0, changes = 0;
+    for (let k = 0; k < 360 * 20; k++) {
+      const d = Math.abs(flickerAt(f, (k + 1.5) * step).alpha - flickerAt(f, (k + 0.5) * step).alpha);
+      worst = Math.max(worst, d);
+      if (d > 0) changes++;
+    }
+    expect(worst).toBeLessThan(0.2); // under half the 0.4 range
+    expect(changes).toBeGreaterThan(360 * 20 * 0.9);
   });
 
   function rings(item: string, hours: number) {

@@ -14,6 +14,18 @@ export interface CoreCard {
   direction: string;
 }
 
+// What the progress page needs and the core does not offer yet (see "Needed from
+// the app" in docs/flashcards.md): the figures of the app's own `Stats.overview`
+// and `Stats.nextDueIn`, for the language's whole deck.
+export interface CoreOverview {
+  total: number; // words in the deck
+  seen: number; // words met (any answer given)
+  mastered: number; // words known (`Stats.masteryOf` is Mastered)
+  dueNow: number; // cards due at `now`
+  dueTomorrow: number; // cards due after `now` and within the next 24 hours
+  nextDueIn: number | null; // ms from `now` to the soonest later due card; null if none is scheduled ahead
+}
+
 export interface Core {
   version: number;
   session(progress: string | null, now?: number, language?: string): string[];
@@ -23,6 +35,9 @@ export interface Core {
   // How a word is said (a card's own slug), or null if there is no transcription.
   // Optional: a core without it is still usable, and the voice goes by spelling.
   ipa?(slug: string, dialect?: string, language?: string): string | null;
+  // Optional, like `ipa`: a core without it still studies, and the progress page
+  // then shows only what the game itself knows.
+  overview?(progress: string | null, now?: number, language?: string): CoreOverview;
   requeue(slug: string, position: number, queue: string[]): string[];
 }
 

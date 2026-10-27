@@ -21,6 +21,18 @@ export interface CardView {
   speaks?: "front" | "back";
 }
 
+// The figures on the progress page, all from the app's own core (or, in the
+// practice deck, its stand-in). Counts are whole numbers, `nextDueInMs` is
+// milliseconds from now to the soonest card that is not yet due, or null.
+export interface ProgressSummary {
+  total: number;
+  seen: number;
+  mastered: number;
+  dueNow: number;
+  dueTomorrow: number;
+  nextDueInMs: number | null;
+}
+
 export interface StudySession {
   // The slugs to study this session, in order.
   queue(): string[];
@@ -31,6 +43,10 @@ export interface StudySession {
   // delivered; the answer is then not kept anywhere, so the app's schedule is
   // never silently wrong.
   grade(slug: string, grade: Grade): Promise<boolean>;
+  // The figures for the progress page, from the progress as it stands now, or
+  // null when the backend cannot report them (the core has no `overview`, or it
+  // answered something that is not a set of plain counts). Never made up.
+  progress?(): ProgressSummary | null;
 }
 
 // "unreadable": the server holds cards this version of the core refuses (a newer

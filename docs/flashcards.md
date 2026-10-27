@@ -123,3 +123,35 @@ V steps between `faster` and `fastest` (the tag shows which; `&voices=all` for e
 ## Text
 
 The pixel font is capitals only. It now draws `Á É Í Ó Ú Ñ` (two rows of accent above the cap line); lowercase Spanish is drawn as capitals. `¿ ¡ Ü` are not drawn; the vocabulary deck does not need them.
+
+## The progress page (issue 082)
+
+When there is nothing left to review (the queue is empty at open, or the last card has been answered) the study screen shows a progress page instead of a dead end: a bar (known, then met but not yet known), a few plain lines (words known and met out of the deck, cards due now, how long until the next one, cards due within a day, and this visit's tally), and E to leave. Escape leaves from it like any screen. Showing it pays nothing and changes nothing; the points shown, if any, are those already earned by answering.
+
+Where the data comes from: the figures all come from the app's own core. The session asks `core.overview` (below) for the progress as it stands (after each delivered answer, the game's local copy is the merged blob it just wrote), and `flashcards/progress.ts` turns the answer into lines and checks that the numbers fit together (whole counts, known within met within the deck, and so on; anything else means no page of figures). The game keeps no copy of the cards or the schedule and parses no blob. Tone: plain and a bit dry, no streaks, no "overdue", nothing missable.
+
+`core.overview` does not exist yet, so a real session shows the plain line for now (see the next section). The practice deck has a stand-in that implements the proposed shape (`standInOverview` in `flashcards/demo.ts`): at the end of any practice set it shows figures worked out from that set's own answers, and `?flashcards=demo&set=empty` opens an empty queue over a fixed stand-in state (1000 words, 312 met, 127 known, nothing due, the next in 5 hours) to see the page at once. The numbers on those pages are the stand-in's and mean nothing.
+
+### Needed from the app: `core.overview` (for the progress page, issue 082)
+
+The page needs counts the core does not report today. `core.v1.js` exports `session`, `card`, `grade`, `ipa`, `merge`, `requeue`, `empty`, `sessionSize` and `version`; none of them says how many words are known, how many are due or when the next one is. The figures already exist in the app (`Flashcards.Stats.overview` and `Stats.nextDueIn` in `src/Flashcards/Stats.purs`, with `Stats.masteryOf` deciding what "known" means); `Flashcards.Core` just does not export them. The game must not parse the blob or reimplement the scheduler to get them.
+
+Proposed addition, in the same style as the other core functions (additive, so no `version` bump):
+
+```
+core.overview(progress, now?, language?) -> {
+  total: number,        // words in the deck (Stats.overview.total)
+  seen: number,         // words met: any answer given, still in the deck (.seen)
+  mastered: number,     // words known: Stats.masteryOf is Mastered (.mastered)
+  dueNow: number,       // cards due at `now` (.dueNow)
+  dueTomorrow: number,  // cards due after `now` and within 24 hours (.dueTomorrow)
+  nextDueIn: number | null  // ms from `now` to the soonest card that is not yet due (Stats.nextDueIn); null if none is scheduled ahead
+}
+```
+
+- Arguments as for `core.session`: `progress` is the stored JSON string or `null`, `now` is ms since the epoch (default `Date.now()`), `language` defaults to `"es"`. `null` progress gives zero counts, not an error. Anything that goes wrong throws, as the others do.
+- All counts are whole numbers, `seen <= total`, `mastered <= seen`, `dueNow <= seen`, `dueTomorrow <= seen - dueNow`. The game checks this (`readSummary` in `flashcards/progress.ts`) and shows nothing rather than a number that does not add up.
+- In `Flashcards.Core` this is `overview :: String -> String -> Number -> Overview` over `Stats.overview` and `Stats.nextDueIn` for `language.deck`, with `{ error :: String, ... }` like the rest, and a `core.js` wrapper that applies `must` and turns `Milliseconds` into a plain number. `accuracy`, `answers`, `misses` and `producing` are left out on purpose: the page is about what is known and when to come back, not a score.
+- Why: so the page can say "127 of 1000 words known, 312 met, nothing is due, the next one in 5 hours" from the app's own numbers. `test/core.mjs` would pin the shape as it does for the others.
+
+Until it exists the game feature-checks `typeof core.overview === "function"` (as it does for `ipa`). Without it, the page shows what the game can honestly say today: "Nothing is due. Come back later." (when the queue is empty) or the tally of this visit's answers ("N got it, N again."), and no figures. When the app adds `overview` the full page appears with no game change. A probe that finds the next due time by calling `core.session` at later and later times was considered and not built: it would be a guess at the scheduler through a side door, and it still would not give counts.

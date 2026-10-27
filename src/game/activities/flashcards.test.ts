@@ -3,10 +3,10 @@ import { FakeStorage } from "../achievements/fake-storage";
 import type { ClipboardLike } from "../../input/clipboard";
 import { NO_INPUT, type Controls } from "../../input/controls";
 import { FLASHCARDS as F } from "../config";
-import { DemoSession } from "../flashcards/demo";
+import { DemoSession, EMPTY_OVERVIEW, demoBackendFor } from "../flashcards/demo";
 import { StudyStore } from "../flashcards/key";
 import type { CardView, Grade, OpenResult, StudyBackend } from "../flashcards/study";
-import { FlashcardsActivity } from "./flashcards";
+import { FlashcardsActivity, PROGRESS_LAYOUT } from "./flashcards";
 import { fakeHost } from "./fake-host";
 
 const KEY = "abcdefghij0123456789abcdefghij01";
@@ -323,6 +323,112 @@ describe("FlashcardsActivity: studying", () => {
     t.a.draw(ctx, screen);
     vi.unstubAllGlobals();
     expect(calls.length).toBeGreaterThan(0);
+  });
+});
+
+describe("FlashcardsActivity: the progress page", () => {
+  const fixed = { total: 1000, seen: 312, mastered: 127, dueNow: 0, dueTomorrow: 9, nextDueIn: 5 * 3_600_000 };
+  const ready = async (cards: CardView[], overview: typeof fixed | null, empty: boolean, options: Parameters<typeof setup>[1] = {}) => {
+    const storage = options.storage ?? new FakeStorage();
+    new StudyStore(storage).saveKey(KEY);
+    const session = new DemoSession(cards, overview, empty);
+    const t = setup(() => session, { ...options, storage });
+    t.a.start();
+    await flush();
+    return { ...t, session };
+  };
+
+  it("shows when the queue is empty at open, with the figures, and E leaves with no points", async () => {
+    const t = await ready(CARDS, fixed, true);
+    expect(t.a.phase).toBe("done");
+    expect(t.a.summary?.mastered).toBe(127);
+    expect(t.a.progressLines().map((l) => l.text)).toContain("127 of 1000 words known");
+    await t.step(E);
+    expect(t.a.done).toBe(true);
+    expect(t.a.result.completed).toBe(false);
+    expect(t.f.rewards).toHaveLength(0);
+    expect(t.session.graded).toHaveLength(0);
+  });
+
+  it("Escape leaves it too, and Enter", async () => {
+    const t = await ready(CARDS, fixed, true);
+    t.a.cancel();
+    expect(t.a.done).toBe(true);
+    expect(t.f.rewards).toHaveLength(0);
+    const u = await ready(CARDS, fixed, true);
+    await u.step(keys("Enter"));
+    expect(u.a.done).toBe(true);
+  });
+
+  it("shows after the last card, from the progress as it stands, and pays only for the answers", async () => {
+    const t = await ready(CARDS.slice(0, 1), null, false);
+    await t.step(E);
+    await t.step(right);
+    await t.step(E);
+    await flush();
+    expect(t.a.phase).toBe("done");
+    expect(t.a.summary).toMatchObject({ total: 1, seen: 1, mastered: 1, dueNow: 0 });
+    const texts = t.a.progressLines().map((l) => l.text);
+    expect(texts).toContain("This time: 1 got it, 0 again.");
+    expect(t.f.rewards).toHaveLength(1);
+    const rewards = t.f.rewards.length;
+    for (let i = 0; i < 3; i++) await t.step(NO_INPUT);
+    expect(t.f.rewards).toHaveLength(rewards); // showing the page pays nothing more
+  });
+
+  it("with a backend that has no figures, shows only the plain line (as before)", async () => {
+    const t = await studying({}, []);
+    expect(t.a.summary).toBeNull();
+    expect(t.a.progressLines()).toEqual([]);
+    expect(t.a.message).toMatch(/nothing is due/i);
+  });
+
+  it("a backend whose progress throws shows the plain line", async () => {
+    const session = new DemoSession(CARDS, fixed, true);
+    session.progress = () => {
+      throw new Error("boom");
+    };
+    const storage = new FakeStorage();
+    new StudyStore(storage).saveKey(KEY);
+    const t = setup(() => session, { storage });
+    t.a.start();
+    await flush();
+    expect(t.a.phase).toBe("done");
+    expect(t.a.summary).toBeNull();
+  });
+
+  it("the practice deck's empty set, and its end of a session, show the page", async () => {
+    const f = fakeHost();
+    const a = new FlashcardsActivity(f.host, demoBackendFor("empty"), new StudyStore(new FakeStorage()), {
+      copy: async () => true,
+      read: async () => null,
+      onPaste: () => () => {},
+    });
+    a.start();
+    await flush();
+    expect(a.phase).toBe("done");
+    expect(a.summary).toMatchObject({ total: EMPTY_OVERVIEW.total, mastered: EMPTY_OVERVIEW.mastered });
+    expect(f.rewards).toHaveLength(0);
+  });
+
+  it("stays inside the box and above the leave line, in the longest page, at both box heights", async () => {
+    const canvas = () => ({ width: 0, height: 0, getContext: () => new Proxy({}, { get: () => () => {}, set: () => true }) });
+    vi.stubGlobal("document", { createElement: canvas });
+    const ctx = new Proxy({}, { get: () => () => {}, set: () => true }) as unknown as CanvasRenderingContext2D;
+    const worst = { total: 1000, seen: 1000, mastered: 400, dueNow: 12, dueTomorrow: 9, nextDueIn: 3 * 86_400_000 };
+    const t = await ready(CARDS, worst, true);
+    t.a.gotIt = 999;
+    t.a.again = 999;
+    t.a.paid = 99;
+    t.a.draw(ctx, { width: 320, height: 192 });
+    vi.unstubAllGlobals();
+    // The last line's top plus a glyph's height is above the leave line.
+    const L = PROGRESS_LAYOUT;
+    let ty: number = L.textY;
+    for (const item of t.a.progressLines()) ty += (item.gap ?? 0) + L.row;
+    const bottom = ty - L.row + 7;
+    expect(bottom).toBeLessThanOrEqual(120 - L.leaveFromBottom);
+    expect(L.barY + L.barH).toBeLessThan(L.textY);
   });
 });
 

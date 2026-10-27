@@ -1,7 +1,7 @@
 ---
 id: 076
 title: More paintings from Marc's unhung pieces; a different concert poster
-status: todo
+status: review
 owner: agent
 depends_on: []
 ---
@@ -22,3 +22,8 @@ Nine images: seven look like gig and album posters (use these as the style examp
 - Contact sheet and mockup for Marc (as in issue 074: `scripts/gifts-mockup.mjs`), looked at at 1x and 4x. `npm run sprites`, `npm test` and `npm run build` pass.
 
 ## Progress log
+
+- 2026-10-27 (agent): started. Looked at all nine images in `reference-photos/additional-art/`. Seven are gig posters (poster examples 1 to 7: dark and pink/blue duotone palettes, big hand-lettered shapes, planets and clouds, photo collages). The other two are what they looked like: a canvas of a seated figure in white on a red chair with a pale poster-like head and a checkered floor (a print of an illustrative painting, with text and a signature on it), and a winter yard print (grey sky, deep snow, a dark horse cart, broken fences, a bare tree with red buds). No surprises, so no question for Marc.
+- 2026-10-27 (agent): done, status review. Drew in `art/src/`: `art-concert-poster` (replaced; 32x16, still the unframed paper poster with tape at the top corners; new composition: night field, stars, blush planet, small blue moon, orange and butter horizon glow, pink cloud band, dark water; a mix of the ideas of examples 5 to 7, no text, not a copy), `art-snow-wagon` (the winter yard, 32x16, wide frame like `art-silver-landscape`) and `art-warm-figure` (the figure canvas, 32x16, tall pale frame centred like `art-tall-brown`). Both paintings fit the table and desk wall slots (32x16); none needed the 48x16 bed slot. Nothing registered, no game code touched. `scripts/gifts-mockup.mjs` now also lays out the two new paintings in its second band (one-line change, so the mockup shows them). Docs: later list in `docs/random-encounters.md` and the sprite list in `docs/art-style.md`. No real names, text or logos appear in any file.
+- Checked: ran `npm run sprites` (167 sprites, OK) and `node scripts/gifts-mockup.mjs`, viewed `art/mockup-gifts.png` (4x) and `art/mockup-gifts-1x.png`. Honest read: the poster reads clearly as a poster (planet and horizon); the snow yard reads as a cart with spoked wheels, a fence and a red-budded tree; the figure canvas is the weakest, a pale head, a white figure on a red chair and checks that read as an old print only loosely, which is in line with the other small paintings. Unviewed: how they look in the real room (not placed). `npm test` and `npm run build` results below.
+- Verified: npm test 2020 passed, npm run build OK. Independent reviewer not started (see report).

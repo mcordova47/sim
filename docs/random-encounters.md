@@ -42,7 +42,7 @@ Item ids start with their kind (rule from stage 1). "Art needed" is what stage 4
 | 4 | achievement Green Thumb (water the snake plant 3 times) | `plant-dried` DRIED FLOWERS | shelf plant slot | **1 new** 16x16 (never grows; a plant that needs no water, as the 062 note says) |
 | 5 | game day 8 | `art-green-still-life` GREEN STILL LIFE | table wall, desk wall | **1 new** 32x16 |
 | 6 | game day 10 | `lamp-stool-lamp` STOOL LAMP | lamp table | **None.** The sprite `stool-lamp` exists and the TEST item `lamp-test-stool-lamp` already has its glow (radius 24, alpha 0.2). Stage 4 renames the TEST item to a real one. |
-| 7 | achievement Desk Job (every task at the desk) | `art-concert-poster` CONCERT POSTER | table wall, desk wall | **1 new** 32x16 (the poster on the desk, from the reference photo) |
+| 7 | achievement Desk Job (every task at the desk) | `art-concert-poster` CONCERT POSTER | table wall, desk wall | **1 new** 32x16 (the poster on the desk; redrawn in issue 076 as a dark gig-poster impression: night sky, blush planet, glowing horizon) |
 | 8 | game day 13 | `art-white-building` WHITE BUILDING | bed wall (48x16) | **1 new** 48x16 (the only wide piece in this list; the bed wall is the one wide slot) |
 | 9 | achievement Record Keeper (sort the records all four ways) | `lamp-candle` CANDLE | lamp table | **1 new** 16x16, and the `flicker` option on `glow` from issue 062's candle note (slow, small, never strobing) |
 | 10 | game day 16 | `art-dark-animal` DARK ANIMAL | table wall, desk wall | **1 new** 32x16 |
@@ -51,7 +51,7 @@ Total: 9 new sprites and one engine option (candle flicker), all small. Items 1 
 
 Order logic: a painting first (the room's biggest visible change and the cheapest), then a different kind each time so the swap list for each slot grows at a steady, small pace. The three achievement gifts are matched to what you did (watering gives a plant, desk work a poster, records a candle) so they read as a little acknowledgement, not a reward. The day gifts land at days 1, 3, 5, 8, 10, 13, 16 (gaps of 2, 2, 3, 2, 3, 3); the achievement gifts come on top when they come.
 
-**After the first ten** (the "later" list, for stage 4 to extend): the remaining gallery pieces (`art-oak-box`, `art-pale-mat`, `art-small-blue`, `art-tall-brown`, `art-dark-postcard`, `art-gold-narrow`), a trailing plant for a windowsill slot (5 sprites if it grows), the recycling bin (issue 070), a pantry upgrade, the rug if Marc wants it (062 open question 9), the nylon guitar.
+**After the first ten** (the "later" list, for stage 4 to extend): the remaining gallery pieces (`art-oak-box`, `art-pale-mat`, `art-small-blue`, `art-tall-brown`, `art-dark-postcard`, `art-gold-narrow`), the two unhung paintings from issue 076 (`art-snow-wagon`, a winter yard print, 32x16, fits the table and desk wall slots; `art-warm-figure`, a tall figure canvas, 32x16, same slots), a trailing plant for a windowsill slot (5 sprites if it grows), the recycling bin (issue 070), a pantry upgrade, the rug if Marc wants it (062 open question 9), the nylon guitar.
 
 Only two narrow wall slots (table, desk) exist today, and this list has six narrow paintings, so most will sit in the inventory. That is fine for a quiet collection (issue 073's inventory), but see open question 6.
 

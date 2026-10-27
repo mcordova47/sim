@@ -26,3 +26,4 @@ Today the game is a front end for Marc's own account: the key screen asks for hi
 - Independent review of the note (a fresh agent), as for any design note.
 
 ## Progress log
+- 2026-10-27 (Marc's answers before the note is written): the real Spanish deck is the right deck for a guest. Moving a guest's local progress into a real key later by merging is **not wanted** (no merging): a guest stays a guest, and pasting a key starts from that account's own progress. Leave the language argument and the other questions to the note.

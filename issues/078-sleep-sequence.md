@@ -54,3 +54,6 @@ Ran: `npm test` 2224 pass (incl. `main-room-frames.golden.test.ts` unchanged), `
 Checklist for the author:
 - [ ] Make the post-Escape ease real (for example a flag set when the scene disappears without the clock having jumped, instead of exact clock equality), so dark and morning ease to 0 over `escapeRestore` while the clock runs on.
 - [ ] Tighten the Escape test so it fails on a snap (intermediate values for several frames after Escape in `asleep` and in `wake`), and keep the finish case snapping.
+
+### 2026-10-27 (fix after review round 1)
+- [x] Escape now eases the light back over `escapeRestore`: the follower snaps only when the clock moved by the whole jump (the finish), not on any clock change. The Escape test now requires several frames of ease (a snap fails it). `npm test` 2224 and build pass.

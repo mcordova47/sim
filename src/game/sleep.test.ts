@@ -182,12 +182,16 @@ describe("Escape at every moment wakes you early with nothing paid", () => {
         const startDark = light.sleepDark;
         let frames = 0;
         let prev = startDark;
+        const first: number[] = [];
         while ((light.sleepDark > 0 || light.sleepMorning > 0) && frames < 200) {
           game.update(dt, NO_INPUT);
           expect(light.sleepDark).toBeLessThanOrEqual(prev + 1e-12);
           prev = light.sleepDark;
+          first.push(light.sleepDark + light.sleepMorning);
           frames++;
         }
+        // An ease, not a snap: it takes several frames to reach 0 (unless it was nearly 0 already).
+        if (startDark + light.sleepMorning > 0.3 || first.length) expect(frames).toBeGreaterThanOrEqual(startDark > 0.3 ? 5 : 0);
         expect(frames * dt).toBeLessThanOrEqual(restore + 2 * dt);
         expect(light.sleepDark).toBe(0);
         expect(light.sleepMorning).toBe(0);

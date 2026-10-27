@@ -74,7 +74,9 @@ export class TimeOfDayFeature implements Layer {
       this.restore = scene.settings.escapeRestore;
       this.sceneClock = this.game.state.get("clock");
     } else if (this.dark > 0 || this.morning > 0) {
-      if (this.game.state.get("clock") !== this.sceneClock) {
+      // The finish moved the clock by the whole jump; after Escape it only ticks on a little.
+      const moved = (((this.game.state.get("clock") - this.sceneClock) % 24) + 24) % 24;
+      if (this.skipHours > 0 && moved >= this.skipHours - 0.01) {
         this.dark = 0;
         this.morning = 0;
       } else {

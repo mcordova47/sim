@@ -1,7 +1,7 @@
 ---
 id: 077
 title: Make the per-letter voice the default for dialog text
-status: done
+status: review
 owner: claude
 depends_on: []
 ---
@@ -44,3 +44,5 @@ Marc (2026-10-27), after trying issue 075: he likes `dialogvoice=letters` better
   - `npm test` 2016 passed, `npm run build` ok. Scope: only config.ts, sound/{settings,feature}.ts, 3 test files, docs/music.md, issue file.
   - Note (not a defect): since 075 every save written by the game contains an explicit dialogVoice "beep", so players who never touched the setting stay on beep. This is what the criteria specify; Marc's own saved value decides what he hears.
   - Unverified: how letters sounds by ear in a browser.
+- 2026-10-27: follow-up (planner request, from the review note): since 075 every save has an explicit "beep", so a saved beep alone cannot be read as a choice. Added `dialogVoiceChosen` to `life.sound.v1` (settings.ts, feature.ts). Only the D toggle sets it (`setDialogVoice`); every save keeps it, never clears it. On load "beep" counts only with `dialogVoiceChosen === true`; a plain saved "beep", junk, missing, or junk marker (false, "true", 1, null, [true]) gives letters. `?dialogvoice=` sets neither the marker nor the saved voice (also tested over a real beep choice).
+  - Tests: settings.test (round-trip with marker; defaults include `dialogVoiceChosen: false`; unmarked/junk-marker beep loads letters; marked beep loads beep; save calls pass the new field); dialog-voice.test (saved-beep test now carries the marker; old-save test adds unmarked 075-style beep and junk markers; "keeps other settings" expects the marker after the toggle; new tests: marker only from the toggle and kept by later saves, beep -> letters -> beep across reloads, dev override sets neither). No check removed. Docs updated (`docs/music.md`). Golden untouched. 2018 tests pass, tsc and build ok. Needs a fresh review.

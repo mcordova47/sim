@@ -938,12 +938,14 @@ export const SOUND = {
       ],
     },
     // The ad encounter's entrance (issue 080; the schedule is `ENCOUNTERS.entrance.sounds`).
-    // One low phone buzz (a rough square with a little noise).
+    // One low phone buzz (a rough square with a little noise; Marc asked for it louder).
     encounterBuzz: {
       voices: [
-        { wave: "square", freq: 78, length: 0.11, gain: 0.1 },
-        { wave: "square", freq: 82, length: 0.11, gain: 0.06 },
-        { noise: "lowpass", freq: 300, length: 0.1, gain: 0.06 },
+        { wave: "square", freq: 78, length: 0.11, gain: 0.2 },
+        { wave: "square", freq: 82, length: 0.11, gain: 0.12 },
+        // An octave up, so a laptop speaker that cannot make 80 Hz still buzzes.
+        { wave: "square", freq: 156, length: 0.1, gain: 0.08 },
+        { noise: "lowpass", freq: 300, length: 0.1, gain: 0.1 },
       ],
     },
     // One note of the rising pulse run; the schedule raises its pitch each time.

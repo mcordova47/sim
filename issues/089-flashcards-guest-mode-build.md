@@ -9,13 +9,16 @@ depends_on: [083, 082]
 ## Goal
 Build the guest mode designed in `docs/flashcards-guest.md` (issue 083), with Marc's answers recorded in `issues/083-flashcards-guest-mode.md`: someone with no sync key can study the real Spanish deck, with progress kept only in their own browser.
 
+## Keep it small
+Marc (2026-10-27): guest mode exists so the flashcards feature is not broken for people who are not him; it is not primarily a study tool. When a choice is between more machinery and a simpler behaviour that loses a guest's progress now and then, take the simpler one, and say so in the log. The decisions below still stand.
+
 ## Decisions (Marc, 2026-10-27; do not re-open)
 - Option (a): progress is the string `core.grade` returns, stored in localStorage under its own key that carries the language (`es` only for now). Only the static core file is fetched; no call to the progress endpoint, no minted keys.
 - The key screen gets a second choice, "Study without a key" (wording as drafted in the note, to be reviewed in the issue 037 text pass). Pasting a key later starts from that account's own progress; the guest's saved cards are **kept untouched and never merged**.
 - One small control to leave a mode (use a different key, or study without a key), on the done and choice screens, never mid-card.
 - If the core refuses a guest's saved cards (newer format, damage): say so, offer an explicit Start again with one confirm.
 - If storage is blocked or unavailable: study unsaved, with a plain warning that progress will not be kept; no points are paid in that state (the daily cap cannot be tracked either).
-- The game's own reset (L, then SHIFT+R) also clears the guest's flashcard progress; the reset's confirmation (add one if there is none) must say the cards go too.
+- The game's own reset (L, then SHIFT+R) also clears the guest's flashcard progress. Marc: guest mode is not meant as a serious study tool, it only keeps the feature from being broken for people who are not him, so losing a guest's progress is no big deal: no extra confirmation is required beyond whatever the reset already has (if its text lists what it clears, add the cards to it).
 - Points: the same rule and cap as a key holder (cap per browser). One plain line "saved in this browser only" on the first guest screen and the done screen.
 - Needed from the app: nothing. The core already has `empty(language)`, accepts null progress and a `language` argument.
 

@@ -114,6 +114,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 076 | [More paintings from Marc's unhung pieces; a different concert poster](issues/076-more-paintings-and-poster.md) | agent | done | |
 | 077 | [Make the per-letter voice the default for dialog text](issues/077-letters-voice-default.md) | claude | done | |
 | 078 | [A sleep sequence instead of just a timer](issues/078-sleep-sequence.md) | marc + claude | done | |
+| 079 | [Open the box one gift at a time](issues/079-open-box-one-at-a-time.md) | claude | done | 043 |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

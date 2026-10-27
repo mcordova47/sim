@@ -104,6 +104,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 065 | [Both windows' blinds; the dinner plate only when there is dinner](issues/065-blinds-and-plate.md) | claude | done | |
 | 066 | [Flattened boxes and collected packages are linked](issues/066-boxes-and-packages.md) | claude | todo | |
 | 068 | [Record player: no cooldown, pay only for a real change](issues/068-record-player-rewards.md) | claude | done | |
+| 069 | [Decor items decide whether they give light; the stool is a real item](issues/069-decor-glow.md) | claude | todo | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

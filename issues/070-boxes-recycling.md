@@ -1,7 +1,7 @@
 ---
 id: 070
 title: Boxes: flatten, take out the recycling, they disappear
-status: todo
+status: done
 owner: claude
 depends_on: [066]
 ---
@@ -17,3 +17,33 @@ Marc's idea (2026-10-26), building on issue 066: flattening the boxes should loo
 - Tests: the state machine (stack, flat, gone, collect from each), task offering and reasons, old saves, golden frames (kitchen not in them, check), render the kitchen in all three states at 1x and 4x and look. `npm run sprites`, `npm test` and `npm run build` pass.
 
 ## Progress log
+
+- 2026-10-26: started. Plan: extend `boxes` with a third value, a recycling task that takes flat boxes out, a `boxes-gone` sprite, tests, docs.
+- 2026-10-26: done, ready for review.
+  - Numbering decision: I did NOT renumber to 2/1/0. 066 saved 1 = stack, 0 = flat, and the stack is the default, so renumbering would make old saved values mean something else. `boxes` is now 0 flat, 1 stack (both unchanged), 2 = gone (new, max raised from 1 to 2). Collecting a package sets 1 from any value. (The game has no apartment save today, so nothing can break either way; this just keeps the numbers honest if one is added.)
+  - `src/game/state-vars.ts`: `boxes` max 2. `src/game/tasks.ts`: `flatten-boxes` now needs exactly 1 (min 1, max 1, same reason). New task `recycle-boxes` ("Take out the recycling", 55 points, duration 5, flavor "Down the stairs, into the bin, and the corner of the kitchen is yours again.", mood +3), requires flat (reasons `FLATTEN THE BOXES FIRST` for a stack, `NO BOXES TO TAKE OUT` when gone), sets 2. `take-trash` is unchanged except it shares `exclusive: 'trash'` with it.
+  - `src/game/apartment.ts`: both the recycling (Y) and the trash bin (N) list `recycle-boxes` first, then `take-trash`. With flat boxes the recycling task is the one offered (the same-named exclusive group shows only the first startable one); with a stack or no boxes the ordinary "Take out the trash" is offered, exactly as before, so ordinary trash keeps working and a stack is never removed. Because take-trash is always startable, the two refusal lines only show if the task is asked for directly (the tests check them); this was the only way to keep trash working with a stack. The kitchen box object picks `boxes-gone` (boxes 2), `boxes` (1), `boxes-flat` (0).
+  - Art: new `art/src/boxes-gone.sprite` (+ png): the pantry tub alone, same 32x16, bare floor where the boxes were. `boxes-flat` (the tidy art from 066) is unchanged: it already reads as tidy aligned sheets over a banded pile.
+  - Flavor lines: flatten ("meaning to do this since spring") still fits; trash line untouched; the recycling line is new.
+  - Tests in `src/game/boxes.test.ts`: state range, variants for all three, refusal reasons, ordinary trash at both objects with a stack and with none, recycling at the objects with flat boxes, collect from flat and from gone, the whole flow, points. Docs: `docs/state.md`, `docs/tasks.md`, `docs/text-review.md`. The recycling bin item for stage 4 is already noted in issue 062 (I did not edit it; the note says flattened boxes look like a full bin).
+  - Golden frames: kitchen is not in them, unchanged and passing.
+  - Checked: rendered the kitchen with the stack, the flat boxes and gone at 1x and 4x (scratch script outside the repo) and looked at all of them. `npm run sprites`, `npm test` (1850 pass), `npm run build` pass.
+  - Not checked: how it feels in a browser. Try `npm run dev`, kitchen, `?set=boxes:0` (flat), `?set=boxes:2` (gone), `?deliver=test` to bring the stack back.
+
+- 2026-10-26: REVIEW (independent). Verdict: approve.
+  - Criterion 1 (three values, old saves): pass. Numbering kept as 066 (1 stack default, 0 flat) with 2 = gone instead of the issue's 2/1/0, so no old value changes meaning; the issue allows this if stated, and it is stated. Variants pick boxes-gone / boxes / boxes-flat (checked). Clamp checked: set 3 gives 2, -1 gives 0. An old state without `boxes` still runs.
+  - Criterion 2 (tasks): pass. My own checks with boxes in each state at both the recycling and the bin (4 spots): flat offers `recycle-boxes` (nearby, no choice menu); stack and gone offer `take-trash`; ordinary trash leaves boxes unchanged; recycle from flat sets 2 and mood +3; collect from 0, 1 and 2 sets 1; flatten from gone is refused with NO BOXES TO FLATTEN.
+  - Criterion 3 (wording): pass. "Take out the recycling", own points 55 and flavor; flatten points and flavor unchanged.
+  - Criterion 4 (art): pass. Rendered the kitchen (copy of the mockup script, outside the repo) for stack, flat and gone at 1x and 4x and looked at them: stack, tidy flat sheets, and the pantry tub alone on bare floor all read clearly and match the palette. Only boxes-gone added. The recycling bin note is in issue 062 (line 37).
+  - Criterion 5 (tests/build): pass. `npm run sprites` leaves the tree clean, `npm test` 1850 pass, `npm run build` passes. Golden frames do not include the kitchen.
+  - Scope: only the expected files; PLAN.md and other issues untouched. No privacy concerns.
+  - Non-blocking finding: both tasks share exclusive 'trash', so while Take out the trash is cooling down, standing at the bin or recycling with a stack or no boxes shows "Take out the recycling" and pressing E says FLATTEN THE BOXES FIRST (stack) or NO BOXES TO TAKE OUT (gone) instead of a cooldown message. Verified in my test. A misleading line, not a break; worth a small follow-up (for example prefer the cooldown message when the exclusive sibling is on cooldown).
+  - Unverified: how it feels in a real browser (nobody has played it; the author said so too).
+- 2026-10-26 (fix after review): the reviewer found that while Take out the trash cooled down, with a stack or no boxes the bin offered "Take out the recycling" and E gave FLATTEN THE BOXES FIRST / NO BOXES TO TAKE OUT. Fixed in `src/game/game.ts` (the `interaction.hidden` rule): `recycle-boxes` is hidden unless `boxes` is 0, so the ordinary trash and its cooldown message show otherwise. New test in `src/game/boxes.test.ts` (trash cooling down with a stack, with none, with flat boxes: which task is shown). Docs line in `docs/tasks.md` updated. Needs a fresh review.
+- 2026-10-26: REVIEW 2 (independent, of fix 9c5a089). Verdict: approve.
+  - Own checks on the real Game (temporary test file, deleted, not committed), at the recycling (Y) and the bin (N), all 3 spots, boxes in {1 stack, 0 flat, 2 gone} x trash {ready, cooling}: flat always offers `recycle-boxes` (no choice menu) and E runs it: boxes 2, +55 points, mood +3 (the 83 seen with trash cooling is the combo bonus), trash cooldown unchanged (ready stays ready, cooling stays cooling). Stack and gone always offer `take-trash`: ready runs it (+50, boxes unchanged); cooling gives only the plain `cooldown` blocked message, never FLATTEN THE BOXES FIRST or NO BOXES TO TAKE OUT.
+  - Flatten refused for 0 and 2 (NO BOXES TO FLATTEN), allowed only for 1. collect-delivery sets 1 from 0, 1 and 2.
+  - Fuzz: 150 seeds x 120 steps of random spots, E, Tab, Escape, deliveries, finishing tasks. Boxes always in {0,1,2}; every offered choice passes canStart; `recycle-boxes` is only shown with boxes 0; no blocked line while another task was startable; the two refusal lines never appeared. (A one-frame stale `nearby` right after a task completes in the same frame is the engine's existing behavior, not new.)
+  - Side effects: the hidden rule only touches item id `recycle-boxes`; other objects' choice cycle (Tab/Q) tests pass; the exclusive group still shows one task; `every-task` takes its ids from all interactables, so `recycle-boxes` stays reachable (with flat boxes); golden main-room frames pass unchanged. Kitchen rendered (copy of the mockup script outside the repo) for stack, flat and gone at 1x and 4x and looked: all read clearly, tub alone on bare floor when gone.
+  - `npm run sprites` leaves the tree clean, `npm test` 1851 pass (83 files), `npm run build` passes. Scope: fix touches only game.ts, docs/tasks.md, boxes.test.ts and this file; PLAN.md and other issues untouched.
+  - Non-blocking notes: (1) with flat boxes the bin offers only Take out the recycling, so ordinary trash cannot be taken out at the bin until the boxes are gone (follows from the rule in the brief, and the exclusive group). (2) The hidden condition has `state.has("boxes")`, which is moot because a level using the variable fails validation without it. (3) The two refusal reasons are now unreachable from play, kept as a safety net as documented. (4) Not played in a browser.

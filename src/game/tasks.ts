@@ -91,7 +91,10 @@ const CONTENT: Task[] = [
   { id: 'humidifier', name: 'Refill the humidifier', prompt: 'Refill the humidifier', duration: 4, points: 45,
     flavor: 'The air is now 4% less crunchy.' },
   { id: 'take-trash', name: 'Take out the trash', prompt: 'Take out the trash', duration: 4, points: 50,
-    flavor: 'The bag was not full. You took it out anyway, out of spite.' },
+    exclusive: 'trash', flavor: 'The bag was not full. You took it out anyway, out of spite.' },
+  // Issue 070: only offered at the recycling and the bin when the boxes are flat (it takes their place).
+  { id: 'recycle-boxes', name: 'Take out the recycling', prompt: 'Take out the recycling', duration: 5, points: 55,
+    exclusive: 'trash', flavor: 'Down the stairs, into the bin, and the corner of the kitchen is yours again.' },
   { id: 'cook', name: 'Cook dinner', prompt: 'Cook dinner', duration: 8, points: 90,
     flavor: 'Smoke alarm: silent, but judging.' },
   { id: 'dishes', name: 'Do the dishes', prompt: 'Do the dishes', duration: 7, points: 80,
@@ -147,10 +150,19 @@ const STATE_RULES: Record<string, Partial<Task>> = {
     // More dishes, more points.
     pointsBonus: { var: "dishes", perUnit: 10 },
   },
-  // The boxes are a stack or flat (issue 066). Opening a package at the door puts the stack back.
+  // The boxes are a stack (1), flat (0) or gone (2) (issues 066 and 070). Opening a package at the door puts the stack back.
   "flatten-boxes": {
-    requires: [{ var: "boxes", min: 1, reason: "NO BOXES TO FLATTEN" }],
+    requires: [{ var: "boxes", min: 1, max: 1, reason: "NO BOXES TO FLATTEN" }],
     effects: [{ var: "boxes", set: 0 }],
+  },
+  // Flat boxes go out with the recycling. With a stack or no boxes it is not startable, so the
+  // ordinary "Take out the trash" is the one offered (same `exclusive` name, this one first).
+  "recycle-boxes": {
+    requires: [
+      { var: "boxes", max: 1, reason: "NO BOXES TO TAKE OUT" },
+      { var: "boxes", max: 0, reason: "FLATTEN THE BOXES FIRST" },
+    ],
+    effects: [{ var: "boxes", set: 2 }, { var: "mood", add: 3 }],
   },
   // Coffee alternates: the mug is empty, so you make it; it is full, so you drink it.
   coffee: {

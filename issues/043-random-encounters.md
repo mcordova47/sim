@@ -1,7 +1,7 @@
 ---
 id: 043
 title: Random encounters (explore the idea)
-status: todo
+status: in-progress
 owner: marc + claude
 depends_on: []
 ---

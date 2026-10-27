@@ -1,7 +1,7 @@
 ---
 id: 048
 title: Status panel space (and a phone battery?)
-status: done
+status: in-progress
 owner: marc + claude
 depends_on: []
 ---

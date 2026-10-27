@@ -15,6 +15,10 @@ export interface Phoneme {
   // voice shapes its pitch from these.
   vowel: boolean;
   stressed: boolean;
+  // The key of the symbol's entry in `FLASHCARDS.voice.symbols` (a look-alike has
+  // its twin's), and for a glide the vowel it aims at ("i" for j, "u" for w).
+  key: string;
+  glide?: string;
 }
 
 // A pause between words.
@@ -48,7 +52,16 @@ const lookup = (symbol: string) => {
 // formants). With the last two, stress is only length and loudness.
 export type VowelMaker = "pitch" | "tones" | "filtered";
 
-export function readIpa(ipa: string, vowels: VowelMaker | boolean = "pitch"): Reading {
+// Further changes to the source-filter voice: `glides` makes /j/ and /w/ the
+// resonances moving between the neighbouring vowel and the /i/ or /u/ they aim at
+// (style 7), and `murmurs` makes the nasals and the voiced stops from the same
+// source as the vowels (style 8).
+export interface Extras {
+  glides?: boolean;
+  murmurs?: boolean;
+}
+
+export function readIpa(ipa: string, vowels: VowelMaker | boolean = "pitch", extras: Extras = {}): Reading {
   const maker: VowelMaker = vowels === true ? "tones" : vowels === false ? "pitch" : vowels;
   const units: Unit[] = [];
   const unknown = new Set<string>();
@@ -109,13 +122,32 @@ export function readIpa(ipa: string, vowels: VowelMaker | boolean = "pitch"): Re
         length: stress ? V.formants.stressLength : V.formants.length,
         vowel,
         stressed: stress,
+        key,
       });
     } else if (stress) {
-      units.push({ symbol, effect: V.stress.effect, pitch: entry.pitch * V.stress.pitch, length: V.stress.length, vowel, stressed: true });
+      units.push({ symbol, effect: V.stress.effect, pitch: entry.pitch * V.stress.pitch, length: V.stress.length, vowel, stressed: true, key });
     } else {
-      units.push({ symbol, effect: entry.effect, pitch: entry.pitch, length: entry.length, vowel, stressed: false });
+      const murmur = maker === "filtered" && extras.murmurs ? V.murmurs[key] : undefined;
+      const sound = murmur ?? entry;
+      units.push({ symbol, effect: sound.effect, pitch: sound.pitch, length: sound.length, vowel, stressed: false, key, ...(entry.glide ? { glide: entry.glide } : {}) });
     }
   }
   while (units.length && isGap(units[units.length - 1])) units.pop();
+  if (maker === "filtered" && extras.glides) {
+    units.forEach((u, k) => {
+      if (isGap(u) || !u.glide) return;
+      const next = units[k + 1];
+      const prev = units[k - 1];
+      const name = `voiceGlide${u.key.toUpperCase()}`;
+      if (next && !isGap(next) && next.vowel) {
+        u.effect = `${name}To${next.key.toUpperCase()}`;
+        u.length = V.glideLength.to;
+      } else if (prev && !isGap(prev) && prev.vowel) {
+        u.effect = `${name}From${prev.key.toUpperCase()}`;
+        u.length = V.glideLength.from;
+      } else return;
+      u.pitch = 1;
+    });
+  }
   return { units, unknown: [...unknown] };
 }

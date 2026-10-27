@@ -108,7 +108,12 @@ export class Synth {
       for (const formant of voice.formants) {
         const filter = this.ctx.createBiquadFilter();
         filter.type = "bandpass";
-        filter.frequency.value = formant.freq;
+        if (formant.endFreq !== undefined) {
+          filter.frequency.setValueAtTime(formant.freq, t0);
+          filter.frequency.exponentialRampToValueAtTime(formant.endFreq, t1);
+        } else {
+          filter.frequency.value = formant.freq;
+        }
         filter.Q.value = formant.q;
         const level = this.ctx.createGain();
         level.gain.value = formant.gain;

@@ -355,7 +355,9 @@ export interface NoiseVoice {
 export interface FormantVoice {
   source: ToneWave;
   freq: number;
-  formants: { freq: number; q: number; gain: number }[];
+  // `endFreq` slides the resonance to that frequency over the voice's length (a
+  // glide is the mouth moving from one vowel to another).
+  formants: { freq: number; endFreq?: number; q: number; gain: number }[];
   delay?: number;
   length: number;
   gain: number;
@@ -435,6 +437,63 @@ const filteredEffects = (): Record<string, EffectDef> =>
       [`voiceFilt${vowel.toUpperCase()}Stress`, filteredEffect(f, 0.14, 1.4)],
     ]),
   );
+
+// The glides /j/ and /w/ as the mouth does them (the source-filter voice): not a
+// tone sliding, but the resonances of a very short /i/ or /u/ moving to, or from,
+// the neighbouring vowel's. `GLIDE_TARGET` says which vowel each aims at. One
+// effect for each glide and each vowel it can sit next to: `voiceGlideJToE` is a
+// /j/ going into an /e/ (bien), `voiceGlideJFromA` a /j/ ending an /a/ (aire).
+export const GLIDE_TARGET: Record<string, string> = { j: "i", w: "u" };
+const glideEffect = (from: { f1: number; f2: number }, to: { f1: number; f2: number }, length: number): EffectDef => ({
+  priority: "low",
+  voices: [
+    {
+      source: "sawtooth",
+      freq: SOURCE_F0,
+      formants: [
+        { freq: from.f1, endFreq: to.f1, q: SOURCE_FORMANT.q, gain: SOURCE_FORMANT.level[0] },
+        { freq: from.f2, endFreq: to.f2, q: SOURCE_FORMANT.q, gain: SOURCE_FORMANT.level[1] },
+      ],
+      length,
+      gain: 0.2,
+    },
+  ],
+});
+const glideEffects = (): Record<string, EffectDef> =>
+  Object.fromEntries(
+    Object.entries(GLIDE_TARGET).flatMap(([glide, target]) =>
+      Object.keys(FORMANTS).flatMap((vowel) => [
+        [`voiceGlide${glide.toUpperCase()}To${vowel.toUpperCase()}`, glideEffect(FORMANTS[target], FORMANTS[vowel], 0.06)],
+        [`voiceGlide${glide.toUpperCase()}From${vowel.toUpperCase()}`, glideEffect(FORMANTS[vowel], FORMANTS[target], 0.07)],
+      ]),
+    ),
+  );
+
+// The nasals and the voiced stops made from the same source as the vowels, so
+// they sit at the voice's own pitch and not far below it: a murmur (the source
+// through a low resonance, which is what a closed mouth lets out), with the
+// resonance that tells the nasals apart faintly above it, and for the stops a
+// short burst of noise as the mouth opens.
+const NASAL_LOW = { freq: 250, q: 3, gain: 2.4 };
+const nasalEffect = (place: number): EffectDef => ({
+  priority: "low",
+  voices: [
+    {
+      source: "sawtooth",
+      freq: SOURCE_F0,
+      formants: [NASAL_LOW, { freq: place, q: 4, gain: 0.6 }],
+      length: 0.07,
+      gain: 0.18,
+    },
+  ],
+});
+const voicedStopEffect = (burst: number): EffectDef => ({
+  priority: "low",
+  voices: [
+    { source: "sawtooth", freq: SOURCE_F0, formants: [{ ...NASAL_LOW, gain: 2 }], length: 0.045, gain: 0.12 },
+    { noise: "bandpass", freq: burst, q: 1.2, delay: 0.03, length: 0.02, gain: 0.1 },
+  ],
+});
 
 export const SOUND = {
   // Whole-game loudness, 0 to 1. Kept modest on purpose.
@@ -519,6 +578,13 @@ export const SOUND = {
     mumble: { priority: "low", voices: [{ wave: "triangle", freq: 330, length: 0.05, gain: 0.16 }] },
     ...formantEffects(),
     ...filteredEffects(),
+    ...glideEffects(),
+    voiceFiltM: nasalEffect(1100),
+    voiceFiltN: nasalEffect(1600),
+    voiceFiltNY: nasalEffect(2200),
+    voiceFiltB: voicedStopEffect(800),
+    voiceFiltD: voicedStopEffect(3200),
+    voiceFiltG: voicedStopEffect(1800),
     // The IPA voice (issue 026): one short sound per phoneme, in a chiptune
     // manner. Which symbol uses which effect, at what pitch and for how long on
     // the timeline is the table `FLASHCARDS.voice.symbols`.
@@ -905,10 +971,23 @@ export const FLASHCARDS = {
       l: { effect: "voiceLiquid", pitch: 1, length: 0.05 },
       "ɾ": { effect: "voiceTap", pitch: 1, length: 0.04 },
       r: { effect: "voiceTrill", pitch: 1, length: 0.09 },
-      j: { effect: "voiceGlideDown", pitch: 1, length: 0.05 },
-      w: { effect: "voiceGlideUp", pitch: 1, length: 0.05 },
+      j: { effect: "voiceGlideDown", pitch: 1, length: 0.05, glide: "i" },
+      w: { effect: "voiceGlideUp", pitch: 1, length: 0.05, glide: "u" },
       "tʃ": { effect: "voiceAffricate", pitch: 1, length: 0.07 },
-    } as Record<string, { effect: string; pitch: number; length: number; vowel?: boolean }>,
+    } as Record<string, { effect: string; pitch: number; length: number; vowel?: boolean; glide?: string }>,
+    // How long the formant glides take on the timeline (styles 7 and 8): going into
+    // a vowel, and coming out of one.
+    glideLength: { to: 0.06, from: 0.07 },
+    // The nasals and voiced stops of the source-filter voice (style 8), keyed by
+    // the symbol they replace in `symbols`.
+    murmurs: {
+      m: { effect: "voiceFiltM", pitch: 1, length: 0.07 },
+      n: { effect: "voiceFiltN", pitch: 1, length: 0.07 },
+      "ɲ": { effect: "voiceFiltNY", pitch: 1, length: 0.07 },
+      b: { effect: "voiceFiltB", pitch: 1, length: 0.05 },
+      d: { effect: "voiceFiltD", pitch: 1, length: 0.05 },
+      g: { effect: "voiceFiltG", pitch: 1, length: 0.05 },
+    } as Record<string, { effect: string; pitch: number; length: number }>,
     // Symbols that sound like one in the table above (other transcriptions,
     // other dialects, or the occasional allophone), so the voice never goes
     // quiet on a mark it did not expect.

@@ -73,6 +73,15 @@ What to turn, and what you will hear:
 
 Both approaches have the same consonants and timing; only the vowels and the speed differ, so styles 2 and 5 are the fair pair to compare.
 
+### Glides and murmurs (styles 7 and 8)
+
+Listening to the filtered voice showed three things still made the old way, as separate tones, so they stood out from the vowels: the glides, the nasals and the voiced stop `b` (and `d`, `g`). Each is now made from the same source as the vowels, in two steps so each can be heard on its own (V steps `filtered+`, `glides`, `murmurs`):
+
+- **Style 7, glides.** /j/ and /w/ were a 50 ms triangle tone sliding between two pitches, which is a high blip. A glide is really the mouth moving, so now it is the vowel resonances moving: a /j/ is a very short /i/ and a /w/ a very short /u/, and the filters slide between that and the next vowel's (`voiceGlideJToE` for the /j/ of `bien`) or, at the end of a diphthong, between the previous vowel's and that (`voiceGlideJFromA` for the /j/ of `aire`). The source never changes pitch, so a diphthong is one continuous voice. Two vowels in a row (`día`, `río`) are not glides and are unchanged, and a glide with no vowel next to it keeps its old sound. Timing: `FLASHCARDS.voice.glideLength`.
+- **Style 8, murmurs.** The nasals were a 160 Hz sine and the voiced stops a 170 Hz triangle thump, close to the source's 125 Hz and far below every vowel resonance, which is the purr. Now the nasals are the vowel source through a low resonance (250 Hz, what a closed mouth lets out) with a faint higher resonance that says which nasal it is (`m` 1100, `n` 1600, `ñ` 2200 Hz), and the voiced stops are the same murmur, shorter, followed by a short burst of noise as the mouth opens (`b` 800, `d` 3200, `g` 1800 Hz). `FLASHCARDS.voice.murmurs` says which symbol uses which; the effects are `voiceFiltM`, `N`, `NY`, `B`, `D`, `G` in `config.ts`. Nothing else changes: the unvoiced stops, the hisses, the liquids and the tap and trill are as before.
+
+Styles 0 to 6 are unchanged, so each part can be heard against the one before.
+
 ## Trying the screens and the voice without the app
 
 In a dev build, open the game with `?flashcards=demo` (for example `http://localhost:5173/?flashcards=demo`). "Study Spanish" then uses the practice deck in `flashcards/demo.ts`: no server and no key screen, no key remembered and nothing paid. It is ignored in a production build. `FLASHCARDS.backend = "demo"` in `config.ts` does the same for every page load. The card screen is taller in the practice deck and shows each card's IPA under its Spanish side, in its own small lowercase pixel font (`render/ipa-font.ts`, since the main font is capitals only and IPA is case-sensitive). Tune the voice in `FLASHCARDS.voice`, `FORMANTS`, `SOURCE_F0` and the `voice*` effects (all in `config.ts`) and the page reloads.

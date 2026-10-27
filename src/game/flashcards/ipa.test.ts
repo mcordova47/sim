@@ -72,7 +72,7 @@ describe("readIpa", () => {
   });
 
   it("never names an effect that does not exist, and every table entry is sane", () => {
-    const all = [...Object.values(F.voice.symbols), F.voice.stress];
+    const all = [...Object.values(F.voice.symbols), ...Object.values(F.voice.murmurs), F.voice.stress];
     for (const e of all) {
       expect(SOUND.effects[e.effect], e.effect).toBeDefined();
       expect(e.pitch).toBeGreaterThan(0);
@@ -217,7 +217,7 @@ describe("the speech-like voice: formants, intonation and jitter", () => {
   });
 
   it("the styles never throw, stay finite, and a short or empty transcription is fine", () => {
-    for (const style of [0, 1, 2, 3, 4, 5, 6, 9, -3, 2.7, NaN]) {
+    for (const style of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 12, -3, 2.7, NaN]) {
       for (const ipa of ["", "a", "ˈ", "☃", "ˈbwenas ˈnotʃes", "a".repeat(500), "iɾ(se)", "el / ˈeʝa"]) {
         for (const e of ipaScript(ipa, style)) {
           expect(Number.isFinite(e.pitch) && e.pitch > 0, `${style} ${ipa}`).toBe(true);
@@ -226,7 +226,7 @@ describe("the speech-like voice: formants, intonation and jitter", () => {
         }
       }
     }
-    expect(VOICE_STYLES).toHaveLength(7);
+    expect(VOICE_STYLES).toHaveLength(9);
   });
 });
 
@@ -265,6 +265,91 @@ describe("the source-filter voice (styles 5 and 6)", () => {
     expect(new Set(six.map((e) => e.pitch)).size).toBeGreaterThan(2);
     expect(six.map((e) => e.at)).toEqual(at(5, "aaaa").map((e) => e.at));
     for (const e of six) expect(Math.abs(Math.log2(e.pitch) * 12)).toBeLessThan(3);
+  });
+});
+
+describe("glides and murmurs in the source-filter voice (styles 7 and 8)", () => {
+  const effects = (ipa: string, style: number) => ipaScript(ipa, style).map((e) => e.effect);
+
+  it("a glide before a vowel is the resonances moving into that vowel's", () => {
+    expect(effects("ˈbjen", 7)).toEqual(["voiceVoicedStop", "voiceGlideJToE", "voiceFiltEStress", "voiceNasal"]);
+    expect(effects("ˈaɡwa", 7)).toEqual(["voiceFiltAStress", "voiceVoicedStop", "voiceGlideWToA", "voiceFiltA"]);
+    expect(effects("ˈdjos", 7)).toEqual(["voiceVoicedStop", "voiceGlideJToO", "voiceFiltOStress", "voiceHiss"]);
+  });
+
+  it("a glide after a vowel is the resonances moving out of that vowel's, a triphthong has both", () => {
+    expect(effects("ˈoj", 7)).toEqual(["voiceFiltOStress", "voiceGlideJFromO"]);
+    expect(effects("ˈkawsa", 7).slice(0, 3)).toEqual(["voiceStop", "voiceFiltAStress", "voiceGlideWFromA"]);
+    const tri = effects("estuˈdjajs", 7);
+    expect(tri).toContain("voiceGlideJToA");
+    expect(tri).toContain("voiceGlideJFromA");
+  });
+
+  it("two vowels in a row are not glides (día, río), and a lone glide keeps its old sound", () => {
+    expect(effects("ˈdia", 7).some((e) => e!.startsWith("voiceGlide"))).toBe(false);
+    expect(effects("ˈj", 7)).toEqual(["voiceGlideDown"]);
+    expect(effects("ˈʝo", 7)).toEqual(["voiceGlideJToO", "voiceFiltOStress"]);
+  });
+
+  it("glides are only changed from style 7, and only in the filtered voice", () => {
+    for (const style of [1, 2, 3, 4, 5, 6]) expect(effects("ˈbjen", style).some((e) => e!.startsWith("voiceGlideJ")), String(style)).toBe(false);
+    expect(effects("ˈbjen", 6)).toContain("voiceGlideDown");
+  });
+
+  it("a glide is short, and takes the configured time on the timeline", () => {
+    const [b, j, e] = ipaScript("ˈbjen", 7);
+    expect(j.at - b.at).toBeCloseTo(F.voice.symbols.b.length * F.voice.slow);
+    expect(e.at - j.at).toBeCloseTo(F.voice.glideLength.to * F.voice.slow);
+  });
+
+  it("a glide effect slides each resonance from one vowel's frequency to the other's", () => {
+    const voice = SOUND.effects.voiceGlideJToE.voices[0] as unknown as { formants: { freq: number; endFreq: number }[] };
+    expect(voice.formants.map((f) => [f.freq, f.endFreq])).toEqual([[FORMANTS.i.f1, FORMANTS.e.f1], [FORMANTS.i.f2, FORMANTS.e.f2]]);
+    const out = SOUND.effects.voiceGlideWFromA.voices[0] as unknown as { formants: { freq: number; endFreq: number }[] };
+    expect(out.formants.map((f) => [f.freq, f.endFreq])).toEqual([[FORMANTS.a.f1, FORMANTS.u.f1], [FORMANTS.a.f2, FORMANTS.u.f2]]);
+    for (const g of ["J", "W"]) for (const v of ["A", "E", "I", "O", "U"]) {
+      expect(SOUND.effects[`voiceGlide${g}To${v}`], `${g}${v}`).toBeDefined();
+      expect(SOUND.effects[`voiceGlide${g}From${v}`], `${g}${v}`).toBeDefined();
+    }
+  });
+
+  it("the nasals and voiced stops come from the vowels' own source from style 8, and not before", () => {
+    expect(effects("ˈmana", 7)).toEqual(["voiceNasal", "voiceFiltAStress", "voiceNasal", "voiceFiltA"]);
+    expect(effects("ˈmana", 8)).toEqual(["voiceFiltM", "voiceFiltAStress", "voiceFiltN", "voiceFiltA"]);
+    expect(effects("ˈaɲa", 8)[1]).toBe("voiceFiltNY");
+    expect(effects("ˈaba", 8)[1]).toBe("voiceFiltB");
+    expect(effects("ˈada", 8)[1]).toBe("voiceFiltD");
+    expect(effects("ˈaɡa", 8)[1]).toBe("voiceFiltG");
+    // Look-alikes (β ð ɣ) take their twin's sound; the unvoiced stops and the rest are unchanged.
+    expect(effects("ˈaβa", 8)[1]).toBe("voiceFiltB");
+    expect(effects("ˈapa", 8)).toEqual(effects("ˈapa", 7));
+    expect(effects("ˈasa", 8)).toEqual(effects("ˈasa", 7));
+  });
+
+  it("the murmur sounds sit at the voice's pitch: one source at SOURCE_F0, through a resonance, never a low tone", () => {
+    for (const name of ["voiceFiltM", "voiceFiltN", "voiceFiltNY", "voiceFiltB", "voiceFiltD", "voiceFiltG"]) {
+      const source = SOUND.effects[name].voices[0] as unknown as { source: string; freq: number };
+      expect(source.source, name).toBe("sawtooth");
+      expect(source.freq, name).toBe(SOURCE_F0);
+    }
+    // And no oscillator of the new consonants is a plain tone far below the voice.
+    for (const name of ["voiceFiltM", "voiceFiltN", "voiceFiltNY", "voiceFiltB", "voiceFiltD", "voiceFiltG"]) {
+      for (const v of SOUND.effects[name].voices) expect("wave" in v, name).toBe(false);
+    }
+  });
+
+  it("all 1000-style words stay sane in styles 7 and 8: finite, ordered, every effect real", () => {
+    for (const ipa of ["ˈbjen", "ˈaɡwa", "estuˈdjajs", "uɾuˈɡwaj", "ˈdia", "ˈʝo", "ˈmana", "ˈaɲa", "ˈabada", "ˈbwenas ˈnotʃes"]) {
+      for (const style of [7, 8]) {
+        let last = -1;
+        for (const e of ipaScript(ipa, style)) {
+          expect(Number.isFinite(e.pitch) && e.pitch > 0, ipa).toBe(true);
+          expect(e.at, ipa).toBeGreaterThanOrEqual(last);
+          last = e.at;
+          expect(SOUND.effects[e.effect!], `${ipa} ${e.effect}`).toBeDefined();
+        }
+      }
+    }
   });
 });
 

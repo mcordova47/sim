@@ -427,7 +427,7 @@ describe("diphthongs as one continuous sound (style 9), l, and levels", () => {
     }
   });
 
-  it("a diphthong is not louder than a plain stressed vowel by more than a few dB at its peak", () => {
+  it("a diphthong is set between a third and three quarters of the gain of a plain stressed vowel (it is held longer, so it need not be as loud)", () => {
     const plain = SOUND.effects.voiceFiltEStress.voices[0] as unknown as { gain: number };
     for (const name of ["voiceDiphJEStress", "voiceDiphAJStress", "voiceDiphJAJStress", "voiceDiphWA"]) {
       const d = SOUND.effects[name].voices[0] as unknown as { gain: number };

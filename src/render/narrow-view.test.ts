@@ -88,9 +88,9 @@ describe("the camera on the narrow view", () => {
 
 describe("pieces that read the view", () => {
   it("the status panel hugs the right edge of whichever view is current", () => {
-    expect(STATUS_BOX.x).toBe(244);
+    expect(STATUS_BOX.x + STATUS_BOX.w).toBe(320);
     setView(NARROW_VIEW);
-    expect(STATUS_BOX.x).toBe(224 - 76);
+    expect(STATUS_BOX.x + STATUS_BOX.w).toBe(224);
   });
   it("a full-screen picture's zoom windows do not follow the narrow view", () => {
     setView(NARROW_VIEW);

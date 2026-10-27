@@ -248,6 +248,36 @@ export const MOOD = {
   lowBelow: 25,
 };
 
+// The HUD ribbon (issue 086, docs/hud-design.md): two small chips in the empty top band of the
+// picture. Pixels are game pixels; nothing the HUD draws goes below `band`.
+export const HUD = {
+  // The top strip of the picture that rooms never use (a room is at most 160 px tall).
+  band: 32,
+  // The chips: distance from the picture's top and sides, their height, and the padding inside.
+  chipTop: 2,
+  chipHeight: 13,
+  edge: 4,
+  pad: 3,
+  // Icons are 7 x 7 sprites (icon-*); the gap after an icon, and between groups.
+  iconSize: 7,
+  iconGap: 2,
+  groupGap: 6,
+  // The score is sized for this many digits and widens to the right past it.
+  scoreDigits: 5,
+  // A status bar beside its icon.
+  barWidth: 12,
+  barHeight: 3,
+  // Room kept for the phone icon of the battery issue (088); empty for now.
+  phoneSlotWidth: 0,
+  // Mood face: happy from this value up (sad is below MOOD.lowBelow).
+  happyFrom: 70,
+  // The clock's icon by hour: dawn and dusk share one.
+  sunFrom: 7.5,
+  sunUntil: 17.5,
+  dawnFrom: 5.5,
+  duskUntil: 20,
+};
+
 // A nap on the sofa (issue 035): a short rest that does not unmake the bed.
 export const NAP = {
   // Only sleepy enough to nap below this much energy.

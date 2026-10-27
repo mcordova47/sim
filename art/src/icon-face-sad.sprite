@@ -1,0 +1,9 @@
+# Mood, low (drooping tangerine face). 7x7, not a tile. Drawn in the HUD ribbon (issue 086).
+size: 7x7
+..ccc..
+.ccccc.
+cc1c1cc
+ccccccc
+cc111cc
+c1ccc1c
+..ccc..

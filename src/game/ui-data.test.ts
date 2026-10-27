@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { GLYPHS } from "../render/font";
-import { HUD_BOX, placeLabel, type Box } from "../render/layout";
+import { HUD_BOX, STATUS_BOX, placeLabel, type Box } from "../render/layout";
 import { progressSize, promptSize } from "../render/world-ui";
 import { DEFAULT_TASK_COOLDOWN, VIEW } from "./config";
 import type { Interactable } from "./interactable";
@@ -29,7 +29,7 @@ describe("task text and the pixel font", () => {
 
 describe("task labels and the HUD", () => {
   // Wider than this and a label can't fit on screen at all. Labels wider than
-  // the space beside the HUD (about 164px) are fine: placeLabel puts them under it.
+  // the space between the two chips (about 130px) are fine: placeLabel puts them under it.
   const screenFit = VIEW.width - 4;
   const overlaps = (a: Box, b: Box) =>
     a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
@@ -48,7 +48,7 @@ describe("task labels and the HUD", () => {
   });
 
   it("includes labels too wide to sit beside the HUD, so the sweep below covers that case", () => {
-    const beside = VIEW.width - HUD_BOX.w - 4;
+    const beside = STATUS_BOX.x - HUD_BOX.w - 4;
     expect(labels.some((l) => l.w > beside)).toBe(true);
   });
 
@@ -56,8 +56,10 @@ describe("task labels and the HUD", () => {
     for (const label of labels) {
       for (let x = 0; x <= VIEW.width; x += 16) {
         for (let top = 0; top <= VIEW.height - 14; top += 8) {
-          const box = placeLabel({ x, top, bottom: top + 14 }, label, VIEW);
+          // The game keeps labels clear of both chips (the status chip comes in with the popups).
+          const box = placeLabel({ x, top, bottom: top + 14 }, label, VIEW, [HUD_BOX, STATUS_BOX]);
           expect(overlaps(box, HUD_BOX), `${label.what} x=${x} top=${top}`).toBe(false);
+          expect(overlaps(box, STATUS_BOX), `${label.what} x=${x} top=${top}`).toBe(false);
         }
       }
     }

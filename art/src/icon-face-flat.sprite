@@ -1,0 +1,9 @@
+# Mood, middling. 7x7, not a tile. Drawn in the HUD ribbon (issue 086, docs/hud-design.md section 4).
+size: 7x7
+..ddd..
+.ddddd.
+dd1d1dd
+ddddddd
+dd111dd
+.ddddd.
+..ddd..

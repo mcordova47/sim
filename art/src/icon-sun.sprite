@@ -1,0 +1,9 @@
+# Time of day: sun. 7x7, not a tile. Drawn in the HUD ribbon (issue 086, docs/hud-design.md section 4).
+size: 7x7
+...d...
+.d.d.d.
+..ddd..
+ddddddd
+..ddd..
+.d.d.d.
+...d...

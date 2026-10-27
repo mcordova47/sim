@@ -950,7 +950,7 @@ export class Game {
   }
 
   private drawHud(ctx: CanvasRenderingContext2D): void {
-    this.hud.draw(ctx, this.interaction.scoreboard, this.interaction.time, this.state);
+    this.hud.draw(ctx, this.interaction.scoreboard, this.interaction.time, this.state, this.spriteDrawer);
   }
 }
 

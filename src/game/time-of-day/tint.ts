@@ -52,3 +52,44 @@ export function roomWashes(
   }
   return washes.filter((w) => w.alpha > 0.001);
 }
+
+// Blends two lights: each color's alpha and the lamps move from `a` toward `b`.
+// At t 0 it is `a` itself and at t 1 it is `b` itself (the very same washes, so
+// the last frame of a blend is exactly the picture that follows it).
+export function mixLight(a: Light, b: Light, t: number): Light {
+  if (t <= 0) return a;
+  if (t >= 1) return b;
+  const colors: TintKey["color"][] = [];
+  for (const w of [...a.washes, ...b.washes]) if (!colors.includes(w.color)) colors.push(w.color);
+  const alphaOf = (light: Light, color: TintKey["color"]) => light.washes.filter((w) => w.color === color).reduce((sum, w) => sum + w.alpha, 0);
+  return {
+    washes: colors.map((color) => ({ color, alpha: lerp(alphaOf(a, color), alphaOf(b, color), t) })),
+    lamps: lerp(a.lamps, b.lamps, t),
+  };
+}
+
+// The light while asleep (issue 078): the hour you lay down at, blended toward
+// the hour you will wake at by `morning`, with how dark it is separately: the
+// extra night wash (none when `dark` is 0) and the lamps' strength after dimming.
+export interface SleepLight {
+  base: Light;
+  extra: Wash | null;
+  lamps: number;
+}
+
+export function sleepLight(
+  hour: number,
+  skipHours: number,
+  dark: number,
+  morning: number,
+  darkAlpha: number,
+  darkLamps: number,
+): SleepLight {
+  const base = mixLight(lightAt(hour), lightAt(hour + skipHours), morning);
+  const extraAlpha = darkAlpha * dark;
+  return {
+    base,
+    extra: extraAlpha > 0.001 ? { color: "night", alpha: extraAlpha } : null,
+    lamps: dark > 0 ? base.lamps * (1 - dark * (1 - darkLamps)) : base.lamps,
+  };
+}

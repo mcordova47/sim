@@ -6,6 +6,7 @@ import type { Interactable } from "./interactable";
 import type { Track } from "./music/track";
 import type { Decor } from "./decor";
 import type { Effect } from "./state";
+import type { SleepScene } from "./sleep";
 
 // An activity is what a task is while the player is doing it. Today's timed
 // wait is one; a cutscene and the mini-games are others. The interaction
@@ -114,6 +115,10 @@ export interface Activity {
   // True for an activity with no time pressure: the apartment's clock, energy
   // and mood stand still while it runs (the track editor).
   readonly holdsClock?: boolean;
+  // The sleep sequence's look this frame (how dark, the banner), read by the light
+  // and the banner. Only the sleep activity has one (issue 078); null or missing
+  // means everything is normal.
+  readonly scene?: SleepScene | null;
   // Controls to give the player while it runs, for scripted movement; null
   // keeps the player where they are.
   readonly playerControls: Controls | null;

@@ -35,7 +35,7 @@ export const SCENARIOS: Scenario[] = [
 ];
 
 // A small string hash (cyrb53), so the log can be compared without node APIs.
-function hash(text: string): string {
+export function hash(text: string): string {
   let h1 = 0xdeadbeef;
   let h2 = 0x41c6ce57;
   for (let i = 0; i < text.length; i++) {

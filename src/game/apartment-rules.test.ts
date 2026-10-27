@@ -98,7 +98,7 @@ describe("the state rules in the task list", () => {
     bed.state.applyEffects([{ var: "energy", set: 20 }]);
     run(bed, 31); // past the make-bed cooldown
     bed.update(dt, press); // "make the bed" is refused (already made), so sleep is offered
-    run(bed, 8);
+    run(bed, 10);
     expect(bed.state.get("energy")).toBeGreaterThan(95); // restored (it ebbs a little as time goes on)
     expect(bed.state.get("bedMade")).toBe(0);
   });
@@ -135,7 +135,7 @@ describe("the state rules in the task list", () => {
       seen.push({ id: c.id, energy: Math.round(bed.state.get("energy")), bedMade: bed.state.get("bedMade") }),
     );
     bed.update(dt, press);
-    run(bed, 8);
+    run(bed, 10);
     const sleepEvents = seen.filter((e) => e.id === "energy" || e.id === "bedMade");
     expect(sleepEvents.length).toBeGreaterThanOrEqual(2);
     const first = sleepEvents[0];

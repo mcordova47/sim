@@ -948,9 +948,9 @@ export const SOUND = {
           freq: i % 2 === 0 ? 104 : 121,
           delay: i * 0.035,
           length: 0.03,
-          gain: i % 2 === 0 ? 0.14 : 0.08,
+          gain: i % 2 === 0 ? 0.1 : 0.06,
         })),
-        ...[0, 1, 2, 3].map((i) => ({ noise: "lowpass" as const, freq: 420, delay: i * 0.05, length: 0.045, gain: 0.05 })),
+        ...[0, 1, 2, 3].map((i) => ({ noise: "lowpass" as const, freq: 420, delay: i * 0.05, length: 0.045, gain: 0.035 })),
       ],
     },
     // One note of the rising pulse run; the schedule raises its pitch each time.

@@ -479,8 +479,39 @@ export class Game {
   // Opens a dialog or menu. Returns false if one is already open. `onDone` is
   // called when this dialog closes, with the labels the player picked.
   openDialog(node: DialogNode, onDone?: (result: DialogResult) => void): boolean {
-    return this.dialog.start(node, onDone);
+    return this.dialog.start(node, onDone, this.strayKeysPossible() ? DIALOG.inputDelay : 0);
   }
+
+  // A typing or notes game is running, or ended a moment ago: the player may
+  // still be pressing keys, so a dialog opening now must not hear them (issue 081).
+  private strayKeysPossible(): boolean {
+    const running = this.interaction.active?.activity;
+    return this.sinceKeyGame < DIALOG.strayWindow || !!(running && (running.readsKeys || running.strayKeys));
+  }
+
+  // The one rule for global hotkeys (the achievements list, the sound mute, the time-of-day
+  // dev keys): while a typing, notes, track-editor or flashcards game runs, the keys belong
+  // to it, so a hotkey must not fire (issue 081). Escape is always free. `softLetters`: the
+  // key may still work while the running game is not reading letters as text (the mute key
+  // in the track editor outside naming).
+  hotkeyBlocked(code: string, softLetters = false): boolean {
+    if (code === "Escape") return false;
+    const running = this.interaction.active?.activity;
+    if (!running || !(running.readsKeys || running.strayKeys)) {
+      // The game just ended: the keys still coming belong to it until all have been let go
+      // (a keydown arrives between frames, after the game finished and before its gate cleared).
+      return this.keysGate;
+    }
+    return !(softLetters && running.readsLetters === false);
+  }
+
+  // Set while a key game runs and stays set after it ends until every key has been let go,
+  // so a key still held (or pressed in the last frames) never becomes movement or a new task.
+  private keysGate = false;
+  private keysGateAge = 0;
+
+  // Seconds since an activity that reads keys last ran (large when none has).
+  private sinceKeyGame = Infinity;
 
   // Moves the player into another room: the level, the tile and the way they
   // face. Score, combos, cooldowns, popups, events and layers carry on.
@@ -523,6 +554,20 @@ export class Game {
         controls = NO_INPUT;
       } else heldClock = false;
     }
+    const running = this.interaction.active?.activity;
+    const keyGame = !!running && (running.readsKeys || running.strayKeys);
+    this.sinceKeyGame = keyGame ? 0 : this.sinceKeyGame + dt;
+    if (keyGame) {
+      // Escape backs out on purpose: that is not a stray key.
+      this.keysGate = !controls.keys.includes("Escape");
+      this.keysGateAge = 0;
+    } else if (this.keysGate && !this.dialog.open) {
+      this.keysGateAge += dt;
+      const real = (c: string) => !/^(Shift|Control|Alt|Meta|OS)(Left|Right)$|^CapsLock$/.test(c);
+      const held = this.keysGateAge < DIALOG.gateMaxSeconds && (controls.keysDown.some(real) || controls.keys.some(real) || controls.dir !== null || controls.dirPressed !== null || controls.interactPressed);
+      if (held) controls = NO_INPUT;
+      else this.keysGate = false;
+    }
     if (this.dialog.open) {
       // The dialog has the controls. Unless the clock is set to run on, time
       // stands still while it is open (task cooldowns, the combo, and the
@@ -543,7 +588,7 @@ export class Game {
     // A running activity may walk the player by script (a cutscene).
     const walking = !this.inputLocked && !this.interaction.busy;
     const scripted = this.inputLocked ? null : this.interaction.playerControls;
-    this.player.update(dt, walking ? controls : (scripted ?? NO_INPUT), this.grid);
+    this.player.update(dt, walking ? (this.keysGate ? NO_INPUT : controls) : (scripted ?? NO_INPUT), this.grid);
     if (this.player.arrivedThisUpdate) this.events.emit("step", this.player.arrivedThisUpdate);
     if (this.player.bumpedThisUpdate) this.events.emit("bump", this.player.bumpedThisUpdate);
     const arrived = this.player.arrivedThisUpdate;

@@ -15,6 +15,8 @@ type Outcome = "hit" | "miss";
 // of notes hit.
 export class NotesActivity extends BaseActivity {
   cancellable = true;
+  // Arrows are still being pressed as it ends, so a menu after it waits a moment (issue 081).
+  readonly strayKeys = true;
 
   readonly outcomes: (Outcome | null)[];
 

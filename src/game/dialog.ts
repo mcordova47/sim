@@ -99,6 +99,8 @@ export type DialogView =
       promptLines: string[];
       choices: string[];
       cursor: number;
+      // Keys are heard. False during the input delay: the cursor is not shown yet.
+      ready: boolean;
       blink: boolean;
     };
 
@@ -137,6 +139,8 @@ export class DialogRunner {
   private history: Saved[] = [];
   private path: string[] = [];
   private time = 0;
+  // Seconds left in which the dialog ignores every key (see `start`).
+  private quiet = 0;
   // Called once when the dialog that is open now closes.
   private onDone: ((result: DialogResult) => void) | null = null;
 
@@ -152,8 +156,11 @@ export class DialogRunner {
   // Starts a dialog. Returns false, doing nothing, if one is already open.
   // `onDone` is called with the result when this dialog closes, so a caller can
   // wait for it and see what was chosen.
-  start(node: DialogNode, onDone?: (result: DialogResult) => void): boolean {
+  // `inputDelay` seconds of the first node ignore every key, for a dialog that
+  // opens while the player may still be pressing keys (right after a typing game).
+  start(node: DialogNode, onDone?: (result: DialogResult) => void, inputDelay = 0): boolean {
     if (this.node) return false;
+    this.quiet = Math.max(0, inputDelay);
     this.history = [];
     this.path = [];
     this.time = 0;
@@ -167,19 +174,24 @@ export class DialogRunner {
     const node = this.node;
     if (!node) return;
     this.time += dt;
+    // Keys do nothing until the delay is over. The press that ends it is not
+    // looked at either: only a press made after it counts.
+    const wasQuiet = this.quiet > 0;
+    if (wasQuiet) this.quiet = Math.max(0, this.quiet - dt);
 
     if (node.type === "say") {
       const total = this.pageLength();
       if (this.revealed < total) {
         this.revealed = Math.min(total, this.revealed + dt * DIALOG.charsPerSecond);
       }
-      if (controls.interactPressed) {
+      if (!wasQuiet && controls.interactPressed) {
         if (this.revealed < total) this.revealed = total;
         else this.advance(node);
       }
       return;
     }
 
+    if (wasQuiet) return;
     const count = node.choices.length;
     if (controls.dirPressed === "up") this.cursor = (this.cursor + count - 1) % count;
     else if (controls.dirPressed === "down") this.cursor = (this.cursor + 1) % count;
@@ -197,6 +209,7 @@ export class DialogRunner {
         promptLines: this.promptLines,
         choices: node.choices.map((c) => normalizeText(c.label)),
         cursor: this.cursor,
+        ready: this.quiet <= 0,
         blink,
       };
     }
@@ -210,7 +223,7 @@ export class DialogRunner {
       kind: "say",
       speaker: node.speaker,
       lines,
-      waiting: this.revealed >= this.pageLength(),
+      waiting: this.revealed >= this.pageLength() && this.quiet <= 0,
       blink,
     };
   }
@@ -287,6 +300,7 @@ export class DialogRunner {
     this.promptLines = [];
     this.history = [];
     this.path = [];
+    this.quiet = 0;
     this.onDone = null;
     // The dialog is fully closed before anyone hears about it. First the
     // handlers (which release the input lock and announce the close), then this

@@ -119,6 +119,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 081 | [Menus ignore stray keys right after a typing game](issues/081-stray-keys-after-typing.md) | claude | done | |
 | 082 | [Flashcards: a progress page when no cards are left](issues/082-flashcards-progress-page.md) | claude | todo | 026 |
 | 083 | [Flashcards for someone who is not Marc: a mode with no sync key (design first)](issues/083-flashcards-guest-mode.md) | marc + claude | todo | 026 |
+| 084 | [Put the game on the internet (hosting, domain, repo name, privacy pass)](issues/084-productionize.md) | marc + claude | todo | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

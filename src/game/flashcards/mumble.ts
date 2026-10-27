@@ -65,13 +65,13 @@ function wobble(index: number, symbol: string): number {
 // The voice styles, each adding to the one before: 1 `ipa` (one tone per vowel),
 // 2 `formants` (vowels by timbre), 3 `intonation`, 4 `jitter`. (Style 0 is the
 // spelling voice, which has no transcription to read.)
-export const VOICE_STYLES = ["spelling", "ipa", "formants", "intonation", "jitter", "filtered", "filtered+", "glides", "murmurs", "diphthongs", "longer", "faster", "consfast"] as const;
+export const VOICE_STYLES = ["spelling", "ipa", "formants", "intonation", "jitter", "filtered", "filtered+", "glides", "murmurs", "diphthongs", "longer", "faster", "consfast", "fastest"] as const;
 
 // The order V steps through every voice in (`&voices=all` in the practice deck):
 // the diphthong voice and the three timing variants (longer vowels, faster,
 // quicker consonants), then each earlier voice, down to spelling. V goes on from
 // wherever the current voice is in this list.
-export const VOICE_CYCLE: readonly number[] = [9, 10, 11, 12, 8, 7, 6, 5, 4, 3, 2, 1, 0];
+export const VOICE_CYCLE: readonly number[] = [9, 10, 11, 12, 13, 8, 7, 6, 5, 4, 3, 2, 1, 0];
 
 // What each style does, on top of reading the transcription: how vowels are
 // made, whether pitch follows intonation, whether each sound is a little off, and
@@ -96,6 +96,8 @@ const RECIPES = [
   { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: true, diphthongs: true, held: true, speed: F.voice.variants.faster, vowelScale: F.voice.variants.longerVowels, consonantScale: 1 },
   // Style 12: instead, only the consonants a little faster.
   { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: true, diphthongs: true, held: true, speed: 1, vowelScale: F.voice.variants.longerVowels, consonantScale: F.voice.variants.quickConsonants },
+  // Style 13: style 11 a little faster again.
+  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: true, diphthongs: true, held: true, speed: F.voice.variants.fastest, vowelScale: F.voice.variants.longerVowels, consonantScale: 1 },
 ] as const;
 
 export function ipaScript(ipa: string, style = 1): VoiceEvent[] {

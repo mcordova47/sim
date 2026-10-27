@@ -50,7 +50,7 @@ The original IPA voice (style 1) tells vowels apart by pitch, and its pitches ar
 2. **Intonation (style 3).** Pitch drifts down across the phrase, the stressed vowel gets a small bump and the last vowel falls (`FLASHCARDS.voice.intonation`, fractions of the pitch; a few percent each, never more than a few semitones).
 3. **Jitter (style 4).** Every sound is a few percent off (`FLASHCARDS.voice.jitter`), in a fixed pattern seeded by its place in the word, so no two vowels are quite alike and a word still sounds the same every time.
 
-In the practice deck V steps between the two voices being compared, `faster` and `consfast` (the tag shows which); add `&voices=all` to the address to step through every voice, in the order of `VOICE_CYCLE` (9 to 12, then 8 down to spelling), from wherever the current voice is in that list and R says the card again, so the parts can be heard against each other on the same card. `FLASHCARDS.voice.style` is the voice a card gets before V is pressed, for real cards too: 11 (faster) while it and 12 are being compared, and the voices V steps between are `DEMO_VOICES` in `flashcards/demo.ts`.
+In the practice deck V steps between the two voices being compared, `faster` and `fastest` (the tag shows which); add `&voices=all` to the address to step through every voice, in the order of `VOICE_CYCLE` (9 to 13, then 8 down to spelling), from wherever the current voice is in that list and R says the card again, so the parts can be heard against each other on the same card. `FLASHCARDS.voice.style` is the voice a card gets before V is pressed, for real cards too: 11 (faster) while it and 13 (fastest) are being compared, and the voices V steps between are `DEMO_VOICES` in `flashcards/demo.ts`.
 
 ### The source-filter voice (styles 5 and 6)
 
@@ -91,7 +91,9 @@ With the diphthongs fixed they sound longer and fuller than the single vowels ar
 - **Style 11, `faster`:** style 10 with every time (sounds, gaps, the pauses between words) scaled by `faster` (0.82), which brings the words back to about as long as style 9's.
 - **Style 12, `consfast`:** style 10 instead with only the consonants quicker, by `quickConsonants` (0.75): the sound and the time it takes. The vowels, diphthongs and the pauses between words keep their time. Keep this at 0.7 or above: the shortest sound, the burst of `b d g`, reaches the engine's attack time at about 0.7 and would stop being a sound of its own.
 
-None of the three changes which sounds are made or at what pitch, only their shape and the time they take. `FLASHCARDS.voice.style` is 11 (faster) while 11 and 12 are being compared.
+- **Style 13, `fastest`:** style 11 a little faster again, by `fastest` (0.74, about 10 percent quicker than `faster`), so words are about 74 percent of style 10's length and roughly 10 percent shorter than style 9's. Added when `faster` was liked and a slightly faster version was asked for. Everything is scaled alike, as in style 11, so the shortest sound (the burst of `b d g`) is 17 ms, still over the engine's attack time.
+
+None of the three changes which sounds are made or at what pitch, only their shape and the time they take. `FLASHCARDS.voice.style` is 11 (faster) while 11 and 13 are being compared.
 
 ### Turning the levels
 
@@ -112,7 +114,7 @@ The deck has four sets, in this order when you ask for all of them, or one with 
 - **consonants:** each consonant between two a's (`aba`, `ada`, `aga`, ...), the usual way to compare consonants. Both the tap (`ara`) and the trill (`arra`) are there.
 - **words:** the first practice deck, single words, both card directions.
 
-V steps between `faster` and `consfast` (the tag shows which; `&voices=all` for every voice, see above) and R says the card again, to hear them against each other on the same card.
+V steps between `faster` and `fastest` (the tag shows which; `&voices=all` for every voice, see above) and R says the card again, to hear them against each other on the same card.
 
 ## The interface
 

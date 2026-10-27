@@ -30,9 +30,9 @@ const production = (slug: string, english: string, spanish: string, ipa: string,
 });
 
 // The voices V steps between in the practice deck while two are being compared
-// (indexes into `VOICE_STYLES`: 11 faster, 12 consfast). `&voices=all` in the
+// (indexes into `VOICE_STYLES`: 11 faster, 13 fastest; 12 consfast is still there with `&voices=all`). `&voices=all` in the
 // address steps through every voice.
-export const DEMO_VOICES: readonly number[] = [11, 12];
+export const DEMO_VOICES: readonly number[] = [11, 13];
 
 // Four sets, to hear the voice on different things:
 // - sentences: phonetically rich sentences that, between them, use every sound the

@@ -140,10 +140,10 @@ describe("the practice deck", () => {
     }
     // It starts at the default, steps through the newest candidates, then down to
     // spelling, and is back at the default.
-    expect(order).toEqual([11, 12, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 10]);
+    expect(order).toEqual([11, 12, 13, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 10]);
     expect(a.voiceStyle).toBe(F.voice.style);
     expect(F.voice.style).toBe(11);
-    expect(Object.keys(heard).sort()).toEqual(["0", "1", "10", "11", "12", "2", "3", "4", "5", "6", "7", "8", "9"]);
+    expect(Object.keys(heard).sort()).toEqual(["0", "1", "10", "11", "12", "13", "2", "3", "4", "5", "6", "7", "8", "9"]);
     expect(heard[1].map((v) => v.effect)).toEqual(["voiceGlideDown", "voiceVowelStress"]);
     expect(heard[2].map((v) => v.effect)).toEqual(["voiceGlideDown", "voiceFormantOStress"]);
     // Intonation and jitter change the pitches of the same sounds, in order.
@@ -160,8 +160,9 @@ describe("the practice deck", () => {
     expect(heard[8].map((v) => v.effect)).toEqual(heard[7].map((v) => v.effect));
     expect(heard[9].map((v) => v.effect)).toEqual(["voiceDiphJOStress"]);
     // The timing variants say the yo the same way (one diphthong) but at their own speed.
-    for (const style of [10, 11, 12]) expect(heard[style].map((v) => v.effect)).toEqual(["voiceDiphJOStress"]);
+    for (const style of [10, 11, 12, 13]) expect(heard[style].map((v) => v.effect)).toEqual(["voiceDiphJOStress"]);
     expect(heard[11][0].stretch).toBeCloseTo(F.voice.slow * F.voice.variants.faster);
+    expect(heard[13][0].stretch).toBeCloseTo(F.voice.slow * F.voice.variants.fastest);
     expect(heard[10][0].stretch).toBeCloseTo(F.voice.slow);
   });
 
@@ -271,8 +272,8 @@ describe("the practice deck", () => {
     vi.unstubAllGlobals();
   });
 
-  it("the practice deck steps only between the two voices being compared (faster, consfast), starting on the default", async () => {
-    expect(DEMO_VOICES).toEqual([11, 12]);
+  it("the practice deck steps only between the two voices being compared (faster, fastest), starting on the default", async () => {
+    expect(DEMO_VOICES).toEqual([11, 13]);
     expect(F.voice.style).toBe(11);
     const f = fakeHost();
     const clipboard = { copy: async () => true, read: async () => null, onPaste: () => () => {} };
@@ -284,16 +285,16 @@ describe("the practice deck", () => {
       a.update(1 / 60, { ...NO_INPUT, keys: ["KeyV"], keysDown: ["KeyV"] });
       seen.push(a.voiceStyle);
     }
-    expect(seen).toEqual([11, 12, 11, 12, 11, 12]);
+    expect(seen).toEqual([11, 13, 11, 13, 11, 13]);
     // The tag shows the voice, so each press is heard on the same card: R repeats it.
     expect(VOICE_STYLES[11]).toBe("faster");
-    expect(VOICE_STYLES[12]).toBe("consfast");
+    expect(VOICE_STYLES[13]).toBe("fastest");
   });
 
   it("`&voices=all` brings every voice back, and the real backend has no limited cycle", () => {
-    expect(studyBackend("?flashcards=demo", true).voiceCycle).toEqual([11, 12]);
+    expect(studyBackend("?flashcards=demo", true).voiceCycle).toEqual([11, 13]);
     expect(studyBackend("?flashcards=demo&voices=all", true).voiceCycle).toBeUndefined();
-    expect(studyBackend("?flashcards=demo&voices=nope", true).voiceCycle).toEqual([11, 12]);
+    expect(studyBackend("?flashcards=demo&voices=nope", true).voiceCycle).toEqual([11, 13]);
     expect(studyBackend("?voices=all", false).voiceCycle).toBeUndefined();
   });
 

@@ -226,7 +226,7 @@ describe("the speech-like voice: formants, intonation and jitter", () => {
         }
       }
     }
-    expect(VOICE_STYLES).toHaveLength(13);
+    expect(VOICE_STYLES).toHaveLength(14);
   });
 });
 
@@ -457,7 +457,7 @@ describe("diphthongs as one continuous sound (style 9), l, and levels", () => {
   });
 
   it("V steps from the best voice down to spelling, and every voice is in the cycle once", () => {
-    expect(VOICE_CYCLE.slice(0, 4)).toEqual([9, 10, 11, 12]);
+    expect(VOICE_CYCLE.slice(0, 5)).toEqual([9, 10, 11, 12, 13]);
     expect(VOICE_CYCLE.at(-1)).toBe(0);
     expect([...VOICE_CYCLE].sort((a, b) => a - b)).toEqual(VOICE_STYLES.map((_, i) => i));
     expect(VOICE_CYCLE).toContain(F.voice.style);
@@ -483,7 +483,7 @@ describe("timing variants (styles 10 to 12)", () => {
   const isVowel = (e?: string) => !!e && /^voice(Filt|Held)[AEIOU](Stress)?$/.test(e);
 
   it("styles 10 to 12 sound the same things in the same order as style 9", () => {
-    for (const ipa of words) for (const style of [10, 11, 12]) {
+    for (const ipa of words) for (const style of [10, 11, 12, 13]) {
       // The single vowels are the held ones from style 10 on; everything else is the same effect.
       expect(ipaScript(ipa, style).map((e) => e.effect!.replace("voiceHeld", "voiceFilt")), `${ipa} ${style}`).toEqual(ipaScript(ipa, 9).map((e) => e.effect));
       expect(ipaScript(ipa, style).map((e) => e.pitch), `${ipa} ${style}`).toEqual(ipaScript(ipa, 9).map((e) => e.pitch));
@@ -594,6 +594,27 @@ describe("timing variants (styles 10 to 12)", () => {
     expect(V.longerVowels).toBeLessThanOrEqual(2);
     expect(V.quickConsonants).toBeGreaterThan(0.4);
     expect(V.quickConsonants).toBeLessThan(1);
+  });
+
+  it("style 13 is style 11 with every time scaled again, a little faster, and nothing else different", () => {
+    expect(V.fastest).toBeLessThan(V.faster);
+    expect(V.fastest).toBeGreaterThan(0.6);
+    for (const ipa of words) {
+      const eleven = ipaScript(ipa, 11);
+      const thirteen = ipaScript(ipa, 13);
+      eleven.forEach((e, i) => {
+        expect(thirteen[i].effect).toBe(e.effect);
+        expect(thirteen[i].pitch).toBe(e.pitch);
+        expect(thirteen[i].at).toBeCloseTo(e.at * (V.fastest / V.faster));
+        expect(thirteen[i].stretch).toBeCloseTo(e.stretch! * (V.fastest / V.faster));
+      });
+    }
+    // Words are shorter than at style 11 by about the same ratio.
+    const long = ["ˈbwenas ˈnotʃes", "responsabiliˈdad"];
+    for (const ipa of long) expect(ipaScript(ipa, 13).at(-1)!.at / ipaScript(ipa, 11).at(-1)!.at).toBeCloseTo(V.fastest / V.faster, 1);
+    // The shortest sound (the burst of b d g) still lasts longer than the engine's attack.
+    const burst = (SOUND.effects.voiceFiltB.voices[1] as { length: number }).length;
+    expect(burst * F.voice.slow * V.fastest).toBeGreaterThan(0.016);
   });
 });
 

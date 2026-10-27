@@ -1,7 +1,7 @@
 ---
 id: 087
 title: Mobile, stage 1: a touch layer in a flat portrait shell
-status: in-progress
+status: review
 owner: claude
 depends_on: [049]
 ---

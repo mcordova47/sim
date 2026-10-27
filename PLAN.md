@@ -79,7 +79,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 040 | [Admire the art: a view of just the gallery wall](issues/040-admire-art-view.md) | claude | done | |
 | 041 | [Look in the mirror (bathroom)](issues/041-bathroom-mirror.md) | claude | done | |
 | 042 | [Clutter that moves (desk, clothes, mail)](issues/042-clutter-states.md) | claude | todo | |
-| 043 | [Random encounters (explore the idea)](issues/043-random-encounters.md) | marc + claude | in-progress (design note and stage A done; stage B remains) | |
+| 043 | [Random encounters (explore the idea)](issues/043-random-encounters.md) | marc + claude | done | |
 | 044 | [Place the new art on the map](issues/044-place-new-art.md) | claude | done | 034 |
 | 045 | [Draw the doing poses, outfits and held items](issues/045-draw-poses-outfits-items.md) | claude | done | 034 |
 | 046 | [Escape during any action (and a cutscene's text)](issues/046-cutscene-escape.md) | claude | done | |
@@ -115,6 +115,8 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 077 | [Make the per-letter voice the default for dialog text](issues/077-letters-voice-default.md) | claude | done | |
 | 078 | [A sleep sequence instead of just a timer](issues/078-sleep-sequence.md) | marc + claude | done | |
 | 079 | [Open the box one gift at a time](issues/079-open-box-one-at-a-time.md) | claude | done | 043 |
+| 080 | [Ad encounter entrance: flash and bar wipe](issues/080-encounter-entrance.md) | claude | todo | 043 |
+| 081 | [Menus ignore stray keys right after a typing game](issues/081-stray-keys-after-typing.md) | claude | todo | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

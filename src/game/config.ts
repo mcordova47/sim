@@ -757,6 +757,9 @@ export const FLASHCARDS = {
   // side is a decision here too.
   coreVersion: 1,
   language: "es",
+  // Which dialect's transcriptions the voice asks the core for (a BCP 47 tag, the
+  // name of the app's `IPA <tag>` column).
+  dialect: "es-MX",
   // Mumblespeak: the Spanish side is "spoken" as a run of short blips, one per
   // letter (a space or a mark is a rest), in the manner of Animal Crossing. The
   // pitch of a letter is fixed, so a word always sounds the same. A pitch is a

@@ -35,6 +35,10 @@ function fakeCore(overrides: Partial<Core> = {}): Core & { calls: string[] } {
       for (const [k, v] of Object.entries(a)) out[k] = Math.max(v, b[k] ?? 0);
       return JSON.stringify(out);
     },
+    ipa: (slug, dialect) => {
+      calls.push(`ipa:${slug}:${dialect}`);
+      return slug === "c" ? null : `ˈ${slug}`;
+    },
     requeue: (slug, position, queue) => [...queue.slice(0, position + 1), slug, ...queue.slice(position + 1)],
     ...overrides,
   };
@@ -136,14 +140,43 @@ describe("a real session", () => {
   it("shows cards through the core: prompt, joined answers, example as the hint", async () => {
     const session = (await open(fakeServer())) as StudySession;
     // The fake's cards are recognition: the prompt is the Spanish, so it is spoken first.
-    expect(session.card("a")).toEqual({ slug: "a", prompt: "A", answer: "a1, a2", hint: "ejemplo", spoken: "A", speaks: "front" });
-    expect(session.card("b")).toEqual({ slug: "b", prompt: "B", answer: "b1, b2", spoken: "B", speaks: "front" });
+    expect(session.card("a")).toEqual({ slug: "a", prompt: "A", answer: "a1, a2", hint: "ejemplo", spoken: "A", ipa: "ˈa", speaks: "front" });
+    expect(session.card("b")).toEqual({ slug: "b", prompt: "B", answer: "b1, b2", spoken: "B", ipa: "ˈb", speaks: "front" });
   });
 
   it("speaks the answer, on turning over, when the card is in production", async () => {
     const core = fakeCore({ card: (_p, slug) => ({ slug, prompt: "dog", answers: ["perro"], example: "", direction: "production" }) });
     const session = (await open(fakeServer(), core)) as StudySession;
     expect(session.card("a")).toMatchObject({ prompt: "dog", answer: "perro", spoken: "perro", speaks: "back" });
+  });
+
+  it("asks the core for the card's own word's transcription, in the configured dialect, in both directions", async () => {
+    const core = fakeCore();
+    const session = (await open(fakeServer(), core)) as StudySession;
+    core.calls.length = 0;
+    session.card("a");
+    expect(core.calls).toContain("ipa:a:es-MX");
+    const production = fakeCore({ card: (_p, slug) => ({ slug, prompt: "dog", answers: ["perro", "can"], example: "", direction: "production" }) });
+    const s2 = (await open(fakeServer(), production)) as StudySession;
+    expect(s2.card("a").ipa).toBe("ˈa");
+  });
+
+  it("leaves the transcription out when the core has none, lacks the function or throws", async () => {
+    const none = (await open(fakeServer(), fakeCore())) as StudySession;
+    expect("ipa" in none.card("c")).toBe(false);
+    const { ipa: _ipa, ...without } = fakeCore();
+    const old = (await open(fakeServer(), without as Core)) as StudySession;
+    expect("ipa" in old.card("a")).toBe(false);
+    const throwing = fakeCore({
+      ipa: () => {
+        throw new Error("boom");
+      },
+    });
+    const t = (await open(fakeServer(), throwing)) as StudySession;
+    expect(t.card("a")).toMatchObject({ prompt: "A" });
+    expect("ipa" in t.card("a")).toBe(false);
+    const empty = fakeCore({ ipa: () => "" });
+    expect("ipa" in ((await open(fakeServer(), empty)) as StudySession).card("a")).toBe(false);
   });
 
   it("composes accents so the font sees one letter", async () => {

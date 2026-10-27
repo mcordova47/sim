@@ -42,3 +42,4 @@ Either feeds the same **delivery** mechanism (issue 062 stage 3a, built first): 
 - Tests for the rates and cooldowns, the already-own dismissal, unsubscribe failure and the ad blocker (when built); `npm test` and `npm run build` pass.
 
 ## Progress log
+- 2026-10-27 (design note updated with Marc's answers): all open questions answered with the recommendations; question 4 changed so the impulse buy and the unsubscribe success follow mood smoothly (impulse = clamp((60 - mood) / 60, 0, 1) * 0.40; unsubscribe 50 percent at mood 0 to 90 percent at mood 100, minus 10 points per persistence, clamped 5 to 95). Tables, flow text, config table, test list and section 12 updated in docs/random-encounters.md. Status stays in-progress.

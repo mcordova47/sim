@@ -1,6 +1,6 @@
 # Random encounters, ad encounters and checkpoint gifts (design note, issue 043)
 
-Status: design note for Marc to read and pick from. Nothing is built. It sits on top of the delivery mechanism of issue 062 stage 3a (`game.deliveries.deliver(itemId, delayHours)`, the checkpoint list `src/game/delivery-checkpoints.ts`) and the decor inventory of issue 073.
+Status: design note; Marc answered the open questions on 2026-10-27 (section 12). Nothing is built. It sits on top of the delivery mechanism of issue 062 stage 3a (`game.deliveries.deliver(itemId, delayHours)`, the checkpoint list `src/game/delivery-checkpoints.ts`) and the decor inventory of issue 073.
 
 Marc's decisions (2026-10-26) are the starting point, so this note does not reopen them: both pacing sources, in two stages (checkpoints first, then the ad encounters); only new things arrive; encounters on the sofa (doomscroll) and at the desk (emails); the choices Ignore, Unsubscribe, Look closer and Add to cart; unsubscribe can fail; an ad blocker switch in the L screen; real giant platforms by name and invented brands; a short full-screen card, not a battle screen. The ad copy is a draft for the text pass (issue 037).
 
@@ -84,17 +84,22 @@ There is no battle, no meter and no loss. The four choices:
 | **Add to cart** | Queues the delivery: `deliver(item, delayHours)`. One line says the order is confirmed and when to expect it. The package turns up at the door as in stage 3a. | +2 |
 | Escape | Leaves at once. Counts as Ignore with no mood change and no impulse buy. The clock and the room are untouched. | 0 |
 
-**Mood sets the odds** (the mood variable runs 0 to 100, starts at 60; doomscrolling takes 8 off it, so a long scroll on the sofa pushes you into the low band):
+**Mood sets the odds, smoothly** (the mood variable runs 0 to 100, starts at 60; doomscrolling takes 8 off it, so a long scroll pushes the odds up a little). There are no bands: both chances are formulas of the current mood, with their numbers in `ENCOUNTERS`.
 
-| Mood | Impulse buy on Ignore | Unsubscribe success |
+- **Impulse buy on Ignore** = `clamp((MOOD_REF - mood) / MOOD_REF, 0, 1) * IMPULSE_MAX`, with `MOOD_REF` 60 and `IMPULSE_MAX` 0.40. It is 0 at mood 60 and above, and rises in a straight line as mood falls.
+- **Unsubscribe success** = `clamp(lerp(UNSUB_AT_0, UNSUB_AT_100, mood / 100) - 0.10 * persistence, UNSUB_MIN, UNSUB_MAX)`, with `UNSUB_AT_0` 0.50, `UNSUB_AT_100` 0.90, `UNSUB_MIN` 0.05 and `UNSUB_MAX` 0.95. That is `0.5 + 0.004 * mood` before the persistence penalty.
+
+| Mood | Impulse buy on Ignore | Unsubscribe success, persistence 0 / 1 / 2 |
 |---|---|---|
-| low, under 40 | 30 percent | 50 percent |
-| middle, 40 to 69 | 10 percent | 75 percent |
-| high, 70 or more | 0 | 90 percent |
+| 0 | 40 percent | 50 / 40 / 30 percent |
+| 25 | 23.3 percent | 60 / 50 / 40 percent |
+| 50 | 6.7 percent | 70 / 60 / 50 percent |
+| 60 | 0 | 74 / 64 / 54 percent |
+| 100 | 0 | 90 / 80 / 70 percent |
 
-- **Impulse buy:** on Ignore, the chance above (plus 15 points if you used Look closer first). If it fires, the narrator says `YOU TAP IT WITHOUT MEANING TO. ADDED TO CART.` and the delivery is queued as with Add to cart. It is a gift, not a penalty: no mood loss, nothing taken.
-- **Unsubscribe success:** the chance above, minus 10 points per level of the ad's `persistence` (0, 1 or 2; a cart-reminder email is 2). On success: a confirmation line and the calm lift. On **failure**: a plain line in the voice of real unsubscribe pages (`UNSUBSCRIBE FAILED. PLEASE ALLOW 10 BUSINESS DAYS FOR YOUR REQUEST TO BE PROCESSED.`), no mood change, and the next encounter comes sooner: its cooldown is halved and its chance is 50 percent for the next roll. That is the whole consequence. The daily cap still holds, so it can never pile up.
-- A tired low-mood player sees a second narrator line (`IT IS HARD TO LOOK AWAY.`); a high-mood one sees `YOU ARE NOT INTERESTED.` It changes nothing but the tone, and it tells the player the odds without a number.
+- **Impulse buy:** on Ignore, the chance above, plus 15 points if you used Look closer first (only while mood is under `MOOD_REF`; at 60 or more it stays 0, and the sum is capped at 1). If it fires, the narrator says `YOU TAP IT WITHOUT MEANING TO. ADDED TO CART.` and the delivery is queued as with Add to cart. It is a gift, not a penalty: no mood loss, nothing taken.
+- **Unsubscribe success:** the formula above (`persistence` is 0, 1 or 2; a cart-reminder email is 2). On success: a confirmation line and the calm lift. On **failure**: a plain line in the voice of real unsubscribe pages (`UNSUBSCRIBE FAILED. PLEASE ALLOW 10 BUSINESS DAYS FOR YOUR REQUEST TO BE PROCESSED.`), no mood change, and the next encounter comes sooner: its cooldown is halved and its chance is 50 percent for the next roll. That is the whole consequence. The daily cap still holds, so it can never pile up.
+- A player with mood under 30 sees a second narrator line (`IT IS HARD TO LOOK AWAY.`); one at 80 or more sees `YOU ARE NOT INTERESTED.` (`toneLow` and `toneHigh` in the config; narration only, no odds change). It changes nothing but the tone, and it tells the player the odds without a number.
 
 ### The ad blocker
 - A saved switch, shown and changed in the achievements list (L): the key `B` toggles it, and the hint line changes to say which state it is in (mockup in section 8). When it is ON, gate 1 fails and no encounter ever starts. Nothing else changes (checkpoint gifts still arrive).
@@ -113,10 +118,11 @@ All of this lives in `ENCOUNTERS` in `src/game/config.ts`, not in the engine.
 | `afterFailCooldownHours` | 1.5 | the cooldown after a failed unsubscribe |
 | `maxPerDay` | 2 | encounters per game day |
 | `firstDay` | 2 | no encounters before this game day |
-| `lowMood` / `highMood` | 40 / 70 | band edges (low below 40, high from 70) |
-| `impulse` | `{ low: 0.3, mid: 0.1, high: 0 }` | impulse buy on Ignore |
+| `moodRef` | 60 | mood at and above which an Ignore never turns into a purchase (`MOOD_REF`) |
+| `toneLow` / `toneHigh` | 30 / 80 | mood edges for the extra narrator line (tone only) |
+| `impulseMax` | 0.40 | impulse buy chance at mood 0 (`IMPULSE_MAX`); falls in a straight line to 0 at `moodRef` |
 | `lookCloserImpulse` | +0.15 | added after Look closer |
-| `unsubscribe` | `{ low: 0.5, mid: 0.75, high: 0.9 }` | success |
+| `unsubscribe` | `{ at0: 0.5, at100: 0.9, min: 0.05, max: 0.95 }` | success at mood 0 and 100 (a straight line between), and its clamp |
 | `persistencePenalty` | 0.1 per level | taken off success |
 | `mood` | `{ ignore: 3, unsubscribe: 3, cart: 2, dismissal: 0 }` | mood changes |
 | `dismissSeconds` | 2 | how long an already-own card shows |
@@ -408,8 +414,8 @@ The achievements feature already knows when an achievement unlocks, so it calls 
 **Tests (stage B)** with a fake random and a fake clock:
 - The rate: over many seeded rolls the encounter rate is near `chance` for eligible tasks and zero for the others (`work-sofa`, a cancelled task); the cooldown blocks an encounter inside 3 game hours and allows one after; the daily cap of 2 holds across a day boundary and a sleep skip; `firstDay` holds.
 - The already-own dismissal: an owned item and a queued item give no menu, no delivery and no mood change, and still count for the cooldown.
-- Unsubscribe: success and failure at the three mood bands with a fake random at the edges; a failed unsubscribe halves the cooldown and sets the next chance, and the cap still holds; persistence lowers the odds.
-- Mood: Ignore and the impulse buy at each band; Look closer raises the impulse chance; Add to cart calls `deliver` once and a full queue or refused delivery shows a dismissal, not an error.
+- Unsubscribe: the success chance at mood 0, 25, 50, 60 and 100 for persistence 0, 1 and 2 (the values in the section 4 table, and the 5 and 95 percent clamps), with a seeded random checked on both sides of each chance; a failed unsubscribe halves the cooldown and sets the next chance, and the cap still holds; persistence lowers the odds.
+- Mood: the impulse chance at mood 0, 25, 50, 60 and 100 (40, 23.3, 6.7, 0 and 0 percent) and over many seeded rolls the rate lands within tolerance of each; it is exactly 0 at 60 and above even after Look closer; the chance falls smoothly (never rises as mood rises); Look closer raises it below 60; Look closer raises the impulse chance; Add to cart calls `deliver` once and a full queue or refused delivery shows a dismissal, not an error.
 - The ad blocker: ON means no roll and no state change; it survives a progress reset; the L key toggles and saves; the hint line changes.
 - Saves: `parseEncounters` with bad shapes, round trip, a future `last`, an old save.
 - The catalog check from section 9, and Escape from every moment (card, menu, Look closer, the dismissal) leaves the clock, the lock and the room clean.
@@ -418,20 +424,21 @@ The achievements feature already knows when an achievement unlocks, so it calls 
 ## 11. Recommendation (what I would build)
 - **Both, in two stages**: checkpoints first, then encounters.
 - **Checkpoints:** the ten-item list above, with fallback to the next unowned item and three achievement bonus gifts.
-- **Encounters:** doomscroll and Answer emails, 22 percent, 3 game hour cooldown, 2 a day, from game day 2; the four choices, mood as the odds, impulse buys on Ignore at low mood, Unsubscribe that can fail and brings the next ad sooner, nothing punished.
+- **Encounters:** doomscroll and Answer emails, 22 percent, 3 game hour cooldown, 2 a day, from game day 2; the four choices, mood as the odds, impulse buys on Ignore that grow smoothly as mood falls (40 percent at mood 0, none from 60), Unsubscribe that can fail and brings the next ad sooner, nothing punished.
 - **Look:** three card templates and the item's own sprite as the product picture, so no per-ad art.
 - **The ad blocker** in L on the key B, kept across a reset.
 
-## 12. Open questions for Marc
-1. **Pacing numbers.** One game day is 12 minutes of real play. The checkpoints land at days 1, 3, 5, 8, 10, 13 and 16 (so a gift about every 25 to 35 real minutes), plus three achievement gifts. Too slow, too fast, or right? (Recommend as written; it is one data list to change.)
-2. **If a checkpoint item was already bought from an ad:** give the next unowned item (recommended; it keeps the trickle going) or give nothing that time?
-3. **Ad menu labels by card type:** `UNSUBSCRIBE` on emails, `HIDE AD` on posts and `REPLY STOP` on texts, or the plain `UNSUBSCRIBE` everywhere? (Recommend by card type: it sounds more real and does the same thing.)
-4. **Impulse buys.** Is it right that at low mood Ignore can turn into a purchase (30 percent at low mood, 10 at middle, none at high), or should the player's choice be the only way to buy? (Recommend the impulse buy: it is the one place mood changes the odds, and it gives, never takes.)
-5. **Mood numbers.** Ignore +3, Unsubscribe +3, Add to cart +2, a failure 0, the dismissal 0. Doomscroll costs 8, so an ignore pays back part of it. OK?
-6. **Narrow wall pieces.** Six narrow paintings and only two narrow wall slots means most go to the inventory. Add a third slot (a kitchen wall, or the gallery wall) in stage 4, or keep it small? (Recommend one more slot, a data line and one more object; it can wait until stage A is playable.)
-7. **First encounter day.** Start from game day 2 so a new game is not ambushed? (Recommend yes.)
-8. **An unopened package pauses ads?** Right now an ad for an item already at the door is a dismissal, but other ads still appear while a package waits. Should any waiting package turn every ad into a dismissal until it is opened (a natural slow-down)? (Recommend no; the cap of 2 a day is enough.)
-9. **Ad blocker storage.** In the settings (kept across a progress reset, recommended) or in the progress save (reset turns it back on)? And is `B` the right key?
-10. **Brand names.** The invented names are Little Fern Prints, Garnet Lane Florals, Oakline Home Goods, Northfield Studio, Maple Row, Hollis Candle Co. and Saltmarsh Prints. They are generic on purpose, but someone could share them; do you want them checked against real shops, or changed to something sillier-sounding but still plausible?
-11. **Prices on the cards.** The cards show dollar prices that mean nothing in the game (no currency). Keep them for realism (recommended) or leave prices out?
-12. **More card types later?** A package-tracking email ("Your order is on its way") would be a real, deadpan fit for the delivery, but it is a second message about something you already know. Not planned; say if you want it.
+## 12. Open questions for Marc: answered (2026-10-27)
+Marc went with every recommendation. The decisions:
+1. **Pacing numbers:** as written (checkpoints at game days 1, 3, 5, 8, 10, 13, 16, plus three achievement gifts).
+2. **A checkpoint item already bought:** give the next unowned item.
+3. **Menu labels:** by card type (`UNSUBSCRIBE`, `HIDE AD`, `REPLY STOP`).
+4. **Impulse buys:** yes, but **continuous in mood, not bands**: the chance rises smoothly as mood falls (`clamp((60 - mood) / 60, 0, 1) * 0.40`), and Unsubscribe success is a straight line from 50 percent at mood 0 to 90 percent at mood 100, minus 10 points per persistence level, clamped 5 to 95 percent. All numbers are in the `ENCOUNTERS` table.
+5. **Mood numbers:** fine (Ignore +3, Unsubscribe +3, Add to cart +2, failure 0, dismissal 0).
+6. **Narrow wall pieces:** add one more slot later (not in stage A).
+7. **First encounter day:** game day 2.
+8. **An unopened package:** does not turn other ads into dismissals (only an ad for the item that is itself queued or waiting).
+9. **Ad blocker:** stored in the settings (a progress reset keeps it), key `B`.
+10. **Brand names:** check them in the text pass (issue 037).
+11. **Prices on the cards:** keep the dollar prices.
+12. **Package-tracking card ("Your order is on its way"):** not planned now; a possible later card type.

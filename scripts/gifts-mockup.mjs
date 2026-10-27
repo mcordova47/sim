@@ -25,8 +25,8 @@ for (let c = 0; c < COLS; c++) {
 
 // [sprite, tile col, tile row]. The first two of band 1 are the paintings already in the room.
 const band = (names, row) => { let c = 0; for (const n of names) { blit(load(n), c * T, row * T); c += load(n).width / T; } };
-band(["painting", "painting-desk", "art-robin", "art-silver-landscape", "art-green-still-life", "art-concert-poster", "art-dark-animal", "art-white-building"], 0);
-band(["art-oak-box", "art-pale-mat", "art-small-blue", "art-tall-brown", "art-dark-postcard", "art-gold-narrow", "painting-wide"], 1);
+band(["painting", "painting-desk", "art-robin", "art-concert-poster", "art-snow-wagon", "art-serenity-now", "art-canoes"], 0);
+band(["art-great-wave", "art-starry-night", "art-water-lilies", "art-sunflowers", "painting-wide"], 1);
 // A row of the table wall again, but with the new pieces beside the old on a row of their own is the
 // band above; the third wall row is plain, for the lamps and shelves to stand against.
 

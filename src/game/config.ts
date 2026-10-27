@@ -283,6 +283,13 @@ export const NOTES = {
 export const DIALOG = {
   // How fast text appears, in characters per second.
   charsPerSecond: 45,
+  // A dialog or menu that opens while a typing or notes game runs, or just after
+  // one ends, ignores every key for this many seconds, so a key the player was
+  // still pressing can't pick an entry (issue 081). Menus opened by a deliberate
+  // press have no delay. 0 turns it off.
+  inputDelay: 0.5,
+  // How long after such a game ends a dialog still counts as opening right after it.
+  strayWindow: 0.3,
   // Lines of text in one page of the box.
   linesPerPage: 3,
   // While a dialog is open the game clock (task cooldowns, the combo timer)

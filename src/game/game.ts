@@ -473,8 +473,18 @@ export class Game {
   // Opens a dialog or menu. Returns false if one is already open. `onDone` is
   // called when this dialog closes, with the labels the player picked.
   openDialog(node: DialogNode, onDone?: (result: DialogResult) => void): boolean {
-    return this.dialog.start(node, onDone);
+    return this.dialog.start(node, onDone, this.strayKeysPossible() ? DIALOG.inputDelay : 0);
   }
+
+  // A typing or notes game is running, or ended a moment ago: the player may
+  // still be pressing keys, so a dialog opening now must not hear them (issue 081).
+  private strayKeysPossible(): boolean {
+    const running = this.interaction.active?.activity;
+    return this.sinceKeyGame < DIALOG.strayWindow || !!(running && (running.readsKeys || running.strayKeys));
+  }
+
+  // Seconds since an activity that reads keys last ran (large when none has).
+  private sinceKeyGame = Infinity;
 
   // Moves the player into another room: the level, the tile and the way they
   // face. Score, combos, cooldowns, popups, events and layers carry on.
@@ -517,6 +527,8 @@ export class Game {
         controls = NO_INPUT;
       } else heldClock = false;
     }
+    const running = this.interaction.active?.activity;
+    this.sinceKeyGame = running && (running.readsKeys || running.strayKeys) ? 0 : this.sinceKeyGame + dt;
     if (this.dialog.open) {
       // The dialog has the controls. Unless the clock is set to run on, time
       // stands still while it is open (task cooldowns, the combo, and the

@@ -92,7 +92,7 @@ export function drawDialog(ctx: CanvasRenderingContext2D, view: DialogView, scre
   frame(ctx, box);
   view.choices.forEach((label, i) => {
     const y = box.y + DIALOG.padding + i * LINE;
-    if (i === view.cursor) {
+    if (i === view.cursor && view.ready) {
       // A small arrow pointing at the chosen entry.
       const x = box.x + DIALOG.padding;
       ctx.fillStyle = COLOR.ink;

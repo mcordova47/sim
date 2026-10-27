@@ -1,7 +1,7 @@
 ---
 id: 081
 title: Menus ignore stray keys right after a typing game
-status: todo
+status: review
 owner: claude
 depends_on: []
 ---
@@ -19,3 +19,16 @@ Marc (2026-10-27): a menu that opens the moment a typing game ends can take a ke
 - Tests prove it for the encounter menu and one other place, and fail on the old code. `npm test`, `npx tsc --noEmit`, `npm run build` pass.
 
 ## Progress log
+
+- 2026-10-27 (claude): Started. Plan: one mechanism in the dialog runner (an input delay on start), chosen by the game when a key-reading activity is running or ended a moment ago.
+- 2026-10-27 (claude): Done, in review.
+  - Places found where a dialog or menu can open during or right after a key-reading game:
+    1. Answer emails (typing) then the ad encounter menu (`maybeEncounter` at task finish, same frame). The real bug.
+    2. Notes game (arrows; flagged `strayKeys`): no dialog follows it today, but any dialog opened then is covered.
+    3. Track editor (`make-track`, reads keys): its "Make a track" menu and the "Delete X?" confirm open from inside it. Also delayed now, so these menus wait 0.5 s every time they open (a small cost; say if it feels slow).
+    4. Flashcards (reads keys) and swap-decor (reads keys) open no dialogs; covered by the same rule if they ever do.
+    5. Cutscene/dialog/record-player/collect-delivery menus open on a deliberate press with no key game running: not delayed. The package-arrived line is a popup, not a dialog.
+  - Mechanism: `DialogRunner.start(node, onDone, inputDelay)` ignores all keys (choose, cursor, say-advance) for that long; menu view has `ready` (cursor hidden until then), say's `waiting` arrow too. `Game.openDialog` passes `DIALOG.inputDelay` (0.5 s, config) when a `readsKeys`/`strayKeys` activity is running or ended within `DIALOG.strayWindow` (0.3 s). Escape still backs out during the delay (not a choice).
+  - Files: src/game/dialog.ts, game.ts, config.ts, activity.ts, activities/notes.ts, render/dialog-box.ts, new src/game/stray-keys.test.ts. Did not touch activities/encounter.ts (issue 080).
+  - Checks: new tests (runner; encounter menu after typing with mashed E and arrows; menu during notes; deliberate menu not delayed) fail on the old game.ts/dialog.ts (4 of 6 fail) and pass now. `npm test` 2443 pass, `npx tsc --noEmit` and `npm run build` clean.
+  - Not checked: how the delay and hidden cursor feel in a browser.

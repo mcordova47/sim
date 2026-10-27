@@ -683,11 +683,12 @@ describe("the entrance and the exit", () => {
     expect(game.dialogOpen).toBe(true);
   });
 
-  it("sounds: two buzzes first, a rising pulse run, then the hit as the card appears, all inside the entrance", () => {
+  it("sounds: one rattling buzz first, a rising pulse run, then the hit as the card appears, all inside the entrance", () => {
     const { game, heard } = fresh();
     frames(game, ENTRANCE + 10);
     const names = heard.map((h) => h.name);
-    expect(names.slice(0, 2)).toEqual(["encounter-buzz", "encounter-buzz"]);
+    expect(names[0]).toBe("encounter-buzz");
+    expect(names.filter((n) => n === "encounter-buzz")).toHaveLength(1);
     expect(names.at(-1)).toBe("encounter-hit");
     expect(names.filter((n) => n === "encounter-hit")).toHaveLength(1);
     const run = heard.filter((h) => h.name === "encounter-pulse");

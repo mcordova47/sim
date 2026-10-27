@@ -153,13 +153,12 @@ export const ENCOUNTERS = {
     exitCoverFrames: 6,
     exitPartFrames: 6,
     // The entrance's sound, played a cue at a time so skipping (E) simply stops the rest (issue 080).
-    // Each entry is [frame, cue, semitones above the cue's own pitch]. A phone's two low buzzes under
+    // Each entry is [frame, cue, semitones above the cue's own pitch]. A phone's one rattling buzz under
     // the shake, a fast pulse run that rises while the bars close in, then a hit chord as they part
     // and the card appears. The cues are in `SOUND.cues`, their notes in `SOUND.effects`. Nothing
     // may sound after the entrance's last frame (the hit is the last, and its sound is short).
     sounds: [
       [0, "encounter-buzz", 0],
-      [8, "encounter-buzz", 0],
       [16, "encounter-pulse", 0],
       [18, "encounter-pulse", 2],
       [20, "encounter-pulse", 4],
@@ -938,14 +937,20 @@ export const SOUND = {
       ],
     },
     // The ad encounter's entrance (issue 080; the schedule is `ENCOUNTERS.entrance.sounds`).
-    // One low phone buzz (a rough square with a little noise; Marc asked for it louder).
+    // One phone buzz: a rattle, not a hit. Six quick rough squares in a row (a motor shaking, about 28
+    // times a second), each a little louder or softer than the last so it flutters, with a rumble of
+    // noise under the first four. It runs about 0.2 s, under the shake. Marc asked for it a little
+    // quieter and buzzier than one low thump (it sounded like two hits).
     encounterBuzz: {
       voices: [
-        { wave: "square", freq: 78, length: 0.11, gain: 0.2 },
-        { wave: "square", freq: 82, length: 0.11, gain: 0.12 },
-        // An octave up, so a laptop speaker that cannot make 80 Hz still buzzes.
-        { wave: "square", freq: 156, length: 0.1, gain: 0.08 },
-        { noise: "lowpass", freq: 300, length: 0.1, gain: 0.1 },
+        ...[0, 1, 2, 3, 4, 5].map((i) => ({
+          wave: "square" as const,
+          freq: i % 2 === 0 ? 104 : 121,
+          delay: i * 0.035,
+          length: 0.03,
+          gain: i % 2 === 0 ? 0.14 : 0.08,
+        })),
+        ...[0, 1, 2, 3].map((i) => ({ noise: "lowpass" as const, freq: 420, delay: i * 0.05, length: 0.045, gain: 0.05 })),
       ],
     },
     // One note of the rising pulse run; the schedule raises its pitch each time.

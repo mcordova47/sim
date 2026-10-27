@@ -175,16 +175,17 @@ const KITCHEN: Record<string, ObjectDef> = {
   },
   V: { name: "stove", sprite: "stove", color: "ink", tasks: ["cook"] },
   h: { name: "range hood", sprite: "hood", color: "paper" },
-  Y: { name: "recycling", sprite: "recycling", color: "leaf", tasks: ["take-trash"] },
-  N: { name: "trash bin", sprite: "bin", color: "slate", tasks: ["take-trash"] },
+  Y: { name: "recycling", sprite: "recycling", color: "leaf", tasks: ["recycle-boxes", "take-trash"] },
+  N: { name: "trash bin", sprite: "bin", color: "slate", tasks: ["recycle-boxes", "take-trash"] },
   // The boxes follow the state variable `boxes` (issue 066): a stack, or flattened
-  // after "Flatten the boxes". A package opened at the front door brings the stack back.
+  // after "Flatten the boxes", and gone after "Take out the recycling" (issue 070). A package opened at the front door brings the stack back.
   X: {
     name: "box stack and pantry",
     sprite: "boxes",
     color: "tangerine",
     tasks: ["flatten-boxes"],
     variants: [
+      { sprite: "boxes-gone", when: [{ var: "boxes", min: 2 }], color: "tangerine" },
       { sprite: "boxes", when: [{ var: "boxes", min: 1 }], color: "tangerine" },
       { sprite: "boxes-flat", color: "tangerine" },
     ],

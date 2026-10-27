@@ -35,9 +35,10 @@ Strings added later (mood in 038, the mirror in 041, the gallery view in 040) ar
 | fridge-stare | Stare into the fridge | Open the fridge | Nothing new has appeared since the last check. |  |  |
 | humidifier | Refill the humidifier | Refill the humidifier | The air is now 4% less crunchy. |  |  |
 | take-trash | Take out the trash | Take out the trash | The bag was not full. You took it out anyway, out of spite. |  |  |
+| recycle-boxes | Take out the recycling | Take out the recycling | Down the stairs, into the bin, and the corner of the kitchen is yours again. | FLATTEN THE BOXES FIRST, NO BOXES TO TAKE OUT |  |
 | cook | Cook dinner | Cook dinner | Smoke alarm: silent, but judging. | NO CLEAN PLATES |  |
 | dishes | Do the dishes | Do the dishes | The pile regrows when you look away. | NO DIRTY DISHES |  |
-| flatten-boxes | Flatten the boxes | Flatten boxes | You have been meaning to do this since spring. |  |  |
+| flatten-boxes | Flatten the boxes | Flatten boxes | You have been meaning to do this since spring. | NO BOXES TO FLATTEN |  |
 | brush-teeth | Brush teeth | Brush teeth | Two full minutes. Honest. |  |  |
 | sit | Take a moment | Take a moment | Phone battery: 41%. Phone battery: 33%. |  |  |
 | shower | Take a shower | Take a shower | Best ideas of the day, all forgotten by the towel. |  |  |

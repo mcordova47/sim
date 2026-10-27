@@ -30,13 +30,13 @@ const boxesItem = (_game: Game) => rooms.kitchen.interactables.find((i) => i.id 
 const boxAppearance = () => rooms.kitchen.appearances?.find((a) => a.variants.some((v) => v.sprite === "boxes-flat"));
 
 describe("the boxes state variable", () => {
-  it("is a saved variable that starts as a stack, 0 or 1 only", () => {
+  it("is a saved variable that starts as a stack, 0 to 2 (1 stack and 0 flat as in 066, 2 gone)", () => {
     const def = STATE_VARS.find((v) => v.id === "boxes")!;
-    expect(def).toMatchObject({ initial: 1, min: 0, max: 1 });
+    expect(def).toMatchObject({ initial: 1, min: 0, max: 2 });
     const st = new ApartmentState(STATE_VARS);
     expect(st.get("boxes")).toBe(1);
     st.applyEffects([{ var: "boxes", add: 5 }]);
-    expect(st.get("boxes")).toBe(1);
+    expect(st.get("boxes")).toBe(2);
     st.applyEffects([{ var: "boxes", add: -5 }]);
     expect(st.get("boxes")).toBe(0);
   });
@@ -59,7 +59,7 @@ describe("Flatten the boxes", () => {
     const t = TASKS.find((x) => x.id === "flatten-boxes")!;
     expect(t.points).toBe(45);
     expect(t.flavor).toBe("You have been meaning to do this since spring.");
-    expect(t.requires).toEqual([{ var: "boxes", min: 1, reason: "NO BOXES TO FLATTEN" }]);
+    expect(t.requires).toEqual([{ var: "boxes", min: 1, max: 1, reason: "NO BOXES TO FLATTEN" }]);
   });
 
   it("is offered with a stack, flattens it, and is then refused with the plain reason", () => {
@@ -132,6 +132,89 @@ describe("the kitchen object follows the state", () => {
     expect(pickVariant(obj!.variants, st)?.sprite).toBe("boxes");
     st.applyEffects([{ var: "boxes", set: 0 }]);
     expect(pickVariant(obj!.variants, st)?.sprite).toBe("boxes-flat");
+    st.applyEffects([{ var: "boxes", set: 2 }]);
+    expect(pickVariant(obj!.variants, st)?.sprite).toBe("boxes-gone");
     // That both sprite files exist is checked for every variant in apartment.test.ts.
+  });
+});
+
+// Issue 070: flat boxes go out with the recycling and are gone.
+const recycleItem = () => rooms.kitchen.interactables.find((i) => i.id === "recycle-boxes")!;
+const setBoxes = (g: Game, v: number) => g.state.applyEffects([{ var: "boxes", set: v }]);
+const goTo = (g: Game, spot: { stand: { col: number; row: number }; face: never }) => {
+  g.player.placeAt(spot.stand.col, spot.stand.row, spot.face);
+  g.update(dt, NO_INPUT);
+};
+
+describe("Take out the recycling (issue 070)", () => {
+  it("is refused with a plain reason for a stack, and for no boxes", () => {
+    const game = kitchen();
+    expect(game.interaction.unavailableReason(recycleItem())).toBe("FLATTEN THE BOXES FIRST");
+    setBoxes(game, 2);
+    expect(game.interaction.unavailableReason(recycleItem())).toBe("NO BOXES TO TAKE OUT");
+    setBoxes(game, 0);
+    expect(game.interaction.unavailableReason(recycleItem())).toBeNull();
+  });
+
+  it("with a stack or no boxes, ordinary trash works at both objects and the boxes stay", () => {
+    for (const start of [1, 2]) {
+      for (const spot of taskSpots(rooms.kitchen).filter((s) => s.id === "take-trash")) {
+        const game = kitchen();
+        setBoxes(game, start);
+        goTo(game, spot as never);
+        expect(game.interaction.nearby?.id).toBe("take-trash");
+        game.update(dt, press);
+        finish(game);
+        expect(game.state.get("boxes")).toBe(start);
+      }
+    }
+  });
+
+  it("with flat boxes it is offered at both objects and the boxes are gone after", () => {
+    const spots = taskSpots(rooms.kitchen).filter((s) => s.id === "recycle-boxes");
+    expect(spots.length).toBeGreaterThanOrEqual(2);
+    for (const spot of spots) {
+      const game = kitchen();
+      setBoxes(game, 0);
+      goTo(game, spot as never);
+      expect(game.interaction.nearby?.id).toBe("recycle-boxes");
+      expect(game.interaction.choices).toEqual([]);
+      game.update(dt, press);
+      finish(game);
+      expect(game.state.get("boxes")).toBe(2);
+      expect(game.interaction.unavailableReason(boxesItem(game))).toBe("NO BOXES TO FLATTEN");
+      game.update(dt, NO_INPUT);
+      expect(game.interaction.nearby?.id).toBe("take-trash");
+    }
+  });
+
+  it("a package brings the stack back from flat and from gone", () => {
+    for (const from of [0, 2]) {
+      const game = new Game(rooms.main, { rooms, random: () => 0.5 });
+      setBoxes(game, from);
+      game.deliveries.deliver(ITEM, 0);
+      (game as unknown as { collectDeliveries(): void }).collectDeliveries();
+      expect(game.state.get("boxes")).toBe(1);
+    }
+  });
+
+  it("the whole flow: stack, flatten, recycling, gone", () => {
+    const game = kitchen();
+    stand(game, rooms.kitchen, "flatten-boxes");
+    game.update(dt, press);
+    finish(game);
+    expect(game.state.get("boxes")).toBe(0);
+    goTo(game, taskSpots(rooms.kitchen).find((s) => s.id === "recycle-boxes") as never);
+    game.update(dt, press);
+    finish(game);
+    expect(game.state.get("boxes")).toBe(2);
+  });
+
+  it("has its own points and flavor and leaves the trash task alone", () => {
+    const t = TASKS.find((x) => x.id === "recycle-boxes")!;
+    expect(t.prompt).toBe("Take out the recycling");
+    expect(t.points).toBe(55);
+    expect(t.flavor).toBeTruthy();
+    expect(TASKS.find((x) => x.id === "take-trash")!.points).toBe(50);
   });
 });

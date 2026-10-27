@@ -50,7 +50,7 @@ The original IPA voice (style 1) tells vowels apart by pitch, and its pitches ar
 2. **Intonation (style 3).** Pitch drifts down across the phrase, the stressed vowel gets a small bump and the last vowel falls (`FLASHCARDS.voice.intonation`, fractions of the pitch; a few percent each, never more than a few semitones).
 3. **Jitter (style 4).** Every sound is a few percent off (`FLASHCARDS.voice.jitter`), in a fixed pattern seeded by its place in the word, so no two vowels are quite alike and a word still sounds the same every time.
 
-In the practice deck, V steps through spelling, ipa, formants, intonation, jitter, filtered and filtered+ (the tag shows which) and R says the card again, so the parts can be heard against each other on the same card. `FLASHCARDS.voice.style` is the voice a card gets before V is pressed (1, the original, until one is chosen).
+In the practice deck, V steps through spelling, ipa, formants, intonation, jitter, filtered, filtered+, glides and murmurs (the tag shows which) and R says the card again, so the parts can be heard against each other on the same card. `FLASHCARDS.voice.style` is the voice a card gets before V is pressed (1, the original, until one is chosen).
 
 ### The source-filter voice (styles 5 and 6)
 
@@ -72,6 +72,15 @@ What to turn, and what you will hear:
 | consonants | `FLASHCARDS.voice.symbols` and the `voice*` effects | unchanged: clicks, hisses, hums and slides |
 
 Both approaches have the same consonants and timing; only the vowels and the speed differ, so styles 2 and 5 are the fair pair to compare.
+
+### Glides and murmurs (styles 7 and 8)
+
+Listening to the filtered voice showed three things still made the old way, as separate tones, so they stood out from the vowels: the glides, the nasals and the voiced stop `b` (and `d`, `g`). Each is now made from the same source as the vowels, in two steps so each can be heard on its own (V steps `filtered+`, `glides`, `murmurs`):
+
+- **Style 7, glides.** /j/ and /w/ were a 50 ms triangle tone sliding between two pitches, which is a high blip. A glide is really the mouth moving, so now it is the vowel resonances moving: a /j/ is a very short /i/ and a /w/ a very short /u/, and the filters slide between that and the next vowel's (`voiceGlideJToE` for the /j/ of `bien`) or, at the end of a diphthong, between the previous vowel's and that (`voiceGlideJFromA` for the /j/ of `aire`). The source never changes pitch, so a diphthong keeps one pitch from the glide into the vowel (the glide and the vowel are still two separate sounds, so how smooth the join is, is for the ear to judge). Two vowels in a row (`día`, `río`) are not glides and are unchanged, and a glide with no vowel next to it keeps its old sound. Timing: `FLASHCARDS.voice.glideLength`.
+- **Style 8, murmurs.** The nasals were a 160 Hz sine and the voiced stops a 170 Hz triangle thump, close to the source's 125 Hz and far below every vowel resonance, which is the purr. Now the nasals are the vowel source through a low resonance (250 Hz, what a closed mouth lets out) with a faint higher resonance that says which nasal it is (`m` 1100, `n` 1600, `ñ` 2200 Hz), and the voiced stops are the same murmur, shorter, followed by a short burst of noise as the mouth opens (`b` 800, `d` 3200, `g` 1800 Hz). `FLASHCARDS.voice.murmurs` says which symbol uses which; the effects are `voiceFiltM`, `N`, `NY`, `B`, `D`, `G` in `config.ts`. Nothing else changes: the unvoiced stops, the hisses, the liquids and the tap and trill are as before.
+
+Styles 0 to 6 are unchanged, so each part can be heard against the one before.
 
 ## Trying the screens and the voice without the app
 

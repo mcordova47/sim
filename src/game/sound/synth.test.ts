@@ -168,5 +168,18 @@ describe("Synth", () => {
     ctx.endAll();
     expect(ctx.filters.every((f) => f.disconnected)).toBe(true);
   });
+
+  it("slides a formant's filter from one frequency to another when it has an endFreq", () => {
+    const { ctx, synth } = setup();
+    synth.play({
+      voices: [{ source: "sawtooth", freq: 125, formants: [{ freq: 300, endFreq: 800, q: 5, gain: 1 }, { freq: 2000, q: 5, gain: 1 }], length: 0.1, gain: 0.2 }],
+    });
+    const [sliding, fixed] = ctx.filters;
+    expect(sliding.frequency.calls.map((c) => [c.type, c.value])).toEqual([["set", 300], ["exp", 800]]);
+    expect(sliding.frequency.calls[1].time).toBeCloseTo(0.1);
+    // A formant with no endFreq is set once, as before.
+    expect(fixed.frequency.value).toBe(2000);
+    expect(fixed.frequency.calls).toEqual([]);
+  });
 });
 

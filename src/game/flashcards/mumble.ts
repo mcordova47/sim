@@ -65,24 +65,28 @@ function wobble(index: number, symbol: string): number {
 // The voice styles, each adding to the one before: 1 `ipa` (one tone per vowel),
 // 2 `formants` (vowels by timbre), 3 `intonation`, 4 `jitter`. (Style 0 is the
 // spelling voice, which has no transcription to read.)
-export const VOICE_STYLES = ["spelling", "ipa", "formants", "intonation", "jitter", "filtered", "filtered+"] as const;
+export const VOICE_STYLES = ["spelling", "ipa", "formants", "intonation", "jitter", "filtered", "filtered+", "glides", "murmurs"] as const;
 
 // What each style does, on top of reading the transcription: how vowels are
 // made, whether pitch follows intonation, whether each sound is a little off, and
 // whether it is slowed down.
 const RECIPES = [
   null,
-  { vowels: "pitch", intonation: false, jitter: false, slow: false },
-  { vowels: "tones", intonation: false, jitter: false, slow: false },
-  { vowels: "tones", intonation: true, jitter: false, slow: false },
-  { vowels: "tones", intonation: true, jitter: true, slow: false },
-  { vowels: "filtered", intonation: false, jitter: false, slow: true },
-  { vowels: "filtered", intonation: true, jitter: true, slow: true },
+  { vowels: "pitch", intonation: false, jitter: false, slow: false, glides: false, murmurs: false },
+  { vowels: "tones", intonation: false, jitter: false, slow: false, glides: false, murmurs: false },
+  { vowels: "tones", intonation: true, jitter: false, slow: false, glides: false, murmurs: false },
+  { vowels: "tones", intonation: true, jitter: true, slow: false, glides: false, murmurs: false },
+  { vowels: "filtered", intonation: false, jitter: false, slow: true, glides: false, murmurs: false },
+  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: false, murmurs: false },
+  // Style 7: filtered+ with the glides made by the resonances moving.
+  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: false },
+  // Style 8: and the nasals and voiced stops made from the vowels' own source.
+  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: true },
 ] as const;
 
 export function ipaScript(ipa: string, style = 1): VoiceEvent[] {
   const recipe = RECIPES[Math.min(Math.max(Math.trunc(style) || 1, 1), RECIPES.length - 1)] ?? RECIPES[1];
-  const { units } = readIpa(ipa, recipe.vowels);
+  const { units } = readIpa(ipa, recipe.vowels, { glides: recipe.glides, murmurs: recipe.murmurs });
   const k = recipe.slow ? F.voice.slow : 1;
   const sounds = units.filter((u): u is Phoneme => !isGap(u));
   const lastVowel = sounds.map((s) => s.vowel).lastIndexOf(true);

@@ -72,8 +72,8 @@ describe("the practice deck", () => {
     run(1);
     expect(f.voices.map((v) => v.effect)).toEqual([F.voice.symbols.j.effect, F.voice.stress.effect]);
     f.voices.length = 0;
-    // V steps ipa -> formants -> intonation -> jitter -> filtered -> filtered+ -> spelling.
-    for (let i = 0; i < 6; i++) a.update(1 / 60, { ...NO_INPUT, keys: ["KeyV"], keysDown: ["KeyV"] });
+    // V steps ipa -> formants -> intonation -> jitter -> filtered -> filtered+ -> glides -> murmurs -> spelling.
+    for (let i = 0; i < 8; i++) a.update(1 / 60, { ...NO_INPUT, keys: ["KeyV"], keysDown: ["KeyV"] });
     expect(a.voiceStyle).toBe(0);
     f.voices.length = 0;
     run(1);
@@ -128,7 +128,7 @@ describe("the practice deck", () => {
       a.update(1 / 60, { ...NO_INPUT, keys: ["KeyV"], keysDown: ["KeyV"] });
     }
     expect(a.voiceStyle).toBe(F.voice.style); // back where it started
-    expect(Object.keys(heard).sort()).toEqual(["0", "1", "2", "3", "4", "5", "6"]);
+    expect(Object.keys(heard).sort()).toEqual(["0", "1", "2", "3", "4", "5", "6", "7", "8"]);
     expect(heard[1].map((v) => v.effect)).toEqual(["voiceGlideDown", "voiceVowelStress"]);
     expect(heard[2].map((v) => v.effect)).toEqual(["voiceGlideDown", "voiceFormantOStress"]);
     // Intonation and jitter change the pitches of the same sounds, in order.

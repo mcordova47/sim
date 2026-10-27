@@ -58,7 +58,9 @@ class RealSession implements StudySession {
   // back to spelling.
   private ipaOf(slug: string): string | null {
     try {
-      return this.core.ipa?.(slug, F.dialect, F.language) ?? null;
+      const ipa: unknown = this.core.ipa?.(slug, F.dialect, F.language);
+      // Only text is a transcription; anything else from a core is ignored.
+      return typeof ipa === "string" && ipa.trim() !== "" ? ipa : null;
     } catch {
       return null;
     }

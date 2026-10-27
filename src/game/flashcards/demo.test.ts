@@ -95,4 +95,18 @@ describe("the practice deck", () => {
       expect(f.voices.map((v) => v.effect), JSON.stringify(ipa)).toEqual(["mumble", "mumble", "mumble", "mumble", "mumble"]);
     }
   });
+
+  it("does not break when a card carries a non-text transcription", async () => {
+    const f = fakeHost();
+    const clipboard = { copy: async () => true, read: async () => null, onPaste: () => () => {} };
+    const card = { slug: "a", prompt: "perro", answer: "dog", spoken: "perro", ipa: 5 as unknown as string, speaks: "front" as const };
+    const backend = { paysPoints: false, usesKey: false, open: async () => new DemoSession([card]) };
+    const a = new FlashcardsActivity(f.host, backend, new StudyStore(new FakeStorage()), clipboard);
+    a.start();
+    await new Promise((r) => setTimeout(r, 0));
+    for (let i = 0; i < 120; i++) a.update(1 / 60, NO_INPUT);
+    a.update(1 / 60, { ...NO_INPUT, keys: ["KeyR"], keysDown: ["KeyR"] });
+    expect(f.voices.length).toBeGreaterThan(0);
+    expect(f.voices.every((v) => v.effect === "mumble")).toBe(true);
+  });
 });

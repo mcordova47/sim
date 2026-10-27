@@ -170,7 +170,12 @@ export class FlashcardsActivity extends BaseActivity {
   // Voices the card: by its IPA when it has one and the IPA voice is on, else by spelling.
   private speak(card: CardView): void {
     // A transcription that gives no sounds (only symbols the voice does not know) is no transcription.
-    const script = this.ipaVoice && card.ipa ? ipaScript(card.ipa) : [];
+    let script: ReturnType<typeof ipaScript> = [];
+    try {
+      if (this.ipaVoice && card.ipa) script = ipaScript(card.ipa);
+    } catch {
+      // A transcription that cannot be read is no transcription.
+    }
     if (script.length > 0) this.mumble.play(script);
     else this.mumble.say(card.spoken ?? card.answer);
   }

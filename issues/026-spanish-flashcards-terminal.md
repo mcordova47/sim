@@ -1,7 +1,7 @@
 ---
 id: 026
 title: Spanish flashcards on the in-game computer (stretch)
-status: in-progress
+status: review
 owner: marc + claude
 depends_on: [021, 022, 023]
 ---
@@ -197,3 +197,4 @@ The app is "Mil Palabras" (palabras.mcord.dev): PureScript, Netlify, spaced repe
   - **Checklist for the author:** (a) in `real.ts` `ipaOf`, accept only a non-empty string (for example `typeof value === "string" && value.trim() ? value : null`) so a number, boolean, object or array from `core.ipa` means no transcription and the card is voiced by spelling; add a test with a core whose `ipa` returns `5` and `{}`. (Optional: also guard `speak()` in the activity with a try/catch around `ipaScript`.)
   - **Notes, not blocking:** the 16 extra-answer words (allí, comenzar, iniciar, jamás, regresar, convenir and so on) are always recognition cards, per the core; whitespace-only ipa is passed through but falls back by spelling because its script is empty.
   - **Unverified, not passing:** a live browser request for `core.ipa` from the game (the real core was imported from a `file://` URL here, and `fetch` was stubbed), and how it sounds in a browser (the real transcriptions' rhythm, pitches, lengths, loudness, whether stress is audible; real Web Audio scheduling).
+- 2026-10-26: **Real IPA review round 1 changes worked.** Fixed: `ipaOf` accepts only a non-empty string (a core returning a number, object, array or blank text no longer puts a bad `ipa` on the card), and `speak()` treats a transcription that throws while reading as none, so the card is voiced by spelling; tests for `5`, `true`, `{}`, `["a"]` and blank, and one through the activity. Everything else in the review passed (all 1000 words, the 11 special rows, production direction, call counts, key flow).

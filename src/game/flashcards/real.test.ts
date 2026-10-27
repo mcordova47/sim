@@ -175,6 +175,11 @@ describe("a real session", () => {
     const t = (await open(fakeServer(), throwing)) as StudySession;
     expect(t.card("a")).toMatchObject({ prompt: "A" });
     expect("ipa" in t.card("a")).toBe(false);
+    for (const value of [5, true, {}, ["a"], "  "]) {
+      const odd = fakeCore({ ipa: (() => value) as unknown as Core["ipa"] });
+      const card = ((await open(fakeServer(), odd)) as StudySession).card("a");
+      expect("ipa" in card, JSON.stringify(value)).toBe(false);
+    }
     const empty = fakeCore({ ipa: () => "" });
     expect("ipa" in ((await open(fakeServer(), empty)) as StudySession).card("a")).toBe(false);
   });

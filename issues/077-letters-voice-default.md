@@ -1,7 +1,7 @@
 ---
 id: 077
 title: Make the per-letter voice the default for dialog text
-status: review
+status: done
 owner: claude
 depends_on: []
 ---
@@ -35,3 +35,12 @@ Marc (2026-10-27), after trying issue 075: he likes `dialogvoice=letters` better
     12. feature.test "blips as dialog text appears": now runs for both voices. Beep keeps its exact bar (>3 in 0.5 s); letters makes 3 in 0.5 s (rests on spaces) so its bar is >2. Both check silence while waiting.
   - Checked and left alone: achievements/feature.test.ts uses a fake voice (no default assumed). All other dialog-using tests pass under the letters default unchanged (they don't count dialog blips).
   - `npm test`: 2016 passed. `npm run build`: ok. Not checked: how letters feels by ear in a browser (Marc already tried it).
+- 2026-10-27: Review (independent) - verdict APPROVE.
+  - Default + saves: pass. My own scratch tests (outside the repo, on a copy of HEAD) check null/empty/{}/[]/null JSON, "Beep", " beep", arrays, objects, "constructor", "__proto__", explicit letters, explicit beep (keeps other fields), null storage: all give letters except an exact "beep"; DEFAULT_SETTINGS not mutated through load. SOUND.dialogVoices is ["letters","beep"] (typed from config, no toggle breakage).
+  - Beep byte-identical: pass. `git diff main -- src/game/sound/golden` is empty. Mutation check: changing blipEveryChars 3->4 in the copy makes the two beep tests fail, so the golden test still guards the beep path (it runs with beep explicit).
+  - Tests vs main: diffed all four test files. No assertion removed or loosened; changes are default flips, explicit beep setup, renames, and additions (beep golden equality, explicit beep save, null storage). feature.test blip test now runs for beep (original >3 bar kept) and letters (>2, justified by rests on spaces); not weakened for beep. Cosmetic: the comment and `it.each` lines there lost their indentation.
+  - Other blips (popups, typing/notes games, cutscenes): no code changed; only SoundFeature's starting voice reads DEFAULT_SETTINGS. Pass.
+  - Docs: pass (letters default, D key, ?dialogvoice=beep, save semantics). L label tested both ways.
+  - `npm test` 2016 passed, `npm run build` ok. Scope: only config.ts, sound/{settings,feature}.ts, 3 test files, docs/music.md, issue file.
+  - Note (not a defect): since 075 every save written by the game contains an explicit dialogVoice "beep", so players who never touched the setting stay on beep. This is what the criteria specify; Marc's own saved value decides what he hears.
+  - Unverified: how letters sounds by ear in a browser.

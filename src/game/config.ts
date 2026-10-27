@@ -945,7 +945,7 @@ export const SOUND = {
       voices: [
         ...[0, 1, 2, 3, 4, 5].map((i) => ({
           wave: "square" as const,
-          freq: i % 2 === 0 ? 104 : 121,
+          freq: i % 2 === 0 ? 140 : 164,
           delay: i * 0.035,
           length: 0.03,
           gain: i % 2 === 0 ? 0.1 : 0.06,

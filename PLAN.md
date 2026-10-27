@@ -121,7 +121,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 083 | [Flashcards for someone who is not Marc: a mode with no sync key (design first)](issues/083-flashcards-guest-mode.md) | marc + claude | in-progress (design note merged and answered; the build is issue 089)| 026 |
 | 084 | [Put the game on the internet (hosting, domain, repo name, privacy pass)](issues/084-productionize.md) | marc + claude | todo | |
 | 085 | [Remove or decide on personal info before the repo goes on GitHub](issues/085-personal-info-before-github.md) | marc + claude | todo | |
-| 086 | [HUD ribbon, stage 1: icons and small bars in the empty top band](issues/086-hud-ribbon-stage-1.md) | claude | todo | 048 |
+| 086 | [HUD ribbon, stage 1: icons and small bars in the empty top band](issues/086-hud-ribbon-stage-1.md) | claude | done | 048 |
 | 087 | [Mobile, stage 1: a touch layer in a flat portrait shell](issues/087-mobile-stage-1.md) | claude | done | 049 |
 | 088 | [A phone battery (a gag) and a charge-your-phone task](issues/088-phone-battery.md) | claude | todo | 086 |
 | 089 | [Flashcards guest mode: study without a sync key (build)](issues/089-flashcards-guest-mode-build.md) | claude | todo | 083, 082 |

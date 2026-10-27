@@ -860,7 +860,7 @@ export const FLASHCARDS = {
     // The pause for a space or a word break in the transcription.
     gap: 0.1,
     // Longest run, in phonemes.
-    maxPhonemes: 40,
+    maxPhonemes: 80,
     // A vowel after the stress mark (the ˈ before its syllable) is longer,
     // louder and a little higher. A long vowel (ː) lasts this much longer.
     stress: { effect: "voiceVowelStress", pitch: 1.1, length: 0.15 },
@@ -878,7 +878,7 @@ export const FLASHCARDS = {
     // The source-filter voices (styles 5 and 6): vowels from a source at one pitch
     // through resonances, so no vowel is higher than another, and the whole voice
     // slowed by `slow` (2 is half speed; the sounds are stretched too).
-    slow: 1.4,
+    slow: 1.15,
     // Which voice a card gets before V is pressed: 0 spelling, 1 ipa (the
     // original), 2 formants, 3 intonation, 4 jitter, 5 filtered (the source-filter
     // voice slowed), 6 filtered with intonation and jitter.

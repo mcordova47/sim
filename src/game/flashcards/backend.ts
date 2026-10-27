@@ -1,6 +1,6 @@
 import { FLASHCARDS as F } from "../config";
 import { loadCore, type Core } from "./core";
-import { demoBackend } from "./demo";
+import { demoBackendFor } from "./demo";
 import { realBackend } from "./real";
 import type { StudyBackend } from "./study";
 
@@ -14,6 +14,7 @@ function origin(): string {
 
 // The practice deck is asked for with `?flashcards=demo` in a dev build (never
 // in a production build), so a different backend needs no edit to the config.
+// `&set=sentences|diphthongs|consonants|words` picks one set of its cards.
 export function wantsDemo(search: string, dev: boolean): boolean {
   return dev && new URLSearchParams(search).get("flashcards") === "demo";
 }
@@ -29,7 +30,7 @@ function currentSearch(): string {
 // The backend the game studies against: the practice deck when asked for, else
 // the one in the config (`FLASHCARDS.backend`).
 export function studyBackend(search: string = currentSearch(), dev: boolean = import.meta.env.DEV): StudyBackend {
-  if (F.backend === "demo" || wantsDemo(search, dev)) return demoBackend;
+  if (F.backend === "demo" || wantsDemo(search, dev)) return demoBackendFor(new URLSearchParams(search).get("set"));
   return realBackend({
     origin: origin(),
     core: () => {

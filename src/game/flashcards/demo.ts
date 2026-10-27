@@ -29,23 +29,70 @@ const production = (slug: string, english: string, spanish: string, ipa: string,
   speaks: "back",
 });
 
-export const DEMO_CARDS: CardView[] = [
-  recognition("yo", "yo", "I", "ˈʝo"),
-  production("querer", "to want", "querer", "keˈɾeɾ", "Yo quiero un café."),
-  recognition("casa", "casa", "house", "ˈkasa"),
-  production("tambien", "also", "también", "tamˈbjen"),
-  recognition("nino", "niño", "boy, child", "ˈniɲo", "El niño duerme."),
-  production("cancion", "song", "canción", "kanˈsjon"),
-  recognition("manana", "mañana", "tomorrow, morning", "maˈɲana"),
-  production("cafe", "coffee", "café", "kaˈfe"),
-  recognition("aeiou", "aeiou", "vowels only", "ˈaeiou"),
-  production("ferrocarril", "railway", "ferrocarril", "ferokaˈril"),
-  recognition("hasta", "hasta luego", "see you later", "ˈasta ˈlweɡo"),
-  production("noche", "good night", "buenas noches", "ˈbwenas ˈnotʃes", "Que descanses."),
-  recognition("murcielago", "murciélago", "bat", "muɾˈsjelaɡo"),
-  production("pronto", "see you soon", "hasta pronto", "ˈasta ˈpɾonto"),
-  recognition("larga", "dónde está la biblioteca", "where is the library", "ˈdonde esˈta la bibljoˈteka"),
-];
+// Four sets, to hear the voice on different things:
+// - sentences: phonetically rich sentences that, between them, use every sound the
+//   voice has (the audio equivalent of "the quick brown fox");
+// - diphthongs: the glides in a word, against the hiatus that looks the same (día
+//   is two vowels, Dios a glide), and a triphthong;
+// - consonants: each consonant between two a's (aba, ada, ...), the usual way to
+//   compare consonants;
+// - words: the first practice deck, single words, both card directions.
+export const DEMO_SETS = {
+  sentences: [
+    recognition("fox", "El veloz murciélago hindú comía feliz cardillo y kiwi.", "The speedy Indian bat happily ate thistle and kiwi.", "el beˈlos muɾˈsjelaɡo inˈdu koˈmia feˈlis kaɾˈdiʝo i ˈkiwi"),
+    recognition("chico", "El chico pequeño juega con un perro rojo en la montaña.", "The small boy plays with a red dog in the mountains.", "el ˈtʃiko peˈkeɲo ˈxweɡa kon un ˈpero ˈroxo en la monˈtaɲa"),
+  ],
+  diphthongs: [
+    recognition("aire", "aire", "air (a then i, one syllable)", "ˈajɾe"),
+    recognition("peine", "peine", "comb (e then i)", "ˈpejne"),
+    recognition("hoy", "hoy", "today (o then i)", "ˈoj"),
+    recognition("causa", "causa", "cause (a then u)", "ˈkawsa"),
+    recognition("europa", "Europa", "Europe (e then u)", "ewˈɾopa"),
+    recognition("hacia", "hacia", "toward (glide i, then a)", "ˈasja"),
+    recognition("bien", "bien", "well (glide i, then e)", "ˈbjen"),
+    recognition("dios", "Dios", "God (glide i, then o)", "ˈdjos"),
+    recognition("ciudad", "ciudad", "city (glide i, then u)", "sjuˈdad"),
+    recognition("agua", "agua", "water (glide u, then a)", "ˈaɡwa"),
+    recognition("bueno", "bueno", "good (glide u, then e)", "ˈbweno"),
+    recognition("antiguo", "antiguo", "ancient (glide u, then o)", "anˈtiɡwo"),
+    recognition("cuidado", "cuidado", "care (glide u, then i)", "kwiˈdado"),
+    recognition("estudiais", "estudiáis", "you study (a triphthong: glide, vowel, glide)", "estuˈdjajs"),
+    recognition("uruguay", "Uruguay", "Uruguay (glide u, a, glide)", "uɾuˈɡwaj"),
+    recognition("dia", "día", "day (two vowels, not a glide: compare Dios)", "ˈdia"),
+    recognition("rio", "río", "river (two vowels, not a glide)", "ˈrio"),
+  ],
+  consonants: [
+    ["b", "ˈaba"], ["d", "ˈada"], ["g", "ˈaɡa"], ["p", "ˈapa"], ["t", "ˈata"], ["k", "ˈaka"],
+    ["f", "ˈafa"], ["s", "ˈasa"], ["x", "ˈaxa"], ["ch", "ˈatʃa"], ["m", "ˈama"], ["n", "ˈana"],
+    ["ñ", "ˈaɲa"], ["l", "ˈala"], ["r (tap)", "ˈaɾa"], ["rr (trill)", "ˈara"], ["y", "ˈaʝa"],
+  ].map(([name, ipa]) => {
+    const spoken = ipa.replace(/ˈ/g, "").replace(/ɾ/g, "r").replace(/ɲ/g, "ñ").replace(/ʝ/g, "y").replace(/ɡ/g, "g").replace(/tʃ/g, "ch").replace(/x/g, "j").replace(/^ara$/, "arra");
+    return recognition(`vcv-${name}`, spoken, `${name} between two a's`, ipa);
+  }),
+  words: [
+    recognition("yo", "yo", "I", "ˈʝo"),
+    production("querer", "to want", "querer", "keˈɾeɾ", "Yo quiero un café."),
+    recognition("casa", "casa", "house", "ˈkasa"),
+    production("tambien", "also", "también", "tamˈbjen"),
+    recognition("nino", "niño", "boy, child", "ˈniɲo", "El niño duerme."),
+    production("cancion", "song", "canción", "kanˈsjon"),
+    recognition("manana", "mañana", "tomorrow, morning", "maˈɲana"),
+    production("cafe", "coffee", "café", "kaˈfe"),
+    recognition("aeiou", "aeiou", "vowels only", "ˈaeiou"),
+    production("ferrocarril", "railway", "ferrocarril", "ferokaˈril"),
+    recognition("hasta", "hasta luego", "see you later", "ˈasta ˈlweɡo"),
+    production("noche", "good night", "buenas noches", "ˈbwenas ˈnotʃes", "Que descanses."),
+    recognition("murcielago", "murciélago", "bat", "muɾˈsjelaɡo"),
+    production("pronto", "see you soon", "hasta pronto", "ˈasta ˈpɾonto"),
+    recognition("larga", "dónde está la biblioteca", "where is the library", "ˈdonde esˈta la bibljoˈteka"),
+  ],
+} satisfies Record<string, CardView[]>;
+
+export type DemoSet = keyof typeof DEMO_SETS;
+
+// Everything, in the order worth listening in: the sentences, the diphthongs, the
+// consonants, then the words.
+export const DEMO_CARDS: CardView[] = [...DEMO_SETS.sentences, ...DEMO_SETS.diphthongs, ...DEMO_SETS.consonants, ...DEMO_SETS.words];
 
 export class DemoSession implements StudySession {
   readonly graded: { slug: string; grade: Grade }[] = [];
@@ -72,6 +119,19 @@ export class DemoSession implements StudySession {
     this.graded.push({ slug, grade });
     return true;
   }
+}
+
+// The practice backend over one of the sets (`?flashcards=demo&set=diphthongs`),
+// or over all of them.
+export function demoBackendFor(set?: string | null): StudyBackend {
+  const cards = set && set in DEMO_SETS ? DEMO_SETS[set as DemoSet] : DEMO_CARDS;
+  return {
+    paysPoints: false,
+    usesKey: false,
+    async open(): Promise<OpenResult> {
+      return new DemoSession(cards);
+    },
+  };
 }
 
 export const demoBackend: StudyBackend = {

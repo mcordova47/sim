@@ -1,7 +1,7 @@
 ---
 id: 083
 title: Flashcards for someone who is not Marc: a mode with no sync key (design first)
-status: todo
+status: review
 owner: marc + claude
 depends_on: [026]
 ---
@@ -27,3 +27,4 @@ Today the game is a front end for Marc's own account: the key screen asks for hi
 
 ## Progress log
 - 2026-10-27 (Marc's answers before the note is written): the real Spanish deck is the right deck for a guest. Moving a guest's local progress into a real key later by merging is **not wanted** (no merging): a guest stays a guest, and pasting a key starts from that account's own progress. Leave the language argument and the other questions to the note.
+- 2026-10-27 (claude): wrote `docs/flashcards-guest.md` (docs only, no code). Read the flashcards app repo (core.js, progress function, netlify.toml, README, SYNC) read-only and ran the deployed `core.v1.js` in Node outside the repo to check `empty`, `null` progress, `language` and blob size. Recommendation: option (a), browser-only progress with the same core. Needed from the app: nothing (section 12). Covers all seven points, a three-stage build plan, the interaction with 082 and ten open questions. Not checked: nothing built, so nothing to play.

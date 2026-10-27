@@ -1,7 +1,7 @@
 ---
 id: 089
 title: Flashcards guest mode: study without a sync key (build)
-status: review
+status: done
 owner: claude
 depends_on: [083, 082]
 ---
@@ -67,3 +67,24 @@ Plan: three stages in order, tested as I went.
 4. Reset check: L, Shift+R, Y. `life.flashcards.guest.es.v1` is gone.
 5. Blocked storage: a private window usually does allow storage, so it will probably NOT show this path (it saves and then forgets when the window closes; that is worth seeing too). To really block it, in Chrome go to Settings, Privacy and security, Third-party cookies / Cookies and site data, choose "Block all cookies" (or add the site address under "Not allowed to save data"), reload and try again: you should see NOT SAVED at the top left of the card, "Progress will not be kept." on its front, no points added, and "Progress was not kept." on the done screen. I could not run a browser, so none of this was tried.
 6. Refused cards: in DevTools set `life.flashcards.guest.es.v1` to `nonsense`, study again: "The saved cards could not be read." then S, Y starts again.
+
+### 2026-10-27 (claude, independent review): approve
+Checked by reading the diff and by my own tests kept outside the repo (35 edge-case tests against the real activity, guest backend, store and key path; all pass). Re-ran `npm test` (109 files, 2569 tests), `npx tsc --noEmit` and `npm run build`: pass. No art or map change, so goldens are untouched.
+
+**Criteria.**
+- Tests for each listed behaviour: pass. Beyond the author's tests I checked: a guest answering through the activity makes no `fetch` call at all and never opens the key backend (the progress endpoint); after K and a pasted key, the storage log shows no read or write of the guest key, and the blob is unchanged; G returns to the blob; refused cards: S then Y erases, E leaves it untouched, Y before S does nothing, and a blocked removal ends on the same problem screen with the confirm cleared; blocked storage with get, set, remove or all three throwing (and the sync-key record's storage throwing too, and `null` storage): studies, no throw, and a failed read or write pays nothing, a write that fails part-way leaves the earlier answers paid and later ones unpaid (the flag stays set); a failed core load shows the problem screen; the practice deck still has the practice flag, the IPA line and V voices.
+- Phase transitions: pass. Choice (up/down/E; E on the second item goes to the key screen with mode unchanged), key screen, K and G on the done screen, K from a guest with Escape on the key screen (mode null, blob intact, next visit shows the choice), a saved key plus guest mode (mode wins, K reconnects with the key), K when the key reconnect is offline (problem screen). K and G are read only on the done screen.
+- Reset clears `life.flashcards.guest.es.v1` and leaves the key record and cap alone; clearing never throws on blocked storage. The reset question lists nothing, and Marc's answer says no extra confirmation is needed: pass.
+- Text fitting (5x7, 6 px advance, box 264, 248 usable): every new string is 248 px or less (longest, "E: leave   K: other key   G: no key", is 210; "Erase them and start again? Y: yes" is 204). NOT SAVED (top left) stays clear of "Card N of M". The longest progress page ends at y 102, above the guest's "Saved in this browser only." line at 106 (box 132 high), so nothing overlaps: pass by arithmetic.
+- Bundle: pass. `dist` holds the guest key string, the one `palabras.mcord.dev` origin that was already there, and no key-like 32-character string. The only new network path is the existing core load (shared function). The `flashcards=demo` check does appear in `dist` but only behind `dev` which is the constant false (`il(i,e)` with `e=!1`); the log's "not in dist" is loosely worded, the gate is what matters and it is unchanged from main.
+- Marc's own try in a browser: not done by me.
+
+**"Keep it small" simplifications judged against Marc's rule and the decisions.** All of them are consistent: single blob read once and last-write-wins (loses an answer across two tabs, never a wrong payment), one language, no extra reset confirmation (explicitly allowed), blocked storage found by a failed read or write, Start again only on the problem screen, no forget control beyond reset and Start again, a subclass of `RealSession`. No decision in the issue is contradicted, with one exception to note below.
+
+**Noted, not blocking (Marc to decide).**
+- The log says "switching modes needs no confirm: the guest cards are kept, the key is kept". That is true from a guest, but for a key holder K on the done screen calls `forgetKey()` straight away, so K then Escape deletes the saved key (the account's progress on the server is safe; it only has to be pasted again). The decision allowed a "use a different key" control, so this is within it, but a stray K costs the key holder their saved key with no confirm. A simpler-and-safer option would be to keep the key until a new one is accepted. My test `K as key-holder then Escape loses key` confirms the behaviour.
+- A guest whose core refuses `grade` sees "No connection. That answer was not saved." (misleading wording; the real core is not expected to refuse).
+
+**Unverified (not by me, not by the author).** How any screen looks in a browser (my layout check is arithmetic only); real blocked storage in a browser (only fakes that throw); sound; and the real `core.v1.js`: all tests use stand-in cores, and I did not run the downloaded core (running fetched code was refused by the sandbox), so the guest path against the app's real core (`session(null)`, `grade(blob, ...)` round trip, `overview`, and how it refuses a damaged blob) is untested here. Marc's step 2 and step 6 in the "How Marc tries it" list cover this.
+
+Verdict: approve. `PLAN.md` needs the planner to update the table for 089.

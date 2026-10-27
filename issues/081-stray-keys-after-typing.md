@@ -1,7 +1,7 @@
 ---
 id: 081
 title: Menus ignore stray keys right after a typing game
-status: review
+status: in-progress
 owner: claude
 depends_on: []
 ---
@@ -47,3 +47,14 @@ Marc (2026-10-27): a menu that opens the moment a typing game ends can take a ke
   - Leak into movement: `Game.keysGate` is set while a key-reading activity runs and, after it ends, movement and task starts get no input until a frame with no key held or pressed. Escape out of a game is not gated (restarting at once still works, existing tests). Same gate covers typing, notes, track editor, flashcards and swap-decor (all `readsKeys`/`strayKeys`).
   - Tests added to stray-keys.test.ts (L during and right after typing; held arrow after notes; held A after typing; Escape not gated). 3 of the new ones fail on the old game.ts, all pass now. `npm test` 2447 pass, tsc and build clean. The 0.5 s menu delay is unchanged. activities/encounter.ts not touched.
   - Not checked: feel in a browser.
+
+- 2026-10-27 (review 2, independent, of HEAD 122ac83 hotkeys + keys gate): CHANGES NEEDED (one real risk, plus small notes).
+  - Checks run: `npm test` 2447 pass, `npx tsc --noEmit` and `npm run build` clean. New tests run against the previous commit's game.ts and the three feature files in a scratch copy: 3 of the 4 new tests fail there (L list, held arrow after notes, held A after typing); the Escape-not-gated test passes on old code (it only guards against over-gating). Own edge tests in scratchpad rv2 (outside the repo).
+  - Listener sweep: grep of src for addEventListener/keydown/keyup finds Keyboard (records only), achievements (L), sound (M), time-of-day (brackets), clipboard `paste` (not a hotkey; used by the flashcards key phase) and canvas `resize`. No hotkey was missed. All three hotkeys use `hotkeyBlocked`.
+  - Pass: L/M/brackets blocked while typing, notes, track editor, flashcards, swap-decor run, and after the game ends until a no-key frame (the between-frames keydown case is covered because the gate is set in the frame the game finishes). Escape is free (also with a dialog open on top: backs out, gate clear, E starts a task next frame; Escape still held does not matter). Mute in the track editor outside naming and in flashcards outside the key phase still works. A non-key task never sets the gate: walking and hotkeys are normal after it. Gate clears after one released frame and walking then works. Window blur empties Keyboard's held set, so the gate clears after a blur. A menu opened after typing keeps the gate through the dialog and clears it afterwards.
+  - RISK (should fix): the gate clears only on a frame where `controls.keysDown` is empty, and `keysDown` is every key in Keyboard.held, modifiers included. A key whose keyup never arrives keeps the gate shut forever: movement and E (task start) both get NO_INPUT, and the hotkeys stay blocked, until the player taps that key again or the window blurs. Before this commit a stuck non-arrow key did nothing. Two realistic ways to get one: (1) macOS drops the keyup of a letter pressed with Cmd held, e.g. Cmd+V in the flashcards key phase (the paste step), then finishing the session leaves V "held"; (2) Caps Lock on macOS reports keydown when switched on and keyup when switched off, so with Caps Lock on, after any key game the player cannot move. Confirmed in a scratch test at the Game level (CapsLock in keysDown for 300 frames: player never moves, `hotkeyBlocked` stays true); the browser behavior itself is from knowledge, not run in a browser. Suggested fix: ignore modifier keys and CapsLock (and keys that were held before the game ended and never re-pressed) when deciding "released", and/or add a timeout (for example the gate also clears after a second or two with no new keydown).
+  - Smaller notes (not blocking): (a) the notes game now blocks M (before: only readsKeys games did); fits the goal, just a change. (b) The gate stays set while any dialog is open (clearing is skipped when `dialog.open`), so the mute key is blocked for the whole time an encounter menu stays up after typing, even with no key held. (c) No test covers the M key or the bracket keys, or flashcards/track editor leaks; the rule is shared, so this is a coverage gap only. (d) Shift held for capitals also holds the gate until released; intended.
+  - Checklist for the author:
+    - [ ] Make the gate unable to stay shut on a stale held key (ignore modifiers and CapsLock, and/or a timeout), with a test (a key in keysDown that never goes away must not block walking forever).
+    - [ ] Optional: let the mute key work while a dialog is open after the game, and add a small test for M.
+  - Unverified: feel in a browser; the Cmd/Caps Lock keyup behavior.

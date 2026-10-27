@@ -116,7 +116,7 @@ export class TimeOfDayFeature implements Layer {
   private devKey(e: KeyEventLike): void {
     if (e.repeat) return;
     // Not while something has the keyboard (the typing game reads brackets as letters).
-    if (this.game.inputLocked || this.game.dialogOpen || this.game.interaction.busy) return;
+    if (this.game.hotkeyBlocked(e.code) || this.game.inputLocked || this.game.dialogOpen || this.game.interaction.busy) return;
     if (e.code === TIME_DEV.backKey) this.jump(-1);
     else if (e.code === TIME_DEV.forwardKey) this.jump(1);
   }

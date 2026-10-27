@@ -1,7 +1,7 @@
 ---
 id: 081
 title: Menus ignore stray keys right after a typing game
-status: done
+status: review
 owner: claude
 depends_on: []
 ---
@@ -41,3 +41,9 @@ Marc (2026-10-27): a menu that opens the moment a typing game ends can take a ke
   - Notes (not blocking): (a) Escape in a menu opened right after typing with no activity running is also ignored during the 0.5 s (the log says Escape still backs out; true only while a cancellable activity is running, e.g. the encounter). Harmless. (b) The last assertions of the encounter test are loose (an OR of three conditions plus "not a menu"); the cursor-stays-0 check earlier is what makes it fail on old code. (c) Track editor menus now always wait 0.5 s; the author flagged this.
   - Unverified: how the 0.5 s delay and the hidden cursor feel in a browser (not run in a browser by author or reviewer).
   - PLAN.md table needs updating by the planner.
+
+- 2026-10-27 (claude): Two more fixes from Marc's playtest, back in review.
+  - Global key handlers found: (1) achievements feature (L opens the list; B, D etc. inside it), (2) sound feature (mute key M; also key sounds in typing/notes, which are not hotkeys), (3) time-of-day dev keys (brackets), (4) the Keyboard class itself only records keys (no action). All three actions now ask one rule, `Game.hotkeyBlocked(code, softLetters?)`: blocked while a key-reading activity runs, and after it ends until every key has been let go; Escape is always free. The mute key keeps working in the track editor outside naming (`softLetters`), as before. The real cause of L opening: the openList guard looked at `busy`, but a keydown arrives between frames, after the typing game finished and before the next frame, so busy was already false.
+  - Leak into movement: `Game.keysGate` is set while a key-reading activity runs and, after it ends, movement and task starts get no input until a frame with no key held or pressed. Escape out of a game is not gated (restarting at once still works, existing tests). Same gate covers typing, notes, track editor, flashcards and swap-decor (all `readsKeys`/`strayKeys`).
+  - Tests added to stray-keys.test.ts (L during and right after typing; held arrow after notes; held A after typing; Escape not gated). 3 of the new ones fail on the old game.ts, all pass now. `npm test` 2447 pass, tsc and build clean. The 0.5 s menu delay is unchanged. activities/encounter.ts not touched.
+  - Not checked: feel in a browser.

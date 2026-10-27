@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { NO_INPUT, type Controls } from "../input/controls";
+import { AchievementsFeature, type KeyEventLike, type Listenable } from "./achievements/feature";
+import { FakeStorage } from "./achievements/fake-storage";
 import { DIALOG } from "./config";
 import { choice, DialogRunner, menu, say } from "./dialog";
 import { Game } from "./game";
@@ -115,5 +117,83 @@ describe("other menus", () => {
     const v = game.dialogView!;
     expect(v.kind === "menu" && v.cursor).toBe(1);
     expect(v.kind === "menu" && v.ready).toBe(true);
+  });
+});
+
+class FakeKeys implements Listenable<KeyEventLike> {
+  fns: ((e: KeyEventLike) => void)[] = [];
+  addEventListener(_t: string, fn: (e: KeyEventLike) => void) {
+    this.fns.push(fn);
+  }
+  press(code: string) {
+    for (const fn of this.fns) fn({ code });
+  }
+}
+
+const startTask = (game: Game) => {
+  game.update(dt, NO_INPUT);
+  game.update(dt, press);
+  expect(game.interaction.busy).toBe(true);
+};
+
+describe("global hotkeys while a key game runs", () => {
+  it("L does not open the list during the typing game, nor right after it, until keys were let go", () => {
+    const game = new Game(room(typeTask(["abcdef"])), { random: () => 0.5 });
+    const keys = new FakeKeys();
+    const feature = new AchievementsFeature(game, { storage: new FakeStorage(), keys, start: "main" });
+    startTask(game);
+    game.update(dt, { ...NO_INPUT, keys: ["KeyA"] });
+    keys.press("KeyL");
+    expect(feature.listVisible).toBe(false);
+    for (const k of ["KeyB", "KeyC", "KeyD", "KeyE", "KeyF"]) game.update(dt, { ...NO_INPUT, keys: [k], keysDown: [k] });
+    expect(game.interaction.busy).toBe(false);
+    // A keydown that arrives between frames, after the game ended: still the game's.
+    keys.press("KeyL");
+    expect(feature.listVisible).toBe(false);
+    game.update(dt, { ...NO_INPUT, keysDown: ["KeyL"] });
+    keys.press("KeyL");
+    expect(feature.listVisible).toBe(false);
+    // Everything let go for a frame: hotkeys work again.
+    game.update(dt, NO_INPUT);
+    keys.press("KeyL");
+    expect(feature.listVisible).toBe(true);
+  });
+});
+
+describe("keys still held when a key game ends", () => {
+  const left = (extra: Partial<Controls> = {}): Controls => ({ ...NO_INPUT, dir: "left", keysDown: ["ArrowLeft"], ...extra });
+
+  it("do not walk the player after the notes game, until released once", () => {
+    const game = new Game(room(notesTask), { random: () => 0.5 });
+    startTask(game);
+    const col = game.player.col;
+    for (let i = 0; i < 200 && game.interaction.busy; i++) game.update(dt, left());
+    expect(game.interaction.busy).toBe(false);
+    for (let i = 0; i < 60; i++) game.update(dt, left());
+    expect(game.player.col).toBe(col);
+    expect(game.player.stepping).toBe(false);
+    game.update(dt, NO_INPUT);
+    for (let i = 0; i < 40; i++) game.update(dt, left());
+    expect(game.player.col).toBeLessThan(col);
+  });
+
+  it("do not walk the player after the typing game either", () => {
+    const game = new Game(room(typeTask(["ab"])), { random: () => 0.5 });
+    startTask(game);
+    const col = game.player.col;
+    game.update(dt, { ...left(), keys: ["KeyA"], dirPressed: "left" });
+    game.update(dt, { ...left(), keys: ["KeyA"], dirPressed: "left" });
+    expect(game.interaction.busy).toBe(false);
+    for (let i = 0; i < 40; i++) game.update(dt, left());
+    expect(game.player.col).toBe(col);
+  });
+
+  it("Escape out of a game is not gated: the player can act at once", () => {
+    const game = new Game(room(notesTask), { random: () => 0.5 });
+    startTask(game);
+    game.update(dt, { ...NO_INPUT, keys: ["Escape"], cancelPressed: true });
+    expect(game.interaction.busy).toBe(false);
+    game.update(dt, press);
+    expect(game.interaction.busy).toBe(true);
   });
 });

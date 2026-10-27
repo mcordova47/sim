@@ -2,6 +2,7 @@ import { browserClipboard, type ClipboardLike } from "../../input/clipboard";
 import type { Controls } from "../../input/controls";
 import { COLOR } from "../../render/colors";
 import { GLYPH_H, drawText, textWidth } from "../../render/font";
+import { drawIpa, ipaWidth } from "../../render/ipa-font";
 import { BaseActivity, needHost, registerActivity, type ActivityHost, type ActivityResult } from "../activity";
 import { FLASHCARDS as F } from "../config";
 import { studyBackend } from "../flashcards/backend";
@@ -275,7 +276,8 @@ export class FlashcardsActivity extends BaseActivity {
 
   draw(ctx: CanvasRenderingContext2D, screen: { width: number; height: number }): void {
     const w = 264;
-    const h = 120;
+    // Taller in the practice deck, which shows the transcription as well.
+    const h = this.backend.usesKey === false ? 140 : 120;
     const x = Math.round((screen.width - w) / 2);
     const y = Math.round((screen.height - h) / 2);
     ctx.fillStyle = COLOR.ink;
@@ -328,19 +330,41 @@ export class FlashcardsActivity extends BaseActivity {
         drawText(ctx, `V: ${VOICE_STYLES[this.voiceStyle]}`, x + 8, y + 8, { color: COLOR.slate, shadow: null });
       }
     }
-    // Big when it fits on one line, small and wrapped (two lines at most) when not.
-    const block = (text: string, ty: number, color: string) => {
+    // Each part is drawn under the one before it. A part is big when it fits on one
+    // line, small and wrapped (two lines at most) when not.
+    const block = (text: string, ty: number, color: string): number => {
       const room = w - 16;
-      if (textWidth(text, 2) <= room) return line(text, ty, color, 2);
-      wrapText(text, room).slice(0, 2).forEach((part, i) => line(part, ty + 3 + i * 10, color));
+      if (textWidth(text, 2) <= room) {
+        line(text, ty, color, 2);
+        // Room for the accent of a capital under it, as the fixed layout always had.
+        return ty + 24;
+      }
+      const parts = wrapText(text, room).slice(0, 2);
+      parts.forEach((part, i) => line(part, ty + 3 + i * 10, color));
+      return ty + 3 + parts.length * 10 + 6;
     };
-    block(card.prompt, 22, COLOR.paper);
+    // Real play keeps the fixed layout (prompt at 22, answer at 46, hint at 68). The
+    // practice deck, which also shows the transcription, lays each part under the last.
+    const practice = this.backend.usesKey === false;
+    // The transcription, in the practice deck, under the Spanish it belongs to.
+    const showIpa = this.backend.usesKey === false && !!card.ipa;
+    const ipa = (ty: number): number => {
+      if (!showIpa) return ty;
+      const parts = wrapIpa(card.ipa!, w - 16).slice(0, 3);
+      parts.forEach((part, i) => drawIpa(ctx, part, x + w / 2, y + ty + i * 11, { align: "center", color: COLOR.leaf }));
+      return ty + parts.length * 11 + 3;
+    };
+    let ty = block(card.prompt, 22, COLOR.paper);
+    if (!practice) ty = 46;
+    if ((card.speaks ?? "back") === "front") ty = ipa(ty);
     if (this.phase === "front") {
       line("E: flip", h - 14, COLOR.mist);
       return;
     }
-    block(card.answer, 46, COLOR.butter);
-    if (card.hint) wrapText(card.hint, w - 16).slice(0, 2).forEach((part, i) => line(part, 68 + i * 9, COLOR.mist));
+    ty = block(card.answer, ty, COLOR.butter);
+    if (!practice) ty = 68;
+    if ((card.speaks ?? "back") === "back") ty = ipa(ty);
+    if (card.hint) wrapText(card.hint, w - 16).slice(0, 2).forEach((part, i) => line(part, ty + i * 9, COLOR.mist));
     const saving = this.phase === "saving";
     GRADES.forEach((g, i) => {
       const bx = x + 28 + i * (w / 2 - 14);
@@ -357,6 +381,22 @@ export class FlashcardsActivity extends BaseActivity {
       });
     });
   }
+}
+
+// Breaks a transcription into lines no wider than `width` pixels, at spaces.
+function wrapIpa(text: string, width: number): string[] {
+  const lines: string[] = [];
+  let line = "";
+  for (const word of text.split(/ +/).filter(Boolean)) {
+    const candidate = line ? `${line} ${word}` : word;
+    if (ipaWidth(candidate) <= width || !line) line = candidate;
+    else {
+      lines.push(line);
+      line = word;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
 }
 
 // The largest scale (1 or `want`) at which `text` fits in `width` pixels.

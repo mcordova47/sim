@@ -56,7 +56,7 @@ In the practice deck, V steps through spelling, ipa, formants, intonation, jitte
 
 The formants voice above has a flaw: its two formant tones are real tones at real frequencies (a few hundred Hz and a few thousand), and the ear hears each as a pitch, so the vowels still step between notes, only less tidily. A throat does not work that way. It makes a buzz at one pitch (the vocal folds) and the mouth shapes which frequencies of the buzz come out (the resonances, the formants). The pitch is the buzz alone, and the vowel is only which resonances are open.
 
-The filtered voice does exactly that (`FormantVoice` in `config.ts`, built in `sound/synth.ts`): a sawtooth at one pitch (`SOURCE_F0`, 125 Hz) goes through two band-pass filters at the vowel's formants. Every vowel has the same pitch, and the only difference between them is the filters. Intonation and jitter move the source's pitch only. Style 5 (`filtered`) is just that, slowed down by `FLASHCARDS.voice.slow` (1.4: every sound and every gap is stretched). Style 6 (`filtered+`) adds intonation and jitter on top.
+The filtered voice does exactly that (`FormantVoice` in `config.ts`, built in `sound/synth.ts`): a sawtooth at one pitch (`SOURCE_F0`, 125 Hz) goes through two band-pass filters at the vowel's formants. Every vowel has the same pitch, and the only difference between them is the filters. Intonation and jitter move the source's pitch only. Style 5 (`filtered`) is just that, slowed down by `FLASHCARDS.voice.slow` (1.15: every sound and every gap is stretched). Style 6 (`filtered+`) adds intonation and jitter on top.
 
 What to turn, and what you will hear:
 
@@ -75,7 +75,16 @@ Both approaches have the same consonants and timing; only the vowels and the spe
 
 ## Trying the screens and the voice without the app
 
-In a dev build, open the game with `?flashcards=demo` (for example `http://localhost:5173/?flashcards=demo`). "Study Spanish" then uses the practice deck in `flashcards/demo.ts`: fifteen cards with both directions (Spanish first and English first), accents, a long word, a long phrase and hint sentences. There is no server and no key screen, no key is remembered and nothing is paid. It is ignored in a production build. `FLASHCARDS.backend = "demo"` in `config.ts` does the same for every page load. Tune the voice in `FLASHCARDS.mumble` and the `mumble` effect (both in `config.ts`) and the page reloads.
+In a dev build, open the game with `?flashcards=demo` (for example `http://localhost:5173/?flashcards=demo`). "Study Spanish" then uses the practice deck in `flashcards/demo.ts`: no server and no key screen, no key remembered and nothing paid. It is ignored in a production build. `FLASHCARDS.backend = "demo"` in `config.ts` does the same for every page load. The card screen is taller in the practice deck and shows each card's IPA under its Spanish side, in its own small lowercase pixel font (`render/ipa-font.ts`, since the main font is capitals only and IPA is case-sensitive). Tune the voice in `FLASHCARDS.voice`, `FORMANTS`, `SOURCE_F0` and the `voice*` effects (all in `config.ts`) and the page reloads.
+
+The deck has four sets, in this order when you ask for all of them, or one with `&set=` (`?flashcards=demo&set=consonants`):
+
+- **sentences:** phonetically rich sentences that between them use every sound the voice has, the audio equivalent of "the quick brown fox" (`El veloz murciélago hindú comía feliz cardillo y kiwi.` and `El chico pequeño juega con un perro rojo en la montaña.`). A test checks that every sound in the voice's table is in them.
+- **diphthongs:** each glide pair (ai, ei, oi, au, eu, and ia, ie, io, iu, ua, ue, uo, ui), the triphthongs `estudiáis` and `Uruguay`, and two hiatus words, `día` and `río`, to hear against `Dios`: two vowels in a row sound different from a vowel and a glide.
+- **consonants:** each consonant between two a's (`aba`, `ada`, `aga`, ...), the usual way to compare consonants. Both the tap (`ara`) and the trill (`arra`) are there.
+- **words:** the first practice deck, single words, both card directions.
+
+V steps through the voices (spelling, ipa, formants, intonation, jitter, filtered, filtered+; the tag shows which) and R says the card again, to hear them against each other on the same card.
 
 ## The interface
 

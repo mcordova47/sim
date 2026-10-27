@@ -1,7 +1,7 @@
 ---
 id: 084
 title: Put the game on the internet (hosting, domain, repo name, privacy pass)
-status: todo
+status: review
 owner: marc + claude
 depends_on: []
 ---
@@ -47,3 +47,9 @@ Marc (2026-10-27): his name and email are not a concern. The rest of this sectio
 - The game is live at the chosen address over HTTPS, the checklist above is ticked in the log, and `npm test` and `npm run build` pass.
 
 ## Progress log
+
+- 2026-10-27 (agent): Stage A only. Worked on branch `issue/084-deploy-ready`. Built `netlify.toml` (build, publish `dist`, Node 22 plus `.nvmrc`, cache and noindex headers), head tags in `index.html` (head only, style block untouched; a visually hidden how-to-play line and a noscript note in the body, canvas untouched), `scripts/brand.mjs` (`npm run brand`) generating `public/favicon.png`, `apple-touch-icon.png`, `social.png` from game sprites, `scripts/check-dist.mjs` (`npm run check:dist`), `scripts/deploy.test.mjs`, and `docs/deploy.md` (exact commands, DNS, smoke test).
+- Found and fixed: `?set=` in `src/main.ts` was NOT dev-gated and would have shipped; it is now `import.meta.env.DEV` only. The other shortcuts were already gated (verified in the built bundle). Vite base is the default `/` and sprites load from `${BASE_URL}sprites/`.
+- Decisions made (Marc may overrule): noindex via meta tag and `X-Robots-Tag`, no robots.txt Disallow (a disallowed page never shows its noindex); `og:image` is the absolute `https://sim.mcord.dev/social.png`, so previews only work after stage B.
+- Not checked: nothing was deployed or published (by instruction), so the headers are untested on real Netlify and `netlify.toml` header precedence is unverified; the card was only viewed as a PNG, not unfurled in a chat app; the game was not played in a browser.
+- Stages B and C remain open; this issue stays open after stage A is merged (acceptance criteria 1 to 3 are not met yet).

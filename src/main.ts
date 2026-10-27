@@ -26,10 +26,10 @@ const features = attachFeatures(game);
 // A dev shortcut for looking at a state without playing to it: `?set=plantStage:3`
 // or `?set=plantStage:1,plantDry:100` (the plant drooping). Comma separated
 // `variable:value` pairs, applied after any saved progress is loaded. Unknown
-// names and bad numbers are ignored. It is quiet: no events, so no particles or
+// names and bad numbers are ignored. Dev server only (issue 084): a built game ignores it. It is quiet: no events, so no particles or
 // popups, and the room is set up again so doors and the like follow the values.
 try {
-  const effects = (new URLSearchParams(location.search).get("set") ?? "")
+  const effects = (import.meta.env.DEV ? new URLSearchParams(location.search).get("set") ?? "" : "")
     .split(",")
     .map((pair) => pair.split(":"))
     .filter(([id, value]) => game.state.has(id) && value !== "" && Number.isFinite(Number(value)))

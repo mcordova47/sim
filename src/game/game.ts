@@ -81,6 +81,13 @@ export interface GameOptions {
 
 // The running game: owns the player, tasks, scoring and the UI built on them.
 // It never touches the keyboard or the loop, so it can be driven by tests.
+// The dialog voice setting as the list screen sees it (issue 075).
+export interface DialogVoiceSetting {
+  // Text such as "DIALOG VOICE: BEEP".
+  label(): string;
+  toggle(): void;
+}
+
 export class Game {
   readonly player: Player;
   readonly interaction: InteractionSystem;
@@ -106,6 +113,9 @@ export class Game {
   // Set by the sound feature: what is on the record player (issue 068). Without it
   // nothing is playing and every choice may pay.
   jukebox: (() => RecordState) | null = null;
+  // Set by the sound feature (issue 075): the dialog voice setting, so the
+  // achievements list screen can show it and switch it without knowing about sound.
+  dialogVoice: DialogVoiceSetting | null = null;
   private level: Level;
   private grid: Grid;
   private readonly dialog: DialogRunner;

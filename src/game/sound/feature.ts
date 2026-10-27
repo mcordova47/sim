@@ -12,7 +12,8 @@ import type { Track } from "../music/track";
 import { browserAudio, type AudioFactory } from "./audio-types";
 import { MoodLift, comboPitch, floorOf, noteKeyPitch, stepEffect, stepGain, stepPitch } from "./decisions";
 import { SoundEngine } from "./engine";
-import { SettingsStore } from "./settings";
+import { mumbleNotes } from "../flashcards/mumble";
+import { SettingsStore, type DialogVoice } from "./settings";
 
 // The parts of a window the feature listens to, so tests can pass fakes.
 export interface KeyEventLike {
@@ -39,6 +40,9 @@ export interface SoundOptions {
   demos?: DemoStore;
   // The room the game starts in, for the first footsteps.
   start?: string;
+  // Uses this dialog voice for the visit without saving it (the dev URL
+  // override `?dialogvoice=letters`, issue 075).
+  dialogVoice?: DialogVoice;
 }
 
 function browserStorage(): KeyValueStorage | null {
@@ -73,6 +77,9 @@ export class SoundFeature implements Layer {
   private indicatorFor = 0;
   // Characters of dialog text that had appeared at the last frame.
   private shown = 0;
+  // How dialog text sounds now, and what is saved (they differ under the URL override).
+  private voiceMode: DialogVoice = "beep";
+  private voiceSaved: DialogVoice = "beep";
 
   constructor(private readonly game: Game, options: SoundOptions = {}) {
     this.random = options.random ?? Math.random;
@@ -87,6 +94,12 @@ export class SoundFeature implements Layer {
     this.engine.muted = saved.muted;
     this.selected = this.everyTrack().find((t) => t.id === saved.track) ?? null;
     this.payoutLeft = saved.payoutLeft;
+    this.voiceSaved = saved.dialogVoice;
+    this.voiceMode = options.dialogVoice ?? saved.dialogVoice;
+    game.dialogVoice = {
+      label: () => `DIALOG VOICE: ${this.voiceMode.toUpperCase()}`,
+      toggle: () => this.setDialogVoice(this.voiceMode === "beep" ? "letters" : "beep"),
+    };
     game.jukebox = () => ({ playingId: this.selected?.id ?? null, payoutReady: !(this.payoutLeft > 0), tracks: this.everyTrack() });
     this.engine.music.play(this.selected);
 
@@ -194,8 +207,18 @@ export class SoundFeature implements Layer {
     this.save();
   }
 
+  get dialogVoice(): DialogVoice {
+    return this.voiceMode;
+  }
+
+  setDialogVoice(voice: DialogVoice): void {
+    this.voiceMode = voice;
+    this.voiceSaved = voice;
+    this.save();
+  }
+
   private save(): void {
-    this.store.save({ muted: this.engine.muted, track: this.selected?.id ?? null, payoutLeft: this.payoutLeft });
+    this.store.save({ muted: this.engine.muted, track: this.selected?.id ?? null, payoutLeft: this.payoutLeft, dialogVoice: this.voiceSaved });
   }
 
   private step(): void {
@@ -245,10 +268,24 @@ export class SoundFeature implements Layer {
     }
     const now = view.lines.reduce((sum, line) => sum + line.length, 0);
     if (now < this.shown) this.shown = 0; // a new page
-    if (Math.floor(now / SOUND.blipEveryChars) > Math.floor(this.shown / SOUND.blipEveryChars)) {
+    if (this.voiceMode === "letters") this.letters(view.lines.join(""), now);
+    else if (Math.floor(now / SOUND.blipEveryChars) > Math.floor(this.shown / SOUND.blipEveryChars)) {
       this.engine.play("blip", { pitch: 0.95 + this.random() * 0.1 });
     }
     this.shown = now;
+  }
+
+  // The letters voice (issue 075): at each slot of `blipEveryChars` characters
+  // that has just appeared, the spelling voice's sound for the letter there
+  // (nothing for a space or a mark). Text that jumps ahead (skipped) is silent.
+  private letters(text: string, now: number): void {
+    const every = SOUND.blipEveryChars;
+    const L = SOUND.dialogLetters;
+    const slots = Math.floor(now / every) - Math.floor(this.shown / every);
+    if (slots < 1 || now - this.shown > L.skipAbove) return;
+    const pitch = mumbleNotes(text[Math.floor(now / every) * every - 1] ?? "")[0];
+    if (pitch === null || pitch === undefined) return;
+    this.engine.play("mumble", { pitch: pitch * (1 + (this.random() * 2 - 1) * L.wobble), gain: L.gain });
   }
 
   // While a record plays, mood climbs a little over game time. The clock stands
@@ -316,6 +353,15 @@ export function fit(text: string, width: number): string {
 export function attachSound(game: Game, options?: SoundOptions): SoundFeature {
   return new SoundFeature(game, {
     keys: typeof window === "undefined" ? undefined : window,
+    dialogVoice: devDialogVoice(),
     ...options,
   });
+}
+
+// Dev only (issue 075): `?dialogvoice=letters` tries the letters voice for the
+// visit without saving it. A built game ignores it.
+export function devDialogVoice(search = typeof location === "undefined" ? "" : location.search, dev = import.meta.env?.DEV): DialogVoice | undefined {
+  if (!dev) return undefined;
+  const asked = new URLSearchParams(search).get("dialogvoice");
+  return asked === "letters" || asked === "beep" ? asked : undefined;
 }

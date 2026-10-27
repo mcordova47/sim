@@ -1,5 +1,7 @@
 import type { KeyValueStorage } from "../achievements/progress";
-import { MUSIC } from "../config";
+import { MUSIC, SOUND } from "../config";
+
+export type DialogVoice = (typeof SOUND.dialogVoices)[number];
 
 // What is remembered between visits: whether sound is muted and which record
 // is on the player (null for none). Every read and write is guarded, so
@@ -10,9 +12,12 @@ export interface SoundSettings {
   // Game minutes left before choosing a record pays again (issue 068). Saved so a
   // reload cannot skip the wait; it counts down in game time while the game runs.
   payoutLeft: number;
+  // How dialog text sounds as it types (issue 075): the plain beep, or the
+  // spelling voice's letters. An old save or a junk value means the beep.
+  dialogVoice: DialogVoice;
 }
 
-export const DEFAULT_SETTINGS: SoundSettings = { muted: false, track: null, payoutLeft: 0 };
+export const DEFAULT_SETTINGS: SoundSettings = { muted: false, track: null, payoutLeft: 0, dialogVoice: "beep" };
 
 export class SettingsStore {
   constructor(
@@ -31,6 +36,7 @@ export class SettingsStore {
         muted: r.muted === true,
         track: typeof r.track === "string" ? r.track : null,
         payoutLeft: typeof r.payoutLeft === "number" && Number.isFinite(r.payoutLeft) ? Math.min(MUSIC.payoutEveryMinutes, Math.max(0, r.payoutLeft)) : 0,
+        dialogVoice: r.dialogVoice === "letters" ? "letters" : "beep",
       };
     } catch {
       return { ...DEFAULT_SETTINGS };

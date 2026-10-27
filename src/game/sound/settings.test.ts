@@ -8,12 +8,12 @@ describe("SettingsStore", () => {
   it("round-trips the settings", () => {
     const storage = new FakeStorage();
     const store = new SettingsStore(storage, KEY);
-    expect(store.save({ muted: true, track: "02-b", payoutLeft: 0 })).toBe(true);
-    expect(new SettingsStore(storage, KEY).load()).toEqual({ muted: true, track: "02-b", payoutLeft: 0 });
+    expect(store.save({ muted: true, track: "02-b", payoutLeft: 0, dialogVoice: "beep" })).toBe(true);
+    expect(new SettingsStore(storage, KEY).load()).toEqual({ muted: true, track: "02-b", payoutLeft: 0, dialogVoice: "beep" });
   });
 
   it("gives the defaults with nothing saved, with no storage and with damaged data", () => {
-    const defaults = { muted: false, track: null, payoutLeft: 0 };
+    const defaults = { muted: false, track: null, payoutLeft: 0, dialogVoice: "beep" };
     expect(new SettingsStore(new FakeStorage(), KEY).load()).toEqual(defaults);
     expect(new SettingsStore(null, KEY).load()).toEqual(defaults);
     for (const text of ["{", "null", "[]", "5", '"x"', '{"muted":"yes","track":5}']) {
@@ -23,13 +23,23 @@ describe("SettingsStore", () => {
     }
   });
 
+  it("saves the dialog voice, and an old save or a junk value means beep (issue 075)", () => {
+    const storage = new FakeStorage();
+    new SettingsStore(storage, KEY).save({ muted: false, track: null, payoutLeft: 0, dialogVoice: "letters" });
+    expect(new SettingsStore(storage, KEY).load().dialogVoice).toBe("letters");
+    for (const text of ['{"muted":true}', '{"dialogVoice":"LETTERS"}', '{"dialogVoice":true}', '{"dialogVoice":["letters"]}']) {
+      storage.setItem(KEY, text);
+      expect(new SettingsStore(storage, KEY).load().dialogVoice, text).toBe("beep");
+    }
+  });
+
   it("fails silently when storage throws", () => {
     const boom = () => {
       throw new Error("blocked");
     };
     const store = new SettingsStore({ getItem: boom, setItem: boom, removeItem: boom }, KEY);
-    expect(store.load()).toEqual({ muted: false, track: null, payoutLeft: 0 });
-    expect(store.save({ muted: true, track: null, payoutLeft: 0 })).toBe(false);
-    expect(new SettingsStore(null, KEY).save({ muted: true, track: null, payoutLeft: 0 })).toBe(false);
+    expect(store.load()).toEqual({ muted: false, track: null, payoutLeft: 0, dialogVoice: "beep" });
+    expect(store.save({ muted: true, track: null, payoutLeft: 0, dialogVoice: "beep" })).toBe(false);
+    expect(new SettingsStore(null, KEY).save({ muted: true, track: null, payoutLeft: 0, dialogVoice: "beep" })).toBe(false);
   });
 });

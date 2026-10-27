@@ -1,7 +1,7 @@
 ---
 id: 026
 title: Spanish flashcards on the in-game computer (stretch)
-status: in-progress
+status: review
 owner: marc + claude
 depends_on: [021, 022, 023]
 ---
@@ -256,3 +256,4 @@ The app is "Mil Palabras" (palabras.mcord.dev): PureScript, Netlify, spaced repe
   - **Config:** `slow` 1.15 and `maxPhonemes` 80 only; everything else in the style recipes is untouched (the old `ipaScript` for styles 1 to 4 reads the same table; the 40-phoneme cap now 80 changes only transcriptions longer than 40 phonemes, none of the 1000 words). Docs match the code. Tests added are adequate except the layout one (see the first finding).
   - **Unverified:** how the IPA font looks in a real browser at game scale (my views are ASCII from the glyph tables and a pixel composite of the real draw calls, no real canvas, no 3x or 4x scaling), and how anything sounds.
   - **Verdict: changes needed.** Work through the checklist in the first finding (real-play layout, accent room in demo mode, a layout test with fixed positions) and the small `Object.hasOwn` fix; the glyph ambiguity (`ʝ` against `j`, `ɾ` against `r`) is for Marc to judge once he sees it in the browser. PLAN.md untouched.
+- 2026-10-26: **Voice testbed review round 1 changes worked.** Fixed: real play moved (the answer and hint followed a running y, so a big accented answer under a big prompt had no gap, and a long two-line hint touched the buttons). Real play now keeps the original fixed layout (prompt 22, answer 46, hint 68); only the practice deck uses the running layout, and its big blocks now leave room for an accent (24 rows, as the fixed layout had, and 6 under a wrapped block). Added a test with fixed expected positions for a real-backend card (and that no IPA glyph is drawn in real play). Fixed the dev-only `&set=` lookup to `Object.hasOwn`, with a test over `constructor`, `toString`, `__proto__`, `hasOwnProperty` and `valueOf`. Left for Marc to judge in a browser, as the reviewer noted: `ʝ` differs from `j` by one pixel (the voice treats them the same, so it only matters for reading), and `ɾ` is close to `r` at a glance.

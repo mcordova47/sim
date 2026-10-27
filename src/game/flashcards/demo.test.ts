@@ -153,7 +153,9 @@ describe("the practice deck", () => {
       const session = (await demoBackendFor(set).open("")) as DemoSession;
       return session.queue();
     };
-    return Promise.all([queue("diphthongs"), queue("nope"), queue(null), queue("consonants")]).then(([d, bad, all, c]) => {
+    const protoNames = ["constructor", "toString", "__proto__", "hasOwnProperty", "valueOf"];
+    return Promise.all([queue("diphthongs"), queue("nope"), queue(null), queue("consonants"), ...protoNames.map(queue)]).then(([d, bad, all, c, ...protos]) => {
+      for (const p of protos) expect(p).toEqual(all);
       expect(d).toEqual(DEMO_SETS.diphthongs.map((x) => x.slug));
       expect(bad).toEqual(all);
       expect(all).toEqual(DEMO_CARDS.map((x) => x.slug));
@@ -212,6 +214,37 @@ describe("the practice deck", () => {
       a.update(1 / 60, { ...NO_INPUT, keys: ["Digit1"] });
       await new Promise((r) => setTimeout(r, 0));
     }
+    vi.unstubAllGlobals();
+  });
+
+  it("keeps the fixed layout in real play: prompt at 22, answer at 46, hint at 68", async () => {
+    const dys: number[][] = [];
+    vi.stubGlobal("document", { createElement: () => ({ width: 0, height: 0, getContext: () => new Proxy({}, { get: () => () => {}, set: () => true }) }) });
+    const calls: unknown[][] = [];
+    const ctx = new Proxy({}, { get: (_t, fn: string) => (...args: unknown[]) => calls.push([fn, ...args]), set: () => true }) as unknown as CanvasRenderingContext2D;
+    const f = fakeHost();
+    const clipboard = { copy: async () => true, read: async () => null, onPaste: () => () => {} };
+    const card = { slug: "a", prompt: "house", answer: "casa", hint: "uno dos", spoken: "casa", ipa: "ˈkasa", speaks: "back" as const };
+    // A real backend: it uses a key and has the cards' transcriptions, which are not shown.
+    const real = { paysPoints: true, open: async () => new DemoSession([card]) };
+    const storage = new FakeStorage();
+    const store = new StudyStore(storage);
+    store.saveKey("abcdefghij0123456789abcdefghij01");
+    const a = new FlashcardsActivity(f.host, real, store, clipboard);
+    a.start();
+    await new Promise((r) => setTimeout(r, 0));
+    a.update(1 / 60, { ...NO_INPUT, interactPressed: true }); // flip
+    a.draw(ctx, { width: 320, height: 192 });
+    // Glyph images: [fn, canvas, dx, dy, w, h]. Big text is 14 high, small 7.
+    const glyphs = calls.filter((c) => c[0] === "drawImage").map((c) => ({ dy: c[3] as number, h: c[5] as number }));
+    dys.push([...new Set(glyphs.filter((g) => g.h === 14).map((g) => g.dy))].sort((x, y) => x - y));
+    // Panel top is 36 (a 120 high panel on a 192 screen); the offsets above are within it.
+    const panelTop = (192 - 120) / 2;
+    expect(dys[0]).toEqual([panelTop + 22, panelTop + 46]);
+    expect([...new Set(glyphs.filter((g) => g.h === 7 && g.dy >= panelTop + 60 && g.dy < panelTop + 90).map((g) => g.dy))]).toEqual([panelTop + 68]);
+    // No transcription is drawn in real play (the IPA font's glyphs are 9 high).
+    expect(glyphs.some((g) => g.h === 9)).toBe(false);
+    expect(calls.filter((c) => c[0] === "fillRect" && c[3] === 120)).not.toHaveLength(0);
     vi.unstubAllGlobals();
   });
 });

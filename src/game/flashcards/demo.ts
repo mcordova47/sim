@@ -124,7 +124,7 @@ export class DemoSession implements StudySession {
 // The practice backend over one of the sets (`?flashcards=demo&set=diphthongs`),
 // or over all of them.
 export function demoBackendFor(set?: string | null): StudyBackend {
-  const cards = set && set in DEMO_SETS ? DEMO_SETS[set as DemoSet] : DEMO_CARDS;
+  const cards = set && Object.hasOwn(DEMO_SETS, set) ? DEMO_SETS[set as DemoSet] : DEMO_CARDS;
   return {
     paysPoints: false,
     usesKey: false,

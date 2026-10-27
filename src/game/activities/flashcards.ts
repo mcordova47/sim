@@ -336,12 +336,16 @@ export class FlashcardsActivity extends BaseActivity {
       const room = w - 16;
       if (textWidth(text, 2) <= room) {
         line(text, ty, color, 2);
-        return ty + 17;
+        // Room for the accent of a capital under it, as the fixed layout always had.
+        return ty + 24;
       }
       const parts = wrapText(text, room).slice(0, 2);
       parts.forEach((part, i) => line(part, ty + 3 + i * 10, color));
-      return ty + 3 + parts.length * 10 + 4;
+      return ty + 3 + parts.length * 10 + 6;
     };
+    // Real play keeps the fixed layout (prompt at 22, answer at 46, hint at 68). The
+    // practice deck, which also shows the transcription, lays each part under the last.
+    const practice = this.backend.usesKey === false;
     // The transcription, in the practice deck, under the Spanish it belongs to.
     const showIpa = this.backend.usesKey === false && !!card.ipa;
     const ipa = (ty: number): number => {
@@ -351,12 +355,14 @@ export class FlashcardsActivity extends BaseActivity {
       return ty + parts.length * 11 + 3;
     };
     let ty = block(card.prompt, 22, COLOR.paper);
+    if (!practice) ty = 46;
     if ((card.speaks ?? "back") === "front") ty = ipa(ty);
     if (this.phase === "front") {
       line("E: flip", h - 14, COLOR.mist);
       return;
     }
     ty = block(card.answer, ty, COLOR.butter);
+    if (!practice) ty = 68;
     if ((card.speaks ?? "back") === "back") ty = ipa(ty);
     if (card.hint) wrapText(card.hint, w - 16).slice(0, 2).forEach((part, i) => line(part, ty + i * 9, COLOR.mist));
     const saving = this.phase === "saving";

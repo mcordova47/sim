@@ -39,6 +39,9 @@ A **recycling bin** as an item: with it, flattened boxes (issue 070) look like a
 ## Stage 4 item idea (Marc, 2026-10-26): candles
 Item `glow` (issue 069) unlocks light sources like candles. A candle would likely want a **flicker** (a slow, small random variation of the glow's alpha and radius over game time, deterministic in tests from a seeded random, never strobing): add an optional `flicker` to `glow` (amount and speed) when the first candle is drawn. Plain and calm; check it with the day and night tint, and that the golden frames are unaffected unless a candle is placed.
 
+## Stage 4 item idea (Marc, 2026-10-26): pantry upgrades
+The pantry (issue 072: a stack of clear bins with food on top) is a decor slot for upgrade swaps: for example a proper shelving unit or a wooden cupboard. Issue 072 only adds the slot data.
+
 ## Progress log
 - 2026-10-23: design note written in `docs/decor.md` (slot model, items, decor store vs a state variable per slot, swap task and mockups at 320x192, sources without pressure, first item set and art budget, plants 063 and plugins 064 as the same owned model, tolerant save format, staged plan, open questions). Recommendation: a separate decor store drawn through the existing appearance path, gifts and finds first, nothing costs anything, no mood or points effect. Status stays `in-progress` until Marc answers the open questions; then stage 1 becomes a build issue. No code changed.
 - 2026-10-23 (stage 1, branch `issue/062-decor-stage-1`): started. Plan: slots table and items table in `decor-data.ts`, the `Decor` store and `parseDecor` in `decor.ts`, an optional `slot` on `Appearance` and on map legend entries, the plant prop drawn from its family rules, an optional `decor` field in the progress save, tests, and a golden record of the main room's draw calls made on `main` before any change.

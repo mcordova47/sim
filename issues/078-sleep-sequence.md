@@ -1,7 +1,7 @@
 ---
 id: 078
 title: A sleep sequence instead of just a timer
-status: review
+status: in-progress
 owner: marc + claude
 depends_on: []
 ---
@@ -36,3 +36,21 @@ Built stage 1 (the sequence and the scene, no look) and stage 2 (the light and t
 - Tests: `sleep.test.ts` (timeline, light numbers, full sleep and nap against the real Game: clock held then +7 / +1 once, deliveries `advance(7)`, energy, bed, plantDry, score; Escape matrix for sleep at 0, 0.5, 1, 2, 4, 7, 8, 8.99 s and nap at 0 to 4.99 s: no points, clock exactly unchanged on the cancel frame, nothing changed, no `advance`, `taskCancelled` only, input lock released, light back to 0 inside `escapeRestore`, restartable at once; Escape after the end does nothing); `sleep-fuzz.test.ts` (150 seeded runs against the real Game: random Escape rate, input locks, dialogs, presses; asserts start/end pairing never overlaps, clock held exactly while busy, lock/dialog released, +7 (or +1) and `advance` on completion, no jump and no payout on cancel, overlay back to 0; guards that the fuzz reaches completes, cancels, dialogs during sleep and locks); `sleep-frames.golden.test.ts` and `golden/sleep-frames.json` (draw-call hashes of the sequence frames, section 13 moments). Two existing tests were updated for the new length (`apartment-rules.test.ts` runs 10 s, `game-activities.test.ts` allows the `sleep` type). `main-room-frames.golden.test.ts` passes unchanged. `npm test` (2224) and `npm run build` pass.
 - Rendered headless in Chrome with a throwaway harness (not in the repo), 320x192 at 1x: sleep at 22:00 (before, 0, 1, 2, 4, 7, 8, 8.9 s, end), nap at 14:00, and Escape at 4 s and 8 s with frames right after. Honest look: the dim is clear but gentle (the room goes noticeably bluer and the lamp glow shrinks), the banner is gone while asleep and returns at the end. Waking at 05:00 is still night in the tint table, so the "morning" brightening on a 22:00 sleep goes back to the same dusk-to-night look, not to daylight; it only reads as a real wake-up when the sleep starts later (a nap at 14:00 does brighten back). The nap's dark (0.2) is subtle at midday.
 - Not checked: how it feels in a real browser at real frame rates; audio (stage 4); the breath (stage 3). Docs (`docs/activities.md`, `docs/state.md`) are for stage 5. Needs a decision later: the sleep at 22:00 wakes into night (open for stage 5 tuning, e.g. a wake that ends later, or `darkAlpha`).
+
+### 2026-10-27 (review of stages 1 and 2; independent)
+Scope: stages 1 and 2 only (stages 3 to 5 deliberately not built, not failed). Verdict: **changes needed** (one small defect; everything else passes). Status set to in-progress; once the item below is fixed, stages 1 and 2 are approvable.
+
+Ran: `npm test` 2224 pass (incl. `main-room-frames.golden.test.ts` unchanged), `npm run build` ok. Own throwaway probes (kept outside the repo) against the real Game:
+- **pass** Sequence timing: scene phases 2+5+2 s, task durations 9 and 5 equal the phase sums; clock held exactly during the sequence, one `+7` jump (nap `+1`) at the finish; finish frame: scene null and clock jumped on the same frame, light snaps to plain with no stray frame.
+- **pass** Escape on boundary frames (118 to 122, 417 to 422, 534 to 541 of 540): cancelled every time up to frame 539, no score, clock and energy unchanged, input lock released; at frame 540 the sleep has completed (+7, energy 100, 60 points) and Escape does nothing.
+- **pass** Dialog open mid-sleep: the sequence, clock and light freeze with it; Escape while the dialog is up cancels the sleep and closes the dialog, no payout.
+- **pass** Error thrown in the activity: abandoned, scene null, clock and energy untouched, no payout, lock released, overlay 0 within frames.
+- **pass** After complete and after cancel (sleep and nap, real apartment), the time-of-day layer's `drawWorld` call log is identical to a game that never slept at the same clock; after a sleep Escape the whole rendered frame was identical to the control. Golden main-room frames unchanged.
+- **pass** Nap: bed made stays made, unmade stays unmade; sofa nap +25 energy (40 to 65) and the clock +1. Rooms main, kitchen and bath rendered with a live scene: no throw, washes drawn. A second sleep right after completion is correctly refused (energy and cooldown); right after Escape it restarts at once.
+- **pass** Scope: only the 078 files, one export added (`hash` in `main-room-frames.ts`) and two existing tests adjusted for the new length. No PLAN.md or other issue changes. No reference photos.
+- **FAIL** Escape does not ease the light back (design sections 4 and 9, and the stage 2 test line "Escape eases back"). `TimeOfDayFeature.update` only eases while `clock === sceneClock`, but the clock starts ticking again the frame after the cancel, so the light snaps to 0 one or two frames after Escape. Measured: dark after Escape at 300 frames goes 0.958, 0, 0, ... (no 0.4 s ease). Worst case is Escape late in the wake (morning near 1): the room jumps from nearly the new hour's light back to the lay-down light in a frame. The existing test passes only because a snap also satisfies "non-increasing and within `escapeRestore`".
+- **can't verify / unverified** The look at 1x: I did not render frames; only draw-call hashes and numbers were checked. Feel in a real browser at real frame rates: not verified. Audio: not built (stage 4). The banner fade was seen only as the alpha numbers (0 while asleep, 1 at the end), not on screen.
+
+Checklist for the author:
+- [ ] Make the post-Escape ease real (for example a flag set when the scene disappears without the clock having jumped, instead of exact clock equality), so dark and morning ease to 0 over `escapeRestore` while the clock runs on.
+- [ ] Tighten the Escape test so it fails on a snap (intermediate values for several frames after Escape in `asleep` and in `wake`), and keep the finish case snapping.

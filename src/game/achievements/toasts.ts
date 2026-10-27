@@ -1,5 +1,6 @@
 import { ACHIEVEMENTS_UI as UI, VIEW } from "../config";
 import { textWidth } from "../../render/font";
+import { ribbonBottom } from "../../render/hud";
 import { HUD_BOX, STATUS_BOX, type Box } from "../../render/layout";
 import { wrapText } from "../dialog";
 
@@ -60,7 +61,7 @@ export class ToastQueue {
 
   // Where slot `slot` rests, given the height of the toast in the slots above it.
   private restingBox(t: Toast): Box {
-    const top = STATUS_BOX.y + STATUS_BOX.h + UI.toastMargin;
+    const top = Math.max(STATUS_BOX.y + STATUS_BOX.h, ribbonBottom(VIEW)) + UI.toastMargin;
     let y = top;
     // Slots are stacked by the tallest toast, so a toast never moves when another ends.
     const tallest = toastHeight(2);

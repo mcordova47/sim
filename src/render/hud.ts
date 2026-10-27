@@ -2,7 +2,7 @@ import { ENERGY, HUD, MOOD, SCORING, VIEW } from "../game/config";
 import type { Scoreboard } from "../game/scoring";
 import { formatClockShort, type ApartmentState } from "../game/state";
 import { COLOR, withAlpha } from "./colors";
-import { drawText, textWidth } from "./font";
+import { drawText, GLYPH_H, textWidth } from "./font";
 import { COMBO_TEXT, CLOCK_FIELD, hudChips, setScoreDigits } from "./layout";
 import type { SpriteDrawer } from "./sprites";
 
@@ -157,4 +157,13 @@ export function stopHintAt(view: { width: number }, digits?: number): [number, n
   const half = textWidth(STOP_HINT) / 2;
   const fits = centre - half >= gapLeft + 2 && centre + half + 1 <= right.x - 2;
   return fits ? [centre, 3] : [Math.round(view.width / 2), left.y + left.h + 2];
+}
+
+// The lowest y the ribbon uses in a view, counting the stop hint when it sits on its own line under
+// the chips (narrow view). Toasts start under this, so they never cover the hint.
+export function ribbonBottom(view: { width: number }): number {
+  const chips = hudChips(view);
+  const chipBottom = chips.left.y + chips.left.h;
+  const [, hintY] = stopHintAt(view);
+  return hintY >= chipBottom ? hintY + GLYPH_H + 1 : chipBottom;
 }

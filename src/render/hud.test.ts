@@ -5,7 +5,8 @@ import type { Scoreboard } from "../game/scoring";
 import { formatClockShort, type ApartmentState } from "../game/state";
 import { Camera } from "./camera";
 import { GLYPH_H, textWidth } from "./font";
-import { Hud, HUD_ICON_NAMES, energyIcon, moodIcon, stopHintAt, STOP_HINT, timeIcon } from "./hud";
+import { ToastQueue } from "../game/achievements/toasts";
+import { Hud, ribbonBottom, HUD_ICON_NAMES, energyIcon, moodIcon, stopHintAt, STOP_HINT, timeIcon } from "./hud";
 import { HUD_BOX, STATUS_BOX, hudChips, leftChipWidth, RIGHT_CHIP_WIDTH, setScoreDigits, type Box } from "./layout";
 import type { SpriteDrawer } from "./sprites";
 
@@ -188,6 +189,30 @@ describe("rooms stay below the band", () => {
           camera.snapTo({ x: tx, y: ty });
           expect(-camera.position(1).y, `${id} ${name}`).toBeGreaterThanOrEqual(HUD.band);
         }
+      }
+    });
+  }
+});
+
+describe("toasts and the stop hint", () => {
+  for (const [name, view] of [["desktop", DESKTOP_VIEW], ["narrow", NARROW_VIEW]] as const) {
+    it(`start under the ribbon, so a toast never covers the hint on the ${name} view`, () => {
+      setView(view);
+      for (const digits of [1, 5, 10]) {
+        setScoreDigits(digits);
+        const [cx, y] = stopHintAt(view);
+        const w = textWidth(STOP_HINT);
+        const hint = { x: cx - w / 2, y, w: w + 1, h: GLYPH_H + 1 };
+        const q = new ToastQueue();
+        q.push("TITLE", "A line of text that wraps over two lines of the toast.");
+        q.update(0);
+        q.update(1);
+        for (const t of q.views()) {
+          const b = t.box;
+          const hit = b.x < hint.x + hint.w && b.x + b.w > hint.x && b.y < hint.y + hint.h && b.y + b.h > hint.y;
+          expect(hit, `${name} ${digits}`).toBe(false);
+        }
+        expect(ribbonBottom(view)).toBeGreaterThanOrEqual(y + (y > HUD.chipTop + HUD.chipHeight ? GLYPH_H : 0));
       }
     });
   }

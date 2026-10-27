@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BURST_GAIN, FLASHCARDS as F, FORMANTS, GLIDE_TARGET, GLIDE_TIME, SOUND, SOURCE_F0, VOWEL_TIME } from "../config";
+import { BURST_GAIN, DIPHTHONG_SHAPE, FLASHCARDS as F, FORMANTS, GLIDE_TARGET, GLIDE_TIME, SOUND, SOURCE_F0, VOWEL_TIME } from "../config";
 import { DEMO_CARDS } from "./demo";
 import { isGap, readIpa, type Phoneme } from "./ipa";
 import { ipaScript, Mumble, spellingScript, VOICE_CYCLE, VOICE_STYLES } from "./mumble";
@@ -394,25 +394,46 @@ describe("diphthongs as one continuous sound (style 9), l, and levels", () => {
     for (const ipa of ["ˈkasa", "ˈmana", "ˈabada", "ˈdia", "ˈasta ˈlego"]) expect(names(ipa, 9)).toEqual(names(ipa, 8));
   });
 
-  it("a diphthong effect moves each resonance along the path from one sound's frequency to the other's, and holds the vowel", () => {
-    const e = SOUND.effects.voiceDiphJE.voices[0] as unknown as { formants: { freq: number; path: [number, number][] }[]; hold: number; length: number };
-    const total = GLIDE_TIME.to + VOWEL_TIME.plain;
-    expect(e.length).toBeCloseTo(total);
-    expect(e.formants.map((f) => f.freq)).toEqual([FORMANTS.i.f1, FORMANTS.i.f2]);
-    expect(e.formants[0].path).toEqual([[expect.closeTo(GLIDE_TIME.to / total, 5), FORMANTS.e.f1]]);
-    expect(e.hold).toBeGreaterThan(0.5);
-    const out = SOUND.effects.voiceDiphAJ.voices[0] as unknown as { formants: { freq: number; path: [number, number][] }[] };
-    const t2 = VOWEL_TIME.plain + GLIDE_TIME.from;
+  it("a diphthong effect is on the move for most of its length: into the vowel, or out of it, with the movement heard at full level", () => {
+    const S = DIPHTHONG_SHAPE;
+    const into = SOUND.effects.voiceDiphJE.voices[0] as unknown as { formants: { freq: number; path: [number, number][] }[]; hold: number; length: number };
+    expect(into.length).toBeCloseTo(GLIDE_TIME.to + VOWEL_TIME.plain);
+    expect(into.formants.map((f) => f.freq)).toEqual([FORMANTS.i.f1, FORMANTS.i.f2]);
+    expect(into.formants[0].path).toEqual([[S.onReach, FORMANTS.e.f1]]);
+    expect(into.formants[1].path).toEqual([[S.onReach, FORMANTS.e.f2]]);
+    const out = SOUND.effects.voiceDiphAJ.voices[0] as unknown as { formants: { freq: number; path: [number, number][] }[]; hold: number };
     expect(out.formants[1].freq).toBe(FORMANTS.a.f2);
-    expect(out.formants[1].path).toEqual([[expect.closeTo(VOWEL_TIME.plain / t2, 5), FORMANTS.a.f2], [1, FORMANTS[GLIDE_TARGET.j].f2]]);
-    // A triphthong goes in, holds, and comes out.
-    const tri = SOUND.effects.voiceDiphJAJ.voices[0] as unknown as { formants: { path: [number, number][] }[] };
-    expect(tri.formants[0].path).toHaveLength(3);
+    expect(out.formants[1].path).toEqual([[S.offLeave, FORMANTS.a.f2], [1, FORMANTS[GLIDE_TARGET.j].f2]]);
+    const tri = SOUND.effects.voiceDiphJAJ.voices[0] as unknown as { formants: { freq: number; path: [number, number][] }[] };
+    expect(tri.formants[0].freq).toBe(FORMANTS.i.f1);
+    expect(tri.formants[0].path).toEqual([[S.triReach, FORMANTS.a.f1], [S.triLeave, FORMANTS.a.f1], [1, FORMANTS.i.f1]]);
+    // The movement is most of the sound, and it is still at full level when it ends.
+    expect(S.onReach).toBeGreaterThanOrEqual(0.5);
+    expect(S.offLeave).toBeLessThanOrEqual(0.4);
+    expect(S.triLeave - S.triReach).toBeLessThanOrEqual(0.4);
+    for (const v of [into, out]) expect(v.hold).toBeGreaterThanOrEqual(0.8);
+    // Path fractions run forward in time for every combination.
+    for (const [name, def] of Object.entries(SOUND.effects).filter(([n]) => n.startsWith("voiceDiph"))) {
+      for (const f of (def.voices[0] as unknown as { formants: { path: [number, number][] }[] }).formants) {
+        for (let i = 1; i < f.path.length; i++) expect(f.path[i][0], name).toBeGreaterThan(f.path[i - 1][0]);
+        expect(f.path.at(-1)![0], name).toBeLessThanOrEqual(1);
+      }
+    }
     // Every combination exists, with its stressed twin.
     for (const on of ["", "J", "W"]) for (const off of ["", "J", "W"]) for (const v of ["A", "E", "I", "O", "U"]) {
       if (!on && !off) continue;
       expect(SOUND.effects[`voiceDiph${on}${v}${off}`], `${on}${v}${off}`).toBeDefined();
       expect(SOUND.effects[`voiceDiph${on}${v}${off}Stress`]).toBeDefined();
+    }
+  });
+
+  it("a diphthong is not louder than a plain stressed vowel by more than a few dB at its peak", () => {
+    const plain = SOUND.effects.voiceFiltEStress.voices[0] as unknown as { gain: number };
+    for (const name of ["voiceDiphJEStress", "voiceDiphAJStress", "voiceDiphJAJStress", "voiceDiphWA"]) {
+      const d = SOUND.effects[name].voices[0] as unknown as { gain: number };
+      const ratio = d.gain / (name.endsWith("Stress") ? plain.gain : plain.gain / 1.4);
+      expect(ratio, name).toBeLessThan(0.75);
+      expect(ratio, name).toBeGreaterThan(0.3);
     }
   });
 

@@ -486,11 +486,22 @@ export const GLIDE_TIME = { to: 0.06, from: 0.07 };
 // bien (j into e), `voiceDiphAJ` aire (a out to j), `voiceDiphJAJ` the triphthong
 // of estudiáis; each has a `Stress` twin with the longer, louder vowel. Two
 // vowels in a row (a hiatus) are not made this way and stay two sounds.
+// Most of a diphthong is the movement, so the resonances are on the move for most
+// of its length and rest on the vowel only briefly: they reach the vowel at
+// `onReach` of the way (a glide into it), leave it at `offLeave` (a glide out of
+// it), and a triphthong reaches it at `triReach` and leaves at `triLeave`. The
+// sound stays at full level until `hold` of the way, so that the end of the
+// movement is heard and not left to the fade, and `level` is how loud it is
+// (the stressed vowel is 1.4 times that). Heard from the first version: a long
+// held vowel with the movement before or after it sounds like one held vowel,
+// and a movement that comes during the fade is not heard at all.
+export const DIPHTHONG_SHAPE = { onReach: 0.6, offLeave: 0.3, triReach: 0.3, triLeave: 0.6, hold: 0.85, level: 0.11 };
 const diphthongEffect = (on: string, vowel: string, off: string, stress: boolean): EffectDef => {
   const toTime = on ? GLIDE_TIME.to : 0;
   const fromTime = off ? GLIDE_TIME.from : 0;
   const vowelTime = stress ? VOWEL_TIME.stress : VOWEL_TIME.plain;
   const total = toTime + vowelTime + fromTime;
+  const S = DIPHTHONG_SHAPE;
   const keys: ("f1" | "f2")[] = ["f1", "f2"];
   return {
     priority: "low",
@@ -502,16 +513,15 @@ const diphthongEffect = (on: string, vowel: string, off: string, stress: boolean
           const v = FORMANTS[vowel][k];
           const start = on ? FORMANTS[GLIDE_TARGET[on]][k] : v;
           const path: [number, number][] = [];
-          if (on) path.push([toTime / total, v]);
-          if (off) {
-            path.push([(total - fromTime) / total, v]);
-            path.push([1, FORMANTS[GLIDE_TARGET[off]][k]]);
-          }
+          const target = off ? FORMANTS[GLIDE_TARGET[off]][k] : v;
+          if (on && off) path.push([S.triReach, v], [S.triLeave, v], [1, target]);
+          else if (on) path.push([S.onReach, v]);
+          else path.push([S.offLeave, v], [1, target]);
           return { freq: start, path, q: SOURCE_FORMANT.q, gain: SOURCE_FORMANT.level[i] };
         }),
         length: total,
-        hold: 0.7,
-        gain: 0.22 * (stress ? 1.4 : 1),
+        hold: S.hold,
+        gain: S.level * (stress ? 1.4 : 1),
       },
     ],
   };

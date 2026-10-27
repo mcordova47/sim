@@ -1,7 +1,7 @@
 ---
 id: 026
 title: Spanish flashcards on the in-game computer (stretch)
-status: in-progress
+status: done
 owner: marc + claude
 depends_on: [021, 022, 023]
 ---
@@ -76,7 +76,7 @@ The app is "Mil Palabras" (palabras.mcord.dev): PureScript, Netlify, spaced repe
 1. Game side against a stand-in backend: key screen, card screen, points, accented capitals in the font, the desk task. **Done, in review.**
 2. The real backend: `core.js` adapter with a version check and shape check, the GET/grade/merge/PUT loop, "no connection" handling, `FLASHCARDS.backend = "real"`.
 3. Mumblespeak.
-4. Offline (later, optional).
+4. ~~Offline (later, optional).~~ Abandoned by Marc, 2026-10-27: not worth the extra complexity.
 
 ## Acceptance criteria, stage 1
 - "Study Spanish" is offered at the desk computer and starts a `flashcards` activity.
@@ -380,3 +380,4 @@ The app is "Mil Palabras" (palabras.mcord.dev): PureScript, Netlify, spaced repe
   - **Unverified:** how it sounds in a browser (unchanged since the last round; styles 11 and 12 scripts are identical to the approved tip), and the live URL in a real dev server (tested through `studyBackend(search, dev)` and a stubbed `location`, not a browser address bar).
   - **Verdict: approve** (these two commits, on top of 097623c; the branch sits on issue/026-diphthongs, which has to merge first). No failing criterion; note 1 is optional wording. Status left as `in-progress` on purpose, not `done`: main keeps issue 026 in progress because stage 4 (offline) is optional, so setting `done` would undo that on merge. PLAN.md untouched.
 - 2026-10-27: **A slightly faster `faster`.** Marc likes `faster` (11) and asked to try a slightly faster version. Added style 13 `fastest`: style 11 with every time scaled again by `FLASHCARDS.voice.variants.fastest` (0.74, about 10 percent quicker than 0.82). The practice deck's V now steps between 11 and 13 (`DEMO_VOICES`); `consfast` (12) and the rest are still there with `&voices=all`, and `VOICE_CYCLE` includes 13. The default voice stays 11. Tests added (13 against 11: same sounds and pitches, times scaled by the ratio; the shortest sound stays over the attack time); `tsc` and `npm test` (1982) pass. Not checked: how it sounds, and whether 0.74 makes the consonants run together. The floor is around 0.7 (the burst of b d g reaches the engine's attack time). Not independently reviewed since this change.
+- 2026-10-27: **Closed.** Marc decided to abandon stage 4 (offline study): not worth the added complexity. Stages 1 to 3 are merged on main, including the voice work (default style 11 `faster`; 13 `fastest` kept as the practice deck's alternative). Status set to `done`.

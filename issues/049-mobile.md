@@ -1,7 +1,7 @@
 ---
 id: 049
 title: Mobile (explore)
-status: todo
+status: review
 owner: marc + claude
 depends_on: []
 ---
@@ -15,3 +15,5 @@ Marc wants the game to work on a phone. Decide what that means before building: 
 - `npm test` and `npm run build` pass. Marc tries it on a real phone and says what is off.
 
 ## Progress log
+
+- 2026-10-27 (agent): worked the DESIGN NOTE step only, no game code. Wrote `docs/mobile.md`: same game vs separate, portrait vs landscape with device-pixel vs CSS-pixel scale arithmetic for real phones, controls (touch layer raising synthetic key events), per-activity mobile plans, platform bits (scroll, zoom, safe areas, install, wake lock, iOS audio unlock, persistence, battery, issue 081 gates), mocks, staged build plan, test plan, how to try on a real phone, open questions. Marc then asked for portrait with a handheld-style shell as the primary option; section 2.5 covers it, landscape is secondary. Not done: the small build and acceptance criteria 2 and 3 (they wait for Marc's pick). Not checked: anything on a real phone; the phone dimensions are typical figures, not measured. A rendered PNG was not made.

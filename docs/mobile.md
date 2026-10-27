@@ -364,3 +364,57 @@ Marc has an **iPhone** (Safari: notch and safe-area insets, no vibration, no Ful
 10. **Saves:** taken at the recommendation: "your save lives in this browser" is enough; an export/import code only if a save is ever lost. An installed iOS app starts with its own empty storage (section 5).
 11. **Haptics and the frame rate:** haptics are moot on iPhone (no `vibrate`; the checkbox-switch tick is an undocumented bonus); the 60 fps cap is a setting.
 12. **Which phone:** an iPhone. The table in 2.1 has the iPhone rows (390 x 844 and 430 x 932 portrait, 844 x 390 and 932 x 430 landscape); ask for the exact model before choosing which to test first.
+
+## 13. A taller, narrower picture on the phone (issue 090: assessment, then prototype)
+
+Marc's request (2026-10-27): on mobile only, a taller, squarer window that shows a narrower slice of the main room and scrolls. Desktop and landscape keep 320 x 192.
+
+### 13.1 Who assumes the view size
+
+`VIEW` (`src/game/config.ts`, 320 x 192) is one shared object imported in about 25 places. Nothing hard-codes the numbers except the items marked *fixed* below.
+
+| Place | What it assumes | What a different view needs |
+|---|---|---|
+| `render/canvas.ts` (`fitScale`, `desktopScale`, offscreen canvas) | Reads `VIEW` for the scale and the offscreen size. | Nothing, if it reads the live size; the offscreen canvas must be resized when the size changes (`Screen.sync`, added). |
+| `render/camera.ts`, `Game` (`new Camera(level.size, VIEW)`) | Follows the player with a dead zone (24 x 16 px) around the view's centre; a room smaller than the view is centred sideways and bottom-aligned. | Works unchanged for any view size. `Game` must give it a copy of the size (it kept a reference), so a temporary size switch does not move it. |
+| `render/layout.ts` `STATUS_BOX` | *Fixed* at x = 244 (320 - 76). | Hug the right edge (`VIEW.width - 76`; done as a getter). `HUD_BOX` is at the left and needs nothing. |
+| `render/hud.ts` | Score and combo panel 152 wide at the left, clock/energy/mood panel 76 wide at the right: 228 px of panels. | Fits a view 224 wide (panels touch but do not overlap); a narrower view needs the 086 ribbon. The "ESC TO STOP" hint is centred in the gap and sits on the panels at 224 (cosmetic; 086 redoes the HUD). |
+| `game/config.ts` `DIALOG.textWidth` | Computed once from `VIEW.width`. | Right as long as the view is fixed for the session. Dialog and menu boxes (`render/dialog-box.ts`) take the view as a parameter. |
+| Activities that draw (`notes`, `typing`, `flashcards`, `swap-decor`, `make-track`) | Take `screen` as a parameter and centre in it (typing caps lines at 280 px and the notes row at 14 notes: both fit 224 less well; the box shrinks to `screen.width - 24`). | Fine at 224; the track editor (`render/track-editor.ts`, 320 wide) is skipped on mobile anyway (section 7). |
+| Popups, prompts, progress labels (`placeLabel`, `fitBox`) | Take the view as a parameter. | Nothing. |
+| `time-of-day/feature.ts` (the light wash), `sound/feature.ts` (mute and now-playing tags), `achievements/toasts.ts` | Read `VIEW` live for the area they cover. | Nothing. |
+| *Full-screen 320 x 192 pieces:* the five `view-*.png` pictures (cutscene `view` steps: gallery wall, side project, three ad cards), `render/encounter-card.ts` (a card laid out in 320 x 192, text wrapped to 196 px, tag at `VIEW.width - 8`), the L list (`achievements/draw.ts`: two columns, `footerTop`), `view-zoom.ts` and `art-pieces.ts` (zoom windows in picture pixels, whole-number scales of 320 x 192) | Authored for exactly 320 x 192. | **The one real problem.** They cannot be shown crisply inside a 224-wide view (a 320 px picture does not fit; scaling it to 0.7 blurs it; cropping loses the ends of the ad text). See 13.3. |
+| `main-room-frames` golden and `sleep-frames` golden | Draw at 320 x 192. | Unchanged: the default view is still 320 x 192, so the goldens do not move. |
+| Art | The main room is 304 x 160, the kitchen 208 x 160 and the bathroom 144 x 96: **no room is taller than 160 px.** | A taller view does not show more of any room; the extra height is empty space above the room. See 13.2. |
+
+### 13.2 Recommended size and what is visible
+
+Tile-aligned (the camera and the room art are in 16 px tiles). Because every room is at most 160 px tall, the height that wastes nothing is 160 plus the HUD band: **13 tiles = 208 px** (the band is 48 px: the HUD's 38 px with room to breathe, against 32 px on the desktop). Taller than that only adds dark space.
+
+The width is a trade between crispness and how much of the room shows. Scales are whole device pixels (section 2.1); the picture width must fit the usable width. Computed for the phones in the note, DPR 3 unless stated:
+
+| Phone (CSS px) | 208 wide | **224 wide (14 tiles)** | 256 wide (16 tiles) |
+|---|---|---|---|
+| 360 | 1.67x, 347 css | 1.33x, 299 css | 1.33x, 341 css |
+| **390** | 1.67x, 347 | **1.67x, 373 css (17 px spare)** | 1.33x, 341 |
+| 430 | 2.0x, 416 css | 1.67x, 373 | **1.67x, 427 css** |
+| 375 at DPR 2 (SE) | 1.5x, 312 | 1.5x, 336 | 1.5x, 384 (too wide: 1.0x, 256) |
+
+The recommendation is **224 x 208 (14 x 13 tiles)** for every phone: 1.67x on a 390 or 430 phone (a 67% larger picture than today's 1.0x; a 208-wide view would give a 430 phone 2.0x, at the price of seeing less) and 1.33x on a 360 (still 33% larger). In Safari with the toolbars (390 x 664 minus 330 px of controls = 334 px of height) the scale rule picks 1.33x. Of the 304 px main room 224 px (74%, 14 tiles) is visible at a time; the camera follows the player with the existing 24 px dead zone, so it starts to scroll when the player is 1.5 tiles from the centre, and it stops at both walls (the left wall shows with the room's own wall tiles). The kitchen (208 px) and the bathroom (144 px) are narrower than 224 and hold still, centred, with the dark margin as today. Landscape: the same view at the landscape scale (2.5x and up), or reload to the desktop view; see 13.5. A view that changes with the phone (208 on a 360, 256 on a 430) would give each phone its own best scale, but it is more code than it is worth: the view must then be set before `config.ts` is read, and a rotation or a window change would need the whole game reloaded.
+
+### 13.3 How full-screen 320 x 192 pieces show
+
+Three ways were weighed:
+1. **Crop** the 320 x 192 picture to the middle 224 columns. Cheap, but loses the left and right 48 px of every ad card (the text runs to the edges) and of the gallery view. Rejected.
+2. **Scale** the picture down to fit. Not whole-number, so it blurs. Rejected.
+3. **Switch the picture size for those screens, and scale it to fill the width.** While a full-screen piece is up, the view is 320 x 192 (`setView`), the offscreen canvas is resized, and the piece draws exactly as on the desktop. Its scale is `fitFill` (`render/canvas.ts`): the largest scale in **quarter device pixels** that fits the width less a 6 px margin each side (and the height), never below the whole-number fit. It is not a whole number (a 390 phone at DPR 3 has 1170 device pixels and 320 x 4 does not fit, while 320 x 3 is only 1.0x), so game pixels are 3 or 4 device pixels wide in a regular pattern, drawn with smoothing off (nearest neighbour); a quarter step keeps the backing store a whole number of device pixels. Results: 390 phone 3.5 (373 css, was 320), 360 phone 3.25 (347 css, was 320), 430 phone 4.0 (427 css, the whole-number fit already wins), 375 at DPR 2 gives 2.25 (360 css). Looked at on screenshots at 390 x 844, 360 x 800 and 430 x 932 (an ad card, the L list): text is readable and clean; the uneven 3/4 pattern is only visible on one-pixel frame lines. When it ends the view returns to 224 x 208. The controls below do not move (the canvas reserves the narrow view's height). **Chosen.** Nothing in the pieces changes; the zoom arithmetic (`view-zoom.ts`, `art-pieces.ts`) now says explicitly that it is in picture pixels (`DESKTOP_VIEW`), not in view pixels.
+
+The sleep sequence is not a full-screen piece: it draws in the world with the camera, and works as it is.
+
+### 13.4 Cost and risk
+
+Contained. The prototype is **10 files changed (about 110 lines) and one new test file**: `config.ts` (the view, the switch, `setView`), `main.ts` (switch the size per frame), `render/canvas.ts` (read the live size, `sync`, the reserved height), `render/layout.ts` (`STATUS_BOX`), `game.ts` (`showsFullPicture`, camera gets a copy of the size), `activities/cutscene.ts` (`showsPicture`), `achievements/{feature,draw}.ts` (the L list is a full-screen screen; `footerTop` read live), `view-zoom.ts` and `art-pieces.ts` (picture constants). Desktop and the goldens are unchanged by construction (the default view is the same object with the same numbers). Risks: (a) the view is chosen once at load; it follows the touch layer only on `?view=narrow` plus a touch screen or `?touch=1`; if the layer hides (a real key press on a touch laptop) the narrow view stays; (b) the "ESC TO STOP" hint overlaps the HUD panels at 224 px; (c) anything that later reads `VIEW` into a constant at import time (as `DIALOG.textWidth` does) is right for the narrow view but wrong for a full-screen piece shown on it (a dialog over an ad card is narrower than it could be); (d) a future full-screen piece must register with `game.fullPictureWhen` (or be an encounter or a cutscene `view`) or it will be drawn for 224 x 208; (e) the fractional fill makes game pixels 3 or 4 device pixels wide, so thin lines look slightly uneven (a half step would show less of it but fill less of the width); the encounter's bar wipe and the cutscene's push-in run over the world in whichever size is current, so the size switch happens at the start of the piece (not smoothed); (f) the HUD's height is 38 px in a 48 px band, which is tight; issue 086's ribbon makes it shorter.
+
+### 13.5 What was built (the prototype) and what needs a phone
+
+`?touch=1&view=narrow` in Chrome device mode, or `?view=narrow` on a touch phone from `npm run dev -- --host`. Landscape on a phone keeps the narrow view (scaled bigger) in the prototype; the proper rule (desktop view in landscape) needs a view that can change at run time, which is the stage-2 work in 13.2. Not checked here: touch feel, real Safari bars and safe areas, a notch, DPR 2.625, the unlocked audio.

@@ -175,7 +175,8 @@ export class Game {
       this.arrivalNoted = true;
     };
     this.player = new Player(level.spawn.x, level.spawn.y, level.facing);
-    this.camera = new Camera(level.size, VIEW);
+    // A copy of the size, so a full-screen picture's `setView` never moves the camera's idea of the view.
+    this.camera = new Camera(level.size, { width: VIEW.width, height: VIEW.height });
     this.camera.snapTo(this.playerCentre());
     this.interaction = new InteractionSystem(level.interactables, ({ item, award }) => {
       const lines: PopupLine[] = [{ text: `+${award.points}`, color: COLOR.butter, scale: 2 }];
@@ -461,6 +462,21 @@ export class Game {
 
   get inputLocked(): boolean {
     return this.locks.size > 0;
+  }
+
+  // Screens that are drawn for 320 x 192 and cover the world register here (the achievements list).
+  readonly fullPictureWhen: Array<() => boolean> = [];
+
+  // True while a full-screen picture covers the world: an ad encounter card or a cutscene `view`.
+  // Those are drawn for the desktop's 320 x 192, so the phone's narrow view switches to that size
+  // while one is up (issue 090).
+  get showsFullPicture(): boolean {
+    if (this.fullPictureWhen.some((f) => f())) return true;
+    const active = this.interaction.active;
+    if (!active) return false;
+    if (active.item.encounter) return true;
+    const activity = active.activity as { showsPicture?: boolean };
+    return activity.showsPicture === true;
   }
 
   // The look of the sleep sequence this frame, or null when nobody is asleep

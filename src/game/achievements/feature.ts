@@ -66,6 +66,8 @@ export class AchievementsFeature implements Layer {
   private sinceCheck = 0;
 
   constructor(private readonly game: Game, options: AchievementOptions = {}) {
+    // The list is drawn for 320 x 192, so the phone's narrow view switches size while it is open (issue 090).
+    game.fullPictureWhen.push(() => this.listOpen);
     this.list = options.list ?? ACHIEVEMENTS;
     this.rooms = options.rooms ?? APARTMENT.rooms;
     this.unlocks = new Unlocks(this.list);

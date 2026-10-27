@@ -30,7 +30,9 @@ export const LIST_LAYOUT = {
   rowHeight: 10,
   columns: 2,
   // Where the description of the picked achievement goes.
-  footerTop: VIEW.height - 28,
+  get footerTop(): number {
+    return VIEW.height - 28;
+  },
 };
 
 // How many achievements fit in the list (so a test can say when it is full).

@@ -1,9 +1,38 @@
 export const TILE = 16;
 
-export const VIEW = {
-  width: 20 * TILE,
-  height: 12 * TILE,
-};
+// The size of the picture the game draws, in game pixels. It is one shared object that is set once,
+// before anything reads it (below), and again only for a full-screen picture on the narrow view
+// (`setView`, issue 090). Everything that lays out against the picture reads it live.
+export const DESKTOP_VIEW = { width: 20 * TILE, height: 12 * TILE };
+
+// The phone's taller, narrower picture (issue 090, docs/mobile.md section 13): 14 x 13 tiles. The
+// rooms are at most 160 px tall, so the 48 px above a room is the HUD band (32 px before).
+export const NARROW_VIEW = { width: 14 * TILE, height: 13 * TILE };
+
+export const VIEW = { ...DESKTOP_VIEW };
+
+export function setView(v: { width: number; height: number }): void {
+  VIEW.width = v.width;
+  VIEW.height = v.height;
+}
+
+// `?view=narrow`, on the touch layer only (`?touch=1`, or a coarse pointer unless `?touch=0`).
+export function narrowViewWanted(search: string, coarsePointer: boolean): boolean {
+  const params = new URLSearchParams(search);
+  if (params.get("view") !== "narrow") return false;
+  const touch = params.get("touch");
+  return touch === "1" || (touch !== "0" && coarsePointer);
+}
+
+// True when the page started on the narrow view (it stays narrow for the whole session).
+export const NARROW: boolean = (() => {
+  try {
+    return narrowViewWanted(location.search, matchMedia("(pointer: coarse)").matches);
+  } catch {
+    return false; // no address or media queries (tests, node)
+  }
+})();
+if (NARROW) setView(NARROW_VIEW);
 
 // Camera tuning. Distances are pixels.
 export const CAMERA = {

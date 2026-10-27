@@ -1,4 +1,4 @@
-import { VIEW } from "./config";
+import { DESKTOP_VIEW as PICTURE } from "./config";
 import type { CutsceneStep } from "./activities/cutscene";
 
 // "Admire the art" (issue 061): the view pushes in on one of the ten pieces,
@@ -123,13 +123,13 @@ const PUSH_MS = [500, 500, 500];
 
 // The window onto the picture at an integer scale, centered on a piece.
 export function zoomRect(at: ArtPiece["at"], scale: number): { x: number; y: number; w: number; h: number } {
-  const w = VIEW.width / scale;
-  const h = VIEW.height / scale;
+  const w = PICTURE.width / scale;
+  const h = PICTURE.height / scale;
   const cx = at.x + at.w / 2;
   const cy = at.y + at.h / 2;
   return {
-    x: Math.min(VIEW.width - w, Math.max(0, Math.round(cx - w / 2))),
-    y: Math.min(VIEW.height - h, Math.max(0, Math.round(cy - FOCUS_Y * h))),
+    x: Math.min(PICTURE.width - w, Math.max(0, Math.round(cx - w / 2))),
+    y: Math.min(PICTURE.height - h, Math.max(0, Math.round(cy - FOCUS_Y * h))),
     w,
     h,
   };

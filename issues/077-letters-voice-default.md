@@ -1,7 +1,7 @@
 ---
 id: 077
 title: Make the per-letter voice the default for dialog text
-status: review
+status: done
 owner: claude
 depends_on: []
 ---
@@ -46,3 +46,9 @@ Marc (2026-10-27), after trying issue 075: he likes `dialogvoice=letters` better
   - Unverified: how letters sounds by ear in a browser.
 - 2026-10-27: follow-up (planner request, from the review note): since 075 every save has an explicit "beep", so a saved beep alone cannot be read as a choice. Added `dialogVoiceChosen` to `life.sound.v1` (settings.ts, feature.ts). Only the D toggle sets it (`setDialogVoice`); every save keeps it, never clears it. On load "beep" counts only with `dialogVoiceChosen === true`; a plain saved "beep", junk, missing, or junk marker (false, "true", 1, null, [true]) gives letters. `?dialogvoice=` sets neither the marker nor the saved voice (also tested over a real beep choice).
   - Tests: settings.test (round-trip with marker; defaults include `dialogVoiceChosen: false`; unmarked/junk-marker beep loads letters; marked beep loads beep; save calls pass the new field); dialog-voice.test (saved-beep test now carries the marker; old-save test adds unmarked 075-style beep and junk markers; "keeps other settings" expects the marker after the toggle; new tests: marker only from the toggle and kept by later saves, beep -> letters -> beep across reloads, dev override sets neither). No check removed. Docs updated (`docs/music.md`). Golden untouched. 2018 tests pass, tsc and build ok. Needs a fresh review.
+- 2026-10-27: Review 2 (independent, of e742c5d, the marker) - verdict APPROVE.
+  - Load matrix (my own scratch test on a copy of HEAD, 23 cases): no storage, empty, junk JSON, `{}`, `null`, `[]`, unmarked beep, letters, marked letters, junk markers (false, "true", 1, null, [true], {}, 0, "beep"), `__proto__`/`constructor` keys all give letters; only `{dialogVoice:"beep",dialogVoiceChosen:true}` gives beep; null storage gives letters; DEFAULT_SETTINGS marker stays false.
+  - Toggle sequence on the real SoundFeature and store: letters -> D -> beep (marker written) -> reload beep -> mute on/off keeps marker -> D -> letters (marker kept) -> reload letters -> D -> reload beep. `?dialogvoice=letters` over a saved marked beep: plays letters, a later save still writes beep + marker, next visit beep. Track change and payout saves go through the same `save()` that writes the held marker (code read), never clearing it.
+  - Beep byte-identical: `git diff main -- src/game/sound/golden` empty. Mutation (blipEveryChars 3 -> 4 in a scratch copy): the two beep tests fail. Other blips unchanged (config diff vs main is only the dialogVoices order; achievements/ untouched, so L label and hint line are unchanged; draw-voice tests pass).
+  - 2018 tests, `tsc --noEmit` and `npm run build` pass. Scope: sound settings/feature, config, tests, docs/music.md, issue file only.
+  - Findings: none blocking. Minor: a player who pressed D in a 075 build before this change (a real beep choice saved without a marker) is read as letters; unavoidable and noted in the planner request. Letters not judged by ear.

@@ -1,18 +1,18 @@
-# Cardboard box stack in the kitchen's north-east corner (the pantry is its own piece, issue 072). 1x1.
+# Cardboard box stack in the kitchen's north-east corner, seen from above and in front: a big box with its closed flaps and tape as the top face and a short front face, a smaller box on top (the pantry is its own piece, issue 072). 1x1.
 size: 16x16
 ................
-....111111111...
-...1aaaa8aaaa1..
-...1aaaa8aaaa1..
-...19999899991..
-...19999899991..
-.111999989999111
-.1aa.11111111aa1
-.1aaaaaaaaaaaaa1
-.1aaaaaaaaaaaaa1
-.1999999aa999991
-.1999999aa999991
-.1999999aa999991
-.188888888888881
-..111111aa11111.
+...11111111.....
+...1aa88aa1.....
+...1aa88aa1.....
+.111aa88aa11111.
+.1a1aa88aa1aaa1.
+.1a1aa88aa1aaa1.
+.1a19999991aaa1.
+.1aa888888aaaa1.
+.1aaaaa88aaaaa1.
+.19999999999991.
+.19999999999991.
+.199aaa99999991.
+.18888888888881.
+.11111111111111.
 ................

@@ -1,7 +1,7 @@
 ---
 id: 072
 title: A real pantry (a stack of clear bins); remove the tote bag
-status: done
+status: review
 owner: agent
 depends_on: []
 ---
@@ -34,3 +34,4 @@ From Marc (2026-10-26): the thing right of the boxes in the kitchen is the pantr
   - Scope: no edits to PLAN.md or other issues; no reference-photos content copied in.
   - Unverified: how it looks in the live browser through the game's own draw path. Neither the author nor I ran the dev server; my renders use the mockup script's compositor, not the game's renderer, so an empty `boxes-gone` sprite and the 16x32 piece's depth sorting are covered only by tests. Marc's own look at the corner is still the last criterion.
   - PLAN.md table needs updating by the planner (072 to done).
+- 2026-10-26 (agent, redraw after Marc's note): `pantry`, `boxes-flat` and `boxes` read as side-on, against the Perspective rule in docs/art-style.md (a big top surface, a short front face). Redrew all three, same footprints, palette only, no labels. `pantry` (16x32): the top lid is now a wide lit blue top surface with the food seen from above on it (top face plus a short darker front face, no outlines), then a short front face: lid band, clear bin, next lid band, yellow lid. `boxes-flat` (16x16): a pile of flat sheets seen from above, a straight top sheet with a strap across it and the thin darker corrugated edges of the sheets below on the near side. `boxes` (16x16): a big box with its flaps and tape as the top face and a short front face, a smaller box on top. Rendered the whole kitchen at 4x (beside the stove and counter) and the corner at 8x for all three states and looked: they now read as seen from above and in front like the counter and stove. Honest remark: the food hides most of the lid top, so the lid shows mainly at the rim; the closed stack's small top box is the least convincing part. `npm run sprites`, `npm test` and `npm run build` pass. The earlier approve was for the previous art; this needs a fresh look.

@@ -1,7 +1,7 @@
 ---
 id: 080
 title: Ad encounter entrance: a battle-style flash and bar wipe
-status: done
+status: review
 owner: claude
 depends_on: [043]
 ---
@@ -50,3 +50,5 @@ Marc (2026-10-27): ad encounters should enter like a Pokemon or FFVII battle. Pl
   - `npm test` 2453 passed (102 files), `npx tsc --noEmit` clean, `npm run build` ok.
   - Unverified (needs a real browser): how it feels (timing, buzz shake, flashes, the stinger), and whether copying the canvas onto itself for the shake behaves on the real canvas.
   - PLAN.md table needs updating by the planner.
+
+- 2026-10-27 (round 3, from Marc's playtest): `?encounter=` made the stinger silent (audio is locked until a key press). Now `encounterOnFirstKey` (src/game/decor-dev.ts, dev only through main.ts) waits for the first key press, shows PRESS ANY KEY at the foot of the screen, starts the encounter after the sound feature's own keydown listener has unlocked audio (it is added earlier), and swallows that key (`keyboard.endFrame()`). `&again=1` waits for another key after each encounter ends, to replay without a reload. Ignores Ctrl/Cmd/Alt combos and key repeats. Click is not supported because the sound feature only unlocks on keys. Tests in encounter-game.test.ts; docs next to the shortcut; the production bundle has no trace (grep for PRESS ANY KEY and the layer name finds nothing). Back in review.

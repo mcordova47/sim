@@ -5,7 +5,7 @@ import { AchievementsFeature, type KeyEventLike, type Listenable } from "./achie
 import { APARTMENT } from "./apartment";
 import { ACHIEVEMENTS_UI as UI, DELIVERIES, ENCOUNTERS } from "./config";
 import { DECOR_DATA } from "./decor-data";
-import { encounterFromSearch } from "./decor-dev";
+import { encounterFromSearch, encounterOnFirstKey } from "./decor-dev";
 import { ADS, CARD_WORDS, ENCOUNTER_WORDS, adById } from "./encounter-ads";
 import { Game } from "./game";
 import type { Interactable } from "./interactable";
@@ -779,3 +779,93 @@ function rndIgnore(s: { rnd: ReturnType<typeof script> }) {
   // No impulse buy on Ignore.
   s.rnd.next(0.99);
 }
+
+// Issue 080: the dev shortcut waits for the first key, so audio is unlocked when the stinger plays.
+describe("the dev shortcut that waits for a key", () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  function wired(search: string) {
+    const { game } = setup();
+    const listeners: ((e: { ctrlKey?: boolean; metaKey?: boolean; altKey?: boolean; repeat?: boolean }) => void)[] = [];
+    let swallowed = 0;
+    const armed = encounterOnFirstKey(game, search, { addEventListener: (_t, l) => listeners.push(l) }, () => swallowed++);
+    return { game, armed, key: (e = {}) => listeners.forEach((l) => l(e)), swallowed: () => swallowed };
+  }
+
+  it("does nothing without the parameter; with it, nothing starts until a key is pressed", () => {
+    expect(wired("?days=3").armed).toBe(false);
+    const w = wired("?encounter=ad-candle");
+    expect(w.armed).toBe(true);
+    frames(w.game, 30);
+    expect(encounterUp(w.game)).toBe(false);
+    w.key();
+    expect(encounterUp(w.game)).toBe(true);
+    expect(w.swallowed()).toBe(1);
+  });
+
+  it("the sound feature's key listener runs first, so audio is unlocked before the cue plays", () => {
+    const { game } = setup();
+    const order: string[] = [];
+    const target = new EventTarget();
+    // Same order as main.ts: the sound feature's listener is added before the shortcut's.
+    target.addEventListener("keydown", () => order.push("unlock"));
+    game.events.on("cue", () => order.push("cue"));
+    encounterOnFirstKey(game, "?encounter=ad-candle", { addEventListener: (_t, l) => target.addEventListener("keydown", () => l({})) });
+    target.dispatchEvent(new Event("keydown"));
+    expect(order).toEqual(["unlock", "cue"]);
+  });
+
+  it("ignores a reload shortcut, a held-key repeat and a press while something is open", () => {
+    const w = wired("?encounter=ad-candle");
+    w.key({ metaKey: true });
+    w.key({ ctrlKey: true });
+    w.key({ repeat: true });
+    expect(encounterUp(w.game)).toBe(false);
+    w.key();
+    w.key();
+    expect(w.swallowed()).toBe(1);
+  });
+
+  it("shows a hint (drawn as letters) while waiting, and none once it has started and ended", () => {
+    let drawn = 0;
+    const ctx = new Proxy({}, { get: (_t, k) => (k === "drawImage" ? () => drawn++ : () => {}), set: () => true }) as unknown as CanvasRenderingContext2D;
+    vi.stubGlobal("document", { createElement: () => ({ width: 0, height: 0, getContext: () => ctx }) });
+    vi.spyOn(Game.prototype as never, "drawHud" as never).mockImplementation(() => undefined);
+    // What the room alone draws.
+    const plain = setup().game;
+    plain.update(dt, esc);
+    plain.render(ctx, 1);
+    drawn = 0;
+    plain.render(ctx, 1);
+    const room = drawn;
+    drawn = 0;
+    const w = wired("?encounter=ad-candle");
+    w.game.render(ctx, 1);
+    expect(drawn).toBeGreaterThan(room);
+    w.key();
+    w.game.update(dt, esc);
+    drawn = 0;
+    w.game.render(ctx, 1);
+    expect(drawn).toBe(room);
+    vi.restoreAllMocks();
+  });
+
+  it("with &again=1 it waits for another key after each encounter, to replay the entrance", () => {
+    const w = wired("?encounter=ad-candle&again=1");
+    w.key();
+    frames(w.game, 10);
+    w.game.update(dt, esc);
+    expect(encounterUp(w.game)).toBe(false);
+    frames(w.game, 2);
+    w.key();
+    expect(encounterUp(w.game)).toBe(true);
+    expect(w.swallowed()).toBe(2);
+    // Without it, once is all.
+    const once = wired("?encounter=ad-candle");
+    once.key();
+    once.game.update(dt, esc);
+    frames(once.game, 3);
+    once.key();
+    expect(encounterUp(once.game)).toBe(false);
+  });
+});

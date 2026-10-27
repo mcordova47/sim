@@ -1,6 +1,6 @@
 import { APARTMENT } from "./game/apartment";
 import { attachFeatures } from "./game/features";
-import { deliverFromSearch, encounterFromSearch, ownFromSearch, skipDaysFromSearch } from "./game/decor-dev";
+import { deliverFromSearch, encounterOnFirstKey, ownFromSearch, skipDaysFromSearch } from "./game/decor-dev";
 import { Game } from "./game/game";
 import { startLoop } from "./game/loop";
 import { reducedMotionAsked } from "./game/reduced-motion";
@@ -59,8 +59,8 @@ try {
   if (import.meta.env.DEV) deliverFromSearch(game.deliveries, location.search);
   // `?days=3` skips three game days (the real gifts fire; each arrives 2 game hours later).
   if (import.meta.env.DEV) skipDaysFromSearch(game.deliveries, location.search);
-  // `?encounter=ad-candle` shows that ad's encounter at once (`?encounter=random` picks one).
-  if (import.meta.env.DEV) encounterFromSearch(game, location.search);
+  // `?encounter=ad-candle` shows that ad's encounter on the first key press, so audio is unlocked (`random` picks one; `&again=1` replays after each one).
+  if (import.meta.env.DEV) encounterOnFirstKey(game, location.search, window, () => keyboard.endFrame());
 } catch {
   // No address to read (never in a browser).
 }

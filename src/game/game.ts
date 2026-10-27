@@ -189,7 +189,9 @@ export class Game {
     this.interaction.host = this.activityHost();
     // A swap with nothing to swap to is not offered (no prompt, not in the choice cycle).
     this.interaction.hidden = (item) =>
-      (item.decorSlot !== undefined && this.decor.choices(item.decorSlot).length < 2) || (item.delivery === true && !this.deliveries.waiting);
+      (item.decorSlot !== undefined && this.decor.choices(item.decorSlot).length < 2) || (item.delivery === true && !this.deliveries.waiting) ||
+      // Taking out the recycling is only offered for flat boxes (issue 070); otherwise the ordinary trash is what shows.
+      (item.id === "recycle-boxes" && this.state.has("boxes") && this.state.get("boxes") !== 0);
     this.dialog = new DialogRunner({
       onOpen: () => {
         this.releaseDialogLock?.();

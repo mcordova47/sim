@@ -188,6 +188,23 @@ describe("Take out the recycling (issue 070)", () => {
     }
   });
 
+  it("while the trash cools down, the bin shows the trash and its cooldown unless the boxes are flat", () => {
+    const spot = taskSpots(rooms.kitchen).find((s) => s.id === "take-trash")!;
+    for (const [boxes, shown] of [[1, "take-trash"], [2, "take-trash"], [0, "recycle-boxes"]] as const) {
+      const game = kitchen();
+      goTo(game, spot as never);
+      game.update(dt, press);
+      finish(game);
+      setBoxes(game, boxes);
+      game.update(dt, NO_INPUT);
+      const trash = rooms.kitchen.interactables.find((i) => i.id === "take-trash")!;
+      expect(game.interaction.cooldownRemaining(trash)).toBeGreaterThan(0);
+      expect(game.interaction.nearby?.id).toBe(shown);
+      if (shown === "take-trash") expect(game.interaction.unavailableReason(game.interaction.nearby!)).toBeNull();
+      else expect(game.interaction.canStart(game.interaction.nearby!)).toBe(true);
+    }
+  });
+
   it("a package brings the stack back from flat and from gone", () => {
     for (const from of [0, 2]) {
       const game = new Game(rooms.main, { rooms, random: () => 0.5 });

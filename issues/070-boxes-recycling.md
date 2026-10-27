@@ -1,7 +1,7 @@
 ---
 id: 070
 title: Boxes: flatten, take out the recycling, they disappear
-status: done
+status: review
 owner: claude
 depends_on: [066]
 ---
@@ -39,3 +39,4 @@ Marc's idea (2026-10-26), building on issue 066: flattening the boxes should loo
   - Scope: only the expected files; PLAN.md and other issues untouched. No privacy concerns.
   - Non-blocking finding: both tasks share exclusive 'trash', so while Take out the trash is cooling down, standing at the bin or recycling with a stack or no boxes shows "Take out the recycling" and pressing E says FLATTEN THE BOXES FIRST (stack) or NO BOXES TO TAKE OUT (gone) instead of a cooldown message. Verified in my test. A misleading line, not a break; worth a small follow-up (for example prefer the cooldown message when the exclusive sibling is on cooldown).
   - Unverified: how it feels in a real browser (nobody has played it; the author said so too).
+- 2026-10-26 (fix after review): the reviewer found that while Take out the trash cooled down, with a stack or no boxes the bin offered "Take out the recycling" and E gave FLATTEN THE BOXES FIRST / NO BOXES TO TAKE OUT. Fixed in `src/game/game.ts` (the `interaction.hidden` rule): `recycle-boxes` is hidden unless `boxes` is 0, so the ordinary trash and its cooldown message show otherwise. New test in `src/game/boxes.test.ts` (trash cooling down with a stack, with none, with flat boxes: which task is shown). Docs line in `docs/tasks.md` updated. Needs a fresh review.

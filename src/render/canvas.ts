@@ -1,11 +1,14 @@
-import { VIEW } from "../game/config";
+import { NARROW, NARROW_VIEW, VIEW } from "../game/config";
 
 export interface Screen {
   canvas: HTMLCanvasElement;
-  // What the game draws into: always 320 x 192 game pixels.
+  // What the game draws into: `VIEW` game pixels (320 x 192, or the phone's narrow view).
   readonly ctx: CanvasRenderingContext2D;
   // Copies the finished picture to the visible canvas (touch mode; nothing to do otherwise).
   present(): void;
+  // Call once a frame, after the view size (`VIEW`) may have changed (a full-screen picture on the
+  // phone's narrow view, issue 090): resizes the offscreen picture and refits the canvas.
+  sync(): void;
   // Switches between the desktop fit and the phone fit (device pixels, safe areas).
   setTouch(on: boolean): void;
 }
@@ -31,16 +34,16 @@ export interface Fit {
 // The largest whole number of device pixels per game pixel that fits `width` x `height`
 // CSS pixels, never below 1 (a window too small for 1x is cropped, not shrunk). Counting
 // in device pixels gives more sizes than whole CSS pixels (docs/mobile.md section 2.1).
-export function fitScale(width: number, height: number, dpr: number): Fit {
+export function fitScale(width: number, height: number, dpr: number, view: { width: number; height: number } = VIEW): Fit {
   const d = dpr > 0 && Number.isFinite(dpr) ? dpr : 1;
-  const raw = Math.floor(Math.min((width * d) / VIEW.width, (height * d) / VIEW.height));
+  const raw = Math.floor(Math.min((width * d) / view.width, (height * d) / view.height));
   const scaleDev = Math.max(1, Number.isFinite(raw) ? raw : 1);
   return {
     scaleDev,
-    cssWidth: (VIEW.width * scaleDev) / d,
-    cssHeight: (VIEW.height * scaleDev) / d,
-    backingWidth: VIEW.width * scaleDev,
-    backingHeight: VIEW.height * scaleDev,
+    cssWidth: (view.width * scaleDev) / d,
+    cssHeight: (view.height * scaleDev) / d,
+    backingWidth: view.width * scaleDev,
+    backingHeight: view.height * scaleDev,
   };
 }
 
@@ -123,9 +126,15 @@ export function createScreen(canvas: HTMLCanvasElement): Screen {
     size(f.backingWidth, f.backingHeight);
     canvas.style.width = `${f.cssWidth}px`;
     canvas.style.height = `${f.cssHeight}px`;
+    // A full-screen picture is shorter than the narrow view: keep the room it leaves so the
+    // controls below do not jump under the player's thumbs when the picture changes size.
+    const reserve = NARROW ? fitScale(area.width, area.height, window.devicePixelRatio || 1, NARROW_VIEW).cssHeight : 0;
+    canvas.style.marginBottom = `${Math.max(0, reserve - f.cssHeight)}px`;
   };
 
   fit();
+  // The size the offscreen picture and the canvas were last fitted for.
+  let fitted = `${VIEW.width}x${VIEW.height}`;
   window.addEventListener("resize", fit);
   window.addEventListener("orientationchange", fit);
   window.visualViewport?.addEventListener("resize", fit);
@@ -139,6 +148,15 @@ export function createScreen(canvas: HTMLCanvasElement): Screen {
       if (!touch) return;
       main.imageSmoothingEnabled = false;
       main.drawImage(off, 0, 0, canvas.width, canvas.height);
+    },
+    sync() {
+      const now = `${VIEW.width}x${VIEW.height}`;
+      if (now === fitted) return;
+      fitted = now;
+      off.width = VIEW.width;
+      off.height = VIEW.height;
+      offCtx.imageSmoothingEnabled = false;
+      fit();
     },
     setTouch(on: boolean) {
       if (touch === on) return;

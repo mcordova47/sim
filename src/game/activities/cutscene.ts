@@ -94,6 +94,11 @@ export class CutsceneActivity extends BaseActivity {
     this.zoomFrom = null;
   }
 
+  // Whether a full-screen picture is up (the phone's narrow view then shows it at full size, issue 090).
+  get showsPicture(): boolean {
+    return this.viewSprite !== null && !this.done;
+  }
+
   // The window of the picture on screen now (the whole picture when not zoomed).
   get shownView(): ViewRect {
     return this.viewRect;

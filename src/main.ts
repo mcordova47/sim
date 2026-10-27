@@ -1,3 +1,4 @@
+import { DESKTOP_VIEW, NARROW, NARROW_VIEW, setView } from "./game/config";
 import { APARTMENT } from "./game/apartment";
 import { attachFeatures } from "./game/features";
 import { deliverFromSearch, encounterOnFirstKey, ownFromSearch, skipDaysFromSearch } from "./game/decor-dev";
@@ -96,6 +97,11 @@ sprites.load(spriteNames(Object.values(APARTMENT.rooms))).then(() => {
       touch.afterFrame();
     },
     render(alpha) {
+      // The phone's narrow view shows full-screen pictures (ad cards, cutscene views) at 320 x 192.
+      if (NARROW) {
+        setView(game.showsFullPicture ? DESKTOP_VIEW : NARROW_VIEW);
+        screen.sync();
+      }
       game.render(screen.ctx, alpha);
       screen.present();
     },

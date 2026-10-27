@@ -57,3 +57,9 @@ Checklist for the author:
 
 ### 2026-10-27 (fix after review round 1)
 - [x] Escape now eases the light back over `escapeRestore`: the follower snaps only when the clock moved by the whole jump (the finish), not on any clock change. The Escape test now requires several frames of ease (a snap fails it). `npm test` 2224 and build pass.
+
+### 2026-10-27 (re-review of stages 1 and 2 after "Escape eases the light back")
+Verdict: **approve stages 1 and 2** (stages 3 to 5 still deliberately not built). Status stays in-progress for stages 3 to 5.
+Re-ran: `npm test` 2224 pass, `npm run build` ok. Re-ran all my probes: Escape at 300 frames now eases dark 0.958 to 0 over 23 frames (about 0.4 s), no snap; the finish still snaps to plain on the jump frame (clock 22.007 to 5.007, dark and morning 0); Escape on the boundary frames (118 to 122, 417 to 422, 534 to 541) still cancels cleanly with no payout and the clock unchanged, and frame 540 is a normal completion; dialog open, error in the activity, nap bed made/unmade, other rooms, restart rules unchanged; the time-of-day `drawWorld` calls after complete and after cancel (sleep and nap) are identical to a never-slept game. The fix (`moved >= skipHours - 0.01` modulo 24) is small and sound.
+Still unverified: the look at 1x (no frames rendered by me), feel at real frame rates, audio (stage 4).
+Merge note: PLAN.md is the planner's; branch issue/078-sleep-stage-1-2 is approvable for stages 1 and 2.

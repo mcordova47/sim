@@ -1,7 +1,7 @@
 ---
 id: 049
 title: Mobile (explore)
-status: done
+status: in-progress
 owner: marc + claude
 depends_on: []
 ---

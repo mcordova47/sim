@@ -85,7 +85,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 046 | [Escape during any action (and a cutscene's text)](issues/046-cutscene-escape.md) | claude | done | |
 | 047 | [Art round 2 from the 034 playtest](issues/047-art-round-2.md) | agent | done | |
 | 048 | [Status panel space (and a phone battery?)](issues/048-status-panel-space.md) | marc + claude | todo | |
-| 049 | [Mobile (explore)](issues/049-mobile.md) | marc + claude | todo | |
+| 049 | [Mobile (explore)](issues/049-mobile.md) | marc + claude | in-progress (design note merged and answered; stage 1 build issue to write) | |
 | 050 | [Guitar redraw (Marc's tweaks)](issues/050-guitar-redraw.md) | agent | done | |
 | 051 | [The meta side project](issues/051-meta-side-project.md) | marc + claude | done | |
 | 052 | [Fix the sleeping and sofa-sitting poses](issues/052-pose-fixes.md) | agent | done | |

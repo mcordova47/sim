@@ -1,7 +1,7 @@
 ---
 id: 092
 title: Mobile landscape: the controls must not cover the picture
-status: in-progress
+status: done
 owner: claude
 depends_on: [087, 090]
 ---
@@ -37,3 +37,11 @@ Marc (2026-10-27), trying the touch layer in landscape (two screenshots: a cutsc
     - [ ] Add a check that ties the CSS to the model (e.g. a test that reads the media block, or a browser-measured rectangle) so the rectangles test cannot pass while the CSS differs; add pills vs face to the rectangles test.
     - [ ] Re-shoot the landscape screenshots after the fix and log them.
 - 2026-10-27 (claude): Round 2, review checklist. (1) Fixed: the catch-all `#touch-ui > *` rule set `transform` and beat the d-pad's own scale, so the d-pad stayed 150 px and overlapped the picture; the transform is now set per control. (2) Added tests that read index.html (`?raw`): the landscape CSS contains the model's sizes (face 132x104, pills 120x36, gap 8, d-pad scale 0.8*k, `--ls-side` default) and no catch-all rule sets a transform; pills vs A/B rectangles at heights 320-430. (3) Re-shot after the fix at DPR 3: /private/tmp/claude-501/shots092/v2-{a-844x390,b-932x430,c-844x340,d-844x390-narrow}.png (the earlier a-e files are from before the fix; ignore). d-pad now ends at about x 133 and the picture starts at 155 (844x390). `npm test` 2577, tsc, build pass. Still unverified: real phone.
+- 2026-10-27 (review round 2, independent): Verdict APPROVE.
+  - Criterion 1 (no control overlaps the picture, landscape): PASS in the real page. Measured with getBoundingClientRect over CDP in headless Chrome (dev server of this worktree), canvas box vs d-pad, A, B, face box and the three pills, in `?touch=1` and `?touch=1&view=narrow`: 844x390 (DPR 3), 932x430, 844x340, 915x412 (DPR 2.625), 568x320 (DPR 2), 844x390 and 568x320 with 47px left/right insets (+21 bottom). No intersection anywhere, nothing off-screen, pills vs A/B face never intersect, picture centred between the columns. d-pad is now 120x120 (k=1) at x 13..133 against a picture starting at x 146-155 (previous failure fixed); at 568x320 k=0.849, d-pad 11..112.9 vs picture at 124; with 47px insets d-pad 60..180 vs picture 208.7. Picture sizes: 844x390 533x320, 932x430 640x384, 844x340 533x320, 915x412 609x366, 568x320 320x192, with insets 844x390 427x256. Narrow-view landscape uses the full 320x192 view as claimed. Screenshot viewed: /private/tmp/claude-501/review092b/i-t.png (844x390 with insets): d-pad left, pills stacked top right, A/B bottom right, picture clear of all.
+  - Portrait and desktop unchanged: the same measurements on a `git archive main` copy vs this branch are identical for 390x844, 500x900 (touch, and touch+narrow), 412x915 narrow, and desktop 1200x800 / 1440x900 (canvas, d-pad and face boxes equal). Only difference: `--ls-side/--ls-k` custom properties are now also set in portrait on touch; no portrait CSS reads them.
+  - Criterion 2: `npm test` 2577 passed (108 files), `npx tsc --noEmit` and `npm run build` pass (rerun here). Goldens untouched. New tests read index.html so CSS and model cannot drift, and check pills vs face.
+  - Scope: diff touches only index.html, src/main.ts, src/render/canvas.ts, canvas.test.ts and this issue file. No PLAN.md edits, no reference-photos.
+  - Note (not a failure): with 47px side insets plus a 21px bottom inset at 568x320 the picture drops to 0.5x (160x96); an unrealistic combination, and the controls still do not overlap.
+  - UNVERIFIED (cannot be checked here): real-phone feel (thumb reach of the narrower d-pad and A/B), Safari bars, hardware notch (insets only emulated via Chrome's safe-area override), L list and dialogs on a real landscape phone.
+  - Planner: set the PLAN.md table row for 092 to done. Branch to merge: issue/092-landscape-controls.

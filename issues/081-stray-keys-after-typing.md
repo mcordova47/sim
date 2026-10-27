@@ -1,7 +1,7 @@
 ---
 id: 081
 title: Menus ignore stray keys right after a typing game
-status: review
+status: done
 owner: claude
 depends_on: []
 ---
@@ -60,3 +60,12 @@ Marc (2026-10-27): a menu that opens the moment a typing game ends can take a ke
   - Unverified: feel in a browser; the Cmd/Caps Lock keyup behavior.
 
 - 2026-10-27 (claude): Review 2 asked for changes (the gate could stick on a key whose release never arrives). Done: modifier keys and Caps Lock no longer count as held, and the gate gives up after `DIALOG.gateMaxSeconds` (1.5 s) whatever is held. Two new tests (Caps Lock stuck; another stuck key) fail on the previous game.ts. npm test, tsc, build pass. Back in review.
+
+- 2026-10-27 (review 3, independent, of HEAD ff9b3c2): APPROVE.
+  - Checks: `npm test` 2449 pass, `npx tsc --noEmit` and `npm run build` clean. The two new tests (Caps Lock stuck; another stuck key) fail on the previous game.ts in a scratch copy and pass now. Own edge tests in scratchpad rv3 (outside the repo), all pass.
+  - Fix verified: modifiers (Shift/Control/Alt/Meta/OS, both sides) and CapsLock no longer count as held; Shift plus a real key still holds the gate; the gate gives up `DIALOG.gateMaxSeconds` (1.5 s) after the game ends whatever is held. A stuck V (the Cmd+V case) blocks hotkeys and walking for 91 frames (about 1.5 s), then both work; Caps Lock does not block even one frame. Config value is in DIALOG.
+  - Gate ending while a key is really held: a real arrow held continuously for over 1.5 s after notes does start walking at 1.5 s (tested). Acceptable trade for not locking out. Auto-repeat keydowns are ignored by the hotkey handlers and Keyboard (`e.repeat`), so a held L cannot open the list when the gate times out.
+  - Dialog and timer: the age only advances on frames with no dialog open, like the clear. With a stuck key and an encounter menu left open for 10 s, nothing changes; after it closes the stuck key is released 91 frames later. Worst lock-out is 1.5 s of play after the last dialog closes. `hotkeyBlocked` reads the same `keysGate` the timer clears, so they cannot disagree. Known and harmless: the mute key is blocked while a post-game dialog is open (review 2 note b).
+  - Whole issue re-checked: places list, 0.5 s menu delay (deliberate menus not delayed), tests failing on old code, hotkeys and held-key leak all pass; no out-of-scope files in this commit (config, game, test, issue file).
+  - Not verified by anyone: feel in a browser (delay, hidden cursor, how 1.5 s feels) and the Cmd/Caps Lock keyup behavior itself (from knowledge). Coverage gap only: no test for M or the bracket keys.
+  - PLAN.md table needs updating by the planner.

@@ -1,7 +1,7 @@
 ---
 id: 087
 title: Mobile, stage 1: a touch layer in a flat portrait shell
-status: review
+status: done
 owner: claude
 depends_on: [049]
 ---
@@ -66,3 +66,18 @@ Build stage 1 of `docs/mobile.md` (issue 049) so Marc can try the game on his iP
   - [x] 3. `contextmenu`, `gesturestart` and the two-finger `touchmove` block now apply only while the touch layer is showing, so desktop right-click works as before.
   - [x] 4. A pad slide now lets go of the old direction at once, even if no update has read it yet, so two directions are never down together. Test added.
   tsc, build and the whole test run (107 files, 2536 tests) pass.
+- 2026-10-27: REVIEW round 2 (independent, fresh). Verdict: **approve**.
+  Round 2 changed only `loop.ts`, `touch.ts`, `main.ts` and their tests (checked with `git diff 7a566fd HEAD`); `canvas.ts`, `index.html` and the render code are as in round 1.
+  **Criteria**
+  1. Tests for the mapping, scale arithmetic, desktop unchanged: pass. I ran the suite and also wrote my own checks outside the repo (vite-node scripts in the scratchpad).
+  2. 081 stray-key gates with touch: pass (unchanged since round 1; the new immediate release on a pad slide only removes keys sooner).
+  3. `npx tsc --noEmit`, `npm run build`, `npm test` (107 files, 2536 tests): pass, run by me. Golden frames pass; no render or golden file changed since round 1.
+  4. iPhone instructions and unverified list in the log: pass.
+  **Round 1 findings, rechecked**
+  - 1 Shift stuck: fixed. My sequences: long press, release, press again after 0..5 updates, long press again, give back, back each time, nothing held at the end. Also tap then long (fwd, back), release at frame 23 (fwd) and 24 to 27 (back), blur mid long press then a short tap (fwd). A randomised fuzz of 20000 runs (3 cycle pointers, pad pointers, A/B, random frame gaps, random releaseAll) found nothing left held after all pointers lifted and 10 updates, no key sent down twice, and nothing held after any releaseAll.
+  - 2 render pacing: fixed. Own scheduler test at 30, 48, 50, 60, 72, 75, 90, 100, 120, 144, 165, 240 Hz: 60 draws a second (30, 48, 50 draw at the display rate), 60 updates a second throughout. With +-25% jitter at 60, 90, 120, 144 Hz: 59.7 to 60.1. Heavy +-45% jitter at 60 Hz: 58.9. Alternating 16/17.7 ms frames: 60.0. A 120 ms hitch every 40 frames: 52 (lag dropped, no catch-up burst). Hidden then visible at 60, 75, 120, 144 Hz after 50 ms, 5 s and 10 min away: the next second has 60 draws and 60 (144 Hz: 61) updates, smallest gap one frame interval (no burst), largest gap 16.7 to 26.7 ms (no stall); the loop does not draw while hidden and stop() stays stopped through later visibility events.
+  - 3 contextmenu: fixed. `contextmenu`, `gesturestart` and the two-finger `touchmove` check `touch.visible` (a live getter), so desktop right-click is unchanged.
+  - 4 pad slide overlap: fixed (`up(code, true)` on a slide). My fuzz saw no overlapping codes of one pad.
+  Desktop unchanged: pass. No touch layer without a touch screen or `?touch=1`, canvas 320x192 with the old whole-number CSS factor (canvas.test.ts), HUD code untouched, right-click works, golden frames pass. One behaviour change that is disclosed and was asked for: desktop draws are now also paced to 60 a second, so a 144 Hz monitor draws 60 (before: every refresh); updates are untouched.
+  **Findings**: none blocking. Notes only: at 72, 75, 90, 144 Hz the draw gaps alternate (for example 13.3 and 26.7 ms at 75 Hz), which is inherent to 60 on a 75 Hz display; on a 90 Hz phone that is mild judder, which Marc can judge on the phone. A tap on a pad direction that is slid away from before an update reads it is lost (the key is let go at once); acceptable.
+  **Unverified (needs a real iPhone or real touch, not passed)**: pad feel and sliding round furniture, button size and spacing, thumbs covering the picture, iOS audio unlock and the silent switch, rotation mid-game, safe areas, pull-to-refresh and pinch blocking in Safari, `visualViewport` as the bars slide, loop pausing on app switch (the logic is tested, the real browser behaviour is not), 60 fps feel and judder on a ProMotion phone, battery, real pointer capture and `lostpointercapture` on touch, the DOM wiring of the audio unlock (`touch-ui.ts` has no tests), the two-finger `touchmove` block, and the typing game with thumbs.

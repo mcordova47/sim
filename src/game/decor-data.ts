@@ -15,6 +15,8 @@ export interface DecorSlot {
   room: string;
   // What a prompt calls it (capitals, digits and basic punctuation only: the font).
   name: string;
+  // Where an item shown here is, in the swap list's small text ("ON THE DESK WALL"). Falls back to `name`.
+  where?: string;
   area: Rect;
   kinds: DecorKind[];
   // The item shown on a fresh game, and the fallback when a saved one is gone.
@@ -43,9 +45,9 @@ export interface DecorItem {
   // A set of sprites chosen by rules from state: `<family>-0..` for the stage and
   // `<family>-wilted` for drooping, as the family's rules say (FAMILIES).
   family?: string;
-  // If set, the item only fits these slots (even if another has its size). Today's
-  // three paintings are each tied to their own wall, so that a fresh game has
-  // nothing to swap until something new arrives.
+  // If set, the item only fits these slots (even if another has its size). The
+  // barn drawing and the gold abstract fit the table and the desk wall (issue 073,
+  // so they can trade places); the silkscreen is wider and fits only the bed wall.
   slots?: string[];
   // Pixels. Must equal the slot's area size to fit.
   w: number;
@@ -82,19 +84,19 @@ export const FAMILIES: Record<string, FamilyRules> = {
 };
 
 export const DECOR_SLOTS: DecorSlot[] = [
-  { id: "art-table", room: "main", name: "ART OVER THE TABLE", area: { x: 32, y: 0, w: 32, h: 16 }, kinds: ["art"], default: "art-barn", object: "dining table" },
-  { id: "art-desk", room: "main", name: "ART OVER THE DESK", area: { x: 112, y: 0, w: 32, h: 16 }, kinds: ["art"], default: "art-abstract", object: "standing desk" },
-  { id: "art-bed", room: "main", name: "ART OVER THE BED", area: { x: 224, y: 0, w: 48, h: 16 }, kinds: ["art"], default: "art-silkscreen", object: "nightstand" },
-  { id: "plant-shelf", room: "main", name: "PLANT ON THE SHELF", area: { x: 160, y: 52, w: 16, h: 16 }, kinds: ["plant"], default: "plant-snake", stageVar: "plantStage", dryVar: "plantDry", growthVar: "plantGrowth", object: "cube bookshelf" },
-  { id: "lamp-sofa", room: "main", name: "LAMP BY THE SOFA", area: { x: 128, y: 96, w: 16, h: 16 }, kinds: ["lamp"], default: "lamp-table", object: "lamp table" },
+  { id: "art-table", where: "ON THE TABLE WALL", room: "main", name: "ART OVER THE TABLE", area: { x: 32, y: 0, w: 32, h: 16 }, kinds: ["art"], default: "art-barn", object: "dining table" },
+  { id: "art-desk", where: "ON THE DESK WALL", room: "main", name: "ART OVER THE DESK", area: { x: 112, y: 0, w: 32, h: 16 }, kinds: ["art"], default: "art-abstract", object: "standing desk" },
+  { id: "art-bed", where: "ON THE BED WALL", room: "main", name: "ART OVER THE BED", area: { x: 224, y: 0, w: 48, h: 16 }, kinds: ["art"], default: "art-silkscreen", object: "nightstand" },
+  { id: "plant-shelf", where: "ON THE SHELF", room: "main", name: "PLANT ON THE SHELF", area: { x: 160, y: 52, w: 16, h: 16 }, kinds: ["plant"], default: "plant-snake", stageVar: "plantStage", dryVar: "plantDry", growthVar: "plantGrowth", object: "cube bookshelf" },
+  { id: "lamp-sofa", where: "BY THE SOFA", room: "main", name: "LAMP BY THE SOFA", area: { x: 128, y: 96, w: 16, h: 16 }, kinds: ["lamp"], default: "lamp-table", object: "lamp table" },
   // The pantry in the kitchen (issue 072): a 16x32 stack of bins down the east wall. Nothing to swap yet (no `object`, one item); stage 4 can add upgrade items.
-  { id: "pantry", room: "kitchen", name: "PANTRY", area: { x: 176, y: 16, w: 16, h: 32 }, kinds: ["pantry"], default: "pantry-bins" },
+  { id: "pantry", where: "IN THE PANTRY", room: "kitchen", name: "PANTRY", area: { x: 176, y: 16, w: 16, h: 32 }, kinds: ["pantry"], default: "pantry-bins" },
 ];
 
 // Today's room, as items. These are the starting set: owned from the first run.
 export const DECOR_ITEMS: DecorItem[] = [
-  { id: "art-barn", name: "BARN DRAWING", kind: "art", sprite: "painting", w: 32, h: 16, color: "paper", how: "start", slots: ["art-table"] },
-  { id: "art-abstract", name: "GOLD ABSTRACT", kind: "art", sprite: "painting-desk", w: 32, h: 16, color: "paper", how: "start", slots: ["art-desk"] },
+  { id: "art-barn", name: "BARN DRAWING", kind: "art", sprite: "painting", w: 32, h: 16, color: "paper", how: "start", slots: ["art-table", "art-desk"] },
+  { id: "art-abstract", name: "GOLD ABSTRACT", kind: "art", sprite: "painting-desk", w: 32, h: 16, color: "paper", how: "start", slots: ["art-table", "art-desk"] },
   { id: "art-silkscreen", name: "SILKSCREEN", kind: "art", sprite: "painting-wide", w: 48, h: 16, color: "paper", how: "start", slots: ["art-bed"] },
   { id: "plant-snake", name: "SNAKE PLANT", kind: "plant", sprite: "plant-1", family: "plant", w: 16, h: 16, color: "leaf", how: "start" },
   { id: "lamp-table", name: "LAMP", kind: "lamp", sprite: "lamp-table", w: 16, h: 16, color: "butter", how: "start", glow: { radius: 40, alpha: 0.2 } },

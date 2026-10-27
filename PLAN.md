@@ -108,6 +108,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 070 | [Boxes: flatten, take out the recycling, they disappear](issues/070-boxes-recycling.md) | claude | done | 066 |
 | 071 | [No recycling bin; recycle from the boxes; no cooldowns on state-gated tasks](issues/071-recycling-and-cooldowns.md) | claude | done | |
 | 072 | [A real pantry (a stack of clear bins); remove the tote bag](issues/072-pantry-and-no-tote.md) | agent | done | |
+| 073 | [Decor: an item is displayed in one place at a time (swap, inventory)](issues/073-decor-inventory.md) | claude | todo | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

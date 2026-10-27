@@ -124,4 +124,49 @@ describe("Synth", () => {
     synth.muted = false;
     expect(ctx.gains[0].gain.calls.at(-1)).toEqual({ type: "set", value: SOUND.master, time: 3 });
   });
+
+  it("makes a formant voice from one source through a band-pass filter for each formant", () => {
+    const { ctx, synth } = setup();
+    const def: EffectDef = {
+      voices: [{ source: "sawtooth", freq: 125, formants: [{ freq: 700, q: 5, gain: 2 }, { freq: 1100, q: 6, gain: 1.5 }], length: 0.1, gain: 0.2 }],
+    };
+    expect(synth.play(def)).toBe(true);
+    // One oscillator, however many formants, and it is what counts against the voice cap.
+    expect(ctx.oscillators).toHaveLength(1);
+    expect(synth.voices).toBe(1);
+    expect(ctx.oscillators[0].type).toBe("sawtooth");
+    expect(ctx.filters.map((f) => [f.type, f.frequency.value, f.Q.value])).toEqual([["bandpass", 700, 5], ["bandpass", 1100, 6]]);
+    expect(ctx.oscillators[0].connections).toHaveLength(2);
+  });
+
+  it("moves only the source with pitch, and leaves the formants where they are", () => {
+    const { ctx, synth } = setup();
+    const def: EffectDef = {
+      voices: [{ source: "sawtooth", freq: 100, formants: [{ freq: 700, q: 5, gain: 1 }], length: 0.1, gain: 0.2 }],
+    };
+    synth.play(def, { pitch: 1.1 });
+    expect(ctx.oscillators[0].frequency.calls[0].value).toBeCloseTo(110);
+    expect(ctx.filters[0].frequency.value).toBe(700);
+  });
+
+  it("stretches every voice's length and delay by `stretch`", () => {
+    const { ctx, synth } = setup();
+    const def: EffectDef = { voices: [{ wave: "square", freq: 440, delay: 0.1, length: 0.1, gain: 0.2 }] };
+    synth.play(def, { stretch: 2 });
+    const osc = ctx.oscillators[0];
+    expect(osc.startedAt).toBeCloseTo(0.2);
+    expect(osc.stoppedAt).toBeCloseTo(0.2 + 0.2 + 0.02);
+    // Not stretched by default.
+    const second = setup();
+    second.synth.play(def);
+    expect(second.ctx.oscillators[0].startedAt).toBeCloseTo(0.1);
+  });
+
+  it("cleans up every node of a formant voice when it ends", () => {
+    const { ctx, synth } = setup();
+    synth.play({ voices: [{ source: "square", freq: 125, formants: [{ freq: 700, q: 5, gain: 1 }], length: 0.1, gain: 0.2 }] });
+    ctx.endAll();
+    expect(ctx.filters.every((f) => f.disconnected)).toBe(true);
+  });
 });
+

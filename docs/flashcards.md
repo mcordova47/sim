@@ -42,7 +42,36 @@ All of the sound design is data: `FLASHCARDS.voice.symbols` in `config.ts` maps 
 
 Where the transcription comes from: the real backend asks the app's core, `core.ipa(slug, dialect)` (`FLASHCARDS.dialect`, "es-MX"), for the card's own word, in both directions. A production card lists every word that shares its English as its answers, but its slug is the one word it is for, so that is the one voiced (the written answer still lists them all). Every one of the 1000 words has a transcription today; the seven rows that are a pair, a phrase or a `(se)` verb keep their ` / `, space or `(se)`, and the voice treats the first two as pauses and skips the optional `(se)`. The function is optional: a core without it, a `null`, an empty string or a throw means no transcription, and the card is voiced by spelling, as is the example sentence's hint (nothing is transcribed for sentences or verb forms). The practice deck carries hand-written ones. A card whose transcription gives no sounds falls back to spelling too.
 
-In the practice deck, V switches between the two voices and R says the card again, to hear them against each other.
+### Making it sound less like a tune
+
+The original IPA voice (style 1) tells vowels apart by pitch, and its pitches are the simple intervals of a chord (a third, a fifth, a fourth), so words come out as little melodies. Speech tells vowels apart by timbre and uses pitch only for small intonation moves, so the speech-like voice is built in three parts, each adding to the one before, to hear what each adds:
+
+1. **Formants (style 2).** A vowel is two tones at its first two formant frequencies (`FORMANTS` in `config.ts`, the usual textbook values) over a low buzz (137 Hz), all at one pitch. Stress is length and loudness only. The two formants and the buzz of a vowel are not a simple ratio of each other (no octave, fifth, fourth and the like, to within 3 percent; a test checks it for every vowel), so nothing lines up into a chord inside a vowel. To get there the textbook formants are nudged by up to about 8 percent, which is within how much a formant varies between speakers.
+2. **Intonation (style 3).** Pitch drifts down across the phrase, the stressed vowel gets a small bump and the last vowel falls (`FLASHCARDS.voice.intonation`, fractions of the pitch; a few percent each, never more than a few semitones).
+3. **Jitter (style 4).** Every sound is a few percent off (`FLASHCARDS.voice.jitter`), in a fixed pattern seeded by its place in the word, so no two vowels are quite alike and a word still sounds the same every time.
+
+In the practice deck, V steps through spelling, ipa, formants, intonation, jitter, filtered and filtered+ (the tag shows which) and R says the card again, so the parts can be heard against each other on the same card. `FLASHCARDS.voice.style` is the voice a card gets before V is pressed (1, the original, until one is chosen).
+
+### The source-filter voice (styles 5 and 6)
+
+The formants voice above has a flaw: its two formant tones are real tones at real frequencies (a few hundred Hz and a few thousand), and the ear hears each as a pitch, so the vowels still step between notes, only less tidily. A throat does not work that way. It makes a buzz at one pitch (the vocal folds) and the mouth shapes which frequencies of the buzz come out (the resonances, the formants). The pitch is the buzz alone, and the vowel is only which resonances are open.
+
+The filtered voice does exactly that (`FormantVoice` in `config.ts`, built in `sound/synth.ts`): a sawtooth at one pitch (`SOURCE_F0`, 125 Hz) goes through two band-pass filters at the vowel's formants. Every vowel has the same pitch, and the only difference between them is the filters. Intonation and jitter move the source's pitch only. Style 5 (`filtered`) is just that, slowed down by `FLASHCARDS.voice.slow` (1.4: every sound and every gap is stretched). Style 6 (`filtered+`) adds intonation and jitter on top.
+
+What to turn, and what you will hear:
+
+| Knob | Where | What it does |
+|---|---|---|
+| `SOURCE_F0` | `config.ts` | the one pitch of the voice: lower is a deeper voice, higher a thinner one |
+| `FORMANTS` | `config.ts` | where each vowel's two resonances are; moving one changes the colour of that vowel |
+| `SOURCE_FORMANT.q` | `config.ts` | how narrow the resonances are: low is a breathy blur, high is a ringing, whistly tone |
+| `SOURCE_FORMANT.level` | `config.ts` | how loud each resonance is (the narrow filters are quiet, so these are turned up) |
+| source `wave` | `filteredEffect` in `config.ts` | sawtooth is bright and buzzy (rich in harmonics for the filters to pick from); square is hollower |
+| `FLASHCARDS.voice.slow` | `config.ts` | the speed of styles 5 and 6 |
+| `intonation`, `jitter` | `config.ts` | the pitch drift, stress bump, final fall and wobble, as before (style 6 only) |
+| consonants | `FLASHCARDS.voice.symbols` and the `voice*` effects | unchanged: clicks, hisses, hums and slides |
+
+Both approaches have the same consonants and timing; only the vowels and the speed differ, so styles 2 and 5 are the fair pair to compare.
 
 ## Trying the screens and the voice without the app
 

@@ -257,6 +257,17 @@ describe("effects from game events", () => {
     expect(sounds(s.ctx)).toBe(after);
   });
 
+  it("passes a voice event's stretch on to the engine", () => {
+    const s = setup(RECORD_TASK);
+    s.unlock();
+    const first = s.ctx.oscillators.length;
+    s.game.events.emit("voice", { pitch: 1, effect: "voiceNasal" });
+    s.game.events.emit("voice", { pitch: 1, effect: "voiceNasal", stretch: 2 });
+    const [plain, slow] = s.ctx.oscillators.slice(first);
+    // The nasal is 0.07 s long (plus the engine's 0.02 s tail), so stretched by 2 it is 0.07 s longer.
+    expect(slow.stoppedAt! - slow.startedAt!).toBeCloseTo(plain.stoppedAt! - plain.startedAt! + SOUND.effects.voiceNasal.voices[0].length, 3);
+  });
+
   it("keeps the voice count capped under a storm of events", () => {
     const s = setup();
     s.unlock();

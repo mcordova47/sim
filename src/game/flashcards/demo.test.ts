@@ -7,6 +7,7 @@ import { fakeHost } from "../activities/fake-host";
 import { wrapText } from "../dialog";
 import { wantsDemo } from "./backend";
 import { DEMO_CARDS, DemoSession, demoBackend } from "./demo";
+import { VOICE_STYLES } from "./mumble";
 import { FLASHCARDS as F } from "../config";
 import { StudyStore } from "./key";
 
@@ -70,8 +71,10 @@ describe("the practice deck", () => {
     run(1);
     expect(f.voices.map((v) => v.effect)).toEqual([F.voice.symbols.j.effect, F.voice.stress.effect]);
     f.voices.length = 0;
-    a.update(1 / 60, { ...NO_INPUT, keys: ["KeyV"], keysDown: ["KeyV"] });
-    expect(a.ipaVoice).toBe(false);
+    // V steps ipa -> formants -> intonation -> jitter -> filtered -> filtered+ -> spelling.
+    for (let i = 0; i < 6; i++) a.update(1 / 60, { ...NO_INPUT, keys: ["KeyV"], keysDown: ["KeyV"] });
+    expect(a.voiceStyle).toBe(0);
+    f.voices.length = 0;
     run(1);
     expect(f.voices.map((v) => v.effect)).toEqual(["mumble", "mumble"]);
     f.voices.length = 0;
@@ -80,7 +83,7 @@ describe("the practice deck", () => {
     expect(f.voices.every((v) => v.effect === "mumble")).toBe(true);
     // Shift+V does nothing.
     a.update(1 / 60, { ...NO_INPUT, keys: ["KeyV"], keysDown: ["ShiftLeft", "KeyV"] });
-    expect(a.ipaVoice).toBe(false);
+    expect(a.voiceStyle).toBe(0);
   });
 
   it("falls back to the spelling voice when the transcription gives no sounds", async () => {
@@ -108,5 +111,33 @@ describe("the practice deck", () => {
     a.update(1 / 60, { ...NO_INPUT, keys: ["KeyR"], keysDown: ["KeyR"] });
     expect(f.voices.length).toBeGreaterThan(0);
     expect(f.voices.every((v) => v.effect === "mumble")).toBe(true);
+  });
+
+  it("V cycles through every voice style and back, each saying the card in its own sounds", async () => {
+    const f = fakeHost();
+    const clipboard = { copy: async () => true, read: async () => null, onPaste: () => () => {} };
+    const a = new FlashcardsActivity(f.host, demoBackend, new StudyStore(new FakeStorage()), clipboard);
+    a.start();
+    await new Promise((r) => setTimeout(r, 0));
+    const heard: Record<number, { effect?: string; pitch: number; stretch?: number }[]> = {};
+    for (let n = 0; n < VOICE_STYLES.length; n++) {
+      f.voices.length = 0;
+      for (let i = 0; i < 90; i++) a.update(1 / 60, NO_INPUT);
+      heard[a.voiceStyle] = [...f.voices];
+      a.update(1 / 60, { ...NO_INPUT, keys: ["KeyV"], keysDown: ["KeyV"] });
+    }
+    expect(a.voiceStyle).toBe(F.voice.style); // back where it started
+    expect(Object.keys(heard).sort()).toEqual(["0", "1", "2", "3", "4", "5", "6"]);
+    expect(heard[1].map((v) => v.effect)).toEqual(["voiceGlideDown", "voiceVowelStress"]);
+    expect(heard[2].map((v) => v.effect)).toEqual(["voiceGlideDown", "voiceFormantOStress"]);
+    // Intonation and jitter change the pitches of the same sounds, in order.
+    expect(heard[3].map((v) => v.effect)).toEqual(heard[2].map((v) => v.effect));
+    expect(heard[3].map((v) => v.pitch)).not.toEqual(heard[2].map((v) => v.pitch));
+    expect(heard[4].map((v) => v.pitch)).not.toEqual(heard[3].map((v) => v.pitch));
+    // The source-filter voice: the vowel is a filtered source, slowed down.
+    expect(heard[5].map((v) => v.effect)).toEqual(["voiceGlideDown", "voiceFiltOStress"]);
+    expect(heard[5].every((v) => v.stretch === F.voice.slow)).toBe(true);
+    expect(heard[6].map((v) => v.effect)).toEqual(heard[5].map((v) => v.effect));
+    expect(heard[6].map((v) => v.pitch)).not.toEqual(heard[5].map((v) => v.pitch));
   });
 });

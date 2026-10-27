@@ -11,6 +11,10 @@ export interface Phoneme {
   effect: string;
   pitch: number;
   length: number;
+  // Whether it is a vowel, and whether it carries the stress mark. The speech-like
+  // voice shapes its pitch from these.
+  vowel: boolean;
+  stressed: boolean;
 }
 
 // A pause between words.
@@ -32,9 +36,20 @@ const TIE = /[͜͡]/;
 const MARKS = /[̀-ͯ]/;
 const BREAKS = /[\s/\[\]|‖]/;
 
-const lookup = (symbol: string) => V.symbols[symbol] ?? (V.like[symbol] ? V.symbols[V.like[symbol]] : undefined);
+const lookup = (symbol: string) => {
+  const key = V.symbols[symbol] ? symbol : V.like[symbol];
+  const entry = key ? V.symbols[key] : undefined;
+  return entry ? { key: key!, entry } : undefined;
+};
 
-export function readIpa(ipa: string): Reading {
+// How a vowel is made: "pitch" (the original voice: a tone at its own pitch, a
+// little higher when stressed), "tones" (two tones at its formants over a buzz,
+// at one pitch) or "filtered" (a source at one pitch through resonances at its
+// formants). With the last two, stress is only length and loudness.
+export type VowelMaker = "pitch" | "tones" | "filtered";
+
+export function readIpa(ipa: string, vowels: VowelMaker | boolean = "pitch"): Reading {
+  const maker: VowelMaker = vowels === true ? "tones" : vowels === false ? "pitch" : vowels;
   const units: Unit[] = [];
   const unknown = new Set<string>();
   const chars = [...ipa.normalize("NFC")];
@@ -75,17 +90,30 @@ export function readIpa(ipa: string): Reading {
         i += tied ? 2 : 1;
       }
     }
-    const entry = lookup(symbol);
-    if (!entry) {
+    const found = lookup(symbol);
+    if (!found) {
       unknown.add(symbol);
       continue;
     }
+    const { key, entry } = found;
     phonemes++;
-    if (entry.vowel && stressed) {
-      units.push({ symbol, effect: V.stress.effect, pitch: entry.pitch * V.stress.pitch, length: V.stress.length });
-      stressed = false;
+    const vowel = entry.vowel === true;
+    const stress = vowel && stressed;
+    if (stress) stressed = false;
+    if (maker !== "pitch" && vowel) {
+      const name = `${maker === "filtered" ? "voiceFilt" : "voiceFormant"}${key.toUpperCase()}`;
+      units.push({
+        symbol,
+        effect: stress ? `${name}Stress` : name,
+        pitch: 1,
+        length: stress ? V.formants.stressLength : V.formants.length,
+        vowel,
+        stressed: stress,
+      });
+    } else if (stress) {
+      units.push({ symbol, effect: V.stress.effect, pitch: entry.pitch * V.stress.pitch, length: V.stress.length, vowel, stressed: true });
     } else {
-      units.push({ symbol, effect: entry.effect, pitch: entry.pitch, length: entry.length });
+      units.push({ symbol, effect: entry.effect, pitch: entry.pitch, length: entry.length, vowel, stressed: false });
     }
   }
   while (units.length && isGap(units[units.length - 1])) units.pop();

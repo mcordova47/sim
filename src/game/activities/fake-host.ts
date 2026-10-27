@@ -14,7 +14,7 @@ export function fakeHost(seed = 1) {
   // What the track editor asks of the game.
   const previews: { track: Track | null; live: boolean }[] = [];
   const blips: number[] = [];
-  const voices: { pitch: number; effect?: string; gain?: number }[] = [];
+  const voices: { pitch: number; effect?: string; gain?: number; stretch?: number }[] = [];
   const rewards: { points: number; effects: Effect[] }[] = [];
   const clock = { minutes: 0 };
 

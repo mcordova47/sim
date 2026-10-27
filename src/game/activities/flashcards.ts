@@ -5,7 +5,7 @@ import { GLYPH_H, drawText, textWidth } from "../../render/font";
 import { BaseActivity, needHost, registerActivity, type ActivityHost, type ActivityResult } from "../activity";
 import { FLASHCARDS as F } from "../config";
 import { studyBackend } from "../flashcards/backend";
-import { Mumble, ipaScript } from "../flashcards/mumble";
+import { Mumble, VOICE_STYLES, ipaScript } from "../flashcards/mumble";
 import { keyFromText, studyStore, type StudyStore } from "../flashcards/key";
 import type { CardView, Grade, StudyBackend, StudySession } from "../flashcards/study";
 import { wrapText } from "../dialog";
@@ -44,9 +44,10 @@ export class FlashcardsActivity extends BaseActivity {
   gotIt = 0;
   again = 0;
   paid = 0;
-  // Whether a card with an IPA transcription is voiced from it (else by spelling).
-  // V switches it in the practice deck, to hear the two against each other.
-  ipaVoice = true;
+  // How a card is voiced (an index into `VOICE_STYLES`): 0 by spelling, higher by
+  // its IPA, each style adding to the one before. V steps through them in the
+  // practice deck, to hear what each part adds.
+  voiceStyle: number = F.voice.style;
 
   private session: StudySession | null = null;
   private shown: { at: number; slug: string; view: CardView } | null = null;
@@ -172,7 +173,7 @@ export class FlashcardsActivity extends BaseActivity {
     // A transcription that gives no sounds (only symbols the voice does not know) is no transcription.
     let script: ReturnType<typeof ipaScript> = [];
     try {
-      if (this.ipaVoice && card.ipa) script = ipaScript(card.ipa);
+      if (this.voiceStyle > 0 && card.ipa) script = ipaScript(card.ipa, this.voiceStyle);
     } catch {
       // A transcription that cannot be read is no transcription.
     }
@@ -184,7 +185,7 @@ export class FlashcardsActivity extends BaseActivity {
   private switchVoice(controls: Controls): void {
     if (this.backend.usesKey !== false || !controls.keys.includes("KeyV")) return;
     if (controls.keysDown.some((k) => /^(Shift|Control|Meta|Alt)/.test(k))) return;
-    this.ipaVoice = !this.ipaVoice;
+    this.voiceStyle = (this.voiceStyle + 1) % VOICE_STYLES.length;
     this.repeat({ ...controls, keys: [F.mumble.repeatKey], keysDown: [] });
   }
 
@@ -324,7 +325,7 @@ export class FlashcardsActivity extends BaseActivity {
     if (this.phase === "back" || (card.speaks ?? "back") === "front") {
       drawText(ctx, "R: say it", x + w - 8, y + 8, { align: "right", color: COLOR.slate, shadow: null });
       if (this.backend.usesKey === false) {
-        drawText(ctx, `V: ${this.ipaVoice ? "ipa" : "spelling"}`, x + 8, y + 8, { color: COLOR.slate, shadow: null });
+        drawText(ctx, `V: ${VOICE_STYLES[this.voiceStyle]}`, x + 8, y + 8, { color: COLOR.slate, shadow: null });
       }
     }
     // Big when it fits on one line, small and wrapped (two lines at most) when not.

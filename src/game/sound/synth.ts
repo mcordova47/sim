@@ -1,4 +1,4 @@
-import { MUSIC, SOUND, type EffectDef, type NoiseVoice, type ToneVoice, type Voice } from "../config";
+import { MUSIC, SOUND, type EffectDef, type FormantVoice, type NoiseVoice, type ToneVoice, type Voice } from "../config";
 import type { AudioContextLike, BufferLike, GainLike, NodeLike } from "./audio-types";
 
 export interface PlayOptions {
@@ -6,6 +6,9 @@ export interface PlayOptions {
   pitch?: number;
   // Multiplies every voice's loudness.
   gain?: number;
+  // Multiplies every voice's length and delay (2 is twice as slow). The slowed
+  // speech-like voice uses it.
+  stretch?: number;
 }
 
 // Which bus a voice goes to. Music voices are not counted against the effect voice cap.
@@ -15,6 +18,7 @@ const NOISE_SECONDS = 0.5;
 const FLOOR = 0.0001;
 
 const isNoise = (v: Voice): v is NoiseVoice => "noise" in v;
+const isFormant = (v: Voice): v is FormantVoice => "formants" in v;
 
 // Makes the sounds. It owns the master volume and the two buses, turns a voice
 // description (config.ts) into oscillators and gains, stops them when they are
@@ -82,8 +86,8 @@ export class Synth {
   }
 
   // Plays one voice at an absolute context time. Music uses this directly.
-  voice(voice: Voice, start: number, options: PlayOptions = {}, bus: Bus = "effects", length = voice.length): void {
-    const t0 = start + (voice.delay ?? 0);
+  voice(voice: Voice, start: number, options: PlayOptions = {}, bus: Bus = "effects", length = voice.length * (options.stretch ?? 1)): void {
+    const t0 = start + (voice.delay ?? 0) * (options.stretch ?? 1);
     const t1 = t0 + length;
     const peak = Math.max(FLOOR, voice.gain * (options.gain ?? 1));
     const env = this.ctx.createGain();
@@ -93,7 +97,28 @@ export class Synth {
     env.connect(this.buses[bus]);
 
     let source: { start(t?: number): void; stop(t?: number): void; onended: (() => void) | null } & NodeLike;
-    if (isNoise(voice)) {
+    const extras: NodeLike[] = [];
+    if (isFormant(voice)) {
+      // A source at one pitch through resonances: the pitch is the source's alone
+      // (`options.pitch` moves it), and the resonances, which make the vowel, stay
+      // where they are. That is how the vowel changes with no change of pitch.
+      const osc = this.ctx.createOscillator();
+      osc.type = voice.source;
+      osc.frequency.setValueAtTime(voice.freq * (options.pitch ?? 1), t0);
+      for (const formant of voice.formants) {
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = "bandpass";
+        filter.frequency.value = formant.freq;
+        filter.Q.value = formant.q;
+        const level = this.ctx.createGain();
+        level.gain.value = formant.gain;
+        osc.connect(filter);
+        filter.connect(level);
+        level.connect(env);
+        extras.push(filter, level);
+      }
+      source = osc;
+    } else if (isNoise(voice)) {
       const src = this.ctx.createBufferSource();
       src.buffer = this.noiseBuffer();
       const filter = this.ctx.createBiquadFilter();
@@ -118,6 +143,7 @@ export class Synth {
     source.stop(t1 + 0.02);
     source.onended = () => {
       source.disconnect();
+      for (const node of extras) node.disconnect();
       env.disconnect();
     };
     if (bus === "effects") this.active.push(t1 + 0.02);

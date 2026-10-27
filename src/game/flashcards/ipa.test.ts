@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { FLASHCARDS as F, SOUND } from "../config";
+import { FLASHCARDS as F, FORMANTS, SOUND, SOURCE_F0 } from "../config";
 import { DEMO_CARDS } from "./demo";
 import { isGap, readIpa, type Phoneme } from "./ipa";
-import { ipaScript, Mumble, spellingScript } from "./mumble";
+import { ipaScript, Mumble, spellingScript, VOICE_STYLES } from "./mumble";
 
 const phonemes = (ipa: string) => readIpa(ipa).units.filter((u): u is Phoneme => !isGap(u));
 const symbols = (ipa: string) => phonemes(ipa).map((p) => p.symbol);
@@ -145,3 +145,126 @@ describe("Mumble playing a script", () => {
     expect(got.length).toBeLessThanOrEqual(2);
   });
 });
+
+describe("the speech-like voice: formants, intonation and jitter", () => {
+  const word = "ˈkasa";
+  const at = (style: number, ipa = word) => ipaScript(ipa, style);
+
+  it("part 1: vowels are told apart by timbre, at one pitch, and stress is length and loudness only", () => {
+    const events = at(2);
+    expect(events.map((e) => e.effect)).toEqual(["voiceStop", "voiceFormantAStress", "voiceHiss", "voiceFormantA"]);
+    for (const v of ["a", "e", "i", "o", "u"]) {
+      const [e] = ipaScript(v, 2);
+      expect(e.effect).toBe(`voiceFormant${v.toUpperCase()}`);
+      expect(e.pitch).toBe(1);
+      expect(SOUND.effects[e.effect!].voices).toHaveLength(3);
+      expect(SOUND.effects[`${e.effect}Stress`]).toBeDefined();
+    }
+    // Look-alike vowels use the formants of the vowel they sound like.
+    expect(ipaScript("ɛ", 2)[0].effect).toBe("voiceFormantE");
+    // A stressed vowel lasts longer: the next sound starts later.
+    expect(at(2)[2].at - at(2)[1].at).toBeGreaterThan(at(2, "kasa")[2].at - at(2, "kasa")[1].at);
+    // The original voice is untouched by the new styles.
+    expect(at(1).map((e) => e.effect)).toEqual(["voiceStop", "voiceVowelStress", "voiceHiss", "voiceVowel"]);
+  });
+
+  it("the three sounds of a vowel are not a simple ratio of each other (no chord inside a vowel)", () => {
+    const simple = (x: number, y: number): string | null => {
+      const r = Math.max(x, y) / Math.min(x, y);
+      for (const m of [1, 2, 3]) {
+        for (let n = m; n <= 6 * m; n++) if (Math.abs(r - n / m) / r < 0.03) return `${n}:${m}`;
+      }
+      return null;
+    };
+    for (const vowel of Object.keys(FORMANTS)) {
+      const freqs = SOUND.effects[`voiceFormant${vowel.toUpperCase()}`].voices.map((v) => ("freq" in v ? v.freq : 0));
+      expect(freqs).toHaveLength(3);
+      for (let i = 0; i < 3; i++) for (let j = i + 1; j < 3; j++) expect(simple(freqs[i], freqs[j]), `${vowel} ${freqs[i]}/${freqs[j]}`).toBeNull();
+      // Stress is the same sounds, longer and louder.
+      expect(SOUND.effects[`voiceFormant${vowel.toUpperCase()}Stress`].voices.map((v) => ("freq" in v ? v.freq : 0))).toEqual(freqs);
+    }
+  });
+
+  it("the formants stay near the textbook values", () => {
+    const book: Record<string, [number, number]> = { a: [730, 1090], e: [530, 1840], i: [270, 2290], o: [570, 840], u: [300, 870] };
+    for (const [v, [f1, f2]] of Object.entries(book)) {
+      expect(Math.abs(FORMANTS[v].f1 / f1 - 1)).toBeLessThan(0.09);
+      expect(Math.abs(FORMANTS[v].f2 / f2 - 1)).toBeLessThan(0.09);
+    }
+  });
+
+  it("part 2: pitch drifts down over the phrase, the stressed vowel bumps up, the last vowel falls", () => {
+    const flat = at(2);
+    const sung = at(3);
+    expect(sung.map((e) => e.at)).toEqual(flat.map((e) => e.at));
+    const I = F.voice.intonation;
+    const ratio = sung.map((e, i) => e.pitch / flat[i].pitch);
+    // First sound is above the last by the declination, apart from the bump and the fall.
+    expect(ratio[0]).toBeCloseTo(1 - I.declination / 2);
+    expect(ratio[1]).toBeCloseTo((1 + I.declination * (1 / 3 - 0.5) + I.stressBump) * 1);
+    expect(ratio[3]).toBeCloseTo(1 + I.declination / 2 + I.finalFall);
+    // No sound moves by more than a few semitones.
+    for (const r of ratio) expect(Math.abs(Math.log2(r) * 12)).toBeLessThan(3);
+  });
+
+  it("part 3: every sound is a few percent off, the same way every time, and no two vowels are alike", () => {
+    const a = at(3, "aaaaaa");
+    const b = at(4, "aaaaaa");
+    expect(at(4, "aaaaaa")).toEqual(b);
+    const ratios = b.map((e, i) => e.pitch / a[i].pitch);
+    for (const r of ratios) expect(Math.abs(r - 1)).toBeLessThanOrEqual(F.voice.jitter + 1e-9);
+    expect(new Set(ratios.map((r) => r.toFixed(5))).size).toBeGreaterThan(3);
+  });
+
+  it("the styles never throw, stay finite, and a short or empty transcription is fine", () => {
+    for (const style of [0, 1, 2, 3, 4, 5, 6, 9, -3, 2.7, NaN]) {
+      for (const ipa of ["", "a", "ˈ", "☃", "ˈbwenas ˈnotʃes", "a".repeat(500), "iɾ(se)", "el / ˈeʝa"]) {
+        for (const e of ipaScript(ipa, style)) {
+          expect(Number.isFinite(e.pitch) && e.pitch > 0, `${style} ${ipa}`).toBe(true);
+          expect(Number.isFinite(e.at) && e.at >= 0).toBe(true);
+          expect(SOUND.effects[e.effect!], e.effect).toBeDefined();
+        }
+      }
+    }
+    expect(VOICE_STYLES).toHaveLength(7);
+  });
+});
+
+describe("the source-filter voice (styles 5 and 6)", () => {
+  const at = (style: number, ipa = "ˈkasa") => ipaScript(ipa, style);
+
+  it("vowels are the same source through different resonances, so every vowel has the same pitch", () => {
+    for (const v of ["a", "e", "i", "o", "u"]) {
+      const [e] = ipaScript(v, 5);
+      expect(e.effect).toBe(`voiceFilt${v.toUpperCase()}`);
+      expect(e.pitch).toBe(1);
+      const voice = SOUND.effects[e.effect!].voices[0] as unknown as { source: string; freq: number; formants: { freq: number }[] };
+      expect(voice.source).toBe("sawtooth");
+      expect(voice.freq).toBe(SOURCE_F0);
+      expect(voice.formants.map((f) => f.freq)).toEqual([FORMANTS[v].f1, FORMANTS[v].f2]);
+      expect(SOUND.effects[`${e.effect}Stress`]).toBeDefined();
+    }
+    // One oscillator per vowel, whatever the number of formants.
+    expect(SOUND.effects.voiceFiltA.voices).toHaveLength(1);
+  });
+
+  it("is slowed down by the configured factor, every sound stretched and every start later", () => {
+    const fast = at(2);
+    const slow = at(5);
+    expect(slow.map((e) => e.effect)).toEqual(fast.map((e) => e.effect!.replace("Formant", "Filt")));
+    expect(slow.every((e) => e.stretch === F.voice.slow)).toBe(true);
+    expect(fast.every((e) => e.stretch === undefined)).toBe(true);
+    slow.forEach((e, i) => expect(e.at).toBeCloseTo(fast[i].at * F.voice.slow));
+    // A word gap is stretched too.
+    expect(ipaScript("a e", 5)[1].at).toBeCloseTo((F.voice.symbols.a.length + F.voice.gap) * F.voice.slow);
+  });
+
+  it("style 5 has no intonation or jitter, and style 6 adds them to the same sounds", () => {
+    expect(new Set(at(5, "aaaa").map((e) => e.pitch))).toEqual(new Set([1]));
+    const six = at(6, "aaaa");
+    expect(new Set(six.map((e) => e.pitch)).size).toBeGreaterThan(2);
+    expect(six.map((e) => e.at)).toEqual(at(5, "aaaa").map((e) => e.at));
+    for (const e of six) expect(Math.abs(Math.log2(e.pitch) * 12)).toBeLessThan(3);
+  });
+});
+

@@ -1,5 +1,5 @@
 import { FLASHCARDS as F } from "../config";
-import { isGap, readIpa } from "./ipa";
+import { isGap, readIpa, type Phoneme } from "./ipa";
 
 // How the Spanish side of a card is "spoken" (issue 026): never with the
 // browser's text-to-speech, but as a run of short chiptune sounds. Two voices:
@@ -17,6 +17,8 @@ export interface VoiceSound {
   effect?: string;
   pitch: number;
   gain?: number;
+  // Stretches the sound's length (2 is twice as long).
+  stretch?: number;
 }
 
 export interface VoiceEvent extends VoiceSound {
@@ -51,16 +53,57 @@ export function spellingScript(text: string): VoiceEvent[] {
   return events;
 }
 
-export function ipaScript(ipa: string): VoiceEvent[] {
+// A number from -1 to 1 that depends only on its inputs, so the same word always
+// gets the same wobble.
+function wobble(index: number, symbol: string): number {
+  let h = (index + 1) * 374761393 + symbol.codePointAt(0)! * 668265263;
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  h ^= h >>> 16;
+  return ((h >>> 0) % 2001) / 1000 - 1;
+}
+
+// The voice styles, each adding to the one before: 1 `ipa` (one tone per vowel),
+// 2 `formants` (vowels by timbre), 3 `intonation`, 4 `jitter`. (Style 0 is the
+// spelling voice, which has no transcription to read.)
+export const VOICE_STYLES = ["spelling", "ipa", "formants", "intonation", "jitter", "filtered", "filtered+"] as const;
+
+// What each style does, on top of reading the transcription: how vowels are
+// made, whether pitch follows intonation, whether each sound is a little off, and
+// whether it is slowed down.
+const RECIPES = [
+  null,
+  { vowels: "pitch", intonation: false, jitter: false, slow: false },
+  { vowels: "tones", intonation: false, jitter: false, slow: false },
+  { vowels: "tones", intonation: true, jitter: false, slow: false },
+  { vowels: "tones", intonation: true, jitter: true, slow: false },
+  { vowels: "filtered", intonation: false, jitter: false, slow: true },
+  { vowels: "filtered", intonation: true, jitter: true, slow: true },
+] as const;
+
+export function ipaScript(ipa: string, style = 1): VoiceEvent[] {
+  const recipe = RECIPES[Math.min(Math.max(Math.trunc(style) || 1, 1), RECIPES.length - 1)] ?? RECIPES[1];
+  const { units } = readIpa(ipa, recipe.vowels);
+  const k = recipe.slow ? F.voice.slow : 1;
+  const sounds = units.filter((u): u is Phoneme => !isGap(u));
+  const lastVowel = sounds.map((s) => s.vowel).lastIndexOf(true);
   const events: VoiceEvent[] = [];
   let at = 0;
-  for (const unit of readIpa(ipa).units) {
+  let n = 0;
+  for (const unit of units) {
     if (isGap(unit)) {
-      at += unit.gap;
+      at += unit.gap * k;
       continue;
     }
-    events.push({ at, effect: unit.effect, pitch: unit.pitch });
-    at += unit.length;
+    let pitch = unit.pitch;
+    if (recipe.intonation) {
+      const I = F.voice.intonation;
+      const along = sounds.length > 1 ? n / (sounds.length - 1) : 0.5;
+      pitch *= 1 + I.declination * (along - 0.5) + (unit.stressed ? I.stressBump : 0) + (n === lastVowel ? I.finalFall : 0);
+    }
+    if (recipe.jitter) pitch *= 1 + F.voice.jitter * wobble(n, unit.symbol);
+    events.push({ at, effect: unit.effect, pitch, ...(recipe.slow ? { stretch: k } : {}) });
+    at += unit.length * k;
+    n++;
   }
   return events;
 }

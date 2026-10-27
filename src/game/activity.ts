@@ -69,7 +69,7 @@ export interface ActivityHost {
   // A short note sounded for a key press, at `freq` Hz (the track editor).
   blip?(freq: number): void;
   // One sound of the flashcards' voice (see `VoiceSound`). Missing in tests.
-  voice?(sound: { pitch: number; effect?: string; gain?: number }): void;
+  voice?(sound: { pitch: number; effect?: string; gain?: number; stretch?: number }): void;
   // Pays points and applies `effects` for the running task right now, as if it
   // had finished, without ending it. Returns the points, or null if nothing was paid.
   reward?(points: number, effects: Effect[]): number | null;

@@ -203,6 +203,30 @@ describe("the cycle button's long press", () => {
   });
 });
 
+describe("review fixes", () => {
+  const framesToLong = Math.ceil(TOUCH.longPressMs / TOUCH.frameMs);
+  it("pressing CHOICE again right after a long press cannot leave Shift down", () => {
+    for (const gap of [0, 1, 2, 3]) {
+      const { pad, frame } = rig();
+      pad.pressControl(1, "cycle");
+      for (let i = 0; i < framesToLong + 3; i++) frame();
+      pad.releasePointer(1);
+      for (let i = 0; i < gap; i++) frame();
+      pad.pressControl(1, "cycle");
+      pad.releasePointer(1);
+      for (let i = 0; i < 10; i++) frame();
+      expect(pad.held()).toEqual([]);
+    }
+  });
+  it("sliding the pad within one update never leaves two directions down", () => {
+    const { pad, frame, keyboard } = rig();
+    pad.padMove(1, "left");
+    pad.padMove(1, "up");
+    expect(keyboard.heldKeys()).toEqual(["KeyW"]);
+    expect(frame().dir).toBe("up");
+  });
+});
+
 describe("letting go", () => {
   const holdEverything = (pad: TouchPad, frame: () => Controls) => {
     pad.padMove(1, "right");

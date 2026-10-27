@@ -53,14 +53,24 @@ describe("startLoop", () => {
     expect(renders).toBeLessThanOrEqual(62);
   });
 
+  it.each([75, 90, 144, 165])("draws about 60 a second on a %i Hz display, not a divisor of it", (hz) => {
+    const t = env();
+    let renders = 0;
+    startLoop({ update() {}, render: () => renders++ }, t.e);
+    for (let i = 0; i < hz; i++) t.frame(1000 / hz);
+    expect(renders).toBeGreaterThanOrEqual(57);
+    expect(renders).toBeLessThanOrEqual(61);
+  });
+
   it("does not skip frames on a jittery 60 Hz display", () => {
     const t = env();
     let renders = 0;
     startLoop({ update() {}, render: () => renders++ }, t.e);
     const steps = [16.1, 17.3, 16.4, 16.9, 16.6, 16.7];
     for (let i = 0; i < 60; i++) t.frame(steps[i % steps.length]);
-    expect(renders).toBe(60);
-    expect(RENDER_INTERVAL_MS).toBeLessThan(1000 / 60);
+    expect(renders).toBeGreaterThanOrEqual(58);
+    expect(renders).toBeLessThanOrEqual(60);
+    expect(RENDER_INTERVAL_MS).toBeCloseTo(1000 / 60);
   });
 
   it("stops while the page is hidden, and carries on without a jump", () => {

@@ -23,16 +23,19 @@ const browserEnv = (): LoopEnv => ({
   onVisibility: (listener) => document.addEventListener("visibilitychange", listener),
 });
 
-// Drawing is capped near 60 a second (a 120 Hz phone would otherwise heat up for nothing).
-// A little under 1000/60 so a steady 60 Hz display, whose frames jitter, is never halved.
-export const RENDER_INTERVAL_MS = 1000 / 60 - 1.5;
+// Drawing is paced to 60 a second whatever the display's refresh rate (120, 144, 75 Hz), so a
+// phone does not heat up drawing the same state. The next draw time moves on by exactly one
+// interval each draw (no drift), and a frame within half a display frame of it counts as on time,
+// so a 60 Hz display with jittery frame times is never halved.
+export const RENDER_INTERVAL_MS = 1000 / 60;
 
 // Fixed-timestep simulation with a separate render step. `alpha` is how far we
 // are between the last and next update, for interpolating drawn positions.
 // Stops while the page is hidden and carries on, without a jump, when it is back.
 export function startLoop({ update, render }: LoopHandlers, env: LoopEnv = browserEnv()): () => void {
   let last = env.now() / 1000;
-  let lastRender = -Infinity;
+  let nextRender = -Infinity;
+  let lastTick = env.now();
   let accumulator = 0;
   let frame: number | null = null;
   let stopped = false;
@@ -49,8 +52,13 @@ export function startLoop({ update, render }: LoopHandlers, env: LoopEnv = brows
       accumulator -= TIMESTEP;
     }
 
-    if (nowMs - lastRender >= RENDER_INTERVAL_MS) {
-      lastRender = nowMs;
+    const half = Math.min(nowMs - lastTick, RENDER_INTERVAL_MS) / 2;
+    lastTick = nowMs;
+    if (nowMs + half >= nextRender) {
+      nextRender = nextRender === -Infinity ? nowMs : nextRender;
+      nextRender += RENDER_INTERVAL_MS;
+      // Far behind (slow frames): drop the lag instead of drawing back to back.
+      if (nextRender < nowMs - RENDER_INTERVAL_MS) nextRender = nowMs;
       render(accumulator / TIMESTEP);
     }
     frame = env.raf(tick);
@@ -60,6 +68,8 @@ export function startLoop({ update, render }: LoopHandlers, env: LoopEnv = brows
     if (stopped || env.hidden() || frame !== null) return;
     // Back from hidden: forget the time away.
     last = env.now() / 1000;
+    lastTick = env.now();
+    nextRender = -Infinity;
     frame = env.raf(tick);
   });
 

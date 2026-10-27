@@ -76,10 +76,14 @@ const touch = mountTouchUi({
 screen.setTouch(touch.visible);
 
 // Keep the browser from zooming or selecting when a finger is on the game.
-document.addEventListener("contextmenu", (e) => e.preventDefault());
-document.addEventListener("gesturestart", (e) => e.preventDefault());
+document.addEventListener("contextmenu", (e) => {
+  if (touch.visible) e.preventDefault();
+});
+document.addEventListener("gesturestart", (e) => {
+  if (touch.visible) e.preventDefault();
+});
 document.addEventListener("touchmove", (e) => {
-  if (e.touches.length > 1) e.preventDefault();
+  if (touch.visible && e.touches.length > 1) e.preventDefault();
 }, { passive: false });
 
 // Load every sprite before the first frame. A missing one draws as a coloured

@@ -81,6 +81,12 @@ export class TouchPad {
     this.presses.set(control, count);
     if (count > 1) return;
     if (control === "cycle") {
+      // A long press still finishing (Tab or Shift not yet let go): finish it first, so a
+      // new press cannot orphan Shift.
+      if (this.cycle) {
+        this.up(TOUCH_KEYS.cycle);
+        this.up(TOUCH_KEYS.shift);
+      }
       this.cycle = { held: true, ms: 0, long: false, tabSent: false, finishing: false };
     } else {
       this.down(TOUCH_KEYS[control]);
@@ -102,7 +108,8 @@ export class TouchPad {
     }
     if (owner.kind !== "pad" || owner.dir === dir) return;
     // Let go of the old direction first, so two are never down together.
-    if (owner.dir) this.up(TOUCH_KEYS.dir[owner.dir]);
+    // At once, even if no update has read it yet: the old direction must not overlap the new.
+    if (owner.dir) this.up(TOUCH_KEYS.dir[owner.dir], true);
     owner.dir = dir;
     if (dir) this.down(TOUCH_KEYS.dir[dir]);
   }
@@ -203,10 +210,10 @@ export class TouchPad {
     this.sink.down(code, shift);
   }
 
-  private up(code: string): void {
+  private up(code: string, now = false): void {
     const state = this.keys.get(code);
     if (!state) return;
-    if (state.seen === 0) {
+    if (state.seen === 0 && !now) {
       state.pendingUp = true;
       return;
     }

@@ -335,6 +335,73 @@ describe("the lighting layer", () => {
     expect(kitchen.raw.arc).not.toHaveBeenCalled();
   });
 
+  describe("the glow follows the decor item (issue 069)", () => {
+    // Glow arcs in the main room at the given hour, with `item` in the lamp slot.
+    function arcsWith(item: string | null, hour: number, blinds = 1) {
+      const { game, feature } = setup();
+      game.decor.own("lamp-test-stool");
+      game.decor.own("lamp-test-stool-lamp");
+      if (item) expect(game.decor.place("lamp-sofa", item)).toBe(true);
+      game.state.applyEffects([{ var: "blinds", set: blinds }]);
+      setHour(game, hour);
+      const f = fakeCtx();
+      feature.drawWorld(f.ctx, { x: 0, y: 0 });
+      return f.raw.arc.mock.calls.map((c) => c.slice(0, 3));
+    }
+    const stoolLampRings = [24, 15.84, 7.92].map((r) => [136, 104, r]);
+    const near = (arcs: number[][], x: number, y: number) => arcs.filter((a) => a[0] === x && a[1] === y);
+
+    it("the default lamp keeps today's glow, with the desk's", () => {
+      const arcs = arcsWith(null, 23);
+      expect(near(arcs, 136, 104).map((a) => a[2])).toEqual([40, 40 * 0.66, 40 * 0.33]);
+      expect(arcs.length).toBe(6); // the lamp's three rings and the desk's three
+    });
+
+    it("the bare stool gives no light (the desk's glow stays)", () => {
+      const arcs = arcsWith("lamp-test-stool", 23);
+      expect(near(arcs, 136, 104)).toEqual([]);
+      expect(arcs.length).toBe(3);
+    });
+
+    it("the stool with a lamp gives its own, smaller glow", () => {
+      const arcs = arcsWith("lamp-test-stool-lamp", 23);
+      expect(near(arcs, 136, 104).map((a) => a[2])).toEqual(stoolLampRings.map((r) => r[2]));
+      expect(arcs.length).toBe(6);
+    });
+
+    it("no lamp glow by day, whatever is in the slot", () => {
+      for (const item of [null, "lamp-test-stool", "lamp-test-stool-lamp"]) expect(arcsWith(item, 12)).toEqual([]);
+    });
+
+    it("a saved and loaded placement lights the room the same way", () => {
+      const { game, feature } = setup();
+      game.decor.own("lamp-test-stool-lamp");
+      game.decor.place("lamp-sofa", "lamp-test-stool-lamp");
+      const saved = JSON.parse(JSON.stringify(game.decor));
+      const again = setup();
+      again.game.decor.load(saved);
+      setHour(again.game, 23);
+      const f = fakeCtx();
+      again.feature.drawWorld(f.ctx, { x: 0, y: 0 });
+      expect(near(f.raw.arc.mock.calls.map((c) => c.slice(0, 3)), 136, 104).map((a) => a[2])).toEqual([24, 24 * 0.66, 24 * 0.33]);
+      void feature;
+    });
+
+    it("a preview of an item shows its light (or none) and putting the lamp back restores it", () => {
+      const { game, feature } = setup();
+      game.decor.own("lamp-test-stool");
+      setHour(game, 23);
+      expect(game.decor.preview("lamp-sofa", "lamp-test-stool")).toBe(true);
+      const f = fakeCtx();
+      feature.drawWorld(f.ctx, { x: 0, y: 0 });
+      expect(near(f.raw.arc.mock.calls.map((c) => c.slice(0, 3)), 136, 104)).toEqual([]);
+      game.decor.clearPreview();
+      const g = fakeCtx();
+      feature.drawWorld(g.ctx, { x: 0, y: 0 });
+      expect(near(g.raw.arc.mock.calls.map((c) => c.slice(0, 3)), 136, 104).length).toBe(3);
+    });
+  });
+
   it("follows the clock every frame, not only on the hour", () => {
     const { game, feature } = setup();
     game.state.applyEffects([{ var: "blinds", set: 1 }]);

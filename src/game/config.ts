@@ -302,10 +302,11 @@ export const TIME_OF_DAY = {
   // The main room's blinds: closed, they take this much light away at midday
   // (less at night, when there is no daylight to keep out).
   blindsClosedDim: 0.1,
-  // A faint glow around lamps at night. `sprite` names the piece it sits on;
-  // `radius` is in pixels; `alpha` is the strength at full night.
+  // A faint glow around things that are lit at night, other than decor items (a
+  // decor item gives its own, `glow` in decor-data.ts: the lamp by the sofa).
+  // `sprite` names the piece it sits on; `radius` is in pixels; `alpha` is the
+  // strength at full night.
   glows: [
-    { sprite: "lamp-table", radius: 40, alpha: 0.2 },
     { sprite: "desk", radius: 28, alpha: 0.1 },
   ],
 };

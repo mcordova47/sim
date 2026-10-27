@@ -125,7 +125,6 @@ All of this lives in `ENCOUNTERS` in `src/game/config.ts`, not in the engine.
 | `unsubscribe` | `{ at0: 0.5, at100: 0.9, min: 0.05, max: 0.95 }` | success at mood 0 and 100 (a straight line between), and its clamp |
 | `persistencePenalty` | 0.1 per level | taken off success |
 | `mood` | `{ ignore: 3, unsubscribe: 3, cart: 2, dismissal: 0 }` | mood changes |
-| `dismissSeconds` | 2 | how long an already-own card shows |
 | `delayHours` | per ad, 4 to 12 | arrival of an ad purchase |
 | `recent` | 3 | ads not repeated (also the saved `seen` list cap) |
 | `maxSeen` | 20 | most ad ids kept in the save |
@@ -413,7 +412,7 @@ The achievements feature already knows when an achievement unlocks, so it calls 
 
 **Tests (stage B)** with a fake random and a fake clock:
 - The rate: over many seeded rolls the encounter rate is near `chance` for eligible tasks and zero for the others (`work-sofa`, a cancelled task); the cooldown blocks an encounter inside 3 game hours and allows one after; the daily cap of 2 holds across a day boundary and a sleep skip; `firstDay` holds.
-- The already-own dismissal: an owned item and a queued item give no menu, no delivery and no mood change, and still count for the cooldown.
+- The already-own card: an owned item and a queued item give no menu, no delivery and no mood change, stay until closed (E or Escape), and still count for the cooldown.
 - Unsubscribe: the success chance at mood 0, 25, 50, 60 and 100 for persistence 0, 1 and 2 (the values in the section 4 table, and the 5 and 95 percent clamps), with a seeded random checked on both sides of each chance; a failed unsubscribe halves the cooldown and sets the next chance, and the cap still holds; persistence lowers the odds.
 - Mood: the impulse chance at mood 0, 25, 50, 60 and 100 (40, 23.3, 6.7, 0 and 0 percent) and over many seeded rolls the rate lands within tolerance of each; it is exactly 0 at 60 and above even after Look closer; the chance falls smoothly (never rises as mood rises); Look closer raises it below 60; Look closer raises the impulse chance; Add to cart calls `deliver` once and a full queue or refused delivery shows a dismissal, not an error.
 - The ad blocker: ON means no roll and no state change; it survives a progress reset; the L key toggles and saves; the hint line changes.

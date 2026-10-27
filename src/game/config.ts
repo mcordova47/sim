@@ -143,8 +143,6 @@ export const ENCOUNTERS = {
   persistencePenalty: 0.1,
   // Mood changes: Ignore, a successful unsubscribe, Add to cart (a real or an impulse one).
   mood: { ignore: 3, unsubscribe: 3, cart: 2, dismissal: 0 },
-  // How long the card of an ad for something you already have shows, in seconds.
-  dismissSeconds: 2,
   // A delivery for an ad purchase arrives "later today" up to this many hours, else "tomorrow".
   laterTodayHours: 6,
   // The last ads shown that are not shown again if another is possible, and the most kept in the save.

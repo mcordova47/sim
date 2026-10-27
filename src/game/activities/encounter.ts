@@ -1,6 +1,5 @@
 import type { Controls } from "../../input/controls";
-import { drawCard, drawNote } from "../../render/encounter-card";
-import { textBoxRect } from "../../render/dialog-box";
+import { drawCard } from "../../render/encounter-card";
 import { BaseActivity, type ActivityHost } from "../activity";
 import { ENCOUNTERS } from "../config";
 import { choice, menu, say } from "../dialog";
@@ -12,7 +11,7 @@ import { arrivesWord, impulseChance, unsubscribeChance } from "../encounters";
 // and not a fight. Nothing is ever lost: Ignore and a working Unsubscribe lift mood a little,
 // Add to cart queues a delivery (the same package as a gift), a failed Unsubscribe only makes
 // the next ad come sooner. An ad for something you already have, or have ordered, is just a
-// card that goes away by itself. It pays nothing, is never a completion or a cancel and has no
+// card with one line, and it stays until you close it. It pays nothing, is never a completion or a cancel and has no
 // cooldown of its own (the encounters' own cooldown lives in `Encounters`), so every way out is
 // the quiet end. It holds the clock: no pressure while it is open.
 
@@ -40,9 +39,6 @@ export class EncounterActivity extends BaseActivity {
 
   // The second page of the card (Look closer) is showing.
   details = false;
-  // The line shown at the foot of the card for an ad you already have, until it goes away.
-  note: string | null = null;
-  private left = 0;
   private looked = false;
 
   constructor(
@@ -55,21 +51,13 @@ export class EncounterActivity extends BaseActivity {
 
   start(): void {
     const refusal = this.refusal();
-    if (refusal !== null) {
-      this.note = refusal;
-      this.left = ENCOUNTERS.dismissSeconds;
-      return;
-    }
+    if (refusal !== null) return this.speak(refusal);
     const mood = this.deps.mood();
     const tone = mood < ENCOUNTERS.toneLow ? ENCOUNTER_WORDS.toneLow : mood >= ENCOUNTERS.toneHigh ? ENCOUNTER_WORDS.toneHigh : null;
     this.openMenu([this.ad.narrator ?? CARD_WORDS[this.ad.card].appeared, ...(tone ? [tone] : [])].join("\n"));
   }
 
-  update(dt: number, _controls: Controls): void {
-    if (this.done || this.note === null) return;
-    this.left -= dt;
-    if (this.left <= 0) this.leave();
-  }
+  update(_dt: number, _controls: Controls): void {}
 
   // Why nothing can be bought (an ad for something you have, ordered or cannot order), or null.
   private refusal(): string | null {
@@ -149,6 +137,5 @@ export class EncounterActivity extends BaseActivity {
   draw(ctx: CanvasRenderingContext2D, _screen: { width: number; height: number }): void {
     if (this.done) return;
     drawCard(ctx, { ad: this.ad, details: this.details, product: this.deps.product, sprites: this.host.sprites });
-    if (this.note !== null) drawNote(ctx, this.note, textBoxRect());
   }
 }

@@ -129,7 +129,7 @@ export const ADS: readonly Ad[] = [
     headline: "20% off ends tonight",
     body: ["Hand-poured soy candle. 40-hour burn.", "Use code EVENING20 at checkout.", "Offer ends at midnight."],
     button: "SHOP THE SALE",
-    closer: ["Evening candle, soy wax, 8 OZ.", "$22 $17.60"],
+    closer: ["Evening candle, soy wax, 8 OZ.", "WAS $22. NOW $17.60."],
     persistence: 1,
     delayHours: 8,
   },

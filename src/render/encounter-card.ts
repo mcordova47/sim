@@ -183,13 +183,3 @@ function drawProduct(ctx: CanvasRenderingContext2D, view: CardView, layout: Card
     ctx.fillRect(x, y, w * scale, h * scale);
   }
 }
-
-// The line at the foot of the card for an ad you already have or have ordered, or a full cart:
-// the same look as the dialog box (the text box is not used: nothing waits for a key).
-export function drawNote(ctx: CanvasRenderingContext2D, text: string, box: Box): void {
-  ctx.fillStyle = COLOR.ink;
-  ctx.fillRect(box.x, box.y, box.w, box.h);
-  ctx.fillStyle = COLOR.paper;
-  ctx.fillRect(box.x + 1, box.y + 1, box.w - 2, box.h - 2);
-  drawText(ctx, text, box.x + 6, box.y + 6, { color: COLOR.ink, shadow: null });
-}

@@ -363,26 +363,35 @@ describe("the choices", () => {
 });
 
 describe("an ad for something you already have", () => {
-  it("is just a card: one line, no menu, no delivery, no mood change, gone by itself after two seconds; it still counts for the cooldown", () => {
+  it("is just a card: one line, no menu, no delivery, no mood change, stays until you close it; it still counts for the cooldown", () => {
     const s = setup();
     s.game.decor.own("art-robin");
     const m = mood(s.game);
     s.rnd.next(0.1, 0.01);
     doTask(s.game, "doomscroll");
     expect(encounterUp(s.game)).toBe(true);
-    expect(s.game.dialogOpen).toBe(false);
     const afterScroll = mood(s.game);
     expect(afterScroll).toBeLessThan(m);
-    const note = (s.game.interaction.active!.activity as unknown as { note: string }).note;
-    expect(note).toBe(ENCOUNTER_WORDS.alreadyOwn);
     expect(s.game.encounters.toJSON().today).toBe(1);
-    frames(s.game, Math.round(ENCOUNTERS.dismissSeconds * 60) - 10);
+    // It does not go away by itself, however long it is left.
+    frames(s.game, 600);
     expect(encounterUp(s.game)).toBe(true);
-    frames(s.game, 20);
+    expect(s.game.dialogOpen).toBe(true);
+    expect(readAll(s.game)).toEqual([ENCOUNTER_WORDS.alreadyOwn]);
     expect(s.game.interaction.busy).toBe(false);
     expect(mood(s.game)).toBeCloseTo(afterScroll, 1);
     expect(s.game.deliveries.pendingItems).toHaveLength(0);
     expect(s.log.cancelled).toBe(0);
+  });
+
+  it("Escape closes it at once", () => {
+    const s = setup();
+    s.game.decor.own("art-robin");
+    s.game.startEncounter(adById("ad-robin")!);
+    expect(encounterUp(s.game)).toBe(true);
+    s.game.update(dt, esc);
+    s.game.update(dt, NO_INPUT);
+    expect(s.game.interaction.busy).toBe(false);
   });
 
   it("an item already ordered or waiting at the door says it is in the cart", () => {
@@ -390,8 +399,7 @@ describe("an ad for something you already have", () => {
     s.game.deliveries.deliver("art-robin", 20);
     s.rnd.next(0.1, 0.01);
     doTask(s.game, "doomscroll");
-    expect((s.game.interaction.active!.activity as unknown as { note: string }).note).toBe(ENCOUNTER_WORDS.alreadyInCart);
-    frames(s.game, 150);
+    expect(readAll(s.game)).toEqual([ENCOUNTER_WORDS.alreadyInCart]);
     expect(s.game.interaction.busy).toBe(false);
     expect(s.game.deliveries.pendingItems).toHaveLength(1);
     // Waiting at the door counts too.
@@ -399,7 +407,7 @@ describe("an ad for something you already have", () => {
     t.game.deliveries.deliver("art-robin", 0);
     expect(t.game.deliveries.waiting).toBe(true);
     t.game.startEncounter(adById("ad-robin")!);
-    expect((t.game.interaction.active!.activity as unknown as { note: string }).note).toBe(ENCOUNTER_WORDS.alreadyInCart);
+    expect(readAll(t.game)).toEqual([ENCOUNTER_WORDS.alreadyInCart]);
   });
 
   it("an order refused while the menu is up (bought meanwhile, or a full cart) is one plain line, not an error", () => {

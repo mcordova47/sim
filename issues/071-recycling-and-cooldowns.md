@@ -1,7 +1,7 @@
 ---
 id: 071
 title: No recycling bin; recycle from the boxes; no cooldowns on state-gated tasks
-status: todo
+status: done
 owner: claude
 depends_on: []
 ---
@@ -18,3 +18,29 @@ From Marc's playtest of 070 (2026-10-26):
 - Tests for the kitchen change (the map, reachability, the tasks at the boxes and the bin, no recycling object, the golden frames), the cooldown table (every state-gated task has cooldown 0 and a test per example), docs updated. Render the kitchen's north-east corner at 1x and 4x and look. `npm run sprites`, `npm test` and `npm run build` pass.
 
 ## Progress log
+
+- 2026-10-26 (claude): started. Plan: remove `Y` from the kitchen map, move `recycle-boxes` to the boxes object `X`, drop the `exclusive` link, set `cooldown: 0` on state-gated tasks (a `STATE_GATED` constant in tasks.ts), audit table in docs/tasks.md.
+- 2026-10-26 (claude): done, ready for review.
+  - Kitchen: `KITCHEN_MAP` row 1 is now `#........NXX#` (the `Y` tile is plain floor, walkable; the wall tiles and reachability checks pass; main-room golden frames untouched, the kitchen is not in them). Removed the `Y` object def. `recycle-boxes` is on `X` after `flatten-boxes`; `N` has only `take-trash`. Deleted `art/src/recycling.sprite` and `public/sprites/recycling.png` (nothing else used them; also dropped `Y` from the legend of `scripts/room-mockup-kitchen-bath.mjs`).
+  - Removed `exclusive: 'trash'` from both tasks. The `hidden` rule from 070 stays (game.ts, comment updated): at the boxes a stack shows Flatten, flat shows the recycling, gone shows Flatten greyed with NO BOXES TO FLATTEN; they never overlap, so no choice appears. The refusal reasons on `recycle-boxes` stay as a safety net (they are reachable only through tests or a future placement); the `hidden` rule is not dead, it keeps the recycling off the prompt when not flat.
+  - Cooldown 0 on: make-bed (was 30), open-blinds and close-blinds (15), coffee, drink-coffee, flatten-boxes, recycle-boxes, water-plant, water-plant-droop (were the 10 s default); collect-delivery, record-play and the rest were already 0. Kept: dishes 45, check-plant 60, records 45, work 30, tidy-desk 90, sleep 60, nap 60, admire-art 60, mirrors 60, contemplate 30, side project 90, the default 10 on plate tasks and the rest. Full table with reasons is in docs/tasks.md (new "Cooldowns" section). Points and repeat-penalty code unchanged.
+  - Tests: boxes.test.ts updated (the old tests expected flatten to cool down and the recycling at the bin; they now check the boxes object, no overlap per state, bin never blocked by flat boxes, no `exclusive`, map row, no recycling sprite or object, the vacated tile walkable). New src/game/cooldowns.test.ts: the table, sleep then make-bed at once (no taskBlocked), blinds, coffee, flatten, plant, and a state-and-message matrix for each state-gated task. No existing test was weakened; the only ones changed were the three in boxes.test.ts that asserted the removed behaviour.
+  - Docs: tasks.md, state.md, floor-plan.md.
+  - Checked: `npm run sprites`, `npm run build`, `npm test` (84 files, 1913 tests) pass. Looked at the kitchen north-east corner at 1x and 4x with the boxes as a stack, flat and gone (a top-down mockup from the real map and sprites, made by the room-mockup script adapted outside the repo): bin, boxes and plain floor where the recycling bin was look right.
+  - Not checked: how it feels in a browser (walking up to the boxes and the Flatten/recycle prompt order); the mockup is not the real renderer's wall pass.
+
+- 2026-10-26 (reviewer, independent): **Review: approve.**
+  - Ran `npm test` (84 files, 1913 tests), `npm run build` and `npm run sprites`: all pass, no files changed by the sprite run. Diff touches only src/docs/art/scripts/issue file; PLAN.md and other issues untouched; no reference-photos content.
+  - My own checks (vite-node scripts outside the repo, real `Game`, every standable tile and facing):
+    - Kitchen, boxes 0/1/2: at the boxes (10,2 up) shows recycle-boxes / flatten-boxes / flatten-boxes greyed `NO BOXES TO FLATTEN`; `choices` is empty in all three (no Tab choice, no overlap). The bin (8,1 right and 9,2 up) shows only take-trash in every boxes state, never blocked; no `exclusive` left on either task. Row 1 of `KITCHEN_MAP` is `#........NXX#`; no `recycling` sprite file or reference left in src (docs/issues only mention it as history).
+    - Bed, by state (bedMade, energy, clock): make-bed is offered at once when the bed is unmade, then work-bed/sleep/doomscroll by Tab; made bed and not tired shows work-bed; made bed and late/tired shows sleep. Blinds alternate with exactly one offered at a time. Table: coffee at mug 0, drink-coffee at mug 1, `NO CLEAN PLATES` at 9 dirty. Plant exclusive group: check-plant (damp), water-plant (dry 20), water-plant-droop (dry 200), never two of them. The Tab cycle wraps correctly in each (issue 039).
+    - Escape (046) and quiet exit (059): no code in them was touched by the diff; covered only by the existing tests, not re-exercised.
+    - Farming run (300 game seconds, real scoreboard): blinds open/close paid 341 points over 291 completions (floors at `minPoints` 1) and pinned mood at 100; coffee/drink paid 347 over 18 completions (held by the 8-dirty-plates limit and the dishes cooldown); make-bed is held by sleep (cooldown 60).
+  - Criteria: Kitchen change **pass**; `take-trash` only at `N`, `recycle-boxes` on `X`, hidden rule kept, exclusive link removed, refusal reasons kept as a safety net (not dead: still reachable by tests) **pass**; recycling sprite and PNG deleted **pass**; cooldown audit table in docs/tasks.md and `cooldown: 0` on all the required tasks **pass**; sleep then make-bed at once (and blinds, coffee) **pass**; tests, docs, sprites, test and build **pass**; kitchen NE corner at 1x and 4x **can't verify** (the author viewed a top-down mockup only; I did not render the real renderer's wall pass); how it feels in a real browser **can't verify**.
+  - Notes, not blockers:
+    - Blinds at cooldown 0 can be alternated for about 1 point a second indefinitely and set mood to 100 (+5 per open). The issue asked for exactly this; if it matters, a later issue could give mood-farming tasks a mood gate or a lower mood effect.
+    - The test "no task at cooldown 0 is spammable" in cooldowns.test.ts is close to a tautology (any task with a `requires` passes). Not a weakened test, but it proves little.
+    - No existing test was weakened: the three boxes.test.ts changes assert the removed behaviour and each has a stronger replacement.
+    - Bed prompt with an unmade bed shows Make the bed first, so a tired player has to press Tab to reach Sleep (a consequence of no cooldown; probably fine).
+    - A kitchen level built from a state lacking `boxes` throws at level validation (before this issue too), so the "older save without boxes" path only works through the main room; unchanged by 071.
+    - Table row for plates (reheat, cook, eat-dinner at the default 10 s) is unchanged and not state-gated by `plate`, as documented.

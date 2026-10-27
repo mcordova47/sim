@@ -91,10 +91,10 @@ const CONTENT: Task[] = [
   { id: 'humidifier', name: 'Refill the humidifier', prompt: 'Refill the humidifier', duration: 4, points: 45,
     flavor: 'The air is now 4% less crunchy.' },
   { id: 'take-trash', name: 'Take out the trash', prompt: 'Take out the trash', duration: 4, points: 50,
-    exclusive: 'trash', flavor: 'The bag was not full. You took it out anyway, out of spite.' },
-  // Issue 070: only offered at the recycling and the bin when the boxes are flat (it takes their place).
+    flavor: 'The bag was not full. You took it out anyway, out of spite.' },
+  // Issues 070 and 071: done at the boxes, and only offered there when they are flat.
   { id: 'recycle-boxes', name: 'Take out the recycling', prompt: 'Take out the recycling', duration: 5, points: 55,
-    exclusive: 'trash', flavor: 'Down the stairs, into the bin, and the corner of the kitchen is yours again.' },
+    flavor: 'Down the stairs, into the bin, and the corner of the kitchen is yours again.' },
   { id: 'cook', name: 'Cook dinner', prompt: 'Cook dinner', duration: 8, points: 90,
     flavor: 'Smoke alarm: silent, but judging.' },
   { id: 'dishes', name: 'Do the dishes', prompt: 'Do the dishes', duration: 7, points: 80,
@@ -137,9 +137,13 @@ function working(text: string[]): Partial<Task> {
   };
 }
 
+// Issue 071: a task that already gates itself by state has no time cooldown as well, so the
+// state alone says when it can be done again (docs/tasks.md has the audit).
+const STATE_GATED = { cooldown: 0 };
+
 const STATE_RULES: Record<string, Partial<Task>> = {
   "make-bed": {
-    cooldown: 30,
+    ...STATE_GATED,
     requires: [{ var: "bedMade", max: 0, reason: "BED IS MADE" }],
     effects: [{ var: "bedMade", set: 1 }, { var: "mood", add: 3 }],
   },
@@ -152,12 +156,14 @@ const STATE_RULES: Record<string, Partial<Task>> = {
   },
   // The boxes are a stack (1), flat (0) or gone (2) (issues 066 and 070). Opening a package at the door puts the stack back.
   "flatten-boxes": {
+    ...STATE_GATED,
     requires: [{ var: "boxes", min: 1, max: 1, reason: "NO BOXES TO FLATTEN" }],
     effects: [{ var: "boxes", set: 0 }],
   },
-  // Flat boxes go out with the recycling. With a stack or no boxes it is not startable, so the
-  // ordinary "Take out the trash" is the one offered (same `exclusive` name, this one first).
+  // Flat boxes go out with the recycling, from the boxes themselves. With a stack or no boxes
+  // it is not startable (and the game hides it), so only "Flatten the boxes" shows there.
   "recycle-boxes": {
+    ...STATE_GATED,
     requires: [
       { var: "boxes", max: 1, reason: "NO BOXES TO TAKE OUT" },
       { var: "boxes", max: 0, reason: "FLATTEN THE BOXES FIRST" },
@@ -166,21 +172,23 @@ const STATE_RULES: Record<string, Partial<Task>> = {
   },
   // Coffee alternates: the mug is empty, so you make it; it is full, so you drink it.
   coffee: {
+    ...STATE_GATED,
     requires: [NO_CLEAN_PLATES, { var: "mug", max: 0, reason: "COFFEE IS WAITING" }],
     effects: [dirty(1), { var: "mug", set: 1 }, { var: "energy", add: 2 }, { var: "mood", add: 2 }],
   },
   "drink-coffee": {
+    ...STATE_GATED,
     requires: [{ var: "mug", min: 1, reason: "NO COFFEE MADE" }],
     effects: [{ var: "mug", set: 0 }, { var: "energy", add: 8 }, { var: "mood", add: 4 }],
   },
   // The blinds alternate: open them if they are closed, close them if open.
   "open-blinds": {
-    cooldown: 15,
+    ...STATE_GATED,
     requires: [{ var: "blinds", max: 0, reason: "BLINDS ARE OPEN" }],
     effects: [{ var: "blinds", set: 1 }, { var: "mood", add: 5 }],
   },
   "close-blinds": {
-    cooldown: 15,
+    ...STATE_GATED,
     requires: [{ var: "blinds", min: 1, reason: "BLINDS ARE CLOSED" }],
     effects: [{ var: "blinds", set: 0 }],
   },
@@ -195,8 +203,8 @@ const STATE_RULES: Record<string, Partial<Task>> = {
   journal: { effects: [{ var: "mood", add: 6 }], pointsBonus: { var: "mood", perUnit: 0.2 } },
   shower: { effects: [{ var: "mood", add: 6 }] },
   "brush-teeth": { effects: [{ var: "mood", add: 2 }] },
-  "water-plant-droop": { requires: REVIVE_REQUIRES, effects: [...WATER_EFFECTS, { var: "mood", add: 4 }] },
-  "water-plant": { requires: WATER_REQUIRES, effects: [...WATER_EFFECTS, { var: "mood", add: 3 }] },
+  "water-plant-droop": { ...STATE_GATED, requires: REVIVE_REQUIRES, effects: [...WATER_EFFECTS, { var: "mood", add: 4 }] },
+  "water-plant": { ...STATE_GATED, requires: WATER_REQUIRES, effects: [...WATER_EFFECTS, { var: "mood", add: 3 }] },
   // Offered only when the other two are not (the soil is damp), so it never lies.
   "check-plant": {},
   "take-trash": { effects: [{ var: "mood", add: 2 }] },

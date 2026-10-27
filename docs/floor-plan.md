@@ -45,7 +45,7 @@ Columns and rows counted inside the walls, from the top left (col 0, row 0).
 The south wall steps down toward the front door: it is at row 6 along the sofa, row 7 at cols 7-8, and row 8 from col 9 east. There is **one lane** to walk around the bed: down its west side (col 10) and along its foot (row 7). The player starts at col 4, row 3, facing the sofa.
 
 ### Kitchen
-The bar runs along the top (11 x 4): the sink and counter (3 wide) and the stove (3 wide), both 2 deep against the south wall of the bar (the wall above the bath), the window in the west wall, the recycling, bin and box stack/pantry in the north-east corner, and the tote bag beside them. The leg drops down the east side (4 x 4) with the fridge (2 x 2) in the south-east corner, against the south and east walls, facing north (Marc, 2026-10-23). The bath is the solid block at the bottom left.
+The bar runs along the top (11 x 4): the sink and counter (3 wide) and the stove (3 wide), both 2 deep against the south wall of the bar (the wall above the bath), the window in the west wall, the bin and box stack/pantry in the north-east corner (no recycling bin, issue 071), and the tote bag beside them. The leg drops down the east side (4 x 4) with the fridge (2 x 2) in the south-east corner, against the south and east walls, facing north (Marc, 2026-10-23). The bath is the solid block at the bottom left.
 
 ### Bath
 The tub (2 x 4) down the west wall, the toilet and the vanity sink (each 2 x 2) against the north wall, a walkway across the south, and the door in the east wall.

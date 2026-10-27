@@ -61,7 +61,7 @@ Browser chrome: iOS Safari's visible height changes as the toolbar hides, so `wi
 **A. Landscape only (game fills the screen, controls overlay the corners).** The best picture: 640 x 384 CSS on an iPhone 14 at full height, 533 x 320 with bars. The picture fills nearly all the height, so the free space is at the **sides**, 100 to 150 CSS px each (16 to 23 mm), too narrow for a d-pad beside the picture at a comfortable size, so the controls overlay the game's lower corners, semi-transparent.
 
 ```
-iPhone 14 landscape, standalone, 844 x 390 CSS, DPR 3 (scale 6 dev = 2.0 css)
+iPhone 14 landscape, full height with the insets ignored, 844 x 390 CSS, DPR 3 (scale 6 dev = 2.0 css)
 +-------------------------------------------------------------+   (notch/safe inset 47 px each side not drawn on)
 | [HUD 152x38 game px]                       [status 76x50 gpx]|
 |                                                             |
@@ -77,18 +77,17 @@ Costs: the controls hide part of the room (the sofa wall, bottom 2 to 3 tiles at
 **B. Portrait, handheld shell (primary, Marc's pick of 2026-10-27; drawn in full in section 2.5).** The 5:3 picture sits at the top, and the rest of the screen (about 470 to 580 CSS px of height) is free for the HUD and large controls.
 
 ```
-iPhone 14 portrait, standalone: 390 x 763 CSS usable (safe top 47, bottom 34), DPR 3, scale 3 dev = 1.0
-+------------------------------+  y=0 (below the notch inset)
+iPhone 14 portrait, standalone: 390 x 763 CSS usable (already after safe top 47 and bottom 34), DPR 3, scale 3 dev = 1.0
+(a rough sketch; section 2.5.1 has the exact coordinates)
++------------------------------+  y=0
+| GAME 320 x 192 CSS (in a     |  centred, 35 px of margin each side
+| 216 px frame)                |
++------------------------------+  y=234
+| STATUS PANEL  (issue 048)    |  56 px: clock, energy, mood, score, combo
++------------------------------+  y=298
 |                              |
-| GAME 320 x 192 CSS           |  centred, 35 px of margin each side
-| (the world only, no HUD)     |
-|                              |
-+------------------------------+  y=192
-| STATUS PANEL  (issue 048)    |  about 100 px: clock, energy, mood, score, combo as DOM
-+------------------------------+  y=300
-|                              |
-|  [ d-pad ]          (B) (A)  |  about 300 px of controls, 9 to 16 mm buttons
-|  [ 3 x 64 px ]      [cycle]  |
+|  [ d-pad ]          (B) (A)  |  about 465 px of controls and decoration,
+|  [ 150 px ]         [cycle]  |  buttons 7 to 11 mm
 |                              |
 +------------------------------+  y=763
 ```
@@ -156,7 +155,7 @@ The 390 phone's numbers are the diagram's: the d-pad spans x 30..180 (150 px), B
 
 **Pro Max, 430 x 932 (usable 430 x 839), scale 4 dev = 1.33 css: screen 427 x 256, bezel only 1.5 px at the sides.** The side bezel is whatever the phone gives (full-bleed), the frame is drawn above and below only; the rule is "largest crisp scale, the frame takes what is left" (a fixed minimum bezel of 4 px would force the 430 phone back down to 1.0x, which is worse). Controls start at y about 400 and everything has 40 px more air.
 
-**Small or short viewports** (SE 375 x 553, Safari with bars 390 x 664): the shell drops things in this order until it fits: the speaker grille, the label strip, the status strip (the in-canvas HUD is then the only HUD, as on desktop), then shrinks the controls down to 48 px targets. The screen itself is never shrunk below 1x. Minimum usable height (already inside the safe areas) for the full shell: about 18 + 216 + 8 + 56 + 330 = 628 (the 763 of the iPhone 14 leaves 135 px to spare, so the grille and pills fit with room); the screen plus controls alone fit in about 520.
+**Small or short viewports** (SE 375 x 553, Safari with bars 390 x 664): the shell drops things in this order until it fits: the speaker grille, the label strip, the status strip (the in-canvas HUD is then the only HUD, as on desktop), then shrinks the controls down to 48 px targets. The screen itself is never shrunk below 1x. Minimum usable height (already inside the safe areas) for the full shell: about 18 + 216 + 8 + 56 + 330 = 628 (the 763 of the iPhone 14 leaves 135 px to spare, so the grille and pills fit with room); the screen frame plus controls alone need about 216 + 330 = 546 (the SE's 553 fits only by dropping the label and status strips).
 
 **2.5.2 Where the status panel goes (issue 048).** Three places, cheapest first:
 1. **Nothing extra.** The in-canvas HUD stays exactly as 048 designs it, drawn on the picture; the strip under the screen is then used for a hint line (DOM text, for example "E: USE  ESC: BACK") or left out. Zero coupling; this is stage 1.
@@ -270,9 +269,9 @@ x: 0                                                     844
    | ( ^ v )|                                    |         |  A and B in the right free space
    +-----------------------------------------------------+ y=340
 ```
-Here the free sides (155 px = 24 mm) are wide enough for the d-pad and A/B **beside** the picture (nothing hidden). At 844 x 390 standalone (scale 6, 640 wide) the sides are only 102 px and the controls overlay the picture.
+Here the free sides (155 px = 24 mm) are wide enough for the d-pad and A/B **beside** the picture (nothing hidden). At 844 x 390 with the insets ignored (scale 6, 640 wide) the sides are only 102 px; honoring the 47 px insets (750 x 369 standalone) the scale is 5 and the sides are 108 px and the controls overlay the picture.
 
-**B. Portrait, handheld shell (primary):** drawn to size in section 2.5.1 for a 390 x 763 usable iPhone 14 (screen 1.0x) and described for the 430 x 839 Pro Max (screen 1.33x, 427 x 256). On an Android 360 x 740 usable phone (screen 1.0x, 20 px of body each side): label strip 18, screen frame y 65..281, status strip y 289..345, controls y 345..706 (d-pad 144 px at x 20..164, B 60 px at x 206..266 and A 64 px at x 276..340), pills 80 x 44 at y 570, the grille dropped.
+**B. Portrait, handheld shell (primary):** drawn to size in section 2.5.1 for a 390 x 763 usable iPhone 14 (screen 1.0x) and described for the 430 x 839 Pro Max (screen 1.33x, 427 x 256). On an Android 360 x 740 usable phone (already after the insets; screen 1.0x, 20 px of body each side; same y convention as 2.5.1): label strip y 0..18, screen frame y 18..234, status strip y 242..298, d-pad 144 px at x 20..164 (y 330..474), B 60 px at x 196..256 (y 400..460) and A 64 px at x 280..344 (y 350..414), a 24 px gap between B and A, pills 80 x 44 at y 500, the grille at y 560 and below (dropped on a short phone).
 
 **C. Landscape (secondary):** the overlay diagram in option A of section 2.2, and the turned shell when the sides are at least 120 px wide:
 ```
@@ -309,7 +308,7 @@ iPhone 14 landscape in Safari, 844 x 340 usable, scale 5 dev = 1.67 css (533 x 3
 ## 8. Test plan
 
 Automated (vitest, no browser; the project has no jsdom today, so the logic is kept in pure functions and driven by a fake event target, like `FakeAudio` and `FakeStorage`):
-1. **Mapping (the core test):** a `TouchPad` with a fake `EventTarget` and a recording `Keyboard`. Pointer down on A gives `KeyE` down, up gives `KeyE` up; B gives `Escape`; cycle gives `Tab`, long press gives Shift, Tab, Shift up; the menu buttons give `KeyL` and `KeyM`. Then through `readControls`: a d-pad hold gives `dir`, a tap gives `dirPressed` once, `interactPressed` once per tap, `keys` contains the code on the first frame only.
+1. **Mapping (the core test):** a `TouchPad` with a fake `EventTarget` and a recording `Keyboard`. Pointer down on A gives `KeyE` down, up gives `KeyE` up; B gives `Escape`; cycle gives `Tab`, long press gives Shift down, then Tab on a later frame, then both up, asserting that Shift is in `keysDown` on the frame Tab is in `keys`, and that the synthetic Shift+R (the reset, `achievements/feature.ts`) carries `shiftKey: true` on the event; the menu buttons give `KeyL` and `KeyM`. Then through `readControls`: a d-pad hold gives `dir`, a tap gives `dirPressed` once, `interactPressed` once per tap, `keys` contains the code on the first frame only.
 2. **D-pad geometry:** point to direction for each quadrant, the dead zone, sliding from left to up releases left and presses up in the same event (never both down), the edge between two zones, a point outside the pad when captured.
 3. **Release-all:** `pointercancel`, `blur`, `visibilitychange` hidden and lost `pointerup` leave no key held (`keysDown` is empty and a `keysReleased` was reported once).
 4. **Multi-touch:** two pointers (D-pad and A) are independent; a second finger on the same control does not double-press; releasing one does not release the other.
@@ -324,7 +323,7 @@ Manual (a real phone; what automation cannot judge): the feel of the d-pad (does
 **Trying it on a real phone from the dev server over the network.**
 1. `npm run dev -- --host` (Vite prints a `Network: http://192.168.x.x:5173/` address); the phone must be on the same Wi-Fi. If it does not load, check the Mac's firewall prompt and that the Wi-Fi does not isolate clients.
 2. Open that address on the phone. **Caveats:** it is plain HTTP on a LAN address, so it is **not a secure context**: no wake lock, no `navigator.clipboard.readText`, no service worker, and `localStorage` is a different one from `localhost`'s (progress starts empty). The flashcards backend is the real app, which only allows `https://*.mcord.dev` origins, so Study Spanish will not connect from a LAN address (use the `?flashcards=demo` dev deck, which needs no network).
-3. For a secure context from the dev machine: a tunnel (`cloudflared tunnel --url http://localhost:5173` or `ngrok http 5173`) gives an HTTPS address that works with wake lock and the clipboard (and Vite needs `server.allowedHosts` for it), or the Netlify deploy preview from issue 084 once it exists (the best test, and `*.mcord.dev` makes flashcards work).
+3. For a secure context from the dev machine: a tunnel (`cloudflared tunnel --url http://localhost:5173` or `ngrok http 5173`) gives an HTTPS address that works with wake lock and the clipboard (and Vite needs `server.allowedHosts` for it), or the Netlify deploy from issue 084 once it exists (the best test). Flashcards only reach the progress endpoint from the production `sim.mcord.dev`: a `*.netlify.app` preview, a tunnel address and a LAN address are all refused by its CORS list (`docs/flashcards.md`, issue 084). A guest (issue 083) works anywhere, because the core file allows any origin.
 4. Desktop first: Chrome DevTools device mode (Cmd+Shift+M) with `?touch=1` shows the layer with mouse events and lets Marc try the sizes in section 2.1 before using a phone; it does not reproduce Safari's toolbars, safe areas or audio.
 5. Add to Home Screen from Safari (Share menu) to see the standalone sizes (needs the manifest from stage 2 to get the icon and name).
 
@@ -349,18 +348,19 @@ Manual (a real phone; what automation cannot judge): the feel of the d-pad (does
 ## 11. Files this would touch (for planning)
 `src/render/canvas.ts` (scale, DPR, offscreen copy), `index.html` (meta and CSS), new `src/input/touch.ts` and `src/input/touch.test.ts`, `src/main.ts` (create the touch layer, the loop pause), `src/game/sound/feature.ts` or `engine.ts` (an unlock entry called from `pointerup`), stage 3: the dialog renderer, `src/game/activities/*.ts` (`wantsText`), `public/manifest.webmanifest` and icons. Not touched: `Game`, `Player`, `Controls` types, the golden frames.
 
-## 12. Open questions for Marc (with recommendations)
-1. **Same game or a separate mobile game?** Recommend: **the same game** with a touch layer (section 1). Separate only if the view or the interaction model must change.
-2. **Portrait, landscape or both?** Recommend (you like portrait): **portrait with the handheld shell first, landscape as the secondary layout** (overlay first, the turned shell when it fits). If only one: portrait. Costs: the small picture (1.0 to 1.33x).
-3. **Is a 1.0x picture in portrait acceptable** (about 50 mm wide on an iPhone 14, text 7 px tall)? Recommend: yes, with the shell around it; look at the flat stage 1 on your phone before drawing the art.
-3b. **The shell's look:** a dark body or a warm grey? A grille, an LED and a LIFE label are free; do you want them? Recommend: warm grey like the apartment walls, a grille and an LED, the label LIFE, nothing that copies a real console.
-3c. **Where does the status panel go?** Recommend: stage 1 leaves the HUD in the picture; stage 2 moves it to the strip under the screen once 048 is picked.
-4. **Should 048 (status panel) and portrait be designed together?** Recommend: **yes**: 048 decides what the status area shows and should be drawable into a 320 x 56 strip as well as the in-picture boxes; the shell decides where it sits. Stage 1 does not wait for 048.
-5. **Which phone features matter on day one?** Recommend: d-pad, A, B, the cycle button, wake lock, no scroll or zoom. Skip: the track editor, handedness, haptics, installability (stage 2 or 3).
-6. **Is installing to the home screen a goal** (manifest, icon, no browser bar, safer saves)? Recommend: yes, but after stage 1, and tell players to "Add to Home Screen"; no service worker.
-7. **Typing games on a phone:** the emails game as "tap" (mashing, any tap counts)? Recommend: **yes, tap the screen or A**, with a slightly easier speed window on touch. Is it fine that the track editor is keyboard only until a tap-based editor (its own issue)?
-8. **Flashcards pairing on a phone:** the pairing link opened on the phone, or pasting the key? Recommend: open the pairing link on the phone once if the app allows it (check with the app); otherwise paste through the OS keyboard (stage 3).
-9. **Left-handed layout:** a setting now or later? Recommend: later (stage 3), the controls mirrored by one class.
-10. **Saves in the phone browser:** is "your save lives in this browser" enough, or do you want an export/import code later? Recommend: enough for now; add the code only if you lose a save.
-11. **Haptics (Android only) and the 120 Hz cap to 60 fps:** both default on? Recommend: the 60 fps cap yes, haptics as a setting, default on.
-12. **Which phone do you have** (model, iOS or Android)? The table in 2.1 has the likely rows; your real device decides which one to test first.
+## 12. Marc's answers and the recommendations they confirm (2026-10-27)
+Marc has an **iPhone** (Safari: notch and safe-area insets, no vibration, no Fullscreen API, wake lock needs Safari 16.4+). The answers, with what each means for the build:
+1. **Same game or a separate mobile game?** Answer: **the same game** with a touch layer (section 1).
+2. **Portrait, landscape or both?** Answer: **portrait with the handheld shell first**; landscape is the secondary layout (overlay first, the turned shell when it fits).
+3. **Is a 1.0x picture in portrait acceptable?** Answer: **yes**, 1.0x to 1.33x is fine to start. He will look at the flat stage 1 on his phone before any shell art is drawn.
+3b. **The shell's look:** answer: **"surprise me".** Stage 2 sketches both a warm-grey body and a dark body, and he picks by looking. Grille, LED and LIFE label stay as proposed; nothing copies a real console.
+3c. **Where does the status panel go?** Stage 1 leaves the HUD in the picture; stage 2 moves it to the strip under the screen once 048 is picked (recommendation, not yet decided by Marc).
+4. **048 and portrait designed together?** Taken at the recommendation: yes. 048 decides the content, drawable into a 320 x 56 strip; the shell decides where it sits. Stage 1 does not wait.
+5. **Day-one features:** taken at the recommendation: d-pad, A, B, the choice cycle, wake lock, no scroll or zoom. Not on day one: the track editor, handedness, installability (stage 2).
+6. **Installable home-screen app:** answer: **yes, after stage 1** (manifest, no service worker); tell players to use Add to Home Screen.
+7. **Typing games and the track editor on a phone:** answer: **simplify.** Typing (Answer emails) becomes tap-to-count; notes and flashcard cards use the d-pad and A; names and the flashcards key use a hidden input that raises the OS keyboard; the track editor is skipped on phones at first.
+8. **Flashcards pairing on the phone:** answer: **the least friction, by pasting.** In the flashcards app, the `...` panel's "Sync another device" shows a QR code and the `?pair=<key>` link behind it. On the phone Marc copies the link (or the bare key) from the app and pastes it into the game's key field. The game's `keyFromText` already accepts both, so no game change is needed for the format. The field is a hidden input, which gives the iOS paste bubble; an optional Paste button can use `navigator.clipboard.readText` (HTTPS only). **A QR scan inside the game is left as an optional later idea:** it needs camera access and a decoder (the app uses `jsQR`, about 47 KB gzipped, as an iOS fallback), and it cannot scan the phone's own screen.
+9. **Left-handed layout:** taken at the recommendation: later (stage 3), mirrored with one class.
+10. **Saves:** taken at the recommendation: "your save lives in this browser" is enough; an export/import code only if a save is ever lost. An installed iOS app starts with its own empty storage (section 5).
+11. **Haptics and the frame rate:** haptics are moot on iPhone (no `vibrate`; the checkbox-switch tick is an undocumented bonus); the 60 fps cap is a setting.
+12. **Which phone:** an iPhone. The table in 2.1 has the iPhone rows (390 x 844 and 430 x 932 portrait, 844 x 390 and 932 x 430 landscape); ask for the exact model before choosing which to test first.

@@ -76,8 +76,10 @@ export interface ActivityHost {
   reward?(points: number, effects: Effect[]): number | null;
   // The decor you own and have placed (the swap list). Missing in tests.
   readonly decor?: Decor;
-  // Opens the packages waiting by the door (adds the items, shows one line each). Missing in tests.
-  collectDeliveries?(): void;
+  // Opens the packages waiting by the door: the items are added at once and named one
+  // page at a time in a dialog. `onClosed` is called when that dialog closes (at once
+  // if there is none). Missing in tests.
+  collectDeliveries?(onClosed?: () => void): void;
   // What the record player is doing, for the record menu's payout rule (issue 068).
   // Missing when there is no sound feature: nothing is playing and a choice may pay.
   records?(): RecordState;

@@ -43,6 +43,8 @@ function openBox(game: Game) {
   standAtBox(game);
   game.update(1 / 60, press);
   for (let i = 0; i < 5; i++) game.update(1 / 60, NO_INPUT);
+  // The box shows one page per item; E closes them.
+  for (let i = 0; i < 400 && game.dialogOpen; i++) game.update(1 / 60, i % 2 === 0 ? press : NO_INPUT);
 }
 const taskItem = (id: string) => {
   for (const level of Object.values(APARTMENT.rooms)) {

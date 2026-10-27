@@ -16,7 +16,7 @@ import { Deliveries } from "./deliveries";
 import { CLOCK, DEBUG, DIALOG, ENERGY, MOOD, TILE, VIEW } from "./config";
 import type { ActivityHost, RecordState } from "./activity";
 import type { Interactable } from "./interactable";
-import { DialogRunner, type DialogNode, type DialogResult, type DialogView } from "./dialog";
+import { DialogRunner, say, type DialogNode, type DialogResult, type DialogView } from "./dialog";
 import { DELTA, DIRECTIONS, type Direction } from "./direction";
 import { Emitter, type GameEvents } from "./events";
 import { Grid } from "./grid";
@@ -157,7 +157,8 @@ export class Game {
     this.deliveries.canArrive = () => !this.onPackageSpot();
     this.deliveries.onArrive = () => {
       this.syncParcel();
-      this.say("A PACKAGE HAS ARRIVED.");
+      // Said once a frame at most, so arrivals at one moment never stack their text (issue 079).
+      this.arrivalNoted = true;
     };
     this.player = new Player(level.spawn.x, level.spawn.y, level.facing);
     this.camera = new Camera(level.size, VIEW);
@@ -259,7 +260,7 @@ export class Game {
       reward: (points, effects) => this.interaction.award(points, effects)?.points ?? null,
       gameMinutes: () => this.minutes,
       decor: this.decor,
-      collectDeliveries: () => this.collectDeliveries(),
+      collectDeliveries: (onClosed) => this.collectDeliveries(onClosed),
       sprites: this.spriteDrawer,
       getState: (id) => this.state.get(id),
       random: () => this.random(),
@@ -324,18 +325,34 @@ export class Game {
     if (this.state.has("parcel") && this.state.get("parcel") !== parcel) this.state.applyEffects([{ var: "parcel", set: parcel }]);
   }
 
+  // An arrival happened this frame and has not been said yet.
+  private arrivalNoted = false;
+
   // One plain line over the player.
   private say(text: string): void {
     this.popups.add(this.player.x + TILE / 2, this.player.y, [{ text, color: COLOR.paper }]);
   }
 
   // Opens the waiting packages: the items are added, and each one is named in one line.
-  private collectDeliveries(): void {
+  private collectDeliveries(onClosed?: () => void): void {
     const got = this.deliveries.collect();
     this.syncParcel();
     // The new package's box joins the pile, so there is always something to flatten (issue 066).
     if (got.length > 0 && this.state.has("boxes")) this.state.applyEffects([{ var: "boxes", set: 1 }]);
-    for (const id of got) this.say(`OPENED: ${this.decor.item(id)?.name ?? "A PACKAGE"}`);
+    const lines = got.map((id) => `OPENED: ${this.decor.item(id)?.name ?? "A PACKAGE"}`);
+    if (lines.length === 0) {
+      onClosed?.();
+      return;
+    }
+    // One page per item, in order, so several gifts never pile up on one spot (issue 079).
+    // Everything is owned already, so closing the dialog early loses nothing.
+    let node: DialogNode | undefined;
+    for (let i = lines.length - 1; i >= 0; i--) node = say(lines[i], node);
+    // Another dialog already open: one plain line for the lot instead.
+    if (!this.openDialog(node!, () => onClosed?.())) {
+      this.say(lines.join(" "));
+      onClosed?.();
+    }
   }
 
   private stateChanged(change: { id: string; value: number; previous: number }): void {
@@ -478,6 +495,10 @@ export class Game {
     const door = arrived && this.level.doors.find((d) => d.col === arrived.col && d.row === arrived.row);
     if (door) this.enterDoor(door);
     this.camera.update(dt, this.playerCentre());
+    if (this.arrivalNoted) {
+      this.arrivalNoted = false;
+      this.say("A PACKAGE HAS ARRIVED.");
+    }
     this.popups.update(dt);
     this.hud.update(dt, this.interaction.scoreboard.score);
     this.eachLayer((layer) => layer.update?.(dt));

@@ -1,6 +1,6 @@
 # HUD and status panel space (design note, issue 048)
 
-Status: a note for Marc to pick from. No game code is written. It is designed **together with the portrait handheld shell of the mobile note** (issue 049, `docs/mobile.md` section 2.5, which lives on its own branch and is not merged yet), as Marc asked on 2026-10-27: on a phone the picture is on top and a status strip of about 320 x 56 sits in the shell body, so one HUD design has to render into two places: (1) over the 320 x 192 picture on desktop and landscape, in a small corner that does not cover the action, and (2) as a strip that is not part of the picture.
+Status: Marc has picked (layout B, built in stages; section 10). No game code is written yet. It is designed **together with the portrait handheld shell of the mobile note** (issue 049, `docs/mobile.md` section 2.5, which lives on its own branch and is not merged yet), as Marc asked on 2026-10-27: on a phone the picture is on top and a status strip of about 320 x 56 sits in the shell body, so one HUD design has to render into two places: (1) over the 320 x 192 picture on desktop and landscape, in a small corner that does not cover the action, and (2) as a strip that is not part of the picture.
 
 Marc's answers so far (2026-10-27): he has an **iPhone** (Safari, notch and safe-area insets, no vibration, so haptics are out of scope for him); a **small 1.0x to 1.33x portrait picture is fine to start with**; on the shell's look he said "surprise me" (see section 9).
 
@@ -14,7 +14,7 @@ Marc's answers so far (2026-10-27): he has an **iPhone** (Safari, notch and safe
 
 ### 1.1 Where the picture is empty: the top 32 px
 
-A world smaller than the view is **sat at the bottom** (`camera.ts` `clampY`: "so the strip above it is free for the HUD"). All three rooms are 10 tiles tall or less, so the world starts at y = 32 and the band y 0 to 31 shows only the ink background:
+A world smaller than the view is **sat at the bottom** (`camera.ts` `clampY`: "so the strip above it is free for the HUD"). All three rooms are 10 tiles tall or less, so the world starts at y = 32 and the band y 0 to 31 shows only a plain fill (`ink` when the tileset painter is active, otherwise `night`, `game.ts` render):
 
 | Room | World size | Where it is drawn |
 |---|---|---|
@@ -23,6 +23,8 @@ A world smaller than the view is **sat at the bottom** (`camera.ts` `clampY`: "s
 | bath | 9 x 6 = 144 x 96 | centred, y 96 to 192 |
 
 The two panels are taller than that band: the right one reaches y 46 and the left y 34. In the main room the paintings sit on the wall row at map columns 2 to 3 (`pp`), 7 to 8 (`qq`) and 14 to 16 (`uuu`), which is x 40 to 72, 120 to 152 and **232 to 280**, y 32 to 48. So today the status panel (x 248 to 316, y 4 to 46) covers **the right part of the `uuu` painting (x 248 to 280, y 32 to 46), including the mood bar at y 43 to 46**, which is what Marc saw. The left panel nicks the other two paintings by 2 px. (Worked out from `MAIN_MAP` and the camera code, not from a rendered frame.) One character is 8 px in these maps (`=` the panel, `#` wall row, `P` painting, `X` panel over painting, `.` floor):
+
+(A map cell is marked if a panel touches any part of it, so the left panel's 2 px below y 32 shows as a whole `x` cell on the wall row.)
 
 ```
 today: panels over the picture (1 char = 8 px, 40 x 24 chars = 320 x 192)
@@ -62,7 +64,7 @@ Rates come from `config.ts`: `CLOCK.minutesPerSecond` 2 (one game hour = 30 s of
 |---|---|---|---|---|
 | Score | counts up to the real score (`Hud.update`) | on every finished task, every 10 to 60 s | right after finishing a task (the count-up is the reward); otherwise rarely | No: a glance now and then |
 | Combo | `X1.0` to `X3.0`, 25 s window | only inside a chain | only **while a chain is on** (above X1.0); at X1.0 it is noise | No: show only when active |
-| Clock and time of day | `formatClock`; tint keys at 4.5, 6, 9.5, 16.5, 18, 22.5 | the minute digit changes about twice a second | deciding: good hours (x1.5 points), bedtime (late is 22 to 5); the world's light already hints at it | Yes, but the minutes are the loudest thing on the screen |
+| Clock and time of day | `formatClock`; tint keys at 4.5, 6, 7.25, 9.5, 16.5, 18, 19.5, 21, 22.5 | the minute digit changes about twice a second | deciding: good hours (x1.5 points), bedtime (late is 22 to 5); the world's light already hints at it | Yes, but the minutes are the loudest thing on the screen |
 | Energy | 0 to 100, start 80, -4 per hour | about 1 point every 7.5 s plus task effects and sleep; from 80 to the tired line (25) takes about 7 minutes of play | when **low** (steps are 1.6x slower) and when choosing to sleep (below 60) | No: icon at rest, number on change or low |
 | Mood | 0 to 100, start 60, drifts to 50 | task effects of -8 to +10, drift 1 point per 10 s | when **low** (a sigh once below 25) and as feedback right after a task | No: same |
 | Phone battery (planned, section 8) | 0 to 100 if it is real | only with phone tasks | when low, and when plugging in | No: only when low or changing |
@@ -105,7 +107,7 @@ These are sketches for the sprite round; the art pass redraws them.
 
 ## 5. The layouts
 
-Legend for all mock crops: `:` the 60% ink panel, `k` ink (bar track), `W` paper text, `G` leaf, `Y` butter, `R` brick, `O` tangerine, `.` the picture behind. Crops are 1 char = 1 px at the real size, from the same pixel code as the HUD font (no text shadow drawn, for clarity). Coordinates are in game pixels of the 320 x 192 picture.
+Legend for all mock crops: `:` the 60% ink panel, `k` ink (bar track), `W` paper text, `G` leaf, `Y` butter, `R` brick, `O` tangerine, `.` the picture behind (in the 1 char = 8 px picture maps: `#` the wall row, `P` a painting, `x` wall row under a panel, `X` a panel over a painting, `=` a panel over the empty band). Crops are 1 char = 1 px at the real size, from the same pixel code as the HUD font (no text shadow drawn, for clarity). Coordinates are in game pixels of the 320 x 192 picture.
 
 ### Layout A: icons with small meters, always on (the current structure, with icons)
 
@@ -180,7 +182,7 @@ left panel, 116 x 26: star, score at 2x, combo X1.5 with its drain bar (the comb
 
 ### Layout B: one-row ribbon; icons at rest, a bar only when it changes or runs low
 
-All items in one row, 11 px tall (y 3 to 14), in two small chips: score and combo left (x 4 to 80), clock and meters right (x 236 to 316 at rest). At rest the energy, mood and phone are **icons only** (the face and bolt themselves are the meter: three faces, bolt normal or low). A 30 x 3 bar slides out beside an icon for about 4 seconds when its value jumps by 3 or more (a task finished, sleep) and stays out, in brick, while the value is low. Hold a key (recommended `H`, free in the code today) to show all bars while held. Covered: 76 x 11 + 80 x 11 = **1716 px, 2.8%**, all inside y 3 to 14.
+All items in one row, 11 px tall (y 3 to 14), in two small chips: score and combo left (x 4 to 80), clock and meters right (x 236 to 316 at rest). At rest the energy, mood and phone are **icons only** (the face and bolt themselves are the meter: three faces, bolt normal or low). A 30 x 3 bar slides out beside an icon for about 4 seconds when its value jumps by 3 or more (a task finished, sleep) and stays out, in brick, while the value is low. Hold a key (recommended `H`, free in the code today) to show all bars while held. The left chip is sized for a score of up to **5 digits** (99999) before the score meets the combo text at x 52; a bigger score widens the chip to the right (the model reports the width). Covered: 76 x 11 + 80 x 11 = **1716 px, 2.8%**, all inside y 3 to 14.
 
 ```
 right chip at rest, 80 x 11 (x 236 to 316): sun and 9:40, bolt, face, phone
@@ -315,7 +317,7 @@ with low energy and low mood, 76 x 11 (x 240 to 316): the two icons appear besid
 The shell body holds a 320 x 56 strip (mobile note 2.5.1: y 242 to 298 of an iPhone 14, x 35 to 355). Same widgets, 2x: row 1 (y 8): star and score at 2x, combo (X1.5, only while a chain is on, with its 2 px drain bar), sun and clock at 2x aligned right; row 2 (y 32): energy, mood and phone, each an icon at 2x and a 78 x 6 bar, always out. Ink background, no panel. Shown at 1 char = 2 px (160 x 28 chars; `n` is the bar track, so every glyph and icon is on an even pixel and reads at 1:2):
 
 ```
-kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
 kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
 kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
 kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
@@ -401,12 +403,12 @@ Calm-tone rules that come with it: no flashing, no sound on low, no red bar unti
 
 ### What the pick needs
 
-**Sprites** (all small `icon-*` sprites, not on the 16 px grid, in the warm palette; `art/src/icon-*.sprite`, drawn by the existing pipeline and loaded by name with a text fallback, as `icon-good-hour` is): `icon-sun`, `icon-dusk` (dawn and dusk share it), `icon-moon`, `icon-bolt`, `icon-bolt-low`, `icon-face-happy`, `icon-face-flat`, `icon-face-sad`, `icon-star`, and later `icon-phone` and `icon-plug`. Ten 7 x 7 sprites, about 5 minutes each. If a sprite is missing, the widget falls back to the one-letter label the HUD has today, so nothing breaks.
+**Sprites** (all small `icon-*` sprites, not on the 16 px grid, in the warm palette; `art/src/icon-*.sprite`, drawn by the existing pipeline and loaded by name with a text fallback, as `icon-good-hour` is): `icon-sun`, `icon-dusk` (dawn and dusk share it), `icon-moon`, `icon-bolt`, `icon-bolt-low`, `icon-face-happy`, `icon-face-flat`, `icon-face-sad`, `icon-star`, and later `icon-phone` and `icon-plug`. Eleven 7 x 7 sprites in all (nine for stages 1 and 2, `icon-phone` and `icon-plug` with the phone slot), about 5 minutes each; the section 4 sheet shows ten of them (no plug yet). If a sprite is missing, the widget falls back to the one-letter label the HUD has today, so nothing breaks.
 
 **Code:**
 - `src/render/hud-model.ts` (new, pure): from `Scoreboard`, `ApartmentState` and a small timer table, returns the items with value, level, `changedRecently` and `visible`. Tests: no canvas needed.
 - `src/render/hud.ts`: `Hud.update(dt, score, state)` (the bar timers are the Hud's own memory, **not game state**); `draw` becomes `drawOverlay(ctx, model)` plus `drawStrip(ctx, model, size)` sharing one `drawWidget(ctx, item, x, y, scale)`; `drawStopHint` takes its position from the container.
-- `src/render/layout.ts`: `HUD_BOX` and `STATUS_BOX` become the two chips (76 x 14 and 84 x 14 including their margin) from one `HUD_BAND` height of 32; export `hudBoxes(mode)` returning `[]` for the strip. `game.ts` and `toasts.ts` read it (the toasts can then start at y 16, inside the free band, if it is wanted).
+- `src/render/layout.ts`: `HUD_BOX` and `STATUS_BOX` become the two chips from one `HUD_BAND` height of 32: left 76 x 11 (80 x 14 with its margin), right 80 x 11 at rest (84 x 14 with margin). The right chip **grows to 112 x 11 while one bar is out**, so the avoid box that popups, labels and toasts use must be the grown extent, about 116 x 14, not the resting 84 (the model reports the current width; `hudBoxes` returns it); export `hudBoxes(mode)` returning `[]` for the strip. `game.ts` and `toasts.ts` read it (the toasts can then start at y 16, inside the free band, if it is wanted).
 - `src/game/config.ts`: a `HUD` table: bar reveal seconds (4), change threshold (3), face thresholds (70 and `MOOD.lowBelow`), the chip padding. Rules and numbers stay in data.
 - `Controls`/key: `H` peek (hold), one line in the L screen help.
 - Tests: the model (rest, change, low, combo active or not, sleep jump), the layout boxes (nothing taller than the band, nothing overlapping the three painting rectangles in the main room), toasts and popups still avoid the chips; the golden frame test is unaffected if the HUD is not in it (check) or re-recorded after looking at it.
@@ -416,33 +418,42 @@ Calm-tone rules that come with it: no flashing, no sound on low, no red bar unti
 1. **Stage 1, ribbon with icons and always-on small bars (layout A shape in one row)**: new icons, `HUD_BAND`, chips instead of panels, keep everything else. Fixes the painting overlap. Marc looks.
 2. **Stage 2, the model and the reveal rule**: `hud-model.ts`, bars only on change or low, `H` peek, combo only when active, the low icons.
 3. **Stage 3, the strip container**: `drawStrip` at 2x into a 320 x 56 canvas, and `hudBoxes('strip')`; the portrait shell (049 stage 2) places it. Needs the 049 shell to exist; until then it can be tried in a test page.
-4. **Stage 4, the phone slot**, only if Marc picks "real" in question 3 (section 8), as its own issue.
+4. **Stage 4, the phone slot** (section 8: a gag icon and a charge-your-phone task), as its own issue.
 5. **Stage 5, the detail view (layout D)** as a page of the `L` screen, only when there is something that does not fit in the HUD.
 
-## 8. The phone battery: a real state variable, or a gag?
+## 8. The phone battery: decided, a gag plus a charge task
 
-The facts: the game already has two vars (energy and mood), the phone tasks exist (`doomscroll` mood -8; `tasks-v2.md` plans check phone, text, hum into a phone), and the pillars say no pressure, no scarcity, collecting is a quiet side effect.
+**Marc's answer (2026-10-27): kind of a gag, plus a task to charge the phone; whether it later affects phone tasks stays open.** The note had recommended a real but gentle variable; Marc chose the lighter route, which is the cheaper one and closes nothing.
 
-| | A. Not in the game | B. A gag | C. A real variable, gentle |
-|---|---|---|---|
-| What it is | no phone slot | an icon that falls with the clock and is refilled by a plug-in animation; nothing saved, nothing affected | a `battery` var (0 to 100, saved), drained by phone tasks, refilled by a "plug in the phone" task and by sleeping |
-| Effect on the player | none | none | only phone tasks: at 0 they say "battery dead", plugging in takes 5 s; below 15 a line of dialog; never blocks anything else |
-| Cost | none | small: an icon and a timer, no state vars, no tasks | medium: a state var and `config` (like 038), drains on about 6 tasks, one task, a prop and a sprite (an outlet by the bed or desk), saves, tests, `docs/tasks.md`; about one issue |
-| Risk | none | looks like a bug if it never matters | becomes a chore if it blocks (it must not block anything but the phone) |
+The facts it rests on: the game has two state vars (energy and mood), the phone tasks exist (`doomscroll` mood -8; `tasks-v2.md` plans check phone, text, hum into a phone), and the pillars say no pressure, no scarcity, collecting is a quiet side effect.
 
-**Recommendation: C, but not now.** Build the HUD first with the phone slot unused. Then add the battery as a small separate issue with these limits: drains only through phone tasks (doomscroll -15, text -3, check -1, hum -4), never with time; one quick plug-in task and a free full charge on sleeping in bed; at 0 only the phone tasks refuse, with a plain reason, and the plug-in task is right there; no score, no combo and no mood effect from the level itself. That makes the doomscroll joke land (the phone dies mid-scroll, which is a gentle nudge to stop), keeps the "mundane is the joke" tone, and stays pressure-free, because nothing outside the phone ever depends on it. The gag (B) is a fine fallback if Marc does not want a new thing to maintain, but a meter that is never tied to anything tends to read as a bug. Use a phone icon, not a battery shape, and never read the player's **real** phone battery (Safari does not allow it anyway).
+What it is:
+- A **phone icon with a small bar** in the ribbon's fourth slot (and in the strip's second row), shown like the other meters: icon at rest, the bar out for 4 seconds when the level changes or when it is low. It is a phone, not a battery shape, so it is never confused with the player's real phone battery, which the game never reads (Safari does not allow it anyway).
+- A **"charge your phone" task** (a plug and an outlet by the bed or desk, `icon-plug`) that fills it in a few seconds.
+- **No effect on any other task for now.** It does not block, score or change mood.
+- Whether it **drains** (with phone tasks, which fits the doomscroll joke, or with the clock) or only decorates, and whether a dead phone should one day refuse phone tasks, is for the follow-up issue to decide with Marc; the stored level and the slot make either possible later.
+
+Cost: small to medium. A saved `battery` level (0 to 100) so the icon survives a reload (a state var like 038's, but with no effects wired anywhere), one task and its prop and sprite, `icon-phone` and `icon-plug`, one HUD slot, tests, and a line in `docs/tasks.md`. If a pure gag with nothing saved is wanted instead, a cheaper variant is the phone as a **lamp in the shell** (mobile note 2.5.2 and 2.5.5: a body LED or a segment in the label strip), but it would not show on the desktop picture, so it is not recommended.
+
+What the earlier options were, for the record: not in the game at all; a gag with nothing saved (an icon that falls with the clock and refills with an animation, no task); a real variable that drains with phone tasks and refuses them at 0 (about one issue, and a chore risk if it blocks). Marc's pick sits between the last two: a saved level and a task, no effects.
 
 ## 9. The shell's look (for 049 stage 2, Marc: "surprise me")
 
 Plan to sketch **both** a warm-grey body (the apartment's walls, palette `putty` and `taupe`) and a dark body (`night` and `slate`, which makes the picture pop) as two themes of the same sprites (one palette swap each) in the shell's stage 2, and let Marc pick by looking at both on his iPhone. The HUD strip is ink in both. This costs one extra palette row, not extra art.
 
-## 10. Open questions for Marc (most important first, one at a time)
+## 10. Open questions for Marc: answered (2026-10-27)
 
-1. **Is B the pick** (ribbon with icons, a bar only when it changes or is low, `H` to peek), built in stages 1 to 3? Recommend: yes, starting with stage 1 (the always-on small bars) so you can see it on your screen before the reveal rule is added.
-2. **Is the top 32 px free band the rule for the HUD** (nothing taller, so nothing ever covers the room)? Recommend: yes; it is free in all three rooms today.
-3. **The phone battery: real (C), gag (B) or none?** Recommend: real but gentle, as its own issue after the HUD, and the HUD leaves the slot ready.
-4. **In the portrait shell the picture's top 32 px band is empty** (the HUD moved to the strip). Keep it as an ink stripe, keep only the clock and score ribbon there in portrait too, or crop it away on the phone? Recommend: keep it for now and decide when you see the shell on your iPhone; cropping changes the 320 x 192 view and is a 049 decision.
-5. **Time as `9:40` with a sun or moon, or keep `9:40 AM`?** Recommend: `9:40` and the icon (no AM or PM): it saves 18 px and the icon says which half of the day.
-6. **The peek key: `H`?** Recommend: `H` (free in the code today); on the phone, a tap on the ribbon or the strip does the same.
-7. **Is the clock's minute digit too busy?** It changes about twice a second. Recommend: leave it; try updating it every 5 game minutes only if it distracts.
-8. **Do you want the detail view (D) at all**, and where? Recommend: later, as a page of the `L` screen, only once cards due or packages need a home.
+Asked one at a time, most important first. Each line is the question, the recommendation, and Marc's answer.
+
+1. **Is B the pick** (ribbon, a bar only on change or low, `H` to peek), built in stages? Recommended: yes, starting with the always-on small bars. **Answer: B is the pick, built in stages** (always-on small bars first so he can see it, then the show-on-change rule, then the strip container for the portrait shell).
+2. **Is the top 32 px band the rule for the HUD** (nothing taller, so nothing ever covers the room)? Recommended: yes. **Answer: yes.**
+3. **The phone battery: real, gag or none?** Recommended: real but gentle, later. **Answer: kind of a gag, plus a charge-your-phone task; effects on phone tasks left open for later** (section 8).
+4. **The portrait shell's empty top band** (the HUD moved to the strip): keep, use or crop? Recommended: keep it for now. **Answer: it stays an ink stripe until Marc sees the shell on his iPhone; cropping the 320 x 192 view is a 049 decision.**
+5. **Time as `9:40` with an icon, or `9:40 AM`?** Recommended: `9:40` and the icon. **Answer: `9:40` with a sun, dusk or moon icon, no AM/PM.**
+6. **The peek key `H`?** Recommended: `H`, and a tap on the phone. **Answer: `H`.**
+7. **Is the minute digit too busy?** Recommended: leave it. **Answer: leave it.**
+8. **A detail view (D) at all?** Recommended: later, as a page of the `L` screen. **Answer: later, as a page of the `L` screen.**
+
+Nothing is open. The build (stage 1, always-on small bars in the top band) can be written as its own issue.
+
+Review note: after the independent review of 2026-10-27 this file was edited for its eight nits and to record Marc's answers (a docs-only text change, no re-review).

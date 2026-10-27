@@ -140,20 +140,22 @@ describe("the store", () => {
     expect(d.owns("art-spare")).toBe(true); // nothing is lost
   });
 
-  it("keeps today's paintings to their own walls, so a fresh game has nothing to swap", () => {
+  it("keeps the silkscreen to its own wall; a fresh game has an empty inventory and nothing offered", () => {
     const d = new Decor();
-    for (const s of DECOR_SLOTS) expect(d.choices(s.id).map((i) => i.id), s.id).toEqual([s.default]);
-    expect(d.place("art-desk", "art-barn")).toBe(false);
-    expect(d.place("art-table", "art-abstract")).toBe(false);
+    expect(d.choices("art-bed").map((i) => i.id)).toEqual(["art-silkscreen"]);
+    expect(d.place("art-bed", "art-barn")).toBe(false);
+    expect(d.place("art-table", "art-silkscreen")).toBe(false);
+    expect(d.inventory()).toEqual([]);
+    for (const s of DECOR_SLOTS) expect(d.canChange(s.id), s.id).toBe(false);
   });
 
   it("lists the choices for a slot: owned items that fit, the default first, nothing locked or unowned", () => {
     const d = withSpare();
-    expect(d.choices("art-table").map((i) => i.id)).toEqual(["art-barn"]);
+    expect(d.choices("art-table").map((i) => i.id)).toEqual(["art-barn", "art-abstract"]);
     d.own("art-spare");
     d.own("art-small");
     d.own("plant-fern");
-    expect(d.choices("art-table").map((i) => i.id)).toEqual(["art-barn", "art-spare"]);
+    expect(d.choices("art-table").map((i) => i.id)).toEqual(["art-barn", "art-abstract", "art-spare"]);
     expect(d.choices("plant-shelf").map((i) => i.id)).toEqual(["plant-snake", "plant-fern"]);
     expect(d.choices("art-bed").map((i) => i.id)).toEqual(["art-silkscreen"]);
   });
@@ -270,7 +272,7 @@ describe("reading a saved decor value", () => {
     d.load(raw);
     expect(d.itemIn("art-table").id).toBe("art-barn");
     expect(d.itemIn("art-desk").id).toBe("art-abstract");
-    expect(d.choices("art-table").map((i) => i.id)).toEqual(["art-barn"]);
+    expect(d.choices("art-table").map((i) => i.id)).toEqual(["art-barn", "art-abstract"]);
     expect(d.toJSON().owned).toEqual([...start, "art-spare", "art-old"]);
     expect(d.toJSON().placed).toEqual({});
     // A build that brings it back finds it again.

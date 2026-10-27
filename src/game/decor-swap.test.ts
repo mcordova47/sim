@@ -138,7 +138,9 @@ describe("the swap list", () => {
     const { game, decor, events } = start();
     const mood = game.state.get("mood");
     game.update(dt, down);
+    game.update(dt, down); // past the gold abstract (shown on the desk wall) to the first spare one
     const shown = decor.itemIn("art-table").id;
+    expect(shown).toBe("art-test-desk");
     game.update(dt, press);
     expect(decor.placedIn("art-table").id).toBe(shown);
     expect(decor.previewing).toBe(false);
@@ -148,6 +150,7 @@ describe("the swap list", () => {
     expect(game.state.get("mood")).toBe(mood);
     expect(events).toEqual(["taskStart"]);
     expect(JSON.parse(JSON.stringify(decor)).placed).toEqual({ "art-table": shown });
+    expect(decor.inventory().map((i) => i.id)).toContain("art-barn");
     // The same E must not start it again, and there is no cooldown to wait out.
     for (let i = 0; i < 5; i++) game.update(dt, NO_INPUT);
     expect(game.interaction.busy).toBe(false);
@@ -202,7 +205,8 @@ describe("the swap list", () => {
       game.update(dt, down);
       seen.add(decor.itemIn("art-table").id);
     }
-    expect(seen).toEqual(new Set(["art-barn", "art-test-barn", "art-test-desk"]));
+    // The barn drawing (here), the gold abstract (shown on the desk wall: a swap) and the two spare ones.
+    expect(seen).toEqual(new Set(["art-barn", "art-abstract", "art-test-barn", "art-test-desk"]));
   });
 
   it("the game clock and the apartment stand still while choosing", () => {
@@ -242,6 +246,8 @@ describe("the swap list", () => {
     for (let i = 0; i < 6 && game.interaction.nearby?.id !== "swap-art-table"; i++) game.update(dt, TAB);
     game.update(dt, press);
     game.update(dt, down);
+    game.update(dt, down); // past the gold abstract
+    expect(decor.itemIn("art-table").id).toBe("art-test-barn");
     feature.save(); // saved while the list is open
     expect(JSON.parse(storage.data.get("life.progress.v1")!).decor.placed).toEqual({});
     game.update(dt, press); // choose
@@ -354,16 +360,16 @@ describe("Escape always leaves the room as it was (fuzz)", () => {
   });
 
   it("the list closes quietly if the choices vanish while it is open", () => {
-    const { game, decor } = setup(["art-test-barn"]);
-    standAt(game, "swap-art-table");
-    for (let i = 0; i < 6 && game.interaction.nearby?.id !== "swap-art-table"; i++) game.update(dt, TAB);
+    const { game, decor } = setup(["plant-test-grown"]);
+    standAt(game, "swap-plant-shelf");
+    for (let i = 0; i < 6 && game.interaction.nearby?.id !== "swap-plant-shelf"; i++) game.update(dt, TAB);
     game.update(dt, press);
     game.update(dt, down);
     decor.reset(); // owned items gone (a reset from the achievements list)
     game.update(dt, NO_INPUT);
     expect(game.interaction.busy).toBe(false);
     expect(decor.previewing).toBe(false);
-    expect(decor.itemIn("art-table").id).toBe("art-barn");
+    expect(decor.itemIn("plant-shelf").id).toBe("plant-snake");
   });
 });
 
@@ -381,9 +387,10 @@ describe("TEST items and ?own=", () => {
     expect(new Decor().starting().some((id) => id.includes("-test-"))).toBe(false);
   });
 
-  it("are not owned by default, so a fresh game has no swap", () => {
+  it("are not owned by default, so a fresh game has no swap offered", () => {
     const decor = new Decor();
-    for (const slot of DECOR_SLOTS) expect(decor.choices(slot.id).length, slot.id).toBe(1);
+    for (const slot of DECOR_SLOTS) expect(decor.canChange(slot.id), slot.id).toBe(false);
+    expect(decor.inventory()).toEqual([]);
   });
 
   it("?own=test owns every test item; ids work; junk and repeats are ignored", () => {

@@ -190,7 +190,9 @@ const STATE_RULES: Record<string, Partial<Task>> = {
   "close-blinds": {
     ...STATE_GATED,
     requires: [{ var: "blinds", min: 1, reason: "BLINDS ARE CLOSED" }],
-    effects: [{ var: "blinds", set: 0 }],
+    // Closing takes the light away again, so the mood from opening is undone: going back
+    // and forth is a wash and cannot be used to raise mood.
+    effects: [{ var: "blinds", set: 0 }, { var: "mood", add: -5 }],
   },
   // The records cycle by themselves: each ordering waits for its turn in
   // `recordSort`, and finishing one moves it on (after color, round to alphabetical).

@@ -67,6 +67,10 @@ describe("mood in the task list", () => {
     for (const id of ["doomscroll", "work", "work-sofa", "work-bed"]) expect(moodOf(id), id).toBeLessThan(0);
   });
 
+  it("undoes the mood from opening the blinds when they are closed again", () => {
+    expect(moodOf("close-blinds")).toBe(-moodOf("open-blinds"));
+  });
+
   it("keeps every change small and never makes mood a requirement", () => {
     for (const t of TASKS) {
       expect(Math.abs(moodOf(t.id)), t.id).toBeLessThanOrEqual(10);

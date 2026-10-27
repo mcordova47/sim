@@ -41,6 +41,11 @@ function play(game: Game, hours: number) {
   for (let t = 0; t < seconds; t += 0.5) game.update(0.5, NO_INPUT);
 }
 
+// Closes the box's dialog (one page per item): E until it is gone.
+function dismiss(game: Game) {
+  for (let i = 0; i < 400 && game.dialogOpen; i++) game.update(1 / 60, i % 2 === 0 ? press : NO_INPUT);
+}
+
 function standAtBox(game: Game) {
   const spot = taskSpots(APARTMENT.rooms.main).find((s) => s.id === "collect-delivery");
   if (!spot) throw new Error("no spot for the package");
@@ -379,12 +384,16 @@ describe("the package by the door", () => {
     game.update(1 / 60, press);
     for (let i = 0; i < 5; i++) game.update(1 / 60, NO_INPUT);
     expect(game.decor.owns(BARN)).toBe(true);
+    expect(game.dialogOpen).toBe(true);
+    dismiss(game);
+    expect(game.dialogOpen).toBe(false);
     expect(game.deliveries.waiting).toBe(false);
     expect(game.state.get("parcel")).toBe(0);
     expect(game.interaction.scoreboard.score).toBe(score);
     expect(game.state.get("mood")).toBeCloseTo(mood, 0);
     expect(events).not.toContain("taskComplete");
     expect(events).not.toContain("taskCancelled");
+    game.update(1 / 60, NO_INPUT);
     expect(game.interaction.nearby?.id).not.toBe("collect-delivery");
   });
 
@@ -425,6 +434,7 @@ describe("the package by the door", () => {
     game.update(1 / 60, press);
     walk(game, NO_INPUT, 0.2);
     expect(game.decor.owns(BARN)).toBe(true);
+    dismiss(game);
     walk(game, hold("left"), 0.6); // collected: the tile is open again
     expect(game.player.col).toBe(col);
   });

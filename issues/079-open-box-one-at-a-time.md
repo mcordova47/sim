@@ -1,7 +1,7 @@
 ---
 id: 079
 title: Opening the box with several gifts is illegible; show them one at a time
-status: todo
+status: review
 owner: claude
 depends_on: [043]
 ---
@@ -26,3 +26,11 @@ Fix: opening the box walks through the items one at a time, and the whole set ca
 - Docs: `docs/decor.md` deliveries section updated.
 
 ## Progress log
+
+- 2026-10-27 (claude): started. Plan: open the box as a dialog chain (one `say` per item), keep the activity alive while it shows so Escape works through the framework, coalesce arrival lines per frame.
+- 2026-10-27 (claude): done, in review.
+  - `Game.collectDeliveries(onClosed)` collects up front (owned, boxes, parcel as before), builds a chain of `say("OPENED: NAME")` and opens it; if a dialog is already open it falls back to one joined popup. `ActivityHost.collectDeliveries` takes `onClosed`; the `collect-delivery` activity is now `cancellable`, finishes quietly when the dialog closes or on Escape (no taskCancelled, no cooldown, no points). Arrival: `deliveries.onArrive` sets a flag and `update` says "A PACKAGE HAS ARRIVED." once per frame.
+  - Files: src/game/game.ts, src/game/activity.ts, src/game/activities/collect-delivery.ts, src/game/open-box-one-at-a-time.test.ts (new), src/game/deliveries.test.ts and src/game/checkpoints-stage-a.test.ts (the box now shows a dialog that the tests close with E), docs/decor.md, this file.
+  - Criteria: ten pages in order with no OPENED popups, all owned at once, Escape mid-way keeps all (tests); one item is one page/one press (test); ten arrivals via a sleep skip and two advances in one frame make one popup (tests); end-to-end through the real task at the door: busy while pages show, quiet end, no cooldown, parcel 0, boxes 1 (tests, plus existing boxes.test). Regression test checked to fail on the old code (5 of 7 fail with game/activity changes stashed). `npx tsc --noEmit`, `npm test` (2338 pass, golden frames unchanged) and `npm run build` pass.
+  - Later view: the swap lists already show every owned item in table order; an inventory item is the one with no IN PLACE and no place line. No new screen. Noted in docs/decor.md.
+  - Not checked: how the pages look and feel in a browser (dialog box layout, text-voice per letter). Pressing E on the last page with the single-press behaviour was tested only by simulation.

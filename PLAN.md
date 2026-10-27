@@ -118,7 +118,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 080 | [Ad encounter entrance: flash and bar wipe](issues/080-encounter-entrance.md) | claude | done | 043 |
 | 081 | [Menus ignore stray keys right after a typing game](issues/081-stray-keys-after-typing.md) | claude | done | |
 | 082 | [Flashcards: a progress page when no cards are left](issues/082-flashcards-progress-page.md) | claude | todo | 026 |
-| 083 | [Flashcards for someone who is not Marc: a mode with no sync key (design first)](issues/083-flashcards-guest-mode.md) | marc + claude | todo | 026 |
+| 083 | [Flashcards for someone who is not Marc: a mode with no sync key (design first)](issues/083-flashcards-guest-mode.md) | marc + claude | in-progress (design note merged; the build issue waits on Marc's answers in docs/flashcards-guest.md section 13) | 026 |
 | 084 | [Put the game on the internet (hosting, domain, repo name, privacy pass)](issues/084-productionize.md) | marc + claude | todo | |
 | 085 | [Remove or decide on personal info before the repo goes on GitHub](issues/085-personal-info-before-github.md) | marc + claude | todo | |
 

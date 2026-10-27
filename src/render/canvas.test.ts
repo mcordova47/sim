@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { createScreen, desktopScale, fitScale, pictureArea, PORTRAIT_CONTROLS_HEIGHT } from "./canvas";
+import { createScreen, desktopScale, fitScale, landscapeLayout, LANDSCAPE, pictureArea, PORTRAIT_CONTROLS_HEIGHT, rectsOverlap } from "./canvas";
+import { NARROW_VIEW } from "../game/config";
 
 // docs/mobile.md section 2.1: the sizes for the phones in the note.
 describe("fitScale", () => {
@@ -35,11 +36,11 @@ describe("fitScale", () => {
 
 describe("pictureArea", () => {
   const none = { top: 0, right: 0, bottom: 0, left: 0 };
-  it("portrait leaves room for the controls, landscape takes the whole viewport, both inside the insets", () => {
+  it("portrait leaves room for the controls, landscape leaves a column at each side, both inside the insets", () => {
     const p = pictureArea(390, 844, { top: 47, right: 0, bottom: 34, left: 0 });
     expect(p).toEqual({ width: 390, height: 844 - 47 - 34 - PORTRAIT_CONTROLS_HEIGHT, portrait: true });
     const l = pictureArea(844, 390, { top: 0, right: 47, bottom: 21, left: 47 });
-    expect(l).toEqual({ width: 750, height: 369, portrait: false });
+    expect(l).toEqual({ width: 750 - 2 * LANDSCAPE.side, height: 369, portrait: false });
     expect(pictureArea(10, 10, { top: 20, right: 20, bottom: 20, left: 20 }, ).width).toBe(0);
     expect(pictureArea(390, 844, none).portrait).toBe(true);
   });
@@ -98,5 +99,55 @@ describe("createScreen without touch", () => {
     screen.setTouch(false);
     expect([canvas.width, canvas.height]).toEqual([320, 192]);
     expect(screen.ctx).toBe(canvas.ctx);
+  });
+});
+
+// Issue 092: in landscape no control overlaps the picture.
+describe("landscapeLayout", () => {
+  const none = { top: 0, right: 0, bottom: 0, left: 0 };
+  const sizes: Array<[string, number, number, { top: number; right: number; bottom: number; left: number }, number]> = [
+    ["iPhone 14 full 844x390", 844, 390, none, 3],
+    ["iPhone 14 Safari bars 844x340", 844, 340, none, 3],
+    ["iPhone 14 standalone with insets", 844, 390, { top: 0, right: 47, bottom: 21, left: 47 }, 3],
+    ["iPhone Pro Max 932x430", 932, 430, none, 3],
+    ["Pro Max Safari bars 932x380", 932, 380, none, 3],
+    ["Pro Max with insets", 932, 430, { top: 0, right: 59, bottom: 21, left: 59 }, 3],
+    ["iPhone SE 667x375", 667, 375, none, 2],
+    ["Android 800x360", 800, 360, none, 3],
+    ["Pixel 915x412", 915, 412, none, 2.625],
+    ["small 568x320", 568, 320, none, 2],
+  ];
+  for (const view of [{ width: 320, height: 192 }, NARROW_VIEW]) {
+    for (const [name, w, h, insets, dpr] of sizes) {
+      it(`${name} (${view.width}x${view.height}): controls and picture do not intersect, all inside the page`, () => {
+        const l = landscapeLayout(w, h, insets, dpr, view);
+        for (const box of [l.dpad, l.face, l.pills]) {
+          expect(rectsOverlap(box, l.picture)).toBe(false);
+          expect(box.x).toBeGreaterThanOrEqual(insets.left - 1e-9);
+          expect(box.x + box.width).toBeLessThanOrEqual(w - insets.right + 1e-9);
+          expect(box.y).toBeGreaterThanOrEqual(insets.top - 1e-9);
+          expect(box.y + box.height).toBeLessThanOrEqual(h - insets.bottom + 1e-9);
+        }
+        expect(rectsOverlap(l.face, l.pills)).toBe(false);
+        expect(l.picture.x).toBeGreaterThanOrEqual(l.area.x - 1e-9);
+        expect(l.picture.x + l.picture.width).toBeLessThanOrEqual(l.area.x + l.area.width + 1e-9);
+        expect(l.picture.y + l.picture.height).toBeLessThanOrEqual(h - insets.bottom + 1e-9);
+      });
+    }
+  }
+  it("fits the picture at the whole device-pixel scales the note lists", () => {
+    expect(landscapeLayout(844, 390, none, 3).scaleDev).toBe(5); // 1.67x, 533 x 320
+    expect(landscapeLayout(932, 430, none, 3).scaleDev).toBe(6); // 2.0x, 640 x 384
+    expect(landscapeLayout(844, 340, none, 3).scaleDev).toBe(5);
+    expect(landscapeLayout(750, 369, none, 3).scaleDev).toBe(4); // standalone width: 1.33x
+  });
+  it("controls keep full size where there is room and shrink only on narrow screens", () => {
+    expect(landscapeLayout(844, 390, none, 3).shrink).toBe(1);
+    expect(landscapeLayout(568, 320, none, 2).shrink).toBeLessThan(1);
+    expect(landscapeLayout(568, 320, none, 2).shrink).toBeGreaterThanOrEqual(LANDSCAPE.minShrink);
+  });
+  it("the rectangles check can fail: a picture over a control is reported", () => {
+    const l = landscapeLayout(844, 390, none, 3);
+    expect(rectsOverlap(l.picture, { x: l.picture.x + 10, y: l.picture.y + 10, width: 20, height: 20 })).toBe(true);
   });
 });

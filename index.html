@@ -98,14 +98,39 @@
         body.touch .tp-pills { grid-column: 1 / 3; }
       }
 
-      /* Landscape: the same buttons float over the picture's corners. */
+      /* Landscape (issue 092): a column of controls at each side, the picture between them, nothing
+         over the picture. --ls-side (the column's width) and --ls-k (a shrink factor, 1 normally)
+         are set by src/render/canvas.ts from the same numbers its layout test checks. The sizes
+         below are at k = 1: d-pad 120, A/B in a 132 x 104 box, pills 120 x 36. */
       @media (orientation: landscape) {
+        body.touch {
+          box-sizing: border-box;
+          padding: env(safe-area-inset-top) calc(env(safe-area-inset-right) + var(--ls-side, 146px)) env(safe-area-inset-bottom) calc(env(safe-area-inset-left) + var(--ls-side, 146px));
+        }
         body.touch #touch-ui { position: fixed; inset: 0; pointer-events: none; }
-        body.touch #touch-ui > * { pointer-events: auto; opacity: 0.55; }
-        body.touch .tp-dpad { position: fixed; left: max(12px, env(safe-area-inset-left)); bottom: max(12px, env(safe-area-inset-bottom)); }
-        body.touch .tp-face { position: fixed; right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom)); }
-        body.touch .tp-pills { position: fixed; top: max(8px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); gap: 8px; }
-        body.touch .tp-pill { min-width: 64px; height: 36px; }
+        body.touch #touch-ui > * { pointer-events: auto; position: fixed; transform: scale(var(--ls-k, 1)); }
+        body.touch .tp-dpad {
+          left: calc(env(safe-area-inset-left) + 13px * var(--ls-k, 1));
+          bottom: calc(env(safe-area-inset-bottom) + 12px * var(--ls-k, 1));
+          transform: scale(calc(0.8 * var(--ls-k, 1)));
+          transform-origin: left bottom;
+        }
+        body.touch .tp-face {
+          width: 132px; height: 104px;
+          right: calc(env(safe-area-inset-right) + 7px * var(--ls-k, 1));
+          bottom: calc(env(safe-area-inset-bottom) + 12px * var(--ls-k, 1));
+          transform-origin: right bottom;
+        }
+        body.touch .tp-a { width: 60px; height: 60px; }
+        body.touch .tp-b { width: 54px; height: 54px; right: 74px; top: 48px; }
+        body.touch .tp-pills {
+          width: 120px;
+          right: calc(env(safe-area-inset-right) + 13px * var(--ls-k, 1));
+          top: calc(env(safe-area-inset-top) + 12px * var(--ls-k, 1));
+          flex-direction: column; gap: 8px;
+          transform-origin: right top;
+        }
+        body.touch .tp-pill { min-width: 0; width: 120px; height: 36px; }
       }
     </style>
   </head>

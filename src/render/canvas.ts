@@ -9,6 +9,9 @@ export interface Screen {
   // Call once a frame, after the view size (`VIEW`) may have changed (a full-screen picture on the
   // phone's narrow view, issue 090): resizes the offscreen picture and refits the canvas.
   sync(): void;
+  // True on the touch layer with the phone turned sideways (issue 092): the picture has room for the
+  // full 320 x 192 view then, with the controls in columns at its sides.
+  readonly landscape: boolean;
   // Switches between the desktop fit and the phone fit (device pixels, safe areas).
   setTouch(on: boolean): void;
 }
@@ -75,8 +78,96 @@ export function fitFill(width: number, height: number, dpr: number, view: { widt
 // The room the controls need below the picture in portrait, in CSS pixels.
 export const PORTRAIT_CONTROLS_HEIGHT = 330;
 
-// The area for the picture on a phone. Portrait puts the controls below it; landscape lets
-// them float over the picture, so it takes the whole viewport. Inside the safe areas.
+// Landscape (issue 092): the controls sit in a column at each side of the picture, never over it.
+// Sizes are CSS pixels at scale 1. `side` is the column's width; the controls are drawn in it by
+// index.html through the custom properties `createScreen` sets (`--ls-k` is the shrink factor).
+export const LANDSCAPE = {
+  side: 146,
+  dpad: 120,
+  faceWidth: 132,
+  faceHeight: 104,
+  pillWidth: 120,
+  pillHeight: 36,
+  pillGap: 8,
+  pills: 3,
+  // Space from the screen edge (inside the safe area) to the controls' top or bottom.
+  edge: 12,
+  // The smallest the controls get when the screen is too narrow for full-size columns.
+  minShrink: 0.7,
+};
+
+export interface Rect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export interface LandscapeLayout {
+  // Width of each side column and the factor the controls are drawn at (1 = full size).
+  side: number;
+  shrink: number;
+  // The area between the columns that the picture is fitted in and centred in.
+  area: Rect;
+  picture: Rect;
+  scaleDev: number;
+  dpad: Rect;
+  face: Rect;
+  pills: Rect;
+}
+
+// Where everything goes in landscape on a `viewWidth` x `viewHeight` page (inside `insets`): a column
+// at each side for the controls, the picture fitted into what is left. If the page is too narrow for
+// full-size columns beside a 1x picture they shrink (down to `minShrink`); below that the picture
+// would overlap them, which `landscapeLayout` reports by the rectangles intersecting (a screen
+// narrower than about 530 px, no current phone in landscape).
+export function landscapeLayout(
+  viewWidth: number,
+  viewHeight: number,
+  insets: Insets,
+  dpr: number,
+  view: { width: number; height: number } = VIEW,
+): LandscapeLayout {
+  const L = LANDSCAPE;
+  const width = Math.max(0, viewWidth - insets.left - insets.right);
+  const height = Math.max(0, viewHeight - insets.top - insets.bottom);
+  const room = Math.floor((width - view.width) / 2);
+  const shrink = Math.min(1, Math.max(L.minShrink, room / L.side));
+  const side = Math.round(L.side * shrink);
+  const area = { x: insets.left + side, y: insets.top, width: Math.max(0, width - 2 * side), height };
+  const f = fitScale(area.width, area.height, dpr, view);
+  const picture = {
+    x: area.x + (area.width - f.cssWidth) / 2,
+    y: area.y + (area.height - f.cssHeight) / 2,
+    width: f.cssWidth,
+    height: f.cssHeight,
+  };
+  const k = shrink;
+  const bottom = viewHeight - insets.bottom - L.edge * k;
+  const dpad = { x: insets.left + ((L.side - L.dpad) / 2) * k, y: bottom - L.dpad * k, width: L.dpad * k, height: L.dpad * k };
+  const rightEdge = viewWidth - insets.right;
+  const face = {
+    x: rightEdge - ((L.side - L.faceWidth) / 2 + L.faceWidth) * k,
+    y: bottom - L.faceHeight * k,
+    width: L.faceWidth * k,
+    height: L.faceHeight * k,
+  };
+  const pillsHeight = L.pills * L.pillHeight + (L.pills - 1) * L.pillGap;
+  const pills = {
+    x: rightEdge - ((L.side - L.pillWidth) / 2 + L.pillWidth) * k,
+    y: insets.top + L.edge * k,
+    width: L.pillWidth * k,
+    height: pillsHeight * k,
+  };
+  return { side, shrink, area, picture, scaleDev: f.scaleDev, dpad, face, pills };
+}
+
+export function rectsOverlap(a: Rect, b: Rect): boolean {
+  return a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+}
+
+// The area for the picture on a phone. Portrait puts the controls below it; landscape puts them
+// in a column at each side (`landscapeLayout`). Inside the safe areas.
 export function pictureArea(
   viewWidth: number,
   viewHeight: number,
@@ -85,7 +176,9 @@ export function pictureArea(
   const width = Math.max(0, viewWidth - insets.left - insets.right);
   const height = Math.max(0, viewHeight - insets.top - insets.bottom);
   const portrait = viewHeight > viewWidth;
-  return { width, height: portrait ? height - PORTRAIT_CONTROLS_HEIGHT : height, portrait };
+  if (portrait) return { width, height: height - PORTRAIT_CONTROLS_HEIGHT, portrait };
+  const area = landscapeLayout(viewWidth, viewHeight, insets, 1).area;
+  return { width: area.width, height: area.height, portrait };
 }
 
 // The desktop rule, unchanged: the largest whole CSS-pixel factor, at least 1.
@@ -115,6 +208,17 @@ function readInsets(): Insets {
   }
 }
 
+// Tells index.html how big the landscape columns are (it positions the controls with these).
+function setLayoutVars(l: LandscapeLayout): void {
+  try {
+    const style = document.documentElement.style;
+    style.setProperty("--ls-side", `${l.side}px`);
+    style.setProperty("--ls-k", String(l.shrink));
+  } catch {
+    // No document element (tests).
+  }
+}
+
 // Sets up the canvas and keeps it scaled to the window. On a desktop the canvas is 320 x 192
 // at the largest whole CSS-pixel factor, as always. In touch mode the game draws into a
 // 320 x 192 offscreen canvas that is copied, smoothing off, onto a backing store made of
@@ -130,6 +234,7 @@ export function createScreen(canvas: HTMLCanvasElement): Screen {
   offCtx.imageSmoothingEnabled = false;
 
   let touch = false;
+  let landscape = false;
 
   const size = (width: number, height: number) => {
     if (canvas.width !== width) canvas.width = width;
@@ -146,8 +251,20 @@ export function createScreen(canvas: HTMLCanvasElement): Screen {
       return;
     }
     const vv = window.visualViewport;
-    const area = pictureArea(vv?.width ?? window.innerWidth, vv?.height ?? window.innerHeight, readInsets());
+    const insets = readInsets();
+    const area = pictureArea(vv?.width ?? window.innerWidth, vv?.height ?? window.innerHeight, insets);
     const dpr = window.devicePixelRatio || 1;
+    landscape = !area.portrait;
+    if (landscape) {
+      // Landscape: the picture sits between the two control columns, whatever view is live.
+      setLayoutVars(landscapeLayout(vv?.width ?? window.innerWidth, vv?.height ?? window.innerHeight, insets, dpr));
+      const l = fitScale(area.width, area.height, dpr);
+      size(l.backingWidth, l.backingHeight);
+      canvas.style.width = `${l.cssWidth}px`;
+      canvas.style.height = `${l.cssHeight}px`;
+      canvas.style.marginBottom = "0px";
+      return;
+    }
     // A full-screen piece on the narrow view fills the width (fractional scale) instead of staying at 1.0x.
     const filling = NARROW && VIEW.width === DESKTOP_VIEW.width;
     const f = filling ? fitFill(area.width, area.height, dpr) : fitScale(area.width, area.height, dpr);
@@ -176,6 +293,9 @@ export function createScreen(canvas: HTMLCanvasElement): Screen {
       if (!touch) return;
       main.imageSmoothingEnabled = false;
       main.drawImage(off, 0, 0, canvas.width, canvas.height);
+    },
+    get landscape() {
+      return touch && landscape;
     },
     sync() {
       const now = `${VIEW.width}x${VIEW.height}`;

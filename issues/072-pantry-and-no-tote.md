@@ -1,7 +1,7 @@
 ---
 id: 072
 title: A real pantry (a stack of clear bins); remove the tote bag
-status: review
+status: done
 owner: agent
 depends_on: []
 ---
@@ -23,3 +23,14 @@ From Marc (2026-10-26): the thing right of the boxes in the kitchen is the pantr
 - 2026-10-26 (agent): Done, ready for review. Changes: new `art/src/pantry.sprite` (16x32: navy-lidded clear bins, yellow lid on the lowest, food abstracted, no labels) as its own piece `P` in `KITCHEN_MAP` (rows 1-2, col 11; slot `pantry`); `boxes`, `boxes-flat` are 16x16 box art only, `boxes-gone` is an all-transparent 16x16 (draws nothing); `X` is now one tile at col 10, row 1 with the same tasks and variants (flatten, recycle unchanged). Tote: `O`, `tote.sprite` and `tote.png` removed. Decor: slot `pantry` (kitchen, 176,16, 16x32, kind `pantry`, no `object`, so no swap task) and item `pantry-bins` in `decor-data.ts`; `DecorKind` gains `pantry`. Tests updated: `boxes.test.ts` map row, `decor.test.ts` slot list (main room only checks the main-room slots) plus a new pantry slot test. Docs: floor-plan, decor, art-style, tasks. Mockup script gained BOXES / CROP / SCALE / OUT env options.
 - Checks: BFS over the new map reaches every task piece (N, X, P, F, C, V) and doors 1, 2, 3, with col 10, row 2 open under the boxes. Rendered the kitchen's north-east corner (cols 7-12, rows 0-4) at 1x and 4x with the boxes as a stack, flat and gone and looked at all six: the pantry reads as a stack of navy-lidded bins with food on top beside the boxes; gone leaves one clear floor tile. `npm run sprites`, `npm test` (1919 pass; main-room golden untouched) and `npm run build` pass.
 - Not checked: how it looks in the live browser (the game's own draw path); deviation from the issue text: default item id is `pantry-bins`, not `pantry` (ids must start with their kind and a dash).
+
+- 2026-10-26 (reviewer, independent): **Verdict: approve.** Checked in the worktree on branch issue/072-pantry-and-no-tote.
+  - Pantry piece: pass. `art/src/pantry.sprite` is 16x32 (png confirmed 16x32), own piece `P` (col 11, rows 1-2), no labels, clear bins, blue lids, yellow strip on the lowest, food on top. Rendered myself (BOXES=boxes and boxes-gone, CROP=7,0,13,5, SCALE=8) and compared with `panty-and-boxes.jpg`: it reads as a stack of clear grey bins with blue lids, a yellow lowest lid and a pile of food on top. Minor nit, not blocking: the lids are a mid blue with light highlights rather than a deep navy, and the food pile is small. The footprint proposal (1x2 at the right column) is logged and keeps the lane clear.
+  - Decor slot: pass. Slot `pantry` (kitchen, 176,16, 16x32, kind `pantry`, no `object`) and item `pantry-bins` in `decor-data.ts` only; `Decor.checkLevel(kitchen)` accepts it, one choice, so no swap task. Deviation (item id `pantry-bins`, not `pantry`) is justified by the id-prefix rule.
+  - Boxes: pass. My script over all three `boxes` values (0, 1, 2) picks `boxes-flat`, `boxes`, `boxes-gone`; all three pngs are 16x16 and the appearance area is the single tile (160,16). `boxes-gone` is fully transparent (the render shows clear floor). Tasks: `flatten-boxes` and `recycle-boxes` still stand at (10,2) facing up, the only tile that reaches the boxes. Existing boxes tests pass.
+  - Tote: pass. `O` is gone from the map, `tote.sprite` and `tote.png` are deleted, and no `tote` reference is left outside the historic art-style notes, the fridge sprite (its own tote on top, unrelated) and issue text.
+  - Map checks: pass. My BFS (`reachablePlaces` from the main spawn) reaches all 43 kitchen cells (same as main) and every kitchen task stand tile, and `doorProblems` is empty. Solid at (10,1), (11,1), (11,2); free at (10,2) and (11,3), so the lane along row 2 and down col 11 is open. Wall tiles around the NE corner are unchanged. The room-mockup script supports BOXES, CROP, SCALE, OUT and runs. `docs/floor-plan.md`, `decor.md`, `art-style.md`, `tasks.md` are updated and agree with the code.
+  - Builds and tests: `npm run sprites` leaves no diff (committed outputs are current), `npm test` 1919 pass in 84 files, `npm run build` passes. Main-room golden frames untouched (no main-room golden in the diff).
+  - Scope: no edits to PLAN.md or other issues; no reference-photos content copied in.
+  - Unverified: how it looks in the live browser through the game's own draw path. Neither the author nor I ran the dev server; my renders use the mockup script's compositor, not the game's renderer, so an empty `boxes-gone` sprite and the 16x32 piece's depth sorting are covered only by tests. Marc's own look at the corner is still the last criterion.
+  - PLAN.md table needs updating by the planner (072 to done).

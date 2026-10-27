@@ -1,7 +1,7 @@
 ---
 id: 086
 title: HUD ribbon, stage 1: icons and small bars in the empty top band
-status: review
+status: done
 owner: claude
 depends_on: [048]
 ---
@@ -58,3 +58,10 @@ Build stage 1 of the HUD design Marc picked (layout B, `docs/hud-design.md`, iss
     - [ ] Decide on 13+ digit scores on the narrow view (clamp the digits used for layout, or note it as out of range in the issue) and extend the test to what you decide.
     - [ ] Optional: make the render-each-room test look at real pixels (or say in the issue that the camera offset check stands in for it).
   - Unverified (not checked by me, record as open): how it feels in a real browser or on a phone; a screenshot with a 10-digit score (the score cannot be set from the URL, only the geometry was checked); every low state at once on the narrow view at 10 digits; every room's props against the band.
+
+- 2026-10-27 (independent review, round 2): verdict APPROVE.
+  - Run: `npm test` (109 files, 2580 tests), `npx tsc --noEmit`, `npm run build`, `npm run sprites` (tree clean afterwards): all pass.
+  - The round-1 defect is fixed. Commit 43be1ad changes only `toasts.ts` (toast stack starts under `max(STATUS_BOX bottom, ribbonBottom(VIEW))`), a new `ribbonBottom` in `hud.ts`, and a test. I measured with ToastQueue: desktop hint y 3 (clear), first toast y 19; narrow hint y 17..25, first toast y 27, second y 64..107 (well inside the 208 px view). Stable for 1 to 13 digits. The new test ("toasts and the stop hint") fails against the old start of y 19 on the narrow view and passes now. Toasts no longer move with the score on either view. Draw code, goldens and the other tests are untouched by the fix, so the round-1 results (goldens explained only by the HUD, nothing HUD below y 32, panels gone, popup/toast/label tests not weakened, scope, privacy) still stand.
+  - Not fixed, accepted as minor: (2) on the narrow view the chips touch at 13+ score digits (a score that large is far out of range); (3) the desktop hint drifts right a few px as the score gains digits; (4) the room test checks the camera offset, not rendered pixels. None blocks stage 1.
+  - Unverified (open): how it feels in a real browser or on a phone (Marc's look, the last acceptance item); a screenshot with a 10-digit score; every low state at once on the narrow view at 10 digits; every room's props against the band.
+  - Merge branch: issue/086-hud-ribbon. PLAN.md table needs updating by the planner.

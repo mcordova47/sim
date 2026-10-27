@@ -116,7 +116,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 078 | [A sleep sequence instead of just a timer](issues/078-sleep-sequence.md) | marc + claude | done | |
 | 079 | [Open the box one gift at a time](issues/079-open-box-one-at-a-time.md) | claude | done | 043 |
 | 080 | [Ad encounter entrance: flash and bar wipe](issues/080-encounter-entrance.md) | claude | todo | 043 |
-| 081 | [Menus ignore stray keys right after a typing game](issues/081-stray-keys-after-typing.md) | claude | todo | |
+| 081 | [Menus ignore stray keys right after a typing game](issues/081-stray-keys-after-typing.md) | claude | done | |
 | 082 | [Flashcards: a progress page when no cards are left](issues/082-flashcards-progress-page.md) | claude | todo | 026 |
 | 083 | [Flashcards for someone who is not Marc: a mode with no sync key (design first)](issues/083-flashcards-guest-mode.md) | marc + claude | todo | 026 |
 

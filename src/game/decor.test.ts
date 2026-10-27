@@ -43,19 +43,28 @@ describe("the decor tables", () => {
     }
   });
 
-  it("have the first-cut slots for the main room and nothing else", () => {
-    expect(DECOR_SLOTS.map((s) => s.id)).toEqual(["art-table", "art-desk", "art-bed", "plant-shelf", "lamp-sofa"]);
-    expect(DECOR_SLOTS.every((s) => s.room === "main")).toBe(true);
+  it("have the first-cut slots for the main room, and the kitchen's pantry (issue 072)", () => {
+    expect(DECOR_SLOTS.map((s) => s.id)).toEqual(["art-table", "art-desk", "art-bed", "plant-shelf", "lamp-sofa", "pantry"]);
+    expect(DECOR_SLOTS.filter((s) => s.room !== "main").map((s) => s.id)).toEqual(["pantry"]);
   });
 
   it("match the real main room: each slot is exactly where and as big as the object it draws", () => {
     expect(() => new Decor().checkLevel(APARTMENT.rooms.main)).not.toThrow();
     const main = APARTMENT.rooms.main;
-    for (const slot of DECOR_SLOTS) {
+    for (const slot of DECOR_SLOTS.filter((s) => s.room === "main")) {
       const found = [...(main.appearances ?? []), ...(main.props ?? [])].find((o) => ("slot" in o ? o.slot : undefined) === slot.id);
       expect(found, slot.id).toBeDefined();
       expect(found!.area).toEqual(slot.area);
     }
+  });
+
+  it("put the pantry exactly where and as big as the kitchen piece (a swap-free slot: no object, one item)", () => {
+    const kitchen = APARTMENT.rooms.kitchen;
+    expect(() => new Decor().checkLevel(kitchen)).not.toThrow();
+    const found = (kitchen.appearances ?? []).find((a) => a.slot === "pantry");
+    expect(found?.area).toEqual(DECOR_SLOTS.find((s) => s.id === "pantry")!.area);
+    expect(DECOR_SLOTS.find((s) => s.id === "pantry")!.object).toBeUndefined();
+    expect(new Decor().choices("pantry").map((i) => i.id)).toEqual(["pantry-bins"]);
   });
 
   it("refuse bad data, naming the problem", () => {

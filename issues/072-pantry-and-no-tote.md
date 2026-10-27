@@ -1,7 +1,7 @@
 ---
 id: 072
 title: A real pantry (a stack of clear bins); remove the tote bag
-status: todo
+status: review
 owner: agent
 depends_on: []
 ---
@@ -17,3 +17,9 @@ From Marc (2026-10-26): the thing right of the boxes in the kitchen is the pantr
 - `npm run sprites`, `npm test` and `npm run build` pass. Marc looks at the kitchen's north-east corner.
 
 ## Progress log
+
+- 2026-10-26 (agent): Starting. Footprint proposal: boxes shrink to one tile (col 10, row 1, 16x16) and the pantry takes the whole right column of rows 1 and 2 (col 11, 1 x 2, sprite 16x32, where the tote was). Reasoning: (1) the pantry in the photo is a tall stack (two navy-lidded bins plus a yellow-lidded one, food piled on top), so it needs height more than width, and 1 x 2 shows the top pile and the stack's front in one piece; (2) the walk lane is unchanged: `O` was already solid, so the same tiles are blocked as before except that col 10, row 2 stays free and the lane along row 2 and down col 11 from row 3 is untouched; (3) the boxes keep their own tile and tasks, and `boxes-gone` leaves one clear floor tile. Not 1 x 2 on row 1 (two wide): that would push the boxes onto the bin. The map row 1 becomes `#........NXP#` and row 2 `c..........P#`.
+- The decor kind needs a `pantry-` id prefix (validateDecorData), so the default item id is `pantry-bins` (kind `pantry`), not bare `pantry`; the slot id is `pantry`.
+- 2026-10-26 (agent): Done, ready for review. Changes: new `art/src/pantry.sprite` (16x32: navy-lidded clear bins, yellow lid on the lowest, food abstracted, no labels) as its own piece `P` in `KITCHEN_MAP` (rows 1-2, col 11; slot `pantry`); `boxes`, `boxes-flat` are 16x16 box art only, `boxes-gone` is an all-transparent 16x16 (draws nothing); `X` is now one tile at col 10, row 1 with the same tasks and variants (flatten, recycle unchanged). Tote: `O`, `tote.sprite` and `tote.png` removed. Decor: slot `pantry` (kitchen, 176,16, 16x32, kind `pantry`, no `object`, so no swap task) and item `pantry-bins` in `decor-data.ts`; `DecorKind` gains `pantry`. Tests updated: `boxes.test.ts` map row, `decor.test.ts` slot list (main room only checks the main-room slots) plus a new pantry slot test. Docs: floor-plan, decor, art-style, tasks. Mockup script gained BOXES / CROP / SCALE / OUT env options.
+- Checks: BFS over the new map reaches every task piece (N, X, P, F, C, V) and doors 1, 2, 3, with col 10, row 2 open under the boxes. Rendered the kitchen's north-east corner (cols 7-12, rows 0-4) at 1x and 4x with the boxes as a stack, flat and gone and looked at all six: the pantry reads as a stack of navy-lidded bins with food on top beside the boxes; gone leaves one clear floor tile. `npm run sprites`, `npm test` (1919 pass; main-room golden untouched) and `npm run build` pass.
+- Not checked: how it looks in the live browser (the game's own draw path); deviation from the issue text: default item id is `pantry-bins`, not `pantry` (ids must start with their kind and a dash).

@@ -142,15 +142,15 @@ const MAIN: Record<string, ObjectDef> = {
 // -- Kitchen: an L, 11 by 8 feet ---------------------------------------------
 // The bar runs along the top (11 by 4): the sink, counter and stove against its
 // south wall (the wall above the bath), the window in the west wall, the
-// bin and boxes in the north-east corner (there is no recycling bin; the
-// recycling goes out from the boxes, issue 071). The leg drops down the east
+// bin and boxes in the north-east corner with the pantry beside them (there is no
+// recycling bin; the recycling goes out from the boxes, issue 071). The leg drops down the east
 // side (4 by 4) with the fridge against the east wall. The passage to the
 // main room is in the east wall of the bar; the bath door is in the west wall
 // of the leg. The solid block at the bottom left is the bath.
 export const KITCHEN_MAP = [
   "#############",
-  "#........NXX#",
-  "c..........O#",
+  "#........NXP#",
+  "c..........P#",
   "cCCCVVV.....1",
   "#CCCVVV.....2",
   "####hhh#.@..#",
@@ -180,7 +180,7 @@ const KITCHEN: Record<string, ObjectDef> = {
   // The boxes follow the state variable `boxes` (issue 066): a stack, or flattened
   // after "Flatten the boxes", and gone after "Take out the recycling" (issue 070). A package opened at the front door brings the stack back.
   X: {
-    name: "box stack and pantry",
+    name: "cardboard boxes",
     sprite: "boxes",
     color: "tangerine",
     tasks: ["flatten-boxes", "recycle-boxes"],
@@ -190,7 +190,9 @@ const KITCHEN: Record<string, ObjectDef> = {
       { sprite: "boxes-flat", color: "tangerine" },
     ],
   },
-  O: { name: "tote bag and shoes", sprite: "tote", color: "ink" },
+  // The pantry (issue 072): a stack of clear bins with food on top, its own piece, 1 by 2 down the
+  // east wall. A decor slot candidate (docs/decor.md), nothing to swap yet.
+  P: { name: "pantry", sprite: "pantry", color: "mist", slot: "pantry" },
   F: { name: "fridge", sprite: "fridge", color: "mist", tasks: ["fridge-stare", "humidifier"] },
   c: { name: "window curtain", sprite: "window-curtain", color: "mist" },
   "1": { door: { to: "main", arrive: { col: 1, row: 3, facing: "right" } } },

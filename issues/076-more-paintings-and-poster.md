@@ -1,7 +1,7 @@
 ---
 id: 076
 title: More paintings from Marc's unhung pieces; a different concert poster
-status: review
+status: done
 owner: agent
 depends_on: []
 ---
@@ -27,3 +27,12 @@ Nine images: seven look like gig and album posters (use these as the style examp
 - 2026-10-27 (agent): done, status review. Drew in `art/src/`: `art-concert-poster` (replaced; 32x16, still the unframed paper poster with tape at the top corners; new composition: night field, stars, blush planet, small blue moon, orange and butter horizon glow, pink cloud band, dark water; a mix of the ideas of examples 5 to 7, no text, not a copy), `art-snow-wagon` (the winter yard, 32x16, wide frame like `art-silver-landscape`) and `art-warm-figure` (the figure canvas, 32x16, tall pale frame centred like `art-tall-brown`). Both paintings fit the table and desk wall slots (32x16); none needed the 48x16 bed slot. Nothing registered, no game code touched. `scripts/gifts-mockup.mjs` now also lays out the two new paintings in its second band (one-line change, so the mockup shows them). Docs: later list in `docs/random-encounters.md` and the sprite list in `docs/art-style.md`. No real names, text or logos appear in any file.
 - Checked: ran `npm run sprites` (167 sprites, OK) and `node scripts/gifts-mockup.mjs`, viewed `art/mockup-gifts.png` (4x) and `art/mockup-gifts-1x.png`. Honest read: the poster reads clearly as a poster (planet and horizon); the snow yard reads as a cart with spoked wheels, a fence and a red-budded tree; the figure canvas is the weakest, a pale head, a white figure on a red chair and checks that read as an old print only loosely, which is in line with the other small paintings. Unviewed: how they look in the real room (not placed). `npm test` and `npm run build` results below.
 - Verified: npm test 2020 passed, npm run build OK. Independent reviewer not started (see report).
+
+- 2026-10-27 (reviewer, independent): Review. Verdict: APPROVE.
+  - Names/sizes: art-concert-poster, art-snow-wagon, art-warm-figure exist in art/src with PNGs, all 32x16; `npm run sprites` (167) leaves git clean; palette-only (sprite compiler). Pass.
+  - Privacy: grepped the whole branch diff, commit messages, headers, docs and this file for every distinctive word from all nine reference file names and for words visible in the images (artist/band/venue/event text, the signature on the figure canvas, "serenity now"): no hits. Only `serenity-now.jpeg` and `winter-yard.jpeg` appear (issue file). Sprites carry no text, names, dates or logos. Pass.
+  - Poster composition: new; same ingredients as one example (planet, pink clouds, glowing horizon, dark water) but simplified to big shapes, no text, not a pixel copy. Pass (note: closest in spirit to example 7).
+  - Paintings: abstract impressions of the winter yard (cart, wheels, fence, red-budded tree) and the figure canvas (pale head, white figure, red chair, checks). Pass.
+  - Pixel difference vs painting, painting-desk, all 074 sprites and each other: over the non-transparent union of both sprites all are >= 59% differing (poster >= 77%, snow-wagon >= 62%, warm-figure >= 59%). Counting all 512 cells (shared transparent margins count as equal) several pairs fall under 50% (warm-figure vs art-pale-mat 19%, art-tall-brown 21%, art-oak-box 23%; snow-wagon vs art-silver-landscape 48%; poster vs most 37 to 44%) because the small frames share transparent margins, not because content matches. Pass on content; flagged.
+  - Docs: random-encounters later list, item 7 note, art-style list and mockup one-line edit are accurate; no game code or item data touched. Pass.
+  - Rendered contact sheet/mockup at 4x and 1x: poster reads as a poster (planet over glow); snow yard reads as cart, fence, red-budded tree; figure canvas is weakest at 1x (a pale shape on a red/white block) but fits the small gallery paintings. Matches room style. npm test 2020 passed, npm run build OK.

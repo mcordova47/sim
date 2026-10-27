@@ -1,7 +1,7 @@
 ---
 id: 074
 title: Art for the first gifts (paintings, lamps, plant, poster)
-status: review
+status: done
 owner: agent
 depends_on: []
 ---
@@ -41,3 +41,11 @@ Also draw (no extra gifts yet): the other gallery wall pieces from the 'later' l
   - Checks: `npm run sprites` passes (palette only, sizes validated); `npm test` 1994 passed, golden main-room frame test unchanged (nothing is placed in the room); `npm run build` passes. I looked at the contact sheet and the mockup at 4x and 1x and at 8x close-ups of each group. Distinct at 1x: yes for all of the first-ten pictures (marsh, still life, robin, poster, animal, building). The six later pieces are tiny frames and are alike in pairs (`art-pale-mat` and `art-gold-narrow` are both ornate gold with a wide mat; they differ in size and print colour, as the real two do).
   - Honest weak spots: the dried flowers' cream sprays read a little like antlers at 1x; the candle is small; the white building is tiny inside its wide slot (the real piece is tall).
   - Not checked: how it looks in the running game (nothing is registered or placed, per the issue).
+
+- 2026-10-27 (Review, independent): verdict APPROVE.
+  - Criterion 1 (names, sizes, palette, no text, no photo copies): pass. Own script checked all 15 sprite files (the log says 18 but the list has 15) against the exact names and sizes: all correct. `npm run sprites` passes (palette only). No photo files or names in the sprite files; at 16px height nothing is legible as text.
+  - Criterion 2 (distinct, lamps read as lamps, dried flowers): pass. Pixel comparison of every 32x16 pair including `painting` and `painting-desk` found none with under 50% differing pixels, and no sprite is identical to `painting-wide`, `lamp-table` or `plant-0`. Looked at 1x and 4x: the pictures are clearly different. `art-concert-poster` is related to `painting-desk` by colour (orange and gold) but differs in frame (unframed with tape), layout and shape. The cream sprays of `plant-dried` read slightly like antlers at 1x but as dried flowers in a vase at 4x, not a growing plant. The candle is small but reads as a candle with a flame.
+  - Criterion 3 (sheet and mockup): pass. Rendered `npm run sprites -- --sheet=art-,lamp-,plant-dried` and `node scripts/gifts-mockup.mjs` and looked at both at 4x and 1x. The mockup shows every new painting beside the existing ones, the lamps and the three plants on the shelf slot. The log says how to view them. The paintings are on a back-wall strip, not at the real slot coordinates.
+  - Criterion 4 (not registered, no game code, docs, checks): pass. The diff touches only `art/src`, `public/sprites`, `docs/art-style.md`, `scripts/gifts-mockup.mjs` and this issue; nothing under `src/`. `docs/art-style.md` lists all 15. `lamp-warm` and `lamp-candle` share `lamp-table`'s 16x16 cell and its table (rows 11 to 15 identical; the bases differ above). `plant-dried` fits the cell and ends on row 15 like `plant-0..3`. `npm test` 1994 passed, `npm run build` passes.
+  - Not verified: how it looks in the running game (nothing placed).
+  - Minor, not blocking: the later-list pieces are small frames and alike in pairs (`art-pale-mat` and `art-gold-narrow`).

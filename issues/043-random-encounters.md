@@ -7,7 +7,7 @@ depends_on: []
 ---
 
 ## Goal
-Marc's brother suggested random encounters, in the Pokemon sense. It isn't thought through, so this issue is to decide what it would mean in a studio apartment, then (only if it holds up) build a small version.
+Random encounters were suggested to Marc, in the Pokemon sense. It isn't thought through, so this issue is to decide what it would mean in a studio apartment, then (only if it holds up) build a small version.
 
 ## Marc's idea (2026-10-25): ad encounters, tied to gifts and finds
 Pokemon-style encounters with marketing emails and Instagram ads, and the positive outcome is buying the thing, like catching a Pokemon. Marc is unsure of the logic: you are trying to fight the ad off, yet the good outcome is buying it. Not fully thought out.

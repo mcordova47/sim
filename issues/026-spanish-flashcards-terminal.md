@@ -26,12 +26,7 @@ Not a commitment. Do this only after the core game is playable and fun. It may n
 - 021 (apartment state): the score and the clock; maybe points scale with real cards answered correctly.
 
 ## Research findings (2026-10-22, from the sibling repo `../flashcards`)
-The app is "Mil Palabras" (palabras.mcord.dev): PureScript, Netlify, spaced repetition over the 1000 most common Spanish words. Its README says "no backend", but it does have a small one for sync, documented in its `README.md` (Sync section) and `SYNC.md`.
-
-**The server is a dumb blob store.** Two Netlify Functions over Netlify Blobs:
-- `GET/PUT /api/progress/<key>/<lang>` (`netlify/functions/progress.mjs`): one JSON blob per language (`es`, `de`) plus `verbs` for the drills. 500 KB cap, no merge on the server.
-- `PUT /api/notes/<key>`: write-only note delivery. Not relevant here.
-- **Auth is the key only**: 32 chars of `[a-z0-9]` (about 165 bits), "unlisted link" model. Marc's key is whatever his devices were paired with (`?pair=<key>`, QR or pasted link). The game must treat it as a secret: never committed, never in the bundle.
+The app is "Mil Palabras" (palabras.mcord.dev): PureScript, Netlify, spaced repetition over the 1000 most common Spanish words. It syncs each language's progress through the pairing key; the details of its server are kept in the app's own repo, not here. What the game needs to know: the app's address, the key format (32 characters of `[a-z0-9]`), and the pairing link (`?pair=<key>`, QR or pasted link). The game must treat the key as a secret: never committed, never in the bundle.
 
 **The blob** (`Flashcards.Types.Progress`): `{ version: 5, language, deck, cards: [{ slug, box, due (ms epoch), seen, lapses, missed, direction }] }`. Only cards ever seen are in it. Slugs are frozen ids (`yo`, `querer`), not ranks. `direction` is `recognition` or `production`.
 
@@ -42,7 +37,7 @@ The app is "Mil Palabras" (palabras.mcord.dev): PureScript, Netlify, spaced repe
 - Missed cards are requeued 5 places later in the same session.
 - The deck is `data/es-1000.csv` (`Order,English,Español,Slug`), compiled into the app, not served. Longest Spanish text is 15 chars and longest English 31. Accented and special characters in use: `ó í ñ é á ú`, plus `, ( ) / - . ? ;`. No `¿ ¡` in the vocabulary deck (those would only appear in sentence prompts for the drills).
 
-**CORS is not set anywhere** in the functions. A browser game on another origin cannot call them (and a JSON `PUT` triggers a preflight). Either a dev proxy (Vite `server.proxy`, fine if the game only runs locally) or a small change to the functions (CORS headers and an `OPTIONS` handler) if the game is ever hosted.
+**Hosting.** A browser game on another origin needs the app to allow that origin (see the decisions below); locally a dev proxy also works.
 
 **Other kinds of question exist** (`Flashcards.Exercise`): typed answers (`Checked`), self-graded (`SelfGraded`) and tap-one-of-few (`Choice`) for verb conjugation, tense shifts, paraphrase and por/para drills, stored under the `verbs` blob. Vocabulary cards are self-graded (flip, then Got it or Again).
 

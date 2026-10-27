@@ -24,7 +24,7 @@ Marc (2026-10-27): track getting the game online. He is leaning to Netlify (fami
 ## Privacy pass (before the repo is public; the site itself serves only the built game)
 Marc (2026-10-27): his name and email are not a concern. The rest of this section is now issue 085; this issue only waits for it before the repo is pushed.
 
-- `docs/about-marc.md` and `docs/tasks-v2.md` are **tracked in git, history included** (planner check 2026-10-27), although the standing rule is that personal docs stay local. Before the repo is public: decide to move them out of the repo and rewrite history (`git filter-repo`) or keep the repo private.
+- Two personal documents were tracked in git, history included (planner check 2026-10-27), against the standing rule that personal docs stay local. Issue 085 removed them from the repo and from all history before the first push.
 - Real name in commit author lines (one author, the git email is a personal gmail) and in PLAN.md and docs; the employer name, full address and apartment photos must not appear (photos are gitignored under `reference-photos/`; check the history for any that were ever committed, and for any readable text in art sources).
 - The app address `palabras.mcord.dev` is in `config.ts` and docs (the sync key is never in the code).
 - The game shows a stylised version of the real apartment; Marc decides whether he is happy with that being public.

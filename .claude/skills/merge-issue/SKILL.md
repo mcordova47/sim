@@ -5,7 +5,7 @@ description: Planner-only. Merge a reviewed issue branch into main for the life 
 
 # merge-issue
 
-You are the planner, merging one finished issue branch into `main`. Argument: the issue number (e.g. `007b`). Run this from the main checkout (`/Users/marccordova/Dev/repos/mcordova47/life`), never from an issue worktree. Do not push anything. Marc asking you to merge is the go-ahead to merge, but it never replaces the checks below: if a check fails, stop and tell him why instead of merging anyway.
+You are the planner, merging one finished issue branch into `main`. Argument: the issue number (e.g. `007b`). Run this from the main checkout (the repo root), never from an issue worktree. Do not push anything. Marc asking you to merge is the go-ahead to merge, but it never replaces the checks below: if a check fails, stop and tell him why instead of merging anyway.
 
 ## 1. Preconditions
 - `git branch --show-current` is `main` and `git status --short` shows nothing except untracked editor files. If there are other changes, stop and report them.
@@ -51,7 +51,7 @@ git commit -m "Merge <NNN>: <short title>" -m "<one line on conflict resolutions
 (use separate `-m` flags; `-F -` doesn't work here). Then update the issue's row in `PLAN.md` to `done`, make sure the issue file on `main` says `status: done`, and commit that as `Mark <NNN> done` with the same trailer.
 
 ## 7. Clean up
-- `git worktree remove ../life-worktrees/<NNN>-slug`. If it refuses because of leftovers, look at them first: if they are only editor files (`.vscode/`) or ignored build output, use `--force`; otherwise stop and report. Never use `--force` on work you haven't looked at.
+- `git worktree remove ../sim-worktrees/<NNN>-slug`. If it refuses because of leftovers, look at them first: if they are only editor files (`.vscode/`) or ignored build output, use `--force`; otherwise stop and report. Never use `--force` on work you haven't looked at.
 - `git branch -d issue/<NNN>-slug` (not `-D`; if it refuses, the branch isn't merged and something is wrong).
 
 ## 8. Report

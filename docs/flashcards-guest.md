@@ -48,8 +48,8 @@ The guest's progress blob is the string `core.grade(...)` returns. The game stor
 
 ### (b) The app mints anonymous keys for visitors
 The game would generate or request a key for each visitor and use the real endpoint.
-- **Needs from the app:** a place to mint or allow keys. Today the server is "a dumb blob store" and keys are minted by the client with no registry: any 32-character `[a-z0-9]` string already works and the first PUT creates it. So the game could mint a random key **with no app change at all**.
-- **Cost and risk.** That is exactly why it is the worse option: every visitor's blob lands in Marc's store, under his origin allow-list, with no limit per key and no limit on the number of keys (the code comment says so: "nothing limits a key's total", "keys are minted by the client"). The game would become free public storage on Marc's account, with no way to tell a visitor from an attacker, no deletion path, and every answer a network call that fails offline. It also puts visitors' data on Marc's server, which this note's privacy rule (section 9) wants to avoid. It buys cross-device sync for a visitor, which nobody asked for.
+- **Needs from the app:** a way to create keys for visitors, which the app does not offer today.
+- **Cost and risk.** Every visitor's data would land in Marc's store, and the game would become public storage on his account, with no deletion path and every answer a network call that fails offline. It also puts visitors' data on Marc's server, which this note's privacy rule (section 9) wants to avoid. It buys cross-device sync for a visitor, which nobody asked for.
 - **Verdict.** Not recommended. If cross-device guests are ever wanted, that is a feature of the app (accounts, limits), not of this game.
 
 ### (c) Only the fixed practice deck, nothing remembered
@@ -120,7 +120,6 @@ Switching back and forth, and forgetting a key, are interface questions (open qu
   - `FLASHCARDS.origin` (`https://palabras.mcord.dev`) is in the bundle, so it is public. It names Marc's app, which is not secret, but whether it should be visible in a public repo is the decision in issue 085. A guest-only build does not need the origin for the endpoint but still needs it for the core URL.
   - No default or test key may be in the source; the existing tests use made-up keys. Keep it so.
   - The `VITE_FLASHCARDS_ORIGIN` override is a build-time variable and stays out of the repo.
-- **Abuse.** There is none to defend: a guest writes only to their own storage, and the core file is static. The risk in (b) is the point against it.
 
 ## 10. Staged build plan
 **Stage 1: the backend and the choice, no new storage code yet (small).**

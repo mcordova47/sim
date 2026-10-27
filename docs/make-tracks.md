@@ -155,7 +155,7 @@ In layout C: left and right change channel, up and down change step, E places or
 
 ## 5. Where it is opened
 Options:
-1. **The desk (the laptop)**: a new task at the desk, "Make a track" (the prompt reads `Make a track`). The standing desk is where the recording gear belongs (audio interface, laptop) and `docs/tasks-v2.md` already has "Mix the demo" at the desk, so this replaces that idea. The player sits down with the laptop; the desk art already exists.
+1. **The desk (the laptop)**: a new task at the desk, "Make a track" (the prompt reads `Make a track`). The standing desk is where the recording gear belongs (audio interface, laptop) and the earlier task ideas had a "Mix the demo" at the desk, so this replaces that idea. The player sits down with the laptop; the desk art already exists.
 2. **The audio interface** as its own prop on the desk: nicer, but needs new art, and the real recording photos show the gear is spread over the desk, so one object to press E on is awkward.
 3. **A menu entry at the record player** ("Make a demo..."): cheapest, but the record player is for listening, and it makes the record menu longer.
 
@@ -279,7 +279,7 @@ Each stage ends with `npm test` and `npm run build` passing and is safe to stop 
 - A "Play a demo" action at the desk (same place as "Make a track"), with its own points and cooldown like other listen tasks (numbers in `tasks.ts`). If Marc wants it on a separate prop (audio interface), that is a new art issue first.
 - Tests: the action lists demos, plays the chosen one, nothing is offered when there are none.
 
-Update `docs/music.md` (a "Your own tracks" section), `docs/tasks-v2.md` (replace "Mix the demo") and `docs/activities.md` (the `make-track` activity) as each stage lands.
+Update `docs/music.md` (a "Your own tracks" section) and `docs/activities.md` (the `make-track` activity) as each stage lands.
 
 ## 13. Recommendation
 - **Layout A**, the piano roll, one channel at a time. C is the fallback.

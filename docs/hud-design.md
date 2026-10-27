@@ -425,7 +425,7 @@ Calm-tone rules that come with it: no flashing, no sound on low, no red bar unti
 
 **Marc's answer (2026-10-27): kind of a gag, plus a task to charge the phone; whether it later affects phone tasks stays open.** The note had recommended a real but gentle variable; Marc chose the lighter route, which is the cheaper one and closes nothing.
 
-The facts it rests on: the game has two state vars (energy and mood), the phone tasks exist (`doomscroll` mood -8; `tasks-v2.md` plans check phone, text, hum into a phone), and the pillars say no pressure, no scarcity, collecting is a quiet side effect.
+The facts it rests on: the game has two state vars (energy and mood), the phone tasks exist (`doomscroll` mood -8; the earlier task ideas planned check phone, text, hum into a phone), and the pillars say no pressure, no scarcity, collecting is a quiet side effect.
 
 What it is:
 - A **phone icon with a small bar** in the ribbon's fourth slot (and in the strip's second row), shown like the other meters: icon at rest, the bar out for 4 seconds when the level changes or when it is low. It is a phone, not a battery shape, so it is never confused with the player's real phone battery, which the game never reads (Safari does not allow it anyway).

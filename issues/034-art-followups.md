@@ -27,7 +27,7 @@ The art that is left, and the small fixes the reviews noted. Do these after 031 
   6. The front door is white (old, painted many times): redraw `front-door` white with layers of paint (chipped edges, a bit of an off-white or yellowed tint), not tangerine.
   7. Clutter piles on the desk: this is issue 042 (waits on this issue's art). Draw the piles as separate variants when 042 starts.
 
-- **Reference photos (Marc renamed and completed them, 2026-10-23):** `ls /Users/marccordova/Dev/repos/mcordova47/life/reference-photos/` and read what is relevant by absolute path; the names say what each shows (art close-ups, gallery wall by piece, the mics, stool, chairs, books and records, coffee station, mail on the table, desk clutter, kitchen and bath, overhead chair, silkscreen over the bed, and so on). Never copy a photo, caption or readable text into the repo (poster, book and record titles stay unreadable; no names).
+- **Reference photos (Marc renamed and completed them, 2026-10-23):** `ls reference-photos/` and read what is relevant by absolute path; the names say what each shows (art close-ups, gallery wall by piece, the mics, stool, chairs, books and records, coffee station, mail on the table, desk clutter, kitchen and bath, overhead chair, silkscreen over the bed, and so on). Never copy a photo, caption or readable text into the repo (poster, book and record titles stay unreadable; no names).
 - Redo the paintings (`painting`, `painting-desk`, `painting-wide`) and the `gallery-wall` strip from the new close-ups so they are better impressions of the real pieces; add `painting-robin` and a piece for the silkscreen over the bed if there is a wall slot (check the floor plan; propose a slot if not, do not edit the map).
 - Use the new references to improve whatever else they show: mic stand, stool, chair and desk-chair (overhead), books and records on the shelf, coffee station and mug on the table, nightstand, fridge, kitchen counter, microwave and mail on the table, desk clutter (for 042), made and unmade bed.
 
@@ -70,7 +70,7 @@ Art plus small data only. Rendered real frames of each room in headless Chrome (
 
 **Could not check:** how any of it feels in a browser as you walk around; poses and outfits in motion; whether the open passages read for Marc himself at his window size. The second pass on eyes and overlays is a taste call.
 
-**Play it:** `cd /Users/marccordova/Dev/repos/mcordova47/life-worktrees/034-art-followups && npm run dev`, walk through the kitchen passage and the bath door, look at the front door, lamp, guitar, table and fridge.
+**Play it:** `cd ../life-worktrees/034-art-followups && npm run dev`, walk through the kitchen passage and the bath door, look at the front door, lamp, guitar, table and fridge.
 
 
 ### 2026-10-23, agent: independent review (verdict: approve)

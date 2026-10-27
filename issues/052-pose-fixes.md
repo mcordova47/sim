@@ -15,7 +15,7 @@ From Marc's playtest of the pose build (2026-10-23): "head is detached from body
 - Render each fixed pose in the real game (headless Chrome or the room painter) and look at it at 1x; `npm run sprites`, `npm test` and `npm run build` pass.
 
 ## Notes
-- Reference photos in `/Users/marccordova/Dev/repos/mcordova47/life/reference-photos/` (absolute path, never copied). The character brief is `docs/character-brief.md`.
+- Reference photos in `reference-photos/` (absolute path, never copied). The character brief is `docs/character-brief.md`.
 
 ## Progress log
 

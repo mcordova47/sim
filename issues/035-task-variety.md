@@ -7,7 +7,7 @@ depends_on: []
 ---
 
 ## Goal
-Make the existing tasks less repetitive and match what they say. From Marc's playtest of the sprite build (2026-10-23). Related: `docs/tasks-v2.md` (the bigger content pass, which still needs Marc's picks of songs, books and albums).
+Make the existing tasks less repetitive and match what they say. From Marc's playtest of the sprite build (2026-10-23). Related: the bigger content pass (task ideas kept locally), which still needs Marc's picks of songs, books and albums).
 
 ## Acceptance criteria
 - **Typing text matches the task.** "Answer emails" shows code (`if (coffee) ship();`). Typing activities take their own lines (a `text` list on the spec, validated like `lines`), so email replies show email-ish lines, and working on code shows code. Keep to characters the pixel font can draw. Decide per task: `work` at the desk, `work` on the sofa and on the bed (those may be code, email, or a mix chosen by place).

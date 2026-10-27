@@ -1,7 +1,7 @@
 ---
 id: 084
 title: Put the game on the internet (hosting, domain, repo name, privacy pass)
-status: in-progress
+status: done
 owner: marc + claude
 depends_on: []
 ---
@@ -67,3 +67,4 @@ Marc (2026-10-27): his name and email are not a concern. The rest of this sectio
   - **Scope:** changed files are all within stage A (netlify.toml, .nvmrc, docs/deploy.md, index.html, package.json scripts, public/ PNGs, scripts/, a one-line gate in `src/main.ts`); no edits to PLAN.md or other issues. The `src/main.ts` comment line is now long and awkward (cosmetic).
   - **Unverified overall:** real Netlify header behaviour, link unfurls, Node 22 build, and playing the built game in a browser (including private-window storage).
   - Nothing blocking. Branch to merge: `issue/084-deploy-ready`. The PLAN.md row for 084 should stay open (stage A merged; B and C pending); the planner edits it.
+- 2026-10-27 (Marc): stages B and C done. The site is live at https://sim.mcord.dev/ (planner check: HTTP 200 from Netlify, `x-robots-tag: noindex, nofollow` and the noindex meta present, `og:image` pointing at the domain, title as built) and the repo is on GitHub as `mcordova47/sim` (planner check: `gh repo view` reports **public**, default branch `main`, `origin` is `git@github.com:mcordova47/sim.git`). Not yet checked: that the draft-deploy smoke list in `docs/deploy.md` was run on the live site (new game, a task, sleep, a gift, an ad encounter, Study Spanish with a key and as a guest); Study Spanish with a key only works on `*.mcord.dev`, which `sim.mcord.dev` is.

@@ -5,8 +5,8 @@ import { unsupportedChars } from "../../render/font";
 import { FlashcardsActivity } from "../activities/flashcards";
 import { fakeHost } from "../activities/fake-host";
 import { wrapText } from "../dialog";
-import { wantsDemo } from "./backend";
-import { DEMO_CARDS, DEMO_SETS, DemoSession, demoBackendFor } from "./demo";
+import { studyBackend, wantsDemo } from "./backend";
+import { DEMO_CARDS, DEMO_SETS, DEMO_VOICES, DemoSession, demoBackendFor } from "./demo";
 import { VOICE_STYLES } from "./mumble";
 import { isGap, readIpa } from "./ipa";
 import { FLASHCARDS as F } from "../config";
@@ -62,7 +62,7 @@ describe("the practice deck", () => {
   it("voices a card by its IPA, V switches to spelling, and R repeats in the chosen voice", async () => {
     const f = fakeHost();
     const clipboard = { copy: async () => true, read: async () => null, onPaste: () => () => {} };
-    const a = new FlashcardsActivity(f.host, demoBackendFor("words"), new StudyStore(new FakeStorage()), clipboard);
+    const a = new FlashcardsActivity(f.host, demoBackendFor("words", "all"), new StudyStore(new FakeStorage()), clipboard);
     a.start();
     await new Promise((r) => setTimeout(r, 0));
     const run = (seconds: number) => {
@@ -126,7 +126,7 @@ describe("the practice deck", () => {
   it("V cycles through every voice style and back, each saying the card in its own sounds", async () => {
     const f = fakeHost();
     const clipboard = { copy: async () => true, read: async () => null, onPaste: () => () => {} };
-    const a = new FlashcardsActivity(f.host, demoBackendFor("words"), new StudyStore(new FakeStorage()), clipboard);
+    const a = new FlashcardsActivity(f.host, demoBackendFor("words", "all"), new StudyStore(new FakeStorage()), clipboard);
     a.start();
     await new Promise((r) => setTimeout(r, 0));
     const heard: Record<number, { effect?: string; pitch: number; stretch?: number; gain?: number }[]> = {};
@@ -140,9 +140,9 @@ describe("the practice deck", () => {
     }
     // It starts at the default, steps through the newest candidates, then down to
     // spelling, and is back at the default.
-    expect(order).toEqual([9, 10, 11, 12, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    expect(order).toEqual([11, 12, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 10]);
     expect(a.voiceStyle).toBe(F.voice.style);
-    expect(F.voice.style).toBe(9);
+    expect(F.voice.style).toBe(11);
     expect(Object.keys(heard).sort()).toEqual(["0", "1", "10", "11", "12", "2", "3", "4", "5", "6", "7", "8", "9"]);
     expect(heard[1].map((v) => v.effect)).toEqual(["voiceGlideDown", "voiceVowelStress"]);
     expect(heard[2].map((v) => v.effect)).toEqual(["voiceGlideDown", "voiceFormantOStress"]);
@@ -270,4 +270,45 @@ describe("the practice deck", () => {
     expect(calls.filter((c) => c[0] === "fillRect" && c[4] === 120)).not.toHaveLength(0);
     vi.unstubAllGlobals();
   });
+
+  it("the practice deck steps only between the two voices being compared (faster, consfast), starting on the default", async () => {
+    expect(DEMO_VOICES).toEqual([11, 12]);
+    expect(F.voice.style).toBe(11);
+    const f = fakeHost();
+    const clipboard = { copy: async () => true, read: async () => null, onPaste: () => () => {} };
+    const a = new FlashcardsActivity(f.host, demoBackendFor("sentences"), new StudyStore(new FakeStorage()), clipboard);
+    a.start();
+    await new Promise((r) => setTimeout(r, 0));
+    const seen: number[] = [a.voiceStyle];
+    for (let i = 0; i < 5; i++) {
+      a.update(1 / 60, { ...NO_INPUT, keys: ["KeyV"], keysDown: ["KeyV"] });
+      seen.push(a.voiceStyle);
+    }
+    expect(seen).toEqual([11, 12, 11, 12, 11, 12]);
+    // The tag shows the voice, so each press is heard on the same card: R repeats it.
+    expect(VOICE_STYLES[11]).toBe("faster");
+    expect(VOICE_STYLES[12]).toBe("consfast");
+  });
+
+  it("`&voices=all` brings every voice back, and the real backend has no limited cycle", () => {
+    expect(studyBackend("?flashcards=demo", true).voiceCycle).toEqual([11, 12]);
+    expect(studyBackend("?flashcards=demo&voices=all", true).voiceCycle).toBeUndefined();
+    expect(studyBackend("?flashcards=demo&voices=nope", true).voiceCycle).toEqual([11, 12]);
+    expect(studyBackend("?voices=all", false).voiceCycle).toBeUndefined();
+  });
+
+  it("a voice outside the limited cycle (the default changed in config, or set by hand) steps into it", async () => {
+    const f = fakeHost();
+    const clipboard = { copy: async () => true, read: async () => null, onPaste: () => () => {} };
+    const a = new FlashcardsActivity(f.host, demoBackendFor("words"), new StudyStore(new FakeStorage()), clipboard);
+    a.start();
+    await new Promise((r) => setTimeout(r, 0));
+    a.voiceStyle = 3;
+    a.update(1 / 60, { ...NO_INPUT, keys: ["KeyV"], keysDown: ["KeyV"] });
+    expect(DEMO_VOICES).toContain(a.voiceStyle);
+    a.voiceStyle = 99;
+    a.update(1 / 60, { ...NO_INPUT, keys: ["KeyV"], keysDown: ["KeyV"] });
+    expect(DEMO_VOICES).toContain(a.voiceStyle);
+  });
 });
+

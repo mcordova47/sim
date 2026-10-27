@@ -189,7 +189,8 @@ export class FlashcardsActivity extends BaseActivity {
     if (this.backend.usesKey !== false || !controls.keys.includes("KeyV")) return;
     if (controls.keysDown.some((k) => /^(Shift|Control|Meta|Alt)/.test(k))) return;
     // The next voice down the list from the best, and back to the best after spelling.
-    this.voiceStyle = VOICE_CYCLE[(VOICE_CYCLE.indexOf(this.voiceStyle) + 1) % VOICE_CYCLE.length];
+    const cycle = this.backend.voiceCycle ?? VOICE_CYCLE;
+    this.voiceStyle = cycle[(cycle.indexOf(this.voiceStyle) + 1) % cycle.length];
     this.repeat({ ...controls, keys: [F.mumble.repeatKey], keysDown: [] });
   }
 

@@ -480,11 +480,12 @@ describe("timing variants (styles 10 to 12)", () => {
   const V = F.voice.variants;
   const words = ["ˈkasa", "ˈbjen", "ˈmana", "ˈasta ˈlego", "estuˈdjajs", "ˈabada"];
   const isDiph = (e?: string) => !!e && e.startsWith("voiceDiph");
-  const isVowel = (e?: string) => !!e && /^voiceFilt[AEIOU](Stress)?$/.test(e);
+  const isVowel = (e?: string) => !!e && /^voice(Filt|Held)[AEIOU](Stress)?$/.test(e);
 
   it("styles 10 to 12 sound the same things in the same order as style 9", () => {
     for (const ipa of words) for (const style of [10, 11, 12]) {
-      expect(ipaScript(ipa, style).map((e) => e.effect), `${ipa} ${style}`).toEqual(ipaScript(ipa, 9).map((e) => e.effect));
+      // The single vowels are the held ones from style 10 on; everything else is the same effect.
+      expect(ipaScript(ipa, style).map((e) => e.effect!.replace("voiceHeld", "voiceFilt")), `${ipa} ${style}`).toEqual(ipaScript(ipa, 9).map((e) => e.effect));
       expect(ipaScript(ipa, style).map((e) => e.pitch), `${ipa} ${style}`).toEqual(ipaScript(ipa, 9).map((e) => e.pitch));
     }
   });
@@ -545,15 +546,46 @@ describe("timing variants (styles 10 to 12)", () => {
     for (const style of [1, 2, 3, 4]) for (const e of ipaScript("ˈbwenas ˈnotʃes", style)) expect(e.stretch).toBeUndefined();
   });
 
-  it("the sounds stay in step with the time they take (no gaps, no overlaps): a stretched sound ends about when the next begins", () => {
-    // Effect length times stretch is how long a sound lasts; it should not run far past its slot.
+  it("single vowels are the held ones from style 10 on, and only the single vowels", () => {
+    for (const style of [10, 11, 12]) {
+      const eff = ipaScript("ˈbwenas ˈdias ˈkasa", style).map((e) => e.effect!);
+      expect(eff.filter((e) => e.startsWith("voiceHeld")).length, String(style)).toBeGreaterThan(3);
+      expect(eff.some((e) => /^voiceFilt[AEIOU]/.test(e)), String(style)).toBe(false);
+      expect(eff.some((e) => e.startsWith("voiceDiph")), String(style)).toBe(true);
+    }
+    for (const style of [5, 6, 7, 8, 9]) expect(ipaScript("ˈkasa", style).some((e) => e.effect!.startsWith("voiceHeld")), String(style)).toBe(false);
+  });
+
+  it("a held vowel has the diphthong's level and hold, a plain vowel's resonances, and the plain vowel's time", () => {
+    const S = DIPHTHONG_SHAPE;
+    for (const v of ["A", "E", "I", "O", "U"]) {
+      const plain = SOUND.effects[`voiceFilt${v}`].voices[0] as unknown as { formants: { freq: number }[]; length: number };
+      const held = SOUND.effects[`voiceHeld${v}`].voices[0] as unknown as { formants: { freq: number; path?: unknown }[]; hold: number; gain: number; length: number };
+      expect(held.formants.map((f) => f.freq)).toEqual(plain.formants.map((f) => f.freq));
+      expect(held.formants.every((f) => f.path === undefined)).toBe(true);
+      expect(held.hold).toBe(S.hold);
+      expect(held.gain).toBeCloseTo(S.level);
+      expect(held.length).toBeCloseTo(VOWEL_TIME.plain);
+      const stress = SOUND.effects[`voiceHeld${v}Stress`].voices[0] as unknown as { gain: number; length: number };
+      expect(stress.gain).toBeCloseTo(S.level * 1.4);
+      expect(stress.length).toBeCloseTo(VOWEL_TIME.stress);
+    }
+    // It is the same level as a diphthong's vowel, which is the point.
+    const diph = SOUND.effects.voiceDiphJE.voices[0] as unknown as { gain: number; hold: number };
+    expect((SOUND.effects.voiceHeldE.voices[0] as unknown as { gain: number }).gain).toBe(diph.gain);
+  });
+
+  it("every sound ends about when its slot does: it does not run into the next sound by more than a few ms, in styles 9 to 12", () => {
     for (const style of [9, 10, 11, 12]) {
-      const script = ipaScript("ˈbwenas ˈdias", style);
-      script.slice(0, -1).forEach((e, i) => {
-        const slot = script[i + 1].at - e.at;
-        const length = (SOUND.effects[e.effect!].voices[0] as { length: number }).length * (e.stretch ?? 1);
-        expect(length, `${style} ${e.effect}`).toBeLessThan(slot * 2.5 + 0.2);
-      });
+      for (const ipa of ["ˈbwenas ˈdias", "ˈkasa ˈmana", "estuˈdjajs", "ˈaɾa ˈara ˈatʃa ˈaɡa"]) {
+        const script = ipaScript(ipa, style);
+        script.slice(0, -1).forEach((e, i) => {
+          const slot = script[i + 1].at - e.at;
+          // The longest voice of the effect, counting its delay (the burst of a stop, a pulse of the trill).
+          const end = Math.max(...SOUND.effects[e.effect!].voices.map((v) => ((v as { delay?: number }).delay ?? 0) * (e.stretch ?? 1) + v.length * (e.stretch ?? 1)));
+          expect(end - slot, `${style} ${ipa} ${e.effect}`).toBeLessThan(0.012);
+        });
+      }
     }
   });
 

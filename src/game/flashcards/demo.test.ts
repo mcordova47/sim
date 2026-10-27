@@ -159,6 +159,10 @@ describe("the practice deck", () => {
     expect(heard[7].map((v) => v.effect)).toEqual(["voiceGlideJToO", "voiceFiltOStress"]);
     expect(heard[8].map((v) => v.effect)).toEqual(heard[7].map((v) => v.effect));
     expect(heard[9].map((v) => v.effect)).toEqual(["voiceDiphJOStress"]);
+    // The timing variants say the yo the same way (one diphthong) but at their own speed.
+    for (const style of [10, 11, 12]) expect(heard[style].map((v) => v.effect)).toEqual(["voiceDiphJOStress"]);
+    expect(heard[11][0].stretch).toBeCloseTo(F.voice.slow * F.voice.variants.faster);
+    expect(heard[10][0].stretch).toBeCloseTo(F.voice.slow);
   });
 
   it("has four sets, picks one by name, and all of them by default", () => {

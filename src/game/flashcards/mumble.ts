@@ -77,29 +77,29 @@ export const VOICE_CYCLE: readonly number[] = [9, 10, 11, 12, 8, 7, 6, 5, 4, 3, 
 // whether it is slowed down.
 const RECIPES = [
   null,
-  { vowels: "pitch", intonation: false, jitter: false, slow: false, glides: false, murmurs: false, diphthongs: false, speed: 1, vowelScale: 1, consonantScale: 1 },
-  { vowels: "tones", intonation: false, jitter: false, slow: false, glides: false, murmurs: false, diphthongs: false, speed: 1, vowelScale: 1, consonantScale: 1 },
-  { vowels: "tones", intonation: true, jitter: false, slow: false, glides: false, murmurs: false, diphthongs: false, speed: 1, vowelScale: 1, consonantScale: 1 },
-  { vowels: "tones", intonation: true, jitter: true, slow: false, glides: false, murmurs: false, diphthongs: false, speed: 1, vowelScale: 1, consonantScale: 1 },
-  { vowels: "filtered", intonation: false, jitter: false, slow: true, glides: false, murmurs: false, diphthongs: false, speed: 1, vowelScale: 1, consonantScale: 1 },
-  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: false, murmurs: false, diphthongs: false, speed: 1, vowelScale: 1, consonantScale: 1 },
+  { vowels: "pitch", intonation: false, jitter: false, slow: false, glides: false, murmurs: false, diphthongs: false, held: false, speed: 1, vowelScale: 1, consonantScale: 1 },
+  { vowels: "tones", intonation: false, jitter: false, slow: false, glides: false, murmurs: false, diphthongs: false, held: false, speed: 1, vowelScale: 1, consonantScale: 1 },
+  { vowels: "tones", intonation: true, jitter: false, slow: false, glides: false, murmurs: false, diphthongs: false, held: false, speed: 1, vowelScale: 1, consonantScale: 1 },
+  { vowels: "tones", intonation: true, jitter: true, slow: false, glides: false, murmurs: false, diphthongs: false, held: false, speed: 1, vowelScale: 1, consonantScale: 1 },
+  { vowels: "filtered", intonation: false, jitter: false, slow: true, glides: false, murmurs: false, diphthongs: false, held: false, speed: 1, vowelScale: 1, consonantScale: 1 },
+  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: false, murmurs: false, diphthongs: false, held: false, speed: 1, vowelScale: 1, consonantScale: 1 },
   // Style 7: filtered+ with the glides made by the resonances moving.
-  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: false, diphthongs: false, speed: 1, vowelScale: 1, consonantScale: 1 },
+  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: false, diphthongs: false, held: false, speed: 1, vowelScale: 1, consonantScale: 1 },
   // Style 8: and the nasals and voiced stops made from the vowels' own source.
-  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: true, diphthongs: false, speed: 1, vowelScale: 1, consonantScale: 1 },
+  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: true, diphthongs: false, held: false, speed: 1, vowelScale: 1, consonantScale: 1 },
   // Style 9: and each diphthong one sound whose resonances move, not a glide and a vowel.
-  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: true, diphthongs: true, speed: 1, vowelScale: 1, consonantScale: 1 },
-  // Style 10: the single vowels longer, to sit with the diphthongs.
-  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: true, diphthongs: true, speed: 1, vowelScale: F.voice.variants.longerVowels, consonantScale: 1 },
+  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: true, diphthongs: true, held: false, speed: 1, vowelScale: 1, consonantScale: 1 },
+  // Style 10: the single vowels longer and held at full level like a diphthong, to sit with them.
+  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: true, diphthongs: true, held: true, speed: 1, vowelScale: F.voice.variants.longerVowels, consonantScale: 1 },
   // Style 11: and everything a little faster.
-  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: true, diphthongs: true, speed: F.voice.variants.faster, vowelScale: F.voice.variants.longerVowels, consonantScale: 1 },
+  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: true, diphthongs: true, held: true, speed: F.voice.variants.faster, vowelScale: F.voice.variants.longerVowels, consonantScale: 1 },
   // Style 12: instead, only the consonants a little faster.
-  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: true, diphthongs: true, speed: 1, vowelScale: F.voice.variants.longerVowels, consonantScale: F.voice.variants.quickConsonants },
+  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: true, diphthongs: true, held: true, speed: 1, vowelScale: F.voice.variants.longerVowels, consonantScale: F.voice.variants.quickConsonants },
 ] as const;
 
 export function ipaScript(ipa: string, style = 1): VoiceEvent[] {
   const recipe = RECIPES[Math.min(Math.max(Math.trunc(style) || 1, 1), RECIPES.length - 1)] ?? RECIPES[1];
-  const { units } = readIpa(ipa, recipe.vowels, { glides: recipe.glides, murmurs: recipe.murmurs, diphthongs: recipe.diphthongs });
+  const { units } = readIpa(ipa, recipe.vowels, { glides: recipe.glides, murmurs: recipe.murmurs, diphthongs: recipe.diphthongs, held: recipe.held });
   // How slow the whole voice is, and the part of it that is a single vowel or a
   // consonant (a diphthong, being one sound of its own, is neither).
   const k = (recipe.slow ? F.voice.slow : 1) * recipe.speed;

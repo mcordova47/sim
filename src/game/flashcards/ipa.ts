@@ -66,6 +66,9 @@ export interface Extras {
   // Makes a vowel and the glide or glides touching it one sound whose resonances
   // move from the first to the second (style 9), instead of separate sounds.
   diphthongs?: boolean;
+  // Makes a single vowel one that is held at full level like a diphthong, not one
+  // that dies away at once (style 10 on).
+  held?: boolean;
 }
 
 export function readIpa(ipa: string, vowels: VowelMaker | boolean = "pitch", extras: Extras = {}): Reading {
@@ -121,7 +124,7 @@ export function readIpa(ipa: string, vowels: VowelMaker | boolean = "pitch", ext
     const stress = vowel && stressed;
     if (stress) stressed = false;
     if (maker !== "pitch" && vowel) {
-      const name = `${maker === "filtered" ? "voiceFilt" : "voiceFormant"}${key.toUpperCase()}`;
+      const name = `${maker === "filtered" ? (extras.held ? "voiceHeld" : "voiceFilt") : "voiceFormant"}${key.toUpperCase()}`;
       units.push({
         symbol,
         effect: stress ? `${name}Stress` : name,

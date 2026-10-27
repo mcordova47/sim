@@ -159,11 +159,12 @@ export class AchievementsFeature implements Layer {
   }
 
   private check(): void {
-    // Checkpoints for gifts (issue 062 stage 3a): quiet, each fires once.
-    const s = this.stats.toJSON();
-    this.game.deliveries.check({ points: s.totalPoints, tasks: this.stats.completions, days: this.game.deliveries.hours / 24 });
     const fresh = this.unlocks.check(this.stats, this.ctx);
     for (const a of fresh) this.toasts.push(a.name, a.description);
+    // Checkpoints for gifts (issue 062 stage 3a, issue 043 stage A): quiet, each fires
+    // once. After the unlocks, so an achievement just earned counts at once.
+    const s = this.stats.toJSON();
+    this.game.deliveries.check({ points: s.totalPoints, tasks: this.stats.completions, days: this.game.deliveries.hours / 24 }, (id) => this.unlocks.has(id));
     // A named moment, for sound and the like to react to.
     if (fresh.length > 0) this.game.events.emit("cue", { name: "achievement" });
     if (fresh.length > 0) this.save();

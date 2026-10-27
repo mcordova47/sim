@@ -6,6 +6,15 @@ import type { Rect } from "./world";
 // here and a sprite, adding a slot is a line here and a `slot` on the object.
 // Nothing here costs anything or is ever required.
 
+// A slow, small, seeded wander of a glow: `alpha` and `radius` are the most it
+// moves each, as a fraction (0.15 is plus or minus 15 percent); `seed` makes two
+// flickers differ. Never a strobe (see `flickerAt`).
+export interface GlowFlicker {
+  alpha: number;
+  radius: number;
+  seed: number;
+}
+
 export type DecorKind = "art" | "plant" | "lamp" | "prop" | "rug" | "instrument" | "plugin" | "pantry";
 
 // A place that holds one item. `area` is where the item's sprite is drawn, in
@@ -58,7 +67,8 @@ export interface DecorItem {
   // (the strength at full night), as the time-of-day light draws it (config.ts
   // TIME_OF_DAY.glows has the same two numbers for things that are not decor).
   // An item without `glow` gives no light, whatever its sprite or slot.
-  glow?: { radius: number; alpha: number };
+  // `flicker` (the candle) makes the light wander a little over game time, see `flickerAt`.
+  glow?: { radius: number; alpha: number; flicker?: GlowFlicker };
   // One deadpan line for when it goes up (stage 2 on).
   note?: string;
   // Where it came from, for later. Nothing reads these.
@@ -103,6 +113,29 @@ export const DECOR_ITEMS: DecorItem[] = [
   { id: "pantry-bins", name: "CLEAR BINS", kind: "pantry", sprite: "pantry", w: 16, h: 32, color: "mist", how: "start" },
 ];
 
+// The real gifts (issue 043 stage A, docs/random-encounters.md section 3), in the
+// order the checkpoints give them (delivery-checkpoints.ts). They start unowned.
+// Paintings are 32x16 and fit the table and desk wall slots (the bed wall is 48x16:
+// nothing wide yet); items with no slot yet are still ownable inventory.
+const WALL = ["art-table", "art-desk"];
+export const GIFT_ITEMS: DecorItem[] = [
+  { id: "art-robin", name: "ROBIN PRINT", kind: "art", sprite: "art-robin", w: 32, h: 16, color: "paper", how: "gift", slots: WALL },
+  { id: "art-concert-poster", name: "CONCERT POSTER", kind: "art", sprite: "art-concert-poster", w: 32, h: 16, color: "paper", how: "gift", slots: WALL },
+  { id: "lamp-warm", name: "WARM LAMP", kind: "lamp", sprite: "lamp-warm", w: 16, h: 16, color: "tangerine", how: "gift", glow: { radius: 40, alpha: 0.2 } },
+  { id: "plant-dried", name: "DRIED FLOWERS", kind: "plant", sprite: "plant-dried", w: 16, h: 16, color: "leaf", how: "gift" },
+  { id: "art-snow-wagon", name: "SNOW WAGON", kind: "art", sprite: "art-snow-wagon", w: 32, h: 16, color: "paper", how: "gift", slots: WALL },
+  { id: "lamp-stool-lamp", name: "STOOL LAMP", kind: "lamp", sprite: "stool-lamp", w: 16, h: 16, color: "butter", how: "gift", glow: { radius: 24, alpha: 0.2 } },
+  { id: "art-serenity-now", name: "SERENITY NOW", kind: "art", sprite: "art-serenity-now", w: 32, h: 16, color: "paper", how: "gift", slots: WALL },
+  { id: "art-canoes", name: "CANOES", kind: "art", sprite: "art-canoes", w: 32, h: 16, color: "paper", how: "gift", slots: WALL },
+  // A small light that wanders a little, slowly (never a strobe).
+  { id: "lamp-candle", name: "CANDLE", kind: "lamp", sprite: "lamp-candle", w: 16, h: 16, color: "butter", how: "gift", glow: { radius: 20, alpha: 0.18, flicker: { alpha: 0.2, radius: 0.08, seed: 11 } } },
+  { id: "art-great-wave", name: "GREAT WAVE", kind: "art", sprite: "art-great-wave", w: 32, h: 16, color: "paper", how: "gift", slots: WALL },
+  // After the first ten (the later list): owned only once something gives them.
+  { id: "art-starry-night", name: "STARRY NIGHT", kind: "art", sprite: "art-starry-night", w: 32, h: 16, color: "paper", how: "gift", slots: WALL },
+  { id: "art-water-lilies", name: "WATER LILIES", kind: "art", sprite: "art-water-lilies", w: 32, h: 16, color: "paper", how: "gift", slots: WALL },
+  { id: "art-sunflowers", name: "SUNFLOWERS", kind: "art", sprite: "art-sunflowers", w: 32, h: 16, color: "paper", how: "gift", slots: WALL },
+];
+
 // TEST items (issue 062 stage 2): borrowed sprites, so the swap can be tried and
 // reviewed before gifts and finds (stage 3) or new art (stage 4) exist. They are
 // not owned by anyone; `?own=test` in the dev server gives them all. Every id
@@ -125,7 +158,7 @@ export interface DecorData {
   families: Readonly<Record<string, FamilyRules>>;
 }
 
-export const DECOR_DATA: DecorData = { slots: DECOR_SLOTS, items: [...DECOR_ITEMS, ...TEST_ITEMS], families: FAMILIES };
+export const DECOR_DATA: DecorData = { slots: DECOR_SLOTS, items: [...DECOR_ITEMS, ...GIFT_ITEMS, ...TEST_ITEMS], families: FAMILIES };
 
 // Every sprite name an item can ask for, so they are loaded before the first frame.
 export function itemSprites(item: DecorItem, families: DecorData["families"] = FAMILIES): string[] {
@@ -136,4 +169,22 @@ export function itemSprites(item: DecorItem, families: DecorData["families"] = F
   if (rules.droops) names.add(`${item.family}-wilted`);
   if (rules.stages === 0) names.add(item.sprite);
   return [...names];
+}
+
+// The wander of a flickering glow at `hours` of game time, as multipliers near 1:
+// `alpha` within 1 plus or minus `flicker.alpha`, `radius` within 1 plus or minus
+// `flicker.radius`. Pure: the same seed and time always give the same numbers.
+// It is a sum of three slow sine waves (periods of about 3, 5 and 9 seconds of
+// play, since a game hour is 30 seconds) with phases and slight speeds taken from
+// the seed, so it drifts and never jumps or strobes: at 60 frames a second it
+// moves by well under a percent of the glow per frame.
+export function flickerAt(flicker: GlowFlicker, hours: number): { alpha: number; radius: number } {
+  const wave = (k: number, period: number, t: number) => {
+    const phase = (((flicker.seed * 2654435761 + k * 40503) >>> 0) % 6283) / 1000;
+    const speed = 1 + ((((flicker.seed + k) * 2246822519) >>> 0) % 1000) / 10000;
+    return Math.sin((t / period) * Math.PI * 2 * speed + phase);
+  };
+  const a = (wave(1, 0.1, hours) + wave(2, 0.17, hours) + wave(3, 0.3, hours)) / 3;
+  const r = (wave(4, 0.13, hours) + wave(5, 0.23, hours) + wave(6, 0.37, hours)) / 3;
+  return { alpha: 1 + flicker.alpha * a, radius: 1 + flicker.radius * r };
 }

@@ -9,3 +9,6 @@ art/room-mockup.png
 art/main-room-mockup*.png
 art/mockup-*.png
 art/walk-preview.png
+# Personal docs stay local, never tracked (a test guards this).
+docs/about-marc.md
+docs/tasks-v2.md

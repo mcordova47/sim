@@ -1,7 +1,7 @@
 ---
 id: 070
 title: Boxes: flatten, take out the recycling, they disappear
-status: review
+status: done
 owner: claude
 depends_on: [066]
 ---
@@ -40,3 +40,10 @@ Marc's idea (2026-10-26), building on issue 066: flattening the boxes should loo
   - Non-blocking finding: both tasks share exclusive 'trash', so while Take out the trash is cooling down, standing at the bin or recycling with a stack or no boxes shows "Take out the recycling" and pressing E says FLATTEN THE BOXES FIRST (stack) or NO BOXES TO TAKE OUT (gone) instead of a cooldown message. Verified in my test. A misleading line, not a break; worth a small follow-up (for example prefer the cooldown message when the exclusive sibling is on cooldown).
   - Unverified: how it feels in a real browser (nobody has played it; the author said so too).
 - 2026-10-26 (fix after review): the reviewer found that while Take out the trash cooled down, with a stack or no boxes the bin offered "Take out the recycling" and E gave FLATTEN THE BOXES FIRST / NO BOXES TO TAKE OUT. Fixed in `src/game/game.ts` (the `interaction.hidden` rule): `recycle-boxes` is hidden unless `boxes` is 0, so the ordinary trash and its cooldown message show otherwise. New test in `src/game/boxes.test.ts` (trash cooling down with a stack, with none, with flat boxes: which task is shown). Docs line in `docs/tasks.md` updated. Needs a fresh review.
+- 2026-10-26: REVIEW 2 (independent, of fix 9c5a089). Verdict: approve.
+  - Own checks on the real Game (temporary test file, deleted, not committed), at the recycling (Y) and the bin (N), all 3 spots, boxes in {1 stack, 0 flat, 2 gone} x trash {ready, cooling}: flat always offers `recycle-boxes` (no choice menu) and E runs it: boxes 2, +55 points, mood +3 (the 83 seen with trash cooling is the combo bonus), trash cooldown unchanged (ready stays ready, cooling stays cooling). Stack and gone always offer `take-trash`: ready runs it (+50, boxes unchanged); cooling gives only the plain `cooldown` blocked message, never FLATTEN THE BOXES FIRST or NO BOXES TO TAKE OUT.
+  - Flatten refused for 0 and 2 (NO BOXES TO FLATTEN), allowed only for 1. collect-delivery sets 1 from 0, 1 and 2.
+  - Fuzz: 150 seeds x 120 steps of random spots, E, Tab, Escape, deliveries, finishing tasks. Boxes always in {0,1,2}; every offered choice passes canStart; `recycle-boxes` is only shown with boxes 0; no blocked line while another task was startable; the two refusal lines never appeared. (A one-frame stale `nearby` right after a task completes in the same frame is the engine's existing behavior, not new.)
+  - Side effects: the hidden rule only touches item id `recycle-boxes`; other objects' choice cycle (Tab/Q) tests pass; the exclusive group still shows one task; `every-task` takes its ids from all interactables, so `recycle-boxes` stays reachable (with flat boxes); golden main-room frames pass unchanged. Kitchen rendered (copy of the mockup script outside the repo) for stack, flat and gone at 1x and 4x and looked: all read clearly, tub alone on bare floor when gone.
+  - `npm run sprites` leaves the tree clean, `npm test` 1851 pass (83 files), `npm run build` passes. Scope: fix touches only game.ts, docs/tasks.md, boxes.test.ts and this file; PLAN.md and other issues untouched.
+  - Non-blocking notes: (1) with flat boxes the bin offers only Take out the recycling, so ordinary trash cannot be taken out at the bin until the boxes are gone (follows from the rule in the brief, and the exclusive group). (2) The hidden condition has `state.has("boxes")`, which is moot because a level using the variable fails validation without it. (3) The two refusal reasons are now unreachable from play, kept as a safety net as documented. (4) Not played in a browser.

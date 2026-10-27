@@ -287,7 +287,7 @@ describe("saving and switching the dialog voice", () => {
     const storage = new FakeStorage();
     const s = setup({ storage, saved: '{"muted":true,"track":null,"payoutLeft":3}' });
     s.game.dialogVoice!.toggle();
-    expect(JSON.parse(storage.getItem("life.sound.v1")!)).toEqual({ muted: true, track: null, payoutLeft: 3, dialogVoice: "beep", dialogVoiceChosen: true });
+    expect(JSON.parse(storage.getItem("life.sound.v1")!)).toEqual({ muted: true, track: null, payoutLeft: 3, dialogVoice: "beep", dialogVoiceChosen: true, adBlocker: false });
   });
 
   it("the URL override applies for the visit without being saved", () => {

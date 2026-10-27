@@ -1,6 +1,6 @@
 # Random encounters, ad encounters and checkpoint gifts (design note, issue 043)
 
-Status: design note; Marc answered the open questions on 2026-10-27 (section 12). Nothing is built. It sits on top of the delivery mechanism of issue 062 stage 3a (`game.deliveries.deliver(itemId, delayHours)`, the checkpoint list `src/game/delivery-checkpoints.ts`) and the decor inventory of issue 073.
+Status: Marc answered the open questions on 2026-10-27 (section 12). Stage A (the checkpoint source) is built and merged. Stage B (the ad encounters) is built on branch issue/043-stage-b; where it differs from this note, section 13 says how. It sits on top of the delivery mechanism of issue 062 stage 3a (`game.deliveries.deliver(itemId, delayHours)`, the checkpoint list `src/game/delivery-checkpoints.ts`) and the decor inventory of issue 073.
 
 Marc's decisions (2026-10-26) are the starting point, so this note does not reopen them: both pacing sources, in two stages (checkpoints first, then the ad encounters); only new things arrive; encounters on the sofa (doomscroll) and at the desk (emails); the choices Ignore, Unsubscribe, Look closer and Add to cart; unsubscribe can fail; an ad blocker switch in the L screen; real giant platforms by name and invented brands; a short full-screen card, not a battle screen. The ad copy is a draft for the text pass (issue 037).
 
@@ -125,7 +125,6 @@ All of this lives in `ENCOUNTERS` in `src/game/config.ts`, not in the engine.
 | `unsubscribe` | `{ at0: 0.5, at100: 0.9, min: 0.05, max: 0.95 }` | success at mood 0 and 100 (a straight line between), and its clamp |
 | `persistencePenalty` | 0.1 per level | taken off success |
 | `mood` | `{ ignore: 3, unsubscribe: 3, cart: 2, dismissal: 0 }` | mood changes |
-| `dismissSeconds` | 2 | how long an already-own card shows |
 | `delayHours` | per ad, 4 to 12 | arrival of an ad purchase |
 | `recent` | 3 | ads not repeated (also the saved `seen` list cap) |
 | `maxSeen` | 20 | most ad ids kept in the save |
@@ -413,7 +412,7 @@ The achievements feature already knows when an achievement unlocks, so it calls 
 
 **Tests (stage B)** with a fake random and a fake clock:
 - The rate: over many seeded rolls the encounter rate is near `chance` for eligible tasks and zero for the others (`work-sofa`, a cancelled task); the cooldown blocks an encounter inside 3 game hours and allows one after; the daily cap of 2 holds across a day boundary and a sleep skip; `firstDay` holds.
-- The already-own dismissal: an owned item and a queued item give no menu, no delivery and no mood change, and still count for the cooldown.
+- The already-own card: an owned item and a queued item give no menu, no delivery and no mood change, stay until closed (E or Escape), and still count for the cooldown.
 - Unsubscribe: the success chance at mood 0, 25, 50, 60 and 100 for persistence 0, 1 and 2 (the values in the section 4 table, and the 5 and 95 percent clamps), with a seeded random checked on both sides of each chance; a failed unsubscribe halves the cooldown and sets the next chance, and the cap still holds; persistence lowers the odds.
 - Mood: the impulse chance at mood 0, 25, 50, 60 and 100 (40, 23.3, 6.7, 0 and 0 percent) and over many seeded rolls the rate lands within tolerance of each; it is exactly 0 at 60 and above even after Look closer; the chance falls smoothly (never rises as mood rises); Look closer raises it below 60; Look closer raises the impulse chance; Add to cart calls `deliver` once and a full queue or refused delivery shows a dismissal, not an error.
 - The ad blocker: ON means no roll and no state change; it survives a progress reset; the L key toggles and saves; the hint line changes.
@@ -442,3 +441,13 @@ Marc went with every recommendation. The decisions:
 10. **Brand names:** check them in the text pass (issue 037).
 11. **Prices on the cards:** keep the dollar prices.
 12. **Package-tracking card ("Your order is on its way"):** not planned now; a possible later card type. Marc (2026-10-27): when mail becomes a thing in the game, it could be another **source of encounters** (junk mail, flyers, a bill with an offer inside), with the same standoff.
+
+## 13. What stage B built, and where it differs from the note
+- **Files:** `ENCOUNTERS` in `src/game/config.ts`; `src/game/encounter-ads.ts` (the seven ads and every word); `src/game/encounters.ts` (the pure logic and the saved field); `src/game/activities/encounter.ts` (the activity); `src/render/encounter-card.ts` (the card layout and drawing); the three templates `art/src/view-ad-email.sprite`, `view-ad-social.sprite`, `view-ad-text.sprite`. The copy for the text pass is in `docs/text-review.md`.
+- **How it starts.** After a task completes (`Game`'s completion hook), `Encounters.roll` checks the gates in the note's order and rolls. If it hits, the game starts the encounter activity through `InteractionSystem.begin` as a stand-in task (`id: "encounter"`, in no room, pays nothing, always ends quietly). The encounter is not offered by any object, is not in "every task", and has no points and no cooldown of its own. The activity gets everything it needs (owned, queued, deliver, mood, random) as a small `EncounterDeps` object, so it tests without a game, and `ActivityHost` is unchanged.
+- **Choices** use the ordinary dialog menu: the narrator line is the menu's prompt, so the box and the menu show together as in the mockups. After Look closer the card shows the two details lines in place of the body and the menu comes back without that choice (no prompt box).
+- **The failed-unsubscribe flag (`soon`)** halves the cooldown for the next encounter and sets the chance to 50 percent for the next roll made; making that roll (a hit or a miss) uses the flag up. The daily cap still holds.
+- **Game day** for `firstDay` and the daily cap is `floor(hours / 24)` of the delivery clock, counted like the checkpoint days, so `firstDay: 2` means two game days (48 game hours) have been played. A `last` from the future of the clock is treated as the clock once, so a damaged save cannot lock anyone out.
+- **The ad blocker** is `adBlocker` in the sound settings store (the only settings store; the sound feature loads and saves it and hands it to the game as `game.adBlockerOn` and `game.setAdBlocker`). Key `B` in the L screen. A progress reset keeps it. The hint line shows the state; with the voice key as well the line is too long, so it reads `B: AD BLOCK OFF  D: VOICE  L: CLOSE  SHIFT+R: RESET` (shorter name, tighter gaps).
+- **Dev shortcut:** `?encounter=ad-candle` (any ad id, or `random`) shows that encounter at once in the dev server; it ignores the gates and does not count for them. The built game ignores it.
+- **Not built:** a mood-lift sound or other effect for the encounter (the existing task start and menu sounds play), an ad blocker as a decor item, mail as a source of encounters (open question 12).

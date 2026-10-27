@@ -133,3 +133,110 @@ Strings added later (mood in 038, the mirror in 041, the gallery view in 040) ar
 - npm run build (in bed)
 - // TODO: get up
 - Quick question for you:
+
+## Ad encounters (issue 043 stage B)
+
+The copy of the ad encounters, in the voice of real marketing (deadpan and sincere: the only joke is that it happens to you as an encounter). All of it lives in `src/game/encounter-ads.ts`, one place, so a change is one edit. Mark each line `keep`, `soften` or `rewrite` (and a replacement) after a dash, like the lists above: "- keep".
+
+**Rules the copy follows:** real giant platforms may be named (Instagram, Gmail, Amazon, Facebook Marketplace) or a plain text message; shops, brands and sellers are invented; no real person; every line at most 46 letters; only characters the pixel font has (lower case is drawn as capitals). The prices are for show: nothing in the game costs anything.
+
+**To check once:** the invented brand names do not point at a real small business: Little Fern Prints, Garnet Lane Florals, Oakline Home Goods, Northfield Studio, Maple Row, Hollis Candle Co., Saltmarsh Prints.
+
+### The seven ads
+Each ad: where it appears, the invented brand, the item it sells (an item from the decor catalog, so a purchase turns up at the door like a gift), then the exact text on the card.
+
+
+**1. Little Fern Prints** (social post, Instagram; sells `art-robin`; unsubscribe difficulty 0 of 2; arrives 12 game hours after the order)
+- Header: INSTAGRAM / SPONSORED -
+- From: @LITTLEFERNPRINTS -
+- Subject or caption: NEW: THE ROBIN PRINT -
+- Body: Archival paper. Numbered edition of 200. -
+- Body: Free shipping on orders this week. -
+- Button: SHOP NOW -
+- Look closer: ROBIN PRINT, 8 X 10 IN -
+- Look closer: 4.8 stars from 212 reviews. -
+
+**2. Garnet Lane Florals** (email, Gmail; sells `plant-dried`; unsubscribe difficulty 2 of 2; arrives 8 game hours after the order)
+- Header: GMAIL / PROMOTIONS -
+- From: GARNET LANE FLORALS -
+- Subject or caption: Still thinking about it? Your cart is waiting. -
+- Body: You left DRIED FLOWERS in your cart. -
+- Body: A small bunch that never needs watering. -
+- Body: Complete your order today. -
+- Button: COMPLETE ORDER -
+- Look closer: Dried flower bunch, glass jar. -
+- Look closer: $24. Free returns. -
+
+**3. Oakline Home Goods** (social post, Facebook Marketplace; sells `lamp-warm`; unsubscribe difficulty 0 of 2; arrives 24 game hours after the order)
+- Header: FACEBOOK MARKETPLACE / OAKLINE HOME GOODS -
+- Subject or caption: Table lamp, warm shade - $18 -
+- Body: Like new. Works great. Pickup or delivery. -
+- Body: Listed 3 days ago. Is this still available? -
+- Button: MESSAGE SELLER -
+- Look closer: Linen shade, brass base. Bulb included. -
+- Look closer: Delivery is $6 within 10 miles. -
+- Narrator (instead of the usual): A LISTING HAS APPEARED. -
+
+**4. Northfield Studio** (email, Amazon; sells `art-starry-night`; unsubscribe difficulty 1 of 2; arrives 24 game hours after the order)
+- Header: AMAZON / RECOMMENDED -
+- From: Amazon.com -
+- Subject or caption: Recommended for you: Starry Night print -
+- Body: Because you viewed wall art. -
+- Body: Northfield Studio. 4.6 stars, 312 ratings. -
+- Body: FREE delivery Thursday. -
+- Button: VIEW ITEM -
+- Look closer: Starry Night, framed, 12 X 16 IN -
+- Look closer: In stock. Sold by Northfield Studio. -
+
+**5. Maple Row** (text message, Messages; sells `lamp-stool-lamp`; unsubscribe difficulty 1 of 2; arrives 8 game hours after the order)
+- Header: MESSAGES / MAPLE ROW -
+- Message: Maple Row: Your stool lamp is back in stock. -
+- Body: Limited quantities. Shop before it's gone. -
+- Body: Msg & data rates may apply. STOP to opt out. -
+- Button: SHOP NOW -
+- Look closer: Stool lamp, oak, with shade. -
+- Look closer: $39. Ships in 2 days. -
+
+**6. Hollis Candle Co.** (email, Gmail; sells `lamp-candle`; unsubscribe difficulty 1 of 2; arrives 8 game hours after the order)
+- Header: GMAIL / PROMOTIONS -
+- From: HOLLIS CANDLE CO. -
+- Subject or caption: 20% off ends tonight -
+- Body: Hand-poured soy candle. 40-hour burn. -
+- Body: Use code EVENING20 at checkout. -
+- Body: Offer ends at midnight. -
+- Button: SHOP THE SALE -
+- Look closer: Evening candle, soy wax, 8 OZ. -
+- Look closer: $22 $17.60 -
+
+**7. Saltmarsh Prints** (social post, Instagram; sells `art-water-lilies`; unsubscribe difficulty 0 of 2; arrives 12 game hours after the order)
+- Header: INSTAGRAM / SPONSORED -
+- From: @SALTMARSHPRINTS -
+- Subject or caption: Water Lilies -
+- Body: Giclee print, matted and ready to hang. -
+- Body: Rated 4.9 by 40,000 customers. -
+- Button: SHOP NOW -
+- Look closer: Water Lilies, 12 X 16 IN -
+- Look closer: $48. Free shipping over $35. -
+
+### Narrator and menu lines, by kind of card
+| card | menu label for the second choice | narrator when it appears | after Ignore | after an unsubscribe that works | after one that fails | mark |
+|---|---|---|---|---|---|---|
+| email | UNSUBSCRIBE | A PROMOTIONAL EMAIL HAS APPEARED. | YOU CLOSE THE EMAIL. | YOU HAVE BEEN UNSUBSCRIBED. WE ARE SORRY TO SEE YOU GO. | UNSUBSCRIBE FAILED. PLEASE ALLOW 10 BUSINESS DAYS FOR YOUR REQUEST TO BE PROCESSED. |  |
+| social post | HIDE AD | A SPONSORED POST HAS APPEARED. (a listing: A LISTING HAS APPEARED.) | YOU SCROLL PAST IT. | AD HIDDEN. | THANKS FOR YOUR FEEDBACK. YOU MAY STILL SEE THIS AD. |  |
+| text message | REPLY STOP | A TEXT MESSAGE HAS ARRIVED. | YOU LEAVE IT UNREAD. | YOU HAVE BEEN UNSUBSCRIBED. | REPLY STOP AGAIN TO CONFIRM. |  |
+
+### Lines for every card
+- Menu: IGNORE, LOOK CLOSER, ADD TO CART -
+- Extra narrator line at low mood: IT IS HARD TO LOOK AWAY. -
+- Extra narrator line at high mood: YOU ARE NOT INTERESTED. -
+- You already have the item (the card stays until you close it): YOU ALREADY HAVE ONE. -
+- The item is already ordered or waiting at the door: IT IS ALREADY IN YOUR CART. -
+- The delivery queue is full: YOUR CART IS FULL. -
+- An Ignore that turned into a purchase: YOU TAP IT WITHOUT MEANING TO. ADDED TO CART. -
+- After an order: ORDER CONFIRMED. ARRIVES LATER TODAY. (6 game hours or less) / ORDER CONFIRMED. ARRIVES TOMORROW. -
+- Under the sender of an email: TO: ME -
+
+### The ad blocker (achievements list, key B)
+- Hint line, alone: B: AD BLOCKER OFF   L: CLOSE   SHIFT+R: RESET (and ON) -
+- Hint line with the voice key as well (shorter so it fits): B: AD BLOCK OFF  D: VOICE  L: CLOSE  SHIFT+R: RESET -
+- Shown for a moment after the key: AD BLOCKER: ON / AD BLOCKER: OFF -

@@ -30,6 +30,8 @@ export interface SavedProgress {
   decor?: unknown;
   // The optional `deliveries` field (issue 062 stage 3a), read by Deliveries.load, which is tolerant.
   deliveries?: unknown;
+  // The optional `encounters` field (issue 043 stage B), read by Encounters.load, which is tolerant.
+  encounters?: unknown;
 }
 
 const VERSION = 1;
@@ -76,6 +78,7 @@ export class ProgressStore {
         world: parseWorld(raw.world),
         decor: raw.decor,
         deliveries: raw.deliveries,
+        encounters: raw.encounters,
       };
     } catch {
       return emptyProgress();
@@ -84,12 +87,12 @@ export class ProgressStore {
 
   // Returns false if it could not save (nowhere to save to, or a write error).
   // `decor` is left out of the saved value when not given.
-  save(unlocked: string[], stats: StatsData, world: WorldSave | null, decor?: unknown, deliveries?: unknown): boolean {
+  save(unlocked: string[], stats: StatsData, world: WorldSave | null, decor?: unknown, deliveries?: unknown, encounters?: unknown): boolean {
     if (!this.storage) return false;
     try {
       this.storage.setItem(
         this.key,
-        JSON.stringify({ version: VERSION, unlocked, stats, world, ...(decor !== undefined && { decor }), ...(deliveries !== undefined && { deliveries }) }),
+        JSON.stringify({ version: VERSION, unlocked, stats, world, ...(decor !== undefined && { decor }), ...(deliveries !== undefined && { deliveries }), ...(encounters !== undefined && { encounters }) }),
       );
       return true;
     } catch {

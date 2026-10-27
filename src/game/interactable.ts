@@ -59,6 +59,9 @@ export interface Interactable {
   // The task of opening a delivered package (issue 062 stage 3a). Only offered
   // while a package waits, ends quietly and pays nothing.
   delivery?: boolean;
+  // The stand-in task of an ad encounter (issue 043 stage B). It is never in a room: the game
+  // starts it after a completed task, it draws its own full-screen card, pays nothing and always ends quietly.
+  encounter?: boolean;
   // The tiles of the object, as one rectangle per tile (so an L-shaped counter
   // is exactly its tiles). It is used by standing next to a tile and facing it.
   zones: Rect[];

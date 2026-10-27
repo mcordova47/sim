@@ -106,6 +106,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 068 | [Record player: no cooldown, pay only for a real change](issues/068-record-player-rewards.md) | claude | done | |
 | 069 | [Decor items decide whether they give light; the stool is a real item](issues/069-decor-glow.md) | claude | done | |
 | 070 | [Boxes: flatten, take out the recycling, they disappear](issues/070-boxes-recycling.md) | claude | done | 066 |
+| 071 | [No recycling bin; recycle from the boxes; no cooldowns on state-gated tasks](issues/071-recycling-and-cooldowns.md) | claude | todo | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

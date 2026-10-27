@@ -46,8 +46,9 @@ export class FlashcardsActivity extends BaseActivity {
   again = 0;
   paid = 0;
   // How a card is voiced (an index into `VOICE_STYLES`): 0 by spelling, higher by
-  // its IPA, each style adding to the one before. V steps through them in the
-  // practice deck, to hear what each part adds.
+  // its IPA, each style adding to the one before, and the highest is the default.
+  // V steps down through them in the practice deck (`VOICE_CYCLE`), to hear what
+  // each part adds.
   voiceStyle: number = F.voice.style;
 
   private session: StudySession | null = null;

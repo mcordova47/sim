@@ -1011,9 +1011,8 @@ export const FLASHCARDS = {
     // A vowel after the stress mark (the ˈ before its syllable) is longer,
     // louder and a little higher. A long vowel (ː) lasts this much longer.
     stress: { effect: "voiceVowelStress", pitch: 1.1, length: 0.15 },
-    // The speech-like voice, in three parts that each add to the one before (V
-    // cycles through them in the practice deck: spelling, ipa, formants,
-    // intonation, jitter). Part 1, `formants`: vowels by timbre (FORMANTS above)
+    // The speech-like voice, in parts that each add to the one before (V steps
+    // down through them in the practice deck, from the best: see `style` below). Part 1, `formants`: vowels by timbre (FORMANTS above)
     // at one pitch, stress by length and loudness only. Part 2, `intonation`: the
     // pitch of everything drifts down over the phrase, the stressed vowel gets a
     // small bump and the last vowel falls (fractions of the pitch, so 0.07 is

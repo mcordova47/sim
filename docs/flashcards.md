@@ -101,7 +101,7 @@ The deck has four sets, in this order when you ask for all of them, or one with 
 - **consonants:** each consonant between two a's (`aba`, `ada`, `aga`, ...), the usual way to compare consonants. Both the tap (`ara`) and the trill (`arra`) are there.
 - **words:** the first practice deck, single words, both card directions.
 
-V steps through the voices (spelling, ipa, formants, intonation, jitter, filtered, filtered+; the tag shows which) and R says the card again, to hear them against each other on the same card.
+V steps down from the best voice (diphthongs) through each earlier one to spelling and back (the tag shows which) and R says the card again, to hear them against each other on the same card.
 
 ## The interface
 

@@ -47,6 +47,9 @@ export interface StudySession {
   // null when the backend cannot report them (the core has no `overview`, or it
   // answered something that is not a set of plain counts). Never made up.
   progress?(): ProgressSummary | null;
+  // True when answers are not being kept (a guest whose browser blocks storage);
+  // such answers pay nothing.
+  readonly unsaved?: boolean;
 }
 
 // "unreadable": the server holds cards this version of the core refuses (a newer
@@ -56,11 +59,16 @@ export type OpenResult = StudySession | "bad-key" | "offline" | "unreadable";
 export interface StudyBackend {
   // Whether delivered answers earn game points (the demo's do not).
   readonly paysPoints: boolean;
-  // False for a backend with no account (the practice deck): the key screen is
-  // skipped and no key is remembered. Default true.
+  // False for a backend with no account (the practice deck, a guest): the key
+  // screen is skipped and no key is remembered. Default true.
   readonly usesKey?: boolean;
+  // The dev practice deck: the IPA line, V voices and the taller layout. A guest
+  // has no key but is not this.
+  readonly practice?: boolean;
   // The voices V steps through (indexes into `VOICE_STYLES`), if not all of them:
   // the practice deck is limited to the ones being compared.
   readonly voiceCycle?: readonly number[];
+  // A guest's backend can forget the cards it keeps ("Start again").
+  forget?(): void;
   open(key: string): Promise<OpenResult>;
 }

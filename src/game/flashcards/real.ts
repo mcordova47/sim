@@ -19,15 +19,15 @@ export interface RealOptions {
 
 const nfc = (text: string) => text.normalize("NFC");
 
-class RealSession implements StudySession {
+export class RealSession implements StudySession {
   private readonly slugs: string[];
 
   constructor(
-    private readonly core: Core,
-    private local: string | null,
+    protected readonly core: Core,
+    protected local: string | null,
     private readonly pull: () => Promise<string | null>,
     private readonly push: (progress: string) => Promise<void>,
-    private readonly now: () => number,
+    protected readonly now: () => number,
   ) {
     this.slugs = core.session(local, now(), F.language);
   }

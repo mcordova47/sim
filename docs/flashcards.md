@@ -11,7 +11,7 @@ The desk offers "Study Spanish". It is a front end for Marc's real flashcards ap
 
 ## How it plays
 
-- **Key.** The first time, a screen asks for the sync key. Paste the app's pairing link (`.../?pair=<key>`) or a bare key (32 characters of a-z and 0-9; the parser is the app's own rule, `keyFromText` in `flashcards/key.ts`). Enter confirms, Backspace deletes, Escape leaves. The key is kept in this browser's localStorage (`life.flashcards.v1`) only after the backend accepts it, and a key the server refuses is forgotten. It is never in the code, the bundle or the log. There is no "forget key" button yet; refusing a key forgets it, and clearing the site's data does too.
+- **Key.** The first time, a screen asks for the sync key. Paste the app's pairing link (`.../?pair=<key>`) or a bare key (32 characters of a-z and 0-9; the parser is the app's own rule, `keyFromText` in `flashcards/key.ts`). Enter confirms, Backspace deletes, Escape leaves. The key is kept in this browser's localStorage (`life.flashcards.v1`) only after the backend accepts it, and a key the server refuses is forgotten. It is never in the code, the bundle or the log. On the done screen K forgets the key and asks for another one, and G switches to studying without a key (see "Studying as a guest"). Refusing a key also forgets it, and so does clearing the site's data.
 - **Cards.** E flips. Then left or right (or 1 and 2) picks Again or Got it, E confirms. A missed card comes back a few places on, in the session only. Escape leaves from anywhere.
 - **Delivery.** Each answer is sent as it is given. If it cannot be delivered the screen says so, nothing is paid, and the answer is not kept, so the real schedule is never silently wrong.
 - **Points.** `FLASHCARDS.pointsPerCard` (4) for each delivered "got it", at most `dailyCardCap` (20) per `capResetHours` (24) game hours. "Again" pays nothing; there are no streaks or penalties. The apartment's clock stands still while studying.
@@ -123,6 +123,14 @@ V steps between `faster` and `fastest` (the tag shows which; `&voices=all` for e
 ## Text
 
 The pixel font is capitals only. It now draws `Á É Í Ó Ú Ñ` (two rows of accent above the cap line); lowercase Spanish is drawn as capitals. `¿ ¡ Ü` are not drawn; the vocabulary deck does not need them.
+
+## Studying as a guest (issue 089, design in docs/flashcards-guest.md)
+With no saved key and no saved choice the first screen offers "Study without a key" or "Enter a sync key". A guest studies the real deck with the same core, but the progress is the string the core's `grade` returns, kept in this browser's localStorage under `life.flashcards.guest.es.v1`. The only network call is the static core file; the progress endpoint is never called and nothing is minted. `flashcards/guest.ts` is the backend (it reuses `RealSession` and only changes `grade`).
+- The choice is remembered (`mode: "guest"` in `life.flashcards.v1`, beside the key). Pasting a key leaves guest mode, starts from that account's own progress, and does not read, send or merge the guest's cards, which are kept; G on the done screen returns to them. K on the done screen goes to the key screen.
+- Points: the same rule and cap as a key holder (the cap is per browser). If storage is blocked or full the guest studies unsaved, a plain warning says so, and nothing is paid.
+- If the core refuses the saved cards, the screen says so and S then Y erases them and starts again. Nothing else ever overwrites them.
+- The game's own reset (L, then Shift+R, then Y) also clears the guest's cards, not the key or the points window.
+- Kept small on purpose: the blob is read once when a session opens, so two tabs at once can lose an answer; no extra confirmation on the reset; no language choice (Spanish only, the storage key carries the language).
 
 ## The progress page (issue 082)
 

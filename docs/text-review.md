@@ -253,3 +253,21 @@ Shown at the desk when no cards are left to review. The pixel font is capitals o
 - This visit, only if something was answered: This time: 8 got it, 2 again.
 - Without figures (the app has not added the function yet, or it could not be read): Nothing is due. Come back later.
 - Hint: E: leave
+
+## Flashcards guest mode (issue 089)
+The pixel font is capitals only, so these draw in capitals. The first two choice lines are the wording from the design note.
+- Choice screen title: Study Spanish
+- Choice, first item: Study without a key
+- Choice, second item: Enter a sync key
+- Choice note (two lines): Without a key, progress is saved / in this browser only.
+- Choice hint: Up, Down, E: pick   Esc: back
+- Done screen, guest, under the figures: Saved in this browser only.
+- Done screen, guest, when storage could not keep answers: Progress was not kept.
+- Done screen controls, guest: E: leave   K: use a key
+- Done screen controls, key holder: E: leave   K: other key   G: no key
+- Blocked storage, top left of every card: NOT SAVED
+- Blocked storage, on the front of a card: Progress will not be kept.
+- Saved cards refused (same screen for a key holder, without the options): The saved cards could not be read.
+- Start again, first: S: start again
+- Start again, after S: Erase them and start again? Y: yes
+- The game's reset question is unchanged and already says everything: RESET ALL PROGRESS? Y: YES

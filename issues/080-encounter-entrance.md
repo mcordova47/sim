@@ -1,7 +1,7 @@
 ---
 id: 080
 title: Ad encounter entrance: a battle-style flash and bar wipe
-status: review
+status: done
 owner: claude
 depends_on: [043]
 ---
@@ -43,3 +43,10 @@ Marc (2026-10-27): ad encounters should enter like a Pokemon or FFVII battle. Pl
     - [ ] Correct the log/docs line if the wording changes.
 
 - 2026-10-27 (round 2): Fixed the review finding: the main.ts edit had not been applied. `src/main.ts` now passes `reducedMotion: () => reducedMotionAsked()` (new `src/game/reduced-motion.ts`, guarded where `matchMedia` is missing) to `new Game`; test in `src/game/reduced-motion.test.ts`. Log and docs wording now true. Back in review.
+
+- 2026-10-27: Review round 2 (independent) - verdict: approve.
+  - Reduced motion really supplied: pass. `src/main.ts` passes `reducedMotion: () => reducedMotionAsked()` to `new Game`; `Game` stores it (default false) and hands `() => this.reducedMotion()` to `EncounterActivity` deps, which reads it in `start()` on each encounter (so a changed setting applies to the next encounter). `reducedMotionAsked()` guards a missing `matchMedia` and a throw, and its test covers no matchMedia, true, false and the exact query string. `grep -o` on the built `dist/assets/*.js` finds `prefers-reduced-motion: reduce`, so the shipped bundle has it. The new test does not itself prove main.ts calls it (read from the diff and the bundle); the round-1 test with the option injected covers the fade path (12 in, 8 out, no bars/flash/shake). E skip (frame 6) is inside the 12-frame fade, so no edge there.
+  - Entrance/exit deterministic, golden unchanged; E skip and Escape at every moment (round-1 scratch results stand, activity code unchanged by the fix); one muted-aware stinger; scope (only 080 files plus docs section, no PLAN.md or other issues, no privacy findings): pass, re-read in the diff.
+  - `npm test` 2453 passed (102 files), `npx tsc --noEmit` clean, `npm run build` ok.
+  - Unverified (needs a real browser): how it feels (timing, buzz shake, flashes, the stinger), and whether copying the canvas onto itself for the shake behaves on the real canvas.
+  - PLAN.md table needs updating by the planner.

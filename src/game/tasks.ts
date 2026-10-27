@@ -1,4 +1,4 @@
-import { CLOCK, ENERGY, MIRROR, NAP } from "./config";
+import { CLOCK, ENERGY, MIRROR, NAP, SLEEP_WAKE } from "./config";
 import { CONTEMPLATE, MIRROR_DAY, MIRROR_MORNING, MIRROR_NIGHT, MIRROR_TIRED } from "./dialog-data";
 import { ART_SCENES } from "./art-pieces";
 import { DECOR_SLOTS, type DecorKind } from "./decor-data";
@@ -390,12 +390,12 @@ const EXTRA: Task[] = [
         reason: "NOT TIRED YET",
       },
     ],
-    // Seven hours go by and the bed is a mess again.
+    // At least seven hours go by (and never waking before 06:30), and the bed is a mess again.
     effects: [
       { var: "energy", set: 100 },
       { var: "bedMade", set: 0 },
-      { var: "clock", add: 7 },
-      { var: "plantDry", add: 7 },
+      { var: "clock", wake: SLEEP_WAKE },
+      { var: "plantDry", addSkipped: true },
       { var: "mood", add: 10 },
     ],
   },

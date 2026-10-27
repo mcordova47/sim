@@ -21,7 +21,8 @@ Lists: `src/game/typing-text.ts`.
 
 ## New
 - **Clean the desk** (`tidy-desk`, desk): points and a flavor line only; changes nothing; cooldown 90 s.
-- **Take a nap** (`nap`, sofa): needs energy under `NAP.below`; adds `NAP.energy` and an hour; leaves the bed alone.
+- **Take a nap** (`nap`, sofa): needs energy under `NAP.below`; adds `NAP.energy` and an hour; leaves the bed alone. A 5 second smaller version of the sleep sequence (`docs/sleep.md`): a gentler dark, a breath, a z, no lullaby, no snore, the record plays on.
+- **Go to sleep** (`sleep`, bed; issue 078): a 9 second sequence (`docs/sleep.md`), not a plain wait. When it finishes the clock moves on to the **wake hour**: at least 7 hours later and never before 06:30 (`SLEEP_WAKE`: `clock` has `wake: { atLeast: 7, notBefore: 6.5 }`). A 22:00 bedtime wakes at 06:30 (8.5 hours), a 02:00 one at 09:00 (7 hours), a sleep at 14:00 at 21:00 (7 hours). Plant dryness, the deliveries and every listener get the real hours (`plantDry` has `addSkipped: true`: it adds however many hours the `clock` effect moved). Energy goes to 100, the bed is unmade, mood +10. Escape applies none of it.
 - **Admire the art** (`admire-art`, sofa): a scene that shows a full-screen picture of the south gallery wall (`view-gallery-wall`), then pushes in on one of the ten pieces (2x, 4x, 8x, scaled from the same picture, so the last is big square pixels) with a serious line at each level, and takes it away. A different piece each time, in the order of `src/game/art-pieces.ts` (the `artPiece` state variable, which wraps); that file holds all the text. Nobody walks; the map is unchanged.
 
 ## Notes

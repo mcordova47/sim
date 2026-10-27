@@ -11,7 +11,7 @@ import { attachParticles } from "./particles/feature";
 import { seeded } from "./particles/seeded";
 import { settlePlant, STAGE_NAMES } from "./plant";
 import { taskSpots } from "./plan-checks";
-import { ApartmentState } from "./state";
+import { ApartmentState, wakeJump } from "./state";
 import { STATE_VARS } from "./state-vars";
 
 // Issue 063: the snake plant grows with watering and time, droops when left
@@ -236,9 +236,12 @@ describe("drooping", () => {
       const task = rooms.main.interactables.find((i) => i.id === id)!;
       const state = newState();
       set(state, "plantDry", 0);
+      const before = state.get("clock");
       state.applyEffects(task.effects);
-      const hours = task.effects!.find((e) => e.var === "clock")!.add!;
-      expect(state.get("plantDry"), id).toBe(hours);
+      // The nap skips an hour; sleep skips the real hours to the wake hour (issue 078).
+      const wake = task.effects!.find((e) => e.var === "clock")!.wake;
+      const hours = wake ? wakeJump(before, wake) : task.effects!.find((e) => e.var === "clock")!.add!;
+      expect(state.get("plantDry"), id).toBeCloseTo(hours, 9);
     }
   });
 });

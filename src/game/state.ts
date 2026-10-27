@@ -31,6 +31,22 @@ export interface Effect {
   var: string;
   add?: number;
   set?: number;
+  // Only for the clock (sleeping, issue 078): moves it on to the wake hour, which
+  // is at least `atLeast` hours later and not before `notBefore` o'clock in the
+  // morning (see `wakeJump`). The hours it moved are the real skip: `onClockSkip`
+  // gets them, and `addSkipped` effects of the same list use them.
+  wake?: { atLeast: number; notBefore: number };
+  // Adds the hours the same list's `wake` effect moved the clock by (the plant's
+  // soil dries for every hour that went by). Adds nothing without one.
+  addSkipped?: boolean;
+}
+
+// How many hours a `wake` moves the clock on from `clock`: `atLeast`, and further
+// if that would land before `notBefore` o'clock (the small hours), up to that hour.
+// 22:00 wakes at 06:30 (8.5 h), 02:00 at 09:00 (7 h), 14:00 at 21:00 (7 h).
+export function wakeJump(clock: number, rule: { atLeast: number; notBefore: number }): number {
+  const landing = (((clock + rule.atLeast) % 24) + 24) % 24;
+  return landing >= rule.notBefore ? rule.atLeast : rule.atLeast + (rule.notBefore - landing);
 }
 
 export interface StateChange {
@@ -107,8 +123,12 @@ export class ApartmentState {
   }
 
   // Applies all the effects, then announces the changes.
-  applyEffects(effects: Effect[] = []): void {
-    for (const e of effects) this.get(e.var); // an unknown name throws before anything changes
+  applyEffects(given: Effect[] = []): void {
+    for (const e of given) this.get(e.var); // an unknown name throws before anything changes
+    // A `wake` is worked out from the clock as it is now, once, for the whole list.
+    let skipped = 0;
+    for (const e of given) if (e.wake) skipped += wakeJump(this.get(e.var), e.wake);
+    const effects = given.map((e) => (e.wake ? { var: e.var, add: skipped } : e.addSkipped ? { var: e.var, add: skipped } : e));
     const changes = new Map<string, StateChange>();
     for (const e of effects) {
       this.write(e.var, e.set ?? this.get(e.var) + (e.add ?? 0), changes);

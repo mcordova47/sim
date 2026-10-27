@@ -1,0 +1,13 @@
+# SYSTEM TRACK for the sleep sequence (issue 078). Not in the record player: it
+# is played on the sleep bus while Go to sleep runs. A first draft, to be judged
+# by ear and replaced (a file here, or one made in the track editor).
+# Twelve beats at 72 bpm are exactly ten seconds, so one pass covers the sequence.
+title: Sleep Lullaby
+note: System track for the sleep sequence. Not in the record player.
+tempo: 72
+
+[melody sine 0.5]
+E5:2 D5:1 | C5:2 A4:1 | G4:2 A4:1 | C5:3
+
+[bass triangle 0.4]
+C3:3 | A2:3 | F2:3 | G2:3

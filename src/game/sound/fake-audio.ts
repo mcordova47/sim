@@ -11,7 +11,7 @@ import type {
 // A stand-in for the browser's AudioContext that records what it was asked
 // to make, so tests can check the sound without a browser or a speaker.
 export class FakeParam implements ParamLike {
-  calls: { type: "set" | "linear" | "exp"; value: number; time: number }[] = [];
+  calls: { type: "set" | "linear" | "exp" | "cancel"; value: number; time: number }[] = [];
   constructor(public value = 0) {}
   setValueAtTime(value: number, time: number) {
     this.calls.push({ type: "set", value, time });
@@ -21,6 +21,9 @@ export class FakeParam implements ParamLike {
   }
   exponentialRampToValueAtTime(value: number, time: number) {
     this.calls.push({ type: "exp", value, time });
+  }
+  cancelScheduledValues(time: number) {
+    this.calls.push({ type: "cancel", value: 0, time });
   }
 }
 

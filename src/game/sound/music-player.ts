@@ -1,6 +1,6 @@
 import { MUSIC } from "../config";
 import type { Track, TrackNote } from "../music/track";
-import type { Synth } from "./synth";
+import type { Bus, Synth } from "./synth";
 
 interface Event {
   // Beats from the start of the loop.
@@ -31,6 +31,10 @@ export class MusicPlayer {
   private origin: number | null = null;
   // A track waiting for the end of the loop that is playing (see `swap`).
   private pending: Track | null = null;
+
+  // `bus` is where the notes go: the record player's is "music"; the sleep
+  // lullaby's player uses "sleep".
+  constructor(private readonly bus: Bus = "music") {}
 
   get track(): Track | null {
     return this.current;
@@ -98,14 +102,14 @@ export class MusicPlayer {
   private sound(synth: Synth, e: Event, time: number, seconds: number): void {
     const gain = MUSIC.noteGain * e.volume;
     if (e.note.drum) {
-      for (const voice of MUSIC.drums[e.note.drum] ?? []) synth.voice(voice, time, { gain: gain * 0.6 }, "music");
+      for (const voice of MUSIC.drums[e.note.drum] ?? []) synth.voice(voice, time, { gain: gain * 0.6 }, this.bus);
       return;
     }
     synth.voice(
       { wave: e.wave as "square", freq: e.note.freq!, length: e.length * seconds * MUSIC.legato, gain },
       time,
       {},
-      "music",
+      this.bus,
     );
   }
 }

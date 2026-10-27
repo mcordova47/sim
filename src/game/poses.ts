@@ -11,11 +11,22 @@ import type { Check } from "./state";
 // `at` is where the pose's top-left goes, in pixels from the top-left of that
 // piece. `replacesPiece` hides the piece's own sprite while the pose plays (the
 // pose draws the whole thing).
+export interface BreathBand {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
 export interface PoseDef {
   // The sprite to draw, unless one of `variants` fits the state when the task
   // starts (the first whose `when` holds is used, as for a piece's looks).
   sprite: string;
-  variants?: { sprite: string; when: Check[] }[];
+  variants?: { sprite: string; when: Check[]; breath?: BreathBand }[];
+  // The breath of the sleep sequence (issue 078): the part of the picture, in its
+  // own pixels, that rises by one pixel with each breath. Without one the whole
+  // picture moves (right when it is only the person, as on the sofa).
+  breath?: BreathBand;
   on: string;
   at: { x: number; y: number };
   // The sprite's size, to draw it in front of whatever it overlaps.
@@ -44,14 +55,26 @@ export const POSES: Record<string, PoseDef> = {
   // The whole bed, with the sleeper in it. The bed looks different made and
   // unmade, so there is one sprite for each, picked when the task starts (the
   // covers are part of the picture, so they can't be one overlay for both).
+  // The breath is a band of the covers over the chest: it starts on the line of
+  // the shoulders and runs down through rows of flat covers, so lifting it by a
+  // pixel moves the shoulder line and leaves no seam. Each picture has its own
+  // (the unmade bed's covers sit a little higher and wider).
   "sleep-bed": {
     sprite: "player-sleep-bed",
-    variants: [{ sprite: "player-sleep-bed-unmade", when: [{ var: "bedMade", max: 0 }] }],
+    breath: { x: 6, y: 23, w: 31, h: 8 },
+    variants: [{ sprite: "player-sleep-bed-unmade", when: [{ var: "bedMade", max: 0 }], breath: { x: 3, y: 21, w: 33, h: 7 } }],
     size: { w: 80, h: 96 },
     on: "bed-made",
     at: { x: 0, y: 0 },
   },
 };
+
+// The breath band to cut from `sprite` (the pose's own, or the variant's), or null
+// when the whole picture should move.
+export function breathBand(def: PoseDef, sprite: string): BreathBand | null {
+  if (sprite === def.sprite) return def.breath ?? null;
+  return def.variants?.find((v) => v.sprite === sprite)?.breath ?? def.breath ?? null;
+}
 
 // A small overlay drawn over the plain player, one file for each way they face:
 // `held-<name>-<direction>`. It shows when there is no pose to draw, so it is

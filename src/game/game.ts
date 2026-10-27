@@ -25,7 +25,7 @@ import { validateLevel, type Door, type Level, type Piece } from "./level";
 import { outfitPrefix } from "./outfits";
 import { Player } from "./player";
 import { settlePlant } from "./plant";
-import { CARRIED, POSES, heldSprite, type PoseDef } from "./poses";
+import { CARRIED, POSES, breathBand, heldSprite, type PoseDef } from "./poses";
 import { ApartmentState } from "./state";
 import { STATE_VARS } from "./state-vars";
 import type { SleepScene } from "./sleep";
@@ -443,9 +443,13 @@ export class Game {
     // Escape backs out of the running action even while its text or menu is up
     // (the dialog would otherwise own the key). The action is cancelled first, so
     // when the dialog's close reaches it, it is already over.
-    if (this.dialog.open && controls.keys.includes("Escape") && this.interaction.cancelActive()) {
-      this.dialog.abort();
-      controls = NO_INPUT;
+    let heldClock = false;
+    if (this.dialog.open && controls.keys.includes("Escape")) {
+      heldClock = this.interaction.active?.activity.holdsClock === true;
+      if (this.interaction.cancelActive()) {
+        this.dialog.abort();
+        controls = NO_INPUT;
+      } else heldClock = false;
     }
     if (this.dialog.open) {
       // The dialog has the controls. Unless the clock is set to run on, time
@@ -458,7 +462,8 @@ export class Game {
         this.interaction.update(dt, this.player, NO_INPUT);
       }
     } else {
-      this.tickClock(dt);
+      // The frame that backs out of a clock-holding activity leaves the clock exactly as it was.
+      if (!heldClock) this.tickClock(dt);
       this.interaction.update(dt, this.player, this.inputLocked ? NO_INPUT : controls);
     }
     this.player.stepTimeScale = this.state.get("energy") < ENERGY.lowBelow ? ENERGY.tiredStepFactor : 1;
@@ -714,7 +719,22 @@ export class Game {
       const { def, piece, sprite } = pose;
       const x = piece.bounds.x + def.at.x;
       const y = piece.bounds.y + def.at.y;
-      drawables.push({ bottom: y + def.size.h, draw: () => painter.draw(ctx, sprite, x, y) });
+      // The sleeper's breath (issue 078): 0 whenever there is no sleep scene. A pose
+      // with a band moves only that band (the bed stays still); one without moves
+      // the whole picture. The draw order key (`bottom`) does not move.
+      const lift = this.sleepScene?.breath ?? 0;
+      const band = lift > 0 ? breathBand(def, sprite) : null;
+      drawables.push({
+        bottom: y + def.size.h,
+        draw: () => {
+          if (lift === 0) painter.draw(ctx, sprite, x, y);
+          else if (!band) painter.draw(ctx, sprite, x, y - lift);
+          else {
+            painter.draw(ctx, sprite, x, y);
+            painter.drawRegion(ctx, sprite, band, x + band.x, y + band.y - lift);
+          }
+        },
+      });
     } else {
       drawables.push({ bottom: actor.y + actor.h, draw: () => this.drawPlayer(ctx, actor) });
     }

@@ -1,9 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 import { NO_INPUT, type Controls } from "../input/controls";
 import { APARTMENT } from "./apartment";
-import { SLEEP, TIME_OF_DAY } from "./config";
+import { SLEEP, SLEEP_WAKE, TIME_OF_DAY } from "./config";
 import { Game } from "./game";
 import { sleepSceneAt, sleepTotal } from "./sleep";
+import { wakeJump } from "./state";
 import { TASKS } from "./tasks";
 import { parseTileMap } from "./tilemap";
 import { TimeOfDayFeature } from "./time-of-day/feature";
@@ -57,7 +58,11 @@ describe("the timeline (pure)", () => {
 
   it("the nap is shorter and lighter", () => {
     expect(sleepSceneAt("nap", 1, 1)).toMatchObject({ phase: "asleep", dark: 1 });
-    expect(SLEEP.nap.darkAlpha).toBeLessThan(SLEEP.sleep.darkAlpha);
+    // Over a bright afternoon room the nap's wash has to be about as strong to read at all (stage 5 tuning);
+    // it stays the gentler version through its lamps, its shorter fall and no sound.
+    expect(SLEEP.nap.darkAlpha).toBeLessThanOrEqual(0.45);
+    expect(SLEEP.nap.darkAlpha).toBeGreaterThanOrEqual(0.3);
+    expect(SLEEP.nap.darkLamps).toBeGreaterThan(SLEEP.sleep.darkLamps);
     expect(SLEEP.nap.lullaby).toBe(false);
   });
 });
@@ -106,12 +111,15 @@ describe("a night's sleep in the real game", () => {
     expect(frames * dt).toBeGreaterThan(8.9);
     expect(frames * dt).toBeLessThan(9.1);
     expect(maxDark).toBe(1);
-    expect(game.state.get("clock")).toBeCloseTo(clockBefore + 7 - 24 * Math.floor((clockBefore + 7) / 24), 5);
+    // A 22:00 bedtime wakes at 06:30: 8.5 real hours go by for everything that listens.
+    const jump = wakeJump(clockBefore, SLEEP_WAKE);
+    expect(jump).toBeCloseTo(8.5, 1);
+    expect(game.state.get("clock")).toBeCloseTo(6.5, 5);
     expect(advance).toHaveBeenCalledTimes(1);
-    expect(advance).toHaveBeenCalledWith(7);
+    expect(advance).toHaveBeenCalledWith(jump);
     expect(game.state.get("energy")).toBe(100);
     expect(game.state.get("bedMade")).toBe(0);
-    expect(game.state.get("plantDry")).toBe(snapshot.plantDry + 7);
+    expect(game.state.get("plantDry")).toBeCloseTo(snapshot.plantDry + jump, 9);
     expect(game.interaction.scoreboard.score).toBeGreaterThan(0);
     expect(log).toEqual(["taskStart", "taskComplete"]);
     expect(game.sleepScene).toBeNull();
@@ -209,7 +217,7 @@ describe("Escape at every moment wakes you early with nothing paid", () => {
     const { game, advance, clockBefore } = make("sleep");
     while (game.interaction.busy) game.update(dt, NO_INPUT);
     game.update(dt, esc);
-    expect(advance.mock.calls.filter((c) => c[0] === 7).length).toBe(1);
+    expect(advance.mock.calls.filter((c) => c[0] > 7).length).toBe(1);
     expect(game.state.get("energy")).toBeGreaterThan(99.9);
     expect(game.state.get("clock")).not.toBe(clockBefore);
   });

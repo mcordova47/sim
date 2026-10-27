@@ -13,5 +13,8 @@ export function attachFeatures(game: Game): void {
   attachAchievements(game);
   attachTimeOfDay(game);
   // After the time of day, so particles are drawn over its tint and stay bright at night.
-  attachParticles(game, { musicPlaying: () => sound.track !== null && !sound.muted });
+  // The notes from the record player stop while the record is ducked for the night's sleep.
+  attachParticles(game, {
+    musicPlaying: () => sound.track !== null && !sound.muted && !((game.sleepScene?.settings.duckTo ?? 1) < 1),
+  });
 }

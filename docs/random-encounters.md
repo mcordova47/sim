@@ -25,7 +25,7 @@ Rough numbers for one game day (12 minutes of real time, since the clock runs 2 
 The checkpoint source already exists (`CHECKPOINTS`, empty in production). What stage A adds is the real list, plus two small changes to the milestone type (section 9).
 
 Rules:
-- **Only new things.** A checkpoint never gives something you own. If its item is already owned (bought from an ad first, for example), it gives the next unowned item from its own short fallback list, then from the "later" list below, and gives nothing only when everything is owned. It is still marked fired.
+- **Only new things.** A checkpoint never gives something you own. If its item is already owned (bought from an ad first, for example), it gives **nothing** (Marc, 2026-10-27: duplicates in encounters exist only to slow the trickle, so a checkpoint that finds its item already owned is simply skipped, not replaced by the next item). It is still marked fired.
 - Days are game days played (`days`, 24 game hours each, sleeping included). A day gift arrives 2 game hours after the day is reached (a minute of real time), so it turns up while you are still around.
 - Achievement gifts arrive 2 game hours after the achievement is unlocked. They are bonus gifts, never a reason to chase the achievement: nothing says so on screen.
 - No counter, no "next gift" hint, no list of what is missing.
@@ -51,7 +51,7 @@ Total: 9 new sprites and one engine option (candle flicker), all small. Items 1 
 
 Order logic: a painting first (the room's biggest visible change and the cheapest), then a different kind each time so the swap list for each slot grows at a steady, small pace. The three achievement gifts are matched to what you did (watering gives a plant, desk work a poster, records a candle) so they read as a little acknowledgement, not a reward. The day gifts land at days 1, 3, 5, 8, 10, 13, 16 (gaps of 2, 2, 3, 2, 3, 3); the achievement gifts come on top when they come.
 
-**After the first ten** (the "later" list, used for fallbacks and for stage 4 to extend): the remaining gallery pieces (`art-oak-box`, `art-pale-mat`, `art-small-blue`, `art-tall-brown`, `art-dark-postcard`, `art-gold-narrow`), a trailing plant for a windowsill slot (5 sprites if it grows), the recycling bin (issue 070), a pantry upgrade, the rug if Marc wants it (062 open question 9), the nylon guitar.
+**After the first ten** (the "later" list, for stage 4 to extend): the remaining gallery pieces (`art-oak-box`, `art-pale-mat`, `art-small-blue`, `art-tall-brown`, `art-dark-postcard`, `art-gold-narrow`), a trailing plant for a windowsill slot (5 sprites if it grows), the recycling bin (issue 070), a pantry upgrade, the rug if Marc wants it (062 open question 9), the nylon guitar.
 
 Only two narrow wall slots (table, desk) exist today, and this list has six narrow paintings, so most will sit in the inventory. That is fine for a quiet collection (issue 073's inventory), but see open question 6.
 
@@ -134,7 +134,7 @@ The checkpoint numbers (days, delay 2 game hours) are in the list itself (`deliv
 
 ## 5. How it plugs into delivery and the decor inventory
 - **Delivery.** An ad purchase is `game.deliveries.deliver(ad.item, ad.delayHours)`, nothing more. It already refuses an owned, queued or waiting item and a full queue, so the encounter checks the same things first (that is what makes the dismissal) and also treats `deliver` returning false as the dismissal. The arrival is the existing line `A PACKAGE HAS ARRIVED.` and the box at the door.
-- **Checkpoints** call the same function, and the fallback rule (section 3) is the only new behaviour.
+- **Checkpoints** call the same function, and the skip rule (section 3: an owned item gives nothing) is the only new behaviour.
 - **Inventory (073).** Everything that arrives is `owned` and either shown or in the inventory. The swap list shows where an item is displayed. Neither stage needs more from 073 than "owned items you are not showing sit in the inventory and can be placed", and **stage A needs 073** so that the first paintings can be put up without losing the old ones.
 - **Mood.** Uses the existing mood variable and effects (`State.add`), through the same effects path other tasks use. No new system.
 - **Clock.** The encounter and the delivery both use the game clock, so both pause with a dialog and resume after a reload.
@@ -400,10 +400,10 @@ The achievements feature already knows when an achievement unlocks, so it calls 
 ## 10. Staged build plan
 
 **Stage A: the checkpoint source.** Depends on 073 (inventory, swap rule) and on stage 4 art for each item.
-- Add `item: string | string[]` and `achievement` to the milestone type, the achievements feature call, the fallback rule, tests.
+- Add `item: string | string[]` and `achievement` to the milestone type, the achievements feature call, the skip rule, tests.
 - Add the real items to `decor-data.ts` with their art, in the order of the list, as the art is ready (each line is a milestone and an item together, so no milestone ever names an item that does not exist; a test checks it, closing the note from the 062 review).
 - Fill `CHECKPOINTS` with the first ten. Keep `DEV_CHECKPOINTS` and `?deliver=` until the TEST items go.
-- Tests: each milestone fires once, in order, at its day or achievement; owned items fall back to the next unowned item; nothing fires twice after a reload; the production list names only existing items; the order of gifts across 20 simulated days matches the schedule.
+- Tests: each milestone fires once, in order, at its day or achievement; a checkpoint whose item is already owned gives nothing and is marked fired; nothing fires twice after a reload; the production list names only existing items; the order of gifts across 20 simulated days matches the schedule.
 
 **Stage B: the encounters.**
 - B1, the logic and the data (`encounters.ts`, `encounter-ads.ts`, `ENCOUNTERS`, saved state), with all the tests below. No screen yet.
@@ -423,7 +423,7 @@ The achievements feature already knows when an achievement unlocks, so it calls 
 
 ## 11. Recommendation (what I would build)
 - **Both, in two stages**: checkpoints first, then encounters.
-- **Checkpoints:** the ten-item list above, with fallback to the next unowned item and three achievement bonus gifts.
+- **Checkpoints:** the ten-item list above, with an owned item skipped (no replacement) and three achievement bonus gifts.
 - **Encounters:** doomscroll and Answer emails, 22 percent, 3 game hour cooldown, 2 a day, from game day 2; the four choices, mood as the odds, impulse buys on Ignore that grow smoothly as mood falls (40 percent at mood 0, none from 60), Unsubscribe that can fail and brings the next ad sooner, nothing punished.
 - **Look:** three card templates and the item's own sprite as the product picture, so no per-ad art.
 - **The ad blocker** in L on the key B, kept across a reset.
@@ -431,7 +431,7 @@ The achievements feature already knows when an achievement unlocks, so it calls 
 ## 12. Open questions for Marc: answered (2026-10-27)
 Marc went with every recommendation. The decisions:
 1. **Pacing numbers:** as written (checkpoints at game days 1, 3, 5, 8, 10, 13, 16, plus three achievement gifts).
-2. **A checkpoint item already bought:** give the next unowned item.
+2. **A checkpoint item already bought:** give **nothing** (changed by Marc, 2026-10-27: duplicates in encounters are there only to slow the trickle, so a checkpoint whose item was already bought is skipped, and the next item is not given in its place).
 3. **Menu labels:** by card type (`UNSUBSCRIBE`, `HIDE AD`, `REPLY STOP`).
 4. **Impulse buys:** yes, but **continuous in mood, not bands**: the chance rises smoothly as mood falls (`clamp((60 - mood) / 60, 0, 1) * 0.40`), and Unsubscribe success is a straight line from 50 percent at mood 0 to 90 percent at mood 100, minus 10 points per persistence level, clamped 5 to 95 percent. All numbers are in the `ENCOUNTERS` table.
 5. **Mood numbers:** fine (Ignore +3, Unsubscribe +3, Add to cart +2, failure 0, dismissal 0).
@@ -441,4 +441,4 @@ Marc went with every recommendation. The decisions:
 9. **Ad blocker:** stored in the settings (a progress reset keeps it), key `B`.
 10. **Brand names:** check them in the text pass (issue 037).
 11. **Prices on the cards:** keep the dollar prices.
-12. **Package-tracking card ("Your order is on its way"):** not planned now; a possible later card type.
+12. **Package-tracking card ("Your order is on its way"):** not planned now; a possible later card type. Marc (2026-10-27): when mail becomes a thing in the game, it could be another **source of encounters** (junk mail, flyers, a bill with an offer inside), with the same standoff.

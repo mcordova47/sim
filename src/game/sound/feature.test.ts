@@ -221,6 +221,21 @@ describe("effects from game events", () => {
     expect(sounds(s.ctx)).toBe(before);
   });
 
+  it("plays one short stinger for the encounter entrance cue, and nothing while muted", () => {
+    const s = setup();
+    s.unlock();
+    s.ctx.currentTime += 5;
+    const before = s.ctx.oscillators.length;
+    s.game.events.emit("cue", { name: "encounter-entrance" });
+    expect(s.ctx.oscillators.length - before).toBe(SOUND.effects.encounterEntrance.voices.length);
+    const lengths = SOUND.effects.encounterEntrance.voices.map((v) => (v.delay ?? 0) + v.length);
+    expect(Math.max(...lengths)).toBeLessThan(0.8);
+    s.keys.press(SOUND.muteKey);
+    const muted = sounds(s.ctx);
+    s.game.events.emit("cue", { name: "encounter-entrance" });
+    expect(sounds(s.ctx)).toBe(muted);
+  });
+
   // The beep keeps its old bar (more than 3 in half a second); the letters voice rests
 // on spaces and marks, so it makes 3 in the same time (issue 077).
 it.each([["beep", 3], ["letters", 2]] as const)("(%s voice) blips as dialog text appears, then stops while it waits", (dialogVoice, atLeast) => {

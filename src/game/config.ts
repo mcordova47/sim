@@ -130,6 +130,32 @@ export const ENCOUNTERS = {
   firstDay: 2,
   // Mood at and above which an Ignore never turns into a purchase.
   moodRef: 60,
+  // The entrance and exit of the card (issue 080), in frames (the game steps at 60 a second). The
+  // entrance is a short phone buzz (a tiny shake), two white flashes, then horizontal bars slide across
+  // and cover the screen and part again to show the card; the exit is the same wipe, quicker, back to
+  // the room. E may skip the entrance once `skipAfter` frames have gone (so the press that finished
+  // the task cannot). With reduced motion there is only a plain fade.
+  entrance: {
+    shakeFrames: 16,
+    // Pixels the screen moves on a shake frame (it alternates sides and never leaves a visible gap).
+    shakePixels: 1,
+    // [first frame, length] of each white flash.
+    flashes: [
+      [6, 3],
+      [12, 3],
+    ] as readonly (readonly [number, number])[],
+    coverFrames: 16,
+    partFrames: 16,
+    skipAfter: 6,
+    // The wipe: how many bars, and their colour (a palette name).
+    bars: 8,
+    barColor: "ink",
+    exitCoverFrames: 6,
+    exitPartFrames: 6,
+    // Reduced motion: a plain fade in and out.
+    fadeInFrames: 12,
+    fadeOutFrames: 8,
+  },
   // Mood edges for the extra narrator line (tone only, no change to the odds).
   toneLow: 30,
   toneHigh: 80,
@@ -890,10 +916,18 @@ export const SOUND = {
         { wave: "sine", freq: 90, length: 0.1, gain: 0.12 },
       ],
     },
+    // An ad encounter arriving: a low buzz, then a short rising two-note jingle.
+    encounterEntrance: {
+      voices: [
+        { wave: "square", freq: 70, length: 0.22, gain: 0.06 },
+        { wave: "square", freq: note(0, 659.25), delay: 0.28, length: 0.1, gain: 0.1 },
+        { wave: "square", freq: note(5, 659.25), delay: 0.38, length: 0.2, gain: 0.1 },
+      ],
+    },
     unmute: { voices: [{ wave: "triangle", freq: 523.25, length: 0.07, gain: 0.18 }] },
   } as Record<string, EffectDef>,
   // Named moments in a cutscene (`{ cue: "name" }`) that make a sound.
-  cues: { "record-spin": "needle", "achievement": "toast" } as Record<string, string>,
+  cues: { "record-spin": "needle", "achievement": "toast", "encounter-entrance": "encounterEntrance" } as Record<string, string>,
 };
 
 // Music (issue 009a). Tracks are text files in src/game/music/tracks (see

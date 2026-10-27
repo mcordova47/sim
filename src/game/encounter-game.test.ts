@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { NO_INPUT, type Controls } from "../input/controls";
 import { FakeStorage } from "./achievements/fake-storage";
 import { AchievementsFeature, type KeyEventLike, type Listenable } from "./achievements/feature";
@@ -62,12 +62,19 @@ function doTask(game: Game, id: string, level = main) {
   for (let i = 0; i < 60 * 30 && game.interaction.active && !game.interaction.active.item.encounter; i++) {
     game.update(dt, game.dialogOpen && i % 20 === 0 ? press : NO_INPUT);
   }
+  // An encounter plays its entrance before the card and the menu (issue 080).
+  if (game.interaction.active?.item.encounter) for (let i = 0; i < 120 && !game.dialogOpen; i++) game.update(dt, NO_INPUT);
 }
 
 // Waits out the doomscroll's own short cooldown (about 20 game minutes), so it can be started again.
 function ready(game: Game) {
   const item = main.interactables[0];
   for (let i = 0; i < 60 * 30 && game.interaction.cooldownRemaining(item) > 0; i++) game.update(dt, NO_INPUT);
+}
+
+// Runs the entrance, until the card's dialog is up.
+function entrance(game: Game) {
+  for (let i = 0; i < 120 && !game.dialogOpen; i++) game.update(dt, NO_INPUT);
 }
 
 const mood = (g: Game) => g.state.get("mood");
@@ -101,8 +108,8 @@ function readAll(game: Game): string[] {
     if (v?.kind === "say" && v.waiting) seen.push(v.lines.join(" "));
     game.update(dt, press);
   }
-  // The encounter is over once the frame after its last line has run.
-  game.update(dt, NO_INPUT);
+  // The encounter is over once its exit wipe has played.
+  for (let i = 0; i < 120 && encounterUp(game); i++) game.update(dt, NO_INPUT);
   return seen;
 }
 
@@ -291,6 +298,7 @@ describe("the choices", () => {
     for (const ad of ADS) {
       const g = setup().game;
       expect(g.startEncounter(ad)).toBe(true);
+      entrance(g);
       pick(g, "ADD TO CART");
       const text = readAll(g).join(" ");
       expect(text, ad.id).toContain(ad.delayHours <= ENCOUNTERS.laterTodayHours ? "LATER TODAY" : "TOMORROW");
@@ -330,6 +338,7 @@ describe("the choices", () => {
     for (const ad of ADS) {
       const { game, rnd } = setup();
       game.startEncounter(ad);
+      entrance(game);
       expect(labels(game)[1]).toBe(CARD_WORDS[ad.card].unsubscribe);
       expect(prompt(game)).toContain(ad.narrator ?? CARD_WORDS[ad.card].appeared);
       rnd.next(0.999);
@@ -388,6 +397,7 @@ describe("an ad for something you already have", () => {
     const s = setup();
     s.game.decor.own("art-robin");
     s.game.startEncounter(adById("ad-robin")!);
+    entrance(s.game);
     expect(encounterUp(s.game)).toBe(true);
     s.game.update(dt, esc);
     s.game.update(dt, NO_INPUT);
@@ -407,12 +417,14 @@ describe("an ad for something you already have", () => {
     t.game.deliveries.deliver("art-robin", 0);
     expect(t.game.deliveries.waiting).toBe(true);
     t.game.startEncounter(adById("ad-robin")!);
+    entrance(t.game);
     expect(readAll(t.game)).toEqual([ENCOUNTER_WORDS.alreadyInCart]);
   });
 
   it("an order refused while the menu is up (bought meanwhile, or a full cart) is one plain line, not an error", () => {
     const s = setup();
     s.game.startEncounter(adById("ad-robin")!);
+    entrance(s.game);
     s.game.decor.own("art-robin");
     const m = mood(s.game);
     pick(s.game, "ADD TO CART");
@@ -429,6 +441,7 @@ describe("an ad for something you already have", () => {
       for (const item of others) full.game.deliveries.deliver(item.id, 100);
       expect(full.game.deliveries.pendingItems.length).toBe(others.length);
       full.game.startEncounter(adById("ad-robin")!);
+      entrance(full.game);
       const m2 = mood(full.game);
       pick(full.game, "ADD TO CART");
       expect(readAll(full.game)).toEqual([ENCOUNTER_WORDS.cartFull]);
@@ -637,3 +650,132 @@ describe("the dev shortcut", () => {
     expect(game.encounters.toJSON()).toEqual({ day: 0, today: 0, soon: false, seen: [] });
   });
 });
+
+// Issue 080: the card comes in with a buzz, flashes and a bar wipe, and goes out with a quicker wipe.
+describe("the entrance and the exit", () => {
+  const ENTRANCE = 48;
+  const EXIT = 12;
+  const candle = () => adById("ad-candle")!;
+
+  function fresh(reduced = false) {
+    const rnd = script();
+    const game = new Game(main, { rooms: { ...rooms, main }, random: rnd.random, reducedMotion: () => reduced });
+    game.deliveries.advance(60);
+    const cues: string[] = [];
+    game.events.on("cue", ({ name }) => cues.push(name));
+    expect(game.startEncounter(candle())).toBe(true);
+    return { game, cues, rnd };
+  }
+
+  it("plays the sound cue once, and shows no dialog until the entrance is over (48 frames)", () => {
+    const { game, cues } = fresh();
+    expect(cues).toEqual(["encounter-entrance"]);
+    expect(game.inputLocked).toBe(false);
+    for (let i = 1; i < ENTRANCE; i++) {
+      game.update(dt, NO_INPUT);
+      expect(game.dialogOpen, `frame ${i}`).toBe(false);
+    }
+    game.update(dt, NO_INPUT);
+    expect(game.dialogOpen).toBe(true);
+    expect(cues).toEqual(["encounter-entrance"]);
+  });
+
+  it("holds the clock and pays nothing during the entrance", () => {
+    const { game } = fresh();
+    const clock = game.state.get("clock");
+    const hours = game.deliveries.hours;
+    const m = mood(game);
+    frames(game, ENTRANCE + 20);
+    expect(game.state.get("clock")).toBe(clock);
+    expect(game.deliveries.hours).toBe(hours);
+    expect(mood(game)).toBe(m);
+    expect(score(game)).toBe(0);
+  });
+
+  it("E skips it only after the first few frames", () => {
+    const early = fresh();
+    frames(early.game, 2, press);
+    expect(early.game.dialogOpen).toBe(false);
+    const later = fresh();
+    frames(later.game, ENCOUNTERS.entrance.skipAfter - 1);
+    expect(later.game.dialogOpen).toBe(false);
+    later.game.update(dt, press);
+    expect(later.game.dialogOpen).toBe(true);
+    expect(labels(later.game)).toContain("ADD TO CART");
+  });
+
+  it("Escape leaves cleanly at every frame of the entrance", () => {
+    for (let f = 0; f <= ENTRANCE; f++) {
+      const { game, log } = (() => {
+        const s = fresh();
+        const log = { cancelled: 0 };
+        s.game.events.on("taskCancelled", () => log.cancelled++);
+        return { game: s.game, log };
+      })();
+      frames(game, f);
+      game.update(dt, esc);
+      expect(game.interaction.busy, `frame ${f}`).toBe(false);
+      expect(game.dialogOpen).toBe(false);
+      expect(game.inputLocked).toBe(false);
+      expect(log.cancelled).toBe(0);
+      expect(game.deliveries.pendingItems.length).toBe(0);
+    }
+  });
+
+  it("after the last line, the exit wipe plays (12 frames) and then it is over; Escape in it ends it at once", () => {
+    const s = fresh();
+    frames(s.game, ENTRANCE);
+    rndIgnore(s);
+    pick(s.game, "IGNORE");
+    // The line after Ignore; close it.
+    for (let i = 0; i < 400 && s.game.dialogOpen; i++) s.game.update(dt, press);
+    expect(encounterUp(s.game)).toBe(true);
+    frames(s.game, EXIT - 1);
+    expect(encounterUp(s.game)).toBe(true);
+    s.game.update(dt, NO_INPUT);
+    expect(encounterUp(s.game)).toBe(false);
+    expect(s.game.inputLocked).toBe(false);
+
+    const t = fresh();
+    frames(t.game, ENTRANCE);
+    rndIgnore(t);
+    pick(t.game, "IGNORE");
+    for (let i = 0; i < 400 && t.game.dialogOpen; i++) t.game.update(dt, press);
+    frames(t.game, 4);
+    expect(encounterUp(t.game)).toBe(true);
+    t.game.update(dt, esc);
+    expect(encounterUp(t.game)).toBe(false);
+    expect(t.game.inputLocked).toBe(false);
+  });
+
+  it("with reduced motion it is a short fade: a dialog after 12 frames and an exit of 8", () => {
+    const { game } = fresh(true);
+    frames(game, 11);
+    expect(game.dialogOpen).toBe(false);
+    game.update(dt, NO_INPUT);
+    expect(game.dialogOpen).toBe(true);
+    // Escape still works.
+    game.update(dt, esc);
+    expect(encounterUp(game)).toBe(false);
+  });
+
+  afterEach(() => vi.unstubAllGlobals());
+
+  it("draws without a canvas error in every phase, with and without reduced motion", () => {
+    const fakeCtx = () => new Proxy({}, { get: () => () => {}, set: () => true }) as unknown as CanvasRenderingContext2D;
+    vi.stubGlobal("document", { createElement: () => ({ width: 0, height: 0, getContext: fakeCtx }) });
+    for (const reduced of [false, true]) {
+      const { game } = fresh(reduced);
+      const ctx = fakeCtx();
+      for (let i = 0; i < 80; i++) {
+        game.update(dt, NO_INPUT);
+        expect(() => game.render(ctx, 1)).not.toThrow();
+      }
+    }
+  });
+});
+
+function rndIgnore(s: { rnd: ReturnType<typeof script> }) {
+  // No impulse buy on Ignore.
+  s.rnd.next(0.99);
+}

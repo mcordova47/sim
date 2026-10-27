@@ -78,6 +78,9 @@ export interface GameOptions {
   // A random number from 0 up to 1, for the mini-games. Math.random by default;
   // tests pass a seeded one.
   random?: () => number;
+  // Whether the browser asked for less motion (issue 080: the ad encounter fades instead of
+  // flashing). Asked each time one starts. Not asked by default.
+  reducedMotion?: () => boolean;
   // Where the sprites come from. Without it (tests) everything is drawn as
   // plain coloured rectangles.
   sprites?: SpriteDrawer;
@@ -135,6 +138,7 @@ export class Game {
   // The other levels the level's doorways lead to, by id.
   private readonly rooms: Readonly<Record<string, Level>>;
   private readonly random: () => number;
+  private readonly reducedMotion: () => boolean;
   private readonly painter: RoomPainter;
   private readonly spriteDrawer: SpriteDrawer | undefined;
   // For layers that draw sprites of their own (the achievements legend).
@@ -156,6 +160,7 @@ export class Game {
     this.level = level;
     this.rooms = options.rooms ?? {};
     this.random = options.random ?? Math.random;
+    this.reducedMotion = options.reducedMotion ?? (() => false);
     this.spriteDrawer = options.sprites;
     this.popups = new Popups(options.sprites);
     this.painter = new RoomPainter(options.sprites);
@@ -260,6 +265,7 @@ export class Game {
       },
       failedUnsubscribe: () => this.encounters.failedUnsubscribe(),
       random: () => this.random(),
+      reducedMotion: () => this.reducedMotion(),
       product: { sprite: product.sprite, w: product.w, h: product.h },
     });
     return this.interaction.begin(ENCOUNTER_TASK, activity);

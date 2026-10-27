@@ -1,7 +1,7 @@
 ---
 id: 071
 title: No recycling bin; recycle from the boxes; no cooldowns on state-gated tasks
-status: todo
+status: review
 owner: claude
 depends_on: []
 ---
@@ -18,3 +18,13 @@ From Marc's playtest of 070 (2026-10-26):
 - Tests for the kitchen change (the map, reachability, the tasks at the boxes and the bin, no recycling object, the golden frames), the cooldown table (every state-gated task has cooldown 0 and a test per example), docs updated. Render the kitchen's north-east corner at 1x and 4x and look. `npm run sprites`, `npm test` and `npm run build` pass.
 
 ## Progress log
+
+- 2026-10-26 (claude): started. Plan: remove `Y` from the kitchen map, move `recycle-boxes` to the boxes object `X`, drop the `exclusive` link, set `cooldown: 0` on state-gated tasks (a `STATE_GATED` constant in tasks.ts), audit table in docs/tasks.md.
+- 2026-10-26 (claude): done, ready for review.
+  - Kitchen: `KITCHEN_MAP` row 1 is now `#........NXX#` (the `Y` tile is plain floor, walkable; the wall tiles and reachability checks pass; main-room golden frames untouched, the kitchen is not in them). Removed the `Y` object def. `recycle-boxes` is on `X` after `flatten-boxes`; `N` has only `take-trash`. Deleted `art/src/recycling.sprite` and `public/sprites/recycling.png` (nothing else used them; also dropped `Y` from the legend of `scripts/room-mockup-kitchen-bath.mjs`).
+  - Removed `exclusive: 'trash'` from both tasks. The `hidden` rule from 070 stays (game.ts, comment updated): at the boxes a stack shows Flatten, flat shows the recycling, gone shows Flatten greyed with NO BOXES TO FLATTEN; they never overlap, so no choice appears. The refusal reasons on `recycle-boxes` stay as a safety net (they are reachable only through tests or a future placement); the `hidden` rule is not dead, it keeps the recycling off the prompt when not flat.
+  - Cooldown 0 on: make-bed (was 30), open-blinds and close-blinds (15), coffee, drink-coffee, flatten-boxes, recycle-boxes, water-plant, water-plant-droop (were the 10 s default); collect-delivery, record-play and the rest were already 0. Kept: dishes 45, check-plant 60, records 45, work 30, tidy-desk 90, sleep 60, nap 60, admire-art 60, mirrors 60, contemplate 30, side project 90, the default 10 on plate tasks and the rest. Full table with reasons is in docs/tasks.md (new "Cooldowns" section). Points and repeat-penalty code unchanged.
+  - Tests: boxes.test.ts updated (the old tests expected flatten to cool down and the recycling at the bin; they now check the boxes object, no overlap per state, bin never blocked by flat boxes, no `exclusive`, map row, no recycling sprite or object, the vacated tile walkable). New src/game/cooldowns.test.ts: the table, sleep then make-bed at once (no taskBlocked), blinds, coffee, flatten, plant, and a state-and-message matrix for each state-gated task. No existing test was weakened; the only ones changed were the three in boxes.test.ts that asserted the removed behaviour.
+  - Docs: tasks.md, state.md, floor-plan.md.
+  - Checked: `npm run sprites`, `npm run build`, `npm test` (84 files, 1913 tests) pass. Looked at the kitchen north-east corner at 1x and 4x with the boxes as a stack, flat and gone (a top-down mockup from the real map and sprites, made by the room-mockup script adapted outside the repo): bin, boxes and plain floor where the recycling bin was look right.
+  - Not checked: how it feels in a browser (walking up to the boxes and the Flatten/recycle prompt order); the mockup is not the real renderer's wall pass.

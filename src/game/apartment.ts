@@ -142,13 +142,14 @@ const MAIN: Record<string, ObjectDef> = {
 // -- Kitchen: an L, 11 by 8 feet ---------------------------------------------
 // The bar runs along the top (11 by 4): the sink, counter and stove against its
 // south wall (the wall above the bath), the window in the west wall, the
-// recycling, bin and boxes in the north-east corner. The leg drops down the
-// east side (4 by 4) with the fridge against the east wall. The passage to the
+// bin and boxes in the north-east corner (there is no recycling bin; the
+// recycling goes out from the boxes, issue 071). The leg drops down the east
+// side (4 by 4) with the fridge against the east wall. The passage to the
 // main room is in the east wall of the bar; the bath door is in the west wall
 // of the leg. The solid block at the bottom left is the bath.
 export const KITCHEN_MAP = [
   "#############",
-  "#.......YNXX#",
+  "#........NXX#",
   "c..........O#",
   "cCCCVVV.....1",
   "#CCCVVV.....2",
@@ -175,15 +176,14 @@ const KITCHEN: Record<string, ObjectDef> = {
   },
   V: { name: "stove", sprite: "stove", color: "ink", tasks: ["cook"] },
   h: { name: "range hood", sprite: "hood", color: "paper" },
-  Y: { name: "recycling", sprite: "recycling", color: "leaf", tasks: ["recycle-boxes", "take-trash"] },
-  N: { name: "trash bin", sprite: "bin", color: "slate", tasks: ["recycle-boxes", "take-trash"] },
+  N: { name: "trash bin", sprite: "bin", color: "slate", tasks: ["take-trash"] },
   // The boxes follow the state variable `boxes` (issue 066): a stack, or flattened
   // after "Flatten the boxes", and gone after "Take out the recycling" (issue 070). A package opened at the front door brings the stack back.
   X: {
     name: "box stack and pantry",
     sprite: "boxes",
     color: "tangerine",
-    tasks: ["flatten-boxes"],
+    tasks: ["flatten-boxes", "recycle-boxes"],
     variants: [
       { sprite: "boxes-gone", when: [{ var: "boxes", min: 2 }], color: "tangerine" },
       { sprite: "boxes", when: [{ var: "boxes", min: 1 }], color: "tangerine" },

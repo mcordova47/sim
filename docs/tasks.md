@@ -87,7 +87,37 @@ No per-object setting. An object offers the tasks that **can start right now** (
 - Code: `InteractionSystem.choices` (the offered tasks when two or more), `nearby` (the shown one), `choiceIndex`; the prompt count is drawn by `drawPrompt` in `src/render/world-ui.ts`. Tests: `src/game/task-choice.test.ts`, `src/render/choice-prompt.test.ts`.
 
 ## Flatten the boxes and opening packages (issue 066)
-The boxes in the kitchen are the state variable `boxes`: 1 is the stack, 0 is flat, 2 is gone (issue 070; the 066 numbers keep their meaning, 2 is new). Flatten the boxes (45 points, its usual cooldown) is only offered with a stack, says `NO BOXES TO FLATTEN` otherwise, and sets it to 0. Opening a package at the front door (`collect-delivery`) sets it back to 1, so there is always something to flatten after a delivery. It does this even while flattening is still cooling down: the cooldown only holds back the task, not the stack. Several waiting packages give the same single stack. Take out the recycling (`recycle-boxes`, 55 points, at the recycling and the bin) takes flat boxes out and sets 2. It shares the `exclusive` name `trash` with Take out the trash and comes first, so with flat boxes it is the one offered; with a stack or no boxes Take out the trash is offered as before and the boxes stay. It is hidden unless the boxes are flat, so with a stack or no boxes the bin shows Take out the trash (and its cooldown message). The reasons `FLATTEN THE BOXES FIRST` and `NO BOXES TO TAKE OUT` stay on the task as a safety net. Sprites: `boxes` (the stack), `boxes-flat` and `boxes-gone` (the pantry tub alone), all 32x16. A recycling bin item (issue 062 stage 4) would change how the flat boxes look.
+The boxes in the kitchen are the state variable `boxes`: 1 is the stack, 0 is flat, 2 is gone (issue 070; the 066 numbers keep their meaning, 2 is new). Flatten the boxes (45 points, no cooldown since issue 071) is only offered with a stack, says `NO BOXES TO FLATTEN` otherwise, and sets it to 0. Opening a package at the front door (`collect-delivery`) sets it back to 1, so there is always something to flatten after a delivery. Several waiting packages give the same single stack. Take out the recycling (`recycle-boxes`, 55 points) is done from the boxes themselves (issue 071; there is no recycling bin in the apartment, only the garbage bin, so the kitchen has none and its old tile is plain floor). It takes flat boxes out and sets 2. At the boxes a stack offers Flatten the boxes, flat boxes offer Take out the recycling, and gone boxes offer neither (the prompt shows Flatten greyed with `NO BOXES TO FLATTEN`), so the two never overlap and there is no choice to make. The recycling is hidden unless the boxes are flat (issue 070); the reasons `FLATTEN THE BOXES FIRST` and `NO BOXES TO TAKE OUT` stay on the task as a safety net. Take out the trash is only at the trash bin, always available, and no longer shares an `exclusive` name with anything. Sprites: `boxes` (the stack), `boxes-flat` and `boxes-gone` (the pantry tub alone), all 32x16.
 
 ## Variants of one task (`exclusive`)
 Tasks that are variants of one thing share an `exclusive` name on the task (the four mirror tasks use `"mirror"`). When more than one could start, only the first is offered, so the choice cycle never lists the same thing twice. Order in the task list decides which wins (worn out beats the hour).
+
+## Cooldowns (issue 071)
+A time cooldown is only there where nothing else stops you doing a task again at once. A task that already gates itself by state (the bed unmade, the blinds in the other position, a mug waiting) has `cooldown: 0` and the state message is the only thing that refuses it. Otherwise sleeping would make the bed wait on a cooldown from the last time it was made. Points and the repeat penalty (doing the same task quickly pays less) are unchanged; only the blocking went. A task that sets no cooldown gets `DEFAULT_TASK_COOLDOWN` (10 s). In code `STATE_GATED` in `tasks.ts` is the zero; `src/game/cooldowns.test.ts` checks each row.
+
+| Task | Gate | Cooldown | Why |
+|---|---|---|---|
+| `make-bed` | `bedMade` is 0 (sleeping unmakes it) | 0 | state gate; was 30 |
+| `open-blinds` | `blinds` is 0 | 0 | state gate; was 15 |
+| `close-blinds` | `blinds` is 1 | 0 | state gate; was 15 |
+| `coffee` | `mug` is 0, and clean plates | 0 | needs an empty mug, so it alternates with drinking |
+| `drink-coffee` | `mug` is 1 | 0 | state gate |
+| `flatten-boxes` | `boxes` is 1 | 0 | state gate; a package puts the stack back |
+| `recycle-boxes` | `boxes` is 0 (hidden otherwise) | 0 | state gate |
+| `water-plant-droop` | `plantDry` at the droop line | 0 | watering resets `plantDry` |
+| `water-plant` | `plantDry` at the thirsty line | 0 | watering resets `plantDry` |
+| `collect-delivery` | a package is waiting | 0 | already 0 |
+| `record-play`, `make-track`, `study-spanish`, `swap-*` | menus and editors | 0 | already 0 (they pay once, inside the activity) |
+| `check-plant` | the soil is damp | 60 | the state does not stop repeated checking |
+| `dishes` | `dishes` is 1 or more | 45 | the pile is refilled by cooking and eating; this keeps it from being farmed |
+| `sort-records` (and year, fav, color) | each waits its turn, then the cycle wraps | 45 | the cycle never ends, so it can be repeated |
+| `work`, `work-sofa`, `work-bed` | energy at least 10 | 30 | tiring but not blocked for long |
+| `tidy-desk` | none | 90 | a gag; keeps it from being farmed |
+| `sleep` | tired or late at night | 60 | after sleeping the late hours can still allow it |
+| `nap` | energy under `NAP.below` | 60 | a nap leaves you still under the line |
+| `admire-art` | none | 60 | repeatable |
+| `mirror-*` | the hour or being worn out | 60 | the hour still holds for a while |
+| `contemplate` | none | 30 | repeatable |
+| `side-project-game` | energy at least 10 | 90 | repeatable |
+| `reheat`, `eat-dinner`, `cook` | clean plates (at most 8 dirty) | 10 (default) | the plates only limit how many in a row; nothing else stops repeats |
+| `take-trash`, `doomscroll`, `guitar`, `journal`, `fridge-stare`, `humidifier`, `brush-teeth`, `sit`, `shower` | none | 10 (default) | nothing stops spamming |

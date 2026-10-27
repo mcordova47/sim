@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { NO_INPUT } from "../input/controls";
-import { APARTMENT } from "./apartment";
+import { APARTMENT, KITCHEN_MAP } from "./apartment";
 import { pickVariant } from "./appearance";
 import { Game } from "./game";
 import { taskSpots } from "./plan-checks";
@@ -81,18 +81,17 @@ describe("Flatten the boxes", () => {
 });
 
 describe("opening a package brings the stack back", () => {
-  it("sets boxes to 1 whatever the cooldown on flattening", () => {
+  it("sets boxes to 1, and flattening is offered again at once (no cooldown, issue 071)", () => {
     const game = kitchen();
     stand(game, rooms.kitchen, "flatten-boxes");
     game.update(dt, press);
     finish(game);
     expect(game.state.get("boxes")).toBe(0);
-    expect(game.interaction.cooldownRemaining(boxesItem(game))).toBeGreaterThan(0);
+    expect(game.interaction.cooldownRemaining(boxesItem(game))).toBe(0);
     game.deliveries.deliver(ITEM, 0);
     (game as unknown as { collectDeliveries(): void }).collectDeliveries();
     expect(game.state.get("boxes")).toBe(1);
-    // The cooldown still holds: it only gates flattening, not the stack coming back.
-    expect(game.interaction.cooldownRemaining(boxesItem(game))).toBeGreaterThan(0);
+    expect(game.interaction.canStart(boxesItem(game))).toBe(true);
   });
 
   it("works through the real task at the front door", () => {
@@ -147,7 +146,7 @@ const goTo = (g: Game, spot: { stand: { col: number; row: number }; face: never 
 };
 
 describe("Take out the recycling (issue 070)", () => {
-  it("is refused with a plain reason for a stack, and for no boxes", () => {
+  it("has no cooldown and is refused with a plain reason for a stack, and for no boxes", () => {
     const game = kitchen();
     expect(game.interaction.unavailableReason(recycleItem())).toBe("FLATTEN THE BOXES FIRST");
     setBoxes(game, 2);
@@ -170,9 +169,9 @@ describe("Take out the recycling (issue 070)", () => {
     }
   });
 
-  it("with flat boxes it is offered at both objects and the boxes are gone after", () => {
+  it("with flat boxes it is offered at the boxes, alone, and the boxes are gone after", () => {
     const spots = taskSpots(rooms.kitchen).filter((s) => s.id === "recycle-boxes");
-    expect(spots.length).toBeGreaterThanOrEqual(2);
+    expect(spots.length).toBeGreaterThanOrEqual(1);
     for (const spot of spots) {
       const game = kitchen();
       setBoxes(game, 0);
@@ -182,27 +181,61 @@ describe("Take out the recycling (issue 070)", () => {
       game.update(dt, press);
       finish(game);
       expect(game.state.get("boxes")).toBe(2);
-      expect(game.interaction.unavailableReason(boxesItem(game))).toBe("NO BOXES TO FLATTEN");
       game.update(dt, NO_INPUT);
-      expect(game.interaction.nearby?.id).toBe("take-trash");
+      // Gone: the boxes only show why Flatten cannot be done.
+      expect(game.interaction.nearby?.id).toBe("flatten-boxes");
+      expect(game.interaction.unavailableReason(game.interaction.nearby!)).toBe("NO BOXES TO FLATTEN");
     }
   });
 
-  it("while the trash cools down, the bin shows the trash and its cooldown unless the boxes are flat", () => {
-    const spot = taskSpots(rooms.kitchen).find((s) => s.id === "take-trash")!;
-    for (const [boxes, shown] of [[1, "take-trash"], [2, "take-trash"], [0, "recycle-boxes"]] as const) {
+  it("at the boxes the two tasks never overlap: a stack offers Flatten, flat offers the recycling, gone offers neither", () => {
+    const spot = taskSpots(rooms.kitchen).find((s) => s.id === "recycle-boxes")!;
+    for (const [boxes, shown, startable] of [[1, "flatten-boxes", true], [0, "recycle-boxes", true], [2, "flatten-boxes", false]] as const) {
       const game = kitchen();
-      goTo(game, spot as never);
-      game.update(dt, press);
-      finish(game);
       setBoxes(game, boxes);
-      game.update(dt, NO_INPUT);
-      const trash = rooms.kitchen.interactables.find((i) => i.id === "take-trash")!;
-      expect(game.interaction.cooldownRemaining(trash)).toBeGreaterThan(0);
+      goTo(game, spot as never);
       expect(game.interaction.nearby?.id).toBe(shown);
-      if (shown === "take-trash") expect(game.interaction.unavailableReason(game.interaction.nearby!)).toBeNull();
-      else expect(game.interaction.canStart(game.interaction.nearby!)).toBe(true);
+      expect(game.interaction.choices).toEqual([]);
+      expect(game.interaction.canStart(game.interaction.nearby!)).toBe(startable);
     }
+  });
+
+  it("the trash bin only ever offers the trash, whatever the boxes are, and is never blocked by flat boxes", () => {
+    for (const boxes of [0, 1, 2]) {
+      for (const spot of taskSpots(rooms.kitchen).filter((s) => s.id === "take-trash")) {
+        const game = kitchen();
+        setBoxes(game, boxes);
+        goTo(game, spot as never);
+        expect(game.interaction.nearby?.id).toBe("take-trash");
+        expect(game.interaction.choices).toEqual([]);
+        game.update(dt, press);
+        finish(game);
+        expect(game.state.get("boxes")).toBe(boxes);
+      }
+    }
+  });
+
+  it("the tasks share no `exclusive` name any more", () => {
+    for (const id of ["take-trash", "recycle-boxes"]) expect(TASKS.find((t) => t.id === id)!.exclusive).toBeUndefined();
+  });
+
+  it("the north-east corner has no recycling bin: no object, no sprite, plain floor where it stood", () => {
+    expect(KITCHEN_MAP[1]).toBe("#........NXX#");
+    expect(KITCHEN_MAP.join("")).not.toContain("Y");
+    for (const level of Object.values(rooms)) {
+      for (const p of level.pieces ?? []) expect(p.sprite).not.toBe("recycling");
+      for (const a of level.appearances ?? []) for (const v of a.variants) expect(v.sprite).not.toBe("recycling");
+    }
+    expect(Object.keys(import.meta.glob("/{art/src,public/sprites}/recycling.*", { query: "?url" }))).toEqual([]);
+    // The vacated tile can be walked on.
+    const game = kitchen();
+    game.player.placeAt(8, 1, "down");
+    expect([game.player.col, game.player.row]).toEqual([8, 1]);
+  });
+
+  it("at the boxes the recycling and Flatten are the tasks of the boxes object", () => {
+    const boxes = taskSpots(rooms.kitchen).filter((s) => s.id === "recycle-boxes" || s.id === "flatten-boxes");
+    expect(new Set(boxes.map((s) => s.id))).toEqual(new Set(["recycle-boxes", "flatten-boxes"]));
   });
 
   it("a package brings the stack back from flat and from gone", () => {

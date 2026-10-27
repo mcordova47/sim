@@ -14,7 +14,7 @@ const ROOMS = {
   kitchen: {
     map: mapOf("KITCHEN"), floor: "floor-kitchen", wallL: "wall-side-left-kitchen", wallR: "wall-side-right-kitchen",
     doorL: "doorway-left-kitchen", doorR: "doorway-right-kitchen",
-    legend: { C: "dishes-2", V: "stove", h: "hood", Y: "recycling", N: "bin", X: "boxes", O: "tote", F: "fridge", c: "window-curtain" },
+    legend: { C: "dishes-2", V: "stove", h: "hood", N: "bin", X: "boxes", O: "tote", F: "fridge", c: "window-curtain" },
   },
   bath: {
     map: mapOf("BATH"), floor: "floor-bath", wallL: "wall-side-left-bath", wallR: "wall-side-right-bath",

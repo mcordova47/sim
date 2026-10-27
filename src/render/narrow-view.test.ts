@@ -3,7 +3,7 @@ import { APARTMENT } from "../game/apartment";
 import { DESKTOP_VIEW, NARROW, NARROW_VIEW, narrowViewWanted, setView, TILE, VIEW } from "../game/config";
 import { FULL_VIEW as PICTURE_WINDOW, zoomProblem } from "../game/view-zoom";
 import { Camera } from "./camera";
-import { createScreen, fitScale } from "./canvas";
+import { createScreen, fitFill, fitScale } from "./canvas";
 import { STATUS_BOX } from "./layout";
 
 // Issue 090: the phone's narrower, taller picture. docs/mobile.md section 13.
@@ -128,7 +128,7 @@ describe("Screen.sync", () => {
     setView(DESKTOP_VIEW);
     screen.sync();
     expect([off.width, off.height]).toEqual([320, 192]);
-    expect(canvas.width).toBe(320 * 3); // 1.0x: 320 css px
+    expect(canvas.width).toBe(320 * 3); // NARROW is false in tests, so no fill here (fitFill is tested below)
     setView(NARROW_VIEW);
     screen.sync();
     expect(canvas.width).toBe(224 * 5);
@@ -145,5 +145,33 @@ describe("Game.showsFullPicture", () => {
     expect(game.showsFullPicture).toBe(false);
     open = true;
     expect(game.showsFullPicture).toBe(true);
+  });
+});
+
+describe("fitFill (a full-screen piece fills the width)", () => {
+  const fill = (w: number, h: number, dpr: number) => {
+    const f = fitFill(w, h, dpr, DESKTOP_VIEW);
+    return [f.scaleDev, Math.round(f.cssWidth), Math.round(f.cssHeight)];
+  };
+  it("steps in quarter device pixels, using the width less a margin", () => {
+    expect(fill(390, 433, 3)).toEqual([3.5, 373, 224]); // was 1.0x (320 css)
+    expect(fill(360, 410, 3)).toEqual([3.25, 347, 208]);
+    expect(fill(430, 509, 3)).toEqual([4, 427, 256]); // the whole-number fit is already better
+    expect(fill(375, 400, 2)).toEqual([2.25, 360, 216]);
+  });
+  it("keeps the backing store a whole number of device pixels, and the picture inside the width", () => {
+    for (const [w, d] of [[360, 3], [375, 2], [390, 3], [412, 2.625], [430, 3], [320, 2]] as const) {
+      const f = fitFill(w, 600, d, DESKTOP_VIEW);
+      expect(Number.isInteger(f.backingWidth)).toBe(true);
+      expect(Number.isInteger(f.backingHeight)).toBe(true);
+      expect(f.cssWidth).toBeLessThanOrEqual(w + 1e-9);
+    }
+  });
+  it("never shrinks below the whole-number fit and survives a tiny or bad area", () => {
+    expect(fitFill(100, 50, 3, DESKTOP_VIEW).scaleDev).toBe(1);
+    expect(fitFill(0, 0, 0, DESKTOP_VIEW).scaleDev).toBe(1);
+    expect(fitFill(NaN, 300, 3, DESKTOP_VIEW).scaleDev).toBeGreaterThanOrEqual(1);
+    // a short area limits it by height
+    expect(fitFill(390, 150, 3, DESKTOP_VIEW).cssHeight).toBeLessThanOrEqual(150);
   });
 });

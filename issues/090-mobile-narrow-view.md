@@ -1,7 +1,7 @@
 ---
 id: 090
 title: Mobile: a taller, squarer picture that scrolls (assess, then prototype)
-status: done
+status: review
 owner: claude
 depends_on: [087]
 ---
@@ -42,3 +42,6 @@ Verdict: **approve** (with notes). Checked in the worktree at 1bad9d3.
 - Tests cover view arithmetic and camera on real rooms: **pass**, with gaps (not blocking): `showsFullPicture` is tested only for a registered screen, not the encounter or cutscene `showsPicture` branches; the `main.ts` per-frame switch is untested; the kitchen/bath camera assertion is conditional on `spare <= 0` (always true today, fine).
 - Not verified by me: bathroom in a browser (my walk did not get through the door; camera test only), a cutscene `view` (gallery wall, side project), the sleep view, dialogs and popups at the room edges, the ad wipe frame over a scrolled main room (the camera keeps 224 x 208 while the canvas is 320 x 192 for a moment; only a bar-wipe frame was seen, dark), landscape, anything on a real phone (touch feel, Safari bars, safe areas, notch, audio, DPR 2.625).
 - Notes for later (no change needed): opening L or an ad drops the picture from 1.67x to 1.0x (a visible size jump, by design); "ESC TO STOP" overlaps the HUD at 224 (known, issue 086); landscape keeps the narrow view; the PLAN.md table needs updating by the planner.
+
+### 2026-10-27 (claude), Marc's feedback: full-screen pieces look small at 1.0x
+- Added `fitFill` in render/canvas.ts: while a full-screen piece is up on the narrow view, the canvas scales to the width in quarter device pixel steps (390 phone: 3.5, 373 css; 360: 3.25; 430: 4.0; never below the whole-number fit), nearest neighbour. The narrow view's own scale, the reserved height (controls stay put), desktop and the goldens are unchanged; drawing coordinates are still 320 x 192, so the camera and dialog box line up as before. Tests in src/render/narrow-view.test.ts (fitFill table, whole-pixel backing, width limit, bad inputs). docs/mobile.md section 13.3 and 13.4 updated. Screenshots at 390 x 844, 360 x 800, 430 x 932 (ad card and L list) look clean. tsc and `npm test` (2551) pass. Not checked: a real phone, cutscene `view` pictures in a browser, whether the 3/4 unevenness bothers Marc.

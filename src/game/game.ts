@@ -502,6 +502,7 @@ export class Game {
   // Set while a key game runs and stays set after it ends until every key has been let go,
   // so a key still held (or pressed in the last frames) never becomes movement or a new task.
   private keysGate = false;
+  private keysGateAge = 0;
 
   // Seconds since an activity that reads keys last ran (large when none has).
   private sinceKeyGame = Infinity;
@@ -553,8 +554,11 @@ export class Game {
     if (keyGame) {
       // Escape backs out on purpose: that is not a stray key.
       this.keysGate = !controls.keys.includes("Escape");
+      this.keysGateAge = 0;
     } else if (this.keysGate && !this.dialog.open) {
-      const held = controls.keysDown.length > 0 || controls.keys.length > 0 || controls.dir !== null || controls.dirPressed !== null || controls.interactPressed;
+      this.keysGateAge += dt;
+      const real = (c: string) => !/^(Shift|Control|Alt|Meta|OS)(Left|Right)$|^CapsLock$/.test(c);
+      const held = this.keysGateAge < DIALOG.gateMaxSeconds && (controls.keysDown.some(real) || controls.keys.some(real) || controls.dir !== null || controls.dirPressed !== null || controls.interactPressed);
       if (held) controls = NO_INPUT;
       else this.keysGate = false;
     }

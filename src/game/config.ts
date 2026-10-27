@@ -290,6 +290,10 @@ export const DIALOG = {
   inputDelay: 0.5,
   // How long after such a game ends a dialog still counts as opening right after it.
   strayWindow: 0.3,
+  // After a key game ends, keys still held keep movement and hotkeys shut until all are let
+  // go, but never longer than this many seconds (a key whose release never arrives must not
+  // lock the player out). Modifier keys and Caps Lock do not count as held.
+  gateMaxSeconds: 1.5,
   // Lines of text in one page of the box.
   linesPerPage: 3,
   // While a dialog is open the game clock (task cooldowns, the combo timer)

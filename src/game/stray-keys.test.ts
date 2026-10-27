@@ -196,4 +196,27 @@ describe("keys still held when a key game ends", () => {
     game.update(dt, press);
     expect(game.interaction.busy).toBe(true);
   });
+
+  it("a key whose release never arrives (Caps Lock, a Cmd letter) cannot lock the player out", () => {
+    const game = new Game(room(notesTask), { random: () => 0.5 });
+    startTask(game);
+    const col = game.player.col;
+    const stuck = (extra: Partial<Controls> = {}): Controls => ({ ...NO_INPUT, keysDown: ["CapsLock"], ...extra });
+    for (let i = 0; i < 200 && game.interaction.busy; i++) game.update(dt, stuck());
+    // Caps Lock alone is not a held key: after one quiet frame walking works.
+    game.update(dt, stuck());
+    for (let i = 0; i < 40; i++) game.update(dt, stuck({ dir: "left" }));
+    expect(game.player.col).toBeLessThan(col);
+  });
+
+  it("any other stuck key lets go of the gate after a short time", () => {
+    const game = new Game(room(notesTask), { random: () => 0.5 });
+    startTask(game);
+    const col = game.player.col;
+    const stuck = (extra: Partial<Controls> = {}): Controls => ({ ...NO_INPUT, keysDown: ["KeyV"], ...extra });
+    for (let i = 0; i < 200 && game.interaction.busy; i++) game.update(dt, stuck());
+    for (let i = 0; i < Math.ceil((DIALOG.gateMaxSeconds + 1) / dt); i++) game.update(dt, stuck());
+    for (let i = 0; i < 40; i++) game.update(dt, stuck({ dir: "left" }));
+    expect(game.player.col).toBeLessThan(col);
+  });
 });

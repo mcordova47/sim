@@ -1,7 +1,7 @@
 ---
 id: 081
 title: Menus ignore stray keys right after a typing game
-status: in-progress
+status: review
 owner: claude
 depends_on: []
 ---
@@ -58,3 +58,5 @@ Marc (2026-10-27): a menu that opens the moment a typing game ends can take a ke
     - [ ] Make the gate unable to stay shut on a stale held key (ignore modifiers and CapsLock, and/or a timeout), with a test (a key in keysDown that never goes away must not block walking forever).
     - [ ] Optional: let the mute key work while a dialog is open after the game, and add a small test for M.
   - Unverified: feel in a browser; the Cmd/Caps Lock keyup behavior.
+
+- 2026-10-27 (claude): Review 2 asked for changes (the gate could stick on a key whose release never arrives). Done: modifier keys and Caps Lock no longer count as held, and the gate gives up after `DIALOG.gateMaxSeconds` (1.5 s) whatever is held. Two new tests (Caps Lock stuck; another stuck key) fail on the previous game.ts. npm test, tsc, build pass. Back in review.

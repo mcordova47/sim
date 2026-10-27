@@ -113,7 +113,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 075 | [Experiment: a per-letter voice for dialog text, behind a toggle](issues/075-dialog-voice-experiment.md) | claude | done | |
 | 076 | [More paintings from Marc's unhung pieces; a different concert poster](issues/076-more-paintings-and-poster.md) | agent | todo | |
 | 077 | [Make the per-letter voice the default for dialog text](issues/077-letters-voice-default.md) | claude | done | |
-| 078 | [A sleep sequence instead of just a timer](issues/078-sleep-sequence.md) | marc + claude | todo | |
+| 078 | [A sleep sequence instead of just a timer](issues/078-sleep-sequence.md) | marc + claude | in-progress (design done, stage 1 of 5 next) | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

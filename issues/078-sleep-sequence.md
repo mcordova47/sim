@@ -21,6 +21,9 @@ Marc's idea (2026-10-27): "Go to sleep" is a 6 second timer with the sleep pose.
 - A short design note (a section in `docs/music.md` or `docs/tasks.md`, or `docs/sleep.md`) with the choices above, the timings in one config table, and a recommendation; then a build issue after Marc picks. (If Marc says 'just build it', build the recommendation.)
 - Tests for the sequence timing, Escape at every moment (lighting and music restored, no payout, clock unchanged), mute, the record player ducking and returning, nap, saves; the golden main-room frames unchanged for the normal game; `npm test` and `npm run build` pass; render frames of the sequence at 1x and look at them.
 
+## Marc's picks on the design note (2026-10-27): all the recommendations in `docs/sleep.md`
+Overlay with the clock jump at the end; night wash 0.38 with the lamps at a quarter; the clock held during the sequence; my draft lullaby (Marc replaces it later, maybe from the track editor); a playing record ducks to 12 percent and returns; the banner fades; the snore is on; the z color is decided after the first look at 1x; no stretch or sigh at wake for now; breathing on the bed by the covers band (a flat row of covers above and below the chest in the sleeper art); naps are the smaller version with no lullaby. Build in the note's five stages; each is mergeable and keeps the golden frames unchanged for normal play.
+
 ## Progress log
 
 ### 2026-10-27 (design note)

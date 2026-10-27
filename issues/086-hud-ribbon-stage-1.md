@@ -1,7 +1,7 @@
 ---
 id: 086
 title: HUD ribbon, stage 1: icons and small bars in the empty top band
-status: review
+status: in-progress
 owner: claude
 depends_on: [048]
 ---
@@ -38,3 +38,23 @@ Build stage 1 of the HUD design Marc picked (layout B, `docs/hud-design.md`, iss
   - Toasts now start at y 19 (under the chip) instead of y 52.
   - Checked: `npm test` (109 files), `npx tsc --noEmit`, `npm run build`, `npm run sprites`; screenshots of the desktop view and `/?touch=1&view=narrow` in headless Chrome looked right (ribbon in the band, no painting covered, prompt clear).
   - Not checked: how it feels on a real phone or in Marc's browser; the 224 px view with a score of 10+ digits and every low state on screen (the tests cover the geometry, not a screenshot).
+
+- 2026-10-27 (independent review): verdict CHANGES NEEDED (one small, real defect on the narrow view; the rest passes).
+  - Run: `npm test` (109 files, 2578 tests), `npx tsc --noEmit`, `npm run build`, `npm run sprites` (no diff left in the tree): all pass.
+  - Criterion results:
+    - Nothing drawn below y 32: pass for the HUD (hud.test.ts checks every rect, text and icon box for many scores, combos and states on both views; I also read the code: all HUD drawing is inside chips at y 2..15 and the stop hint at y 3 or 17..25). Rooms: pass in effect (camera puts every room's top at y >= 32 on both views, rooms are at most 160 tall), but note the test checks the camera offset, not rendered pixels as the criterion words it, and I did not look at every room's props for sprites that stick up above a room's top edge (can't verify).
+    - Panels gone, ribbon shows score, combo, clock, energy, mood: pass. Looked at headless-Chrome screenshots (desktop at 9:40 energy 80 mood 90; desktop at 11:00 night, energy 5 mood 10; narrow view at dusk 6:30, energy 5 mood 10; also dusk 6:00). Sun, dusk and moon icons read correctly; `9:40` has no AM/PM; low energy is a brick bolt with a near-empty red bar, low mood a sad tangerine face with a red bar; both are legible. No painting is covered. Phone slot is width 0 as asked.
+    - Goldens: pass. I rebuilt both branch and main in scratch copies with the HUD draw and stop hint stubbed out: the main-room frame dumps (48 full logs) are byte-identical, and the sleep golden re-recorded from both is identical, so the golden changes are the HUD and nothing else.
+    - Popup and toast placement tests: pass. HUD_BOX and STATUS_BOX uses in render.test.ts, dialog-box.test.ts and toasts tests are untouched and still pass (HUD_BOX is the 5-digit width by default, so they are not weakened); ui-data.test.ts is strengthened (now also STATUS_BOX); narrow-view.test.ts now asserts the right edge, equivalent.
+    - Build, tests, tsc, sprites: pass.
+    - Marc looks in the browser: not done by me; see unverified.
+  - Scope: only issue 086 files (icons, config, layout, hud, state, game.ts one line, tests, goldens, sprite-names). PLAN.md and other issues untouched. No privacy problem.
+  - Defects found:
+    1. Narrow view (224 px): a toast and the ESC TO STOP hint overlap. The hint sits at y 17..25 (x about 80..146) and the first toast slot starts at y 19 (x 48..198), so a toast arriving during a cancellable activity lands on the hint (measured with ToastQueue and stopHintAt). On the desktop the hint is at y 3 and is clear. The sound feature's comment promises its tags stay clear of "the toasts and the ESC TO STOP hint"; this breaks that on the narrow view. No test covers hint against toasts.
+    2. Minor, probably not worth a fix: on the narrow view the two chips touch and cross at 13 or more score digits (gap is 15 px at 10 digits, 3 at 12, -3 at 13); the author's test stops at 10 digits. Either cap the displayed width or say it is out of range.
+    3. Minor: the stop hint on the desktop view moves right as the score gains digits (centre 148 at 5 digits, 163 at 10), because it is centred in the gap.
+  - Checklist for the author:
+    - [ ] Keep toasts clear of the stop hint on the narrow view (for example start the toast stack under the hint line there, or add the hint's box to TOAST_AVOID), and add a test that a toast never overlaps the hint box on either view.
+    - [ ] Decide on 13+ digit scores on the narrow view (clamp the digits used for layout, or note it as out of range in the issue) and extend the test to what you decide.
+    - [ ] Optional: make the render-each-room test look at real pixels (or say in the issue that the camera offset check stands in for it).
+  - Unverified (not checked by me, record as open): how it feels in a real browser or on a phone; a screenshot with a 10-digit score (the score cannot be set from the URL, only the geometry was checked); every low state at once on the narrow view at 10 digits; every room's props against the band.

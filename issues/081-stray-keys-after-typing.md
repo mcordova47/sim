@@ -1,7 +1,7 @@
 ---
 id: 081
 title: Menus ignore stray keys right after a typing game
-status: review
+status: done
 owner: claude
 depends_on: []
 ---
@@ -32,3 +32,12 @@ Marc (2026-10-27): a menu that opens the moment a typing game ends can take a ke
   - Files: src/game/dialog.ts, game.ts, config.ts, activity.ts, activities/notes.ts, render/dialog-box.ts, new src/game/stray-keys.test.ts. Did not touch activities/encounter.ts (issue 080).
   - Checks: new tests (runner; encounter menu after typing with mashed E and arrows; menu during notes; deliberate menu not delayed) fail on the old game.ts/dialog.ts (4 of 6 fail) and pass now. `npm test` 2443 pass, `npx tsc --noEmit` and `npm run build` clean.
   - Not checked: how the delay and hidden cursor feel in a browser.
+
+- 2026-10-27 (review, independent): APPROVE.
+  - Criterion 1 (places listed): pass. Log lists encounter menu after Answer emails, notes, track editor menus, flashcards/swap-decor, deliberate-press menus; I grepped all `openDialog` callers (cutscene, dialog, record-player, make-track, fake-host, encounter, collectDeliveries) and found no other key-game path. The single funnel is `Game.openDialog`; nothing calls `dialog.start` directly.
+  - Criterion 2 (no choice in delay, first press after picks, deliberate menus not delayed): pass. My own scratch tests (outside the repo): encounter menu opens after typing; X during the delay does nothing; Escape (key) during the delay backs out (via the game's Escape path); a say-then-menu chain opened long after typing has no delay; a menu opened 0.25 s after the game ended is delayed, one 0.4 s after is not; the delay lasts 31 frames at 60 fps (0.5 s) as configured.
+  - Criterion 3 (tests, fail on old code, checks): pass. Ran the author's stray-keys.test.ts against main's dialog.ts/game.ts in a scratch copy: 4 of 6 fail, as claimed (the 2 that pass are "no delay by default" and "say does not advance"... the latter passes on old code only if the runner param is ignored; fine). `npm test` 2443 pass, `npx tsc --noEmit` clean, `npm run build` clean.
+  - Scope: only the files named in the log plus the issue file; no PLAN.md or other issues touched. Config values are in DIALOG (inputDelay, strayWindow).
+  - Notes (not blocking): (a) Escape in a menu opened right after typing with no activity running is also ignored during the 0.5 s (the log says Escape still backs out; true only while a cancellable activity is running, e.g. the encounter). Harmless. (b) The last assertions of the encounter test are loose (an OR of three conditions plus "not a menu"); the cursor-stays-0 check earlier is what makes it fail on old code. (c) Track editor menus now always wait 0.5 s; the author flagged this.
+  - Unverified: how the 0.5 s delay and the hidden cursor feel in a browser (not run in a browser by author or reviewer).
+  - PLAN.md table needs updating by the planner.

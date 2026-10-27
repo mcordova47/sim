@@ -16,10 +16,12 @@ export function setView(v: { width: number; height: number }): void {
   VIEW.height = v.height;
 }
 
-// `?view=narrow`, on the touch layer only (`?touch=1`, or a coarse pointer unless `?touch=0`).
+// The narrow view is the phone's own view (Marc, 2026-10-27: make it the actual view): it is used on
+// the touch layer (a coarse pointer, or `?touch=1`) unless `?touch=0` turns the layer off or
+// `?view=wide` asks for the 320 x 192 view there. `?view=narrow` is still accepted and means the same.
 export function narrowViewWanted(search: string, coarsePointer: boolean): boolean {
   const params = new URLSearchParams(search);
-  if (params.get("view") !== "narrow") return false;
+  if (params.get("view") === "wide") return false;
   const touch = params.get("touch");
   return touch === "1" || (touch !== "0" && coarsePointer);
 }

@@ -10,13 +10,16 @@ import { STATUS_BOX } from "./layout";
 afterEach(() => setView(DESKTOP_VIEW));
 
 describe("narrowViewWanted", () => {
-  it("needs ?view=narrow and the touch layer", () => {
-    expect(narrowViewWanted("?view=narrow&touch=1", false)).toBe(true);
-    expect(narrowViewWanted("?view=narrow", true)).toBe(true); // a touch screen
-    expect(narrowViewWanted("?view=narrow", false)).toBe(false); // a desktop
-    expect(narrowViewWanted("?view=narrow&touch=0", true)).toBe(false);
-    expect(narrowViewWanted("?touch=1", true)).toBe(false);
-    expect(narrowViewWanted("", true)).toBe(false);
+  it("is the touch layer's view by default, with ?view=wide to opt out", () => {
+    expect(narrowViewWanted("", true)).toBe(true); // a touch screen
+    expect(narrowViewWanted("?touch=1", false)).toBe(true); // the layer forced on
+    expect(narrowViewWanted("?view=narrow&touch=1", false)).toBe(true); // the old switch still works
+    expect(narrowViewWanted("?view=narrow", true)).toBe(true);
+    expect(narrowViewWanted("", false)).toBe(false); // a desktop
+    expect(narrowViewWanted("?view=narrow", false)).toBe(false); // narrow never applies without the layer
+    expect(narrowViewWanted("?touch=0", true)).toBe(false);
+    expect(narrowViewWanted("?view=wide&touch=1", false)).toBe(false);
+    expect(narrowViewWanted("?view=wide", true)).toBe(false);
   });
   it("leaves the desktop and the tests on 320 x 192", () => {
     expect(NARROW).toBe(false);

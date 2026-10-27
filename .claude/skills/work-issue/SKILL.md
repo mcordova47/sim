@@ -20,7 +20,7 @@ If a worktree or branch for this issue already exists (`git worktree list`), reu
 
 To create the worktree, from the main checkout:
 ```
-git worktree add ../life-worktrees/<NNN>-<slug> -b issue/<NNN>-<slug>
+git worktree add ../sim-worktrees/<NNN>-<slug> -b issue/<NNN>-<slug>
 ```
 Then work only inside that directory, run `npm install` there if the project has a `package.json`, and use absolute paths. `reference-photos/` is gitignored, so it won't exist in the worktree. Read photos from the main checkout's `reference-photos/` by absolute path.
 

@@ -1,4 +1,4 @@
-# Life
+# Sim
 
 A top-down, Pokemon-style game set in a studio apartment. Walk tile to tile, face something, press E, earn points. See [PLAN.md](PLAN.md) for the design and the issue list.
 

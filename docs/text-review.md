@@ -240,3 +240,16 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Hint line, alone: B: AD BLOCKER OFF   L: CLOSE   SHIFT+R: RESET (and ON) -
 - Hint line with the voice key as well (shorter so it fits): B: AD BLOCK OFF  D: VOICE  L: CLOSE  SHIFT+R: RESET -
 - Shown for a moment after the key: AD BLOCKER: ON / AD BLOCKER: OFF -
+
+## Flashcards progress page (issue 082)
+Shown at the desk when no cards are left to review. The pixel font is capitals only, so these draw in capitals.
+- Title: Study Spanish
+- Known: 127 of 1000 words known
+- Met: 312 of 1000 words met
+- Due now: 12 cards due now. (1 card due now.)
+- Nothing due: Nothing is due. That is all for now.
+- Next: The next one is due in 5 hours. (under a minute, N minutes, N hours, N days)
+- Soon: 9 cards within a day.
+- This visit, only if something was answered: This time: 8 got it, 2 again.
+- Without figures (the app has not added the function yet, or it could not be read): Nothing is due. Come back later.
+- Hint: E: leave

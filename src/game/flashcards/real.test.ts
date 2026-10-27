@@ -88,6 +88,44 @@ describe("checkCore", () => {
   });
 });
 
+// The proposed `core.overview`, as a stand-in over the fake core's {slug: seen} blob.
+const standIn: NonNullable<Core["overview"]> = (p, now = 0) => {
+  const seen = Object.keys(p ? JSON.parse(p) : {}).length;
+  return { total: 3, seen, mastered: 0, dueNow: 0, dueTomorrow: 0, nextDueIn: seen > 0 ? 3600_000 + now * 0 : null };
+};
+
+describe("realBackend progress (the optional core.overview)", () => {
+  it("has no figures when the core has no overview, and does not ask for one", async () => {
+    const session = (await open(fakeServer(JSON.stringify({ a: 1 })))) as StudySession;
+    expect(session.progress?.()).toBeNull();
+  });
+
+  it("reads the figures from the core, from the progress as it stands after an answer", async () => {
+    const server = fakeServer(null);
+    const session = (await open(server, fakeCore({ overview: standIn }))) as StudySession;
+    expect(session.progress?.()).toEqual({ total: 3, seen: 0, mastered: 0, dueNow: 0, dueTomorrow: 0, nextDueInMs: null });
+    expect(await session.grade("a", "gotit")).toBe(true);
+    expect(session.progress?.()?.seen).toBe(1);
+    expect(session.progress?.()?.nextDueInMs).toBe(3600_000);
+  });
+
+  it("shows nothing when the core throws or answers something that is not plain counts", async () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const throws = (await open(fakeServer(null), fakeCore({ overview: () => { throw new Error("boom"); } }))) as StudySession;
+    expect(throws.progress?.()).toBeNull();
+    for (const bad of [null, "x", { total: 3 }, { total: 3, seen: 9, mastered: 0, dueNow: 0, dueTomorrow: 0, nextDueIn: null }]) {
+      const s = (await open(fakeServer(null), fakeCore({ overview: (() => bad) as never }))) as StudySession;
+      expect(s.progress?.()).toBeNull();
+    }
+    warn.mockRestore();
+  });
+
+  it("is not required of a core", () => {
+    expect(checkCore(fakeCore(), 1).overview).toBeUndefined();
+    expect(checkCore(fakeCore({ overview: standIn }), 1).overview).toBe(standIn);
+  });
+});
+
 describe("realBackend.open", () => {
   it("pays points and builds the session from what the server holds", async () => {
     const server = fakeServer(JSON.stringify({ a: 1 }));

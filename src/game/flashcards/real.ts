@@ -1,6 +1,7 @@
 import { FLASHCARDS as F } from "../config";
 import type { Core } from "./core";
-import type { CardView, Grade, OpenResult, StudyBackend, StudySession } from "./study";
+import { readSummary } from "./progress";
+import type { CardView, Grade, OpenResult, ProgressSummary, StudyBackend, StudySession } from "./study";
 
 // The real backend (issue 026 stage 2): the flashcards app's own core for every
 // decision, and its sync server as a blob store. A study loop is the app's own:
@@ -62,6 +63,19 @@ class RealSession implements StudySession {
       // Only text is a transcription; anything else from a core is ignored.
       return typeof ipa === "string" && ipa.trim() !== "" ? ipa : null;
     } catch {
+      return null;
+    }
+  }
+
+  // The progress page's figures, or null when the core has no `overview` (the
+  // app has not added it yet), throws, or answers something that is not plain
+  // counts. The game computes nothing itself.
+  progress(): ProgressSummary | null {
+    if (typeof this.core.overview !== "function") return null;
+    try {
+      return readSummary(this.core.overview(this.local, this.now(), F.language));
+    } catch (error) {
+      console.warn("Flashcards: the progress could not be read:", error instanceof Error ? error.message : error);
       return null;
     }
   }

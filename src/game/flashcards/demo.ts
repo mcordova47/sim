@@ -1,5 +1,6 @@
 import { FLASHCARDS as F } from "../config";
-import type { CardView, Grade, OpenResult, StudyBackend, StudySession } from "./study";
+import { readSummary } from "./progress";
+import type { CardView, Grade, OpenResult, ProgressSummary, StudyBackend, StudySession } from "./study";
 
 // The practice deck (issue 026): no server, no key, no schedule and no points.
 // It is for trying the screens and tuning the mumblespeak voice without
@@ -99,13 +100,48 @@ export type DemoSet = keyof typeof DEMO_SETS;
 // consonants, then the words.
 export const DEMO_CARDS: CardView[] = [...DEMO_SETS.sentences, ...DEMO_SETS.diphthongs, ...DEMO_SETS.consonants, ...DEMO_SETS.words];
 
+// The stand-in for the proposed `core.overview` (docs/flashcards.md, "Needed from
+// the app"): the same shape, worked out from the practice deck's own answers.
+// A word answered "got it" counts as known, one answered "again" as met and due
+// now, and the next card is a stand-in three hours away. It exists so the page
+// can be built and tried before the real core has the function.
+export interface DemoOverview {
+  total: number;
+  seen: number;
+  mastered: number;
+  dueNow: number;
+  dueTomorrow: number;
+  nextDueIn: number | null;
+}
+
+export function standInOverview(total: number, graded: { slug: string; grade: Grade }[]): DemoOverview {
+  const last = new Map<string, Grade>();
+  for (const g of graded) last.set(g.slug, g.grade);
+  const known = [...last.values()].filter((g) => g === "gotit").length;
+  const missed = last.size - known;
+  return { total, seen: last.size, mastered: known, dueNow: missed, dueTomorrow: 0, nextDueIn: known > 0 ? 3 * 3_600_000 : null };
+}
+
+// A practice set with an empty queue ("&set=empty"), to see the page that shows
+// when nothing is due: a stand-in deck of a thousand words in a fixed state.
+export const EMPTY_OVERVIEW: DemoOverview = { total: 1000, seen: 312, mastered: 127, dueNow: 0, dueTomorrow: 9, nextDueIn: 5 * 3_600_000 };
+
 export class DemoSession implements StudySession {
   readonly graded: { slug: string; grade: Grade }[] = [];
 
-  constructor(private readonly cards: CardView[] = DEMO_CARDS) {}
+  constructor(
+    private readonly cards: CardView[] = DEMO_CARDS,
+    private readonly fixed: DemoOverview | null = null,
+    private readonly empty = false,
+  ) {}
+
+  progress(): ProgressSummary | null {
+    // Checked like the real core's answer, so an empty deck gives no page.
+    return readSummary(this.fixed ?? standInOverview(this.cards.length, this.graded));
+  }
 
   queue(): string[] {
-    return this.cards.map((c) => c.slug);
+    return this.empty ? [] : this.cards.map((c) => c.slug);
   }
 
   card(slug: string): CardView {
@@ -129,14 +165,15 @@ export class DemoSession implements StudySession {
 // The practice backend over one of the sets (`?flashcards=demo&set=diphthongs`),
 // or over all of them.
 export function demoBackendFor(set?: string | null, voices?: string | null): StudyBackend {
-  const cards = set && Object.hasOwn(DEMO_SETS, set) ? DEMO_SETS[set as DemoSet] : DEMO_CARDS;
+  const empty = set === "empty";
+  const cards = empty ? DEMO_SETS.words : set && Object.hasOwn(DEMO_SETS, set) ? DEMO_SETS[set as DemoSet] : DEMO_CARDS;
   return {
     paysPoints: false,
     usesKey: false,
     // V steps between the voices being compared; `&voices=all` brings back them all.
     ...(voices === "all" ? {} : { voiceCycle: DEMO_VOICES }),
     async open(): Promise<OpenResult> {
-      return new DemoSession(cards);
+      return empty ? new DemoSession(cards, EMPTY_OVERVIEW, true) : new DemoSession(cards);
     },
   };
 }

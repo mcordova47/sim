@@ -8,7 +8,8 @@ import { FLASHCARDS as F } from "../config";
 import { studyBackend } from "../flashcards/backend";
 import { Mumble, VOICE_CYCLE, VOICE_STYLES, ipaScript } from "../flashcards/mumble";
 import { keyFromText, studyStore, type StudyStore } from "../flashcards/key";
-import type { CardView, Grade, StudyBackend, StudySession } from "../flashcards/study";
+import { barParts, pageLines, type PageLine, type Tone } from "../flashcards/progress";
+import type { CardView, Grade, ProgressSummary, StudyBackend, StudySession } from "../flashcards/study";
 import { wrapText } from "../dialog";
 import { typedChar } from "./make-track";
 
@@ -21,6 +22,12 @@ import { typedChar } from "./make-track";
 // leaving loses nothing.
 
 type Phase = "key" | "connecting" | "front" | "back" | "saving" | "problem" | "done";
+
+// Where things sit on the progress page, in pixels from the top of the box.
+// `row` is a line's step; a line's `gap` is extra pixels above it. Exported for the tests, which
+// check that the longest page ends above the "E: leave" line.
+export const PROGRESS_LAYOUT = { margin: 16, barY: 22, barH: 7, textY: 33, row: 9, leaveFromBottom: 14 } as const;
+const TONE: Record<Tone, string> = { paper: COLOR.paper, mist: COLOR.mist, leaf: COLOR.leaf, butter: COLOR.butter };
 
 const GRADES: Grade[] = ["again", "gotit"];
 const LABEL: Record<Grade, string> = { again: "Again", gotit: "Got it" };
@@ -45,6 +52,9 @@ export class FlashcardsActivity extends BaseActivity {
   gotIt = 0;
   again = 0;
   paid = 0;
+  // The figures on the progress page, read when the page comes up; null when the
+  // backend cannot report them (the page then shows only the plain line).
+  summary: ProgressSummary | null = null;
   // How a card is voiced (an index into `VOICE_STYLES`): 0 by spelling, higher by
   // its IPA, each style adding to the one before; `FLASHCARDS.voice.style` is the
   // default. V steps through the practice deck's voices (the backend's
@@ -115,11 +125,23 @@ export class FlashcardsActivity extends BaseActivity {
     this.index = 0;
     if (this.queue.length === 0) {
       this.message = "Nothing is due. Come back later.";
-      this.phase = "done";
+      this.showProgress();
     } else {
       this.phase = "front";
       this.speakIf("front");
     }
+  }
+
+  // The page for when there is nothing left to review: at open with an empty
+  // queue, and after the last card. It reads and pays nothing and changes nothing.
+  private showProgress(): void {
+    try {
+      // The backend has checked the figures (`readSummary`); this only guards a throw.
+      this.summary = this.session?.progress?.() ?? null;
+    } catch {
+      this.summary = null;
+    }
+    this.phase = "done";
   }
 
   private fail(message: string): void {
@@ -260,7 +282,7 @@ export class FlashcardsActivity extends BaseActivity {
     this.progress = this.queue.length > 0 ? Math.min(1, this.index / this.queue.length) : 1;
     if (this.index >= this.queue.length) {
       this.message = `${this.gotIt} got it, ${this.again} again.`;
-      this.phase = "done";
+      this.showProgress();
     } else {
       this.phase = "front";
       this.speakIf("front");
@@ -308,12 +330,53 @@ export class FlashcardsActivity extends BaseActivity {
       line("E: leave", h - 14, COLOR.mist);
     } else if (this.phase === "done") {
       line("Study Spanish", 8, COLOR.butter);
-      line(this.message, 50);
-      if (this.paid > 0) line(`${this.paid * F.pointsPerCard} points`, 66, COLOR.leaf);
+      if (this.summary) this.drawProgress(ctx, x, y, w, line, this.summary);
+      else {
+        line(this.message, 50);
+        if (this.paid > 0) line(`${this.paid * F.pointsPerCard} points`, 66, COLOR.leaf);
+      }
       line("E: leave", h - 14, COLOR.mist);
     } else {
       this.drawCard(ctx, x, y, w, h, line);
     }
+  }
+
+  // The progress page: a bar (known, then met), a few plain lines, and what was
+  // earned by answering this time. Positions come from `PROGRESS_LAYOUT`.
+  private drawProgress(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    w: number,
+    line: (text: string, ty: number, color?: string, scale?: number) => void,
+    summary: ProgressSummary,
+  ): void {
+    const L = PROGRESS_LAYOUT;
+    const bw = w - 2 * L.margin;
+    const bx = x + L.margin;
+    ctx.fillStyle = COLOR.ink;
+    ctx.fillRect(bx, y + L.barY, bw, L.barH);
+    ctx.fillStyle = COLOR.slate;
+    ctx.fillRect(bx + 1, y + L.barY + 1, bw - 2, L.barH - 2);
+    const parts = barParts(summary, bw - 2);
+    ctx.fillStyle = COLOR.leaf;
+    ctx.fillRect(bx + 1, y + L.barY + 1, parts.known, L.barH - 2);
+    ctx.fillStyle = COLOR.mist;
+    ctx.fillRect(bx + 1 + parts.known, y + L.barY + 1, parts.met, L.barH - 2);
+    let ty: number = L.textY;
+    for (const item of this.progressLines()) {
+      ty += item.gap ?? 0;
+      line(item.text, ty, TONE[item.tone]);
+      ty += L.row;
+    }
+  }
+
+  // The lines of the page, with the points earned by answering this time last.
+  progressLines(): PageLine[] {
+    if (!this.summary) return [];
+    const lines = pageLines(this.summary, { gotIt: this.gotIt, again: this.again });
+    if (this.paid > 0) lines.push({ text: `${this.paid * F.pointsPerCard} points`, tone: "leaf" });
+    return lines;
   }
 
   private drawCard(

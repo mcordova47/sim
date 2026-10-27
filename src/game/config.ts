@@ -1141,11 +1141,11 @@ export const FLASHCARDS = {
     // 0 spelling, 1 ipa (the original), 2 formants, 3 intonation, 4 jitter, 5
     // filtered (the source-filter voice slowed), 6 filtered with intonation and
     // jitter, 7 glides, 8 murmurs, 9 diphthongs, 10 longer vowels, 11 faster, 12
-    // quicker consonants, 13 fastest. The default is 11 while it and 13 are being
-    // compared; V steps between those two in the practice deck (`DEMO_VOICES`), or through
+    // quicker consonants, 13 fastest. The default is 13 (fastest; 11 is the
+    // slightly slower alternative); V steps between those two in the practice deck (`DEMO_VOICES`), or through
     // every voice with `&voices=all` (the default, the newest candidates, then each
     // earlier one down to spelling).
-    style: 11,
+    style: 13,
     longer: 1.5,
     symbols: {
       a: { effect: "voiceVowel", pitch: 1, length: 0.1, vowel: true },

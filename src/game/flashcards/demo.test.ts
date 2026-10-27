@@ -140,9 +140,9 @@ describe("the practice deck", () => {
     }
     // It starts at the default, steps through the newest candidates, then down to
     // spelling, and is back at the default.
-    expect(order).toEqual([11, 12, 13, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 10]);
+    expect(order).toEqual([13, 8, 7, 6, 5, 4, 3, 2, 1, 0, 9, 10, 11, 12]);
     expect(a.voiceStyle).toBe(F.voice.style);
-    expect(F.voice.style).toBe(11);
+    expect(F.voice.style).toBe(13);
     expect(Object.keys(heard).sort()).toEqual(["0", "1", "10", "11", "12", "13", "2", "3", "4", "5", "6", "7", "8", "9"]);
     expect(heard[1].map((v) => v.effect)).toEqual(["voiceGlideDown", "voiceVowelStress"]);
     expect(heard[2].map((v) => v.effect)).toEqual(["voiceGlideDown", "voiceFormantOStress"]);
@@ -272,9 +272,9 @@ describe("the practice deck", () => {
     vi.unstubAllGlobals();
   });
 
-  it("the practice deck steps only between the two voices being compared (faster, fastest), starting on the default", async () => {
+  it("the practice deck steps only between the two voices being compared (faster, fastest), starting on the default (fastest)", async () => {
     expect(DEMO_VOICES).toEqual([11, 13]);
-    expect(F.voice.style).toBe(11);
+    expect(F.voice.style).toBe(13);
     const f = fakeHost();
     const clipboard = { copy: async () => true, read: async () => null, onPaste: () => () => {} };
     const a = new FlashcardsActivity(f.host, demoBackendFor("sentences"), new StudyStore(new FakeStorage()), clipboard);
@@ -285,7 +285,7 @@ describe("the practice deck", () => {
       a.update(1 / 60, { ...NO_INPUT, keys: ["KeyV"], keysDown: ["KeyV"] });
       seen.push(a.voiceStyle);
     }
-    expect(seen).toEqual([11, 13, 11, 13, 11, 13]);
+    expect(seen).toEqual([13, 11, 13, 11, 13, 11]);
     // The tag shows the voice, so each press is heard on the same card: R repeats it.
     expect(VOICE_STYLES[11]).toBe("faster");
     expect(VOICE_STYLES[13]).toBe("fastest");

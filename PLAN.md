@@ -112,6 +112,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 074 | [Art for the first gifts (paintings, lamps, plant, poster)](issues/074-art-first-gifts.md) | agent | done | |
 | 075 | [Experiment: a per-letter voice for dialog text, behind a toggle](issues/075-dialog-voice-experiment.md) | claude | done | |
 | 076 | [More paintings from Marc's unhung pieces; a different concert poster](issues/076-more-paintings-and-poster.md) | agent | blocked | waiting on Marc's photos |
+| 077 | [Make the per-letter voice the default for dialog text](issues/077-letters-voice-default.md) | claude | todo | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

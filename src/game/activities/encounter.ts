@@ -30,6 +30,8 @@ export interface EncounterDeps {
   random(): number;
   // The browser asked for less motion: the entrance and exit are a plain fade. Missing: not asked.
   reducedMotion?(): boolean;
+  // It starts right after a typing or notes game, so its first dialog ignores keys for a moment (issue 081).
+  afterKeyGame?: boolean;
   // The item's own picture for the card.
   product: { sprite: string; w: number; h: number };
 }
@@ -47,6 +49,7 @@ export class EncounterActivity extends BaseActivity {
   private phase: "entering" | "open" | "leaving" = "entering";
   private frame = 0;
   private reduced = false;
+  private firstDialogOpened = false;
 
   constructor(
     readonly ad: Ad,
@@ -81,9 +84,19 @@ export class EncounterActivity extends BaseActivity {
     } else if (this.phase === "leaving" && this.frame >= exitFrames(this.reduced)) this.quit();
   }
 
-  // The entrance is over: the first line or the menu.
+  // True until the first dialog has opened, when the encounter followed a key game.
+  get staleKeys(): boolean {
+    return this.deps.afterKeyGame === true && !this.firstDialogOpened;
+  }
+
+  // The entrance is over (or skipped): the first line or the menu.
   private open(): void {
     this.phase = "open";
+    this.openFirst();
+    this.firstDialogOpened = true;
+  }
+
+  private openFirst(): void {
     const refusal = this.refusal();
     if (refusal !== null) return this.speak(refusal);
     const mood = this.deps.mood();

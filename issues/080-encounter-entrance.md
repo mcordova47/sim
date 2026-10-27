@@ -1,7 +1,7 @@
 ---
 id: 080
 title: Ad encounter entrance: a battle-style flash and bar wipe
-status: done
+status: review
 owner: claude
 depends_on: [043]
 ---
@@ -84,3 +84,5 @@ Marc (2026-10-27): ad encounters should enter like a Pokemon or FFVII battle. Pl
 - 2026-10-27 (planner, Marc: "a little quieter but more buzzy, it sounds like two hits"): the two separate buzz hits (frames 0 and 8) became one rattling buzz at frame 0: six quick rough squares 35 ms apart (104/121 Hz, alternating 0.14/0.08) plus four short noise rumbles, about 0.2 s, so it flutters like a motor instead of thumping. The earlier louder layers were dropped. The structure test now expects one buzz first. `npm test` (2462) and `tsc` pass. Not independently reviewed (one effect and its schedule line); how it sounds is Marc's ear.
 - 2026-10-27 (planner, Marc: "a tad quieter" once it sounded buzzy): buzz gains 0.14/0.08 to 0.10/0.06 and the noise rumble 0.05 to 0.035 (about 30 percent down). Config only; tests pass.
 - 2026-10-27 (planner, Marc: the buzz's frequency a bit higher): the buzz's two square pitches 104/121 Hz to 140/164 Hz (about a third up, same ratio); the flutter rate (35 ms apart) is unchanged. Config and doc only; tests pass.
+
+- 2026-10-27 (round 5, after merging main with 081): the encounter menu opens 0.8 s after the typing game ends, outside 081's stray window, so it took stray keys. Fix: an encounter that starts right after a key game (`Game.startEncounter` asks `strayKeysPossible()`) reports `staleKeys` (new optional `Activity.staleKeys`) until its first dialog has opened, so that dialog gets 081's input delay whether the entrance ran out or E skipped it. It does not gate hotkeys or movement, and an encounter after doomscroll has no delay. Updated the 081 encounter test and added two that fail without the fix. Dialog runner untouched. Back in review.

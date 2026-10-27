@@ -255,6 +255,9 @@ export class Game {
   startEncounter(ad: Ad): boolean {
     const product = this.decor.item(ad.item);
     if (!product || this.interaction.busy || this.dialog.open) return false;
+    // Keys from a typing or notes game that just ended may still be coming: the encounter's first dialog,
+    // 0.8 s later, must not hear them either (issue 081).
+    const afterKeyGame = this.strayKeysPossible();
     const activity = new EncounterActivity(ad, this.activityHost(), {
       owns: (id) => this.decor.owns(id),
       queued: (id) => this.deliveries.pendingItems.some((p) => p.id === id) || this.deliveries.waitingItems.includes(id),
@@ -266,6 +269,7 @@ export class Game {
       failedUnsubscribe: () => this.encounters.failedUnsubscribe(),
       random: () => this.random(),
       reducedMotion: () => this.reducedMotion(),
+      afterKeyGame,
       product: { sprite: product.sprite, w: product.w, h: product.h },
     });
     return this.interaction.begin(ENCOUNTER_TASK, activity);
@@ -486,7 +490,7 @@ export class Game {
   // still be pressing keys, so a dialog opening now must not hear them (issue 081).
   private strayKeysPossible(): boolean {
     const running = this.interaction.active?.activity;
-    return this.sinceKeyGame < DIALOG.strayWindow || !!(running && (running.readsKeys || running.strayKeys));
+    return this.sinceKeyGame < DIALOG.strayWindow || !!(running && (running.readsKeys || running.strayKeys || running.staleKeys));
   }
 
   // The one rule for global hotkeys (the achievements list, the sound mute, the time-of-day

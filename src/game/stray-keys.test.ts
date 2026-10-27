@@ -67,7 +67,8 @@ const room = (task: Omit<Interactable, "zones">): Level => ({
 const menuOpen = (g: Game) => g.dialogView?.kind === "menu";
 
 describe("the encounter menu after Answer emails", () => {
-  it("is not chosen by keys still being typed, and the first press after the delay does choose", () => {
+  // An encounter after the typing game plays its 0.8 s entrance before the menu (issue 080).
+  function endTyping() {
     const queue = [0.1, 0.01];
     const game = new Game(room(typeTask(["ab"])), { random: () => (queue.length ? queue.shift()! : 0.5) });
     game.deliveries.advance(60);
@@ -76,8 +77,16 @@ describe("the encounter menu after Answer emails", () => {
     // The last letters, one of them also E (an interact press), end the game.
     game.update(dt, { ...NO_INPUT, keys: ["KeyA"] });
     game.update(dt, { ...NO_INPUT, keys: ["KeyE"], interactPressed: true });
+    expect(game.interaction.active?.item.encounter).toBe(true);
+    return game;
+  }
+
+  it("is not chosen by keys still being typed through the entrance and the menu's first frames, and the first press after the delay does choose", () => {
+    const game = endTyping();
+    // The player keeps mashing: through the entrance (E would skip it) until the menu is up, and past it for just under the delay.
+    let frames = 0;
+    for (; !menuOpen(game) && frames < 200; frames++) game.update(dt, { ...press, keys: ["KeyE"], dirPressed: frames % 2 ? "down" : "up" });
     expect(menuOpen(game)).toBe(true);
-    // The player keeps mashing for just under the delay.
     for (let i = 0; i < delayFrames - 3; i++) game.update(dt, { ...press, keys: ["KeyE"], dirPressed: i % 2 ? "down" : "up" });
     expect(menuOpen(game)).toBe(true);
     const v = game.dialogView!;
@@ -85,8 +94,30 @@ describe("the encounter menu after Answer emails", () => {
     expect(game.interaction.active?.item.encounter).toBe(true);
     for (let i = 0; i < 8; i++) game.update(dt, NO_INPUT);
     game.update(dt, press);
-    expect(game.dialogView === null || game.dialogView.kind === "say" || game.interaction.active !== null).toBe(true);
     expect(game.dialogView?.kind === "menu").toBe(false); // Ignore was picked
+  });
+
+  it("also when the entrance plays out in full and the mashing starts as the menu opens", () => {
+    const game = endTyping();
+    for (let i = 0; i < 200 && !menuOpen(game); i++) game.update(dt, NO_INPUT);
+    expect(menuOpen(game)).toBe(true);
+    for (let i = 0; i < delayFrames - 3; i++) game.update(dt, { ...press, dirPressed: i % 2 ? "down" : "up" });
+    const v = game.dialogView!;
+    expect(menuOpen(game) && v.kind === "menu" && v.cursor).toBe(0);
+  });
+
+  it("an encounter that did not follow a key game has no delay on its menu", () => {
+    const rnd = [0.1, 0.01];
+    const doom: Omit<Interactable, "zones"> = { id: "doomscroll", name: "Doomscroll", prompt: "Scroll", duration: 0.1, points: 1 };
+    const game = new Game(room(doom), { random: () => (rnd.length ? rnd.shift()! : 0.5) });
+    game.deliveries.advance(60);
+    game.update(dt, NO_INPUT);
+    game.update(dt, press);
+    for (let i = 0; i < 400 && !menuOpen(game); i++) game.update(dt, NO_INPUT);
+    expect(menuOpen(game)).toBe(true);
+    game.update(dt, { ...NO_INPUT, dirPressed: "down" });
+    const v = game.dialogView!;
+    expect(v.kind === "menu" && v.cursor).toBe(1);
   });
 });
 

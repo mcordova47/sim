@@ -1,7 +1,7 @@
 ---
 id: 090
 title: Mobile: a taller, squarer picture that scrolls (assess, then prototype)
-status: review
+status: done
 owner: claude
 depends_on: [087]
 ---
@@ -31,3 +31,14 @@ Marc (2026-10-27), after trying the flat portrait shell from issue 087 in a desk
 - Step 2, the prototype: `?view=narrow` (with `?touch=1` or a touch screen). Files: config.ts (DESKTOP_VIEW, NARROW_VIEW, setView, narrowViewWanted, NARROW), main.ts, render/canvas.ts (live view, `Screen.sync`, reserved height so the controls do not jump), render/layout.ts (STATUS_BOX hugs the right edge), game.ts (`showsFullPicture`, `fullPictureWhen`, camera gets a copy of the size), activities/cutscene.ts (`showsPicture`), achievements/feature.ts and draw.ts, view-zoom.ts and art-pieces.ts (zoom windows in picture pixels). Tests: src/render/narrow-view.test.ts (switch rule, scale on the note's phones, camera on the real rooms, status box, zoom windows, Screen.sync, showsFullPicture).
 - Checked: `npx tsc --noEmit`, `npm test` (2548 pass, goldens unchanged, no re-record), `npm run build`. Looked at Chrome screenshots (390 x 844, DPR 3, `?touch=1&view=narrow`): the main room (HUD fits, 1.67x), the camera scrolling to the east side, an ad encounter card (switches to 1.0x, controls stay put) and the L list (was broken at 224, fixed by the full-picture switch).
 - Not checked: kitchen and bathroom in the browser (covered by the camera test only), a cutscene `view` (gallery wall, side project) in the browser, a sleep view in the browser, dialogs and popups at the room edges, anything on a real phone (feel, Safari bars, safe areas, audio). Known cosmetic: "ESC TO STOP" overlaps the HUD panels at 224 px; landscape keeps the narrow view in this prototype.
+
+### 2026-10-27 (independent review)
+Verdict: **approve** (with notes). Checked in the worktree at 1bad9d3.
+- `npm test` 108 files / 2548 pass, `npx tsc --noEmit` clean, `npm run build` ok. No golden file touched in the diff; the default `VIEW` is the same 320 x 192 object, `NARROW` is false in tests and without `?view=narrow`.
+- Assessment (section 13): exists, recommends 224 x 208 with cost (10 files, one test file). I re-derived the scale table by hand (floor(width x dpr / view width)): every cell is right (390: 5 = 1.67x, 373 css; 360: 4 = 1.33x, 299; 430: 5 at 224, 6 at 208; SE at 256 falls to 1.0x). **Pass.**
+- Users of VIEW / 320 / 192: grepped all of src. Every one is either live (render, dialogs, toasts, sound tags, time-of-day wash, achievements), a parameter, the picture constants (`DESKTOP_VIEW`) or dev/skip-on-mobile (track editor, decor-dev "PRESS ANY KEY"). None missed. `DIALOG.textWidth` is fixed at 204 at load, fine at 224 (a dialog over a full-size picture is narrower than it could be, as the assessment says). `STATUS_BOX` getter: only used by reference (hud, toasts, popup boxes), never spread, so it stays live. **Pass.**
+- Prototype in Chrome (390 x 844, DPR 3, `?touch=1&view=narrow`): main room start and east edge, kitchen (centred, HUD fits, prompt readable, stove prompt over the HUD gap fine), ad encounter (`?encounter=ad-candle`: canvas goes 224x208 -> 320x192 at 1.0x, margin-bottom 154.7 px keeps the controls where they were, returns to 1.67x after), L list (320x192, readable, back to narrow on close). **Pass.**
+- Desktop and goldens unchanged: **pass** (tests, diff).
+- Tests cover view arithmetic and camera on real rooms: **pass**, with gaps (not blocking): `showsFullPicture` is tested only for a registered screen, not the encounter or cutscene `showsPicture` branches; the `main.ts` per-frame switch is untested; the kitchen/bath camera assertion is conditional on `spare <= 0` (always true today, fine).
+- Not verified by me: bathroom in a browser (my walk did not get through the door; camera test only), a cutscene `view` (gallery wall, side project), the sleep view, dialogs and popups at the room edges, the ad wipe frame over a scrolled main room (the camera keeps 224 x 208 while the canvas is 320 x 192 for a moment; only a bar-wipe frame was seen, dark), landscape, anything on a real phone (touch feel, Safari bars, safe areas, notch, audio, DPR 2.625).
+- Notes for later (no change needed): opening L or an ad drops the picture from 1.67x to 1.0x (a visible size jump, by design); "ESC TO STOP" overlaps the HUD at 224 (known, issue 086); landscape keeps the narrow view; the PLAN.md table needs updating by the planner.

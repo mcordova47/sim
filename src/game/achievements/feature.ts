@@ -59,6 +59,9 @@ export class AchievementsFeature implements Layer {
   private confirmReset = false;
   private resetting = false;
   private releaseLock: (() => void) | null = null;
+  // "AD BLOCKER: ON", shown in the hint's place for a moment after B is pressed.
+  private flash: string | null = null;
+  private flashFor = 0;
   private sinceSave = 0;
   private sinceCheck = 0;
 
@@ -87,6 +90,12 @@ export class AchievementsFeature implements Layer {
     // A missing deliveries field (an old save) means nothing is queued.
     if (saved.deliveries !== undefined) this.game.deliveries.load(saved.deliveries);
     this.game.deliveries.onChange = () => {
+      if (!this.resetting) this.save();
+    };
+    // A missing encounters field (an old save) means a fresh start: no cooldown, nothing seen.
+    // After the deliveries, so a `last` from the future is pulled back to the delivery clock.
+    this.game.encounters.load(saved.encounters, this.game.deliveries.hours);
+    this.game.encounters.onChange = () => {
       if (!this.resetting) this.save();
     };
     this.stats.visited(this.room);
@@ -149,7 +158,7 @@ export class AchievementsFeature implements Layer {
   save(): boolean {
     this.sinceSave = 0;
     // Round trip the snapshot through the parser so anything we write can be read back.
-    return this.store.save(this.unlocks.ids(), this.stats.toJSON(), parseWorld(this.snapshot()), this.game.decor.toJSON(), this.game.deliveries.toJSON());
+    return this.store.save(this.unlocks.ids(), this.stats.toJSON(), parseWorld(this.snapshot()), this.game.decor.toJSON(), this.game.deliveries.toJSON(), this.game.encounters.toJSON());
   }
 
   // Runs a stats change, then unlocks whatever it earned.
@@ -180,6 +189,8 @@ export class AchievementsFeature implements Layer {
     try {
       this.game.decor.reset();
       this.game.deliveries.reset();
+      // The cooldown and the ads seen start over; the ad blocker is a preference and stays.
+      this.game.encounters.reset();
     } finally {
       this.resetting = false;
     }
@@ -202,6 +213,8 @@ export class AchievementsFeature implements Layer {
     this.listOpen = true;
     this.cursor = 0;
     this.confirmReset = false;
+    this.flash = null;
+    this.flashFor = 0;
     this.releaseLock = this.game.lockInput();
     return true;
   }
@@ -227,6 +240,14 @@ export class AchievementsFeature implements Layer {
       this.game.dialogVoice?.toggle();
       return;
     }
+    // The ad blocker (issue 043 stage B): kept with the settings, so a progress reset leaves it alone.
+    if (e.code === UI.adBlockerKey && !e.shiftKey) {
+      this.confirmReset = false;
+      this.game.setAdBlocker(!this.game.adBlockerOn);
+      this.flash = `AD BLOCKER: ${this.game.adBlockerOn ? "ON" : "OFF"}`;
+      this.flashFor = UI.flashSeconds;
+      return;
+    }
     if (e.code === "ArrowUp" || e.code === "ArrowDown") {
       e.preventDefault?.();
       const n = this.list.length;
@@ -241,6 +262,10 @@ export class AchievementsFeature implements Layer {
   update(dt: number): void {
     this.stats.played(dt);
     this.toasts.update(dt);
+    if (this.flashFor > 0) {
+      this.flashFor -= dt;
+      if (this.flashFor <= 0) this.flash = null;
+    }
     this.sinceSave += dt;
     this.sinceCheck += dt;
     if (this.sinceCheck >= UI.checkEvery) {
@@ -258,7 +283,8 @@ export class AchievementsFeature implements Layer {
         unlocked: (id) => this.unlocks.has(id),
         cursor: this.cursor,
         voice: this.game.dialogVoice?.label() ?? null,
-        message: this.confirmReset ? "RESET ALL PROGRESS? Y: YES" : null,
+        message: this.confirmReset ? "RESET ALL PROGRESS? Y: YES" : this.flashFor > 0 ? this.flash : null,
+        adBlocker: this.game.adBlockerOn,
         sprites: this.game.sprites,
       });
     }

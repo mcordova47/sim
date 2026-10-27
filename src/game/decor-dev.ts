@@ -1,6 +1,8 @@
 import { DEV_CHECKPOINTS } from "./delivery-checkpoints";
 import type { Decor } from "./decor";
 import type { Deliveries } from "./deliveries";
+import { ADS, adById, type Ad } from "./encounter-ads";
+import type { Game } from "./game";
 
 // Dev shortcut (issue 062 stage 2): `?own=test` owns every TEST item and
 // `?own=id,id` owns those items, so the swap can be tried before gifts and finds
@@ -38,4 +40,15 @@ export function skipDaysFromSearch(deliveries: Deliveries, search: string): numb
   const hours = Math.min(n, 400) * 24;
   deliveries.advance(hours);
   return hours;
+}
+
+// Dev shortcut (issue 043 stage B): `?encounter=ad-candle` shows that ad's encounter at once
+// (`?encounter=random`, or any other word, picks one), so the three cards and the menu can be looked
+// at without playing to one. It ignores the gates (the day, the cooldown, the ad blocker) and does
+// not count for them. Dev server only (main.ts). Returns the ad shown, or null.
+export function encounterFromSearch(game: Game, search: string): Ad | null {
+  const asked = new URLSearchParams(search).get("encounter");
+  if (asked === null) return null;
+  const ad = adById(asked.trim()) ?? ADS[Math.floor(Math.random() * ADS.length)];
+  return game.startEncounter(ad) ? ad : null;
 }

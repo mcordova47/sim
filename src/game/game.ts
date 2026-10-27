@@ -13,6 +13,9 @@ import { GOOD_HOUR_ICON, GOOD_HOUR_ICON_SIZE, drawProgress, drawPrompt } from ".
 import { pickVariant, type Appearance, type Variant } from "./appearance";
 import { Decor } from "./decor";
 import { Deliveries } from "./deliveries";
+import { EncounterActivity } from "./activities/encounter";
+import type { Ad } from "./encounter-ads";
+import { Encounters } from "./encounters";
 import { CLOCK, DEBUG, DIALOG, ENERGY, MOOD, TILE, VIEW } from "./config";
 import type { ActivityHost, RecordState } from "./activity";
 import type { Interactable } from "./interactable";
@@ -104,6 +107,12 @@ export class Game {
   readonly decor: Decor;
   // Items on their way to the door, and the package waiting there (issue 062 stage 3a).
   readonly deliveries: Deliveries;
+  // When an ad may appear after a task, and what is remembered about the last ones (issue 043 stage B).
+  readonly encounters = new Encounters();
+  // The ad blocker switch (issue 043 stage B). The sound feature loads it from and saves it to the
+  // settings; `setAdBlocker` is what the list screen's key calls.
+  adBlockerOn = false;
+  onAdBlockerChange?: (on: boolean) => void;
   // Announces steps, bumps into things, and task starts, completions and refusals.
   readonly events = new Emitter<GameEvents>();
   private readonly hud = new Hud();
@@ -189,6 +198,7 @@ export class Game {
       const zone = boundsOf(item.zones);
       this.popups.add(zone.x + zone.w / 2, zone.y, lines);
       this.events.emit("taskComplete", { item, award });
+      this.maybeEncounter(item);
     }, this.state);
     this.interaction.onStart = (item) => {
       const def = item.pose ? POSES[item.pose] : undefined;
@@ -219,6 +229,45 @@ export class Game {
     });
     this.interaction.onBlocked = (item, reason, message) =>
       this.events.emit("taskBlocked", { item, reason, ...(message && { message }) });
+  }
+
+  // After a completed task: may an ad appear (issue 043 stage B)? Only when nothing else is open.
+  private maybeEncounter(item: Interactable): void {
+    const ad = this.encounters.roll({
+      taskId: item.id,
+      hours: this.deliveries.hours,
+      random: () => this.random(),
+      blocked: this.adBlockerOn,
+      busy: this.dialog.open || this.inputLocked || this.interaction.busy,
+      usable: (a) => this.decor.item(a.item) !== undefined,
+    });
+    if (ad) this.startEncounter(ad);
+  }
+
+  // Shows `ad` as an encounter now (the roll does, and so does the dev shortcut). False if something
+  // else is running or open, or its item does not exist.
+  startEncounter(ad: Ad): boolean {
+    const product = this.decor.item(ad.item);
+    if (!product || this.interaction.busy || this.dialog.open) return false;
+    const activity = new EncounterActivity(ad, this.activityHost(), {
+      owns: (id) => this.decor.owns(id),
+      queued: (id) => this.deliveries.pendingItems.some((p) => p.id === id) || this.deliveries.waitingItems.includes(id),
+      deliver: (id, hours) => this.deliveries.deliver(id, hours),
+      mood: () => (this.state.has("mood") ? this.state.get("mood") : MOOD.rest),
+      addMood: (n) => {
+        if (this.state.has("mood")) this.state.applyEffects([{ var: "mood", add: n }]);
+      },
+      failedUnsubscribe: () => this.encounters.failedUnsubscribe(),
+      random: () => this.random(),
+      product: { sprite: product.sprite, w: product.w, h: product.h },
+    });
+    return this.interaction.begin(ENCOUNTER_TASK, activity);
+  }
+
+  // Switches the ad blocker on or off (saved by the sound feature, which keeps the settings).
+  setAdBlocker(on: boolean): void {
+    this.adBlockerOn = on;
+    this.onAdBlockerChange?.(on);
   }
 
   // What level checks may ask of this game.
@@ -529,7 +578,7 @@ export class Game {
     this.drawActivity(ctx);
     const dialogView = this.dialog.view;
     if (dialogView) drawDialog(ctx, dialogView);
-    if (this.interaction.active?.activity.cancellable && this.interaction.active.item.decorSlot === undefined) this.hud.drawStopHint(ctx);
+    if (this.interaction.active?.activity.cancellable && this.interaction.active.item.decorSlot === undefined && !this.interaction.active.item.encounter) this.hud.drawStopHint(ctx);
     this.eachLayer((layer) => this.drawLayer(ctx, () => layer.drawHud?.(ctx), layer.drawHud));
   }
 
@@ -788,7 +837,7 @@ export class Game {
     if (!this.dialog.open) {
       // (A decor swap draws its own list, which hides what it is changing otherwise.)
       if (interaction.active) {
-        if (interaction.active.item.decorSlot === undefined) {
+        if (interaction.active.item.decorSlot === undefined && !interaction.active.item.encounter) {
           // The banner fades while asleep, so it is not over the sleeper's head (issue 078).
           const alpha = this.sleepScene?.bannerAlpha ?? 1;
           if (alpha >= 1) drawProgress(ctx, actor, interaction.active.item, interaction.progress, VIEW, popupBoxes);
@@ -812,6 +861,9 @@ export class Game {
     this.hud.draw(ctx, this.interaction.scoreboard, this.interaction.time, this.state);
   }
 }
+
+// The stand-in task an ad encounter runs as (it is in no room, pays nothing and always ends quietly).
+const ENCOUNTER_TASK: Interactable = { id: "encounter", name: "Ad", prompt: "", duration: 0, points: 0, encounter: true, zones: [] };
 
 // The state every frame starts from: no transform (or just a translation),
 // fully opaque, normal compositing.

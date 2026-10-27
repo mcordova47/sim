@@ -3,7 +3,7 @@ import { MUSIC, SOUND } from "../config";
 
 export type DialogVoice = (typeof SOUND.dialogVoices)[number];
 
-// What is remembered between visits: whether sound is muted and which record
+// What is remembered between visits: whether sound is muted, the ad blocker and which record
 // is on the player (null for none). Every read and write is guarded, so
 // blocked or missing storage, or a damaged or old save, just gives the defaults.
 export interface SoundSettings {
@@ -20,9 +20,12 @@ export interface SoundSettings {
   // True once the player pressed D (issue 077). Since 075 the game wrote a plain
   // "beep" into every save, so a saved "beep" only counts as a choice with this.
   dialogVoiceChosen: boolean;
+  // The ad blocker switch (issue 043 stage B): on means no ad encounters. A preference, so
+  // resetting progress leaves it alone. Off unless the save says exactly `true`.
+  adBlocker: boolean;
 }
 
-export const DEFAULT_SETTINGS: SoundSettings = { muted: false, track: null, payoutLeft: 0, dialogVoice: "letters", dialogVoiceChosen: false };
+export const DEFAULT_SETTINGS: SoundSettings = { muted: false, track: null, payoutLeft: 0, dialogVoice: "letters", dialogVoiceChosen: false, adBlocker: false };
 
 export class SettingsStore {
   constructor(
@@ -44,6 +47,7 @@ export class SettingsStore {
         payoutLeft: typeof r.payoutLeft === "number" && Number.isFinite(r.payoutLeft) ? Math.min(MUSIC.payoutEveryMinutes, Math.max(0, r.payoutLeft)) : 0,
         dialogVoice: r.dialogVoice === "beep" && chosen ? "beep" : "letters",
         dialogVoiceChosen: chosen,
+        adBlocker: r.adBlocker === true,
       };
     } catch {
       return { ...DEFAULT_SETTINGS };

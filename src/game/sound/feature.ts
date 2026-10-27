@@ -81,6 +81,8 @@ export class SoundFeature implements Layer {
   private voiceMode: DialogVoice = DEFAULT_SETTINGS.dialogVoice;
   private voiceSaved: DialogVoice = DEFAULT_SETTINGS.dialogVoice;
   private voiceChosen = false;
+  // The ad blocker switch, kept with the settings (issue 043 stage B).
+  private adBlocker = false;
 
   constructor(private readonly game: Game, options: SoundOptions = {}) {
     this.random = options.random ?? Math.random;
@@ -98,6 +100,12 @@ export class SoundFeature implements Layer {
     this.voiceSaved = saved.dialogVoice;
     this.voiceChosen = saved.dialogVoiceChosen;
     this.voiceMode = options.dialogVoice ?? saved.dialogVoice;
+    this.adBlocker = saved.adBlocker;
+    game.adBlockerOn = saved.adBlocker;
+    game.onAdBlockerChange = (on) => {
+      this.adBlocker = on;
+      this.save();
+    };
     game.dialogVoice = {
       label: () => `DIALOG VOICE: ${this.voiceMode.toUpperCase()}`,
       toggle: () => this.setDialogVoice(this.voiceMode === "beep" ? "letters" : "beep"),
@@ -221,7 +229,7 @@ export class SoundFeature implements Layer {
   }
 
   private save(): void {
-    this.store.save({ muted: this.engine.muted, track: this.selected?.id ?? null, payoutLeft: this.payoutLeft, dialogVoice: this.voiceSaved, dialogVoiceChosen: this.voiceChosen });
+    this.store.save({ muted: this.engine.muted, track: this.selected?.id ?? null, payoutLeft: this.payoutLeft, dialogVoice: this.voiceSaved, dialogVoiceChosen: this.voiceChosen, adBlocker: this.adBlocker });
   }
 
   private step(): void {

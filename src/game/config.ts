@@ -111,6 +111,47 @@ export const DELIVERIES = {
   maxHours: 1e7,
 };
 
+// Ad encounters (issue 043 stage B, docs/random-encounters.md section 4): after a
+// completed doomscroll or Answer emails, an ad may appear as a standoff. Nothing is
+// ever lost: mood only sets how strong the ad is. All the numbers live here.
+export const ENCOUNTERS = {
+  // The tasks (ids) whose completion rolls. `work-sofa` and `work-bed` do not.
+  tasks: ["doomscroll", "work"] as readonly string[],
+  // The roll per eligible completion, and the roll right after a failed unsubscribe.
+  chance: 0.22,
+  afterFailChance: 0.5,
+  // Game hours between encounters, and after a failed unsubscribe.
+  cooldownHours: 3,
+  afterFailCooldownHours: 1.5,
+  // Encounters per game day (a day is 24 game hours of the delivery clock).
+  maxPerDay: 2,
+  // No encounters before this many game days have been played (hours / 24 of the delivery clock,
+  // counted like the checkpoint days).
+  firstDay: 2,
+  // Mood at and above which an Ignore never turns into a purchase.
+  moodRef: 60,
+  // Mood edges for the extra narrator line (tone only, no change to the odds).
+  toneLow: 30,
+  toneHigh: 80,
+  // The impulse buy on Ignore: `impulseMax` at mood 0, falling in a straight line to 0 at
+  // `moodRef`; Look closer adds `lookCloserImpulse` (only while mood is under `moodRef`).
+  impulseMax: 0.4,
+  lookCloserImpulse: 0.15,
+  // Unsubscribe success: `at0` at mood 0 and `at100` at mood 100 (a straight line), minus
+  // `persistencePenalty` per persistence level, kept between `min` and `max`.
+  unsubscribe: { at0: 0.5, at100: 0.9, min: 0.05, max: 0.95 },
+  persistencePenalty: 0.1,
+  // Mood changes: Ignore, a successful unsubscribe, Add to cart (a real or an impulse one).
+  mood: { ignore: 3, unsubscribe: 3, cart: 2, dismissal: 0 },
+  // How long the card of an ad for something you already have shows, in seconds.
+  dismissSeconds: 2,
+  // A delivery for an ad purchase arrives "later today" up to this many hours, else "tomorrow".
+  laterTodayHours: 6,
+  // The last ads shown that are not shown again if another is possible, and the most kept in the save.
+  recent: 3,
+  maxSeen: 20,
+};
+
 // Energy runs from 0 to 100 (see state-vars.ts).
 export const ENERGY = {
   // Points lost per game hour just from being awake.
@@ -309,6 +350,10 @@ export const ACHIEVEMENTS_UI = {
   // Keys used inside the list screen (issue 075): D switches the dialog voice,
   // Shift+R then Y resets. Issue 043's ad blocker will want one more; keep it clear of these.
   dialogVoiceKey: "KeyD",
+  // The ad blocker switch (issue 043 stage B), also in the list screen.
+  adBlockerKey: "KeyB",
+  // How long "AD BLOCKER: ON" shows after the key is pressed, in seconds.
+  flashSeconds: 1.5,
   // Progress is saved this often as well as when a task finishes, an achievement
   // unlocks and the page is hidden.
   saveEvery: 10,

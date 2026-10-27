@@ -167,6 +167,9 @@ export class InteractionSystem {
       }
       if (!activity.done) return;
       this.finish(item, activity, activity.result);
+      // Something started another activity as this one ended (an ad encounter after a completed
+      // task): it has the controls now, and a remembered press must not replace it.
+      if (this.active) return;
     }
 
     // The tasks being faced that can be started: one is picked (the first,
@@ -227,6 +230,24 @@ export class InteractionSystem {
       if (message !== null) this.onBlocked?.(this.nearby, "requirement", message);
       else if (this.cooldownRemaining(this.nearby) > 0) this.onBlocked?.(this.nearby, "cooldown");
     }
+  }
+
+  // Starts `activity` as the running one for a task that no object in the room offers (the stand-in
+  // task of an ad encounter, issue 043 stage B), announced like any other start. False, and nothing
+  // happens, if something is already running. Safe to call from the completion hook.
+  begin(item: Interactable, activity: Activity): boolean {
+    if (this.active) return false;
+    this.active = { item, activity };
+    this.interactBuffer = 0;
+    try {
+      this.onStart?.(item);
+      activity.start?.();
+    } catch (error) {
+      this.abandon(item, activity, error);
+      return true;
+    }
+    if (activity.done) this.finish(item, activity, activity.result);
+    return true;
   }
 
   // Pays points for the running task and applies `effects` now, announced like

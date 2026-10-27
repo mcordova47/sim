@@ -1,7 +1,7 @@
 ---
 id: 090
 title: Mobile: a taller, squarer picture that scrolls (assess, then prototype)
-status: review
+status: done
 owner: claude
 depends_on: [087]
 ---
@@ -45,3 +45,16 @@ Verdict: **approve** (with notes). Checked in the worktree at 1bad9d3.
 
 ### 2026-10-27 (claude), Marc's feedback: full-screen pieces look small at 1.0x
 - Added `fitFill` in render/canvas.ts: while a full-screen piece is up on the narrow view, the canvas scales to the width in quarter device pixel steps (390 phone: 3.5, 373 css; 360: 3.25; 430: 4.0; never below the whole-number fit), nearest neighbour. The narrow view's own scale, the reserved height (controls stay put), desktop and the goldens are unchanged; drawing coordinates are still 320 x 192, so the camera and dialog box line up as before. Tests in src/render/narrow-view.test.ts (fitFill table, whole-pixel backing, width limit, bad inputs). docs/mobile.md section 13.3 and 13.4 updated. Screenshots at 390 x 844, 360 x 800, 430 x 932 (ad card and L list) look clean. tsc and `npm test` (2551) pass. Not checked: a real phone, cutscene `view` pictures in a browser, whether the 3/4 unevenness bothers Marc.
+
+### 2026-10-27 (independent review), fill-width change at 1ce71a1
+Verdict: **approve** (with notes). Checked in the worktree at 1ce71a1.
+- `npm test` 108 files / 2551 pass, `npx tsc --noEmit` clean, `npm run build` ok. No golden touched; `fitFill` is only used when `NARROW && VIEW.width === DESKTOP_VIEW.width` in the touch branch, so desktop (non-touch `fit`) and non-narrow touch (`fitScale`) are unchanged. **Pass.**
+- fitFill arithmetic (my own sweep, 77,000 cases: widths 1 to 1100, heights 20 to 900, DPR 1, 1.5, 2, 2.25, 2.5, 2.625, 2.75, 3, 3.5, 4): backing width and height always whole device pixels and equal to 320/192 x scale; backing is exactly view x scale so `drawImage(off, 0, 0, canvas.width, canvas.height)` fills the canvas with no stretch; never below `fitScale`; whenever it beats the whole fit it fits width less 12 css px and the height; tiny, zero and NaN areas fall back to 1. **Pass.** Doc numbers re-derived: 390 at DPR 3 gives 3.5 (373.3 css), 360 gives 3.25 (346.7), 430 gives 4.0 (426.7), 375 at DPR 2 gives 2.25 (360). **Pass.** DPR 2.625 (412) gives 3.25 (396.2 css); DPR 2.75 (412) gives 3.25 (378.2 css, 3.5 would be 407 > 400).
+- Chrome headless, `?touch=1&view=narrow&encounter=ad-candle`, mobile emulation, ad card then rotate to landscape and back then L list: 390 x 844 DPR 3: world 1120x1040 backing, ad 1120x672 at 373.3 x 224 css, margin-bottom 122.7 px, canvas top stays 12 px, document height unchanged (844, no page scroll); 360 x 800: ad 346.7 x 208, margin 69.3; 430 x 932: 426.7 x 256, margin 90.7; 412 x 915 at 2.625 and 2.75 as above. Rotation while the ad is up refits (landscape 640 x 384 at 390, no margin) and returns to the same portrait fit; the L list at 390 is 373 x 224 and returns to the 346.7 narrow view on close. Screenshots (390 DPR 3, 412 DPR 2.625): text readable, the 3/4 unevenness visible only as slightly uneven one-pixel frame and divider lines, looks clean. Controls stay where they were (reserve still from the narrow view's `fitScale`). **Pass.**
+- Camera and dialog box lined up: drawing coordinates unchanged (320 x 192 offscreen), only the copy scale changed. **Pass by construction; dialog over a picture not seen in a browser.**
+- Notes (none blocking):
+  1. When the area is short (portrait viewport about 630 css px or less, e.g. a small phone with browser bars), the fill is taller than the narrow view's whole-number height (area h 300 at width 372 to 383, DPR 2: fill 216 vs narrow 208), so `marginBottom` clamps to 0 and the controls move up to about 8 css px when a piece appears. Seen only in the sweep, not a browser. Reserve could take `max(narrow height, fill height)`.
+  2. At DPR 2.75 (412 wide) the full-screen piece (378 css) is narrower than the narrow world view (407); fine, just not "fills the width" in every case.
+  3. The new `createScreen` fill branch is not tested (NARROW is false in tests; only `fitFill` is). The header comment of `createScreen` still says "whole device pixels per game pixel".
+- Unverified: a real phone (feel, Safari bars, safe areas, whether Marc minds the 3/4 pattern), a cutscene `view` picture and a dialog over one in a browser (not reached), the sleep view, kitchen and bathroom in a browser, DPR 2.625 and 2.75 only checked by emulation.
+- PLAN.md table needs updating by the planner.

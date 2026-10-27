@@ -1,7 +1,7 @@
 ---
 id: 026
 title: Spanish flashcards on the in-game computer (stretch)
-status: done
+status: in-progress
 owner: marc + claude
 depends_on: [021, 022, 023]
 ---
@@ -265,3 +265,4 @@ The app is "Mil Palabras" (palabras.mcord.dev): PureScript, Netlify, spaced repe
   - **The new fixed-position test is meaningful: pass.** Run against the pre-fix `flashcards.ts` (2484a66) with HEAD's test file, "keeps the fixed layout in real play" fails (`expected [58, 75] to deeply equal [58, 82]`: the answer moved), and the prototype-name test fails against the old `in` lookup with the old `demo.ts` (`this.cards.map is not a function`); both pass at HEAD. The test uses a real backend with a stored key and checks absolute row positions (22, 46, 68) and that no transcription glyph is drawn.
   - **Round-1 items:** (a) back frame differing in all cards: fixed (0 of 2294); (b) big accented answer under big prompt had no gap: real play is back to the fixed layout, the practice deck leaves 24 rows under a big block and 6 under a wrapped one; (c) long hint touching buttons: real play unchanged (it is the old behavior), and the deck's cards clear it by 14 rows; (d) `in DEMO_SETS` picking prototype names: fixed with `Object.hasOwn`.
   - **Unverified:** how it looks in a real browser (this was all measured from the draw calls, not seen), and how the voice sounds.
+  - **Status:** left as `in-progress`, not `done`: main (0eacd05) deliberately keeps issue 026 in progress because stage 4 (offline) is optional, and setting `done` here would undo that on merge. The work in this branch is approved.

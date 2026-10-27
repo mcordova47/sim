@@ -50,7 +50,7 @@ The original IPA voice (style 1) tells vowels apart by pitch, and its pitches ar
 2. **Intonation (style 3).** Pitch drifts down across the phrase, the stressed vowel gets a small bump and the last vowel falls (`FLASHCARDS.voice.intonation`, fractions of the pitch; a few percent each, never more than a few semitones).
 3. **Jitter (style 4).** Every sound is a few percent off (`FLASHCARDS.voice.jitter`), in a fixed pattern seeded by its place in the word, so no two vowels are quite alike and a word still sounds the same every time.
 
-In the practice deck V steps between the two voices being compared, `faster` and `consfast` (the tag shows which); add `&voices=all` to the address to step through every voice (the default, the newest candidates, then each earlier one down to spelling) and R says the card again, so the parts can be heard against each other on the same card. `FLASHCARDS.voice.style` is the voice a card gets before V is pressed, for real cards too: 11 (faster) while it and 12 are being compared, and the voices V steps between are `DEMO_VOICES` in `flashcards/demo.ts`.
+In the practice deck V steps between the two voices being compared, `faster` and `consfast` (the tag shows which); add `&voices=all` to the address to step through every voice, in the order of `VOICE_CYCLE` (9 to 12, then 8 down to spelling), from wherever the current voice is in that list and R says the card again, so the parts can be heard against each other on the same card. `FLASHCARDS.voice.style` is the voice a card gets before V is pressed, for real cards too: 11 (faster) while it and 12 are being compared, and the voices V steps between are `DEMO_VOICES` in `flashcards/demo.ts`.
 
 ### The source-filter voice (styles 5 and 6)
 
@@ -85,7 +85,7 @@ Listening to the filtered voice showed three things still made the old way, as s
 
 ### Timing variants (styles 10 to 12)
 
-With the diphthongs fixed they sound longer and fuller than the single vowels around them. A diphthong is held at full level and is 0.16 to 0.28 s before the slowdown (0.18 to 0.32 s after it); a single vowel dies away at once, so it is audible for only about 50 to 100 ms whatever its length: stretching a vowel only lengthens the tail. Three variants to hear against style 9, each in `FLASHCARDS.voice.variants` and stepped to by V straight after the default (tags `longer`, `faster`, `consfast`):
+With the diphthongs fixed they sound longer and fuller than the single vowels around them. A diphthong is held at full level and is 0.16 to 0.28 s before the slowdown (0.18 to 0.32 s after it); a single vowel dies away at once, so it is audible for only about 50 to 100 ms whatever its length: stretching a vowel only lengthens the tail. Three variants to hear against style 9, each in `FLASHCARDS.voice.variants` and stepped to by V (tags `longer`, `faster`, `consfast`):
 
 - **Style 10, `longer`:** single vowels last `longerVowels` times as long (1.4), both the sound and the time it takes, and are held at full level at the diphthongs' level and hold (`voiceHeldA` and its `Stress` twin, with the plain vowel's resonances) so they sound as long as they are and sit with the diphthongs. Diphthongs and everything else keep their time. Words come out about 20 percent longer than style 9.
 - **Style 11, `faster`:** style 10 with every time (sounds, gaps, the pauses between words) scaled by `faster` (0.82), which brings the words back to about as long as style 9's.

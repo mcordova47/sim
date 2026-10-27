@@ -67,9 +67,10 @@ function wobble(index: number, symbol: string): number {
 // spelling voice, which has no transcription to read.)
 export const VOICE_STYLES = ["spelling", "ipa", "formants", "intonation", "jitter", "filtered", "filtered+", "glides", "murmurs", "diphthongs", "longer", "faster", "consfast"] as const;
 
-// The order V steps through the voices in: the default first, then the newest
-// candidates to hear against it (longer vowels, faster, quicker consonants), then
-// each earlier voice, down to spelling.
+// The order V steps through every voice in (`&voices=all` in the practice deck):
+// the diphthong voice and the three timing variants (longer vowels, faster,
+// quicker consonants), then each earlier voice, down to spelling. V goes on from
+// wherever the current voice is in this list.
 export const VOICE_CYCLE: readonly number[] = [9, 10, 11, 12, 8, 7, 6, 5, 4, 3, 2, 1, 0];
 
 // What each style does, on top of reading the transcription: how vowels are

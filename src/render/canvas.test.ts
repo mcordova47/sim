@@ -1,3 +1,4 @@
+import html from "../../index.html?raw";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createScreen, desktopScale, fitScale, landscapeLayout, LANDSCAPE, pictureArea, PORTRAIT_CONTROLS_HEIGHT, rectsOverlap } from "./canvas";
 import { NARROW_VIEW } from "../game/config";
@@ -149,5 +150,28 @@ describe("landscapeLayout", () => {
   it("the rectangles check can fail: a picture over a control is reported", () => {
     const l = landscapeLayout(844, 390, none, 3);
     expect(rectsOverlap(l.picture, { x: l.picture.x + 10, y: l.picture.y + 10, width: 20, height: 20 })).toBe(true);
+  });
+});
+
+// The CSS in index.html must draw the controls at the sizes the layout model assumes.
+const none = { top: 0, right: 0, bottom: 0, left: 0 };
+describe("index.html landscape CSS matches LANDSCAPE", () => {
+  const block = html.slice(html.indexOf("@media (orientation: landscape)"));
+  it("uses the model's sizes", () => {
+    expect(block).toContain(`width: ${LANDSCAPE.faceWidth}px; height: ${LANDSCAPE.faceHeight}px`);
+    expect(block).toContain(`.tp-pills {\n          width: ${LANDSCAPE.pillWidth}px`);
+    expect(block).toContain(`width: ${LANDSCAPE.pillWidth}px; height: ${LANDSCAPE.pillHeight}px`);
+    expect(block).toContain(`gap: ${LANDSCAPE.pillGap}px`);
+    expect(block).toContain(`scale(calc(${LANDSCAPE.dpad / 150} * var(--ls-k, 1)))`);
+    expect(block).toContain(`var(--ls-side, ${LANDSCAPE.side}px)`);
+  });
+  it("no catch-all rule sets a transform (it would beat the d-pad's own scale)", () => {
+    expect(block).not.toMatch(/#touch-ui > \*[^}]*transform/);
+  });
+  it("A/B box and the pills box do not intersect at real heights", () => {
+    for (const h of [320, 340, 380, 390, 430]) {
+      const l = landscapeLayout(844, h, none, 3);
+      expect(rectsOverlap(l.face, l.pills)).toBe(false);
+    }
   });
 });

@@ -108,7 +108,7 @@
           padding: env(safe-area-inset-top) calc(env(safe-area-inset-right) + var(--ls-side, 146px)) env(safe-area-inset-bottom) calc(env(safe-area-inset-left) + var(--ls-side, 146px));
         }
         body.touch #touch-ui { position: fixed; inset: 0; pointer-events: none; }
-        body.touch #touch-ui > * { pointer-events: auto; position: fixed; transform: scale(var(--ls-k, 1)); }
+        body.touch #touch-ui > * { pointer-events: auto; position: fixed; }
         body.touch .tp-dpad {
           left: calc(env(safe-area-inset-left) + 13px * var(--ls-k, 1));
           bottom: calc(env(safe-area-inset-bottom) + 12px * var(--ls-k, 1));
@@ -119,6 +119,7 @@
           width: 132px; height: 104px;
           right: calc(env(safe-area-inset-right) + 7px * var(--ls-k, 1));
           bottom: calc(env(safe-area-inset-bottom) + 12px * var(--ls-k, 1));
+          transform: scale(var(--ls-k, 1));
           transform-origin: right bottom;
         }
         body.touch .tp-a { width: 60px; height: 60px; }
@@ -128,6 +129,7 @@
           right: calc(env(safe-area-inset-right) + 13px * var(--ls-k, 1));
           top: calc(env(safe-area-inset-top) + 12px * var(--ls-k, 1));
           flex-direction: column; gap: 8px;
+          transform: scale(var(--ls-k, 1));
           transform-origin: right top;
         }
         body.touch .tp-pill { min-width: 0; width: 120px; height: 36px; }

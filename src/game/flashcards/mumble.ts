@@ -65,28 +65,34 @@ function wobble(index: number, symbol: string): number {
 // The voice styles, each adding to the one before: 1 `ipa` (one tone per vowel),
 // 2 `formants` (vowels by timbre), 3 `intonation`, 4 `jitter`. (Style 0 is the
 // spelling voice, which has no transcription to read.)
-export const VOICE_STYLES = ["spelling", "ipa", "formants", "intonation", "jitter", "filtered", "filtered+", "glides", "murmurs"] as const;
+export const VOICE_STYLES = ["spelling", "ipa", "formants", "intonation", "jitter", "filtered", "filtered+", "glides", "murmurs", "diphthongs"] as const;
+
+// The order V steps through the voices in: the best first (the default), then
+// each one before it, down to spelling.
+export const VOICE_CYCLE: readonly number[] = VOICE_STYLES.map((_, i) => VOICE_STYLES.length - 1 - i);
 
 // What each style does, on top of reading the transcription: how vowels are
 // made, whether pitch follows intonation, whether each sound is a little off, and
 // whether it is slowed down.
 const RECIPES = [
   null,
-  { vowels: "pitch", intonation: false, jitter: false, slow: false, glides: false, murmurs: false },
-  { vowels: "tones", intonation: false, jitter: false, slow: false, glides: false, murmurs: false },
-  { vowels: "tones", intonation: true, jitter: false, slow: false, glides: false, murmurs: false },
-  { vowels: "tones", intonation: true, jitter: true, slow: false, glides: false, murmurs: false },
-  { vowels: "filtered", intonation: false, jitter: false, slow: true, glides: false, murmurs: false },
-  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: false, murmurs: false },
+  { vowels: "pitch", intonation: false, jitter: false, slow: false, glides: false, murmurs: false, diphthongs: false },
+  { vowels: "tones", intonation: false, jitter: false, slow: false, glides: false, murmurs: false, diphthongs: false },
+  { vowels: "tones", intonation: true, jitter: false, slow: false, glides: false, murmurs: false, diphthongs: false },
+  { vowels: "tones", intonation: true, jitter: true, slow: false, glides: false, murmurs: false, diphthongs: false },
+  { vowels: "filtered", intonation: false, jitter: false, slow: true, glides: false, murmurs: false, diphthongs: false },
+  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: false, murmurs: false, diphthongs: false },
   // Style 7: filtered+ with the glides made by the resonances moving.
-  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: false },
+  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: false, diphthongs: false },
   // Style 8: and the nasals and voiced stops made from the vowels' own source.
-  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: true },
+  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: true, diphthongs: false },
+  // Style 9: and each diphthong one sound whose resonances move, not a glide and a vowel.
+  { vowels: "filtered", intonation: true, jitter: true, slow: true, glides: true, murmurs: true, diphthongs: true },
 ] as const;
 
 export function ipaScript(ipa: string, style = 1): VoiceEvent[] {
   const recipe = RECIPES[Math.min(Math.max(Math.trunc(style) || 1, 1), RECIPES.length - 1)] ?? RECIPES[1];
-  const { units } = readIpa(ipa, recipe.vowels, { glides: recipe.glides, murmurs: recipe.murmurs });
+  const { units } = readIpa(ipa, recipe.vowels, { glides: recipe.glides, murmurs: recipe.murmurs, diphthongs: recipe.diphthongs });
   const k = recipe.slow ? F.voice.slow : 1;
   const sounds = units.filter((u): u is Phoneme => !isGap(u));
   const lastVowel = sounds.map((s) => s.vowel).lastIndexOf(true);
@@ -105,7 +111,7 @@ export function ipaScript(ipa: string, style = 1): VoiceEvent[] {
       pitch *= 1 + I.declination * (along - 0.5) + (unit.stressed ? I.stressBump : 0) + (n === lastVowel ? I.finalFall : 0);
     }
     if (recipe.jitter) pitch *= 1 + F.voice.jitter * wobble(n, unit.symbol);
-    events.push({ at, effect: unit.effect, pitch, ...(recipe.slow ? { stretch: k } : {}) });
+    events.push({ at, effect: unit.effect, pitch, ...(unit.gain !== undefined ? { gain: unit.gain } : {}), ...(recipe.slow ? { stretch: k } : {}) });
     at += unit.length * k;
     n++;
   }

@@ -181,5 +181,29 @@ describe("Synth", () => {
     expect(fixed.frequency.value).toBe(2000);
     expect(fixed.frequency.calls).toEqual([]);
   });
+
+  it("moves a formant along a path of fractions of the voice's length, in order", () => {
+    const { ctx, synth } = setup();
+    synth.play({
+      voices: [{ source: "sawtooth", freq: 125, formants: [{ freq: 300, path: [[0.25, 800], [0.75, 800], [1, 500]], q: 5, gain: 1 }], length: 0.2, gain: 0.2 }],
+    });
+    const calls = ctx.filters[0].frequency.calls;
+    expect(calls.map((c) => [c.type, c.value])).toEqual([["set", 300], ["exp", 800], ["exp", 800], ["exp", 500]]);
+    expect(calls.map((c) => c.time)).toEqual([0, 0.05, 0.15, 0.2].map((t) => expect.closeTo(t, 5)));
+  });
+
+  it("a voice with hold stays at full level for that part of its length before dying away", () => {
+    const { ctx, synth } = setup();
+    synth.play({ voices: [{ source: "square", freq: 125, formants: [{ freq: 700, q: 5, gain: 1 }], length: 0.2, gain: 0.3, hold: 0.7 }] });
+    const env = ctx.gains[3]; // the three buses come first
+    const kinds = env.gain.calls.map((c) => c.type);
+    expect(kinds).toEqual(["set", "linear", "set", "exp"]);
+    expect(env.gain.calls[2].time).toBeCloseTo(0.14);
+    expect(env.gain.calls[2].value).toBeCloseTo(0.3);
+    // Without hold, it starts dying away at once, as before.
+    const plain = setup();
+    plain.synth.play({ voices: [{ source: "square", freq: 125, formants: [{ freq: 700, q: 5, gain: 1 }], length: 0.2, gain: 0.3 }] });
+    expect(plain.ctx.gains[3].gain.calls.map((c) => c.type)).toEqual(["set", "linear", "exp"]);
+  });
 });
 

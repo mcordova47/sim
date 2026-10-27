@@ -357,7 +357,13 @@ export interface FormantVoice {
   freq: number;
   // `endFreq` slides the resonance to that frequency over the voice's length (a
   // glide is the mouth moving from one vowel to another).
-  formants: { freq: number; endFreq?: number; q: number; gain: number }[];
+  // `path` is a longer way for a resonance to move: the frequency it has reached
+  // at each given fraction of the voice's length, in order (it starts at `freq`).
+  // A diphthong is one voice whose resonances go from one vowel to the next.
+  formants: { freq: number; endFreq?: number; path?: [number, number][]; q: number; gain: number }[];
+  // The fraction of the voice's length it stays at full level before it dies away
+  // (otherwise it starts dying away at once, as every other effect does).
+  hold?: number;
   delay?: number;
   length: number;
   gain: number;
@@ -469,6 +475,62 @@ const glideEffects = (): Record<string, EffectDef> =>
     ),
   );
 
+// How long the parts of a vowel and a glide take on the timeline, in seconds,
+// which a diphthong adds up (FLASHCARDS.voice reads these too).
+export const VOWEL_TIME = { plain: 0.1, stress: 0.15 };
+export const GLIDE_TIME = { to: 0.06, from: 0.07 };
+
+// A diphthong as one voice (the source-filter voice, style 9): an optional glide
+// into a vowel and an optional glide out of it, the resonances moving from the
+// first sound to the second without a break, as the mouth does. `voiceDiphJE` is
+// bien (j into e), `voiceDiphAJ` aire (a out to j), `voiceDiphJAJ` the triphthong
+// of estudiáis; each has a `Stress` twin with the longer, louder vowel. Two
+// vowels in a row (a hiatus) are not made this way and stay two sounds.
+const diphthongEffect = (on: string, vowel: string, off: string, stress: boolean): EffectDef => {
+  const toTime = on ? GLIDE_TIME.to : 0;
+  const fromTime = off ? GLIDE_TIME.from : 0;
+  const vowelTime = stress ? VOWEL_TIME.stress : VOWEL_TIME.plain;
+  const total = toTime + vowelTime + fromTime;
+  const keys: ("f1" | "f2")[] = ["f1", "f2"];
+  return {
+    priority: "low",
+    voices: [
+      {
+        source: "sawtooth",
+        freq: SOURCE_F0,
+        formants: keys.map((k, i) => {
+          const v = FORMANTS[vowel][k];
+          const start = on ? FORMANTS[GLIDE_TARGET[on]][k] : v;
+          const path: [number, number][] = [];
+          if (on) path.push([toTime / total, v]);
+          if (off) {
+            path.push([(total - fromTime) / total, v]);
+            path.push([1, FORMANTS[GLIDE_TARGET[off]][k]]);
+          }
+          return { freq: start, path, q: SOURCE_FORMANT.q, gain: SOURCE_FORMANT.level[i] };
+        }),
+        length: total,
+        hold: 0.7,
+        gain: 0.22 * (stress ? 1.4 : 1),
+      },
+    ],
+  };
+};
+const diphthongEffects = (): Record<string, EffectDef> => {
+  const out: Record<string, EffectDef> = {};
+  for (const on of ["", "j", "w"]) {
+    for (const off of ["", "j", "w"]) {
+      if (!on && !off) continue;
+      for (const vowel of Object.keys(FORMANTS)) {
+        const name = `voiceDiph${on.toUpperCase()}${vowel.toUpperCase()}${off.toUpperCase()}`;
+        out[name] = diphthongEffect(on, vowel, off, false);
+        out[`${name}Stress`] = diphthongEffect(on, vowel, off, true);
+      }
+    }
+  }
+  return out;
+};
+
 // The nasals and the voiced stops made from the same source as the vowels, so
 // they sit at the voice's own pitch and not far below it: a murmur (the source
 // through a low resonance, which is what a closed mouth lets out), with the
@@ -487,11 +549,15 @@ const nasalEffect = (place: number): EffectDef => ({
     },
   ],
 });
+// How loud the burst of noise that ends a voiced stop (b d g) is, against the
+// murmur before it. A burst is the pop as the lips or tongue let go; it is quiet
+// next to the vowels, and raising this makes the stops crisper.
+export const BURST_GAIN = 0.1;
 const voicedStopEffect = (burst: number): EffectDef => ({
   priority: "low",
   voices: [
     { source: "sawtooth", freq: SOURCE_F0, formants: [{ ...NASAL_LOW, gain: 2 }], length: 0.045, gain: 0.12 },
-    { noise: "bandpass", freq: burst, q: 1.2, delay: 0.03, length: 0.02, gain: 0.1 },
+    { noise: "bandpass", freq: burst, q: 1.2, delay: 0.03, length: 0.02, gain: BURST_GAIN },
   ],
 });
 
@@ -579,9 +645,24 @@ export const SOUND = {
     ...formantEffects(),
     ...filteredEffects(),
     ...glideEffects(),
+    ...diphthongEffects(),
     voiceFiltM: nasalEffect(1100),
     voiceFiltN: nasalEffect(1600),
     voiceFiltNY: nasalEffect(2200),
+    // The /l/: the source through a low resonance and one around 1300 Hz, the
+    // shape of a mouth with the tongue-tip up and the air going round the sides.
+    voiceFiltL: {
+      priority: "low",
+      voices: [
+        {
+          source: "sawtooth",
+          freq: SOURCE_F0,
+          formants: [{ freq: 360, q: 4, gain: 2.2 }, { freq: 1300, q: 4, gain: 1.2 }],
+          length: 0.06,
+          gain: 0.2,
+        },
+      ],
+    },
     voiceFiltB: voicedStopEffect(800),
     voiceFiltD: voicedStopEffect(3200),
     voiceFiltG: voicedStopEffect(1800),
@@ -938,17 +1019,19 @@ export const FLASHCARDS = {
     // small bump and the last vowel falls (fractions of the pitch, so 0.07 is
     // 7 percent, a little over a semitone). Part 3, `jitter`: every sound is a
     // few percent off, in a fixed pattern, so no two vowels are quite alike.
-    formants: { length: 0.1, stressLength: 0.15 },
+    formants: { length: VOWEL_TIME.plain, stressLength: VOWEL_TIME.stress },
     intonation: { declination: -0.08, stressBump: 0.07, finalFall: -0.06 },
     jitter: 0.03,
     // The source-filter voices (styles 5 and 6): vowels from a source at one pitch
     // through resonances, so no vowel is higher than another, and the whole voice
     // slowed by `slow` (2 is half speed; the sounds are stretched too).
     slow: 1.15,
-    // Which voice a card gets before V is pressed: 0 spelling, 1 ipa (the
-    // original), 2 formants, 3 intonation, 4 jitter, 5 filtered (the source-filter
-    // voice slowed), 6 filtered with intonation and jitter.
-    style: 1,
+    // Which voice a card gets before V is pressed (an index into `VOICE_STYLES`):
+    // 0 spelling, 1 ipa (the original), 2 formants, 3 intonation, 4 jitter, 5
+    // filtered (the source-filter voice slowed), 6 filtered with intonation and
+    // jitter, 7 glides, 8 murmurs, 9 diphthongs. The best one is the default, and V
+    // steps from it down through the earlier ones.
+    style: 9,
     longer: 1.5,
     symbols: {
       a: { effect: "voiceVowel", pitch: 1, length: 0.1, vowel: true },
@@ -977,17 +1060,19 @@ export const FLASHCARDS = {
     } as Record<string, { effect: string; pitch: number; length: number; vowel?: boolean; glide?: string }>,
     // How long the formant glides take on the timeline (styles 7 and 8): going into
     // a vowel, and coming out of one.
-    glideLength: { to: 0.06, from: 0.07 },
+    glideLength: GLIDE_TIME,
     // The nasals and voiced stops of the source-filter voice (style 8), keyed by
     // the symbol they replace in `symbols`.
+    // `gain` multiplies the loudness of that sound (1 is as the effect is written).
     murmurs: {
-      m: { effect: "voiceFiltM", pitch: 1, length: 0.07 },
-      n: { effect: "voiceFiltN", pitch: 1, length: 0.07 },
-      "ɲ": { effect: "voiceFiltNY", pitch: 1, length: 0.07 },
+      m: { effect: "voiceFiltM", pitch: 1, length: 0.07, gain: 0.8 },
+      n: { effect: "voiceFiltN", pitch: 1, length: 0.07, gain: 0.8 },
+      "ɲ": { effect: "voiceFiltNY", pitch: 1, length: 0.07, gain: 0.8 },
+      l: { effect: "voiceFiltL", pitch: 1, length: 0.06 },
       b: { effect: "voiceFiltB", pitch: 1, length: 0.05 },
       d: { effect: "voiceFiltD", pitch: 1, length: 0.05 },
       g: { effect: "voiceFiltG", pitch: 1, length: 0.05 },
-    } as Record<string, { effect: string; pitch: number; length: number }>,
+    } as Record<string, { effect: string; pitch: number; length: number; gain?: number }>,
     // Symbols that sound like one in the table above (other transcriptions,
     // other dialects, or the occasional allophone), so the voice never goes
     // quiet on a mark it did not expect.

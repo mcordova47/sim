@@ -4,7 +4,9 @@ import type { ClipboardLike } from "../../input/clipboard";
 import { NO_INPUT, type Controls } from "../../input/controls";
 import { FLASHCARDS as F } from "../config";
 import { DemoSession, EMPTY_OVERVIEW, demoBackendFor } from "../flashcards/demo";
+import { guestBackend, guestStorageKey } from "../flashcards/guest";
 import { StudyStore } from "../flashcards/key";
+import type { Core } from "../flashcards/core";
 import type { CardView, Grade, OpenResult, StudyBackend } from "../flashcards/study";
 import { FlashcardsActivity, PROGRESS_LAYOUT } from "./flashcards";
 import { fakeHost } from "./fake-host";
@@ -63,6 +65,7 @@ describe("FlashcardsActivity: the key", () => {
     const session = new Session(CARDS);
     const t = setup(() => session);
     t.a.start();
+    t.a.phase = "key"; // past the choice screen (tested below)
     expect(t.a.phase).toBe("key");
     expect(t.pastes).toHaveLength(1);
     t.pastes[0](`https://palabras.mcord.dev/?pair=${KEY}`);
@@ -76,6 +79,7 @@ describe("FlashcardsActivity: the key", () => {
   it("reads a typed key, with backspace, and refuses a wrong one", async () => {
     const t = setup(() => new Session(CARDS));
     t.a.start();
+    t.a.phase = "key"; // past the choice screen (tested below)
     for (const ch of KEY.slice(0, -1) + "z") await t.step(keys(ch.match(/\d/) ? `Digit${ch}` : `Key${ch.toUpperCase()}`));
     await t.step(keys("Backspace"));
     await t.step(keys("Enter"));
@@ -93,6 +97,7 @@ describe("FlashcardsActivity: the key", () => {
     for (const mod of ["ControlLeft", "MetaLeft", "AltRight"]) {
       const t = setup(() => new Session(CARDS));
       t.a.start();
+      t.a.phase = "key"; // past the choice screen (tested below)
       t.pastes[0](`https://palabras.mcord.dev/?pair=${KEY}`);
       await t.step({ ...keys("KeyV"), keysDown: [mod, "KeyV"] });
       await t.step({ ...keys("KeyA"), keysDown: [mod, "KeyA"] });
@@ -107,6 +112,7 @@ describe("FlashcardsActivity: the key", () => {
   it("finds the key in a link longer than the paste limit", async () => {
     const t = setup(() => new Session(CARDS));
     t.a.start();
+    t.a.phase = "key"; // past the choice screen (tested below)
     t.pastes[0](`https://palabras.mcord.dev/?${"x=1&".repeat(100)}pair=${KEY}`);
     expect(t.a.typed).toBe(KEY);
   });
@@ -158,6 +164,7 @@ describe("FlashcardsActivity: the key", () => {
   it("reads letters (so M does not mute) only while the key is typed", async () => {
     const t = setup(() => new Session(CARDS));
     t.a.start();
+    t.a.phase = "key"; // past the choice screen (tested below)
     expect(t.a.readsLetters).toBe(true);
     t.a.typed = KEY;
     await t.step(keys("Enter"));
@@ -489,5 +496,219 @@ describe("FlashcardsActivity: mumblespeak", () => {
     const after = u.f.voices.length;
     await run(u, 3);
     expect(u.f.voices).toHaveLength(after);
+  });
+});
+
+// Studying without a key (issue 089).
+describe("FlashcardsActivity: a guest", () => {
+  const read = (p: string | null): Record<string, number> => (p ? JSON.parse(p) : {});
+  const core = (): Core => ({
+    version: 1,
+    session: (p) => ["a", "b", "c"].filter((s) => !(s in read(p))),
+    card: (_p, slug) => ({ slug, prompt: slug, answers: [`${slug}1`], example: "", direction: "recognition" }),
+    grade: (p, slug) => JSON.stringify({ ...read(p), [slug]: 1 }),
+    merge: () => "{}",
+    requeue: (slug, position, queue) => [...queue.slice(0, position + 1), slug, ...queue.slice(position + 1)],
+  });
+  const down: Controls = { ...NO_INPUT, dir: "down", dirPressed: "down" };
+
+  function guestSetup(options: { storage?: FakeStorage | null; core?: Core; keyBackend?: () => Promise<OpenResult> | OpenResult } = {}) {
+    const storage = options.storage === undefined ? new FakeStorage() : options.storage;
+    const t = setup(options.keyBackend ?? (() => new Session(CARDS)), { storage: storage ?? undefined });
+    const backend = guestBackend({ core: async () => options.core ?? core(), storage, now: () => 1000 });
+    const a = new FlashcardsActivity(t.f.host, { paysPoints: true, open: async (k) => (t.opens.push(k), (options.keyBackend ?? (() => new Session(CARDS)))()) }, t.store, { copy: async () => true, read: async () => null, onPaste: () => () => {} }, backend);
+    const step = async (c: Controls = NO_INPUT) => {
+      a.update(1 / 60, c);
+      await flush();
+    };
+    return { ...t, a, step, storage };
+  }
+
+  it("shows a choice with no key and no saved mode; guest studies and the key path is never asked", async () => {
+    const t = guestSetup();
+    t.a.start();
+    expect(t.a.phase).toBe("choice");
+    await t.step(E);
+    await flush();
+    expect(t.a.phase).toBe("front");
+    expect(t.opens).toEqual([]); // the key backend (the progress endpoint) was never asked
+    expect(t.store.mode()).toBe("guest");
+    await t.step(E);
+    await t.step(E); // got it? cursor starts on Again, so move right first
+    expect(t.a.again + t.a.gotIt).toBe(1);
+  });
+
+  it("pays a saved got-it with the usual rule, and writes the blob", async () => {
+    const t = guestSetup();
+    t.a.start();
+    await t.step(E);
+    await flush();
+    await t.step(E);
+    await t.step(right);
+    await t.step(E);
+    expect(t.a.gotIt).toBe(1);
+    expect(t.f.rewards).toHaveLength(1);
+    expect(t.storage!.getItem(guestStorageKey())).toBe('{"a":1}');
+  });
+
+  it("goes straight to the cards when guest mode is remembered, and only one blob per visit", async () => {
+    const storage = new FakeStorage();
+    new StudyStore(storage).setMode("guest");
+    const t = guestSetup({ storage });
+    t.a.start();
+    await flush();
+    expect(t.a.phase).toBe("front");
+  });
+
+  it("with blocked storage studies unsaved, warns, and pays nothing", async () => {
+    const t = guestSetup({ storage: null });
+    t.a.start();
+    await t.step(E);
+    await flush();
+    expect(t.a.phase).toBe("front");
+    await t.step(E);
+    await t.step(right);
+    await t.step(E);
+    expect(t.a.gotIt).toBe(1);
+    expect(t.f.rewards).toHaveLength(0);
+    expect(t.a.paid).toBe(0);
+    // The warning is drawn without throwing.
+    vi.stubGlobal("document", { createElement: () => ({ width: 0, height: 0, getContext: () => new Proxy({}, { get: () => () => {}, set: () => true }) }) });
+    const ctx = new Proxy({}, { get: () => () => {}, set: () => true }) as unknown as CanvasRenderingContext2D;
+    expect(() => t.a.draw(ctx, { width: 320, height: 192 })).not.toThrow();
+    t.a.phase = "done";
+    expect(() => t.a.draw(ctx, { width: 320, height: 192 })).not.toThrow();
+    vi.unstubAllGlobals();
+    expect(t.a.session!.unsaved).toBe(true);
+  });
+
+  it("offers Start again, with one confirm, when the core refuses the saved cards", async () => {
+    const storage = new FakeStorage();
+    storage.setItem(guestStorageKey(), "damaged");
+    const refusing: Core = { ...core(), session: (p) => (p === "damaged" ? (() => { throw new Error("no"); })() : ["a"]) };
+    new StudyStore(storage).setMode("guest");
+    const t = guestSetup({ storage, core: refusing });
+    t.a.start();
+    await flush();
+    expect(t.a.phase).toBe("problem");
+    expect(storage.getItem(guestStorageKey())).toBe("damaged");
+    await t.step(keys("KeyY")); // no confirm yet: nothing happens
+    expect(storage.getItem(guestStorageKey())).toBe("damaged");
+    await t.step(keys("KeyS"));
+    expect(storage.getItem(guestStorageKey())).toBe("damaged");
+    await t.step(keys("KeyY"));
+    await flush();
+    expect(storage.getItem(guestStorageKey())).toBeNull();
+    expect(t.a.phase).toBe("front");
+  });
+
+  it("entering a key leaves the guest's cards untouched and never reads them; leaving the key returns to them", async () => {
+    const storage = new FakeStorage();
+    storage.setItem(guestStorageKey(), '{"a":1}');
+    const t = guestSetup({ storage });
+    t.a.start();
+    await t.step(down);
+    await t.step(E);
+    expect(t.a.phase).toBe("key");
+    t.pastes[0]?.(KEY);
+    t.a.typed = KEY;
+    await t.step(keys("Enter"));
+    await flush();
+    expect(t.opens).toEqual([KEY]);
+    expect(t.store.key()).toBe(KEY);
+    expect(t.store.mode()).toBeNull();
+    expect(storage.getItem(guestStorageKey())).toBe('{"a":1}');
+    // Finish the session quickly and switch with G: back to the guest's own cards.
+    t.a.phase = "done";
+    await t.step(keys("KeyG"));
+    await flush();
+    expect(t.a.phase).toBe("front");
+    expect(t.a.queue).toEqual(["b", "c"]);
+    expect(t.store.key()).toBe(KEY); // the key stays saved
+  });
+
+  it("K from a key holder opens the key screen but keeps the saved key (leaving with Escape changes nothing)", async () => {
+    const storage = new FakeStorage();
+    new StudyStore(storage).saveKey(KEY);
+    const t = guestSetup({ storage });
+    t.a.start();
+    await flush();
+    t.a.phase = "done";
+    const before = storage.getItem(F.storageKey);
+    await t.step(keys("KeyK"));
+    expect(t.a.phase).toBe("key");
+    expect(t.store.key()).toBe(KEY);
+    expect(storage.getItem(F.storageKey)).toBe(before); // Escape would leave exactly this
+    expect(new StudyStore(storage).key()).toBe(KEY);
+  });
+
+  it("a different key from K that the server refuses leaves the saved key; one that is accepted replaces it", async () => {
+    const OTHER = "zyxwvutsrq9876543210zyxwvutsrq98";
+    const storage = new FakeStorage();
+    new StudyStore(storage).saveKey(KEY);
+    const t = guestSetup({ storage, keyBackend: () => (t.opens[t.opens.length - 1] === OTHER && refuse ? "bad-key" : new Session(CARDS)) });
+    let refuse = true;
+    t.a.start();
+    await flush();
+    t.a.phase = "done";
+    await t.step(keys("KeyK"));
+    t.a.typed = OTHER;
+    await t.step(keys("Enter"));
+    await flush();
+    expect(t.a.phase).toBe("key");
+    expect(t.a.message).toMatch(/not accepted/i);
+    expect(t.store.key()).toBe(KEY);
+    refuse = false;
+    t.a.typed = OTHER;
+    await t.step(keys("Enter"));
+    await flush();
+    expect(t.store.key()).toBe(OTHER);
+  });
+
+  it("K from a guest with no saved key changes nothing until a key is accepted", async () => {
+    const storage = new FakeStorage();
+    new StudyStore(storage).setMode("guest");
+    const t = guestSetup({ storage });
+    t.a.start();
+    await flush();
+    t.a.phase = "done";
+    const before = storage.getItem(F.storageKey);
+    await t.step(keys("KeyK"));
+    expect(t.a.phase).toBe("key");
+    expect(storage.getItem(F.storageKey)).toBe(before);
+    expect(new StudyStore(storage).mode()).toBe("guest");
+  });
+
+  it("a guest's answer the core could not record says so without 'no connection'", async () => {
+    const storage = new FakeStorage();
+    new StudyStore(storage).setMode("guest");
+    const t = guestSetup({ storage, core: { ...core(), grade: () => { throw new Error("bad"); } } });
+    t.a.start();
+    await flush();
+    await t.step(E);
+    await t.step(E);
+    await t.step(E);
+    expect(t.a.phase).toBe("problem");
+    expect(t.a.message).toBe("That answer was not saved.");
+  });
+
+  it("does not offer the switch mid-card", async () => {
+    const storage = new FakeStorage();
+    new StudyStore(storage).setMode("guest");
+    const t = guestSetup({ storage });
+    t.a.start();
+    await flush();
+    await t.step(keys("KeyK"));
+    expect(t.a.phase).toBe("front");
+    expect(t.a.guest).toBe(true);
+  });
+
+  it("leaves the practice deck alone: no choice screen, practice layout and voices", async () => {
+    const t = setup(() => new DemoSession(CARDS), { paysPoints: false });
+    const a = new FlashcardsActivity(t.f.host, demoBackendFor(null, null), t.store, { copy: async () => true, read: async () => null, onPaste: () => () => {} });
+    a.start();
+    await flush();
+    expect(a.phase).toBe("front");
+    expect(a.guest).toBe(false);
   });
 });

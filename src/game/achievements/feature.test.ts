@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { APARTMENT } from "../apartment";
-import { ACHIEVEMENTS_UI as UI, TILE } from "../config";
+import { ACHIEVEMENTS_UI as UI, FLASHCARDS as F, TILE } from "../config";
+import { guestStorageKey } from "../flashcards/guest";
 import { Game } from "../game";
 import { ApartmentState } from "../state";
 import { STATE_VARS } from "../state-vars";
@@ -361,6 +362,15 @@ describe("AchievementsFeature", () => {
       for (let i = 0; i < 3; i++) complete(game, "coffee");
       expect(feature.unlocks.has("coffee-3")).toBe(true);
     });
+  });
+
+  it("a reset also clears a guest's flashcard progress, and leaves the sync key and cap alone", () => {
+    const { feature, storage } = setup();
+    storage!.setItem(guestStorageKey(), '{"cards":[]}');
+    storage!.setItem(F.storageKey, '{"key":"k","paid":3}');
+    feature.reset();
+    expect(storage!.getItem(guestStorageKey())).toBeNull();
+    expect(storage!.getItem(F.storageKey)).toBe('{"key":"k","paid":3}');
   });
 
   it("saves the decor right after a swap, and a reset does not write a save", () => {

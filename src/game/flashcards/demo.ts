@@ -170,6 +170,7 @@ export function demoBackendFor(set?: string | null, voices?: string | null): Stu
   return {
     paysPoints: false,
     usesKey: false,
+    practice: true,
     // V steps between the voices being compared; `&voices=all` brings back them all.
     ...(voices === "all" ? {} : { voiceCycle: DEMO_VOICES }),
     async open(): Promise<OpenResult> {
@@ -181,6 +182,7 @@ export function demoBackendFor(set?: string | null, voices?: string | null): Stu
 export const demoBackend: StudyBackend = {
   paysPoints: false,
   usesKey: false,
+  practice: true,
   async open(): Promise<OpenResult> {
     return new DemoSession();
   },

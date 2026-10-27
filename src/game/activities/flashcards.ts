@@ -5,7 +5,7 @@ import { GLYPH_H, drawText, textWidth } from "../../render/font";
 import { drawIpa, ipaWidth } from "../../render/ipa-font";
 import { BaseActivity, needHost, registerActivity, type ActivityHost, type ActivityResult } from "../activity";
 import { FLASHCARDS as F } from "../config";
-import { studyBackend } from "../flashcards/backend";
+import { studyBackend, studyGuestBackend } from "../flashcards/backend";
 import { Mumble, VOICE_CYCLE, VOICE_STYLES, ipaScript } from "../flashcards/mumble";
 import { keyFromText, studyStore, type StudyStore } from "../flashcards/key";
 import { barParts, pageLines, type PageLine, type Tone } from "../flashcards/progress";
@@ -21,7 +21,7 @@ import { typedChar } from "./make-track";
 // apartment's time still, and each answer is delivered as it is given, so
 // leaving loses nothing.
 
-type Phase = "key" | "connecting" | "front" | "back" | "saving" | "problem" | "done";
+type Phase = "choice" | "key" | "connecting" | "front" | "back" | "saving" | "problem" | "done";
 
 // Where things sit on the progress page, in pixels from the top of the box.
 // `row` is a line's step; a line's `gap` is extra pixels above it. Exported for the tests, which
@@ -37,6 +37,12 @@ export class FlashcardsActivity extends BaseActivity {
   // E and the letters are this screen's keys.
   readonly readsKeys = true;
   readonly holdsClock = true;
+  // The choice screen's cursor: 0 is "Study without a key", 1 is "Enter a sync key".
+  chosen = 0;
+  // True while studying without a key (issue 089).
+  guest = false;
+  // After S on the "could not be read" screen: waiting for Y.
+  confirmRestart = false;
   get readsLetters(): boolean {
     return this.phase === "key";
   }
@@ -61,7 +67,8 @@ export class FlashcardsActivity extends BaseActivity {
   // `voiceCycle`, or `VOICE_CYCLE` for all of them), to hear what each part adds.
   voiceStyle: number = F.voice.style;
 
-  private session: StudySession | null = null;
+  // Public for the tests, which read `unsaved`.
+  session: StudySession | null = null;
   private shown: { at: number; slug: string; view: CardView } | null = null;
   private unlisten: (() => void) | null = null;
   private readonly mumble: Mumble;
@@ -71,6 +78,7 @@ export class FlashcardsActivity extends BaseActivity {
     private readonly backend: StudyBackend = studyBackend(),
     private readonly store: StudyStore = studyStore(),
     private readonly clipboard: ClipboardLike = browserClipboard,
+    private readonly guestBackend: StudyBackend = studyGuestBackend(),
   ) {
     super();
     this.mumble = new Mumble((sound) => host.voice?.(sound));
@@ -87,18 +95,30 @@ export class FlashcardsActivity extends BaseActivity {
     return this.shown.view;
   }
 
+  // The backend in use: the guest's, or the one for a key.
+  private get active(): StudyBackend {
+    return this.guest ? this.guestBackend : this.backend;
+  }
+
   start(): void {
     this.store.clock = () => this.host.gameMinutes?.() ?? 0;
     this.unlisten = this.clipboard.onPaste((text) => this.paste(text));
     if (this.backend.usesKey === false) return this.connect("");
+    if (this.store.mode() === "guest") return this.startGuest();
     const key = this.store.key();
     if (key) this.connect(key);
-    else this.phase = "key";
+    else this.phase = "choice";
+  }
+
+  private startGuest(): void {
+    this.guest = true;
+    this.store.setMode("guest");
+    this.connect("");
   }
 
   private connect(key: string): void {
     this.phase = "connecting";
-    this.backend.open(key).then(
+    this.active.open(key).then(
       (result) => {
         if (this.done) return;
         this.opened(key, result);
@@ -111,15 +131,20 @@ export class FlashcardsActivity extends BaseActivity {
 
   private opened(key: string, result: Awaited<ReturnType<StudyBackend["open"]>>): void {
     if (result === "offline") return this.fail("No connection. Nothing was saved.");
-    if (result === "unreadable") return this.fail("The saved cards could not be read.");
+    if (result === "unreadable") {
+      this.confirmRestart = false;
+      return this.fail("The saved cards could not be read.");
+    }
     if (result === "bad-key") {
-      this.store.forgetKey();
+      // Only a saved key that the server refuses is forgotten; a different key typed in
+      // from the K control that is refused leaves the saved one alone.
+      if (key === this.store.key()) this.store.forgetKey();
       this.typed = "";
       this.message = "That key was not accepted.";
       this.phase = "key";
       return;
     }
-    if (this.backend.usesKey !== false) this.store.saveKey(key);
+    if (!this.guest && this.backend.usesKey !== false) this.store.saveKey(key);
     this.session = result;
     this.queue = result.queue();
     this.index = 0;
@@ -159,6 +184,7 @@ export class FlashcardsActivity extends BaseActivity {
   update(dt: number, controls: Controls): void {
     if (this.done) return;
     this.mumble.update(dt);
+    if (this.phase === "choice") return this.updateChoice(controls);
     if (this.phase === "key") return this.updateKey(controls);
     if (this.phase === "front" || this.phase === "back") {
       this.repeat(controls);
@@ -180,6 +206,8 @@ export class FlashcardsActivity extends BaseActivity {
       if (controls.interactPressed || controls.keys.includes("Space")) this.answer(GRADES[this.selected]);
       return;
     }
+    if (this.phase === "done" && this.switchMode(controls)) return;
+    if (this.phase === "problem" && this.guest && this.restart(controls)) return;
     if ((this.phase === "problem" || this.phase === "done") && (controls.interactPressed || controls.keys.includes("Enter"))) {
       this.finish({ completed: false, quiet: true });
     }
@@ -207,7 +235,7 @@ export class FlashcardsActivity extends BaseActivity {
 
   // V flips between the IPA and the spelling voice, in the practice deck only.
   private switchVoice(controls: Controls): void {
-    if (this.backend.usesKey !== false || !controls.keys.includes("KeyV")) return;
+    if (!this.backend.practice || !controls.keys.includes("KeyV")) return;
     if (controls.keysDown.some((k) => /^(Shift|Control|Meta|Alt)/.test(k))) return;
     // The next voice in the cycle (the first one if the current voice is not in it).
     const cycle = this.backend.voiceCycle ?? VOICE_CYCLE;
@@ -222,6 +250,66 @@ export class FlashcardsActivity extends BaseActivity {
     if (!card) return;
     const showing = this.phase === "back" || (card.speaks ?? "back") === "front";
     if (showing) this.speak(card);
+  }
+
+  // The first screen with no key and no saved choice: up and down, E to pick.
+  private updateChoice(controls: Controls): void {
+    if (controls.dirPressed === "up") this.chosen = 0;
+    if (controls.dirPressed === "down") this.chosen = 1;
+    if (!controls.interactPressed && !controls.keys.includes("Enter")) return;
+    if (this.chosen === 0) this.startGuest();
+    else {
+      this.typed = "";
+      this.message = "";
+      this.phase = "key";
+    }
+  }
+
+  // The small control to leave a mode, on the done screen only (never mid-card).
+  // K: use a key (a different one, from key mode). G: study without a key.
+  // A key is never merged with the guest's cards and neither path reads the other's.
+  private switchMode(controls: Controls): boolean {
+    if (this.backend.usesKey === false) return false;
+    if (controls.keys.includes("KeyK")) {
+      if (this.guest) {
+        // Nothing is saved yet: the mode and the key change only when a key is accepted.
+        this.guest = false;
+        const key = this.store.key();
+        if (key) this.connect(key);
+        else this.toKeyScreen();
+      } else {
+        // The saved key stays until a new one has been accepted (Escape leaves everything as it was).
+        this.toKeyScreen();
+      }
+      return true;
+    }
+    if (controls.keys.includes("KeyG") && !this.guest) {
+      this.startGuest();
+      return true;
+    }
+    return false;
+  }
+
+  private toKeyScreen(): void {
+    this.typed = "";
+    this.message = "";
+    this.phase = "key";
+  }
+
+  // "Start again" after the core refused a guest's saved cards: S, then Y.
+  private restart(controls: Controls): boolean {
+    if (this.message !== "The saved cards could not be read.") return false;
+    if (this.confirmRestart && controls.keys.includes("KeyY")) {
+      this.guestBackend.forget?.();
+      this.confirmRestart = false;
+      this.connect("");
+      return true;
+    }
+    if (controls.keys.includes("KeyS")) {
+      this.confirmRestart = true;
+      return true;
+    }
+    return false;
   }
 
   private updateKey(controls: Controls): void {
@@ -256,7 +344,7 @@ export class FlashcardsActivity extends BaseActivity {
     session.grade(card.slug, grade).then(
       (ok) => {
         if (this.done) return;
-        if (!ok) return this.fail("No connection. That answer was not saved.");
+        if (!ok) return this.fail(this.guest ? "That answer was not saved." : "No connection. That answer was not saved.");
         this.answered(card.slug, grade);
       },
       () => {
@@ -269,7 +357,8 @@ export class FlashcardsActivity extends BaseActivity {
     const session = this.session!;
     if (grade === "gotit") {
       this.gotIt++;
-      if (this.backend.paysPoints && this.store.claimCard()) {
+      // A guest whose browser cannot keep answers is paid nothing (the cap cannot be tracked either).
+      if (this.active.paysPoints && !session.unsaved && this.store.claimCard()) {
         this.host.reward?.(F.pointsPerCard, []);
         this.paid++;
       }
@@ -302,7 +391,8 @@ export class FlashcardsActivity extends BaseActivity {
   draw(ctx: CanvasRenderingContext2D, screen: { width: number; height: number }): void {
     const w = 264;
     // Taller in the practice deck, which shows the transcription as well.
-    const h = this.backend.usesKey === false ? 140 : 120;
+    // A guest's box has a line more, for the note that progress stays in this browser.
+    const h = this.backend.practice ? 140 : this.guest ? 132 : 120;
     const x = Math.round((screen.width - w) / 2);
     const y = Math.round((screen.height - h) / 2);
     ctx.fillStyle = COLOR.ink;
@@ -313,7 +403,16 @@ export class FlashcardsActivity extends BaseActivity {
     const line = (text: string, ty: number, color: string = COLOR.paper, scale = 1) =>
       drawText(ctx, text, cx, y + ty, { align: "center", color, shadow: null, scale: fit(text, scale, w - 16) });
 
-    if (this.phase === "key") {
+    if (this.phase === "choice") {
+      line("Study Spanish", 8, COLOR.butter);
+      ["Study without a key", "Enter a sync key"].forEach((text, i) => {
+        const on = this.chosen === i;
+        line(`${on ? "> " : "  "}${text}`, 34 + i * 14, on ? COLOR.butter : COLOR.paper);
+      });
+      line("Without a key, progress is saved", 74, COLOR.mist);
+      line("in this browser only.", 84, COLOR.mist);
+      line("Up, Down, E: pick   Esc: back", h - 14, COLOR.mist);
+    } else if (this.phase === "key") {
       line("Sync key", 8, COLOR.butter);
       line("Paste your pairing link", 24);
       line("or type the key", 35);
@@ -327,6 +426,10 @@ export class FlashcardsActivity extends BaseActivity {
     } else if (this.phase === "problem") {
       line("Study Spanish", 8, COLOR.butter);
       line(this.message, 50, COLOR.tangerine);
+      if (this.guest && this.message === "The saved cards could not be read.") {
+        if (this.confirmRestart) line("Erase them and start again? Y: yes", 70, COLOR.butter);
+        else line("S: start again", 70, COLOR.mist);
+      }
       line("E: leave", h - 14, COLOR.mist);
     } else if (this.phase === "done") {
       line("Study Spanish", 8, COLOR.butter);
@@ -335,7 +438,9 @@ export class FlashcardsActivity extends BaseActivity {
         line(this.message, 50);
         if (this.paid > 0) line(`${this.paid * F.pointsPerCard} points`, 66, COLOR.leaf);
       }
-      line("E: leave", h - 14, COLOR.mist);
+      if (this.guest) line(this.session?.unsaved ? "Progress was not kept." : "Saved in this browser only.", h - 26, this.session?.unsaved ? COLOR.tangerine : COLOR.slate);
+      const leave = this.backend.usesKey === false ? "E: leave" : this.guest ? "E: leave   K: use a key" : "E: leave   K: other key   G: no key";
+      line(leave, h - 14, COLOR.mist);
     } else {
       this.drawCard(ctx, x, y, w, h, line);
     }
@@ -392,7 +497,7 @@ export class FlashcardsActivity extends BaseActivity {
     line(`Card ${Math.min(this.index + 1, this.queue.length)} of ${this.queue.length}`, 8, COLOR.slate);
     if (this.phase === "back" || (card.speaks ?? "back") === "front") {
       drawText(ctx, "R: say it", x + w - 8, y + 8, { align: "right", color: COLOR.slate, shadow: null });
-      if (this.backend.usesKey === false) {
+      if (this.backend.practice) {
         drawText(ctx, `V: ${VOICE_STYLES[this.voiceStyle]}`, x + 8, y + 8, { color: COLOR.slate, shadow: null });
       }
     }
@@ -411,9 +516,9 @@ export class FlashcardsActivity extends BaseActivity {
     };
     // Real play keeps the fixed layout (prompt at 22, answer at 46, hint at 68). The
     // practice deck, which also shows the transcription, lays each part under the last.
-    const practice = this.backend.usesKey === false;
+    const practice = !!this.backend.practice;
     // The transcription, in the practice deck, under the Spanish it belongs to.
-    const showIpa = this.backend.usesKey === false && !!card.ipa;
+    const showIpa = practice && !!card.ipa;
     const ipa = (ty: number): number => {
       if (!showIpa) return ty;
       const parts = wrapIpa(card.ipa!, w - 16).slice(0, 3);
@@ -423,7 +528,9 @@ export class FlashcardsActivity extends BaseActivity {
     let ty = block(card.prompt, 22, COLOR.paper);
     if (!practice) ty = 46;
     if ((card.speaks ?? "back") === "front") ty = ipa(ty);
+    if (this.session?.unsaved) drawText(ctx, "NOT SAVED", x + 8, y + 8, { color: COLOR.tangerine, shadow: null });
     if (this.phase === "front") {
+      if (this.session?.unsaved) line("Progress will not be kept.", h - 28, COLOR.tangerine);
       line("E: flip", h - 14, COLOR.mist);
       return;
     }

@@ -100,7 +100,7 @@ describe("the practice deck", () => {
     for (const ipa of ["", "ʔʔ", "ˈ", "/ /", "🙂"]) {
       const f = fakeHost();
       const clipboard = { copy: async () => true, read: async () => null, onPaste: () => () => {} };
-      const backend = { paysPoints: false, usesKey: false, open: async () => new DemoSession([{ slug: "a", prompt: "perro", answer: "dog", spoken: "perro", ipa, speaks: "front" }]) };
+      const backend = { paysPoints: false, usesKey: false, practice: true, open: async () => new DemoSession([{ slug: "a", prompt: "perro", answer: "dog", spoken: "perro", ipa, speaks: "front" }]) };
       const a = new FlashcardsActivity(f.host, backend, new StudyStore(new FakeStorage()), clipboard);
       a.start();
       await new Promise((r) => setTimeout(r, 0));
@@ -113,7 +113,7 @@ describe("the practice deck", () => {
     const f = fakeHost();
     const clipboard = { copy: async () => true, read: async () => null, onPaste: () => () => {} };
     const card = { slug: "a", prompt: "perro", answer: "dog", spoken: "perro", ipa: 5 as unknown as string, speaks: "front" as const };
-    const backend = { paysPoints: false, usesKey: false, open: async () => new DemoSession([card]) };
+    const backend = { paysPoints: false, usesKey: false, practice: true, open: async () => new DemoSession([card]) };
     const a = new FlashcardsActivity(f.host, backend, new StudyStore(new FakeStorage()), clipboard);
     a.start();
     await new Promise((r) => setTimeout(r, 0));

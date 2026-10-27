@@ -2,6 +2,7 @@ import { APARTMENT } from "../apartment";
 import { ACHIEVEMENTS_UI as UI } from "../config";
 import type { Game, Layer } from "../game";
 import type { Level } from "../level";
+import { clearGuestCards } from "../flashcards/guest";
 import { STATE_VARS } from "../state-vars";
 import { ACHIEVEMENTS, type Achievement } from "./data";
 import { drawList, drawToasts } from "./draw";
@@ -53,6 +54,7 @@ export class AchievementsFeature implements Layer {
   private readonly list: readonly Achievement[];
   private readonly rooms: Readonly<Record<string, Level>>;
   private readonly ctx: UnlockContext;
+  private readonly storage: KeyValueStorage | null;
   private room: string;
   private listOpen = false;
   private cursor = 0;
@@ -71,7 +73,8 @@ export class AchievementsFeature implements Layer {
     this.list = options.list ?? ACHIEVEMENTS;
     this.rooms = options.rooms ?? APARTMENT.rooms;
     this.unlocks = new Unlocks(this.list);
-    this.store = new ProgressStore(options.storage === undefined ? browserStorage() : options.storage, UI.storageKey);
+    this.storage = options.storage === undefined ? browserStorage() : options.storage;
+    this.store = new ProgressStore(this.storage, UI.storageKey);
     const ids = new Set<string>();
     // Changing the decor ends quietly and is never a completion, so it is not part of "every task".
     for (const level of Object.values(this.rooms)) for (const item of level.interactables) if (item.decorSlot === undefined && !item.delivery) ids.add(item.id);
@@ -187,6 +190,8 @@ export class AchievementsFeature implements Layer {
     this.unlocks.clear();
     this.toasts.clear();
     this.store.clear();
+    // A guest's flashcard progress (issue 089) goes with the rest; the sync key and the points window do not.
+    clearGuestCards(this.storage);
     this.resetting = true;
     try {
       this.game.decor.reset();

@@ -29,6 +29,9 @@ export function keyFromText(raw: string): string | null {
 // What is remembered between sessions, under one versioned key.
 interface Saved {
   key?: string;
+  // "guest" when the player chose to study without a key (issue 089). A saved
+  // key stays saved under it; without a mode a saved key is used.
+  mode?: "guest";
   // Cards paid so far in the current cap window, and the game minutes left
   // before the window resets, as of `anchor`.
   paid?: number;
@@ -54,6 +57,7 @@ export class StudyStore {
       const r = raw as Record<string, unknown>;
       const num = (v: unknown, max: number) => (typeof v === "number" && Number.isFinite(v) && v > 0 ? Math.min(v, max) : 0);
       return {
+        mode: r.mode === "guest" ? "guest" : undefined,
         key: typeof r.key === "string" && isKey(r.key) ? r.key : undefined,
         paid: Math.floor(num(r.paid, F.dailyCardCap)),
         left: num(r.left, F.capResetHours * 60),
@@ -75,8 +79,18 @@ export class StudyStore {
     return this.data.key ?? null;
   }
 
+  mode(): "guest" | null {
+    return this.data.mode ?? null;
+  }
+
+  setMode(mode: "guest" | null): void {
+    this.data = { ...this.data, mode: mode ?? undefined };
+    this.write();
+  }
+
+  // Saving a key also leaves guest mode.
   saveKey(key: string): void {
-    this.data = { ...this.data, key };
+    this.data = { ...this.data, key, mode: undefined };
     this.write();
   }
 
@@ -112,7 +126,7 @@ export class StudyStore {
   }
 }
 
-function browserStorage(): KeyValueStorage | null {
+export function browserStorage(): KeyValueStorage | null {
   try {
     return typeof localStorage === "undefined" ? null : localStorage;
   } catch {

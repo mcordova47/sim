@@ -83,6 +83,16 @@ Listening to the filtered voice showed three things still made the old way, as s
 - **The /l/ (style 8).** The /l/ was a 50 ms triangle tone sliding between two pitches, the worst consonant once the others were fixed. It is now the vowel source through a low resonance (360 Hz) and one around 1300 Hz (`voiceFiltL`).
 - **Style 9, diphthongs.** In style 7 a glide and its vowel were two separate sounds back to back, so the join was discontinuous. Now a vowel with a glide before it (`bien`, `agua`), after it (`aire`, `hoy`) or both (the triphthong of `estudiáis`) is one sound whose resonances move from the first to the second, with one loudness for the whole thing. The movement is most of the sound: they reach the vowel 60 percent of the way into a glide-vowel, leave it 30 percent of the way into a vowel-glide, and the sound stays at full level until 85 percent of the way so the end of the movement is heard (`DIPHTHONG_SHAPE` in `config.ts`; an offline model of the first version showed a vowel-glide (`hoy`) as 150 ms of steady vowel with the glide only during the fade, 20 dB down, and a glide-vowel (`bien`) as a 50 ms sweep followed by 100 ms of steady vowel, which is why it sounded like one held vowel) (`voiceDiphJE`, `voiceDiphAJ`, `voiceDiphJAJ` and their `Stress` twins; 80 are generated from `FORMANTS`). Two vowels in a row (`día`, `río`) are a hiatus, two syllables, and stay two separate sounds, so they keep the break. A glide between two vowels (`aya`) goes with the vowel after it. A glide next to no vowel keeps its old sound.
 
+### Timing variants (styles 10 to 12)
+
+With the diphthongs fixed they sound longer than the single vowels around them (a diphthong is 0.18 to 0.32 s, a single vowel 0.10 to 0.15 s, before the slowdown). Three variants to hear against style 9, each in `FLASHCARDS.voice.variants` and stepped to by V straight after the default (tags `longer`, `faster`, `consfast`):
+
+- **Style 10, `longer`:** single vowels last `longerVowels` times as long (1.4), both the sound and the time it takes, so a longer vowel is a longer sound and not a gap. Diphthongs and everything else keep their time.
+- **Style 11, `faster`:** style 10 with every time (sounds, gaps, the pauses between words) scaled by `faster` (0.87, about 13 percent quicker).
+- **Style 12, `consfast`:** style 10 instead with only the consonants quicker, by `quickConsonants` (0.75): the sound and the time it takes. The vowels, diphthongs and the pauses between words keep their time.
+
+None of the three changes which sounds are made or at what pitch, only the time they take. `FLASHCARDS.voice.style` is still 9 until one is chosen.
+
 ### Turning the levels
 
 - **Diphthongs:** `DIPHTHONG_SHAPE.level` in `config.ts` (0.11; 1.4 times that when stressed). It was 0.22, which with the held loudness made a diphthong about 9 dB louder than a vowel.
@@ -102,7 +112,7 @@ The deck has four sets, in this order when you ask for all of them, or one with 
 - **consonants:** each consonant between two a's (`aba`, `ada`, `aga`, ...), the usual way to compare consonants. Both the tap (`ara`) and the trill (`arra`) are there.
 - **words:** the first practice deck, single words, both card directions.
 
-V steps down from the best voice (diphthongs) through each earlier one to spelling and back (the tag shows which) and R says the card again, to hear them against each other on the same card.
+V steps from the default (diphthongs) through the timing variants (longer, faster, consfast), then down through each earlier voice to spelling and back (the tag shows which) and R says the card again, to hear them against each other on the same card.
 
 ## The interface
 

@@ -21,6 +21,8 @@ export interface Phoneme {
   glide?: string;
   // How loud, if not as the effect is written (see `FLASHCARDS.voice.murmurs`).
   gain?: number;
+  // True for a diphthong made one sound (style 9 on).
+  diphthong?: boolean;
 }
 
 // A pause between words.
@@ -189,7 +191,7 @@ function mergeDiphthongs(units: Unit[]): void {
     if (!on && !off) continue;
     const name = `voiceDiph${on ? on.key.toUpperCase() : ""}${vowel.key.toUpperCase()}${off ? off.key.toUpperCase() : ""}${vowel.stressed ? "Stress" : ""}`;
     const length = (on ? V.glideLength.to : 0) + (vowel.stressed ? V.formants.stressLength : V.formants.length) + (off ? V.glideLength.from : 0);
-    const merged: Phoneme = { ...vowel, symbol: `${on?.symbol ?? ""}${vowel.symbol}${off?.symbol ?? ""}`, effect: name, pitch: 1, length };
+    const merged: Phoneme = { ...vowel, symbol: `${on?.symbol ?? ""}${vowel.symbol}${off?.symbol ?? ""}`, effect: name, pitch: 1, length, diphthong: true };
     const first = on ? k - 1 : k;
     const count = (on ? 1 : 0) + 1 + (off ? 1 : 0);
     units.splice(first, count, merged);

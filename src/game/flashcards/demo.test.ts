@@ -138,11 +138,12 @@ describe("the practice deck", () => {
       order.push(a.voiceStyle);
       a.update(1 / 60, { ...NO_INPUT, keys: ["KeyV"], keysDown: ["KeyV"] });
     }
-    // It starts at the best voice, steps down to spelling and is back at the best.
-    expect(order).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    // It starts at the default, steps through the newest candidates, then down to
+    // spelling, and is back at the default.
+    expect(order).toEqual([9, 10, 11, 12, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
     expect(a.voiceStyle).toBe(F.voice.style);
-    expect(F.voice.style).toBe(VOICE_STYLES.length - 1);
-    expect(Object.keys(heard).sort()).toEqual(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]);
+    expect(F.voice.style).toBe(9);
+    expect(Object.keys(heard).sort()).toEqual(["0", "1", "10", "11", "12", "2", "3", "4", "5", "6", "7", "8", "9"]);
     expect(heard[1].map((v) => v.effect)).toEqual(["voiceGlideDown", "voiceVowelStress"]);
     expect(heard[2].map((v) => v.effect)).toEqual(["voiceGlideDown", "voiceFormantOStress"]);
     // Intonation and jitter change the pitches of the same sounds, in order.

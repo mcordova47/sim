@@ -1035,11 +1035,19 @@ export const FLASHCARDS = {
     // through resonances, so no vowel is higher than another, and the whole voice
     // slowed by `slow` (2 is half speed; the sounds are stretched too).
     slow: 1.15,
+    // Three timing variants of the diphthong voice to hear against it (V steps to
+    // them after it): style 10 makes the single vowels longer (`longerVowels`, a
+    // multiple of their length) so they sit with the longer diphthongs; style 11
+    // adds a little more speed to everything (`faster`, a multiple of the time it
+    // takes, so 0.87 is about 13 percent quicker); style 12 instead makes only the
+    // consonants quicker (`quickConsonants`) and leaves the vowels and the pauses.
+    variants: { longerVowels: 1.4, faster: 0.87, quickConsonants: 0.75 },
     // Which voice a card gets before V is pressed (an index into `VOICE_STYLES`):
     // 0 spelling, 1 ipa (the original), 2 formants, 3 intonation, 4 jitter, 5
     // filtered (the source-filter voice slowed), 6 filtered with intonation and
-    // jitter, 7 glides, 8 murmurs, 9 diphthongs. The best one is the default, and V
-    // steps from it down through the earlier ones.
+    // jitter, 7 glides, 8 murmurs, 9 diphthongs, 10 longer vowels, 11 faster, 12
+    // quicker consonants. V steps from the default through the newest candidates
+    // (10 to 12) and then down through the earlier voices to spelling.
     style: 9,
     longer: 1.5,
     symbols: {

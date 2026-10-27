@@ -43,9 +43,16 @@ export interface ListView {
   cursor: number;
   // A line to show instead of the usual hint, for example the reset question.
   message: string | null;
+  // The dialog voice setting ("DIALOG VOICE: BEEP"); without it there is no D key to show.
+  voice?: string | null;
   // Where the legend's icon comes from; without it (or the sprite) there is no legend.
   sprites?: SpriteDrawer;
 }
+
+// The line at the foot of the list. With the sound feature on, D switches the
+// dialog voice (its state is drawn at the right of the picked name's row).
+export const LIST_HINT = "ARROWS: LOOK   L: CLOSE   SHIFT+R: RESET";
+export const LIST_HINT_VOICE = "ARROWS: LOOK   D: VOICE   L: CLOSE   SHIFT+R: RESET";
 
 export const LEGEND_TEXT = "GOOD HOUR: 1.5X POINTS";
 
@@ -81,9 +88,10 @@ export function drawList(ctx: CanvasRenderingContext2D, view: ListView): void {
   if (picked) {
     const has = view.unlocked(picked.id);
     drawText(ctx, has ? picked.name : "???", 6, LIST_LAYOUT.footerTop, { color: COLOR.butter });
+    if (view.voice) drawText(ctx, view.voice, VIEW.width - 6, LIST_LAYOUT.footerTop, { color: COLOR.mist, shadow: null, align: "right" });
     drawText(ctx, has ? picked.description : "???", 6, LIST_LAYOUT.footerTop + 10, { color: COLOR.paper });
   }
-  const hint = view.message ?? "ARROWS: LOOK   L: CLOSE   SHIFT+R: RESET";
+  const hint = view.message ?? (view.voice ? LIST_HINT_VOICE : LIST_HINT);
   drawText(ctx, hint, VIEW.width / 2, VIEW.height - 9, {
     color: view.message ? COLOR.tangerine : COLOR.mist,
     align: "center",

@@ -246,6 +246,9 @@ export const ACHIEVEMENTS_UI = {
   // How the player opens the list of achievements (a KeyboardEvent.code). Not Tab,
   // Escape, E, X or the arrows, which other features use.
   listKey: "KeyL",
+  // Keys used inside the list screen (issue 075): D switches the dialog voice,
+  // Shift+R then Y resets. Issue 043's ad blocker will want one more; keep it clear of these.
+  dialogVoiceKey: "KeyD",
   // Progress is saved this often as well as when a task finishes, an achievement
   // unlocks and the page is hidden.
   saveEvery: 10,
@@ -526,6 +529,15 @@ export const SOUND = {
   combo: { semitonesPerStep: 2, maxSteps: 7 },
   // Text blips: one per this many characters that appear in a dialog.
   blipEveryChars: 3,
+  // The experimental letters voice for dialog text (issue 075): the spelling
+  // voice's per-letter sounds, one per `blipEveryChars` characters that appear
+  // (the letter at that slot; a space or mark is a rest). Quiet next to the
+  // flashcards (gain), a little random in pitch (0.04 is up to 4 percent either
+  // way), and a jump of more than `skipAbove` characters in one frame (the text
+  // was skipped) plays nothing.
+  dialogLetters: { gain: 0.5, wobble: 0.04, skipAbove: 8 },
+  // The dialog voices a player can choose between (the first is the default).
+  dialogVoices: ["beep", "letters"] as const,
   // Mini-game keys. The notes game plays a different note for each arrow.
   noteKeys: { up: note(7), down: note(-5), left: note(0), right: note(4) } as Record<string, number>,
   effects: {

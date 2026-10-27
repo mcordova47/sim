@@ -58,3 +58,12 @@ K:1 H:1 S:1 H:1 | K:1 H:1 S:1 K:1
 - At 100 bpm one beat is 0.6 seconds. The example above is 16 beats (9.6 seconds).
 
 The starter records `01-placeholder-*.track` to `03-placeholder-*.track` are placeholders so the player works; delete or replace them. The parser is `src/game/music/track.ts`.
+
+## The dialog voice experiment (issue 075)
+Dialog text types out with a plain beep (`blip`, one per `SOUND.blipEveryChars` characters). As an experiment there is a second voice, `letters`: the flashcards' spelling voice (`mumbleNotes` in `src/game/flashcards/mumble.ts`) played for the dialog typewriter. At each beep slot it plays the soft `mumble` sound for the letter that just appeared (vowels higher, consonants lower; a space or a mark is a rest), at half the flashcards' loudness (`SOUND.dialogLetters`) and with a little random wobble in pitch. Text that is skipped ahead plays nothing, it stops when the dialog closes, and it stays inside the usual voice cap. The flashcards' own voices are untouched.
+- **`beep` is the default** and sounds exactly as before (a golden test, `src/game/sound/golden/dialog-beep-voices.json`, was recorded on main and compares it call by call).
+- **Switch it in the game:** press L (achievements), then **D**. The right of the footer row shows `DIALOG VOICE: BEEP` or `LETTERS`. It is saved in `life.sound.v1` as `dialogVoice` (an old save or a junk value means `beep`).
+- **Quick try, dev server only:** `?dialogvoice=letters` (or `beep`) uses that voice for the visit without saving it.
+- Keys now used in the list screen: L (close), arrows, D (dialog voice), Shift+R then Y (reset). Issue 043's ad blocker key must avoid these.
+- To judge it: open any dialog (the record player menu, a note, a cutscene line) in each mode and listen. Keep it, make it the default, or remove it (`SOUND.dialogLetters`, `dialogVoices`, the `letters` method in `sound/feature.ts` and the D key are all the code there is).
+

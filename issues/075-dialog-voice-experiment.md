@@ -1,7 +1,7 @@
 ---
 id: 075
 title: Experiment: a per-letter voice for dialog text, behind a toggle
-status: todo
+status: review
 owner: claude
 depends_on: []
 ---
@@ -18,3 +18,12 @@ Marc (2026-10-27): keep the beepy dialog voice as the default, but try the idea 
 - Docs: `docs/music.md` or `docs/dialogs.md` explains the setting and how to try it. Marc listens and decides whether to keep it, promote it to the default, or remove it (a follow-up).
 
 ## Progress log
+
+- 2026-10-27: plan: add `dialogVoice` to the sound settings, a `letters` branch in `SoundFeature.blips()`, a `game.dialogVoice` hook (like `jukebox`) so the L screen can show and toggle it without importing sound, key D in the list screen, dev `?dialogvoice=`, tests, docs.
+- 2026-10-27: done. Files: `src/game/sound/{feature,settings}.ts`, `src/game/config.ts` (`SOUND.dialogLetters`, `dialogVoices`, `ACHIEVEMENTS_UI.dialogVoiceKey`), `src/game/game.ts` (the hook), `src/game/achievements/{feature,draw}.ts`, `docs/music.md`; tests `sound/dialog-voice.test.ts`, `sound/settings.test.ts`, `achievements/draw-voice.test.ts`, `achievements/feature.test.ts`; golden `sound/golden/dialog-beep-voices.json`.
+  - Beep path: the `blip` branch is the old code untouched (same random draws, same order). The golden was recorded by running the recorder on a detached checkout of main (6df97fc) before the change: oscillator types, frequency and gain calls and start/stop times for a short line, a multi-page text and a skipped text. The new code matches it exactly.
+  - Letters: at each slot of `blipEveryChars` characters the sound for the letter at that slot (from `mumbleNotes`), gain 0.5 of the effect, pitch wobble 4 percent from the feature's seeded random; more than 8 characters appearing in one frame (a skip) is silent; one sound per slot at most so the voice cap holds (low-priority effect).
+  - Keys in the L screen: L (close), arrows, D (dialog voice), Shift+R then Y. The hint line `ARROWS: LOOK   D: VOICE   L: CLOSE   SHIFT+R: RESET` fits (the full `ARROWS... D: DIALOG VOICE: LETTERS ...` line is 401 px, over the 320 width), so the state `DIALOG VOICE: BEEP/LETTERS` is drawn at the right of the picked name's row (tested against the widest achievement name). Rendered headless at 1x (scaled 3x to look at): fits, no overlap with the longest name.
+  - The `?dialogvoice=` override is dev only and is not saved; toggling in game saves.
+  - Not checked: how the letters voice sounds in a browser (Marc listens); tuning values are in `SOUND.dialogLetters`.
+

@@ -222,6 +222,10 @@ export class AchievementsFeature implements Layer {
     }
     if (!this.listOpen) return;
     if (e.code === "Escape") return this.closeList();
+    if (e.code === UI.dialogVoiceKey && !e.shiftKey) {
+      this.game.dialogVoice?.toggle();
+      return;
+    }
     if (e.code === "ArrowUp" || e.code === "ArrowDown") {
       e.preventDefault?.();
       const n = this.list.length;
@@ -252,6 +256,7 @@ export class AchievementsFeature implements Layer {
         achievements: this.list,
         unlocked: (id) => this.unlocks.has(id),
         cursor: this.cursor,
+        voice: this.game.dialogVoice?.label() ?? null,
         message: this.confirmReset ? "RESET ALL PROGRESS? Y: YES" : null,
         sprites: this.game.sprites,
       });

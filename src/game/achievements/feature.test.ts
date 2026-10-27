@@ -290,6 +290,33 @@ describe("AchievementsFeature", () => {
     });
   });
 
+  describe("the dialog voice key (issue 075)", () => {
+    const fakeVoice = () => {
+      let mode = "BEEP";
+      return { label: () => `DIALOG VOICE: ${mode}`, toggle: () => void (mode = mode === "BEEP" ? "LETTERS" : "BEEP") };
+    };
+
+    it("D switches the dialog voice while the list is open, and does nothing when it is closed", () => {
+      const { game, press } = setup();
+      game.dialogVoice = fakeVoice();
+      press("KeyD");
+      expect(game.dialogVoice.label()).toBe("DIALOG VOICE: BEEP");
+      press("KeyL");
+      press(UI.dialogVoiceKey);
+      expect(game.dialogVoice.label()).toBe("DIALOG VOICE: LETTERS");
+      press("KeyD");
+      expect(game.dialogVoice.label()).toBe("DIALOG VOICE: BEEP");
+    });
+
+    it("is not one of the other list keys, and without the sound feature does nothing", () => {
+      expect(["KeyL", "KeyR", "KeyY", "Escape", "ArrowUp", "ArrowDown"]).not.toContain(UI.dialogVoiceKey);
+      const { press, feature } = setup();
+      press("KeyL");
+      expect(() => press("KeyD")).not.toThrow();
+      expect(feature.listVisible).toBe(true);
+    });
+  });
+
   describe("resetting progress", () => {
     it("needs Shift+R and then Y with the list open", () => {
       const { game, feature, press, storage } = setup();

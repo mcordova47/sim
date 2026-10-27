@@ -180,6 +180,13 @@ export class ApartmentState {
 }
 
 // "7:30 AM" for a time given in hours since midnight.
+// The HUD's clock: the hour and minute with no AM or PM (the time-of-day icon says which), "9:40".
+export function formatClockShort(hours: number): string {
+  const total = Math.floor(hours * 60) % (24 * 60);
+  const h = Math.floor(total / 60);
+  return `${h % 12 === 0 ? 12 : h % 12}:${String(total % 60).padStart(2, "0")}`;
+}
+
 export function formatClock(hours: number): string {
   const total = Math.floor(hours * 60) % (24 * 60);
   const h = Math.floor(total / 60);

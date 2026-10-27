@@ -2,6 +2,7 @@ import { DECOR_DATA, itemSprites } from "../game/decor-data";
 import type { Level } from "../game/level";
 import { TASKS } from "../game/tasks";
 import { CARD_SPRITE } from "./encounter-card";
+import { HUD_ICON_NAMES } from "./hud";
 import { GOOD_HOUR_ICON } from "./world-ui";
 import { HELD_SPRITES, OUTFIT_SPRITES, PLAYER_SPRITES, POSE_SPRITES } from "./player-sprite";
 
@@ -9,7 +10,7 @@ import { HELD_SPRITES, OUTFIT_SPRITES, PLAYER_SPRITES, POSE_SPRITES } from "./pl
 // tiles, pieces, every look of an object that changes, the player in every outfit, the doing poses and the held items. Used to
 // load them before the first frame and to check that each one has a file.
 export function spriteNames(rooms: Iterable<Level>): string[] {
-  const names = new Set<string>([...PLAYER_SPRITES, ...OUTFIT_SPRITES, ...POSE_SPRITES, ...HELD_SPRITES, GOOD_HOUR_ICON, ...Object.values(CARD_SPRITE)]);
+  const names = new Set<string>([...PLAYER_SPRITES, ...OUTFIT_SPRITES, ...POSE_SPRITES, ...HELD_SPRITES, GOOD_HOUR_ICON, ...HUD_ICON_NAMES, ...Object.values(CARD_SPRITE)]);
   for (const level of rooms) {
     if (level.floor) names.add(level.floor.sprite);
     for (const wall of level.walls ?? []) {

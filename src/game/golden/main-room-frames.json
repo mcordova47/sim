@@ -2,289 +2,289 @@
  {
   "scenario": "start",
   "frame": 0,
-  "calls": 1113,
-  "hash": "594f7f214d0cb"
+  "calls": 649,
+  "hash": "317e842785836"
  },
  {
   "scenario": "start",
   "frame": 1,
-  "calls": 345,
-  "hash": "179d1185e7dedc"
+  "calls": 301,
+  "hash": "4f7809001a6f4"
  },
  {
   "scenario": "start",
   "frame": 2,
-  "calls": 345,
-  "hash": "3bf7131a28b31"
+  "calls": 301,
+  "hash": "b19a560aad06e"
  },
  {
   "scenario": "start",
   "frame": 3,
-  "calls": 345,
-  "hash": "5fd6c3746ebc2"
+  "calls": 301,
+  "hash": "1d202270ff05fb"
  },
  {
   "scenario": "plant-0",
   "frame": 0,
-  "calls": 322,
-  "hash": "75ac3ef80fa86"
+  "calls": 278,
+  "hash": "bc3667bae78bb"
  },
  {
   "scenario": "plant-0",
   "frame": 1,
-  "calls": 322,
-  "hash": "2583872c1e127"
+  "calls": 278,
+  "hash": "ed5041a0b5203"
  },
  {
   "scenario": "plant-0",
   "frame": 2,
-  "calls": 322,
-  "hash": "1687e67b765abe"
+  "calls": 278,
+  "hash": "194f22cb295396"
  },
  {
   "scenario": "plant-0",
   "frame": 3,
-  "calls": 322,
-  "hash": "8301c0db3c13"
+  "calls": 278,
+  "hash": "e6bd218807ebe"
  },
  {
   "scenario": "plant-1",
   "frame": 0,
-  "calls": 322,
-  "hash": "1c6bfd7f18ceef"
+  "calls": 278,
+  "hash": "916c20dfb9ace"
  },
  {
   "scenario": "plant-1",
   "frame": 1,
-  "calls": 322,
-  "hash": "6d549758b4606"
+  "calls": 278,
+  "hash": "7ead74a214c1a"
  },
  {
   "scenario": "plant-1",
   "frame": 2,
-  "calls": 322,
-  "hash": "bda790ac02719"
+  "calls": 278,
+  "hash": "13203a0ec18c7d"
  },
  {
   "scenario": "plant-1",
   "frame": 3,
-  "calls": 322,
-  "hash": "1ef6e760f914e9"
+  "calls": 278,
+  "hash": "183396260535c0"
  },
  {
   "scenario": "plant-2",
   "frame": 0,
-  "calls": 322,
-  "hash": "1f22df8c4513cc"
+  "calls": 278,
+  "hash": "1d0b6e08aabf4"
  },
  {
   "scenario": "plant-2",
   "frame": 1,
-  "calls": 322,
-  "hash": "78fffd93481d5"
+  "calls": 278,
+  "hash": "756316c0ebe76"
  },
  {
   "scenario": "plant-2",
   "frame": 2,
-  "calls": 322,
-  "hash": "1853ee5c2282b0"
+  "calls": 278,
+  "hash": "68523df3a4466"
  },
  {
   "scenario": "plant-2",
   "frame": 3,
-  "calls": 322,
-  "hash": "b4b38a1ccb545"
+  "calls": 278,
+  "hash": "847e1d5a7b75d"
  },
  {
   "scenario": "plant-3",
   "frame": 0,
-  "calls": 322,
-  "hash": "16f096c81fa1e6"
+  "calls": 278,
+  "hash": "12e2f03a1b5d4f"
  },
  {
   "scenario": "plant-3",
   "frame": 1,
-  "calls": 322,
-  "hash": "c1d5b518ca988"
+  "calls": 278,
+  "hash": "15869a5fc84e9"
  },
  {
   "scenario": "plant-3",
   "frame": 2,
-  "calls": 322,
-  "hash": "bee61b1ae012d"
+  "calls": 278,
+  "hash": "52b9182f868ae"
  },
  {
   "scenario": "plant-3",
   "frame": 3,
-  "calls": 322,
-  "hash": "dac45069b911"
+  "calls": 278,
+  "hash": "df837e8d2ee70"
  },
  {
   "scenario": "plant-wilted",
   "frame": 0,
-  "calls": 322,
-  "hash": "195e6ba6801fb2"
+  "calls": 278,
+  "hash": "e5a27c98a25e0"
  },
  {
   "scenario": "plant-wilted",
   "frame": 1,
-  "calls": 322,
-  "hash": "7a5a66ddc9242"
+  "calls": 278,
+  "hash": "dd4cbf3eec5a4"
  },
  {
   "scenario": "plant-wilted",
   "frame": 2,
-  "calls": 322,
-  "hash": "18d5c1876470ef"
+  "calls": 278,
+  "hash": "137b901ff9b6f9"
  },
  {
   "scenario": "plant-wilted",
   "frame": 3,
-  "calls": 322,
-  "hash": "a6d9635af80e5"
+  "calls": 278,
+  "hash": "d1dbe859e34e9"
  },
  {
   "scenario": "night",
   "frame": 0,
-  "calls": 369,
-  "hash": "18e4ff4f7da5d9"
+  "calls": 293,
+  "hash": "15e9e308d63246"
  },
  {
   "scenario": "night",
   "frame": 1,
-  "calls": 326,
-  "hash": "3aee0bd14793d"
+  "calls": 282,
+  "hash": "5148a3c14c10f"
  },
  {
   "scenario": "night",
   "frame": 2,
-  "calls": 326,
-  "hash": "187815cdfbdb4"
+  "calls": 282,
+  "hash": "a3c9819962f4c"
  },
  {
   "scenario": "night",
   "frame": 3,
-  "calls": 326,
-  "hash": "1da10217e065cb"
+  "calls": 282,
+  "hash": "132615ba713c19"
  },
  {
   "scenario": "dusk-blinds",
   "frame": 0,
-  "calls": 374,
-  "hash": "15acb7648527e4"
+  "calls": 330,
+  "hash": "1f4636af33f067"
  },
  {
   "scenario": "dusk-blinds",
   "frame": 1,
-  "calls": 320,
-  "hash": "19bc816bebc501"
+  "calls": 276,
+  "hash": "1ae5c30d9aaab0"
  },
  {
   "scenario": "dusk-blinds",
   "frame": 2,
-  "calls": 320,
-  "hash": "12ae0ae8dd5503"
+  "calls": 276,
+  "hash": "e3cc272d06d3c"
  },
  {
   "scenario": "dusk-blinds",
   "frame": 3,
-  "calls": 320,
-  "hash": "50d0b35e1e2dc"
+  "calls": 276,
+  "hash": "19e807031a652c"
  },
  {
   "scenario": "mug-carried",
   "frame": 0,
-  "calls": 356,
-  "hash": "1935762cea3071"
+  "calls": 312,
+  "hash": "1fec1e9287051c"
  },
  {
   "scenario": "mug-carried",
   "frame": 1,
-  "calls": 322,
-  "hash": "4c7cf8b44dc04"
+  "calls": 278,
+  "hash": "e14dc773e6439"
  },
  {
   "scenario": "mug-carried",
   "frame": 2,
-  "calls": 322,
-  "hash": "6009f9432634a"
+  "calls": 278,
+  "hash": "47eba06ce8597"
  },
  {
   "scenario": "mug-carried",
   "frame": 3,
-  "calls": 322,
-  "hash": "1131cff9ef990e"
+  "calls": 278,
+  "hash": "1adbcbbefc4b60"
  },
  {
   "scenario": "plate",
   "frame": 0,
-  "calls": 324,
-  "hash": "c5c56beae8039"
+  "calls": 280,
+  "hash": "c0bc019b2dd22"
  },
  {
   "scenario": "plate",
   "frame": 1,
-  "calls": 324,
-  "hash": "e77ad516fb773"
+  "calls": 280,
+  "hash": "e383f61d931c2"
  },
  {
   "scenario": "plate",
   "frame": 2,
-  "calls": 324,
-  "hash": "120d499633cc4b"
+  "calls": 280,
+  "hash": "4a1bf17aad438"
  },
  {
   "scenario": "plate",
   "frame": 3,
-  "calls": 324,
-  "hash": "e3eba18a5d148"
+  "calls": 280,
+  "hash": "12b759711e4381"
  },
  {
   "scenario": "blinds-closed-day",
   "frame": 0,
-  "calls": 328,
-  "hash": "166f8d5c30d6b0"
+  "calls": 284,
+  "hash": "147c78fef78ac0"
  },
  {
   "scenario": "blinds-closed-day",
   "frame": 1,
-  "calls": 298,
-  "hash": "15a799761f4c35"
+  "calls": 254,
+  "hash": "1389fe63dbab4d"
  },
  {
   "scenario": "blinds-closed-day",
   "frame": 2,
-  "calls": 298,
-  "hash": "15a799761f4c35"
+  "calls": 254,
+  "hash": "1389fe63dbab4d"
  },
  {
   "scenario": "blinds-closed-day",
   "frame": 3,
-  "calls": 298,
-  "hash": "15a799761f4c35"
+  "calls": 254,
+  "hash": "1389fe63dbab4d"
  },
  {
   "scenario": "morning",
   "frame": 0,
-  "calls": 358,
-  "hash": "2ce6cc1135167"
+  "calls": 314,
+  "hash": "946c7a0595b89"
  },
  {
   "scenario": "morning",
   "frame": 1,
-  "calls": 324,
-  "hash": "17026b91a95185"
+  "calls": 280,
+  "hash": "d48db8a5f0523"
  },
  {
   "scenario": "morning",
   "frame": 2,
-  "calls": 324,
-  "hash": "debdba80f96a1"
+  "calls": 280,
+  "hash": "ecf10fdacc32a"
  },
  {
   "scenario": "morning",
   "frame": 3,
-  "calls": 324,
-  "hash": "69a31059069f7"
+  "calls": 280,
+  "hash": "8fb2c5c8991d4"
  }
 ]

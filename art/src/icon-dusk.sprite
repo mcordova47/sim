@@ -1,0 +1,9 @@
+# Time of day: dawn and dusk. 7x7, not a tile. Drawn in the HUD ribbon (issue 086, docs/hud-design.md section 4).
+size: 7x7
+.......
+...c...
+.c.c.c.
+..ccc..
+ccccccc
+5555555
+.......

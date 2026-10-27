@@ -1,4 +1,5 @@
-import { VIEW } from "../game/config";
+import { HUD, VIEW } from "../game/config";
+import { textWidth } from "./font";
 
 export interface Box {
   x: number;
@@ -7,22 +8,69 @@ export interface Box {
   h: number;
 }
 
-// Screen area the HUD occupies. World labels (prompts, progress bars, popups)
-// are kept out of it.
-export const HUD_BOX: Box = { x: 0, y: 0, w: 152, h: 38 };
+// The HUD is two chips in the empty top band of the picture (issue 086): score and combo at the
+// left, clock, energy and mood at the right. The boxes below are what labels, popups and toasts
+// keep clear of: each chip plus a 2 px margin. The left one widens with the score's digits.
+const MARGIN = 2;
+const CHIP_BOTTOM = HUD.chipTop + HUD.chipHeight;
 
-// Screen area of the clock, energy and mood meters, top right.
-// It hugs the right edge of the view (x = 244 on the desktop's 320 px).
-export const STATUS_BOX: Box = {
-  get x() {
-    return VIEW.width - 76;
-  },
+// The text the clock field is sized for ("12:40"), so the chip does not change width as it ticks.
+export const CLOCK_FIELD = "88:88";
+export const COMBO_TEXT = "X1.0";
+
+// Width of the left chip (star, score, combo) for a score of `digits` digits.
+export function leftChipWidth(digits: number): number {
+  const score = textWidth("8".repeat(Math.max(digits, HUD.scoreDigits)));
+  return HUD.pad + HUD.iconSize + HUD.iconGap + score + HUD.groupGap + textWidth(COMBO_TEXT) + HUD.pad;
+}
+
+// Width of the right chip: time icon and clock, then an icon with a small bar for energy and for
+// mood, then the (empty) phone slot.
+export const RIGHT_CHIP_WIDTH =
+  HUD.pad +
+  HUD.iconSize + HUD.iconGap + textWidth(CLOCK_FIELD) +
+  2 * (HUD.groupGap + HUD.iconSize + HUD.iconGap + HUD.barWidth) +
+  HUD.phoneSlotWidth +
+  HUD.pad;
+
+let scoreDigits = HUD.scoreDigits;
+// The HUD tells the layout how many digits the score being shown has.
+export function setScoreDigits(digits: number): void {
+  scoreDigits = Math.max(digits, HUD.scoreDigits);
+}
+
+// The chips themselves, for the current score and view width.
+export function hudChips(view: { width: number }, digits = scoreDigits): { left: Box; right: Box } {
+  const right = RIGHT_CHIP_WIDTH;
+  return {
+    left: { x: HUD.edge, y: HUD.chipTop, w: leftChipWidth(digits), h: HUD.chipHeight },
+    right: { x: view.width - HUD.edge - right, y: HUD.chipTop, w: right, h: HUD.chipHeight },
+  };
+}
+
+// Screen area of the score chip, top left. It widens with the score.
+export const HUD_BOX: Box = {
+  x: 0,
   y: 0,
-  w: 76,
-  h: 50,
+  get w() {
+    return HUD.edge + leftChipWidth(scoreDigits) + MARGIN;
+  },
+  h: CHIP_BOTTOM + MARGIN,
 };
 
-const MARGIN = 2;
+// Screen area of the clock, energy and mood chip, top right. It hugs the right edge of the
+// current view (320 px on the desktop, 224 on the narrow view).
+export const STATUS_BOX: Box = {
+  get x() {
+    return VIEW.width - HUD.edge - RIGHT_CHIP_WIDTH - MARGIN;
+  },
+  y: 0,
+  get w() {
+    return VIEW.width - this.x;
+  },
+  h: CHIP_BOTTOM + MARGIN,
+};
+
 
 function intersects(a: Box, b: Box): boolean {
   return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;

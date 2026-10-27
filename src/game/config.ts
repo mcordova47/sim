@@ -349,7 +349,19 @@ export interface NoiseVoice {
   gain: number;
 }
 
-export type Voice = ToneVoice | NoiseVoice;
+// A voice made the way a throat does: a source at one pitch (`freq`) shaped by
+// resonances, one band-pass filter for each of `formants`. Only the source's
+// pitch follows the pitch an effect is played at; the formants stay put.
+export interface FormantVoice {
+  source: ToneWave;
+  freq: number;
+  formants: { freq: number; q: number; gain: number }[];
+  delay?: number;
+  length: number;
+  gain: number;
+}
+
+export type Voice = ToneVoice | NoiseVoice | FormantVoice;
 
 export interface EffectDef {
   voices: Voice[];
@@ -390,6 +402,37 @@ const formantEffects = (): Record<string, EffectDef> =>
     Object.entries(FORMANTS).flatMap(([vowel, f]) => [
       [`voiceFormant${vowel.toUpperCase()}`, formantEffect(f, 0.09, 1)],
       [`voiceFormant${vowel.toUpperCase()}Stress`, formantEffect(f, 0.14, 1.4)],
+    ]),
+  );
+
+// The same five vowels made the way a throat makes them (issue 026, the source-
+// filter voice): a sawtooth at ONE pitch, `SOURCE_F0`, through two band-pass
+// filters at the vowel's formants. Every vowel has the same pitch, and what
+// changes between them is only which frequencies the filters let through. `q` is
+// how narrow each resonance is and `level` how much of it is let through (the
+// filters are narrow, so they need turning up).
+export const SOURCE_F0 = 125;
+const SOURCE_FORMANT = { q: 5, level: [2.4, 1.8] };
+const filteredEffect = ({ f1, f2 }: { f1: number; f2: number }, length: number, loud: number): EffectDef => ({
+  priority: "low",
+  voices: [
+    {
+      source: "sawtooth",
+      freq: SOURCE_F0,
+      formants: [
+        { freq: f1, q: SOURCE_FORMANT.q, gain: SOURCE_FORMANT.level[0] },
+        { freq: f2, q: SOURCE_FORMANT.q, gain: SOURCE_FORMANT.level[1] },
+      ],
+      length,
+      gain: 0.22 * loud,
+    },
+  ],
+});
+const filteredEffects = (): Record<string, EffectDef> =>
+  Object.fromEntries(
+    Object.entries(FORMANTS).flatMap(([vowel, f]) => [
+      [`voiceFilt${vowel.toUpperCase()}`, filteredEffect(f, 0.09, 1)],
+      [`voiceFilt${vowel.toUpperCase()}Stress`, filteredEffect(f, 0.14, 1.4)],
     ]),
   );
 
@@ -475,6 +518,7 @@ export const SOUND = {
     // Mumblespeak: one short soft blip per letter of Spanish being "spoken" (issue 026).
     mumble: { priority: "low", voices: [{ wave: "triangle", freq: 330, length: 0.05, gain: 0.16 }] },
     ...formantEffects(),
+    ...filteredEffects(),
     // The IPA voice (issue 026): one short sound per phoneme, in a chiptune
     // manner. Which symbol uses which effect, at what pitch and for how long on
     // the timeline is the table `FLASHCARDS.voice.symbols`.
@@ -831,8 +875,13 @@ export const FLASHCARDS = {
     formants: { length: 0.1, stressLength: 0.15 },
     intonation: { declination: -0.08, stressBump: 0.07, finalFall: -0.06 },
     jitter: 0.03,
+    // The source-filter voices (styles 5 and 6): vowels from a source at one pitch
+    // through resonances, so no vowel is higher than another, and the whole voice
+    // slowed by `slow` (2 is half speed; the sounds are stretched too).
+    slow: 1.4,
     // Which voice a card gets before V is pressed: 0 spelling, 1 ipa (the
-    // original), 2 formants, 3 intonation, 4 jitter.
+    // original), 2 formants, 3 intonation, 4 jitter, 5 filtered (the source-filter
+    // voice slowed), 6 filtered with intonation and jitter.
     style: 1,
     longer: 1.5,
     symbols: {

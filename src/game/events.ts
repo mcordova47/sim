@@ -35,7 +35,7 @@ export interface GameEvents {
   blip: { freq: number };
   // One sound of the flashcards' voice: `effect` from SOUND.effects ("mumble" if
   // missing), `pitch` as a multiple of its frequencies, `gain` as a multiple of its loudness.
-  voice: { pitch: number; effect?: string; gain?: number };
+  voice: { pitch: number; effect?: string; gain?: number; stretch?: number };
   // The record player picked a record, a demo or silence (`id` null), and it is
   // now on. `paid` is true when the choice also pays (issue 068). Sent just
   // before the task ends.

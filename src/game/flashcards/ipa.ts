@@ -42,10 +42,14 @@ const lookup = (symbol: string) => {
   return entry ? { key: key!, entry } : undefined;
 };
 
-// With `formants`, a vowel is made by its timbre (the formant effects) at one
-// pitch, and stress is only length and loudness. Without, the original voice:
-// a vowel is a tone at its own pitch, a little higher when stressed.
-export function readIpa(ipa: string, formants = false): Reading {
+// How a vowel is made: "pitch" (the original voice: a tone at its own pitch, a
+// little higher when stressed), "tones" (two tones at its formants over a buzz,
+// at one pitch) or "filtered" (a source at one pitch through resonances at its
+// formants). With the last two, stress is only length and loudness.
+export type VowelMaker = "pitch" | "tones" | "filtered";
+
+export function readIpa(ipa: string, vowels: VowelMaker | boolean = "pitch"): Reading {
+  const maker: VowelMaker = vowels === true ? "tones" : vowels === false ? "pitch" : vowels;
   const units: Unit[] = [];
   const unknown = new Set<string>();
   const chars = [...ipa.normalize("NFC")];
@@ -96,8 +100,8 @@ export function readIpa(ipa: string, formants = false): Reading {
     const vowel = entry.vowel === true;
     const stress = vowel && stressed;
     if (stress) stressed = false;
-    if (formants && vowel) {
-      const name = `voiceFormant${key.toUpperCase()}`;
+    if (maker !== "pitch" && vowel) {
+      const name = `${maker === "filtered" ? "voiceFilt" : "voiceFormant"}${key.toUpperCase()}`;
       units.push({
         symbol,
         effect: stress ? `${name}Stress` : name,

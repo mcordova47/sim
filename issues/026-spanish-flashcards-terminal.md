@@ -1,7 +1,7 @@
 ---
 id: 026
 title: Spanish flashcards on the in-game computer (stretch)
-status: done
+status: review
 owner: marc + claude
 depends_on: [021, 022, 023]
 ---
@@ -227,3 +227,4 @@ The app is "Mil Palabras" (palabras.mcord.dev): PureScript, Netlify, spaced repe
   - **Scope and conventions:** pass; tuning is in config, no new files.
   - **Unverified:** how it sounds in a browser (whether the layered square and triangle tones read as vowels or as beeps, the /a/ buzz fusion noted above, loudness and clipping of three layers in real Web Audio).
   - **Verdict: approve.** Branch to merge: `issue/026-speech-voice`. PLAN.md table (if it tracks this) needs the planner.
+- 2026-10-26: **Source-filter voice on branch issue/026-source-filter** (from issue/026-speech-voice, so it needs that merged first). Marc asked for a variant of the formant voice with no pitch change between vowels, a little slowed down, and wanted to understand how it works. Finding: the formants voice (style 2) still changes pitch between vowels, because its two formant tones are real tones that the ear hears as notes. Built the real thing: a new `FormantVoice` kind (a sawtooth source at one pitch through a band-pass filter for each formant; only the source follows pitch), handled in `sound/synth.ts` (one oscillator per voice for the cap, filters cleaned up), `PlayOptions.stretch` (scales a voice's length and delay), `SOURCE_F0`, `voiceFilt*` effects and `FLASHCARDS.voice.slow` in config, and styles 5 `filtered` (just that, slowed) and 6 `filtered+` (adds intonation and jitter to the source) in `VOICE_STYLES`, with a recipe table in `ipaScript`. The `voice` event and host carry `stretch`. `docs/flashcards.md` has an explainer and a table of knobs. Tests in `synth.test.ts`, `ipa.test.ts`, `demo.test.ts` and `feature.test.ts`; `tsc` and `npm test` (1932) pass. Not checked: how it sounds. The filter Q, levels and gain are untested guesses; the voice may be too quiet or too whistly. Not independently reviewed yet.

@@ -110,6 +110,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 072 | [A real pantry (a stack of clear bins); remove the tote bag](issues/072-pantry-and-no-tote.md) | agent | done | |
 | 073 | [Decor: an item is displayed in one place at a time (swap, inventory)](issues/073-decor-inventory.md) | claude | done | |
 | 074 | [Art for the first gifts (paintings, lamps, plant, poster)](issues/074-art-first-gifts.md) | agent | todo | |
+| 075 | [Experiment: a per-letter voice for dialog text, behind a toggle](issues/075-dialog-voice-experiment.md) | claude | todo | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

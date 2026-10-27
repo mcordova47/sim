@@ -20,6 +20,9 @@ export interface Core {
   card(progress: string | null, slug: string, language?: string): CoreCard;
   grade(progress: string | null, slug: string, gotIt: boolean, now?: number, language?: string): string;
   merge(mine: string | null, theirs: string | null, language?: string): string;
+  // How a word is said (a card's own slug), or null if there is no transcription.
+  // Optional: a core without it is still usable, and the voice goes by spelling.
+  ipa?(slug: string, dialect?: string, language?: string): string | null;
   requeue(slug: string, position: number, queue: string[]): string[];
 }
 

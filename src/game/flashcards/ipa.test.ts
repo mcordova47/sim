@@ -36,6 +36,14 @@ describe("readIpa", () => {
     expect(symbols("a̩e")).toEqual(["a", "e"]);
   });
 
+  it("does not voice the optional (se) of a reflexive verb", () => {
+    expect(symbols("iɾ(se)")).toEqual(["i", "ɾ"]);
+    expect(symbols("ʝaˈmaɾ(se)")).toEqual(["ʝ", "a", "m", "a", "ɾ"]);
+    expect(symbols("ˈa(")).toEqual(["a"]);
+    expect(symbols("a)b")).toEqual(["a", "b"]);
+    expect(readIpa("iɾ(se)").unknown).toEqual([]);
+  });
+
   it("lengthens a long vowel", () => {
     const [short] = phonemes("a");
     const [long] = phonemes("aː");

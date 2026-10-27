@@ -39,15 +39,31 @@ class RealSession implements StudySession {
     const c = this.core.card(this.local, slug, F.language);
     const answer = nfc(c.answers.join(", "));
     const recognition = c.direction === "recognition";
+    // The card's own word, in either direction (a production card lists every
+    // word that shares its English, but its slug is the one word it is for).
+    const ipa = this.ipaOf(slug);
     return {
       slug,
       prompt: nfc(c.prompt),
       answer,
       ...(c.example ? { hint: nfc(c.example) } : {}),
       // Recognition shows the Spanish word first; production turns it over to reveal it.
+      ...(ipa ? { ipa } : {}),
       spoken: recognition ? nfc(c.prompt) : answer,
       speaks: recognition ? "front" : "back",
     };
+  }
+
+  // The transcription of a card's word, or null. Never throws: the voice falls
+  // back to spelling.
+  private ipaOf(slug: string): string | null {
+    try {
+      const ipa: unknown = this.core.ipa?.(slug, F.dialect, F.language);
+      // Only text is a transcription; anything else from a core is ignored.
+      return typeof ipa === "string" && ipa.trim() !== "" ? ipa : null;
+    } catch {
+      return null;
+    }
   }
 
   requeue(queue: string[], position: number, slug: string): string[] {

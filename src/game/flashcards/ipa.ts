@@ -52,6 +52,12 @@ export function readIpa(ipa: string): Reading {
       continue;
     }
     if (ch === "ˌ" || ch === ".") continue;
+    // `(se)` on a reflexive verb is the optional part: it is not voiced.
+    if (ch === "(") {
+      while (i < chars.length && chars[i] !== ")") i++;
+      continue;
+    }
+    if (ch === ")") continue;
     if (TIE.test(ch) || MARKS.test(ch)) continue;
     if (ch === "ː") {
       const last = units[units.length - 1];

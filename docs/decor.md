@@ -88,6 +88,7 @@ An item fits a slot if its kind is in the slot's `kinds` and its sprite size equ
 | `art-bed` | 224, 0, 48x16 | art | `art-silkscreen` (sprite `painting-wide`) | nightstand |
 | `plant-shelf` | 160, 52, 16x16 (the overlay piece 063 built, on the bookshelf) | plant | `plant-snake` (family `plant`) | bookshelf |
 | `lamp-sofa` | 128, 96, 16x16 (the lamp table) | lamp | `lamp-table` | lamp table |
+| `pantry` | kitchen, 176, 16, 16x32 (the pantry, issue 072) | pantry | `pantry-bins` (sprite `pantry`; the id starts with the kind) | nowhere yet: no `object`, one item, so no swap task. Stage 4 adds upgrade items (and sets `object`). |
 (The five rows above are what stage 1 has. The rows after are later.)
 | `rug-floor` | open floor, 64x32, drawn under the player, no solid | rug | none | sofa |
 | `prop-nightstand` | a 16x16 corner of the nightstand | prop | none | nightstand |

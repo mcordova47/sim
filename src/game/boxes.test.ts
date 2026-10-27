@@ -220,7 +220,7 @@ describe("Take out the recycling (issue 070)", () => {
   });
 
   it("the north-east corner has no recycling bin: no object, no sprite, plain floor where it stood", () => {
-    expect(KITCHEN_MAP[1]).toBe("#........NXX#");
+    expect(KITCHEN_MAP[1]).toBe("#........NXP#");
     expect(KITCHEN_MAP.join("")).not.toContain("Y");
     for (const level of Object.values(rooms)) {
       for (const p of level.pieces ?? []) expect(p.sprite).not.toBe("recycling");

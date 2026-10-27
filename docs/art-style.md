@@ -60,7 +60,7 @@ Use the same palette keys for the same material everywhere, so sprites drawn by 
 | Dark wood (walnut, red-brown) | `8` | `9` | `7` | dining table, sofa frame, record stand |
 | White (appliance, porcelain, sheets) | `6` | `6` | `5` | toilet, vanity top, tub, pillows |
 | Steel (fridge, stove, sink) | `5` | `6` | `4` | brushed metal; keep highlights on the top-left |
-| Black plastic and metal | `3` | `4` | `2` | bin, tote bag, stove burners, rods |
+| Black plastic and metal | `3` | `4` | `2` | bin, stove burners, rods |
 | Cardboard | `9` | `a` | `8` | boxes |
 | Plants | `f` | `d` | `e` | leaves; pots use wood or `c` |
 | Teal appliance, fabric accents | `g` | `i` | `4` | microwave, sofa geometric pattern |
@@ -96,7 +96,8 @@ Sorted for the top-down view. **Reuse:** use as-is (wall-mounted or flat). **Ada
 | bed | 64x32 | Redraw | Side profile. Replaced by `bed-made` (32x48, new). |
 | bin | 16x32 | Adapt | Front-facing; add a lid top, trim to 16x16 plus a few rows. |
 | bookshelf | 16x64 | Redraw | Issue 047: top-down, the oak top with the plant, books, bowl and vase on it and the shelf's south end as the front slice (1x4 tiles). The face-on drawing with the book spines is kept as `view-bookshelf` (see below). |
-| boxes | 16x80 | Redraw | A stack seen from the side; draw as a 16x16 box with a top face. |
+| boxes | 16x16 | Redraw | A stack seen from the side; drawn as a 16x16 box with a top face. Three states (stack, flat, gone = empty). Issue 072: no pantry tub in it any more. |
+| pantry | 16x32 | New (issue 072) | Clear bins with navy lids and a yellow lid on the lowest, pantry food piled on top, from the photo. No labels. |
 | counter | 32x48 | Adapt | Front cabinets are right; add a counter top slice. |
 | desk | 48x48 | Redraw | Table on legs; from above the top surface matters. |
 | fridge | 32x96 | Adapt | Front doors are right; too tall, trim to about 2x4 and add a top slice. |
@@ -112,7 +113,7 @@ Sorted for the top-down view. **Reuse:** use as-is (wall-mounted or flat). **Ada
 | stove | 48x48 | Adapt | Front-facing; add a top slice with burners. |
 | table | 48x32 | Redraw | Draw the tabletop from above with the mug and kettle on it. |
 | toilet | 32x32 | Redraw | Front elevation; needs the lid and seat seen from above and in front. |
-| tote | 16x16 | Reuse | Small floor item, reads fine. |
+| tote | | Removed (issue 072) | The kitchen tote bag was taken out. |
 | tub | 48x32 | Redraw | Side view; draw the long edge facing the player. |
 | vanity | 32x48 | Adapt | Front-facing; add a top slice. |
 | window-blinds, window-curtain | 32x64 | Reuse | Hang on the back wall; trim height to fit the wall band. |

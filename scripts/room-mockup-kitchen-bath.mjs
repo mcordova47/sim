@@ -4,7 +4,10 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { root, parseSprite, rasterize, encodePng } from "./sprite-lib.mjs";
 
-const T = 16, SCALE = 4;
+// Optional: BOXES=boxes|boxes-flat|boxes-gone draws the kitchen boxes in that state, CROP=c0,r0,c1,r1 (tiles,
+// end exclusive) cuts the picture, SCALE=1 draws at 1x and OUT=name changes the file name (mockup-<room><name>.png).
+const T = 16, SCALE = Number(process.env.SCALE ?? 4);
+const CROP = process.env.CROP?.split(",").map(Number);
 const load = (name) => rasterize(parseSprite(`${name}.sprite`, readFileSync(join(root, "art", "src", `${name}.sprite`), "utf8")));
 const src = readFileSync(join(root, "src", "game", "apartment.ts"), "utf8");
 const mapOf = (id) => [...src.match(new RegExp(`const ${id}_MAP = \\[([\\s\\S]*?)\\];`))[1].matchAll(/"([^"]*)"/g)].map((m) => m[1]);
@@ -14,7 +17,7 @@ const ROOMS = {
   kitchen: {
     map: mapOf("KITCHEN"), floor: "floor-kitchen", wallL: "wall-side-left-kitchen", wallR: "wall-side-right-kitchen",
     doorL: "doorway-left-kitchen", doorR: "doorway-right-kitchen",
-    legend: { C: "dishes-2", V: "stove", h: "hood", N: "bin", X: "boxes", O: "tote", F: "fridge", c: "window-curtain" },
+    legend: { C: "dishes-2", V: "stove", h: "hood", N: "bin", X: process.env.BOXES ?? "boxes", P: "pantry", F: "fridge", c: "window-curtain" },
   },
   bath: {
     map: mapOf("BATH"), floor: "floor-bath", wallL: "wall-side-left-bath", wallR: "wall-side-right-bath",
@@ -57,12 +60,14 @@ for (const [room, r] of Object.entries(ROOMS)) {
   for (const t of things) blit(t.img, t.x, t.y);
   blit(load("player-idle-down"), rows.findIndex((s) => s.includes("@")) >= 0 ? rows.map((s) => s.indexOf("@")).find((i) => i >= 0) * T : 0, rows.findIndex((s) => s.includes("@")) * T);
 
-  const big = Buffer.alloc(W * SCALE * H * SCALE * 4);
-  for (let y = 0; y < H * SCALE; y++) for (let x = 0; x < W * SCALE; x++) {
-    const i = ((y / SCALE | 0) * W + (x / SCALE | 0)) * 4;
-    rgba.copy(big, (y * W * SCALE + x) * 4, i, i + 4);
+  const [x0, y0, x1, y1] = CROP && room === "kitchen" ? CROP.map((n) => n * T) : [0, 0, W, H];
+  const cw = x1 - x0, ch = y1 - y0;
+  const big = Buffer.alloc(cw * SCALE * ch * SCALE * 4);
+  for (let y = 0; y < ch * SCALE; y++) for (let x = 0; x < cw * SCALE; x++) {
+    const i = (((y / SCALE | 0) + y0) * W + (x / SCALE | 0) + x0) * 4;
+    rgba.copy(big, (y * cw * SCALE + x) * 4, i, i + 4);
   }
-  const outPath = join(root, "art", `mockup-${room}.png`);
-  writeFileSync(outPath, encodePng({ width: W * SCALE, height: H * SCALE, rgba: big }));
+  const outPath = join(root, "art", `mockup-${room}${process.env.OUT ?? ""}.png`);
+  writeFileSync(outPath, encodePng({ width: cw * SCALE, height: ch * SCALE, rgba: big }));
   console.log(`Wrote ${outPath}`);
 }

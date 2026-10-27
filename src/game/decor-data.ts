@@ -6,7 +6,7 @@ import type { Rect } from "./world";
 // here and a sprite, adding a slot is a line here and a `slot` on the object.
 // Nothing here costs anything or is ever required.
 
-export type DecorKind = "art" | "plant" | "lamp" | "prop" | "rug" | "instrument" | "plugin";
+export type DecorKind = "art" | "plant" | "lamp" | "prop" | "rug" | "instrument" | "plugin" | "pantry";
 
 // A place that holds one item. `area` is where the item's sprite is drawn, in
 // pixels from the room's top left; an item fits only if its size is the same.
@@ -87,6 +87,8 @@ export const DECOR_SLOTS: DecorSlot[] = [
   { id: "art-bed", room: "main", name: "ART OVER THE BED", area: { x: 224, y: 0, w: 48, h: 16 }, kinds: ["art"], default: "art-silkscreen", object: "nightstand" },
   { id: "plant-shelf", room: "main", name: "PLANT ON THE SHELF", area: { x: 160, y: 52, w: 16, h: 16 }, kinds: ["plant"], default: "plant-snake", stageVar: "plantStage", dryVar: "plantDry", growthVar: "plantGrowth", object: "cube bookshelf" },
   { id: "lamp-sofa", room: "main", name: "LAMP BY THE SOFA", area: { x: 128, y: 96, w: 16, h: 16 }, kinds: ["lamp"], default: "lamp-table", object: "lamp table" },
+  // The pantry in the kitchen (issue 072): a 16x32 stack of bins down the east wall. Nothing to swap yet (no `object`, one item); stage 4 can add upgrade items.
+  { id: "pantry", room: "kitchen", name: "PANTRY", area: { x: 176, y: 16, w: 16, h: 32 }, kinds: ["pantry"], default: "pantry-bins" },
 ];
 
 // Today's room, as items. These are the starting set: owned from the first run.
@@ -96,6 +98,7 @@ export const DECOR_ITEMS: DecorItem[] = [
   { id: "art-silkscreen", name: "SILKSCREEN", kind: "art", sprite: "painting-wide", w: 48, h: 16, color: "paper", how: "start", slots: ["art-bed"] },
   { id: "plant-snake", name: "SNAKE PLANT", kind: "plant", sprite: "plant-1", family: "plant", w: 16, h: 16, color: "leaf", how: "start" },
   { id: "lamp-table", name: "LAMP", kind: "lamp", sprite: "lamp-table", w: 16, h: 16, color: "butter", how: "start", glow: { radius: 40, alpha: 0.2 } },
+  { id: "pantry-bins", name: "CLEAR BINS", kind: "pantry", sprite: "pantry", w: 16, h: 32, color: "mist", how: "start" },
 ];
 
 // TEST items (issue 062 stage 2): borrowed sprites, so the swap can be tried and

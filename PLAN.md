@@ -111,7 +111,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 073 | [Decor: an item is displayed in one place at a time (swap, inventory)](issues/073-decor-inventory.md) | claude | done | |
 | 074 | [Art for the first gifts (paintings, lamps, plant, poster)](issues/074-art-first-gifts.md) | agent | done | |
 | 075 | [Experiment: a per-letter voice for dialog text, behind a toggle](issues/075-dialog-voice-experiment.md) | claude | done | |
-| 076 | [More paintings from Marc's unhung pieces; a different concert poster](issues/076-more-paintings-and-poster.md) | agent | blocked | waiting on Marc's photos |
+| 076 | [More paintings from Marc's unhung pieces; a different concert poster](issues/076-more-paintings-and-poster.md) | agent | todo | |
 | 077 | [Make the per-letter voice the default for dialog text](issues/077-letters-voice-default.md) | claude | done | |
 | 078 | [A sleep sequence instead of just a timer](issues/078-sleep-sequence.md) | marc + claude | todo | |
 

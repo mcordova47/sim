@@ -1,4 +1,4 @@
-import { SLEEP, type SleepSettings } from "./config";
+import { SLEEP, SLEEP_BREATH, type SleepSettings } from "./config";
 
 // The sleep sequence's timeline (issue 078, docs/sleep.md). A pure function of
 // the seconds elapsed, so it can be tested with plain numbers. The running
@@ -22,12 +22,27 @@ export interface SleepScene {
   skipHours: number;
   // 1 normal to 0 hidden: the progress banner.
   bannerAlpha: number;
+  // Whole pixels the chest is raised right now (0 or `breathPixels`): 0 outside the asleep phase.
+  breath: number;
   settings: SleepSettings;
 }
 
 export const sleepTotal = (s: SleepSettings): number => s.fall + s.asleep + s.wake;
 
 const clamp01 = (x: number): number => Math.min(1, Math.max(0, x));
+
+// Where in the breath (0 up to 1) the sleeper is at `t`, or null when not asleep.
+export function breathCycle(s: SleepSettings, t: number): number | null {
+  if (t < s.fall || t >= s.fall + s.asleep || s.breathPeriod <= 0) return null;
+  return ((t - s.fall) / s.breathPeriod) % 1;
+}
+
+// A whole-pixel rise: up for the middle of each breath, at rest (0) the rest of
+// the time, always at rest when falling asleep and waking, and so at the very start and end.
+export function breathOffset(s: SleepSettings, t: number): number {
+  const p = breathCycle(s, t);
+  return p !== null && p >= SLEEP_BREATH.riseAt && p < SLEEP_BREATH.fallAt ? s.breathPixels : 0;
+}
 
 export function sleepSceneAt(kind: SleepKind, t: number, skipHours: number): SleepScene {
   const s = SLEEP[kind];
@@ -49,5 +64,5 @@ export function sleepSceneAt(kind: SleepKind, t: number, skipHours: number): Sle
   // over the last `bannerFade` seconds.
   const f = s.bannerFade;
   const bannerAlpha = f <= 0 ? 1 : time < total / 2 ? 1 - clamp01(time / f) : clamp01((time - (total - f)) / f);
-  return { kind, phase, t: time, dark, morning, skipHours, bannerAlpha, settings: s };
+  return { kind, phase, t: time, dark, morning, skipHours, bannerAlpha, breath: breathOffset(s, time), settings: s };
 }

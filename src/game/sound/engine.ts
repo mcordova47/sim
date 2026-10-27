@@ -1,13 +1,17 @@
 import { SOUND } from "../config";
 import type { AudioContextLike, AudioFactory } from "./audio-types";
 import { MusicPlayer } from "./music-player";
-import { Synth, type PlayOptions } from "./synth";
+import { SleepSound } from "./sleep-sound";
+import type { SleepScene } from "../sleep";
+import { Synth, type Bus, type PlayOptions } from "./synth";
 
 // The audio side of the sound feature, with no knowledge of the game. Browsers
 // only allow audio after a key press, so nothing is made until `unlock()`; until
 // then (and if audio is missing or throws) every call quietly does nothing.
 export class SoundEngine {
   readonly music = new MusicPlayer();
+  // The sleep sequence's lullaby, snore and the record's ducking (issue 078).
+  readonly sleep = new SleepSound();
   private ctx: AudioContextLike | null = null;
   private synth: Synth | null = null;
   private broken = false;
@@ -74,6 +78,20 @@ export class SoundEngine {
     if (!this.synth) return;
     try {
       this.music.update(this.synth);
+    } catch {
+      // Same: no sound is worth an error.
+    }
+  }
+
+  // The level a bus has right now, or null before there is any audio (for tests and the sleep sound).
+  busLevel(bus: Bus): number | null {
+    return this.synth ? this.synth.busLevel(bus) : null;
+  }
+
+  // Call every frame with the sleep scene (null when nobody is asleep).
+  updateSleep(scene: SleepScene | null): void {
+    try {
+      this.sleep.update(scene, this.synth, (name) => this.play(name));
     } catch {
       // Same: no sound is worth an error.
     }

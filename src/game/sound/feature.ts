@@ -257,6 +257,7 @@ export class SoundFeature implements Layer {
     this.nowPlayingFor = Math.max(0, this.nowPlayingFor - dt);
     this.indicatorFor = Math.max(0, this.indicatorFor - dt);
     this.engine.update();
+    this.engine.updateSleep(this.game.sleepScene);
     if (this.demos.version !== this.demoVersion) this.syncDemos();
     this.blips();
     this.liftMood(dt);

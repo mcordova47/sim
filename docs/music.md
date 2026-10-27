@@ -24,6 +24,19 @@ Design and the reasons for each choice are in `docs/make-tracks.md`. In short:
 - **Pasting in** (V) accepts only what the editor can show: one beat channel and up to two tunes, notes on the half beat and at most 4 steps long, at most 32 steps, notes between C3 and B5 (melody) or C2 and B3 (bass), a whole-number tempo of 60 to 180, a name the editor allows, and at most 2 KB. Anything else is refused with the reason, and nothing changes. A pasted track is a draft until you press S.
 - The code is `src/game/music/demos.ts` (the grid and the text round trip), `demo-store.ts` (storage and the reward), `demo-library.ts` (the shared store and the record menu), `src/game/activities/make-track.ts` (the editor) and `src/render/track-editor.ts` (how it looks).
 
+## System tracks and the sleep lullaby (issue 078)
+`src/game/music/system/` holds tracks the game plays for itself. They are `.track` files like the records, but the record player never reads that folder: they are not in its menu, cannot be chosen, and are not saved in `life.sound.v1`. `src/game/music/system-tracks.ts` loads them by id (the file name). Today there is one, `sleep-lullaby.track`: a first draft by Claude to be replaced by ear (edit the file, or make one in the track editor and paste it in): four bars of three beats at 72 bpm, a sine melody over a triangle bass, exactly 10 seconds, so one pass covers the 9 second sleep.
+
+The sound has a third bus, `sleep`, next to `effects` and `music`. It is made the first time it is used, and sits at 0 (silent) until ramped up. `Synth.rampBus(bus, level, seconds)` moves a bus's gain in a straight line from where it is now (it replaces a ramp that is going; `busLevel` reads where a bus is); only the bus moves, never the notes on it and never the master, so mute is untouched. `MusicPlayer` takes the bus name (`"music"` for the record player, `"sleep"` for the lullaby's own player).
+
+**While you sleep** (`src/game/sound/sleep-sound.ts`, driven by the scene of the sleep activity, see `docs/sleep.md`):
+- The lullaby fades in over `lullabyIn` (1.5 s) starting `lullabyInDelay` (0.3 s) after you lie down, to `lullabyGain` (0.55) on the sleep bus, and fades out over the last `lullabyOut` (2 s). Naps have none.
+- A **playing record is ducked, not stopped**: its bus goes to `duckTo` (12 percent) of its level over `duckDown` (1 s), and comes back over `duckUp` (1.5 s) from the start of the wake. The record keeps playing in time and tune, quietly; the player, the chosen record, "Now playing" and the saved choice never change. The little notes over the record player stop while it is ducked. Naps do not duck.
+- A **snore** (`SOUND.effects.snore`, the quietest sound in the game, `SLEEP.sleep.snoreGain`) on each out-breath while asleep, only in a sleep, never a nap.
+- **Escape** (or an error) puts every bus back to rest in `escapeRestore` (0.4 s) and stops the lullaby.
+- **Mute** is untouched: the master gain is 0 and everything is silent, the fades going on in time, so unmuting part way is at the right point of the fade. The sequence never changes the mute or writes the saved settings (a duck is never saved).
+- With **no audio** (before the first key, or no audio in the browser) the sequence runs in silence. The lullaby starts only if there is a synth when the sequence begins: audio that starts part way through stays silent to its end.
+
 ## Mute
 Press **M** to mute and unmute. While muted a small `MUTE` tag shows at the top of the screen; after unmuting `SOUND ON` shows for a moment. M is a letter in the typing (work) mini-game, and while a name is typed in the track editor, so it does nothing there.
 

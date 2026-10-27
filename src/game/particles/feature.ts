@@ -140,7 +140,12 @@ export class ParticlesFeature implements Layer {
     const { game } = this;
     const active = game.interaction.active?.item ?? null;
     const running = new Set<EmitterDef>();
-    for (const def of (active && PARTICLES.taskEmitters[active.id]) || []) running.add(def);
+    // The sleep sequence's emitters go only in some phases (the z, only while asleep).
+    const phase = game.sleepScene?.phase;
+    for (const def of (active && PARTICLES.taskEmitters[active.id]) || []) {
+      if (def.phases && !(phase && def.phases.includes(phase))) continue;
+      running.add(def);
+    }
     for (const { when, emitter } of PARTICLES.ambientEmitters) if (this.holds(when)) running.add(emitter);
 
     // One that stopped applying forgets its timer, so it starts with a puff next time.

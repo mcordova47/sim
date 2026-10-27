@@ -12,7 +12,7 @@ export interface PlayOptions {
 }
 
 // Which bus a voice goes to. Music voices are not counted against the effect voice cap.
-export type Bus = "effects" | "music";
+export type Bus = "effects" | "music" | "sleep";
 
 const NOISE_SECONDS = 0.5;
 const FLOOR = 0.0001;
@@ -26,7 +26,10 @@ const isFormant = (v: Voice): v is FormantVoice => "formants" in v;
 // swamp the page. It only talks to the `AudioContextLike` it is given.
 export class Synth {
   private readonly master: GainLike;
-  private readonly buses: Record<Bus, GainLike>;
+  private readonly buses: Partial<Record<Bus, GainLike>>;
+  // Where each bus's level is going: it left `from` at `t0` and reaches `to` at `t1`
+  // (context seconds), so its level at any moment is known without asking the node.
+  private readonly ramps: Record<Bus, { from: number; to: number; t0: number; t1: number }>;
   private noise: BufferLike | null = null;
   // End times (context seconds) of the effect voices still playing.
   private active: number[] = [];
@@ -46,6 +49,45 @@ export class Synth {
     effects.connect(this.master);
     music.connect(this.master);
     this.buses = { effects, music };
+    const rest = (to: number) => ({ from: to, to, t0: 0, t1: 0 });
+    this.ramps = { effects: rest(1), music: rest(SOUND.musicLevel), sleep: rest(0) };
+  }
+
+  // A bus's gain node. The lullaby's `sleep` bus (issue 078) is made the first
+  // time it is used, silent until it is ramped up, so a game that never sleeps
+  // makes exactly the nodes it always did.
+  private bus(bus: Bus): GainLike {
+    let node = this.buses[bus];
+    if (!node) {
+      node = this.ctx.createGain();
+      node.gain.value = 0;
+      node.connect(this.master);
+      this.buses[bus] = node;
+    }
+    return node;
+  }
+
+  // The level a bus has right now (a ramp in progress is read part of the way).
+  busLevel(bus: Bus): number {
+    const r = this.ramps[bus];
+    const now = this.ctx.currentTime;
+    if (now >= r.t1) return r.to;
+    if (now <= r.t0) return r.from;
+    return r.from + ((r.to - r.from) * (now - r.t0)) / (r.t1 - r.t0);
+  }
+
+  // Moves a bus to `level` in a straight line over `seconds`, from wherever it is
+  // now, replacing a ramp already going. Only the bus changes, never the notes on
+  // it, and never the master (so mute is not touched).
+  rampBus(bus: Bus, level: number, seconds: number): void {
+    const now = this.ctx.currentTime;
+    const from = this.busLevel(bus);
+    const gain = this.bus(bus).gain;
+    gain.cancelScheduledValues(now);
+    gain.setValueAtTime(from, now);
+    if (seconds > 0) gain.linearRampToValueAtTime(level, now + seconds);
+    else gain.setValueAtTime(level, now);
+    this.ramps[bus] = { from, to: level, t0: now, t1: now + Math.max(0, seconds) };
   }
 
   get now(): number {
@@ -96,7 +138,7 @@ export class Synth {
     // A voice with `hold` stays at full level for that fraction of its length first.
     if (isFormant(voice) && voice.hold !== undefined) env.gain.setValueAtTime(peak, t0 + voice.hold * length);
     env.gain.exponentialRampToValueAtTime(FLOOR, t1);
-    env.connect(this.buses[bus]);
+    env.connect(this.bus(bus));
 
     let source: { start(t?: number): void; stop(t?: number): void; onended: (() => void) | null } & NodeLike;
     const extras: NodeLike[] = [];

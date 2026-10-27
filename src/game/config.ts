@@ -144,8 +144,7 @@ export const NAP = {
 };
 
 // The sleep sequence (issue 078, docs/sleep.md): one table, two versions. Seconds
-// unless marked. Stage 1 and 2 use the timings, the dark and the banner; the
-// breath, snore, lullaby and ducking numbers are listed here for the later stages.
+// unless marked.
 export interface SleepSettings {
   // Fall asleep (the light dims), asleep (dark), wake (the light comes up to the new hour).
   fall: number;
@@ -159,7 +158,7 @@ export interface SleepSettings {
   bannerFade: number;
   // After Escape: seconds for the light to go back to the hour you lay down at.
   escapeRestore: number;
-  // Later stages (breath, z, sound); not read yet.
+  // The breath: one whole pixel of rise and fall every `breathPeriod` seconds (see `SLEEP_BREATH`).
   breathPeriod: number;
   breathPixels: number;
   snore: boolean;
@@ -177,6 +176,16 @@ export interface SleepSettings {
   holdClock: boolean;
 }
 
+// Where in one breath the chest is up (as fractions of `breathPeriod`): it rises
+// from `riseAt`, is held up until `fallAt`, and the out-breath (and its snore)
+// starts at `exhaleAt`.
+export const SLEEP_BREATH = { riseAt: 0.15, fallAt: 0.65, exhaleAt: 0.4 };
+
+// When you wake after Go to sleep (issue 078, stage 5): at least `atLeast` hours
+// later, and never before `notBefore` o'clock in the morning. A 22:00 bedtime
+// wakes at 06:30 and a 02:00 one at 09:00; going to bed at 14:00 wakes at 21:00.
+export const SLEEP_WAKE = { atLeast: 7, notBefore: 6.5 };
+
 export const SLEEP: { sleep: SleepSettings; nap: SleepSettings } = {
   sleep: {
     fall: 2, asleep: 5, wake: 2,
@@ -187,7 +196,7 @@ export const SLEEP: { sleep: SleepSettings; nap: SleepSettings } = {
   },
   nap: {
     fall: 1, asleep: 2.5, wake: 1.5,
-    darkAlpha: 0.2, darkLamps: 0.6, bannerFade: 0.5, escapeRestore: 0.4,
+    darkAlpha: 0.4, darkLamps: 0.6, bannerFade: 0.5, escapeRestore: 0.4,
     breathPeriod: 2.4, breathPixels: 1, snore: false, snoreGain: 0,
     lullaby: false, lullabyGain: 0, lullabyIn: 0, lullabyInDelay: 0, lullabyOut: 0,
     duckTo: 1, duckDown: 0, duckUp: 0, zEvery: [1.2, 1.8], holdClock: true,
@@ -743,6 +752,15 @@ export const SOUND = {
     key: { priority: "low", voices: [{ noise: "bandpass", freq: 1800, q: 0.9, length: 0.02, gain: 0.12 }] },
     // Mumblespeak: one short soft blip per letter of Spanish being "spoken" (issue 026).
     mumble: { priority: "low", voices: [{ wave: "triangle", freq: 330, length: 0.05, gain: 0.16 }] },
+    // A snore (issue 078), the quietest sound in the game: the out-breath, a low
+    // buzz through two throat resonances with a little air under it.
+    snore: {
+      priority: "low",
+      voices: [
+        { source: "sawtooth", freq: 58, formants: [{ freq: 240, q: 3, gain: 2 }, { freq: 520, q: 4, gain: 1.2 }], length: 1.1, gain: SLEEP.sleep.snoreGain },
+        { noise: "lowpass", freq: 300, q: 0.7, length: 1.3, gain: 0.04 },
+      ],
+    },
     ...formantEffects(),
     ...filteredEffects(),
     ...glideEffects(),
@@ -933,6 +951,9 @@ export interface EmitterDef {
   // A palette name that replaces the kind's colors (the z is darker on the pale bed).
   color?: string;
   at: EmitterAnchor;
+  // Only while the sleep sequence is in one of these phases (issue 078); with no
+  // list it goes on as long as the task runs.
+  phases?: ("fall" | "asleep" | "wake")[];
 }
 
 // What an ambient emitter needs (all that are set must hold).
@@ -1034,8 +1055,9 @@ export const PARTICLES = {
     // Bubbles from the sink.
     dishes: [{ kind: "bubble", every: [0.2, 0.4], at: { from: "zone", dx: 11, dy: 12, spread: 5 } }],
     // A z drifting up from the pillow, and from the sofa.
-    sleep: [{ kind: "z", every: [0.9, 1.4], color: "denim", at: { from: "pose", dx: 28, dy: 12, spread: 1 } }],
-    nap: [{ kind: "z", every: [0.9, 1.4], at: { from: "pose", dx: 13, dy: 0, spread: 1 } }],
+    // Only while asleep, a little slower than before the sequence (`SLEEP.*.zEvery`).
+    sleep: [{ kind: "z", every: SLEEP.sleep.zEvery, phases: ["asleep"], color: "denim", at: { from: "pose", dx: 28, dy: 12, spread: 1 } }],
+    nap: [{ kind: "z", every: SLEEP.nap.zEvery, phases: ["asleep"], at: { from: "pose", dx: 13, dy: 0, spread: 1 } }],
     // Notes from the guitar.
     guitar: [{ kind: "note", every: [0.6, 1.1], at: { from: "pose", dx: 23, dy: 3, spread: 2 } }],
   } as Record<string, EmitterDef[]>,

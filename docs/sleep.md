@@ -1,6 +1,15 @@
 # A sleep sequence (design note, issue 078)
 
-Status: design only. Nothing is built. Marc picks from section 15, then a build issue follows (or Marc says "just build it" and the recommendation in section 14 is built).
+Status: built (stages 1 to 5, issue 078). Marc picked every recommendation in section 16. The sections below are the design as written; "As built" next to this line lists where the build differs from it, with the numbers after tuning.
+
+## As built (read this first)
+- **Wake hour (a change from the design, Marc's, stage 5).** The jump is no longer a flat +7. It is `SLEEP_WAKE` in `config.ts`: at least 7 hours and never landing before 06:30. `wakeJump(clock, rule)` in `state.ts`; the task's effect is `{ var: "clock", wake: SLEEP_WAKE }`, plant dryness is `{ var: "plantDry", addSkipped: true }` (the real hours), and the activity reads the same function for the light, so the last frame still equals the first frame after the jump. 22:00 wakes at 06:30 (8.5 hours), 23:30 at 06:30, 00:00 at 07:00, 02:00 at 09:00. Where the design said "+7" read "the wake hour". One reading to know about: the literal "max(clock + 7 h, the next 06:30)" would send a 14:00 sleep to 06:30 tomorrow (16.5 hours); the build only moves a landing that would fall in the small hours (midnight to 06:30), so a daytime sleep still wakes 7 hours on (14:00 wakes at 21:00), as before. Say if you want the literal rule.
+- **The dark (tuned at 1x).** The sleep numbers are as designed (`darkAlpha` 0.38, lamps to a quarter): clear and gentle at night. The nap's `darkAlpha` went from 0.2 to 0.4 (lamps 0.6 as designed): at 0.2 a 14:00 nap was invisible, at 0.4 the afternoon room goes to a soft dusk. The nap is still the gentler version through its lamps, its shorter fall and having no sound.
+- **The breath.** The bed's band is cut from the same sprite with `drawRegion` (a `RoomPainter.drawRegion` wrapper) and drawn one pixel higher while the chest is up; the art needed no change. `POSES["sleep-bed"].breath` is `{ x: 6, y: 23, w: 31, h: 8 }` for the made bed (it starts on the shoulder line, the outline row, and runs down through eight rows of flat covers, so lifting it moves the shoulder line a pixel and leaves no seam) and the unmade variant has its own, `{ x: 3, y: 21, w: 33, h: 7 }`. At the top of the breath the unmade bed's shoulder line sits next to the line under the chin (a two pixel dark line for a moment); it reads as the covers pulled up. The sofa nap has no band: the whole 16x32 picture moves up a pixel. The up phase is `SLEEP_BREATH` (up from 15 to 65 percent of a breath, the out-breath and its snore at 40 percent). The offset is 0 at the start, the end, the whole fall and wake, and whenever there is no scene.
+- **The z.** Only in the asleep phase (`phases: ["asleep"]` on the emitter; the first comes the moment you are asleep), 1.4 to 2.2 s apart (the nap 1.2 to 1.8), read from `SLEEP.*.zEvery`. The color stays `denim` for the bed (the sleeper's own blue): on the dark wash at 1x it is dimmer and bluer than the default pale z and reads without glaring. The nap's z is the pale default, which reads on the dimmer afternoon room.
+- **Sound.** As designed (section 6), in `sound/sleep-sound.ts`. The `sleep` bus is made lazily so a game that never sleeps makes exactly the nodes it always did. The snore is one formant voice and one noise voice (`SOUND.effects.snore`); measured offline (the master included) its peak is about 0.03 and its loudness (RMS) about 0.0016, between a footstep (0.0007) and a mumble (0.0017), and well under a record (0.0106); the lullaby at its bus level is about 0.0043. It has not been listened to by a person: tune `SLEEP.sleep.snoreGain` and `lullabyGain` by ear. The lullaby file is `music/system/sleep-lullaby.track`: 10 seconds, so one pass covers the 9 second sequence (the design's wording). See `docs/music.md`.
+- **Escape with a dialog up.** Escape while a dialog is open in the middle of a clock-holding activity now leaves the clock exactly as it was (the cancel frame used to tick one frame).
+- **Tests.** `sleep.test.ts` (stages 1 and 2), `sleep-breath.test.ts` (stage 3), `sleep-sound.test.ts` (stage 4), `sleep-wake.test.ts` (stage 5, the wake hour and the Escape clock), `sleep-fuzz.test.ts` (150 seeded runs against the real Game, now with a fake audio context, a record, mute and audio that starts late), `sleep-frames.golden.test.ts` (draw-call hashes of the sequence frames; re-recorded in stage 5 for the breath, the nap's dark and the new frames).
 
 Marc's idea (2026-10-27): "Go to sleep" is a 6 second timer with the sleep pose. Make it a little sequence: sleep-type music, lighting changes, slight deep-breathing and snoring movement.
 
@@ -32,7 +41,7 @@ lullaby   0 -> 1 (from 0.3 s, 1.5 s)  1           1 -> 0 (2 s)
 snore     --        from 2.5 s, one per breath    --
 breath    --        3.0 s cycle, 1 px             slow stop
 z         --        every 1.4 to 2.2 s            --
-clock     held      held                          +7 h at the very end (effects)
+clock     held      held                          to the wake hour at the very end (effects)
 ```
 
 ## 3. Timings (one config table)
@@ -44,7 +53,7 @@ All of these go in one object, `SLEEP`, in `config.ts` (nothing in the code but 
 | `asleep` | 5.0 | 2.5 | the middle: dark, breathing, snore, lullaby |
 | `wake` | 2.0 | 1.5 | the light comes up to the new hour |
 | total | 9.0 | 5.0 | `fall + asleep + wake`; this replaces the task's `duration` (6 and 5) |
-| `darkAlpha` | 0.38 | 0.2 | extra night wash on top of the hour's own light at full dark |
+| `darkAlpha` | 0.38 | 0.4 (was 0.2, see As built) | extra night wash on top of the hour's own light at full dark |
 | `darkLamps` | 0.25 | 0.6 | the lamps' strength is multiplied by this at full dark (1 = no change) |
 | `bannerFade` | 1.0 | 0.5 | seconds the banner takes to fade out at the start (and back in at the end) |
 | `breathPeriod` | 3.0 | 2.4 | one breath, in and out |
@@ -215,7 +224,7 @@ The frames to render at 1x (the world, 320x192; the HUD and prompts not tinted).
  snore on the out-breath     lullaby fades 0.55 -> 0     record 0.56 (returning)
  (see the note below)        clock still 22:00
 
- t=9.0 s (done, clock +7 = 05:00): normal light for 05:00, bed unmade, award popup.
+ t=9.0 s (done, clock at the wake hour: 22:00 wakes at 06:30): normal light for that hour, bed unmade, award popup.
 ```
 The times in the clock slot read 22:00 for the whole sequence because the clock is held (open question 5); the true hour shows after wake.
 

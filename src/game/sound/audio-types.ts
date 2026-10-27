@@ -6,6 +6,8 @@ export interface ParamLike {
   setValueAtTime(value: number, time: number): unknown;
   linearRampToValueAtTime(value: number, time: number): unknown;
   exponentialRampToValueAtTime(value: number, time: number): unknown;
+  // Forgets the changes scheduled from `time` on (a new ramp replaces an old one).
+  cancelScheduledValues(time: number): unknown;
 }
 
 export interface NodeLike {

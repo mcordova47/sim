@@ -38,6 +38,24 @@ export class RoomPainter {
     this.sprites!.draw(ctx, name, x, y, undefined, flip);
     return true;
   }
+
+  // Draws one window `from` of a sprite with its top-left at (x, y), at its own
+  // size (the breath band of the sleeper). Does nothing if the sprite source
+  // cannot cut windows, so the sleeper just does not breathe.
+  drawRegion(
+    ctx: CanvasRenderingContext2D,
+    name: string,
+    from: { x: number; y: number; w: number; h: number },
+    x: number,
+    y: number,
+  ): boolean {
+    if (!this.sprites?.drawRegion || !this.sprites.has(name)) return false;
+    ctx.save();
+    ctx.translate(Math.round(x), Math.round(y));
+    this.sprites.drawRegion(ctx, name, from, { width: from.w, height: from.h });
+    ctx.restore();
+    return true;
+  }
 }
 
 const key = (col: number, row: number) => `${col},${row}`;

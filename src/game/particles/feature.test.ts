@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { NO_INPUT, type Controls } from "../../input/controls";
 import { APARTMENT } from "../apartment";
-import { DIALOG, ENERGY, MOOD, PARTICLES, TILE, WALK } from "../config";
+import { DIALOG, ENERGY, MOOD, PARTICLES, SLEEP, TILE, WALK } from "../config";
 import type { Direction } from "../direction";
 import { attachFeatures } from "../features";
 import { Game } from "../game";
@@ -245,6 +245,9 @@ describe("task effects", () => {
     run(sleep.game, 0.05);
     sleep.game.update(dt, press);
     expect(sleep.game.interaction.active?.item.id).toBe("sleep");
+    // The z comes only once asleep (after the 2 s of falling asleep): none before.
+    run(sleep.game, 1.5);
+    expect([...sleep.feature.pool.particles()].some((p) => p.shape === "z")).toBe(false);
     run(sleep.game, 2);
     const zs = [...sleep.feature.pool.particles()].filter((p) => p.shape === "z");
     expect(zs.length).toBeGreaterThan(0);
@@ -266,6 +269,43 @@ describe("task effects", () => {
     expect(nap.game.interaction.active?.item.id).toBe("nap");
     run(nap.game, 2);
     expect([...nap.feature.pool.particles()].some((p) => p.shape === "z")).toBe(true);
+  });
+
+  it("makes the z only in the asleep phase: none while falling asleep or waking, and the gap is the one in SLEEP", () => {
+    const { game, feature } = setup();
+    set(game, "energy", 30);
+    set(game, "bedMade", 1);
+    game.player.placeAt(11, 5, "right");
+    run(game, 0.05);
+    game.update(dt, press);
+    expect(game.interaction.active?.item.id).toBe("sleep");
+    const made = countSpawns(feature);
+    const stamps: number[] = [];
+    const spawn = feature.pool.spawn.bind(feature.pool);
+    let t = 0;
+    feature.pool.spawn = (s) => {
+      if (s.kind === PARTICLES.kinds.z) stamps.push(t);
+      spawn(s);
+    };
+    for (; t < 9.2 && game.interaction.busy; t += dt) game.update(dt, NO_INPUT);
+    expect(made.n).toBeGreaterThan(0);
+    expect(stamps.length).toBeGreaterThanOrEqual(2);
+    for (const s of stamps) {
+      expect(s).toBeGreaterThanOrEqual(2 - dt);
+      expect(s).toBeLessThanOrEqual(7 + dt);
+    }
+    // The first one comes the moment it is asleep, the rest 1.4 to 2.2 s apart.
+    expect(stamps[0]).toBeLessThan(2.1);
+    for (let i = 1; i < stamps.length; i++) {
+      expect(stamps[i] - stamps[i - 1]).toBeGreaterThanOrEqual(SLEEP.sleep.zEvery[0] - 2 * dt);
+      expect(stamps[i] - stamps[i - 1]).toBeLessThanOrEqual(SLEEP.sleep.zEvery[1] + 2 * dt);
+    }
+  });
+
+  it("an emitter with no phases goes on as long as the task runs (the guitar's notes)", () => {
+    expect(PARTICLES.taskEmitters.guitar.every((d) => d.phases === undefined)).toBe(true);
+    expect(PARTICLES.taskEmitters.sleep[0].phases).toEqual(["asleep"]);
+    expect(PARTICLES.taskEmitters.nap[0].phases).toEqual(["asleep"]);
   });
 
   it("sends notes from the guitar while it is played", () => {

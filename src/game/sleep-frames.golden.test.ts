@@ -59,8 +59,8 @@ function record(task: "sleep" | "nap", at: [number, number], vars: Record<string
 describe("sleep sequence frames", () => {
   it("draw exactly the calls recorded when the look was approved", async () => {
     const logs = [
-      ...record("sleep", [11, 4], { energy: 10, bedMade: 1, clock: 22 }, [0, 1, 2, 4, 7, 8, 8.9]),
-      ...record("nap", [5, 4], { energy: 40, clock: 14 }, [0, 1, 2.5, 4, 4.9]),
+      ...record("sleep", [11, 4], { energy: 10, bedMade: 1, clock: 22 }, [0, 1, 2, 3.5, 4, 7, 8, 8.9]),
+      ...record("nap", [5, 4], { energy: 40, clock: 14 }, [0, 1, 2.2, 2.5, 4, 4.9]),
     ];
     if (env.UPDATE_GOLDEN === "1") {
       // @ts-ignore node module, only used when asked to write files

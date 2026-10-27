@@ -49,7 +49,8 @@ export interface ActivityHost {
   // Opens a dialog. Returns false if one is already open.
   openDialog(node: DialogNode, onDone: (result: DialogResult) => void): boolean;
   // Announces a named moment, for sound and animation features.
-  cue(name: string): void;
+  // `pitch` multiplies the cue's sound (1 is as written).
+  cue(name: string, pitch?: number): void;
   // Sets a variable of the apartment's state (a flag), clamped to its range.
   setState(id: string, value: number): void;
   readonly player: PlayerView;

@@ -58,7 +58,17 @@ export class EncounterActivity extends BaseActivity {
 
   start(): void {
     this.reduced = this.deps.reducedMotion?.() ?? false;
-    this.host.cue("encounter-entrance");
+    this.sound(0);
+  }
+
+  // The entrance's sounds that fall on `frame` (none after a skip: the rest is simply never played).
+  private sound(frame: number): void {
+    const E = ENCOUNTERS.entrance;
+    if (this.reduced) {
+      if (frame === 0) this.host.cue(E.softCue);
+      return;
+    }
+    for (const [at, cue, semitones] of E.sounds) if (at === frame) this.host.cue(cue, semitones === 0 ? undefined : 2 ** (semitones / 12));
   }
 
   update(_dt: number, controls: Controls): void {
@@ -67,6 +77,7 @@ export class EncounterActivity extends BaseActivity {
     if (this.phase === "entering") {
       const skip = controls.interactPressed && this.frame >= ENCOUNTERS.entrance.skipAfter;
       if (skip || this.frame >= entranceFrames(this.reduced)) this.open();
+      else this.sound(this.frame);
     } else if (this.phase === "leaving" && this.frame >= exitFrames(this.reduced)) this.quit();
   }
 
@@ -97,6 +108,7 @@ export class EncounterActivity extends BaseActivity {
     if (this.done || this.phase === "leaving") return;
     this.phase = "leaving";
     this.frame = 0;
+    if (!this.reduced) this.host.cue(ENCOUNTERS.entrance.exitCue);
   }
 
   // Escape, and anything that drops the encounter: leave at once, with no mood change and no purchase.

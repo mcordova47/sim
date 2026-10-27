@@ -1,7 +1,7 @@
 ---
 id: 080
 title: Ad encounter entrance: a battle-style flash and bar wipe
-status: done
+status: review
 owner: claude
 depends_on: [043]
 ---
@@ -63,3 +63,5 @@ Marc (2026-10-27): ad encounters should enter like a Pokemon or FFVII battle. Pl
   - `npm test` 2458 passed (102 files), `npx tsc --noEmit` clean, `npm run build` ok.
   - Unverified (needs a real browser): that the stinger is actually audible after the key (resume() is asynchronous and the cue is scheduled in the same keydown; note that Chrome does not count Escape as a user activation, so Escape as the first key may still be silent), how the PRESS ANY KEY hint looks, and the earlier items (feel, timing, shake, self-copy on the real canvas).
   - PLAN.md table needs updating by the planner.
+
+- 2026-10-27 (round 4, sound only, from Marc's playtest): replaced the single `encounter-entrance` stinger with a battle-start sequence played cue by cue from `ENCOUNTERS.entrance.sounds` (two phone buzzes, a rising eight-pulse run over the bar cover, a hit chord as the bars part; a quiet falling echo on exit; one soft note for reduced motion). Skipping or Escape just stops issuing the rest. Cues now take an optional pitch (`cue` event and `ActivityHost.cue(name, pitch?)`). Tuning documented in docs/random-encounters.md. Tests updated and added; not verified: how it sounds. Back in review.

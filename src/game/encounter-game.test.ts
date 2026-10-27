@@ -3,7 +3,7 @@ import { NO_INPUT, type Controls } from "../input/controls";
 import { FakeStorage } from "./achievements/fake-storage";
 import { AchievementsFeature, type KeyEventLike, type Listenable } from "./achievements/feature";
 import { APARTMENT } from "./apartment";
-import { ACHIEVEMENTS_UI as UI, DELIVERIES, ENCOUNTERS } from "./config";
+import { ACHIEVEMENTS_UI as UI, DELIVERIES, ENCOUNTERS, SOUND } from "./config";
 import { DECOR_DATA } from "./decor-data";
 import { encounterFromSearch, encounterOnFirstKey } from "./decor-dev";
 import { ADS, CARD_WORDS, ENCOUNTER_WORDS, adById } from "./encounter-ads";
@@ -662,14 +662,18 @@ describe("the entrance and the exit", () => {
     const game = new Game(main, { rooms: { ...rooms, main }, random: rnd.random, reducedMotion: () => reduced });
     game.deliveries.advance(60);
     const cues: string[] = [];
-    game.events.on("cue", ({ name }) => cues.push(name));
+    // Every cue with its pitch and the entrance frame it came on.
+    const heard: { name: string; pitch: number; frame: number }[] = [];
+    let frame = 0;
+    game.events.on("cue", ({ name, pitch }) => (cues.push(name), heard.push({ name, pitch: pitch ?? 1, frame })));
     expect(game.startEncounter(candle())).toBe(true);
-    return { game, cues, rnd };
+    const step = game.update.bind(game);
+    game.update = (d, c) => (frame++, step(d, c));
+    return { game, cues, rnd, heard };
   }
 
-  it("plays the sound cue once, and shows no dialog until the entrance is over (48 frames)", () => {
-    const { game, cues } = fresh();
-    expect(cues).toEqual(["encounter-entrance"]);
+  it("shows no dialog until the entrance is over (48 frames)", () => {
+    const { game } = fresh();
     expect(game.inputLocked).toBe(false);
     for (let i = 1; i < ENTRANCE; i++) {
       game.update(dt, NO_INPUT);
@@ -677,7 +681,60 @@ describe("the entrance and the exit", () => {
     }
     game.update(dt, NO_INPUT);
     expect(game.dialogOpen).toBe(true);
-    expect(cues).toEqual(["encounter-entrance"]);
+  });
+
+  it("sounds: two buzzes first, a rising pulse run, then the hit as the card appears, all inside the entrance", () => {
+    const { game, heard } = fresh();
+    frames(game, ENTRANCE + 10);
+    const names = heard.map((h) => h.name);
+    expect(names.slice(0, 2)).toEqual(["encounter-buzz", "encounter-buzz"]);
+    expect(names.at(-1)).toBe("encounter-hit");
+    expect(names.filter((n) => n === "encounter-hit")).toHaveLength(1);
+    const run = heard.filter((h) => h.name === "encounter-pulse");
+    expect(run.length).toBeGreaterThanOrEqual(6);
+    for (let i = 1; i < run.length; i++) expect(run[i].pitch, `pulse ${i}`).toBeGreaterThan(run[i - 1].pitch);
+    // The buzzes are under the shake, the run is while the bars close in, the hit as they part.
+    expect(heard.filter((h) => h.name === "encounter-buzz").every((h) => h.frame < ENCOUNTERS.entrance.shakeFrames)).toBe(true);
+    const parts = ENCOUNTERS.entrance.shakeFrames + ENCOUNTERS.entrance.coverFrames;
+    expect(run.every((h) => h.frame >= ENCOUNTERS.entrance.shakeFrames && h.frame < parts)).toBe(true);
+    expect(heard.at(-1)!.frame).toBe(parts);
+    // Nothing sounds on a frame that is not in the entrance, and every note ends inside it.
+    for (const h of heard) {
+      expect(h.frame).toBeLessThan(ENTRANCE);
+      const effect = SOUND.effects[SOUND.cues[h.name]];
+      const end = h.frame / 60 + Math.max(...effect.voices.map((v) => (v.delay ?? 0) + v.length));
+      expect(end, h.name).toBeLessThanOrEqual(ENTRANCE / 60 + 0.001);
+    }
+    // Played once each.
+    expect(new Set(heard.map((h) => h.frame + h.name)).size).toBe(heard.length);
+  });
+
+  it("skipping with E stops the rest of the sound, and Escape too", () => {
+    const skipped = fresh();
+    frames(skipped.game, ENCOUNTERS.entrance.skipAfter - 1);
+    skipped.game.update(dt, press);
+    frames(skipped.game, 60);
+    expect(skipped.heard.map((h) => h.name)).toEqual(["encounter-buzz"]);
+    const escaped = fresh();
+    frames(escaped.game, 20);
+    const so = escaped.heard.length;
+    escaped.game.update(dt, esc);
+    frames(escaped.game, 60);
+    expect(escaped.heard.length).toBe(so);
+  });
+
+  it("a quiet falling echo plays once as the exit wipe starts, inside the wipe", () => {
+    const { game, heard } = fresh();
+    frames(game, ENTRANCE);
+    const before = heard.length;
+    rndIgnore({ rnd: script() });
+    pick(game, "IGNORE");
+    for (let i = 0; i < 400 && game.dialogOpen; i++) game.update(dt, press);
+    frames(game, 40);
+    const after = heard.slice(before).filter((h) => h.name === "encounter-exit");
+    expect(after).toHaveLength(1);
+    const effect = SOUND.effects[SOUND.cues["encounter-exit"]];
+    expect(Math.max(...effect.voices.map((v) => (v.delay ?? 0) + v.length))).toBeLessThanOrEqual(EXIT / 60);
   });
 
   it("holds the clock and pays nothing during the entrance", () => {
@@ -746,6 +803,16 @@ describe("the entrance and the exit", () => {
     t.game.update(dt, esc);
     expect(encounterUp(t.game)).toBe(false);
     expect(t.game.inputLocked).toBe(false);
+  });
+
+  it("with reduced motion the only sound is one soft note: no buzz, run, hit or echo", () => {
+    const { game, heard } = fresh(true);
+    frames(game, 40);
+    expect(heard.map((h) => h.name)).toEqual(["encounter-soft"]);
+    pick(game, "IGNORE");
+    for (let i = 0; i < 400 && game.dialogOpen; i++) game.update(dt, press);
+    frames(game, 20);
+    expect(heard.map((h) => h.name)).toEqual(["encounter-soft"]);
   });
 
   it("with reduced motion it is a short fade: a dialog after 12 frames and an exit of 8", () => {

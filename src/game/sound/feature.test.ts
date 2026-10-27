@@ -221,18 +221,26 @@ describe("effects from game events", () => {
     expect(sounds(s.ctx)).toBe(before);
   });
 
-  it("plays one short stinger for the encounter entrance cue, and nothing while muted", () => {
+  it("plays each encounter entrance cue through the sound feature, the pulse higher with its pitch, and nothing while muted", () => {
     const s = setup();
     s.unlock();
-    s.ctx.currentTime += 5;
-    const before = s.ctx.oscillators.length;
-    s.game.events.emit("cue", { name: "encounter-entrance" });
-    expect(s.ctx.oscillators.length - before).toBe(SOUND.effects.encounterEntrance.voices.length);
-    const lengths = SOUND.effects.encounterEntrance.voices.map((v) => (v.delay ?? 0) + v.length);
-    expect(Math.max(...lengths)).toBeLessThan(0.8);
+    const cues = ["encounter-buzz", "encounter-pulse", "encounter-hit", "encounter-exit", "encounter-soft"];
+    for (const name of cues) {
+      s.ctx.currentTime += 5;
+      const before = s.ctx.oscillators.length;
+      s.game.events.emit("cue", { name });
+      expect(s.ctx.oscillators.length, name).toBeGreaterThan(before);
+    }
+    const freq = (pitch: number) => {
+      s.ctx.currentTime += 5;
+      const before = s.ctx.oscillators.length;
+      s.game.events.emit("cue", { name: "encounter-pulse", pitch });
+      return s.ctx.oscillators[before].frequency.calls[0].value;
+    };
+    expect(freq(2)).toBeGreaterThan(freq(1));
     s.keys.press(SOUND.muteKey);
     const muted = sounds(s.ctx);
-    s.game.events.emit("cue", { name: "encounter-entrance" });
+    for (const name of cues) s.game.events.emit("cue", { name });
     expect(sounds(s.ctx)).toBe(muted);
   });
 

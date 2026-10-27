@@ -287,7 +287,7 @@ export class Game {
     const player = this.player;
     return {
       openDialog: (node, onDone) => this.openDialog(node, onDone),
-      cue: (name) => this.events.emit("cue", { name }),
+      cue: (name, pitch) => this.events.emit("cue", pitch === undefined ? { name } : { name, pitch }),
       setState: (id, value) => this.state.applyEffects([{ var: id, set: value }]),
       player: {
         get col() {

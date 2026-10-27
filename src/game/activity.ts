@@ -49,7 +49,8 @@ export interface ActivityHost {
   // Opens a dialog. Returns false if one is already open.
   openDialog(node: DialogNode, onDone: (result: DialogResult) => void): boolean;
   // Announces a named moment, for sound and animation features.
-  cue(name: string): void;
+  // `pitch` multiplies the cue's sound (1 is as written).
+  cue(name: string, pitch?: number): void;
   // Sets a variable of the apartment's state (a flag), clamped to its range.
   setState(id: string, value: number): void;
   readonly player: PlayerView;
@@ -118,6 +119,10 @@ export interface Activity {
   // without it reading raw letters (the notes game reads arrows). Together with
   // `readsKeys`, a dialog opening during or just after it ignores keys for a moment.
   readonly strayKeys?: boolean;
+  // True while the player may still be pressing keys from a key game that ended just before it
+  // began (an ad encounter after a typing game), so the dialog it opens next ignores keys for a
+  // moment too (issue 081). Unlike `strayKeys` it does not gate hotkeys or movement.
+  readonly staleKeys?: boolean;
   // True for an activity with no time pressure: the apartment's clock, energy
   // and mood stand still while it runs (the track editor).
   readonly holdsClock?: boolean;

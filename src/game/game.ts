@@ -78,6 +78,9 @@ export interface GameOptions {
   // A random number from 0 up to 1, for the mini-games. Math.random by default;
   // tests pass a seeded one.
   random?: () => number;
+  // Whether the browser asked for less motion (issue 080: the ad encounter fades instead of
+  // flashing). Asked each time one starts. Not asked by default.
+  reducedMotion?: () => boolean;
   // Where the sprites come from. Without it (tests) everything is drawn as
   // plain coloured rectangles.
   sprites?: SpriteDrawer;
@@ -135,6 +138,7 @@ export class Game {
   // The other levels the level's doorways lead to, by id.
   private readonly rooms: Readonly<Record<string, Level>>;
   private readonly random: () => number;
+  private readonly reducedMotion: () => boolean;
   private readonly painter: RoomPainter;
   private readonly spriteDrawer: SpriteDrawer | undefined;
   // For layers that draw sprites of their own (the achievements legend).
@@ -156,6 +160,7 @@ export class Game {
     this.level = level;
     this.rooms = options.rooms ?? {};
     this.random = options.random ?? Math.random;
+    this.reducedMotion = options.reducedMotion ?? (() => false);
     this.spriteDrawer = options.sprites;
     this.popups = new Popups(options.sprites);
     this.painter = new RoomPainter(options.sprites);
@@ -250,6 +255,9 @@ export class Game {
   startEncounter(ad: Ad): boolean {
     const product = this.decor.item(ad.item);
     if (!product || this.interaction.busy || this.dialog.open) return false;
+    // Keys from a typing or notes game that just ended may still be coming: the encounter's first dialog,
+    // 0.8 s later, must not hear them either (issue 081).
+    const afterKeyGame = this.strayKeysPossible();
     const activity = new EncounterActivity(ad, this.activityHost(), {
       owns: (id) => this.decor.owns(id),
       queued: (id) => this.deliveries.pendingItems.some((p) => p.id === id) || this.deliveries.waitingItems.includes(id),
@@ -260,6 +268,8 @@ export class Game {
       },
       failedUnsubscribe: () => this.encounters.failedUnsubscribe(),
       random: () => this.random(),
+      reducedMotion: () => this.reducedMotion(),
+      afterKeyGame,
       product: { sprite: product.sprite, w: product.w, h: product.h },
     });
     return this.interaction.begin(ENCOUNTER_TASK, activity);
@@ -281,7 +291,7 @@ export class Game {
     const player = this.player;
     return {
       openDialog: (node, onDone) => this.openDialog(node, onDone),
-      cue: (name) => this.events.emit("cue", { name }),
+      cue: (name, pitch) => this.events.emit("cue", pitch === undefined ? { name } : { name, pitch }),
       setState: (id, value) => this.state.applyEffects([{ var: id, set: value }]),
       player: {
         get col() {
@@ -480,7 +490,7 @@ export class Game {
   // still be pressing keys, so a dialog opening now must not hear them (issue 081).
   private strayKeysPossible(): boolean {
     const running = this.interaction.active?.activity;
-    return this.sinceKeyGame < DIALOG.strayWindow || !!(running && (running.readsKeys || running.strayKeys));
+    return this.sinceKeyGame < DIALOG.strayWindow || !!(running && (running.readsKeys || running.strayKeys || running.staleKeys));
   }
 
   // The one rule for global hotkeys (the achievements list, the sound mute, the time-of-day

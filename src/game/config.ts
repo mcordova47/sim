@@ -130,6 +130,52 @@ export const ENCOUNTERS = {
   firstDay: 2,
   // Mood at and above which an Ignore never turns into a purchase.
   moodRef: 60,
+  // The entrance and exit of the card (issue 080), in frames (the game steps at 60 a second). The
+  // entrance is a short phone buzz (a tiny shake), two white flashes, then horizontal bars slide across
+  // and cover the screen and part again to show the card; the exit is the same wipe, quicker, back to
+  // the room. E may skip the entrance once `skipAfter` frames have gone (so the press that finished
+  // the task cannot). With reduced motion there is only a plain fade.
+  entrance: {
+    shakeFrames: 16,
+    // Pixels the screen moves on a shake frame (it alternates sides and never leaves a visible gap).
+    shakePixels: 1,
+    // [first frame, length] of each white flash.
+    flashes: [
+      [6, 3],
+      [12, 3],
+    ] as readonly (readonly [number, number])[],
+    coverFrames: 16,
+    partFrames: 16,
+    skipAfter: 6,
+    // The wipe: how many bars, and their colour (a palette name).
+    bars: 8,
+    barColor: "ink",
+    exitCoverFrames: 6,
+    exitPartFrames: 6,
+    // The entrance's sound, played a cue at a time so skipping (E) simply stops the rest (issue 080).
+    // Each entry is [frame, cue, semitones above the cue's own pitch]. A phone's one rattling buzz under
+    // the shake, a fast pulse run that rises while the bars close in, then a hit chord as they part
+    // and the card appears. The cues are in `SOUND.cues`, their notes in `SOUND.effects`. Nothing
+    // may sound after the entrance's last frame (the hit is the last, and its sound is short).
+    sounds: [
+      [0, "encounter-buzz", 0],
+      [16, "encounter-pulse", 0],
+      [18, "encounter-pulse", 2],
+      [20, "encounter-pulse", 4],
+      [22, "encounter-pulse", 7],
+      [24, "encounter-pulse", 9],
+      [26, "encounter-pulse", 12],
+      [28, "encounter-pulse", 14],
+      [30, "encounter-pulse", 16],
+      [32, "encounter-hit", 0],
+    ] as readonly (readonly [number, string, number])[],
+    // The exit wipe's echo (a quiet falling two notes), and the reduced-motion entrance's soft note.
+    exitCue: "encounter-exit",
+    softCue: "encounter-soft",
+    // Reduced motion: a plain fade in and out.
+    fadeInFrames: 12,
+    fadeOutFrames: 8,
+  },
   // Mood edges for the extra narrator line (tone only, no change to the odds).
   toneLow: 30,
   toneHigh: 80,
@@ -901,10 +947,47 @@ export const SOUND = {
         { wave: "sine", freq: 90, length: 0.1, gain: 0.12 },
       ],
     },
+    // The ad encounter's entrance (issue 080; the schedule is `ENCOUNTERS.entrance.sounds`).
+    // One phone buzz: a rattle, not a hit. Six quick rough squares in a row (a motor shaking, about 28
+    // times a second), each a little louder or softer than the last so it flutters, with a rumble of
+    // noise under the first four. It runs about 0.2 s, under the shake. Marc asked for it a little
+    // quieter and buzzier than one low thump (it sounded like two hits).
+    encounterBuzz: {
+      voices: [
+        ...[0, 1, 2, 3, 4, 5].map((i) => ({
+          wave: "square" as const,
+          freq: i % 2 === 0 ? 140 : 164,
+          delay: i * 0.035,
+          length: 0.03,
+          gain: i % 2 === 0 ? 0.1 : 0.06,
+        })),
+        ...[0, 1, 2, 3].map((i) => ({ noise: "lowpass" as const, freq: 420, delay: i * 0.05, length: 0.045, gain: 0.035 })),
+      ],
+    },
+    // One note of the rising pulse run; the schedule raises its pitch each time.
+    encounterPulse: { voices: [{ wave: "square", freq: 392, length: 0.07, gain: 0.08 }] },
+    // The accented hit as the card appears: a bright chord and a snap of noise, over in a quarter second.
+    encounterHit: {
+      voices: [
+        { wave: "square", freq: note(0, 392), length: 0.25, gain: 0.12 },
+        { wave: "square", freq: note(7, 392), length: 0.25, gain: 0.1 },
+        { wave: "square", freq: note(12, 392), length: 0.25, gain: 0.1 },
+        { noise: "highpass", freq: 2500, length: 0.08, gain: 0.1 },
+      ],
+    },
+    // The exit's echo: two quiet falling notes, well inside the 12-frame wipe.
+    encounterExit: {
+      voices: [
+        { wave: "square", freq: note(7, 392), length: 0.06, gain: 0.05 },
+        { wave: "square", freq: note(0, 392), delay: 0.06, length: 0.08, gain: 0.05 },
+      ],
+    },
+    // Reduced motion: one plain soft note.
+    encounterSoft: { voices: [{ wave: "triangle", freq: 523.25, length: 0.12, gain: 0.1 }] },
     unmute: { voices: [{ wave: "triangle", freq: 523.25, length: 0.07, gain: 0.18 }] },
   } as Record<string, EffectDef>,
   // Named moments in a cutscene (`{ cue: "name" }`) that make a sound.
-  cues: { "record-spin": "needle", "achievement": "toast" } as Record<string, string>,
+  cues: { "record-spin": "needle", "achievement": "toast", "encounter-buzz": "encounterBuzz", "encounter-pulse": "encounterPulse", "encounter-hit": "encounterHit", "encounter-exit": "encounterExit", "encounter-soft": "encounterSoft" } as Record<string, string>,
 };
 
 // Music (issue 009a). Tracks are text files in src/game/music/tracks (see

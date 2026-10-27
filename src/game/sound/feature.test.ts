@@ -221,6 +221,29 @@ describe("effects from game events", () => {
     expect(sounds(s.ctx)).toBe(before);
   });
 
+  it("plays each encounter entrance cue through the sound feature, the pulse higher with its pitch, and nothing while muted", () => {
+    const s = setup();
+    s.unlock();
+    const cues = ["encounter-buzz", "encounter-pulse", "encounter-hit", "encounter-exit", "encounter-soft"];
+    for (const name of cues) {
+      s.ctx.currentTime += 5;
+      const before = s.ctx.oscillators.length;
+      s.game.events.emit("cue", { name });
+      expect(s.ctx.oscillators.length, name).toBeGreaterThan(before);
+    }
+    const freq = (pitch: number) => {
+      s.ctx.currentTime += 5;
+      const before = s.ctx.oscillators.length;
+      s.game.events.emit("cue", { name: "encounter-pulse", pitch });
+      return s.ctx.oscillators[before].frequency.calls[0].value;
+    };
+    expect(freq(2)).toBeGreaterThan(freq(1));
+    s.keys.press(SOUND.muteKey);
+    const muted = sounds(s.ctx);
+    for (const name of cues) s.game.events.emit("cue", { name });
+    expect(sounds(s.ctx)).toBe(muted);
+  });
+
   // The beep keeps its old bar (more than 3 in half a second); the letters voice rests
 // on spaces and marks, so it makes 3 in the same time (issue 077).
 it.each([["beep", 3], ["letters", 2]] as const)("(%s voice) blips as dialog text appears, then stops while it waits", (dialogVoice, atLeast) => {

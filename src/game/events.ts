@@ -33,8 +33,9 @@ export interface GameEvents {
   preview: { track: Track | null; live: boolean };
   // The track editor sounded a note at `freq` Hz.
   blip: { freq: number };
-  // A "spoken" letter of mumblespeak (the flashcards): pitch as a multiple of the base blip.
-  voice: { pitch: number };
+  // One sound of the flashcards' voice: `effect` from SOUND.effects ("mumble" if
+  // missing), `pitch` as a multiple of its frequencies, `gain` as a multiple of its loudness.
+  voice: { pitch: number; effect?: string; gain?: number };
   // The record player picked a record, a demo or silence (`id` null), and it is
   // now on. `paid` is true when the choice also pays (issue 068). Sent just
   // before the task ends.

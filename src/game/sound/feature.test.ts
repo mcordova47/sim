@@ -246,6 +246,17 @@ describe("effects from game events", () => {
     expect(sounds(s.ctx)).toBe(before + 1);
   });
 
+  it("plays the named effect for a voice event, and ignores an unknown one", () => {
+    const s = setup(RECORD_TASK);
+    s.unlock();
+    const before = sounds(s.ctx);
+    s.game.events.emit("voice", { pitch: 1, effect: "voiceTrill" });
+    expect(sounds(s.ctx)).toBe(before + SOUND.effects.voiceTrill.voices.length);
+    const after = sounds(s.ctx);
+    s.game.events.emit("voice", { pitch: 1, effect: "no-such-effect" });
+    expect(sounds(s.ctx)).toBe(after);
+  });
+
   it("keeps the voice count capped under a storm of events", () => {
     const s = setup();
     s.unlock();

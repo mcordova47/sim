@@ -441,6 +441,52 @@ export const SOUND = {
     key: { priority: "low", voices: [{ noise: "bandpass", freq: 1800, q: 0.9, length: 0.02, gain: 0.12 }] },
     // Mumblespeak: one short soft blip per letter of Spanish being "spoken" (issue 026).
     mumble: { priority: "low", voices: [{ wave: "triangle", freq: 330, length: 0.05, gain: 0.16 }] },
+    // The IPA voice (issue 026): one short sound per phoneme, in a chiptune
+    // manner. Which symbol uses which effect, at what pitch and for how long on
+    // the timeline is the table `FLASHCARDS.voice.symbols`.
+    voiceVowel: {
+      priority: "low",
+      voices: [
+        { wave: "square", freq: 330, length: 0.09, gain: 0.11 },
+        { wave: "triangle", freq: 660, length: 0.09, gain: 0.05 },
+      ],
+    },
+    voiceVowelStress: {
+      priority: "low",
+      voices: [
+        { wave: "square", freq: 330, length: 0.14, gain: 0.16 },
+        { wave: "triangle", freq: 660, length: 0.14, gain: 0.07 },
+      ],
+    },
+    voiceStop: { priority: "low", voices: [{ noise: "bandpass", freq: 1500, q: 1.2, length: 0.025, gain: 0.14 }] },
+    voiceVoicedStop: { priority: "low", voices: [{ wave: "triangle", freq: 170, length: 0.04, gain: 0.16 }] },
+    voiceHiss: { priority: "low", voices: [{ noise: "bandpass", freq: 5000, q: 0.8, length: 0.07, gain: 0.09 }] },
+    voiceNasal: { priority: "low", voices: [{ wave: "sine", freq: 160, length: 0.07, gain: 0.2 }] },
+    voiceLiquid: { priority: "low", voices: [{ wave: "triangle", freq: 420, endFreq: 360, length: 0.05, gain: 0.16 }] },
+    voiceTap: {
+      priority: "low",
+      voices: [
+        { wave: "triangle", freq: 260, length: 0.02, gain: 0.16 },
+        { wave: "triangle", freq: 230, delay: 0.025, length: 0.02, gain: 0.12 },
+      ],
+    },
+    voiceTrill: {
+      priority: "low",
+      voices: [
+        { wave: "triangle", freq: 240, length: 0.02, gain: 0.14 },
+        { wave: "triangle", freq: 230, delay: 0.03, length: 0.02, gain: 0.14 },
+        { wave: "triangle", freq: 220, delay: 0.06, length: 0.02, gain: 0.14 },
+      ],
+    },
+    voiceGlideDown: { priority: "low", voices: [{ wave: "triangle", freq: 700, endFreq: 450, length: 0.05, gain: 0.14 }] },
+    voiceGlideUp: { priority: "low", voices: [{ wave: "triangle", freq: 300, endFreq: 450, length: 0.05, gain: 0.14 }] },
+    voiceAffricate: {
+      priority: "low",
+      voices: [
+        { noise: "bandpass", freq: 2800, q: 1, length: 0.02, gain: 0.14 },
+        { noise: "bandpass", freq: 4500, q: 0.8, delay: 0.02, length: 0.05, gain: 0.09 },
+      ],
+    },
     noteKey: { priority: "low", voices: [{ wave: "triangle", freq: 440, length: 0.14, gain: 0.22 }] },
     // An achievement toast: a short, bright two-note figure.
     toast: {
@@ -723,6 +769,52 @@ export const FLASHCARDS = {
     consonantPitches: [0.6, 0.66, 0.75, 0.8, 0.9, 0.95, 1.1, 1.2],
     // The key that says it again.
     repeatKey: "KeyR",
+  },
+  // The IPA voice: one sound per phoneme of a card's transcription, so the
+  // rhythm follows how the word is said and not how it is spelled. Each symbol
+  // names a sound effect (see `SOUND.effects`, `voice*`), a pitch (a multiple
+  // of that effect's frequencies; for noise it moves the filter) and how long
+  // it takes on the timeline, in seconds. Sounds may overlap their slot.
+  voice: {
+    // The pause for a space or a word break in the transcription.
+    gap: 0.1,
+    // Longest run, in phonemes.
+    maxPhonemes: 40,
+    // A vowel after the stress mark (the ˈ before its syllable) is longer,
+    // louder and a little higher. A long vowel (ː) lasts this much longer.
+    stress: { effect: "voiceVowelStress", pitch: 1.1, length: 0.15 },
+    longer: 1.5,
+    symbols: {
+      a: { effect: "voiceVowel", pitch: 1, length: 0.1, vowel: true },
+      e: { effect: "voiceVowel", pitch: 1.26, length: 0.1, vowel: true },
+      i: { effect: "voiceVowel", pitch: 1.5, length: 0.1, vowel: true },
+      o: { effect: "voiceVowel", pitch: 0.84, length: 0.1, vowel: true },
+      u: { effect: "voiceVowel", pitch: 0.75, length: 0.1, vowel: true },
+      p: { effect: "voiceStop", pitch: 0.5, length: 0.04 },
+      t: { effect: "voiceStop", pitch: 2, length: 0.04 },
+      k: { effect: "voiceStop", pitch: 1, length: 0.04 },
+      b: { effect: "voiceVoicedStop", pitch: 0.9, length: 0.045 },
+      d: { effect: "voiceVoicedStop", pitch: 1.2, length: 0.045 },
+      g: { effect: "voiceVoicedStop", pitch: 1, length: 0.045 },
+      s: { effect: "voiceHiss", pitch: 1, length: 0.07 },
+      f: { effect: "voiceHiss", pitch: 0.6, length: 0.07 },
+      x: { effect: "voiceHiss", pitch: 0.4, length: 0.07 },
+      m: { effect: "voiceNasal", pitch: 0.9, length: 0.07 },
+      n: { effect: "voiceNasal", pitch: 1, length: 0.07 },
+      "ɲ": { effect: "voiceNasal", pitch: 1.15, length: 0.07 },
+      l: { effect: "voiceLiquid", pitch: 1, length: 0.05 },
+      "ɾ": { effect: "voiceTap", pitch: 1, length: 0.04 },
+      r: { effect: "voiceTrill", pitch: 1, length: 0.09 },
+      j: { effect: "voiceGlideDown", pitch: 1, length: 0.05 },
+      w: { effect: "voiceGlideUp", pitch: 1, length: 0.05 },
+      "tʃ": { effect: "voiceAffricate", pitch: 1, length: 0.07 },
+    } as Record<string, { effect: string; pitch: number; length: number; vowel?: boolean }>,
+    // Symbols that sound like one in the table above (other transcriptions,
+    // other dialects, or the occasional allophone), so the voice never goes
+    // quiet on a mark it did not expect.
+    like: {
+      "ɡ": "g", "β": "b", "ð": "d", "ɣ": "g", "ʝ": "j", "ʎ": "ɲ", "ŋ": "n", "z": "s", "θ": "s", "ʃ": "s", "h": "x", "ɛ": "e", "ɔ": "o", "ɪ": "i", "ʊ": "u", "ɑ": "a", "ə": "a", "ɨ": "i", "ʒ": "j", "dʒ": "tʃ", "ɟ": "j",
+    } as Record<string, string>,
   },
   // "demo" studies a small built-in deck with no server and pays nothing (for
   // trying the screens); "real" talks to the app.

@@ -15,6 +15,9 @@ export interface CardView {
   // The Spanish that gets "spoken" (mumblespeak) and the side it appears on.
   // Without them the answer is spoken when the card is flipped.
   spoken?: string;
+  // The IPA transcription of `spoken` (no slashes or brackets), if known. With
+  // it the card is voiced phoneme by phoneme; without it, letter by letter.
+  ipa?: string;
   speaks?: "front" | "back";
 }
 

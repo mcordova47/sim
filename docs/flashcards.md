@@ -34,6 +34,16 @@ The game never uses the browser's text-to-speech. When the Spanish side of a car
 
 A recognition card (the Spanish word is the prompt) speaks when it is shown; a production card (the English is the prompt) speaks its answer when it is turned over. R says it again while the Spanish is showing. Answering or leaving stops it.
 
+## The IPA voice
+
+A card with an IPA transcription is voiced phoneme by phoneme, in a chiptune manner, instead of letter by letter. The rhythm then follows how the word is said: `ch` is one sound, `h` is silent, `c` and `z` before `e` and `i` are an `s`. `flashcards/ipa.ts` reads a broad transcription (no slashes or brackets; stress with ˈ before the stressed syllable; `.` ignored; `ː` lengthens; a space is a pause; `tʃ` or `t͡ʃ` is one sound) and skips and reports any symbol it does not know. `flashcards/mumble.ts` turns it into a script of timed sounds and `Mumble` plays it.
+
+All of the sound design is data: `FLASHCARDS.voice.symbols` in `config.ts` maps each phoneme to an effect, a pitch and its length on the timeline, and the `voice*` effects in `SOUND.effects` are the sounds. Vowels are tones at distinct pitches (the stressed one is longer, louder and higher), unvoiced stops are short noise clicks, voiced stops a soft thump, `s f x` a hiss, nasals a low hum, `l` a short slide, a tap `ɾ` two quick pulses, a trill `r` three, `j` and `w` slides, and `tʃ` a click and a hiss. `FLASHCARDS.voice.like` maps look-alike symbols (other dialects, allophones) to one of those.
+
+Where the transcription comes from: the practice deck has hand-written `es-MX` ones. The flashcards app's issue #175 will add an `IPA es-MX` column for the 1000 words, but the core does not return it yet, so the real backend still voices by spelling. Wiring it in is a change in `flashcards/real.ts` once the core exposes it (and says which word's transcription goes with each of a card's answers). A card with no transcription, or whose symbols are all unknown, falls back to the spelling voice.
+
+In the practice deck, V switches between the two voices and R says the card again, to hear them against each other.
+
 ## Trying the screens and the voice without the app
 
 In a dev build, open the game with `?flashcards=demo` (for example `http://localhost:5173/?flashcards=demo`). "Study Spanish" then uses the practice deck in `flashcards/demo.ts`: fifteen cards with both directions (Spanish first and English first), accents, a long word, a long phrase and hint sentences. There is no server and no key screen, no key is remembered and nothing is paid. It is ignored in a production build. `FLASHCARDS.backend = "demo"` in `config.ts` does the same for every page load. Tune the voice in `FLASHCARDS.mumble` and the `mumble` effect (both in `config.ts`) and the page reloads.

@@ -5,7 +5,7 @@ import { GLYPH_H, drawText, textWidth } from "../../render/font";
 import { BaseActivity, needHost, registerActivity, type ActivityHost, type ActivityResult } from "../activity";
 import { FLASHCARDS as F } from "../config";
 import { studyBackend } from "../flashcards/backend";
-import { Mumble } from "../flashcards/mumble";
+import { Mumble, ipaScript } from "../flashcards/mumble";
 import { keyFromText, studyStore, type StudyStore } from "../flashcards/key";
 import type { CardView, Grade, StudyBackend, StudySession } from "../flashcards/study";
 import { wrapText } from "../dialog";
@@ -44,6 +44,9 @@ export class FlashcardsActivity extends BaseActivity {
   gotIt = 0;
   again = 0;
   paid = 0;
+  // Whether a card with an IPA transcription is voiced from it (else by spelling).
+  // V switches it in the practice deck, to hear the two against each other.
+  ipaVoice = true;
 
   private session: StudySession | null = null;
   private shown: { at: number; slug: string; view: CardView } | null = null;
@@ -57,7 +60,7 @@ export class FlashcardsActivity extends BaseActivity {
     private readonly clipboard: ClipboardLike = browserClipboard,
   ) {
     super();
-    this.mumble = new Mumble((pitch) => host.voice?.(pitch));
+    this.mumble = new Mumble((sound) => host.voice?.(sound));
   }
 
   // The card on screen. Looked up once per card: the real core reads the whole
@@ -132,7 +135,10 @@ export class FlashcardsActivity extends BaseActivity {
     if (this.done) return;
     this.mumble.update(dt);
     if (this.phase === "key") return this.updateKey(controls);
-    if (this.phase === "front" || this.phase === "back") this.repeat(controls);
+    if (this.phase === "front" || this.phase === "back") {
+      this.repeat(controls);
+      this.switchVoice(controls);
+    }
     if (this.phase === "front") {
       if (controls.interactPressed || controls.keys.includes("Space")) {
         this.phase = "back";
@@ -158,7 +164,23 @@ export class FlashcardsActivity extends BaseActivity {
   private speakIf(side: "front" | "back"): void {
     const card = this.card;
     if (!card) return;
-    if ((card.speaks ?? "back") === side) this.mumble.say(card.spoken ?? card.answer);
+    if ((card.speaks ?? "back") === side) this.speak(card);
+  }
+
+  // Voices the card: by its IPA when it has one and the IPA voice is on, else by spelling.
+  private speak(card: CardView): void {
+    // A transcription that gives no sounds (only symbols the voice does not know) is no transcription.
+    const script = this.ipaVoice && card.ipa ? ipaScript(card.ipa) : [];
+    if (script.length > 0) this.mumble.play(script);
+    else this.mumble.say(card.spoken ?? card.answer);
+  }
+
+  // V flips between the IPA and the spelling voice, in the practice deck only.
+  private switchVoice(controls: Controls): void {
+    if (this.backend.usesKey !== false || !controls.keys.includes("KeyV")) return;
+    if (controls.keysDown.some((k) => /^(Shift|Control|Meta|Alt)/.test(k))) return;
+    this.ipaVoice = !this.ipaVoice;
+    this.repeat({ ...controls, keys: [F.mumble.repeatKey], keysDown: [] });
   }
 
   // R says the Spanish again, once it is showing.
@@ -167,7 +189,7 @@ export class FlashcardsActivity extends BaseActivity {
     const card = this.card;
     if (!card) return;
     const showing = this.phase === "back" || (card.speaks ?? "back") === "front";
-    if (showing) this.mumble.say(card.spoken ?? card.answer);
+    if (showing) this.speak(card);
   }
 
   private updateKey(controls: Controls): void {
@@ -296,6 +318,9 @@ export class FlashcardsActivity extends BaseActivity {
     line(`Card ${Math.min(this.index + 1, this.queue.length)} of ${this.queue.length}`, 8, COLOR.slate);
     if (this.phase === "back" || (card.speaks ?? "back") === "front") {
       drawText(ctx, "R: say it", x + w - 8, y + 8, { align: "right", color: COLOR.slate, shadow: null });
+      if (this.backend.usesKey === false) {
+        drawText(ctx, `V: ${this.ipaVoice ? "ipa" : "spelling"}`, x + 8, y + 8, { color: COLOR.slate, shadow: null });
+      }
     }
     // Big when it fits on one line, small and wrapped (two lines at most) when not.
     const block = (text: string, ty: number, color: string) => {

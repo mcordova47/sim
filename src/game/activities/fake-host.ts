@@ -14,7 +14,7 @@ export function fakeHost(seed = 1) {
   // What the track editor asks of the game.
   const previews: { track: Track | null; live: boolean }[] = [];
   const blips: number[] = [];
-  const voices: number[] = [];
+  const voices: { pitch: number; effect?: string; gain?: number }[] = [];
   const rewards: { points: number; effects: Effect[] }[] = [];
   const clock = { minutes: 0 };
 
@@ -53,7 +53,7 @@ export function fakeHost(seed = 1) {
     random,
     previewTrack: (track, live = false) => previews.push({ track, live }),
     blip: (freq) => blips.push(freq),
-    voice: (pitch) => voices.push(pitch),
+    voice: (sound) => voices.push(sound),
     reward: (points, effects) => {
       rewards.push({ points, effects });
       return points;

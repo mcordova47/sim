@@ -1,7 +1,7 @@
 ---
 id: 070
 title: Boxes: flatten, take out the recycling, they disappear
-status: review
+status: done
 owner: claude
 depends_on: [066]
 ---
@@ -29,3 +29,13 @@ Marc's idea (2026-10-26), building on issue 066: flattening the boxes should loo
   - Golden frames: kitchen is not in them, unchanged and passing.
   - Checked: rendered the kitchen with the stack, the flat boxes and gone at 1x and 4x (scratch script outside the repo) and looked at all of them. `npm run sprites`, `npm test` (1850 pass), `npm run build` pass.
   - Not checked: how it feels in a browser. Try `npm run dev`, kitchen, `?set=boxes:0` (flat), `?set=boxes:2` (gone), `?deliver=test` to bring the stack back.
+
+- 2026-10-26: REVIEW (independent). Verdict: approve.
+  - Criterion 1 (three values, old saves): pass. Numbering kept as 066 (1 stack default, 0 flat) with 2 = gone instead of the issue's 2/1/0, so no old value changes meaning; the issue allows this if stated, and it is stated. Variants pick boxes-gone / boxes / boxes-flat (checked). Clamp checked: set 3 gives 2, -1 gives 0. An old state without `boxes` still runs.
+  - Criterion 2 (tasks): pass. My own checks with boxes in each state at both the recycling and the bin (4 spots): flat offers `recycle-boxes` (nearby, no choice menu); stack and gone offer `take-trash`; ordinary trash leaves boxes unchanged; recycle from flat sets 2 and mood +3; collect from 0, 1 and 2 sets 1; flatten from gone is refused with NO BOXES TO FLATTEN.
+  - Criterion 3 (wording): pass. "Take out the recycling", own points 55 and flavor; flatten points and flavor unchanged.
+  - Criterion 4 (art): pass. Rendered the kitchen (copy of the mockup script, outside the repo) for stack, flat and gone at 1x and 4x and looked at them: stack, tidy flat sheets, and the pantry tub alone on bare floor all read clearly and match the palette. Only boxes-gone added. The recycling bin note is in issue 062 (line 37).
+  - Criterion 5 (tests/build): pass. `npm run sprites` leaves the tree clean, `npm test` 1850 pass, `npm run build` passes. Golden frames do not include the kitchen.
+  - Scope: only the expected files; PLAN.md and other issues untouched. No privacy concerns.
+  - Non-blocking finding: both tasks share exclusive 'trash', so while Take out the trash is cooling down, standing at the bin or recycling with a stack or no boxes shows "Take out the recycling" and pressing E says FLATTEN THE BOXES FIRST (stack) or NO BOXES TO TAKE OUT (gone) instead of a cooldown message. Verified in my test. A misleading line, not a break; worth a small follow-up (for example prefer the cooldown message when the exclusive sibling is on cooldown).
+  - Unverified: how it feels in a real browser (nobody has played it; the author said so too).

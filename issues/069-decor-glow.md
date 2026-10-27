@@ -1,7 +1,7 @@
 ---
 id: 069
 title: Decor items decide whether they give light; the stool is a real item
-status: review
+status: done
 owner: claude
 depends_on: []
 ---
@@ -24,3 +24,11 @@ From Marc's playtest of the decor swap (2026-10-26): the stool (today a TEST ite
   - Tests (`time-of-day.test.ts`): default lamp ring radii and count, stool none, stool-lamp its own radii, none by day for all three, saved then loaded placement, preview and clearing it.
   - Rendered headless Chrome against the dev server at `?own=test&hour=23`, 1x, default lamp, stool and stool-lamp placed (via the save): default shows the lamp glow as before, the stool shows only the desk's glow, the stool-lamp shows a smaller glow. The stool-lamp sprite reads as a stool with a lit shade; it is TEST art, small at 1x.
   - Not checked: the swap list by hand in a browser (covered by existing swap tests).
+- 2026-10-26 (claude, reviewer): Review. Verdict: approve.
+  - Criterion 1 (glow property): pass. `DecorItem.glow` in `decor-data.ts`; `feature.ts` draws from `decor.itemIn(slot).glow` (so a preview counts), then sprite glows (desk). `lamp-table` carries {40, 0.2}, the old numbers; ring order unchanged. Only other `lamp-table` use is the slot piece `L` in `apartment.ts` (slot `lamp-sofa`), so no glow is lost.
+  - Criterion 2 (stool, stool-lamp, docs): pass. Stool has no glow, `lamp-test-stool-lamp` glows (24, 0.2), both tagged test; `docs/decor.md` notes stage 4. Sprite is 16x16, palette only. Judged by its 1x render only (reads as a stool with a lit lamp; blobby at 1x, fine for TEST art).
+  - Criterion 3 (tests): pass. `npm test`: 82 files, 1829 tests pass, golden main-room frames unchanged with no re-record. Tests cover default, stool, stool-lamp at night and by day, save/load, preview and clearing it.
+  - Criterion 4 (render and build): pass. `npm run sprites`, `npm test`, `npm run build` all pass, tree clean afterwards. My own render (Chrome headless, vite on 5198, `?hour=23`, 1x, seeded `life.progress.v1` with `decor.placed`): default lamp = big glow by the sofa; stool = no lamp glow (desk glow only, room darker there); stool-lamp = smaller glow; placed id not owned or unknown (`bogus-id`) falls back to the default lamp with its normal glow.
+  - Not verified: the swap list used by hand (keyboard flow in a real browser) and 2x or other scales. The in-game preview glow is tested only in unit tests.
+  - Scope: only decor-data, config, time-of-day feature and test, the sprite and its png, `docs/decor.md` and this issue. No other issues or PLAN.md touched. No privacy problems.
+  - PLAN.md table needs updating by the planner.

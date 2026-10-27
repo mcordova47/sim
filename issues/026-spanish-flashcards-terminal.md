@@ -1,7 +1,7 @@
 ---
 id: 026
 title: Spanish flashcards on the in-game computer (stretch)
-status: done
+status: in-progress
 owner: marc + claude
 depends_on: [021, 022, 023]
 ---

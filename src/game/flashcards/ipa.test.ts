@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { FLASHCARDS as F, SOUND } from "../config";
+import { FLASHCARDS as F, FORMANTS, SOUND } from "../config";
 import { DEMO_CARDS } from "./demo";
 import { isGap, readIpa, type Phoneme } from "./ipa";
-import { ipaScript, Mumble, spellingScript } from "./mumble";
+import { ipaScript, Mumble, spellingScript, VOICE_STYLES } from "./mumble";
 
 const phonemes = (ipa: string) => readIpa(ipa).units.filter((u): u is Phoneme => !isGap(u));
 const symbols = (ipa: string) => phonemes(ipa).map((p) => p.symbol);
@@ -143,5 +143,76 @@ describe("Mumble playing a script", () => {
     m.stop();
     m.update(5);
     expect(got.length).toBeLessThanOrEqual(2);
+  });
+});
+
+describe("the speech-like voice: formants, intonation and jitter", () => {
+  const word = "ˈkasa";
+  const at = (style: number, ipa = word) => ipaScript(ipa, style);
+
+  it("part 1: vowels are told apart by timbre, at one pitch, and stress is length and loudness only", () => {
+    const events = at(2);
+    expect(events.map((e) => e.effect)).toEqual(["voiceStop", "voiceFormantAStress", "voiceHiss", "voiceFormantA"]);
+    for (const v of ["a", "e", "i", "o", "u"]) {
+      const [e] = ipaScript(v, 2);
+      expect(e.effect).toBe(`voiceFormant${v.toUpperCase()}`);
+      expect(e.pitch).toBe(1);
+      expect(SOUND.effects[e.effect!].voices).toHaveLength(3);
+      expect(SOUND.effects[`${e.effect}Stress`]).toBeDefined();
+    }
+    // Look-alike vowels use the formants of the vowel they sound like.
+    expect(ipaScript("ɛ", 2)[0].effect).toBe("voiceFormantE");
+    // A stressed vowel lasts longer: the next sound starts later.
+    expect(at(2)[2].at - at(2)[1].at).toBeGreaterThan(at(2, "kasa")[2].at - at(2, "kasa")[1].at);
+    // The original voice is untouched by the new styles.
+    expect(at(1).map((e) => e.effect)).toEqual(["voiceStop", "voiceVowelStress", "voiceHiss", "voiceVowel"]);
+  });
+
+  it("the formants are not simple ratios of each other (no chord)", () => {
+    const f = Object.values(FORMANTS);
+    for (const a of f) for (const b of f) {
+      if (a === b) continue;
+      for (const x of [a.f1, a.f2]) for (const y of [b.f1, b.f2]) {
+        const r = Math.max(x, y) / Math.min(x, y);
+        if (r < 1.02) continue; // the same sound
+        for (const n of [2, 3, 4]) expect(Math.abs(r - n), `${x}/${y}`).toBeGreaterThan(0.01);
+      }
+    }
+  });
+
+  it("part 2: pitch drifts down over the phrase, the stressed vowel bumps up, the last vowel falls", () => {
+    const flat = at(2);
+    const sung = at(3);
+    expect(sung.map((e) => e.at)).toEqual(flat.map((e) => e.at));
+    const I = F.voice.intonation;
+    const ratio = sung.map((e, i) => e.pitch / flat[i].pitch);
+    // First sound is above the last by the declination, apart from the bump and the fall.
+    expect(ratio[0]).toBeCloseTo(1 - I.declination / 2);
+    expect(ratio[1]).toBeCloseTo((1 + I.declination * (1 / 3 - 0.5) + I.stressBump) * 1);
+    expect(ratio[3]).toBeCloseTo(1 + I.declination / 2 + I.finalFall);
+    // No sound moves by more than a few semitones.
+    for (const r of ratio) expect(Math.abs(Math.log2(r) * 12)).toBeLessThan(3);
+  });
+
+  it("part 3: every sound is a few percent off, the same way every time, and no two vowels are alike", () => {
+    const a = at(3, "aaaaaa");
+    const b = at(4, "aaaaaa");
+    expect(at(4, "aaaaaa")).toEqual(b);
+    const ratios = b.map((e, i) => e.pitch / a[i].pitch);
+    for (const r of ratios) expect(Math.abs(r - 1)).toBeLessThanOrEqual(F.voice.jitter + 1e-9);
+    expect(new Set(ratios.map((r) => r.toFixed(5))).size).toBeGreaterThan(3);
+  });
+
+  it("the styles never throw, stay finite, and a short or empty transcription is fine", () => {
+    for (const style of [0, 1, 2, 3, 4, 9]) {
+      for (const ipa of ["", "a", "ˈ", "☃", "ˈbwenas ˈnotʃes", "a".repeat(500), "iɾ(se)", "el / ˈeʝa"]) {
+        for (const e of ipaScript(ipa, style)) {
+          expect(Number.isFinite(e.pitch) && e.pitch > 0, `${style} ${ipa}`).toBe(true);
+          expect(Number.isFinite(e.at) && e.at >= 0).toBe(true);
+          expect(SOUND.effects[e.effect!], e.effect).toBeDefined();
+        }
+      }
+    }
+    expect(VOICE_STYLES).toHaveLength(5);
   });
 });

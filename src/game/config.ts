@@ -361,6 +361,35 @@ export interface EffectDef {
 // A note from the pentatonic scale, as a semitone offset from `base`.
 const note = (semitones: number, base = 440) => Math.round(base * 2 ** (semitones / 12) * 100) / 100;
 
+// Vowels by timbre, not by pitch (issue 026, the speech-like voice): two tones
+// at the vowel's first two formant frequencies (Hz) over a low buzz, so the
+// vowel is told apart by its sound and not by a note. The numbers are the usual
+// textbook formants for the five Spanish vowels. `stress` makes the same vowel
+// longer and louder.
+export const FORMANTS: Record<string, { f1: number; f2: number }> = {
+  a: { f1: 730, f2: 1090 },
+  e: { f1: 530, f2: 1840 },
+  i: { f1: 270, f2: 2290 },
+  o: { f1: 570, f2: 840 },
+  u: { f1: 300, f2: 870 },
+};
+const FORMANT_BUZZ = 120;
+const formantEffect = ({ f1, f2 }: { f1: number; f2: number }, length: number, loud: number): EffectDef => ({
+  priority: "low",
+  voices: [
+    { wave: "square", freq: f1, length, gain: 0.07 * loud },
+    { wave: "triangle", freq: f2, length, gain: 0.05 * loud },
+    { wave: "triangle", freq: FORMANT_BUZZ, length, gain: 0.08 * loud },
+  ],
+});
+const formantEffects = (): Record<string, EffectDef> =>
+  Object.fromEntries(
+    Object.entries(FORMANTS).flatMap(([vowel, f]) => [
+      [`voiceFormant${vowel.toUpperCase()}`, formantEffect(f, 0.09, 1)],
+      [`voiceFormant${vowel.toUpperCase()}Stress`, formantEffect(f, 0.14, 1.4)],
+    ]),
+  );
+
 export const SOUND = {
   // Whole-game loudness, 0 to 1. Kept modest on purpose.
   master: 0.35,
@@ -442,6 +471,7 @@ export const SOUND = {
     key: { priority: "low", voices: [{ noise: "bandpass", freq: 1800, q: 0.9, length: 0.02, gain: 0.12 }] },
     // Mumblespeak: one short soft blip per letter of Spanish being "spoken" (issue 026).
     mumble: { priority: "low", voices: [{ wave: "triangle", freq: 330, length: 0.05, gain: 0.16 }] },
+    ...formantEffects(),
     // The IPA voice (issue 026): one short sound per phoneme, in a chiptune
     // manner. Which symbol uses which effect, at what pitch and for how long on
     // the timeline is the table `FLASHCARDS.voice.symbols`.
@@ -787,6 +817,20 @@ export const FLASHCARDS = {
     // A vowel after the stress mark (the ˈ before its syllable) is longer,
     // louder and a little higher. A long vowel (ː) lasts this much longer.
     stress: { effect: "voiceVowelStress", pitch: 1.1, length: 0.15 },
+    // The speech-like voice, in three parts that each add to the one before (V
+    // cycles through them in the practice deck: spelling, ipa, formants,
+    // intonation, jitter). Part 1, `formants`: vowels by timbre (FORMANTS above)
+    // at one pitch, stress by length and loudness only. Part 2, `intonation`: the
+    // pitch of everything drifts down over the phrase, the stressed vowel gets a
+    // small bump and the last vowel falls (fractions of the pitch, so 0.07 is
+    // 7 percent, a little over a semitone). Part 3, `jitter`: every sound is a
+    // few percent off, in a fixed pattern, so no two vowels are quite alike.
+    formants: { length: 0.1, stressLength: 0.15 },
+    intonation: { declination: -0.08, stressBump: 0.07, finalFall: -0.06 },
+    jitter: 0.03,
+    // Which voice a card gets before V is pressed: 0 spelling, 1 ipa (the
+    // original), 2 formants, 3 intonation, 4 jitter.
+    style: 1,
     longer: 1.5,
     symbols: {
       a: { effect: "voiceVowel", pitch: 1, length: 0.1, vowel: true },

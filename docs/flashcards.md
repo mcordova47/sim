@@ -42,7 +42,15 @@ All of the sound design is data: `FLASHCARDS.voice.symbols` in `config.ts` maps 
 
 Where the transcription comes from: the real backend asks the app's core, `core.ipa(slug, dialect)` (`FLASHCARDS.dialect`, "es-MX"), for the card's own word, in both directions. A production card lists every word that shares its English as its answers, but its slug is the one word it is for, so that is the one voiced (the written answer still lists them all). Every one of the 1000 words has a transcription today; the seven rows that are a pair, a phrase or a `(se)` verb keep their ` / `, space or `(se)`, and the voice treats the first two as pauses and skips the optional `(se)`. The function is optional: a core without it, a `null`, an empty string or a throw means no transcription, and the card is voiced by spelling, as is the example sentence's hint (nothing is transcribed for sentences or verb forms). The practice deck carries hand-written ones. A card whose transcription gives no sounds falls back to spelling too.
 
-In the practice deck, V switches between the two voices and R says the card again, to hear them against each other.
+### Making it sound less like a tune
+
+The original IPA voice (style 1) tells vowels apart by pitch, and its pitches are the simple intervals of a chord (a third, a fifth, a fourth), so words come out as little melodies. Speech tells vowels apart by timbre and uses pitch only for small intonation moves, so the speech-like voice is built in three parts, each adding to the one before, to hear what each adds:
+
+1. **Formants (style 2).** A vowel is two tones at its first two formant frequencies (`FORMANTS` in `config.ts`, the usual textbook values) over a low buzz, all at one pitch. Stress is length and loudness only. The formants are not simple ratios of each other, so nothing lines up into a chord.
+2. **Intonation (style 3).** Pitch drifts down across the phrase, the stressed vowel gets a small bump and the last vowel falls (`FLASHCARDS.voice.intonation`, fractions of the pitch; a few percent each, never more than a few semitones).
+3. **Jitter (style 4).** Every sound is a few percent off (`FLASHCARDS.voice.jitter`), in a fixed pattern seeded by its place in the word, so no two vowels are quite alike and a word still sounds the same every time.
+
+In the practice deck, V steps through spelling, ipa, formants, intonation and jitter (the tag shows which) and R says the card again, so the parts can be heard against each other on the same card. `FLASHCARDS.voice.style` is the voice a card gets before V is pressed (1, the original, until one is chosen).
 
 ## Trying the screens and the voice without the app
 

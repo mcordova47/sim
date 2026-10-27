@@ -50,7 +50,7 @@ The original IPA voice (style 1) tells vowels apart by pitch, and its pitches ar
 2. **Intonation (style 3).** Pitch drifts down across the phrase, the stressed vowel gets a small bump and the last vowel falls (`FLASHCARDS.voice.intonation`, fractions of the pitch; a few percent each, never more than a few semitones).
 3. **Jitter (style 4).** Every sound is a few percent off (`FLASHCARDS.voice.jitter`), in a fixed pattern seeded by its place in the word, so no two vowels are quite alike and a word still sounds the same every time.
 
-In the practice deck, V steps through spelling, ipa, formants, intonation, jitter, filtered, filtered+, glides and murmurs (the tag shows which) and R says the card again, so the parts can be heard against each other on the same card. `FLASHCARDS.voice.style` is the voice a card gets before V is pressed (1, the original, until one is chosen).
+In the practice deck the best voice is the default and V steps down from it: diphthongs, murmurs, glides, filtered+, filtered, jitter, intonation, formants, ipa and spelling, then back to the best (the tag shows which) and R says the card again, so the parts can be heard against each other on the same card. `FLASHCARDS.voice.style` is the voice a card gets before V is pressed: 9, the best (diphthongs), for real cards too.
 
 ### The source-filter voice (styles 5 and 6)
 
@@ -80,7 +80,16 @@ Listening to the filtered voice showed three things still made the old way, as s
 - **Style 7, glides.** /j/ and /w/ were a 50 ms triangle tone sliding between two pitches, which is a high blip. A glide is really the mouth moving, so now it is the vowel resonances moving: a /j/ is a very short /i/ and a /w/ a very short /u/, and the filters slide between that and the next vowel's (`voiceGlideJToE` for the /j/ of `bien`) or, at the end of a diphthong, between the previous vowel's and that (`voiceGlideJFromA` for the /j/ of `aire`). The source never changes pitch, so a diphthong keeps one pitch from the glide into the vowel (the glide and the vowel are still two separate sounds, so how smooth the join is, is for the ear to judge). Two vowels in a row (`día`, `río`) are not glides and are unchanged, and a glide with no vowel next to it keeps its old sound. Timing: `FLASHCARDS.voice.glideLength`.
 - **Style 8, murmurs.** The nasals were a 160 Hz sine and the voiced stops a 170 Hz triangle thump, close to the source's 125 Hz and far below every vowel resonance, which is the purr. Now the nasals are the vowel source through a low resonance (250 Hz, what a closed mouth lets out) with a faint higher resonance that says which nasal it is (`m` 1100, `n` 1600, `ñ` 2200 Hz), and the voiced stops are the same murmur, shorter, followed by a short burst of noise as the mouth opens (`b` 800, `d` 3200, `g` 1800 Hz). `FLASHCARDS.voice.murmurs` says which symbol uses which; the effects are `voiceFiltM`, `N`, `NY`, `B`, `D`, `G` in `config.ts`. Nothing else changes: the unvoiced stops, the hisses, the liquids and the tap and trill are as before.
 
-Styles 0 to 6 are unchanged, so each part can be heard against the one before.
+- **The /l/ (style 8).** The /l/ was a 50 ms triangle tone sliding between two pitches, the worst consonant once the others were fixed. It is now the vowel source through a low resonance (360 Hz) and one around 1300 Hz (`voiceFiltL`).
+- **Style 9, diphthongs.** In style 7 a glide and its vowel were two separate sounds back to back, so the join was discontinuous. Now a vowel with a glide before it (`bien`, `agua`), after it (`aire`, `hoy`) or both (the triphthong of `estudiáis`) is one sound whose resonances move from the first to the second, with one loudness for the whole thing. The movement is most of the sound: they reach the vowel 60 percent of the way into a glide-vowel, leave it 30 percent of the way into a vowel-glide, and the sound stays at full level until 85 percent of the way so the end of the movement is heard (`DIPHTHONG_SHAPE` in `config.ts`; an offline model of the first version showed a vowel-glide (`hoy`) as 150 ms of steady vowel with the glide only during the fade, 20 dB down, and a glide-vowel (`bien`) as a 50 ms sweep followed by 100 ms of steady vowel, which is why it sounded like one held vowel) (`voiceDiphJE`, `voiceDiphAJ`, `voiceDiphJAJ` and their `Stress` twins; 80 are generated from `FORMANTS`). Two vowels in a row (`día`, `río`) are a hiatus, two syllables, and stay two separate sounds, so they keep the break. A glide between two vowels (`aya`) goes with the vowel after it. A glide next to no vowel keeps its old sound.
+
+### Turning the levels
+
+- **Diphthongs:** `DIPHTHONG_SHAPE.level` in `config.ts` (0.11; 1.4 times that when stressed). It was 0.22, which with the held loudness made a diphthong about 9 dB louder than a vowel.
+- **Nasals:** `gain` on `m`, `n` and `ɲ` in `FLASHCARDS.voice.murmurs` (0.8; 1 is as the effect is written).
+- **The burst of `b d g`:** a voiced stop is a murmur (the voicing while the mouth is closed) followed by a short pop of noise as the lips or tongue let go. `BURST_GAIN` in `config.ts` (0.1) is how loud that pop is. A numeric model put it 16 to 20 dB under the vowels, so if the stops sound like a soft hum with no consonant in it, raise it (0.2 to 0.3); if they click too much, lower it.
+
+Styles 0 to 8 are unchanged except for the /l/ and the nasal level in style 8, so each part can still be heard against the one before.
 
 ## Trying the screens and the voice without the app
 
@@ -93,7 +102,7 @@ The deck has four sets, in this order when you ask for all of them, or one with 
 - **consonants:** each consonant between two a's (`aba`, `ada`, `aga`, ...), the usual way to compare consonants. Both the tap (`ara`) and the trill (`arra`) are there.
 - **words:** the first practice deck, single words, both card directions.
 
-V steps through the voices (spelling, ipa, formants, intonation, jitter, filtered, filtered+; the tag shows which) and R says the card again, to hear them against each other on the same card.
+V steps down from the best voice (diphthongs) through each earlier one to spelling and back (the tag shows which) and R says the card again, to hear them against each other on the same card.
 
 ## The interface
 

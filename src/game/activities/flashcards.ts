@@ -6,7 +6,7 @@ import { drawIpa, ipaWidth } from "../../render/ipa-font";
 import { BaseActivity, needHost, registerActivity, type ActivityHost, type ActivityResult } from "../activity";
 import { FLASHCARDS as F } from "../config";
 import { studyBackend } from "../flashcards/backend";
-import { Mumble, VOICE_STYLES, ipaScript } from "../flashcards/mumble";
+import { Mumble, VOICE_CYCLE, VOICE_STYLES, ipaScript } from "../flashcards/mumble";
 import { keyFromText, studyStore, type StudyStore } from "../flashcards/key";
 import type { CardView, Grade, StudyBackend, StudySession } from "../flashcards/study";
 import { wrapText } from "../dialog";
@@ -46,8 +46,9 @@ export class FlashcardsActivity extends BaseActivity {
   again = 0;
   paid = 0;
   // How a card is voiced (an index into `VOICE_STYLES`): 0 by spelling, higher by
-  // its IPA, each style adding to the one before. V steps through them in the
-  // practice deck, to hear what each part adds.
+  // its IPA, each style adding to the one before, and the highest is the default.
+  // V steps down through them in the practice deck (`VOICE_CYCLE`), to hear what
+  // each part adds.
   voiceStyle: number = F.voice.style;
 
   private session: StudySession | null = null;
@@ -186,7 +187,8 @@ export class FlashcardsActivity extends BaseActivity {
   private switchVoice(controls: Controls): void {
     if (this.backend.usesKey !== false || !controls.keys.includes("KeyV")) return;
     if (controls.keysDown.some((k) => /^(Shift|Control|Meta|Alt)/.test(k))) return;
-    this.voiceStyle = (this.voiceStyle + 1) % VOICE_STYLES.length;
+    // The next voice down the list from the best, and back to the best after spelling.
+    this.voiceStyle = VOICE_CYCLE[(VOICE_CYCLE.indexOf(this.voiceStyle) + 1) % VOICE_CYCLE.length];
     this.repeat({ ...controls, keys: [F.mumble.repeatKey], keysDown: [] });
   }
 

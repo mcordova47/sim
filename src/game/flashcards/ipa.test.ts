@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { FLASHCARDS as F, FORMANTS, SOUND, SOURCE_F0 } from "../config";
+import { BURST_GAIN, DIPHTHONG_SHAPE, FLASHCARDS as F, FORMANTS, GLIDE_TARGET, GLIDE_TIME, SOUND, SOURCE_F0, VOWEL_TIME } from "../config";
 import { DEMO_CARDS } from "./demo";
 import { isGap, readIpa, type Phoneme } from "./ipa";
-import { ipaScript, Mumble, spellingScript, VOICE_STYLES } from "./mumble";
+import { ipaScript, Mumble, spellingScript, VOICE_CYCLE, VOICE_STYLES } from "./mumble";
 
 const phonemes = (ipa: string) => readIpa(ipa).units.filter((u): u is Phoneme => !isGap(u));
 const symbols = (ipa: string) => phonemes(ipa).map((p) => p.symbol);
@@ -226,7 +226,7 @@ describe("the speech-like voice: formants, intonation and jitter", () => {
         }
       }
     }
-    expect(VOICE_STYLES).toHaveLength(9);
+    expect(VOICE_STYLES).toHaveLength(10);
   });
 });
 
@@ -348,6 +348,129 @@ describe("glides and murmurs in the source-filter voice (styles 7 and 8)", () =>
           last = e.at;
           expect(SOUND.effects[e.effect!], `${ipa} ${e.effect}`).toBeDefined();
         }
+      }
+    }
+  });
+});
+
+describe("diphthongs as one continuous sound (style 9), l, and levels", () => {
+  const sounds = (ipa: string, style = 9) => ipaScript(ipa, style);
+  const names = (ipa: string, style = 9) => sounds(ipa, style).map((e) => e.effect);
+
+  it("a glide and its vowel are one sound whose name says the path: bien, aire, and the triphthong", () => {
+    expect(names("ˈbjen")).toEqual(["voiceFiltB", "voiceDiphJEStress", "voiceFiltN"]);
+    expect(names("ˈajɾe")).toEqual(["voiceDiphAJStress", "voiceTap", "voiceFiltE"]);
+    expect(names("ˈaɡwa")).toEqual(["voiceFiltAStress", "voiceFiltG", "voiceDiphWA"]);
+    const tri = names("estuˈdjajs");
+    expect(tri).toContain("voiceDiphJAJStress");
+    expect(names("uɾuˈɡwaj")).toContain("voiceDiphWAJStress");
+  });
+
+  it("is one event, the length of its parts added up, and no gap or glide event is left", () => {
+    const [e] = sounds("ˈbjen").slice(1);
+    const [, , next] = sounds("ˈbjen");
+    expect(next.at - e.at).toBeCloseTo((GLIDE_TIME.to + VOWEL_TIME.stress) * F.voice.slow);
+    const two = sounds("ˈajɾe");
+    expect(two[1].at - two[0].at).toBeCloseTo((VOWEL_TIME.stress + GLIDE_TIME.from) * F.voice.slow);
+    expect(names("ˈbjen").some((n) => n!.startsWith("voiceGlide"))).toBe(false);
+    // Total time is the same as style 8 (separate glide and vowel).
+    expect(sounds("ˈbjen").at(-1)!.at).toBeCloseTo(sounds("ˈbjen", 8).at(-1)!.at);
+  });
+
+  it("a hiatus stays two separate sounds, and a glide between vowels belongs to the vowel after it", () => {
+    expect(names("ˈdia")).toEqual(["voiceFiltD", "voiceFiltIStress", "voiceFiltA"]);
+    expect(names("ˈrio")).toEqual(["voiceTrill", "voiceFiltIStress", "voiceFiltO"]);
+    expect(names("ˈaʝa")).toEqual(["voiceFiltAStress", "voiceDiphJA"]);
+    expect(names("ˈʝo")).toEqual(["voiceDiphJOStress"]);
+  });
+
+  it("a glide with no vowel next to it, and two glides together, are left as they were", () => {
+    expect(names("ˈj")).toEqual(["voiceGlideDown"]);
+    expect(names("ˈjw")).toEqual(["voiceGlideDown", "voiceGlideUp"]);
+  });
+
+  it("styles below 9 do not merge, and style 9 changes only the diphthongs", () => {
+    for (const style of [1, 2, 3, 4, 5, 6, 7, 8]) expect(names("ˈbjen", style).some((n) => n!.startsWith("voiceDiph")), String(style)).toBe(false);
+    for (const ipa of ["ˈkasa", "ˈmana", "ˈabada", "ˈdia", "ˈasta ˈlego"]) expect(names(ipa, 9)).toEqual(names(ipa, 8));
+  });
+
+  it("a diphthong effect is on the move for most of its length: into the vowel, or out of it, with the movement heard at full level", () => {
+    const S = DIPHTHONG_SHAPE;
+    const into = SOUND.effects.voiceDiphJE.voices[0] as unknown as { formants: { freq: number; path: [number, number][] }[]; hold: number; length: number };
+    expect(into.length).toBeCloseTo(GLIDE_TIME.to + VOWEL_TIME.plain);
+    expect(into.formants.map((f) => f.freq)).toEqual([FORMANTS.i.f1, FORMANTS.i.f2]);
+    expect(into.formants[0].path).toEqual([[S.onReach, FORMANTS.e.f1]]);
+    expect(into.formants[1].path).toEqual([[S.onReach, FORMANTS.e.f2]]);
+    const out = SOUND.effects.voiceDiphAJ.voices[0] as unknown as { formants: { freq: number; path: [number, number][] }[]; hold: number };
+    expect(out.formants[1].freq).toBe(FORMANTS.a.f2);
+    expect(out.formants[1].path).toEqual([[S.offLeave, FORMANTS.a.f2], [1, FORMANTS[GLIDE_TARGET.j].f2]]);
+    const tri = SOUND.effects.voiceDiphJAJ.voices[0] as unknown as { formants: { freq: number; path: [number, number][] }[] };
+    expect(tri.formants[0].freq).toBe(FORMANTS.i.f1);
+    expect(tri.formants[0].path).toEqual([[S.triReach, FORMANTS.a.f1], [S.triLeave, FORMANTS.a.f1], [1, FORMANTS.i.f1]]);
+    // The movement is most of the sound, and it is still at full level when it ends.
+    expect(S.onReach).toBeGreaterThanOrEqual(0.5);
+    expect(S.offLeave).toBeLessThanOrEqual(0.4);
+    expect(S.triLeave - S.triReach).toBeLessThanOrEqual(0.4);
+    for (const v of [into, out]) expect(v.hold).toBeGreaterThanOrEqual(0.8);
+    // Path fractions run forward in time for every combination.
+    for (const [name, def] of Object.entries(SOUND.effects).filter(([n]) => n.startsWith("voiceDiph"))) {
+      for (const f of (def.voices[0] as unknown as { formants: { path: [number, number][] }[] }).formants) {
+        for (let i = 1; i < f.path.length; i++) expect(f.path[i][0], name).toBeGreaterThan(f.path[i - 1][0]);
+        expect(f.path.at(-1)![0], name).toBeLessThanOrEqual(1);
+      }
+    }
+    // Every combination exists, with its stressed twin.
+    for (const on of ["", "J", "W"]) for (const off of ["", "J", "W"]) for (const v of ["A", "E", "I", "O", "U"]) {
+      if (!on && !off) continue;
+      expect(SOUND.effects[`voiceDiph${on}${v}${off}`], `${on}${v}${off}`).toBeDefined();
+      expect(SOUND.effects[`voiceDiph${on}${v}${off}Stress`]).toBeDefined();
+    }
+  });
+
+  it("a diphthong is set between a third and three quarters of the gain of a plain stressed vowel (it is held longer, so it need not be as loud)", () => {
+    const plain = SOUND.effects.voiceFiltEStress.voices[0] as unknown as { gain: number };
+    for (const name of ["voiceDiphJEStress", "voiceDiphAJStress", "voiceDiphJAJStress", "voiceDiphWA"]) {
+      const d = SOUND.effects[name].voices[0] as unknown as { gain: number };
+      const ratio = d.gain / (name.endsWith("Stress") ? plain.gain : plain.gain / 1.4);
+      expect(ratio, name).toBeLessThan(0.75);
+      expect(ratio, name).toBeGreaterThan(0.3);
+    }
+  });
+
+  it("the /l/ is made from the vowels' source from style 8 (not before), at the same level as a vowel", () => {
+    expect(names("ˈala", 7)).toEqual(["voiceFiltAStress", "voiceLiquid", "voiceFiltA"]);
+    expect(names("ˈala", 8)).toEqual(["voiceFiltAStress", "voiceFiltL", "voiceFiltA"]);
+    const l = SOUND.effects.voiceFiltL.voices[0] as unknown as { source: string; freq: number; formants: { freq: number }[] };
+    expect(l.source).toBe("sawtooth");
+    expect(l.freq).toBe(SOURCE_F0);
+    expect(l.formants.map((f) => f.freq)).toEqual([360, 1300]);
+  });
+
+  it("the nasals carry a level, the other sounds do not, and the burst level is one named number", () => {
+    const [m] = sounds("ˈmana");
+    expect(m.gain).toBe(F.voice.murmurs.m.gain);
+    expect(m.gain).toBeLessThan(1);
+    expect(sounds("ˈasa").every((e) => e.gain === undefined)).toBe(true);
+    expect(sounds("ˈaba")[1].gain).toBeUndefined();
+    const burst = SOUND.effects.voiceFiltB.voices[1] as unknown as { gain: number };
+    expect(burst.gain).toBe(BURST_GAIN);
+  });
+
+  it("V steps from the best voice down to spelling, and every voice is in the cycle once", () => {
+    expect(VOICE_CYCLE[0]).toBe(VOICE_STYLES.length - 1);
+    expect(VOICE_CYCLE.at(-1)).toBe(0);
+    expect([...VOICE_CYCLE].sort((a, b) => a - b)).toEqual(VOICE_STYLES.map((_, i) => i));
+    expect(F.voice.style).toBe(VOICE_CYCLE[0]);
+  });
+
+  it("every word of the practice sets is sane in style 9: finite, ordered, real effects", () => {
+    for (const c of DEMO_CARDS) {
+      let last = -1;
+      for (const e of ipaScript(c.ipa!, 9)) {
+        expect(Number.isFinite(e.pitch) && e.pitch > 0, c.slug).toBe(true);
+        expect(e.at, c.slug).toBeGreaterThanOrEqual(last);
+        last = e.at;
+        expect(SOUND.effects[e.effect!], `${c.slug} ${e.effect}`).toBeDefined();
       }
     }
   });

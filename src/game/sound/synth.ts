@@ -93,6 +93,8 @@ export class Synth {
     const env = this.ctx.createGain();
     env.gain.setValueAtTime(FLOOR, t0);
     env.gain.linearRampToValueAtTime(peak, t0 + Math.min(MUSIC.attack, length / 2));
+    // A voice with `hold` stays at full level for that fraction of its length first.
+    if (isFormant(voice) && voice.hold !== undefined) env.gain.setValueAtTime(peak, t0 + voice.hold * length);
     env.gain.exponentialRampToValueAtTime(FLOOR, t1);
     env.connect(this.buses[bus]);
 
@@ -108,7 +110,10 @@ export class Synth {
       for (const formant of voice.formants) {
         const filter = this.ctx.createBiquadFilter();
         filter.type = "bandpass";
-        if (formant.endFreq !== undefined) {
+        if (formant.path !== undefined) {
+          filter.frequency.setValueAtTime(formant.freq, t0);
+          for (const [fraction, hz] of formant.path) filter.frequency.exponentialRampToValueAtTime(hz, t0 + fraction * (t1 - t0));
+        } else if (formant.endFreq !== undefined) {
           filter.frequency.setValueAtTime(formant.freq, t0);
           filter.frequency.exponentialRampToValueAtTime(formant.endFreq, t1);
         } else {

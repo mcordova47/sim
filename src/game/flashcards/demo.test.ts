@@ -68,12 +68,21 @@ describe("the practice deck", () => {
     const run = (seconds: number) => {
       for (let i = 0; i < Math.round(seconds * 60); i++) a.update(1 / 60, NO_INPUT);
     };
-    // The first card is "yo", Spanish first, with an IPA transcription: ʝ o.
+    // The first card is "yo", Spanish first, with an IPA transcription: ʝ o. The best
+    // voice is the default, and it makes the yo one sound, a /j/ gliding into the /o/.
+    expect(a.voiceStyle).toBe(F.voice.style);
+    run(1);
+    expect(f.voices.map((v) => v.effect)).toEqual(["voiceDiphJOStress"]);
+    // Pick the original voice to check its sounds: the glide, then the stressed vowel.
+    a.voiceStyle = 1;
+    f.voices.length = 0;
+    a.update(1 / 60, { ...NO_INPUT, keys: ["KeyR"], keysDown: ["KeyR"] });
     run(1);
     expect(f.voices.map((v) => v.effect)).toEqual([F.voice.symbols.j.effect, F.voice.stress.effect]);
     f.voices.length = 0;
-    // V steps ipa -> formants -> intonation -> jitter -> filtered -> filtered+ -> glides -> murmurs -> spelling.
-    for (let i = 0; i < 8; i++) a.update(1 / 60, { ...NO_INPUT, keys: ["KeyV"], keysDown: ["KeyV"] });
+    // V steps down from the best, through each earlier voice, to spelling.
+    a.voiceStyle = 1;
+    a.update(1 / 60, { ...NO_INPUT, keys: ["KeyV"], keysDown: ["KeyV"] });
     expect(a.voiceStyle).toBe(0);
     f.voices.length = 0;
     run(1);
@@ -120,15 +129,20 @@ describe("the practice deck", () => {
     const a = new FlashcardsActivity(f.host, demoBackendFor("words"), new StudyStore(new FakeStorage()), clipboard);
     a.start();
     await new Promise((r) => setTimeout(r, 0));
-    const heard: Record<number, { effect?: string; pitch: number; stretch?: number }[]> = {};
+    const heard: Record<number, { effect?: string; pitch: number; stretch?: number; gain?: number }[]> = {};
+    const order: number[] = [];
     for (let n = 0; n < VOICE_STYLES.length; n++) {
       f.voices.length = 0;
       for (let i = 0; i < 90; i++) a.update(1 / 60, NO_INPUT);
       heard[a.voiceStyle] = [...f.voices];
+      order.push(a.voiceStyle);
       a.update(1 / 60, { ...NO_INPUT, keys: ["KeyV"], keysDown: ["KeyV"] });
     }
-    expect(a.voiceStyle).toBe(F.voice.style); // back where it started
-    expect(Object.keys(heard).sort()).toEqual(["0", "1", "2", "3", "4", "5", "6", "7", "8"]);
+    // It starts at the best voice, steps down to spelling and is back at the best.
+    expect(order).toEqual([9, 8, 7, 6, 5, 4, 3, 2, 1, 0]);
+    expect(a.voiceStyle).toBe(F.voice.style);
+    expect(F.voice.style).toBe(VOICE_STYLES.length - 1);
+    expect(Object.keys(heard).sort()).toEqual(["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]);
     expect(heard[1].map((v) => v.effect)).toEqual(["voiceGlideDown", "voiceVowelStress"]);
     expect(heard[2].map((v) => v.effect)).toEqual(["voiceGlideDown", "voiceFormantOStress"]);
     // Intonation and jitter change the pitches of the same sounds, in order.
@@ -140,6 +154,10 @@ describe("the practice deck", () => {
     expect(heard[5].every((v) => v.stretch === F.voice.slow)).toBe(true);
     expect(heard[6].map((v) => v.effect)).toEqual(heard[5].map((v) => v.effect));
     expect(heard[6].map((v) => v.pitch)).not.toEqual(heard[5].map((v) => v.pitch));
+    // Glides move the resonances; the diphthong voice makes the yo one sound.
+    expect(heard[7].map((v) => v.effect)).toEqual(["voiceGlideJToO", "voiceFiltOStress"]);
+    expect(heard[8].map((v) => v.effect)).toEqual(heard[7].map((v) => v.effect));
+    expect(heard[9].map((v) => v.effect)).toEqual(["voiceDiphJOStress"]);
   });
 
   it("has four sets, picks one by name, and all of them by default", () => {

@@ -19,6 +19,8 @@ export interface Phoneme {
   // its twin's), and for a glide the vowel it aims at ("i" for j, "u" for w).
   key: string;
   glide?: string;
+  // How loud, if not as the effect is written (see `FLASHCARDS.voice.murmurs`).
+  gain?: number;
 }
 
 // A pause between words.
@@ -59,6 +61,9 @@ export type VowelMaker = "pitch" | "tones" | "filtered";
 export interface Extras {
   glides?: boolean;
   murmurs?: boolean;
+  // Makes a vowel and the glide or glides touching it one sound whose resonances
+  // move from the first to the second (style 9), instead of separate sounds.
+  diphthongs?: boolean;
 }
 
 export function readIpa(ipa: string, vowels: VowelMaker | boolean = "pitch", extras: Extras = {}): Reading {
@@ -129,11 +134,23 @@ export function readIpa(ipa: string, vowels: VowelMaker | boolean = "pitch", ext
     } else {
       const murmur = maker === "filtered" && extras.murmurs ? V.murmurs[key] : undefined;
       const sound = murmur ?? entry;
-      units.push({ symbol, effect: sound.effect, pitch: sound.pitch, length: sound.length, vowel, stressed: false, key, ...(entry.glide ? { glide: entry.glide } : {}) });
+      const gain = murmur?.gain;
+      units.push({
+        symbol,
+        effect: sound.effect,
+        pitch: sound.pitch,
+        length: sound.length,
+        vowel,
+        stressed: false,
+        key,
+        ...(entry.glide ? { glide: entry.glide } : {}),
+        ...(gain !== undefined ? { gain } : {}),
+      });
     }
   }
   while (units.length && isGap(units[units.length - 1])) units.pop();
-  if (maker === "filtered" && extras.glides) {
+  if (maker === "filtered" && extras.diphthongs) mergeDiphthongs(units);
+  else if (maker === "filtered" && extras.glides) {
     units.forEach((u, k) => {
       if (isGap(u) || !u.glide) return;
       const next = units[k + 1];
@@ -150,4 +167,32 @@ export function readIpa(ipa: string, vowels: VowelMaker | boolean = "pitch", ext
     });
   }
   return { units, unknown: [...unknown] };
+}
+
+// Makes each diphthong one sound. A vowel with a glide just before it (bien) or
+// just after it (aire), or both (the triphthong of estudiáis), becomes one
+// phoneme whose effect is `voiceDiph` plus the glide, the vowel and the glide,
+// and whose length is theirs added up. A glide between two vowels goes with the
+// vowel after it (it starts that syllable), and a glide next to no vowel is left
+// alone. Two vowels in a row are a hiatus, and stay two sounds.
+function mergeDiphthongs(units: Unit[]): void {
+  const sound = (k: number): Phoneme | null => (k >= 0 && k < units.length && !isGap(units[k]) ? (units[k] as Phoneme) : null);
+  for (let k = 0; k < units.length; k++) {
+    const vowel = sound(k);
+    if (!vowel || !vowel.vowel) continue;
+    const before = sound(k - 1);
+    const after = sound(k + 1);
+    const afterThat = sound(k + 2);
+    const on = before?.glide ? before : null;
+    // A glide after the vowel belongs to it unless a vowel follows the glide.
+    const off = after?.glide && !afterThat?.vowel ? after : null;
+    if (!on && !off) continue;
+    const name = `voiceDiph${on ? on.key.toUpperCase() : ""}${vowel.key.toUpperCase()}${off ? off.key.toUpperCase() : ""}${vowel.stressed ? "Stress" : ""}`;
+    const length = (on ? V.glideLength.to : 0) + (vowel.stressed ? V.formants.stressLength : V.formants.length) + (off ? V.glideLength.from : 0);
+    const merged: Phoneme = { ...vowel, symbol: `${on?.symbol ?? ""}${vowel.symbol}${off?.symbol ?? ""}`, effect: name, pitch: 1, length };
+    const first = on ? k - 1 : k;
+    const count = (on ? 1 : 0) + 1 + (off ? 1 : 0);
+    units.splice(first, count, merged);
+    k = first;
+  }
 }

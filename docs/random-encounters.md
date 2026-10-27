@@ -36,24 +36,24 @@ Item ids start with their kind (rule from stage 1). "Art needed" is what stage 4
 
 | # | When | Item (id, name) | Fits | Art needed |
 |---|---|---|---|---|
-| 1 | game day 1 | `art-robin` ROBIN PRINT | table wall, desk wall | The sprite `painting-robin` exists (16x16) but needs a 32x16 matted version: **1 new** |
-| 2 | game day 3 | `art-silver-landscape` SILVER LANDSCAPE | table wall, desk wall | **1 new** 32x16 (from the gallery wall piece) |
+| 1 | game day 1 | `art-robin` ROBIN PRINT | table wall, desk wall | **None.** The sprite `art-robin` (32x16, Marc's print) exists from issue 074. |
+| 2 | game day 3 | `art-concert-poster` CONCERT POSTER | table wall, desk wall | **None.** Redrawn in issue 076 as a dark gig-poster impression (night sky, blush planet, glowing horizon). |
 | 3 | game day 5 | `lamp-warm` WARM LAMP | lamp table | **1 new** 16x16 (second lamp, a warm shade; item `glow` as the table lamp) |
 | 4 | achievement Green Thumb (water the snake plant 3 times) | `plant-dried` DRIED FLOWERS | shelf plant slot | **1 new** 16x16 (never grows; a plant that needs no water, as the 062 note says) |
-| 5 | game day 8 | `art-green-still-life` GREEN STILL LIFE | table wall, desk wall | **1 new** 32x16 |
+| 5 | game day 8 | `art-snow-wagon` SNOW WAGON | table wall, desk wall | **None.** Issue 076, from Marc's winter yard print (32x16). |
 | 6 | game day 10 | `lamp-stool-lamp` STOOL LAMP | lamp table | **None.** The sprite `stool-lamp` exists and the TEST item `lamp-test-stool-lamp` already has its glow (radius 24, alpha 0.2). Stage 4 renames the TEST item to a real one. |
-| 7 | achievement Desk Job (every task at the desk) | `art-concert-poster` CONCERT POSTER | table wall, desk wall | **1 new** 32x16 (the poster on the desk; redrawn in issue 076 as a dark gig-poster impression: night sky, blush planet, glowing horizon) |
-| 8 | game day 13 | `art-white-building` WHITE BUILDING | bed wall (48x16) | **1 new** 48x16 (the only wide piece in this list; the bed wall is the one wide slot) |
+| 7 | achievement Desk Job (every task at the desk) | `art-serenity-now` SERENITY NOW | table wall, desk wall | **None.** Issue 076, from Marc's canvas (32x16, tall frame; no text). |
+| 8 | game day 13 | `art-canoes` CANOES | table wall, desk wall | **None.** Issue 076, from Marc's painting of two rowboats (32x16, tall frame). |
 | 9 | achievement Record Keeper (sort the records all four ways) | `lamp-candle` CANDLE | lamp table | **1 new** 16x16, and the `flicker` option on `glow` from issue 062's candle note (slow, small, never strobing) |
-| 10 | game day 16 | `art-dark-animal` DARK ANIMAL | table wall, desk wall | **1 new** 32x16 |
+| 10 | game day 16 | `art-great-wave` GREAT WAVE | table wall, desk wall | **None.** Issue 076, an impression of Hokusai's The Great Wave off Kanagawa (public domain, 32x16). |
 
-Total: 9 new sprites and one engine option (candle flicker), all small. Items 1 to 3 and 6 need almost no new art, so the first three weeks of play need only 3 sprites plus the stool. If art is late, cut the list at the last ready item: the list is data.
+Every piece of art here is drawn (issues 074 and 076); the new work is the data, the two lamps and plant (items 3, 4, 9, 6 as above), and one engine option (candle flicker). Marc's rule (2026-10-27): every additional artwork is a real thing: his own pieces or a famous public-domain work, and never a painting already on the gallery wall (it must not be in two places). So the bed wall (48x16) has no wide gift yet; `painting-wide` stays there until a wide real piece is drawn. If art is late, cut the list at the last ready item: the list is data.
 
 Order logic: a painting first (the room's biggest visible change and the cheapest), then a different kind each time so the swap list for each slot grows at a steady, small pace. The three achievement gifts are matched to what you did (watering gives a plant, desk work a poster, records a candle) so they read as a little acknowledgement, not a reward. The day gifts land at days 1, 3, 5, 8, 10, 13, 16 (gaps of 2, 2, 3, 2, 3, 3); the achievement gifts come on top when they come.
 
-**After the first ten** (the "later" list, for stage 4 to extend): the remaining gallery pieces (`art-oak-box`, `art-pale-mat`, `art-small-blue`, `art-tall-brown`, `art-dark-postcard`, `art-gold-narrow`), the two unhung paintings from issue 076 (`art-snow-wagon`, a winter yard print, 32x16, fits the table and desk wall slots; `art-warm-figure`, a tall figure canvas, 32x16, same slots), a trailing plant for a windowsill slot (5 sprites if it grows), the recycling bin (issue 070), a pantry upgrade, the rug if Marc wants it (062 open question 9), the nylon guitar.
+**After the first ten** (the "later" list, for stage 4 to extend): `art-starry-night` (Van Gogh, 32x16), `art-water-lilies` (Monet, 32x16) and `art-sunflowers` (Van Gogh, 32x16, tall frame), all for the table and desk wall slots, all drawn in issue 076; a trailing plant for a windowsill slot (5 sprites if it grows), the recycling bin (issue 070), a pantry upgrade, the rug if Marc wants it (062 open question 9), the nylon guitar.
 
-Only two narrow wall slots (table, desk) exist today, and this list has six narrow paintings, so most will sit in the inventory. That is fine for a quiet collection (issue 073's inventory), but see open question 6.
+Only two narrow wall slots (table, desk) exist today, and this list has seven narrow paintings, so most will sit in the inventory. That is fine for a quiet collection (issue 073's inventory), but see open question 6.
 
 ## 4. Stage B: the encounter flow
 
@@ -181,13 +181,13 @@ Each concept below gives the card type, platform, brand, the item it sells, the 
 - Card button: `MESSAGE SELLER`
 - Look closer: `Linen shade, brass base. Bulb included.` / `Delivery is $6 within 10 miles.`
 
-**4. Silver Landscape print** (email)
-- Platform: Amazon. Brand: Northfield Studio. Item: `art-silver-landscape`. Persistence 1, delay 24.
+**4. Starry Night print** (email)
+- Platform: Amazon. Brand: Northfield Studio. Item: `art-starry-night`. Persistence 1, delay 24.
 - From: `Amazon.com` (the card header says `AMAZON`)
-- Subject: `Recommended for you: Silver Landscape print`
+- Subject: `Recommended for you: Starry Night print`
 - Body: `Because you viewed wall art.` / `Northfield Studio. 4.6 stars, 312 ratings.` / `FREE delivery Thursday.`
 - Card button: `VIEW ITEM`
-- Look closer: `Silver Landscape, framed, 12 X 16 IN` / `In stock. Sold by Northfield Studio.`
+- Look closer: `Starry Night, framed, 12 X 16 IN` / `In stock. Sold by Northfield Studio.`
 
 **5. Stool lamp** (text message)
 - Platform: a text message (card header `MESSAGES`, sender `MAPLE ROW`). Brand: Maple Row. Item: `lamp-stool-lamp`. Persistence 1, delay 8.
@@ -203,13 +203,13 @@ Each concept below gives the card type, platform, brand, the item it sells, the 
 - Card button: `SHOP THE SALE`
 - Look closer: `Evening candle, soy wax, 8 OZ.` / `$22 $17.60`
 
-**7. The Green Still Life** (social post)
-- Platform: Instagram. Brand: Saltmarsh Prints. Item: `art-green-still-life`. Persistence 0, delay 12.
+**7. Water Lilies** (social post)
+- Platform: Instagram. Brand: Saltmarsh Prints. Item: `art-water-lilies`. Persistence 0, delay 12.
 - Header: `@SALTMARSHPRINTS` and `SPONSORED`
-- Headline: `The Green Still Life`
+- Headline: `Water Lilies`
 - Body: `Giclee print, matted and ready to hang.` / `Rated 4.9 by 40,000 customers.`
 - Card button: `SHOP NOW`
-- Look closer: `Green Still Life, 12 X 16 IN` / `$48. Free shipping over $35.`
+- Look closer: `Water Lilies, 12 X 16 IN` / `$48. Free shipping over $35.`
 
 The pool is the items that have art, so the pool grows as stage 4 lands. An ad can be written for any item once it exists; a catalog of 7 to 12 ads is enough, because owning an item turns its ad into a dismissal.
 

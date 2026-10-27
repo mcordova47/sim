@@ -2,31 +2,148 @@ import { VIEW } from "../game/config";
 
 export interface Screen {
   canvas: HTMLCanvasElement;
-  ctx: CanvasRenderingContext2D;
+  // What the game draws into: always 320 x 192 game pixels.
+  readonly ctx: CanvasRenderingContext2D;
+  // Copies the finished picture to the visible canvas (touch mode; nothing to do otherwise).
+  present(): void;
+  // Switches between the desktop fit and the phone fit (device pixels, safe areas).
+  setTouch(on: boolean): void;
 }
 
-// Sets up a fixed-resolution canvas and keeps it scaled to the window using
-// the largest whole-number factor, so pixels stay crisp.
-export function createScreen(canvas: HTMLCanvasElement): Screen {
-  canvas.width = VIEW.width;
-  canvas.height = VIEW.height;
+export interface Insets {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
 
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("2D canvas context not available");
-  ctx.imageSmoothingEnabled = false;
+export interface Fit {
+  // Device pixels per game pixel (a whole number).
+  scaleDev: number;
+  // Size on the page, in CSS pixels.
+  cssWidth: number;
+  cssHeight: number;
+  // Size of the backing store, in device pixels.
+  backingWidth: number;
+  backingHeight: number;
+}
+
+// The largest whole number of device pixels per game pixel that fits `width` x `height`
+// CSS pixels, never below 1 (a window too small for 1x is cropped, not shrunk). Counting
+// in device pixels gives more sizes than whole CSS pixels (docs/mobile.md section 2.1).
+export function fitScale(width: number, height: number, dpr: number): Fit {
+  const d = dpr > 0 && Number.isFinite(dpr) ? dpr : 1;
+  const raw = Math.floor(Math.min((width * d) / VIEW.width, (height * d) / VIEW.height));
+  const scaleDev = Math.max(1, Number.isFinite(raw) ? raw : 1);
+  return {
+    scaleDev,
+    cssWidth: (VIEW.width * scaleDev) / d,
+    cssHeight: (VIEW.height * scaleDev) / d,
+    backingWidth: VIEW.width * scaleDev,
+    backingHeight: VIEW.height * scaleDev,
+  };
+}
+
+// The room the controls need below the picture in portrait, in CSS pixels.
+export const PORTRAIT_CONTROLS_HEIGHT = 330;
+
+// The area for the picture on a phone. Portrait puts the controls below it; landscape lets
+// them float over the picture, so it takes the whole viewport. Inside the safe areas.
+export function pictureArea(
+  viewWidth: number,
+  viewHeight: number,
+  insets: Insets,
+): { width: number; height: number; portrait: boolean } {
+  const width = Math.max(0, viewWidth - insets.left - insets.right);
+  const height = Math.max(0, viewHeight - insets.top - insets.bottom);
+  const portrait = viewHeight > viewWidth;
+  return { width, height: portrait ? height - PORTRAIT_CONTROLS_HEIGHT : height, portrait };
+}
+
+// The desktop rule, unchanged: the largest whole CSS-pixel factor, at least 1.
+export function desktopScale(width: number, height: number): number {
+  return Math.max(1, Math.floor(Math.min(width / VIEW.width, height / VIEW.height)));
+}
+
+// The safe-area insets, read through a probe element (env() is only readable from CSS).
+function readInsets(): Insets {
+  try {
+    const probe = document.createElement("div");
+    probe.style.cssText =
+      "position:fixed;visibility:hidden;pointer-events:none;" +
+      "padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)";
+    document.body.appendChild(probe);
+    const s = getComputedStyle(probe);
+    const insets = {
+      top: parseFloat(s.paddingTop) || 0,
+      right: parseFloat(s.paddingRight) || 0,
+      bottom: parseFloat(s.paddingBottom) || 0,
+      left: parseFloat(s.paddingLeft) || 0,
+    };
+    probe.remove();
+    return insets;
+  } catch {
+    return { top: 0, right: 0, bottom: 0, left: 0 };
+  }
+}
+
+// Sets up the canvas and keeps it scaled to the window. On a desktop the canvas is 320 x 192
+// at the largest whole CSS-pixel factor, as always. In touch mode the game draws into a
+// 320 x 192 offscreen canvas that is copied, smoothing off, onto a backing store made of
+// whole device pixels per game pixel, so pixels stay crisp at 1.33x and the like.
+export function createScreen(canvas: HTMLCanvasElement): Screen {
+  const main = canvas.getContext("2d");
+  if (!main) throw new Error("2D canvas context not available");
+  const off = document.createElement("canvas");
+  off.width = VIEW.width;
+  off.height = VIEW.height;
+  const offCtx = off.getContext("2d");
+  if (!offCtx) throw new Error("2D canvas context not available");
+  offCtx.imageSmoothingEnabled = false;
+
+  let touch = false;
+
+  const size = (width: number, height: number) => {
+    if (canvas.width !== width) canvas.width = width;
+    if (canvas.height !== height) canvas.height = height;
+    main.imageSmoothingEnabled = false;
+  };
 
   const fit = () => {
-    const scale = Math.max(
-      1,
-      Math.floor(
-        Math.min(window.innerWidth / VIEW.width, window.innerHeight / VIEW.height),
-      ),
-    );
-    canvas.style.width = `${VIEW.width * scale}px`;
-    canvas.style.height = `${VIEW.height * scale}px`;
+    if (!touch) {
+      size(VIEW.width, VIEW.height);
+      const scale = desktopScale(window.innerWidth, window.innerHeight);
+      canvas.style.width = `${VIEW.width * scale}px`;
+      canvas.style.height = `${VIEW.height * scale}px`;
+      return;
+    }
+    const vv = window.visualViewport;
+    const area = pictureArea(vv?.width ?? window.innerWidth, vv?.height ?? window.innerHeight, readInsets());
+    const f = fitScale(area.width, area.height, window.devicePixelRatio || 1);
+    size(f.backingWidth, f.backingHeight);
+    canvas.style.width = `${f.cssWidth}px`;
+    canvas.style.height = `${f.cssHeight}px`;
   };
+
   fit();
   window.addEventListener("resize", fit);
+  window.addEventListener("orientationchange", fit);
+  window.visualViewport?.addEventListener("resize", fit);
 
-  return { canvas, ctx };
+  return {
+    canvas,
+    get ctx() {
+      return touch ? offCtx : main;
+    },
+    present() {
+      if (!touch) return;
+      main.imageSmoothingEnabled = false;
+      main.drawImage(off, 0, 0, canvas.width, canvas.height);
+    },
+    setTouch(on: boolean) {
+      if (touch === on) return;
+      touch = on;
+      fit();
+    },
+  };
 }

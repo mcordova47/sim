@@ -168,15 +168,28 @@ describe("the speech-like voice: formants, intonation and jitter", () => {
     expect(at(1).map((e) => e.effect)).toEqual(["voiceStop", "voiceVowelStress", "voiceHiss", "voiceVowel"]);
   });
 
-  it("the formants are not simple ratios of each other (no chord)", () => {
-    const f = Object.values(FORMANTS);
-    for (const a of f) for (const b of f) {
-      if (a === b) continue;
-      for (const x of [a.f1, a.f2]) for (const y of [b.f1, b.f2]) {
-        const r = Math.max(x, y) / Math.min(x, y);
-        if (r < 1.02) continue; // the same sound
-        for (const n of [2, 3, 4]) expect(Math.abs(r - n), `${x}/${y}`).toBeGreaterThan(0.01);
+  it("the three sounds of a vowel are not a simple ratio of each other (no chord inside a vowel)", () => {
+    const simple = (x: number, y: number): string | null => {
+      const r = Math.max(x, y) / Math.min(x, y);
+      for (const m of [1, 2, 3]) {
+        for (let n = m; n <= 6 * m; n++) if (Math.abs(r - n / m) / r < 0.03) return `${n}:${m}`;
       }
+      return null;
+    };
+    for (const vowel of Object.keys(FORMANTS)) {
+      const freqs = SOUND.effects[`voiceFormant${vowel.toUpperCase()}`].voices.map((v) => ("freq" in v ? v.freq : 0));
+      expect(freqs).toHaveLength(3);
+      for (let i = 0; i < 3; i++) for (let j = i + 1; j < 3; j++) expect(simple(freqs[i], freqs[j]), `${vowel} ${freqs[i]}/${freqs[j]}`).toBeNull();
+      // Stress is the same sounds, longer and louder.
+      expect(SOUND.effects[`voiceFormant${vowel.toUpperCase()}Stress`].voices.map((v) => ("freq" in v ? v.freq : 0))).toEqual(freqs);
+    }
+  });
+
+  it("the formants stay near the textbook values", () => {
+    const book: Record<string, [number, number]> = { a: [730, 1090], e: [530, 1840], i: [270, 2290], o: [570, 840], u: [300, 870] };
+    for (const [v, [f1, f2]] of Object.entries(book)) {
+      expect(Math.abs(FORMANTS[v].f1 / f1 - 1)).toBeLessThan(0.09);
+      expect(Math.abs(FORMANTS[v].f2 / f2 - 1)).toBeLessThan(0.09);
     }
   });
 

@@ -364,16 +364,19 @@ const note = (semitones: number, base = 440) => Math.round(base * 2 ** (semitone
 // Vowels by timbre, not by pitch (issue 026, the speech-like voice): two tones
 // at the vowel's first two formant frequencies (Hz) over a low buzz, so the
 // vowel is told apart by its sound and not by a note. The numbers are the usual
-// textbook formants for the five Spanish vowels. `stress` makes the same vowel
-// longer and louder.
+// textbook formants for the five Spanish vowels, nudged by a few percent (a
+// formant is a range, not a point) so that the three sounds of a vowel, the two
+// formants and the buzz, are not a simple ratio of each other: no octave, fifth,
+// fourth or the like, to within 3 percent, which a test checks for every vowel.
+// `stress` makes the same vowel longer and louder.
 export const FORMANTS: Record<string, { f1: number; f2: number }> = {
-  a: { f1: 730, f2: 1090 },
-  e: { f1: 530, f2: 1840 },
-  i: { f1: 270, f2: 2290 },
-  o: { f1: 570, f2: 840 },
+  a: { f1: 708, f2: 1101 },
+  e: { f1: 530, f2: 1711 },
+  i: { f1: 265, f2: 2290 },
+  o: { f1: 570, f2: 882 },
   u: { f1: 300, f2: 870 },
 };
-const FORMANT_BUZZ = 120;
+export const FORMANT_BUZZ = 137;
 const formantEffect = ({ f1, f2 }: { f1: number; f2: number }, length: number, loud: number): EffectDef => ({
   priority: "low",
   voices: [

@@ -1,7 +1,7 @@
 ---
 id: 026
 title: Spanish flashcards on the in-game computer (stretch)
-status: in-progress
+status: review
 owner: marc + claude
 depends_on: [021, 022, 023]
 ---
@@ -215,3 +215,4 @@ The app is "Mil Palabras" (palabras.mcord.dev): PureScript, Netlify, spaced repe
   - **Tag fit:** glyph advance 6 px, panel 264 px. "V: intonation" spans x+8 to x+85; the centred counter "Card N of N" (13 characters, up to 99 cards) starts at x+93.5, a gap of 8.5 px (2.5 px with a three-digit queue, not reachable with `maxQueued` 20 or the 15-card deck). Fits.
   - **Checks:** `npm run build` ok, `tsc --noEmit` clean, `npm test` 1923 passed. No text-to-speech in the diff.
   - **Unverified:** how any of it sounds in a browser. The formant tones are layered squares and triangles and may sound like beeps rather than vowels; gains, the buzz, the intonation sizes and the jitter size are guesses. Real Web Audio mixing and clipping from three layers at once are also unchecked (the fake context only counts voices).
+- 2026-10-26: **Speech-like voice review round 1 changes worked.** Fixed: the three sounds of a vowel were an accidental chord (`/a/`'s formants 1090/730 were a perfect fifth within 8 cents, the 120 Hz buzz was 5:2 against `/u/`, 7:1 against `/o/`'s F2 and so on). Searched for a buzz and small nudges to the formants (at most about 8 percent from the textbook values) so that no pair among F1, F2 and the buzz is within 3 percent of an n:m ratio with m up to 3 and n/m up to 6: buzz 137 Hz, /a/ 708 and 1101, /e/ 530 and 1711, /i/ 265 and 2290, /o/ 570 and 882, /u/ 300 and 870. The test now checks every pair of simultaneous voices of every vowel, normal and stressed, and the nudges stay within 9 percent; the docs sentence was corrected. Left as the reviewer noted: with 100 ms frames (a stalled tab) a vowel can be dropped by the voice cap (not at 60 fps: at most 6 of 8 voices, no drops over all 1000 words), and the V tag is 8.5 px from the card counter. Still unchecked: how it sounds (the layered tones may sound like beeps, not vowels).

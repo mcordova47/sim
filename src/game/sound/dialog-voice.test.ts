@@ -119,9 +119,9 @@ function playSamples(s: S) {
   return out;
 }
 
-describe("the dialog voice setting: beep (the default)", () => {
+describe("the dialog voice setting: beep (the other option)", () => {
   it("is byte-identical to the beep recorded before the setting existed", async () => {
-    const out = playSamples(setup());
+    const out = playSamples(setup({ dialogVoice: "beep" }));
     if (env.UPDATE_GOLDEN === "1") {
       // @ts-ignore node module, only used when asked to write files
       const fs = await import("node:fs");
@@ -136,9 +136,11 @@ describe("the dialog voice setting: beep (the default)", () => {
   });
 
   it("stays the beep when the setting is saved as beep, and when asked for beep", () => {
-    const base = playSamples(setup());
-    expect(playSamples(setup({ saved: '{"muted":false,"track":null,"payoutLeft":0,"dialogVoice":"beep"}' }))).toEqual(base);
+    const base = playSamples(setup({ dialogVoice: "beep" }));
+    expect(playSamples(setup({ saved: '{"muted":false,"track":null,"payoutLeft":0,"dialogVoice":"beep","dialogVoiceChosen":true}' }))).toEqual(base);
     expect(playSamples(setup({ dialogVoice: "beep" }))).toEqual(base);
+    // ...and it is the golden, not just self-consistent.
+    if (env.UPDATE_GOLDEN !== "1") expect(base).toEqual(JSON.parse(goldenText));
   });
 });
 
@@ -243,7 +245,7 @@ describe("the dialog voice setting: letters", () => {
     const a = playSamples(setup({ dialogVoice: "letters" }));
     const b = playSamples(setup({ dialogVoice: "letters" }));
     expect(a).toEqual(b);
-    expect(a).not.toEqual(playSamples(setup()));
+    expect(a).not.toEqual(playSamples(setup({ dialogVoice: "beep" })));
   });
 });
 
@@ -251,42 +253,82 @@ describe("saving and switching the dialog voice", () => {
   it("saves with the sound settings and loads on the next visit", () => {
     const storage = new FakeStorage();
     const s = setup({ storage });
-    expect(s.feature.dialogVoice).toBe("beep");
-    s.game.dialogVoice!.toggle();
     expect(s.feature.dialogVoice).toBe("letters");
-    expect(JSON.parse(storage.getItem("life.sound.v1")!).dialogVoice).toBe("letters");
-    expect(setup({ storage }).feature.dialogVoice).toBe("letters");
     s.game.dialogVoice!.toggle();
+    expect(s.feature.dialogVoice).toBe("beep");
+    expect(JSON.parse(storage.getItem("life.sound.v1")!).dialogVoice).toBe("beep");
     expect(setup({ storage }).feature.dialogVoice).toBe("beep");
+    s.game.dialogVoice!.toggle();
+    expect(setup({ storage }).feature.dialogVoice).toBe("letters");
   });
 
   it("labels the setting for the list screen", () => {
     const s = setup();
-    expect(s.game.dialogVoice!.label()).toBe("DIALOG VOICE: BEEP");
-    s.game.dialogVoice!.toggle();
     expect(s.game.dialogVoice!.label()).toBe("DIALOG VOICE: LETTERS");
+    s.game.dialogVoice!.toggle();
+    expect(s.game.dialogVoice!.label()).toBe("DIALOG VOICE: BEEP");
   });
 
-  it("an old save without the field, or with junk, means beep", () => {
+  it("an old save without the field, or with junk, means letters; an explicit beep stays beep", () => {
     for (const saved of ['{"muted":true,"track":null,"payoutLeft":0}', '{"dialogVoice":"shout"}', '{"dialogVoice":5}', '{"dialogVoice":null}']) {
-      expect(setup({ saved }).feature.dialogVoice, saved).toBe("beep");
+      expect(setup({ saved }).feature.dialogVoice, saved).toBe("letters");
     }
+    expect(setup({ saved: '{"dialogVoice":"beep","dialogVoiceChosen":true}' }).feature.dialogVoice).toBe("beep");
+    // The 075 build wrote an automatic "beep" into every save: that is not a choice.
+    expect(setup({ saved: '{"muted":false,"track":null,"payoutLeft":0,"dialogVoice":"beep"}' }).feature.dialogVoice).toBe("letters");
+    for (const marker of ['false', '"true"', '1', 'null', '[true]']) {
+      expect(setup({ saved: `{"dialogVoice":"beep","dialogVoiceChosen":${marker}}` }).feature.dialogVoice, marker).toBe("letters");
+    }
+    // No storage at all (private window) is letters too.
+    expect(new SoundFeature(new Game(parseTileMap(["#####", "#.@.#", "#####"], {})), { audio: () => new FakeAudioContext(), storage: null, keys: new FakeKeys(), random: seeded(), tracks: [], start: "main" }).dialogVoice).toBe("letters");
   });
 
   it("keeps the other settings when it is switched", () => {
     const storage = new FakeStorage();
     const s = setup({ storage, saved: '{"muted":true,"track":null,"payoutLeft":3}' });
     s.game.dialogVoice!.toggle();
-    expect(JSON.parse(storage.getItem("life.sound.v1")!)).toEqual({ muted: true, track: null, payoutLeft: 3, dialogVoice: "letters" });
+    expect(JSON.parse(storage.getItem("life.sound.v1")!)).toEqual({ muted: true, track: null, payoutLeft: 3, dialogVoice: "beep", dialogVoiceChosen: true });
   });
 
   it("the URL override applies for the visit without being saved", () => {
     const storage = new FakeStorage();
-    const s = setup({ storage, dialogVoice: "letters" });
-    expect(s.feature.dialogVoice).toBe("letters");
+    const s = setup({ storage, dialogVoice: "beep" });
+    expect(s.feature.dialogVoice).toBe("beep");
     s.feature.setMuted(true); // any save
-    expect(JSON.parse(storage.getItem("life.sound.v1")!).dialogVoice).toBe("beep");
+    expect(JSON.parse(storage.getItem("life.sound.v1")!).dialogVoice).toBe("letters");
+    expect(setup({ storage }).feature.dialogVoice).toBe("letters");
+  });
+
+  it("writes the chosen marker only from the D toggle, and keeps it", () => {
+    const storage = new FakeStorage();
+    const saved = () => JSON.parse(storage.getItem("life.sound.v1")!);
+    const s = setup({ storage });
+    s.feature.setMuted(true); // other saves do not set it
+    expect(saved().dialogVoiceChosen).toBe(false);
+    s.game.dialogVoice!.toggle(); // letters -> beep
+    expect(saved()).toMatchObject({ dialogVoice: "beep", dialogVoiceChosen: true });
+    s.feature.setMuted(false); // later saves keep it
+    expect(saved().dialogVoiceChosen).toBe(true);
     expect(setup({ storage }).feature.dialogVoice).toBe("beep");
+    s.game.dialogVoice!.toggle(); // back to letters
+    expect(saved()).toMatchObject({ dialogVoice: "letters", dialogVoiceChosen: true });
+    expect(setup({ storage }).feature.dialogVoice).toBe("letters");
+    s.game.dialogVoice!.toggle(); // and beep again
+    expect(setup({ storage }).feature.dialogVoice).toBe("beep");
+    expect(setup({ storage }).feature.dialogVoice).toBe("beep"); // across more reloads
+  });
+
+  it("the dev override sets neither the marker nor the saved voice", () => {
+    const storage = new FakeStorage();
+    const s = setup({ storage, dialogVoice: "beep" });
+    s.feature.setMuted(true);
+    expect(JSON.parse(storage.getItem("life.sound.v1")!)).toMatchObject({ dialogVoice: "letters", dialogVoiceChosen: false });
+    // On top of a player's real beep choice it does not change what is saved either.
+    const chosen = new FakeStorage();
+    chosen.setItem("life.sound.v1", '{"dialogVoice":"beep","dialogVoiceChosen":true}');
+    const t = setup({ storage: chosen, dialogVoice: "letters" });
+    t.feature.setMuted(true);
+    expect(JSON.parse(chosen.getItem("life.sound.v1")!)).toMatchObject({ dialogVoice: "beep", dialogVoiceChosen: true });
   });
 
   it("reads ?dialogvoice= only in the dev server, and only known values", () => {

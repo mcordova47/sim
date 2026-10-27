@@ -13,7 +13,7 @@ import { browserAudio, type AudioFactory } from "./audio-types";
 import { MoodLift, comboPitch, floorOf, noteKeyPitch, stepEffect, stepGain, stepPitch } from "./decisions";
 import { SoundEngine } from "./engine";
 import { mumbleNotes } from "../flashcards/mumble";
-import { SettingsStore, type DialogVoice } from "./settings";
+import { DEFAULT_SETTINGS, SettingsStore, type DialogVoice } from "./settings";
 
 // The parts of a window the feature listens to, so tests can pass fakes.
 export interface KeyEventLike {
@@ -78,8 +78,9 @@ export class SoundFeature implements Layer {
   // Characters of dialog text that had appeared at the last frame.
   private shown = 0;
   // How dialog text sounds now, and what is saved (they differ under the URL override).
-  private voiceMode: DialogVoice = "beep";
-  private voiceSaved: DialogVoice = "beep";
+  private voiceMode: DialogVoice = DEFAULT_SETTINGS.dialogVoice;
+  private voiceSaved: DialogVoice = DEFAULT_SETTINGS.dialogVoice;
+  private voiceChosen = false;
 
   constructor(private readonly game: Game, options: SoundOptions = {}) {
     this.random = options.random ?? Math.random;
@@ -95,6 +96,7 @@ export class SoundFeature implements Layer {
     this.selected = this.everyTrack().find((t) => t.id === saved.track) ?? null;
     this.payoutLeft = saved.payoutLeft;
     this.voiceSaved = saved.dialogVoice;
+    this.voiceChosen = saved.dialogVoiceChosen;
     this.voiceMode = options.dialogVoice ?? saved.dialogVoice;
     game.dialogVoice = {
       label: () => `DIALOG VOICE: ${this.voiceMode.toUpperCase()}`,
@@ -214,11 +216,12 @@ export class SoundFeature implements Layer {
   setDialogVoice(voice: DialogVoice): void {
     this.voiceMode = voice;
     this.voiceSaved = voice;
+    this.voiceChosen = true; // only the D toggle gets here
     this.save();
   }
 
   private save(): void {
-    this.store.save({ muted: this.engine.muted, track: this.selected?.id ?? null, payoutLeft: this.payoutLeft, dialogVoice: this.voiceSaved });
+    this.store.save({ muted: this.engine.muted, track: this.selected?.id ?? null, payoutLeft: this.payoutLeft, dialogVoice: this.voiceSaved, dialogVoiceChosen: this.voiceChosen });
   }
 
   private step(): void {

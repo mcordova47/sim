@@ -12,12 +12,17 @@ export interface SoundSettings {
   // Game minutes left before choosing a record pays again (issue 068). Saved so a
   // reload cannot skip the wait; it counts down in game time while the game runs.
   payoutLeft: number;
-  // How dialog text sounds as it types (issue 075): the plain beep, or the
-  // spelling voice's letters. An old save or a junk value means the beep.
+  // How dialog text sounds as it types (issue 075): the spelling
+  // voice's letters (the default since issue 077), or the plain beep. Only a save
+  // that says "beep" and was chosen by the player means the beep; an old save, an
+  // automatic "beep" or a junk value means letters.
   dialogVoice: DialogVoice;
+  // True once the player pressed D (issue 077). Since 075 the game wrote a plain
+  // "beep" into every save, so a saved "beep" only counts as a choice with this.
+  dialogVoiceChosen: boolean;
 }
 
-export const DEFAULT_SETTINGS: SoundSettings = { muted: false, track: null, payoutLeft: 0, dialogVoice: "beep" };
+export const DEFAULT_SETTINGS: SoundSettings = { muted: false, track: null, payoutLeft: 0, dialogVoice: "letters", dialogVoiceChosen: false };
 
 export class SettingsStore {
   constructor(
@@ -32,11 +37,13 @@ export class SettingsStore {
       const raw: unknown = JSON.parse(text);
       if (typeof raw !== "object" || raw === null) return { ...DEFAULT_SETTINGS };
       const r = raw as Record<string, unknown>;
+      const chosen = r.dialogVoiceChosen === true;
       return {
         muted: r.muted === true,
         track: typeof r.track === "string" ? r.track : null,
         payoutLeft: typeof r.payoutLeft === "number" && Number.isFinite(r.payoutLeft) ? Math.min(MUSIC.payoutEveryMinutes, Math.max(0, r.payoutLeft)) : 0,
-        dialogVoice: r.dialogVoice === "letters" ? "letters" : "beep",
+        dialogVoice: r.dialogVoice === "beep" && chosen ? "beep" : "letters",
+        dialogVoiceChosen: chosen,
       };
     } catch {
       return { ...DEFAULT_SETTINGS };

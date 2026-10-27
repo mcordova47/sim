@@ -125,6 +125,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 087 | [Mobile, stage 1: a touch layer in a flat portrait shell](issues/087-mobile-stage-1.md) | claude | todo | 049 |
 | 088 | [A phone battery (a gag) and a charge-your-phone task](issues/088-phone-battery.md) | claude | todo | 086 |
 | 089 | [Flashcards guest mode: study without a sync key (build)](issues/089-flashcards-guest-mode-build.md) | claude | todo | 083, 082 |
+| 090 | [Mobile: a taller, squarer picture that scrolls (assess, then prototype)](issues/090-mobile-narrow-view.md) | claude | todo | 087 |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

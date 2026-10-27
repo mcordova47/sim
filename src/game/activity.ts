@@ -114,6 +114,10 @@ export interface Activity {
   // True while letters it reads are text, so the mute key is a letter too. When
   // missing, `readsKeys` decides (typing: always; the track editor: while naming).
   readonly readsLetters?: boolean;
+  // True for an activity whose keys the player may still be pressing when it ends
+  // without it reading raw letters (the notes game reads arrows). Together with
+  // `readsKeys`, a dialog opening during or just after it ignores keys for a moment.
+  readonly strayKeys?: boolean;
   // True for an activity with no time pressure: the apartment's clock, energy
   // and mood stand still while it runs (the track editor).
   readonly holdsClock?: boolean;

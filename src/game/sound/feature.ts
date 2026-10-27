@@ -250,8 +250,7 @@ export class SoundFeature implements Layer {
     const activity = task?.item.activity?.type;
     // The typing game reads every letter, so M is a letter there, not a mute key
     // (and in the track editor while a name is typed).
-    const lettersAreText = task?.activity.readsLetters ?? task?.activity.readsKeys;
-    if (e.code === SOUND.muteKey && !lettersAreText) {
+    if (e.code === SOUND.muteKey && !this.game.hotkeyBlocked(e.code, true)) {
       this.setMuted(!this.engine.muted);
     } else if (activity === "typing" && isTypingKey(e.code)) {
       this.engine.play("key", { pitch: 0.9 + this.random() * 0.2 });

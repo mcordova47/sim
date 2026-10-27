@@ -229,6 +229,8 @@ export class AchievementsFeature implements Layer {
 
   private key(e: KeyEventLike): void {
     if (e.repeat) return;
+    // Not while a key game owns the keyboard (mashing L in the typing game).
+    if (!this.listOpen && this.game.hotkeyBlocked(e.code)) return;
     if (e.code === UI.listKey) {
       if (this.listOpen) this.closeList();
       else this.openList();

@@ -1,7 +1,7 @@
 ---
 id: 098
 title: Art style doc: the perspective rule (south wall near top-down, the rest diagonal)
-status: in-progress
+status: review
 owner: claude
 depends_on: [096]
 ---
@@ -38,3 +38,4 @@ Write Marc's perspective rule into `docs/art-style.md` (decisions in `docs/asset
   - [ ] Contradiction: the Perspective bullet 'How to tell the class' lists "the counter, stove and hood on the kitchen bar" as south-wall pieces (near top-down), but the Face-on class and the reuse table (`hood`: "Wall-mounted, 3x1 tiles, face-on") make the hood face-on. The hood is a wall-line piece (`h` in WALL_PIECES, row 5 of KITCHEN_MAP), not furniture against the wall, and the sprite is a face-on vent. Remove the hood from the south-wall list (or say wall-line pieces such as the hood and the front door are face-on whichever wall they are on; the Exceptions sentence only names side-wall fixtures).
   - Minor, optional (carried from round 1): the opening Room orientation sentence says far-wall pieces are diagonal though the bookshelf and bed are exceptions; 'Until then' in the Scale bullet; the Overhang bullet now uses the sofa as its example although `sofa-td` has no overhang rows (6x2 tiles, 2x... footprint 6x2).
   - Build and tests not run (docs-only diff).
+- 2026-10-28: round 2 review fix: hood taken out of the south-wall list; tub nit, overhang example and orientation line tidied. Two review rounds done; stopping per the skill.

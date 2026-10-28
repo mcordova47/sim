@@ -11,7 +11,11 @@ vi.mock("../../render/font", async (original) => ({ ...(await original<typeof im
 afterEach(() => setTouchHints(false));
 
 const ctx = { fillRect: () => {} } as unknown as CanvasRenderingContext2D;
-const view = (extra: Partial<SyncView> = {}): SyncView => ({ touch: true, message: null, status: STATUS_TEXT.off, keyLine: null, isOn: false, confirm: null, busy: false, ...extra });
+const view = (extra: Partial<SyncView> = {}): SyncView => ({ touch: true, message: null, status: STATUS_TEXT.off, keyLine: null, isOn: false, auto: true, confirm: null, busy: false, ...extra });
+const AUTO_TEXT = [
+  "SYNC: NO CONNECTION. TRYING AGAIN LATER", "SYNC: KEY NOT FOUND. PASTE A NEW KEY", "SYNC: ON. AUTOMATIC SYNC IS OFF", "SYNC: ON. LAST SYNCED 59 MIN AGO", "SYNC: ON. LAST SYNCED 23 H AGO",
+  "AUTOMATIC SYNC IS ON", "AUTOMATIC SYNC IS OFF. SYNC NOW STILL WORKS", "AUTO SYNC: OFF",
+];
 const MESSAGES = [
   "SYNC IS ON", "SYNCED", "SYNC IS OFF", "ONE MOMENT", "PAIRED. SYNC IS ON", "THAT IS NOT A SYNC KEY OR LINK", "SYNC STOPPED. THE SAVED COPY IS DELETED",
   "LINK COPIED", "COULD NOT COPY. THE LINK IS IN THE CONSOLE.", "COULD NOT READ THE CLIPBOARD", "PRESS CTRL+V TO PASTE",
@@ -21,14 +25,14 @@ const MESSAGES = [
 describe("the sync page's text and buttons", () => {
   it("every line, status and message uses letters the font has and fits the picture", () => {
     const key = "KEY: " + "ABCD...WXYZ";
-    for (const text of [...SYNC_LINES, ...MESSAGES, ...Object.values(STATUS_TEXT), ...Object.values(SYNC_QUESTIONS).map((q) => q + " Y: YES"), key, "SYNC: WORKING...", SYNC_HINT, "SYNC"]) {
+    for (const text of [...SYNC_LINES, ...MESSAGES, ...Object.values(STATUS_TEXT), ...Object.values(SYNC_QUESTIONS).map((q) => q + " Y: YES"), key, "SYNC: WORKING...", ...AUTO_TEXT, SYNC_HINT, "SYNC"]) {
       expect(unsupportedChars(text), text).toEqual([]);
       expect(textWidth(text), text).toBeLessThanOrEqual(VIEW.width - 12);
     }
   });
 
   it("touch labels fit their buttons, in every state, and the buttons sit inside the picture", () => {
-    for (const v of [view(), view({ isOn: true }), view({ confirm: "stop" }), view({ isOn: true, confirm: "pair" })]) {
+    for (const v of [view(), view({ isOn: true }), view({ isOn: true, auto: false }), view({ confirm: "stop" }), view({ isOn: true, confirm: "pair" })]) {
       for (const b of syncButtons(v)) {
         expect(textWidth(b.label), b.label).toBeLessThanOrEqual(b.rect.w - 4);
         expect(b.rect.y + b.rect.h).toBeLessThan(VIEW.height - 12);

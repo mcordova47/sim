@@ -1476,4 +1476,15 @@ export const SYNC = {
   // The server's keys: 32 characters of a-z and 0-9. The link puts one after this, in the fragment.
   keyPattern: /^[a-z0-9]{32}$/,
   linkMark: "#sync=",
+  // Automatic sync (issue 104): a first try 5 seconds after load, then every 5 minutes while playing (only
+  // if something changed), again when the page is shown after a minute away, and when it is hidden. After a
+  // failure it waits 30 seconds, then 1, 2 and 4 minutes, then the usual 5. Under 60 KB a hide-sync can finish
+  // after the page has gone (fetch keepalive allows 64 KB).
+  auto: {
+    loadDelayMs: 5000,
+    everyMs: 5 * 60 * 1000,
+    shownGapMs: 60 * 1000,
+    retryMs: [30 * 1000, 60 * 1000, 120 * 1000, 240 * 1000, 5 * 60 * 1000],
+    keepaliveMaxChars: 60000,
+  },
 };

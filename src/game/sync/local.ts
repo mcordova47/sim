@@ -30,6 +30,8 @@ export class SyncLocal {
   // The key this device syncs with (issue 103). It lives here and nowhere else: never in a save, a code or a file.
   private syncKey: string | null = null;
   private heldDoc: SyncDoc | null = null;
+  // Automatic sync (issue 104): on unless the player turned it off.
+  private autoOn = true;
   private backupData: Backup | null = null;
   private loaded = false;
 
@@ -48,6 +50,7 @@ export class SyncLocal {
         if (isRecord(raw)) {
           if (typeof raw.device === "string" && /^[a-z0-9]{1,32}$/.test(raw.device)) this.id = raw.device;
           if (typeof raw.key === "string" && SYNC.keyPattern.test(raw.key)) this.syncKey = raw.key;
+          if (raw.auto === false) this.autoOn = false;
           const held = normaliseDoc(raw.held, this.env);
           if (held.ok) this.heldDoc = held.doc;
         }
@@ -71,7 +74,7 @@ export class SyncLocal {
 
   private write(): void {
     try {
-      this.storage?.setItem(SYNC.storageKey, JSON.stringify({ device: this.id, ...(this.syncKey && { key: this.syncKey }), ...(this.heldDoc && { held: this.heldDoc }) }));
+      this.storage?.setItem(SYNC.storageKey, JSON.stringify({ device: this.id, ...(this.syncKey && { key: this.syncKey }), ...(!this.autoOn && { auto: false }), ...(this.heldDoc && { held: this.heldDoc }) }));
     } catch {
       // Memory only.
     }
@@ -96,6 +99,18 @@ export class SyncLocal {
   setKey(key: string | null): void {
     this.read();
     this.syncKey = key;
+    this.device();
+    this.write();
+  }
+
+  auto(): boolean {
+    this.read();
+    return this.autoOn;
+  }
+
+  setAuto(on: boolean): void {
+    this.read();
+    this.autoOn = on;
     this.device();
     this.write();
   }

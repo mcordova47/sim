@@ -117,6 +117,7 @@ describe("two devices pair and converge", () => {
     await A.io.copy(linkFor("https://game.test", key));
     const B = device(server, 2_000_000);
     complete(B, "dishes");
+    B.press("KeyL"); // pairing happens on the pause screen, where a merge may apply
     expect(await B.service.pair(A.io.clipboard!)).toBe("PAIRED. SYNC IS ON");
     expect(B.service.key).toBe(key);
     // B now has A's coffee as well as its own dishes.
@@ -125,6 +126,7 @@ describe("two devices pair and converge", () => {
     B.clock.t += 5000;
     complete(B, "dishes");
     await B.service.syncNow();
+    A.press("KeyL");
     await A.service.syncNow();
     expect(A.api.doc().progress.stats.taskCounts).toMatchObject({ coffee: 1, dishes: 2 });
     expect(same(A, B)).toBe(true);
@@ -372,7 +374,7 @@ describe("the sync page", () => {
     A.feature.tapTargets()[0].run();
     await flush();
     expect(A.service.key).toMatch(KEY);
-    expect(A.feature.tapTargets()).toHaveLength(5);
+    expect(A.feature.tapTargets()).toHaveLength(6);
   });
 });
 

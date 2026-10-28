@@ -308,7 +308,7 @@ export function drawTransfer(ctx: CanvasRenderingContext2D, view: TransferView):
 
 // -- The sync page (issue 103, docs/sync.md section 5) ------------------------------------------------
 
-export type SyncButtonId = "on" | "copy" | "now" | "paste" | "stop" | "yes" | "no" | "back";
+export type SyncButtonId = "on" | "copy" | "now" | "auto" | "paste" | "stop" | "yes" | "no" | "back";
 
 export interface SyncView {
   touch: boolean;
@@ -318,6 +318,8 @@ export interface SyncView {
   status: string;
   keyLine: string | null;
   isOn: boolean;
+  // Automatic sync is switched on (the button says which).
+  auto: boolean;
   // Waiting for a yes or no: stopping, or pairing with the link's save.
   confirm: "stop" | "pair" | null;
   busy: boolean;
@@ -354,6 +356,7 @@ export function syncButtons(view: SyncView): Array<{ id: SyncButtonId; label: st
     ? [
         { id: "copy", label: "COPY LINK", key: "C" },
         { id: "now", label: "SYNC NOW", key: "S" },
+        { id: "auto", label: view.auto ? "AUTO SYNC: ON" : "AUTO SYNC: OFF", key: "A" },
         { id: "paste", label: "PASTE KEY OR LINK", key: "V" },
         { id: "stop", label: "STOP SYNCING", key: "X" },
         { id: "back", label: "BACK", key: "ESC" },

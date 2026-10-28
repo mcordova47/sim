@@ -13,6 +13,7 @@ import { HttpBackend, linkFor, type SyncBackend } from "../sync/client";
 import { browserIO, type TransferIO } from "../sync/io";
 import { SyncLocal } from "../sync/local";
 import { canon, mergeSaves, normaliseDoc, normaliseProgress, type SyncDoc, type SyncProgress } from "../sync/merge";
+import { AutoSync } from "../sync/auto";
 import { STATUS_TEXT, SyncService } from "../sync/service";
 import type { TapTarget } from "../../input/tap";
 import { drawList, drawSync, drawToasts, drawTransfer, listRows, pageButton, pauseButtons, syncButtons, touchPageSize, transferButtons, type ListView, type SyncView, type TransferView } from "./draw";
@@ -96,6 +97,7 @@ export class AchievementsFeature implements Layer {
   private readonly io: TransferIO;
   private page: "list" | "transfer" | "sync" = "list";
   readonly syncService: SyncService;
+  private readonly auto: AutoSync;
   private readonly origin: string;
   private confirmSync: "stop" | "pair" | null = null;
   private pairKey: string | null = null;
@@ -127,6 +129,17 @@ export class AchievementsFeature implements Layer {
       now: () => this.now(),
       env: () => this.syncEnv(),
     });
+
+    // Automatic sync (issue 104): the first try comes a few seconds after load, in the background.
+    this.auto = new AutoSync(
+      {
+        now: () => this.now(),
+        idle: () => !this.listOpen && !this.game.inputLocked && !this.game.dialogOpen && !this.game.interaction.busy,
+        changed: () => this.syncService.changed(),
+        sync: () => this.syncService.auto(),
+      },
+      () => this.sync.auto() && this.sync.key() !== null,
+    );
 
     // Load before listening, so restoring the apartment does not count as playing.
     const saved = this.store.load();
@@ -175,7 +188,10 @@ export class AchievementsFeature implements Layer {
 
     options.keys?.addEventListener("keydown", (e) => this.key(e));
     options.visibility?.addEventListener("visibilitychange", () => {
-      if (options.visibility?.hidden) this.save();
+      if (options.visibility?.hidden) {
+        this.save();
+        this.auto.hidden();
+      } else this.auto.shown();
     });
     this.check();
     // Ctrl+V on the transfer page imports what was pasted.
@@ -263,7 +279,9 @@ export class AchievementsFeature implements Layer {
   // A remote document from the server: applied now when nothing is running (the pause screen counts), else
   // held for the pause screen or the next load.
   private mergeIncoming(doc: SyncDoc): void {
-    if (this.canApplyNow()) this.applyIncoming(doc);
+    // Never under the player's thumb (issue 104): only with the pause screen open, else held (applied at once
+    // only if nothing has been played yet this visit).
+    if (this.listOpen) this.applyIncoming(doc);
     else this.holdMerge(doc);
   }
 
@@ -466,7 +484,10 @@ export class AchievementsFeature implements Layer {
 
   // Runs a sync call and shows what it says. The page may have closed by then; the message is simply not seen.
   private run(job: Promise<string>): void {
-    void job.then((m) => this.say(m));
+    void job.then((m) => {
+      this.say(m);
+      if (this.syncService.status() === "on") this.auto.resume();
+    });
   }
 
   private syncKeyPress(e: KeyEventLike): void {
@@ -486,6 +507,7 @@ export class AchievementsFeature implements Layer {
     } else {
       if (e.code === "KeyC") return this.copyLink();
       if (e.code === "KeyS") return this.run(this.syncService.syncNow());
+      if (e.code === "KeyA") return this.toggleAuto();
       if (e.code === "KeyX") {
         this.confirmSync = "stop";
         this.flash = null;
@@ -493,6 +515,26 @@ export class AchievementsFeature implements Layer {
       }
     }
     if (e.code === "KeyV") return this.pasteKey();
+  }
+
+  private toggleAuto(): void {
+    this.sync.setAuto(!this.sync.auto());
+    if (this.sync.auto()) this.auto.resume();
+    this.say(this.sync.auto() ? "AUTOMATIC SYNC IS ON" : "AUTOMATIC SYNC IS OFF. SYNC NOW STILL WORKS");
+  }
+
+  // The status line in plain words: what is going on, and when it last worked.
+  private statusLine(): string {
+    const status = this.syncService.status();
+    const text = STATUS_TEXT[status];
+    if (status === "noConnection") return this.sync.auto() ? `${text}. TRYING AGAIN LATER` : text;
+    if (status === "keyNotFound") return `${text}. PASTE A NEW KEY`;
+    if (status !== "on") return text;
+    if (!this.sync.auto()) return `${text}. AUTOMATIC SYNC IS OFF`;
+    const at = this.syncService.lastOkAt;
+    if (at === null) return text;
+    const min = Math.floor((this.now() - at) / 60000);
+    return `${text}. LAST SYNCED ${min < 1 ? "JUST NOW" : min < 60 ? `${min} MIN AGO` : `${Math.floor(min / 60)} H AGO`}`;
   }
 
   private answerSync(yes: boolean): void {
@@ -524,7 +566,8 @@ export class AchievementsFeature implements Layer {
     return {
       touch: touchHints(),
       message: this.flashFor > 0 ? this.flash : null,
-      status: STATUS_TEXT[this.syncService.status()],
+      status: this.statusLine(),
+      auto: this.sync.auto(),
       keyLine: key ? `KEY: ${key.slice(0, 4).toUpperCase()}...${key.slice(-4).toUpperCase()}` : null,
       isOn: key !== null,
       confirm: this.confirmSync,
@@ -537,6 +580,7 @@ export class AchievementsFeature implements Layer {
       on: () => this.run(this.syncService.turnOn()),
       copy: () => this.copyLink(),
       now: () => this.run(this.syncService.syncNow()),
+      auto: () => this.toggleAuto(),
       paste: () => this.pasteKey(),
       stop: () => {
         this.confirmSync = "stop";
@@ -758,6 +802,7 @@ export class AchievementsFeature implements Layer {
       this.check();
     }
     if (this.sinceSave >= UI.saveEvery) this.save();
+    this.auto.tick();
   }
 
   drawHud(ctx: CanvasRenderingContext2D): void {

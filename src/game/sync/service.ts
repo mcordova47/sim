@@ -35,9 +35,16 @@ const failStatus = (e: Fail): SyncStatus => ({ offline: "noConnection", notFound
 // What a document is, apart from who wrote it and the clamp: the part two devices compare.
 const content = (d: SyncDoc) => canon({ activeAt: d.activeAt, progress: d.progress, tracks: d.tracks });
 
+// What counts as "something changed" for the every-5-minutes sync: the player's real actions, not the
+// clock (steps and seconds played move all the time and are saved at the next real sync anyway).
+const mark = (d: SyncDoc) => canon({ activeAt: d.activeAt, unlocked: d.progress.unlocked, taskCounts: d.progress.stats.taskCounts, decor: d.progress.decor, tracks: d.tracks });
+
 export class SyncService {
   private state: SyncStatus | null = null;
   busy = false;
+  // When the last sync worked (this visit only), and what the game held then: the "something changed" test.
+  lastOkAt: number | null = null;
+  private lastContent: string | null = null;
 
   constructor(
     private readonly backend: SyncBackend,
@@ -82,13 +89,43 @@ export class SyncService {
       remote = read.doc;
     }
     const live = this.host.doc();
+    const liveMark = mark(live);
     const merged = remote ? mergeSaves(live, remote, this.host.now()) : live;
     if (remote) this.host.mergeIncoming(remote);
     if (!remote || content(merged) !== content(remote)) {
       const put = await this.backend.put(key, JSON.stringify(merged));
       if (!put.ok) return { ok: false, error: failStatus(put.error) };
     }
+    this.lastContent = liveMark;
+    this.lastOkAt = this.host.now();
     return { ok: true };
+  }
+
+  // Has the game changed since the last sync that worked?
+  changed(): boolean {
+    return this.lastContent === null || mark(this.host.doc()) !== this.lastContent;
+  }
+
+  // The same sync as SYNC NOW, for the automatic triggers: no message, never says "one moment" (a busy
+  // one just waits). A key the server does not know stops it until the player acts.
+  async auto(): Promise<"ok" | "retry" | "stop" | "busy"> {
+    const key = this.local.key();
+    if (key === null) return "stop";
+    if (this.busy) return "busy";
+    this.busy = true;
+    try {
+      const done = await this.syncWith(key);
+      if (done.ok) {
+        this.state = null;
+        return "ok";
+      }
+      this.state = done.error;
+      return done.error === "keyNotFound" ? "stop" : "retry";
+    } catch {
+      return "retry";
+    } finally {
+      this.busy = false;
+    }
   }
 
   private report(error: SyncStatus): string {

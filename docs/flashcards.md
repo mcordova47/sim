@@ -142,6 +142,8 @@ Where the data comes from: the figures all come from the app's own core. The ses
 
 ### Needed from the app: `core.overview` (for the progress page, issue 082)
 
+> **Done (2026-10-28):** the app added `core.overview` (flashcards PR #183, "Expose the progress overview through core.js") and Marc confirmed the progress page shows the real figures. The text below is kept as the record of the shape the game relies on.
+
 The page needs counts the core does not report today. `core.v1.js` exports `session`, `card`, `grade`, `ipa`, `merge`, `requeue`, `empty`, `sessionSize` and `version`; none of them says how many words are known, how many are due or when the next one is. The figures already exist in the app (`Flashcards.Stats.overview` and `Stats.nextDueIn` in `src/Flashcards/Stats.purs`, with `Stats.masteryOf` deciding what "known" means); `Flashcards.Core` just does not export them. The game must not parse the blob or reimplement the scheduler to get them.
 
 Proposed addition, in the same style as the other core functions (additive, so no `version` bump):

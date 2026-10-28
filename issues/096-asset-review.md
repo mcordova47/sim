@@ -1,7 +1,7 @@
 ---
 id: 096
 title: Asset review: go over every sprite for perspective and consistency
-status: done
+status: in-progress
 owner: marc + claude
 depends_on: []
 ---
@@ -47,3 +47,4 @@ Marc (2026-10-27): an asset review, going over all the assets in detail and deci
   - Scope and privacy: `git diff main...HEAD` touches only `docs/asset-review.md` and this file. No address, contact detail or reference-photo content.
   - Minor, non-blocking notes for the planner when asking Marc: (a) `stove` is called TD in the doc, but the render is mostly a front-on oven face under a thin burner strip (about a sixth of the height); it is more mixed than the counter, so worth asking Marc whether it counts as a model piece. (b) `toilet` and `vanity` carry verdict "Adjust, low priority" in the table, but decision 9 recommends skip and decision 3 / the mismatch list treat the toilet as an exception; treat them as "skip unless Marc says otherwise". (c) record-stand edge ink is 82 %, not mentioned; harmless.
   - **Unverified:** how the game looks in a browser at 1.0x to 1.67x on a phone; light direction on every sprite (only sampled). Both are stated in the doc and are not blocking for a survey. Steps 3 and 4 (Marc's decisions, follow-up issues) are still to do; the survey step is approved and status set to done, but the planner may prefer to keep the issue open until Marc's answers are recorded.
+- 2026-10-28 (planner): Marc's answers recorded in `docs/asset-review.md` (the stove is kept; the survey's front-on note was a misreading, checked by re-rendering). Steps 3 done; step 4 is the follow-up issues 098 (the rule and doc), 099 (south wall pieces), 100 (chair, pose and the typing prompt) and 101 (cleanup).

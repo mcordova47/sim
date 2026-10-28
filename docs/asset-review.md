@@ -156,4 +156,11 @@ Coverage note: rows give groups for runs of names (`dishes-0..3`, `plant-0..3`, 
 Group the fixes as: rule and doc (A); south-wall pieces (B); chair and pose (C7); outline pass and cleanup (D). Each re-records the golden frames deliberately.
 
 ## Marc's answers
-(Not yet asked.)
+Asked one group at a time (2026-10-27 and 28):
+1. **The rule (decisions 1 to 3): adopt it, with exceptions.** South wall pieces near top-down; everything else diagonal from the top and front. Exceptions: the big flat pieces off the south wall (bed, tub, toilet, bookshelf stay near top-down, so the sleeping sprites are not redone) and wall fixtures on side walls (radiator, pantry, windows stay face-on).
+2. **South wall pieces (4 to 6): redraw all of them.** The four lamps as one near top-down set, the fridge near top-down, the delivery box near top-down with an ink outline, and the record stand with more top.
+3. **Desk chair (7): yes, chair and pose.** Redraw the chair diagonal (a little smaller than the player) and redo the typing-at-the-desk player pose to match. Marc's note: he had never seen the chair pose, because the typing prompt covers it; the typing prompt's placement should be fixed so the pose can be seen (part of the chair issue).
+4. **Cleanup (8 to 12): all of it.** The outline pass on plants, lamps and the phone charger (folded into the redraws), the plant pots seen from above (low priority), the side-project picture without readable HUD words, and deleting the unused sprites (window, floor-tile, rug, painting-robin, icon-phone, icon-plug, guitar-tall, guitar-nylon-tall; keep view-bookshelf, gallery-wall, guitar-nylon and mic-stand-vintage as reserved). Toilet and vanity: skip.
+5. **The stove: leave it.** The planner re-rendered the stove and the counter at 8x: the stove is near top-down (a control panel strip with a row of knobs and a small display along the top, then a black cooktop with four burners in a 2 x 2 layout filling the rest; no oven door face and no hood are drawn), the same 3 x 2 size as the counter, whose matching strip is the wood cabinet fronts. The survey's note that the stove was 'a front-on oven face' was a misreading; the stove is a model piece for the rule.
+
+Follow-up issues: the rule and doc (A), south wall pieces (B), chair, pose and typing prompt (C), cleanup (D).

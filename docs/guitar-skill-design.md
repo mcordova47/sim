@@ -87,7 +87,7 @@ Same chord per arrow, but a press plays a **one-bar strum pattern** starting at 
 
 ### Level 6: groove (fingerstyle feel; the built version is in section 6b)
 Two layers:
-1. **The accompaniment**, a looping pattern that starts at the first press of the session and stops when the session ends (or is cancelled; its notes ring out on their own decay): a Travis-style picking pattern, thumb on bass (root, then fifth, alternating) on beats and fingers on the upper strings of the chord on the off-beats, one chord per bar, progression **I V vi IV** (A E F#m D), 4 bars, then around. Patterns are data (a bar is eight slots of `{string, gain}`), the bass is one octave under the harmony.
+1. **The accompaniment**, a looping pattern that starts at the first press of the session and stops when the session ends (or is cancelled; its notes ring out on their own decay): a Travis-style picking pattern, thumb on bass (root, then fifth, alternating) on beats and fingers on the upper strings of the chord on the off-beats, one chord per bar, progression **I V vi IV** (A E F#m D), 4 bars, then around. Patterns are data (a bar is a pattern string, see 6b), the bass is one octave under the harmony.
 2. **The melody**, the arrows: each arrow plays a note **relative to the chord sounding at that moment**: left = chord root (octave up), right = the chord's third, up = fifth, down = the sixth/second step of the pentatonic (a gentle passing tone). Every one is a chord tone or a pentatonic neighbour, so it always fits, and because the chord underneath changes each bar, the same four arrows move through the changes by themselves. Plays immediately on the effects bus, the same voice as today; the groove plays on the music bus, quieter (about 0.55 of the melody gain), pan-less.
 
 The scheduler for the groove is the only piece with time in it, section 6.
@@ -103,19 +103,19 @@ The record player's trick, reused: no timers; each frame `update(synth)` schedul
 - **Where it lives.** `GuitarGroove` class in `src/game/sound/guitar-groove.ts` (like `MusicPlayer`; constructor takes the bus; `start()`, `stop()`, `update(synth)`, `chordNow(now)`); `SoundFeature` owns one, starts it on the first notes keypress at level 6, stops it when the activity is no longer `notes`. It uses the pure `groove(bar)` for what to play.
 - **While a record is playing:** the record player is not stopped; the guitar then is a second layer. Possible clash of keys (the tracks are in many keys). Accepted: recommended (and built) behaviour for level 6 is to **duck the record to 30% while the groove plays** (same mechanism the sleep scene uses to fade buses). Decide at build time (114e) by ear; see risks.
 
-## 6b. The built groove: a Travis-style pattern (issue 114b, after Marc listened)
+## 6b. The built groove: a pluck-a-beat Travis pattern (issue 114b, after Marc listened twice)
 
-Marc asked for a more Travis-like picking pattern, faster, with the melody note about every fourth pluck and the melody quieter. Built as data in `GUITAR_SKILL.groove`. The bar is 16 sixteenths (`pattern`, one character per slot), tempo 116 bpm (was 92), swing 0.04 of a slot on the odd slots (was 0.1 of an eighth), melody gain 0.7 (was 1). One chord per bar, I V vi IV (A E F#m D):
+Marc asked for a Travis-like picking pattern, fast, where the player's note REPLACES the fourth pluck instead of layering on a busy pattern. Built as data in `GUITAR_SKILL.groove`. Each pluck is one beat: `pluckBpm` 460 plucks a minute (a pluck every 0.130 s; the first Travis version was 116 bpm with a pluck about every 0.26 s), swing 0.01 of a pluck. The loop is a cycle of four plucks: three background plucks and a rest. `cycle: ["b32h", "b23h"]` lists the cycle shapes one after another, and `cyclesPerBar` (4) cycles make a bar (16 plucks, 2.09 s) with one chord per bar, I V vi IV (A E F#m D). `b` is the thumb, alternating the chord's root and fifth from cycle to cycle; a digit is a finger on the voicing's string at that index (inner strings); `h` is the rest.
 
 ```
-slot   0 1 2 3 | 4 5 6 7 | 8 9 10 11 | 12 13 14 15
-beat   1 . . . | 2 . . . | 3 .  .  . | 4  .  .  .
-loop   r . 3 h | f . 2 h | r .  3  h | f  .  2  h
+pluck   0 1 2 3 | 4 5 6 7 | 8 9 10 11 | 12 13 14 15
+cycle   b 3 2 h | b 2 3 h | b 3  2  h  | b  2  3  h
+bass    r       | f       | r         | f
 ```
 
-`r` thumb on the chord's root, `f` thumb on its fifth (so the bass alternates root, fifth, root, fifth on every beat), digits the fingers on the voicing's strings 3 and 2 (inner strings, between the beats), `h` an empty slot where the high string would be plucked, `.` a rest. The loop never plays the `h` slots: the player's arrow is the high note, so a press can land on one of four high slots in a bar.
+Melody: nothing plays on an `h` pluck in the loop; the player's arrow is that note (one of four chances a bar, about every 0.52 s). With no key pressed it stays silent. The note is always a note of the chord sounding (`melody[chord]`) at gain 0.7 (the loop is 0.55).
 
-Snap (`groove.snap`, on by default, `?guitarsnap=off` on the dev server): an arrow pressed within `window` (0.075 s) before an `h` slot is played on that slot (so a delay of at most 75 ms) and uses the chord of that slot's bar; any other press plays at once, as before, and a press just after a slot is never moved. The melody note is always a note of the chord sounding (`melody[chord]`).
+Snap (`groove.snap`, on by default, `?guitarsnap=off` on the dev server): an arrow pressed within `window` (0.12 s) before an `h` pluck is played on it (delay at most 120 ms, never before the press) and uses the chord of that pluck's bar; any other press plays at once, and a press just after a pluck is not moved.
 
 ## 7. Where the level is read (decided)
 
@@ -146,7 +146,7 @@ The notes activity itself does not change (same arrows, same window and gap, sam
 
 **Tests** (vitest, no audio hardware; same fake audio context as `guitar-voice.test.ts`):
 - `skillLevel`: each threshold, one below and one at it; 0, negative, NaN, huge, non-integer; the thresholds are strictly increasing; level ids unique.
-- Data: the table is complete (a name for every level, patterns well-formed: 8 slots; chord voicings in the key; every chord in the progression exists; tempo, swing and humanise in range).
+- Data: the table is complete (a name for every level, patterns well-formed: a bar of 16 plucks, see 6b; chord voicings in the key; every chord in the progression exists; tempo, swing and humanise in range).
 - `playKey`: level 1 equals today's `noteKeys` (regression); every arrow has a chord at level 2 and 3; all notes' `semis` are in A major; offsets are non-decreasing; the fixed arrow-to-chord table; a down-strum goes low to high, an up-strum high to low; `.` produces no notes; a re-press truncates the earlier strum's remaining events (scheduler test).
 - Melody (level 6): for each of the four chords and each arrow the note is a chord tone or pentatonic neighbour; the same press in different bars gives different notes; the chord of bar k is `[A, E, F#m, D][k % 4]`.
 - Scheduling: with a fake clock, the groove schedules each event once, in order, within the lookahead; loops after 4 bars; swing delays only odd eighths; a long stall skips whole bars and does not burst; `stop()` schedules nothing more; muted is silent; the groove is on the music bus and the melody on effects; a press at 70 ms spacing still plays all notes (the issue-108 "no drop" check holds with a groove running).

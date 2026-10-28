@@ -297,11 +297,11 @@ export class SoundFeature implements Layer {
     this.auditioning = true;
     this.grooving = true;
     this.engine.groove.start((SOUND.guitarStrings[this.voiceName()] ?? SOUND.guitarStrings.steel).string, 1);
-    const beat = 60000 / GUITAR_SKILL.tempo;
-    const total = bars * 4 * beat;
+    const cycle = (4 * 60000) / GUITAR_SKILL.groove.pluckBpm; // four plucks
+    const total = bars * GUITAR_SKILL.groove.cyclesPerBar * cycle;
     if (melody) {
       const dirs: Dir[] = ["left", "up", "right", "up", "down", "right", "left", "left"];
-      for (let i = 0; i * beat * 2 < total - beat; i++) setTimeout(() => this.auditioning && this.playGroove(dirs[i % dirs.length]), 400 + i * beat * 2);
+      for (let i = 0; i * cycle * 2 < total - cycle; i++) setTimeout(() => this.auditioning && this.playGroove(dirs[i % dirs.length]), 400 + i * cycle * 2);
     }
     setTimeout(() => {
       if (!this.auditioning) return;

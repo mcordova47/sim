@@ -933,24 +933,29 @@ export const GUITAR_SKILL = {
   up: { strings: 3, gain: 0.75, spacing: 0.018 },
   down: { spacing: 0.03 },
   chopGain: 1,
-  // The groove (level 6, issue 114b): a Travis-style fingerpicking loop on the music bus, one chord
-  // per bar of four beats, under the arrows' melody. A bar is 16 sixteenths (`pattern`, one character
-  // each): "r" the thumb on the chord's root, "f" the thumb on its fifth (the thumb falls on every
-  // beat, alternating), a digit a finger on the voicing's string at that index (the inner strings,
-  // between the beats), "h" an empty slot where the high note would be plucked (the player's arrow
-  // supplies it), "." a rest. Tempo, swing and humanise are the ones above (the melody is never
-  // delayed except by the optional `snap`: an arrow pressed within `snap.window` seconds before
-  // an "h" slot is played on the slot instead, so it lands in the pattern). The melody plays an
-  // arrow's interval above the chord's root (`melody[chord]`, in the order left, right, up,
-  // down: root, third, fifth, a sixth or seventh), so it is always a note of the chord now and in A major.
+  // The groove (level 6, issue 114b): a Travis-style fingerpicking loop on the music bus, under the
+  // arrows' melody. Every pluck is one beat (`pluckBpm`, plucks a minute). The loop is a cycle of four
+  // plucks: three background plucks and a fourth that is a rest, where the player's arrow plays the
+  // melody note instead (nothing plays there if no key is pressed). `cycle` lists the cycles' shapes
+  // one after another (repeating): "b" the thumb, alternating the chord's root and fifth from one
+  // cycle to the next, a digit a finger on the voicing's string at that index (the inner strings),
+  // "h" the rest left for the melody. `cyclesPerBar` cycles make a bar, one chord per bar. Swing and
+  // humanise are small. The melody is never delayed except by the optional `snap`: an arrow pressed
+  // within `snap.window` seconds before an "h" slot is played on that slot instead, so it lands in the
+  // pattern. The melody plays an arrow's interval above the chord's root (`melody[chord]`, in the order
+  // left, right, up, down: root, third, fifth, a sixth or seventh), so it is always a note of the chord
+  // sounding now and in A major.
   groove: {
     progression: ["A", "E", "F#m", "D"],
-    pattern: "r.3hf.2hr.3hf.2h",
+    pluckBpm: 460,
+    cycle: ["b32h", "b23h"],
+    cyclesPerBar: 4,
+    swing: 0.01, // the odd plucks come this fraction of a pluck late
     bassGain: 1,
     harmonyGain: 0.7,
     accent: 1.15, // the first slot of a bar
     melodyGain: 0.7, // the arrows' notes next to the pattern (was 1 before Marc found it high)
-    snap: { enabled: true, window: 0.075 },
+    snap: { enabled: true, window: 0.12 },
     gain: 0.55, // all of it, next to the melody
     leadIn: 0.05, // seconds from the first press to the first slot
     melodyOctave: 24, // semitones above the chord's root

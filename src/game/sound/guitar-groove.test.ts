@@ -9,7 +9,7 @@ import { parseTileMap } from "../tilemap";
 import { FakeAudioContext } from "./fake-audio";
 import { SoundFeature, type KeyEventLike, type Listenable } from "./feature";
 import { GuitarGroove } from "./guitar-groove";
-import { barLength, grooveBar, grooveChord, grooveSlotTime, grooveSlots, melodyNote, slotLength, type Dir } from "./guitar-skill";
+import { barLength, grooveBar, grooveChord, groovePattern, grooveSlotTime, grooveSlots, melodyNote, slotLength, type Dir } from "./guitar-skill";
 import { Synth } from "./synth";
 
 const inKey = (semis: number) => [0, 2, 4, 5, 7, 9, 11].includes(((semis % 12) + 12) % 12);
@@ -23,10 +23,13 @@ const escape: Controls = { ...NO_INPUT, keys: ["Escape"], cancelPressed: true };
 
 describe("the groove's data and pure parts", () => {
   it("has a well-formed pattern and the I V vi IV progression in A major", () => {
-    expect(G.pattern).toHaveLength(16);
-    expect(G.pattern).toMatch(/^[rf.h0-9]+$/);
-    expect(GUITAR_SKILL.tempo).toBeGreaterThanOrEqual(110);
-    expect(GUITAR_SKILL.swing).toBeLessThanOrEqual(0.06);
+    expect(groovePattern()).toHaveLength(4 * G.cyclesPerBar);
+    expect(groovePattern()).toMatch(/^[rf.h0-9]+$/);
+    for (const c of G.cycle) expect(c).toMatch(/^b[0-9]{2}h$/); // three plucks, then the rest
+    expect([2, 4]).toContain(G.cyclesPerBar);
+    expect(G.pluckBpm).toBeGreaterThanOrEqual(400);
+    expect(G.swing).toBeLessThanOrEqual(0.05);
+    expect(G.snap.window).toBeLessThanOrEqual(0.15);
     expect(G.melodyGain).toBeLessThan(1);
     expect([0, 1, 2, 3, 4].map(grooveChord)).toEqual(["A", "E", "F#m", "D", "A"]);
     expect(G.duck).toBeCloseTo(1 / 3, 5);
@@ -51,19 +54,22 @@ describe("the groove's data and pure parts", () => {
       expect(maxBass).toBeLessThan(minHarmony + 8);
     }
   });
-  it("is Travis-style: the thumb on every beat alternating root and fifth, fingers between, an empty high slot every fourth slot", () => {
+  it("is a cycle of three plucks and a rest: the thumb first, alternating root and fifth cycle to cycle, then two inner strings, nothing on the fourth", () => {
+    expect(groovePattern()).toBe("r32hf23hr32hf23h");
     for (let bar = 0; bar < 4; bar++) {
       const notes = grooveBar(bar, 0);
       const chord = GUITAR_SKILL.chords[grooveChord(bar)];
       const bass = notes.filter((n) => n.role === "bass");
       expect(bass.map((n) => n.slot)).toEqual([0, 4, 8, 12]);
       expect(bass.map((n) => n.semis)).toEqual([chord.root, chord.root + 7, chord.root, chord.root + 7]);
-      expect(notes.filter((n) => n.role === "harmony").map((n) => n.slot)).toEqual([2, 6, 10, 14]);
+      expect(notes.filter((n) => n.role === "harmony").map((n) => n.slot)).toEqual([1, 2, 5, 6, 9, 10, 13, 14]);
+      expect(notes.filter((n) => n.role === "harmony").map((n) => n.semis - chord.root)).toEqual([3, 2, 2, 3, 3, 2, 2, 3].map((i) => chord.voicing[i]));
+      // the fourth pluck of every cycle is a rest, left for the arrow
+      expect(notes.some((n) => n.slot % 4 === 3)).toBe(false);
     }
-    const highs = [...G.pattern].flatMap((c, i) => (c === "h" ? [i] : []));
-    expect(highs).toEqual([3, 7, 11, 15]);
-    // no note plays on a high slot (the arrow supplies it)
-    expect(grooveBar(0).some((n) => highs.includes(n.slot))).toBe(false);
+    expect([...groovePattern()].flatMap((c, i) => (c === "h" ? [i] : []))).toEqual([3, 7, 11, 15]);
+    // the bass keeps alternating across the bar line
+    expect(groovePattern().replace(/[^rf]/g, "")).toBe("rfrf");
   });
   it("is the same for the same seed and repeats every four bars apart from the wobble", () => {
     expect(grooveBar(2, 5)).toEqual(grooveBar(2, 5));
@@ -72,9 +78,10 @@ describe("the groove's data and pure parts", () => {
   });
   it("swings only the odd slots, by the configured fraction of a slot", () => {
     const e = slotLength();
-    for (let k = 0; k < 32; k++) expect(grooveSlotTime(k) - k * e).toBeCloseTo(k % 2 === 1 ? GUITAR_SKILL.swing * e : 0, 9);
-    expect(grooveSlotTime(3, 120, 0)).toBeCloseTo(3 * 0.125, 9);
-    expect(barLength(120)).toBeCloseTo(2, 9);
+    for (let k = 0; k < 32; k++) expect(grooveSlotTime(k) - k * e).toBeCloseTo(k % 2 === 1 ? G.swing * e : 0, 9);
+    expect(grooveSlotTime(3, 480, 0)).toBeCloseTo(3 * 0.125, 9);
+    expect(barLength(480)).toBeCloseTo(2, 9);
+    expect(slotLength()).toBeCloseTo(60 / G.pluckBpm, 9);
     expect(grooveSlots()).toBe(16);
   });
   it("plays an arrow as a chord tone (or the sixth or seventh) of the chord now, always in key", () => {
@@ -130,6 +137,19 @@ describe("the scheduler", () => {
     expect(new Set(s.map((x) => x.toFixed(6))).size).toBeGreaterThan(8); // not all stacked on one moment
     expect(s.length % per).toBe(0);
   });
+  it("leaves the fourth pluck of every cycle silent when no key is pressed, and a press fills it", () => {
+    const r = rig();
+    r.groove.start("guitarSteelString", 0);
+    r.run(2 * barLength() + 0.5);
+    const origin = G.leadIn + dt;
+    const times = r.ctx.oscillators.map((o) => o.startedAt ?? 0);
+    for (let k = 3; k < 28; k += 4) {
+      const t = origin + grooveSlotTime(k);
+      expect(times.filter((x) => Math.abs(x - t) < slotLength() / 2 - 0.02), `rest ${k}`).toHaveLength(0);
+    }
+    // the plucks around it are there
+    expect(times.filter((x) => Math.abs(x - (origin + grooveSlotTime(2))) < 0.02).length).toBeGreaterThan(0);
+  });
   it("keeps time: the first slots fall on the swung grid from the origin", () => {
     const r = rig();
     r.groove.start("guitarSteelString", 0);
@@ -170,7 +190,7 @@ describe("the scheduler", () => {
     r.ctx.currentTime += 120; // a background tab
     r.groove.update(r.synth);
     r.run(0.5);
-    expect(r.ctx.oscillators.length - n).toBeLessThan(2 * 8 * per);
+    expect(r.ctx.oscillators.length - n).toBeLessThan(3 * 12 * per);
     for (const o of r.ctx.oscillators.slice(n)) expect(o.startedAt ?? 0).toBeGreaterThan(r.ctx.currentTime - 1);
   });
   it("goes to the music bus: no effect voice is used up, and it is silent when muted", () => {

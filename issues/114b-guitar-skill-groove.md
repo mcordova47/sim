@@ -1,7 +1,7 @@
 ---
 id: 114b
 title: Guitar skill, stage 2: the groove and the melody over it (level 6)
-status: done
+status: review
 owner: claude
 depends_on: [114a]
 ---
@@ -40,3 +40,4 @@ Marc listened to 114a: pattern strums were dropped and the levels are now six (s
   - Docs: section 6b matches config (16 slots, pattern, 116 bpm, swing 0.04, melody gain 0.7, window 0.075, switch `?guitarsnap=off`); stale "level 4" text fixed. Repo has no folk song name or notes, only the generic "Travis-style" picking shape.
   - Minor, not blocking: the design doc's test-plan line still says "patterns well-formed: 8 slots" and the older section 5 says "eight slots"; bar is now 16. The `h` slots are every third pluck of the loop (4 of 12 slots filled), close to "every fourth".
   - UNVERIFIED for Marc (an agent cannot hear): groove feel at 116 bpm with small swing, whether the snap feels natural or laggy, melody at 0.7 versus the loop, loudness with the limiter.
+- 2026-10-28, round 3 (Marc: double the tempo, melody replaces the 4th pluck). Pluck-a-beat structure: `pluckBpm` 460 (a pluck every 0.130 s), a cycle of 4 plucks `b32h`/`b23h` (thumb alternating root and fifth cycle to cycle, two inner strings, then a rest where the arrow plays instead of layering), `cyclesPerBar` 4 (bar 16 plucks, 2.09 s, one chord per bar), swing 0.01, snap window 0.12 s (off switch kept), melody gain 0.7 and loop gain 0.55 unchanged. Voice cap at this rate: the loop is on the music bus (no effect voices); the 70 ms no-drop test with the groove on refuses 0 melody notes. Design doc 6b rewritten. Tests updated and added.

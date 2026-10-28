@@ -1,5 +1,5 @@
 import { GUITAR_SKILL, MUSIC, SOUND } from "../config";
-import { barLength, grooveBar, grooveChord, grooveSlotTime, grooveSlots } from "./guitar-skill";
+import { barLength, grooveBar, grooveChord, groovePattern, grooveSlotTime, grooveSlots } from "./guitar-skill";
 import type { Synth } from "./synth";
 
 // The guitar's groove (issue 114b): a looping bass-and-harmony pattern on the music bus, played
@@ -44,7 +44,7 @@ export class GuitarGroove {
   highSlotNear(now: number, window: number): { time: number; chord: string } | null {
     if (!this.on || this.origin === null) return null;
     const slots = grooveSlots();
-    const pattern = GUITAR_SKILL.groove.pattern;
+    const pattern = groovePattern();
     const around = Math.floor((now - this.origin) / (barLength() / slots));
     let best: { time: number; chord: string } | null = null;
     for (let k = Math.max(0, around - slots); k <= around + slots; k++) {

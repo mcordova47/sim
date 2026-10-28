@@ -166,7 +166,7 @@ export function grooveBar(bar: number, seed = 0): GrooveNote[] {
   const chord = GUITAR_SKILL.chords[grooveChord(bar)];
   const rand = seeded(seed * 7919 + Math.floor(bar) * 104729 + 1);
   const out: GrooveNote[] = [];
-  [...g.pattern].forEach((ch, slot) => {
+  [...groovePattern()].forEach((ch, slot) => {
     const wobble = (rand() * 2 - 1) * GUITAR_SKILL.humanise.time;
     const wobbleG = 1 + (rand() * 2 - 1) * GUITAR_SKILL.humanise.gain;
     const accent = slot === 0 ? g.accent : 1;
@@ -180,14 +180,23 @@ export function grooveBar(bar: number, seed = 0): GrooveNote[] {
   return out;
 }
 
-// Slots (sixteenths) in a bar, and the seconds of one slot and of a bar.
-export const grooveSlots = (): number => GUITAR_SKILL.groove.pattern.length;
-export const slotLength = (tempo = GUITAR_SKILL.tempo): number => eighth(tempo) / 2;
-export const barLength = (tempo = GUITAR_SKILL.tempo): number => grooveSlots() * slotLength(tempo);
+// The bar as one character a pluck: the cycles repeated `cyclesPerBar` times, the thumb "b" being "r" (root)
+// on even cycles and "f" (fifth) on odd ones, so the bass alternates. "h" is the rest left for the melody.
+export function groovePattern(): string {
+  const g = GUITAR_SKILL.groove;
+  let out = "";
+  for (let c = 0; c < g.cyclesPerBar; c++) out += g.cycle[c % g.cycle.length].replace("b", c % 2 === 0 ? "r" : "f");
+  return out;
+}
 
-// The seconds, from the groove's origin, at which slot number `k` (counted from 0 across all bars) falls: the odd ones late by the swing.
-export function grooveSlotTime(k: number, tempo = GUITAR_SKILL.tempo, swing = GUITAR_SKILL.swing): number {
-  return k * slotLength(tempo) + (k % 2 === 1 ? swing * slotLength(tempo) : 0);
+// Plucks in a bar, and the seconds of one pluck and of a bar.
+export const grooveSlots = (): number => groovePattern().length;
+export const slotLength = (pluckBpm = GUITAR_SKILL.groove.pluckBpm): number => 60 / pluckBpm;
+export const barLength = (pluckBpm = GUITAR_SKILL.groove.pluckBpm): number => grooveSlots() * slotLength(pluckBpm);
+
+// The seconds, from the groove's origin, at which pluck number `k` (counted from 0 across all bars) falls: the odd ones late by the swing.
+export function grooveSlotTime(k: number, pluckBpm = GUITAR_SKILL.groove.pluckBpm, swing = GUITAR_SKILL.groove.swing): number {
+  return k * slotLength(pluckBpm) + (k % 2 === 1 ? swing * slotLength(pluckBpm) : 0);
 }
 
 // The semitone (from A4) an arrow plays over a chord of the groove: a chord tone, or the chord's sixth or seventh.

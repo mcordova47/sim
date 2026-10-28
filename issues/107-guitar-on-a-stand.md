@@ -1,7 +1,7 @@
 ---
 id: 107
 title: The guitar: flipped so it reads as standing on a stand
-status: review
+status: in-progress
 owner: claude
 depends_on: [100]
 ---
@@ -34,3 +34,15 @@ Marc (2026-10-28): the guitar has been hard to draw as hanging on the wall, so m
     - [ ] Outline the tripod legs on their left side (or draw them as ink-only 1 px lines) in both sprites.
     - [ ] Re-run `npm run sprites` and re-view at 8x; optionally update the guitar rows in `docs/art-style.md`.
 - 2026-10-28 (claude): Review round 1 fixes: ink row under the neck heel (row 11, cols 7-9) and ink on the left of the tripod legs, in both sprites; sprites re-run and viewed at 16x. art-style.md left alone (not in scope, the line about the guitar hanging is for the planner).
+- 2026-10-28 (claude, independent review, round 2): **Verdict: changes needed** (tiny, tripod only). Diff vs main (three-dot) is only the two sprites, two PNGs and this file; `guitar-tall` PNG byte-identical to main and the `-tall` sprites have no diff.
+  - Rendered before (main) and after at 8x side by side and viewed both (guitar and nylon). After: oval body north-east, dark sound hole, neck running south-west to a headstock with tuners, lit top-left, dark bottom-right; the neck heel is now outlined; the tripod reads as a stand. Nylon is the same drawing in cream/tan and matches. Names and sizes: pass (16x16, same names). `npm run sprites` clean.
+  - Outline check, every non-ink pixel against its four neighbours, run on the PNGs of both sprites (identical results in both). Round-1 heel item: **fixed** (no open sides under the body or neck heel). Headstock tuners (13,1), (15,1), (13,4), (15,4) and the old sprite's equivalents: accepted as before. **Still open on the tripod:**
+    - the post (dusk `4`) at rows 9-11, col 13 has transparent pixels on its left (col 12) for three rows; only its right side is inked;
+    - the leg top at (12,12) has transparent above it;
+    - the left foot (14,11) has transparent below and (15,10) transparent to its right.
+    The round-1 item was "outline the tripod legs on their left side (or draw them as ink-only lines)"; the post's left side was not done, so the stated fix is incomplete.
+  - Browser feel: can't verify (Marc to look). Not re-run this round: `npm test`, `tsc`, `build` (only sprite data changed since round 1).
+  - To do:
+    - [ ] Ink the post's left side (rows 9-11, col 12) or draw the post as a 1 px ink line, in `guitar.sprite` and `guitar-nylon.sprite`.
+    - [ ] Close the leg top (12,12) above and the left foot (14,11) below / (15,10) right, or accept those as the leg's diagonal ends and say so in the log.
+    - [ ] Re-run `npm run sprites`, re-run the outline check at 8x.

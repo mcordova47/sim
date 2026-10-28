@@ -354,3 +354,13 @@ Each stage is its own issue, small, and leaves the game working. Stages 1 and 2 
 8. **Are invented items allowed (a plant or painting that is not in the real apartment), or real things only?** Recommend **real first**, then Marc OKs a few made-up ones, each in the deadpan voice.
 9. **Rug: yes?** There is no rug in the real main room as far as the map shows. It is the one item class that is not a real thing yet. Recommend asking whether it belongs.
 10. **Is it fine that the starting game looks identical to today, with nothing visible until the first gift?** Recommend yes: the first arrival is the quiet surprise.
+
+## Ideas backlog (Marc, 2026-10-28)
+Not planned work: things Marc would like to find as decor over time, under the quiet-collecting rule (no pressure, scarcity or grinding; see "Where items come from, without pressure"). Each needs a slot kind, a size and art (the art budget, "First item set and art budget"), and the asset rules (`docs/art-style.md`) apply.
+- **Furniture and rooms:** different pantries, desk chairs, sofas, rugs, beds, desks, dining tables, bookshelves, curtains.
+- **Things on shelves and tables:** books, records, a recycling bin, fidget toys (a tech deck, a Rubik's cube), clothes.
+- **Tech and music:** a new laptop, microphones, recording equipment, instruments.
+- **Plants and the plant slot:** the shelf slot may hold things that are not live plants (dried flowers today; see issue 105); a live plant offers watering, other items do not.
+- **Desk clutter** is the clutter-states issue 042 (desk, clothes, mail): Marc wants some clutter on the desk.
+When an idea is picked, it becomes an item line in `decor-data.ts` plus a sprite, and a checkpoint or a delivery source if it is a gift (`docs/random-encounters.md`).
+

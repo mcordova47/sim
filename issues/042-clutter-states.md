@@ -18,3 +18,4 @@ From Marc's playtest: once the assets exist, "clean the desk" should cycle throu
 - Marc's idea (2026-10-23): the floor tiles could have clean and dirty states too (dust, crumbs, a spill), cleaned by a sweep task. Same pattern: a wrapping or two-state variable and tile variants for each floor material. Include it, or split it out if it is large.
 
 ## Progress log
+- 2026-10-28 (Marc): wants some clutter on the desk (an idea to include when this is picked up).

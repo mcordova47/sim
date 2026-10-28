@@ -1,7 +1,7 @@
 ---
 id: 107
 title: The guitar: flipped so it reads as standing on a stand
-status: review
+status: done
 owner: claude
 depends_on: [100]
 ---
@@ -55,3 +55,7 @@ Marc (2026-10-28): the guitar has been hard to draw as hanging on the wall, so m
   - **Viewed** at 8x: guitar and guitar-nylon alone; in the room at the south wall beside the sofa's west arm (rest), and with the pose composited at (1,5) (playing). At rest: a diagonal guitar at the sofa's west end, nothing under it. Playing: the player with the guitar in the lap, the neck over the sofa arm, the empty stand with its yoke right under them. The empty stand reads as a stand (hourglass-like from above); a stand-less guitar at rest is Marc's own suggestion, but whether the empty stand "appearing" reads as "lifted off" needs his eye in the browser.
   - **Tests and goldens:** apartment.test (guitar tile 1,6; (1,5) free; stand spot 1,5), poses.test (start at 1,5; pose at 16,80), particles feature.test (placeAt 1,5). `UPDATE_GOLDEN=1 npm test` deliberately re-recorded `main-room-frames.json` and `sleep-frames.json`: only the hashes changed, because the guitar piece and its pose now draw at a different place and with new pixels. Docs fixed: art-style.md (no more wall hanger: perspective note, poses line, redraw table), floor-plan.md, asset-review.md.
   - Checks: `npm run sprites`, `npm test` (2772 pass), `npx tsc --noEmit`, `npm run build` all clean. Not checked: feel in a browser.
+- 2026-10-28 (claude, independent review, stand-less iteration): **Verdict: approve.** Rendered guitar, guitar-nylon, player-guitar at 8x and the room at rest and playing; viewed all.
+  - guitar/nylon: no stand, full ink outline except the tuners, light top-left, palette keys only, no text: pass. Playing pose shows the empty stand (yoke, post, legs) under the player at (1,5), neck over the sofa arm: pass (via replacesPiece, no code change).
+  - Map: G at row 6 col 1, (1,5) free floor is the stand tile; sofa and passages unchanged: pass. Tests/docs: apartment, poses, particles tests updated; golden diff is hashes only; art-style.md no longer mentions the wall hanger; floor-plan and asset-review updated. No reference-photos or personal details in the diff.
+  - Checks: `npm run sprites`, `npm test` (2772 pass), `npx tsc --noEmit`, `npm run build` clean. Browser feel: can't verify (Marc). Nit: an over-long comment line in apartment.ts.

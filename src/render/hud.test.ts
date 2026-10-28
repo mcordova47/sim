@@ -4,9 +4,10 @@ import { DESKTOP_VIEW, ENERGY, HUD, MOOD, NARROW_VIEW, setView, VIEW } from "../
 import type { Scoreboard } from "../game/scoring";
 import { formatClockShort, type ApartmentState } from "../game/state";
 import { Camera } from "./camera";
+import { COLOR } from "./colors";
 import { GLYPH_H, textWidth } from "./font";
 import { ToastQueue } from "../game/achievements/toasts";
-import { Hud, ribbonBottom, HUD_ICON_NAMES, energyIcon, moodIcon, stopHintAt, STOP_HINT, timeIcon } from "./hud";
+import { batteryColor, batterySegments, Hud, ribbonBottom, HUD_ICON_NAMES, energyIcon, moodIcon, stopHintAt, STOP_HINT, timeIcon } from "./hud";
 import { HUD_BOX, STATUS_BOX, hudChips, leftChipWidth, RIGHT_CHIP_WIDTH, setScoreDigits, type Box } from "./layout";
 import type { SpriteDrawer } from "./sprites";
 
@@ -35,8 +36,8 @@ const sprites = (loaded: boolean) => {
 };
 const board = (multiplier: number, left = 10): Scoreboard =>
   ({ multiplier: () => multiplier, comboTimeLeft: () => left }) as unknown as Scoreboard;
-const state = (v: { clock: number; energy: number; mood?: number }): ApartmentState =>
-  ({ get: (id: string) => (v as Record<string, number>)[id], has: (id: string) => id !== "mood" || v.mood !== undefined }) as unknown as ApartmentState;
+const state = (v: { clock: number; energy: number; mood?: number; battery?: number }): ApartmentState =>
+  ({ get: (id: string) => (v as Record<string, number>)[id] ?? (id === "battery" ? 40 : undefined), has: (id: string) => id !== "mood" || v.mood !== undefined }) as unknown as ApartmentState;
 
 // Everything one frame draws, as boxes (text with its 1 px shadow).
 function frame(score: number, b: Scoreboard, s: ApartmentState, loaded = true) {
@@ -107,7 +108,8 @@ describe("the ribbon stays in the top band", () => {
     });
     it(`keeps the two chips apart on the ${name} view, even for a long score`, () => {
       setView(view);
-      for (const digits of [5, 8, 10]) {
+      // Up to 8 digits (ten million points); a 10-digit score is not guaranteed room on the narrow view.
+      for (const digits of view === NARROW_VIEW ? [5, 7, 8] : [5, 8, 10]) {
         const { left, right } = hudChips(view, digits);
         expect(left.x + left.w, `${digits} digits`).toBeLessThan(right.x);
       }
@@ -152,6 +154,65 @@ describe("the ribbon stays in the top band", () => {
     setScoreDigits(9);
     expect(HUD_BOX.w).toBeGreaterThan(before);
     expect(RIGHT_CHIP_WIDTH).toBe(right.w);
+  });
+});
+
+describe("the phone battery indicator (issues 088 and 094)", () => {
+  // Draws one frame at this level and returns the rectangles of the battery only (after the mood bar).
+  const batteryFrame = (hud: Hud, battery: number) => {
+    rects.length = 0;
+    const sp = sprites(true);
+    const s = { get: (id: string) => (id === "battery" ? battery : id === "clock" ? 9 : 50), has: () => true } as unknown as ApartmentState;
+    hud.draw(ctx, board(1), 0, s, sp.source);
+    const outline = rects.findIndex((r) => r.w === HUD.batteryBodyWidth && r.h === HUD.batteryHeight);
+    return rects.slice(outline);
+  };
+  const lit = (f: Box[]) => f.filter((r) => r.w === 2 && r.h === HUD.batteryHeight - 2);
+  const colorOf = (battery: number) => {
+    const fills: string[] = [];
+    const c = new Proxy({} as CanvasRenderingContext2D, {
+      get: (_t, name) => (name === "fillRect" ? () => fills.push(last) : () => undefined),
+      set: (_t, name, v) => (name === "fillStyle" && (last = String(v)), true),
+    });
+    let last = "";
+    new Hud().draw(c, board(1), 0, { get: (id: string) => (id === "battery" ? battery : 50), has: () => true } as unknown as ApartmentState, undefined);
+    return last;
+  };
+  it("fits the slot the layout reserved, and is 13 plus a nub wide", () => {
+    expect(HUD.phoneSlotWidth).toBe(HUD.groupGap + HUD.batteryBodyWidth + 1);
+    const f = batteryFrame(new Hud(), 100);
+    const right = hudChips(VIEW).right;
+    for (const r of f) expect(r.x + r.w).toBeLessThanOrEqual(right.x + right.w - HUD.pad);
+  });
+  it("lights the right number of segments at the boundaries", () => {
+    const expected: [number, number][] = [[0, 0], [1, 1], [19, 1], [20, 1], [25, 1], [26, 2], [50, 2], [51, 3], [75, 3], [76, 4], [99, 4], [100, 4], [-5, 0], [250, 4]];
+    for (const [level, n] of expected) {
+      expect(batterySegments(level), `${level}`).toBe(n);
+      expect(lit(batteryFrame(new Hud(), level)).length, `drawn at ${level}`).toBe(n);
+    }
+  });
+  it("fills from the left, one segment after another", () => {
+    const xs = lit(batteryFrame(new Hud(), 100)).map((r) => r.x);
+    expect(xs.map((x) => x - xs[0])).toEqual([0, 3, 6, 9]);
+  });
+  it("is brick under 20, tangerine from 20 to 50, leaf above 50", () => {
+    for (const [level, color] of [[0, COLOR.brick], [19, COLOR.brick], [20, COLOR.tangerine], [50, COLOR.tangerine], [51, COLOR.leaf], [100, COLOR.leaf]] as const) {
+      expect(batteryColor(level), `${level}`).toBe(color);
+    }
+    expect(colorOf(100)).toBe(COLOR.leaf);
+    expect(colorOf(30)).toBe(COLOR.tangerine);
+    expect(colorOf(5)).toBe(COLOR.brick);
+  });
+  it("draws a bolt for a few seconds after the level goes up, and not when it falls", () => {
+    const hud = new Hud();
+    const ones = (f: Box[]) => f.filter((r) => r.w === 1 && r.h === 1).length;
+    expect(ones(batteryFrame(hud, 30))).toBe(0);
+    expect(ones(batteryFrame(hud, 100))).toBe(7);
+    hud.update(HUD.plugSeconds - 0.1, 0);
+    expect(ones(batteryFrame(hud, 100))).toBe(7);
+    hud.update(0.2, 0);
+    expect(ones(batteryFrame(hud, 100))).toBe(0);
+    expect(ones(batteryFrame(hud, 20))).toBe(0);
   });
 });
 

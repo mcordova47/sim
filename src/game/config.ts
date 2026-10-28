@@ -250,6 +250,17 @@ export const MOOD = {
   lowBelow: 25,
 };
 
+// The phone battery (issues 088 and 094, see state-vars.ts). It only ever falls slowly and the charge
+// task fills it; nothing reads it, so no task or ad is refused for a flat phone (a postponed idea).
+export const BATTERY = {
+  // Points lost per game hour awake: a full phone lasts about four game days (a game hour is 30 s).
+  fallPerHour: 1,
+  // While asleep (or napping) the phone sits on the nightstand: half the rate per game hour skipped.
+  sleepFactor: 0.5,
+  // What one completed Doomscroll costs.
+  doomscrollCost: 6,
+};
+
 // The HUD ribbon (issue 086, docs/hud-design.md): two small chips in the empty top band of the
 // picture. Pixels are game pixels; nothing the HUD draws goes below `band`.
 export const HUD = {
@@ -269,8 +280,19 @@ export const HUD = {
   // A status bar beside its icon.
   barWidth: 12,
   barHeight: 3,
-  // Room kept for the phone icon of the battery issue (088); empty for now.
-  phoneSlotWidth: 0,
+  // The phone battery indicator (issues 088 and 094), drawn from rectangles: an outline 13 x 7 with a
+  // 1 x 3 nub at the right, and four segments 2 px wide with 1 px between, filling from the left
+  // (one segment per quarter, rounded up). The slot is the group gap and the whole shape.
+  batteryBodyWidth: 13,
+  batteryHeight: 7,
+  batteryNubHeight: 3,
+  batterySegments: 4,
+  phoneSlotWidth: 6 + 13 + 1,
+  // Brick below this level, leaf above `phoneHighAbove`, tangerine in between. A small bolt shows over
+  // the segments for this many seconds after the level goes up.
+  phoneLowBelow: 20,
+  phoneHighAbove: 50,
+  plugSeconds: 4,
   // Mood face: happy from this value up (sad is below MOOD.lowBelow).
   happyFrom: 70,
   // The clock's icon by hour: dawn and dusk share one.

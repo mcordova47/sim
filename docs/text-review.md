@@ -44,12 +44,14 @@ Strings added later (mood in 038, the mirror in 041, the gallery view in 040) ar
 | shower | Take a shower | Take a shower | Best ideas of the day, all forgotten by the towel. |  |  |
 | sleep | Go to sleep | Go to sleep | Just five minutes. It was not five minutes. | NOT TIRED YET |  |
 | contemplate | Contemplate | Contemplate |  |  |  |
+| charge-phone (issue 088) | Charge your phone | Charge your phone | One hundred percent. You will not need it. |  |  |
 
 ## State variable meanings
 
 - dishes: Dirty dishes in the sink, a count.
 - bedMade: 1 if the bed is made, 0 if not.
 - energy: How awake you are. Falls with time and work, sleep restores it.
+- battery (issue 088): The charge of your phone. Only the charge-your-phone task raises it; nothing drains it and no task depends on it.
 - clock: Time of day in hours since midnight (8.5 is 8:30 AM).
 - blinds: 1 if the blinds are open, 0 if closed (the one window that has blinds).
 - mug: 1 if a full mug of coffee is waiting to be drunk, 0 if not.

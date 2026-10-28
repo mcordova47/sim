@@ -11,6 +11,8 @@ export const STATE_VARS: StateVar[] = [
   { id: "boxes", initial: 1, min: 0, max: 2, meaning: "The cardboard boxes in the kitchen: 1 a stack (the default), 0 flattened and tidy, 2 gone (taken out with the recycling). Flattening sets 0, taking out the recycling sets 2, opening a package at the front door sets 1." },
   { id: "energy", initial: 80, min: 0, max: 100, meaning: "How awake you are. Falls with time and work, sleep restores it." },
   { id: "mood", initial: 60, min: 0, max: 100, meaning: "How good you feel. Doomscrolling and work wear it down; music, food, light and art lift it. Drifts back toward the middle." },
+  // Issues 088 and 094: a gag. It falls with game time (BATTERY in config.ts) and with each Doomscroll; the charge task fills it. No task or ad reads it. Saved with the rest, and a save without it starts at the initial value.
+  { id: "battery", initial: 40, min: 0, max: 100, meaning: "The charge of your phone. Falls slowly with game time and a little with each Doomscroll; the charge-your-phone task fills it. No task, ad, mood or energy depends on it." },
   { id: "clock", initial: 8, min: 0, max: 24, wrap: true, meaning: "Time of day in hours since midnight (8.5 is 8:30 AM)." },
   { id: "blinds", initial: 0, min: 0, max: 1, meaning: "1 if the blinds are open, 0 if closed (both east windows follow it)." },
   { id: "plate", initial: 0, min: 0, max: 1, meaning: "1 if a dinner plate is out on the dining table (reheating or cooking puts it there, eating dinner clears it), 0 if not." },

@@ -123,12 +123,13 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 085 | [Remove or decide on personal info before the repo goes on GitHub](issues/085-personal-info-before-github.md) | marc + claude | done (audit, decisions and the history rewrite; the clean repo is sim) | |
 | 086 | [HUD ribbon, stage 1: icons and small bars in the empty top band](issues/086-hud-ribbon-stage-1.md) | claude | done | 048 |
 | 087 | [Mobile, stage 1: a touch layer in a flat portrait shell](issues/087-mobile-stage-1.md) | claude | done | 049 |
-| 088 | [A phone battery (a gag) and a charge-your-phone task](issues/088-phone-battery.md) | claude | todo | 086 |
+| 088 | [A phone battery (a gag) and a charge-your-phone task](issues/088-phone-battery.md) | claude | done | 086 |
 | 089 | [Flashcards guest mode: study without a sync key (build)](issues/089-flashcards-guest-mode-build.md) | claude | done | 083, 082 |
 | 090 | [Mobile: a taller, squarer picture that scrolls (assess, then prototype)](issues/090-mobile-narrow-view.md) | claude | done | 087 |
 | 091 | [Encounter music: a short battle-style track during an ad, and a result jingle](issues/091-encounter-music.md) | marc + claude | todo | 080 |
 | 092 | [Mobile landscape: the controls must not cover the picture](issues/092-mobile-landscape-controls.md) | claude | done | 087, 090 |
 | 093 | [Mobile stage 3: key entry, a tappable pause screen, and key hints that match the controls](issues/093-mobile-text-menus-and-hints.md) | claude | todo | 087, 089 |
+| 094 | [Phone battery: drains a little, and looks like a phone battery indicator](issues/094-battery-drain-and-indicator.md) | claude | done | 088 |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

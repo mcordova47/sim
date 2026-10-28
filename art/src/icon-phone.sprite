@@ -1,0 +1,9 @@
+# Phone (the battery). 7x7, not a tile. Drawn in the HUD ribbon (issue 088, docs/hud-design.md section 8); a phone, never a battery shape.
+size: 7x7
+.66666.
+.61116.
+.61d16.
+.61116.
+.61116.
+.66b66.
+.66666.

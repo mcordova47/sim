@@ -49,6 +49,17 @@ export function timeIcon(hours: number): HudIcon {
   return HUD_ICONS.moon;
 }
 
+// The phone battery indicator (issues 088 and 094): how many of its four segments are lit (one per
+// quarter, rounded up, so any charge at all lights one) and the colour they are drawn in.
+export const batterySegments = (level: number): number =>
+  Math.min(HUD.batterySegments, Math.max(0, Math.ceil(Math.min(Math.max(level, 0), 100) / (100 / HUD.batterySegments))));
+
+export const batteryColor = (level: number): string =>
+  level < HUD.phoneLowBelow ? COLOR.brick : level > HUD.phoneHighAbove ? COLOR.leaf : COLOR.tangerine;
+
+// A small bolt, 3 x 5, as the pixels that are on (x, y).
+const BOLT: [number, number][] = [[2, 0], [1, 1], [0, 2], [1, 2], [2, 2], [1, 3], [0, 4]];
+
 export const energyIcon = (energy: number): HudIcon => (energy < ENERGY.lowBelow ? HUD_ICONS.boltLow : HUD_ICONS.bolt);
 
 export function moodIcon(mood: number): HudIcon {
@@ -62,8 +73,12 @@ export function moodIcon(mood: number): HudIcon {
 export class Hud {
   // The score shown, which counts up toward the real one.
   private shown = 0;
+  // The battery last seen, and the seconds left of showing the plug after it rose (issue 088).
+  private lastBattery: number | null = null;
+  private plugLeft = 0;
 
   update(dt: number, score: number): void {
+    this.plugLeft = Math.max(0, this.plugLeft - dt);
     const diff = score - this.shown;
     this.shown = Math.abs(diff) < 1 ? score : this.shown + diff * Math.min(1, dt * 10);
     setScoreDigits(String(this.displayedScore).length);
@@ -124,20 +139,39 @@ export class Hud {
     drawText(ctx, formatClockShort(clock), x, rowY, { color: TEXT });
     x += textWidth(CLOCK_FIELD);
 
-    const meter = (name: HudIcon, value: number, color: string): void => {
+    const meter = (name: HudIcon, value: number, color: string, width = HUD.barWidth): void => {
       x += HUD.groupGap;
       icon(name, x);
       x += HUD.iconSize + HUD.iconGap;
       const barY = rowY + Math.floor((HUD.iconSize - HUD.barHeight) / 2);
       ctx.fillStyle = COLOR.ink;
-      ctx.fillRect(x, barY, HUD.barWidth, HUD.barHeight);
+      ctx.fillRect(x, barY, width, HUD.barHeight);
       ctx.fillStyle = color;
-      ctx.fillRect(x, barY, Math.round(HUD.barWidth * (Math.min(Math.max(value, 0), 100) / 100)), HUD.barHeight);
-      x += HUD.barWidth;
+      ctx.fillRect(x, barY, Math.round(width * (Math.min(Math.max(value, 0), 100) / 100)), HUD.barHeight);
+      x += width;
     };
     meter(energyIcon(energy), energy, energy < ENERGY.lowBelow ? COLOR.brick : COLOR.leaf);
     meter(moodIcon(mood), mood, mood < MOOD.lowBelow ? COLOR.brick : COLOR.butter);
-    // The phone's slot (the battery issue, 088) follows here; it has no width yet.
+    // The phone battery: an outline with a nub and four segments filling from the left, and a bolt
+    // over it for a few seconds after the level goes up. A state without the variable (an old
+    // custom room) shows an empty battery.
+    const battery = state.has("battery") ? state.get("battery") : 0;
+    if (this.lastBattery !== null && battery > this.lastBattery) this.plugLeft = HUD.plugSeconds;
+    this.lastBattery = battery;
+    x += HUD.groupGap;
+    const top = rowY + Math.floor((HUD.iconSize - HUD.batteryHeight) / 2);
+    const w = HUD.batteryBodyWidth;
+    ctx.fillStyle = TEXT;
+    ctx.fillRect(x, top, w, HUD.batteryHeight);
+    ctx.fillRect(x + w, top + Math.floor((HUD.batteryHeight - HUD.batteryNubHeight) / 2), 1, HUD.batteryNubHeight);
+    ctx.fillStyle = COLOR.ink;
+    ctx.fillRect(x + 1, top + 1, w - 2, HUD.batteryHeight - 2);
+    ctx.fillStyle = batteryColor(battery);
+    for (let i = 0; i < batterySegments(battery); i++) ctx.fillRect(x + 1 + i * 3, top + 1, 2, HUD.batteryHeight - 2);
+    if (this.plugLeft > 0) {
+      ctx.fillStyle = GOLD;
+      for (const [bx, by] of BOLT) ctx.fillRect(x + 5 + bx, top + 1 + by, 1, 1);
+    }
   }
 
   // While an action that can be backed out of runs: how to stop it. Drawn last, over a picture or

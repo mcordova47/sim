@@ -66,6 +66,17 @@ const MAIN_PROPS: PropDef[] = [
     when: [{ var: "mug", max: 0 }],
     color: "tangerine",
   },
+  // The phone on its charger (issue 088), on the nightstand: the place of "Charge your phone".
+  // Scenery: its slot id is not registered for swapping, like the mug's.
+  {
+    name: "phone charger",
+    slot: "prop-nightstand",
+    on: "N",
+    at: { x: 18, y: 0 },
+    size: { w: 16, h: 16 },
+    sprite: "phone-charger",
+    color: "ink",
+  },
 ];
 
 const WINDOW_BLINDS: ObjectDef = {
@@ -95,7 +106,7 @@ const MAIN: Record<string, ObjectDef> = {
   D: { name: "standing desk", sprite: "desk", color: "butter", tasks: ["work", "side-project-game", "journal", "tidy-desk", "make-track", "study-spanish", "swap-art-desk"] },
   C: { name: "desk chair", sprite: "desk-chair", color: "ink" },
   H: { name: "cube bookshelf", sprite: "bookshelf", color: "butter", tasks: ["water-plant-droop", "water-plant", "check-plant", "sort-records", "sort-records-year", "sort-records-fav", "sort-records-color", "swap-plant-shelf"] },
-  N: { name: "nightstand", sprite: "nightstand", color: "tangerine", tasks: ["swap-art-bed"] },
+  N: { name: "nightstand", sprite: "nightstand", color: "tangerine", tasks: ["charge-phone", "swap-art-bed"] },
   B: {
     name: "queen bed",
     sprite: "bed-made",

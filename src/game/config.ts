@@ -492,6 +492,8 @@ export const ACHIEVEMENTS_UI = {
   adBlockerKey: "KeyB",
   // Opens the transfer page (issue 102), where a save is copied, saved, pasted or opened.
   transferKey: "KeyT",
+  // Opens the sync page (issue 103).
+  syncKey: "KeyP",
   // How long "AD BLOCKER: ON" shows after the key is pressed, in seconds.
   flashSeconds: 1.5,
   // Progress is saved this often as well as when a task finishes, an achievement
@@ -1465,4 +1467,11 @@ export const SYNC = {
   fileName: "life-save.json",
   // How long a message on the transfer page stays up, in seconds.
   flashSeconds: 4,
+  // The server (issue 103): one path on the game's own origin, the key in a header, an 8 second limit per call.
+  path: "/api/sync",
+  keyHeader: "X-Sync-Key",
+  timeoutMs: 8000,
+  // The server's keys: 32 characters of a-z and 0-9. The link puts one after this, in the fragment.
+  keyPattern: /^[a-z0-9]{32}$/,
+  linkMark: "#sync=",
 };

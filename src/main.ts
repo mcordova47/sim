@@ -1,4 +1,5 @@
-import { DESKTOP_VIEW, NARROW, NARROW_VIEW, VIEW, setView } from "./game/config";
+import { DESKTOP_VIEW, NARROW, NARROW_VIEW, SYNC, VIEW, setView } from "./game/config";
+import { keyFromText } from "./game/sync/client";
 import { APARTMENT } from "./game/apartment";
 import { attachFeatures } from "./game/features";
 import { deliverFromSearch, encounterOnFirstKey, ownFromSearch, skipDaysFromSearch } from "./game/decor-dev";
@@ -23,6 +24,16 @@ const game = new Game(APARTMENT.rooms[APARTMENT.start], {
   reducedMotion: () => reducedMotionAsked(),
 });
 const features = attachFeatures(game);
+
+// A pairing link (issue 103): `#sync=<key>`. The key is taken out of the address bar at once, then the
+// player is asked whether to sync with it. A fragment is never sent to a server.
+try {
+  const key = keyFromText(location.hash.startsWith(SYNC.linkMark) ? location.hash : "");
+  if (location.hash.startsWith(SYNC.linkMark)) history.replaceState(null, "", location.pathname + location.search);
+  if (key) features.offerPairing(key);
+} catch {
+  // No address or history to use (never in a browser).
+}
 
 // A dev shortcut for looking at a state without playing to it: `?set=plantStage:3`
 // or `?set=plantStage:1,plantDry:100` (the plant drooping). Comma separated

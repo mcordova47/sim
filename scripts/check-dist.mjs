@@ -37,6 +37,12 @@ export function problemsIn(dist) {
   if (/"flashcards"\)==="demo"/.test(js) && !/\w+&&new URLSearchParams\(\w+\)\.get\("flashcards"\)==="demo"/.test(js))
     problems.push("the ?flashcards=demo check is not behind the dev flag");
 
+  // The sync server's dev fake lives in vite.config.ts only (issue 103), and the server code is the
+  // Netlify Function's: neither may be in the bundle. No pairing link with a key may be baked in either
+  // (a plain 32 character test would match bundle hashes, so it must follow `#sync=`).
+  if (/life-dev-sync-fake|unplayedMs|sweepAbove/.test(js)) problems.push("the sync dev fake or server code is in the bundle");
+  if (/#sync=[a-z0-9]{32}/.test(js + html)) problems.push("the bundle or page contains a sync pairing link");
+
   // Personal content: email addresses, local paths, and the reference photos folder.
   const everything = js + html;
   for (const [re, what] of [

@@ -8,9 +8,9 @@ import { attachTimeOfDay } from "./time-of-day/feature";
 // day/night cycle). Each one is a module that subscribes to `game.events` and,
 // if it draws, registers a layer with `game.addLayer`. Adding a feature is one
 // line here, so features don't have to edit `game.ts`.
-export function attachFeatures(game: Game): { unlockAudio(): void } {
+export function attachFeatures(game: Game): { unlockAudio(): void; offerPairing(key: string): void } {
   const sound = attachSound(game);
-  attachAchievements(game);
+  const achievements = attachAchievements(game);
   attachTimeOfDay(game);
   // After the time of day, so particles are drawn over its tint and stay bright at night.
   // The notes from the record player stop while the record is ducked for the night's sleep.
@@ -18,5 +18,5 @@ export function attachFeatures(game: Game): { unlockAudio(): void } {
     musicPlaying: () => sound.track !== null && !sound.muted && !((game.sleepScene?.settings.duckTo ?? 1) < 1),
   });
   // A phone has no key press to start audio; the touch layer calls this from a real touch.
-  return { unlockAudio: () => sound.engine.unlock() };
+  return { unlockAudio: () => sound.engine.unlock(), offerPairing: (key) => achievements.offerPairing(key) };
 }

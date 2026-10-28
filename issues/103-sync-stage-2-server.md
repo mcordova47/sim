@@ -1,7 +1,7 @@
 ---
 id: 103
 title: Sync stage 2: the Netlify Function with Blobs and the pairing link
-status: todo
+status: review
 owner: claude
 depends_on: [102]
 ---
@@ -19,3 +19,40 @@ Build stage 2 of `docs/sync.md` (sections 3, 8, 9, 10 and 12): a small server in
 - Two browsers pair and converge; the production build has no dev fake; `npm run check:dist` passes; `npm test`, `npx tsc --noEmit`, `npm run build` pass; the instructions for Marc to check the Netlify side (the plan limits, a function log) are in the log; unverified items listed.
 
 ## Progress log
+
+- 2026-10-28 (agent): Built stage 2 on branch `issue/103-sync-stage-2`. Nothing pushed, deployed or logged in.
+
+  **Netlify docs checked today (docs.netlify.com):** `@netlify/blobs` 11.1.7 (needs Node 22.12 or later; the toml pins 22); `getStore({ name, consistency })`; `getWithMetadata`, `getMetadata`, `set(key, value, { metadata, onlyIfNew, onlyIfMatch })`, `delete`, `list()` (keys and etags only; pages of 1000, all fetched by default); metadata max 2 KB, key max 600 bytes, store name max 64 bytes; no built-in expiry (so the sweep is ours); site and function credentials are injected at runtime; `netlify dev` uses a local sandbox store; default consistency is eventual, so the function asks for `strong`. Functions: `export default (req, context)` and `config.path`; `rateLimit: { windowLimit, windowSize (max 180), aggregateBy: ["ip","domain"] }` lives in the function config (not in toml), all plans allow code rules (2 per project on free), enforcement can lag up to 10 seconds, and rules are validated at deploy (an invalid one shows in the deploy log but does not fail the deploy). Functions bill by GB-hours on credit plans (10 credits per GB-hour).
+
+  **What was built.** `netlify/functions/sync.mjs` (thin: store by `context.deploy.context`, rate limit), `netlify/lib/sync-handler.mjs` (the whole API: POST mint, GET, PUT, DELETE, header `X-Sync-Key`, 128 KB cap counted in bytes with Content-Length and a streamed count, shape check, 1000 keys, 7 and 90 day expiry, lazy sweep, no logging, no CORS headers because the game calls its own origin), `netlify/lib/memory-store.mjs` (shared by the dev fake and the tests), `vite.config.ts` (dev and preview fake using the same handler; `apply: serve` only), `src/game/sync/client.ts` (`SyncBackend`, `HttpBackend` with an 8 second abort, `keyFromText`, `linkFor`), `service.ts` (`SyncService`: turn on, sync now, pair, stop; statuses), `local.ts` (the key is kept in `life.sync.v1`, never in a save), `fake-server.ts` (test server: real handler plus scripted failures), the sync page in `achievements/draw.ts` and `feature.ts` (pause screen SYNC button on touch, P on the desktop; TURN ON SYNC, COPY LINK, SYNC NOW, PASTE KEY OR LINK, STOP SYNCING with a yes/no), `#sync=` handling in `src/main.ts` (key removed from the address bar at once, then a "SYNC WITH THE SAVE IN THIS LINK?" question), `check-dist` (fails on the dev fake marker, server code, or a literal `#sync=` plus 32 characters), `netlify.toml` (`[functions]` folder only), `docs/deploy.md`, `@netlify/blobs` dependency.
+
+  **Keep-it-small choices (taken, not asked):**
+  - No automatic sync (stage 3): only SYNC NOW, TURN ON SYNC and pairing sync. No QR.
+  - Link origin is the page's own origin (works on dev, previews and production), not a hard-coded host.
+  - No CORS headers at all (same origin). `OPTIONS` is 405.
+  - Rate limit 60 per minute per IP across all methods of the path (one rule; free plans get 2). Pairing needs only a few calls, so this is generous for players and slows scripts. Not a lock-out guarantee. Because it is per path, a player on a shared IP (a school) shares the budget.
+  - The sweep runs at mint time only when more than 100 keys exist (and an expired key is also deleted when it is next used), so a small store never pays for a sweep. Its cost at 1000 keys (1000 metadata reads plus the list) is unverified; it only happens on a mint.
+  - "Last seen" is refreshed by a read at most once a day, with an etag guard so it cannot overwrite a newer save (a failed refresh is ignored).
+  - A pairing link asks first, but pasting a key on the sync page pairs at once (the player chose to).
+  - Pairing with a key first reads it; a wrong key changes nothing and the old key is kept. A minted key is stored before the first sync, so a failed first sync does not mint a second one.
+  - Stop syncing offline keeps the key (so it can be retried) rather than leaving an orphan blob; the 90 day expiry cleans up anyway.
+  - The merged document is applied through the 102 code (`applyIncoming`) when nothing is running, and held (`holdMerge`) when a task or dialog is, then applied when the pause screen opens or at the next load.
+  - The blob is not checked deeper than its shape on the server; the client reads it through the tolerant parsers.
+
+  **Limits chosen and why:** 128 KB body (a real save is a few KB, 36 tracks at 2 KB is about 72 KB), 36 tracks, 1000 keys, 7 and 90 day expiry, 60 requests a minute per IP, 8 second client timeout, a key is 32 characters of a-z0-9 (about 2^165) drawn by rejection sampling from the platform's random source.
+
+  **Verification.** `npm test` 125 files, 2810 tests pass; `npx tsc --noEmit` clean; `npm run build` and `npm run check:dist` pass, and the built bundle holds no `life-dev-sync-fake`, no server code, one mention of `/api/sync` (the client). New tests: `server.test.ts` (the handler against an in-memory store: key regex and anchoring, minting and bias, shape and bad input, invalid UTF-8, the byte cap with a multi-byte body just over it, a lying Content-Length, PUT to an unminted key, the key cap, the sweep, expiry, last-seen once a day and not clobbering a concurrent PUT, no console output even when the store throws), `pairing.test.ts` (the client against the fake server: a two-device pair and converge, tracks both ways, key only in `life.sync.v1`, offline, full, key not found, garbage and newer-format blobs not overwritten, a refused PUT, one call at a time, stop, a merge held while a task runs, the page keys and tap targets, the link question, `HttpBackend` over a stubbed fetch with timeout and status mapping), `sync-draw.test.ts`, and `deploy.test.mjs` additions. I also ran `vite` on a spare port and used curl against the dev fake: mint, GET, PUT, GET, DELETE all answered as expected with `no-store`. I imported `netlify/functions/sync.mjs` in node: it loads and exports `config.path`; calling it outside Netlify throws `MissingBlobsEnvironmentError`, as expected.
+
+  **Not checked (unverified):** the real function on Netlify (I did not run `netlify dev`, which needs login); that `context.deploy.context` is the string `production` on production deploys (the docs list `context.deploy.context` but I did not see the values; if it is different, the production site uses the `sync-preview` store, which still works, just under the other name); that `rateLimit` is accepted on Marc's plan (the docs say all plans; an invalid rule only shows in the deploy log); the cost of `list` and the sweep at 1000 keys; whether the platform logs request headers (so whether `X-Sync-Key` shows in Netlify's logs); how many credits the traffic takes (the docs give GB-hours only); how the feel is on a phone (clipboard, tap targets); the pause screen at its full touch layout (six buttons still make three rows, checked by test, not by eye).
+
+  **For Marc to check (`netlify dev`, two browsers).**
+  1. In the worktree: `npm install`, then `netlify dev` (it may ask you to log in or link the site; that is your step). Open the printed address (usually http://localhost:8888) in a normal window (device A).
+  2. Press L, then P (or the SYNC button on touch). It reads SYNC: OFF. Press N (TURN ON SYNC). It should say SYNC IS ON and show `KEY: XXXX...XXXX`. Do a task first if you want something to see.
+  3. Press C (COPY LINK). Open a private window or another browser (device B) at the same address, paste the link in the address bar. The pause screen opens on the sync page asking "SYNC WITH THE SAVE IN THIS LINK?". The address bar no longer holds the key. Press Y. B now has A's tasks and achievements (and tracks).
+  4. Play a task on B, press L, P, S (SYNC NOW). On A, press L, P, S. A has B's task counts. Both show SYNC: ON.
+  5. Offline: stop `netlify dev` and press S: NO CONNECTION; the game still plays. Start it again and S works. (Restarting `netlify dev` may clear the local sandbox store: then S says KEY NOT FOUND, which is correct.)
+  6. Press X then Y (STOP SYNCING): SYNC STOPPED, the key is gone.
+  7. Netlify side after a deploy (not before): Site, Logs and metrics, Functions, `sync`: calls appear and no key or save text is printed. Site, Blobs: stores `sync` (production) and `sync-preview` hold one entry per key. In the deploy log, confirm the rate limit rule was accepted. Under Usage and billing, check the credits after a few days. Nothing needs changing in Netlify settings.
+  8. Without Netlify: `npm run dev` also works (an in-memory fake that resets when you stop it).
+
+  **Leftover:** stage 3 (automatic sync, QR, status on load) is issue 104. `docs/sync.md` was not edited (it is the design); where this build differs: the sync page is reached by P on the desktop, the origin in the link is the page's own, and there is no CORS header at all.

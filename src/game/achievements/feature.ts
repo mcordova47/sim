@@ -9,11 +9,13 @@ import { touchHints } from "../../render/hints";
 import { demoStore } from "../music/demo-library";
 import type { DemoStore } from "../music/demo-store";
 import { decodeSave, encodeSave, saveFileText, type DecodeError } from "../sync/code";
+import { HttpBackend, linkFor, type SyncBackend } from "../sync/client";
 import { browserIO, type TransferIO } from "../sync/io";
 import { SyncLocal } from "../sync/local";
 import { canon, mergeSaves, normaliseDoc, normaliseProgress, type SyncDoc, type SyncProgress } from "../sync/merge";
+import { STATUS_TEXT, SyncService } from "../sync/service";
 import type { TapTarget } from "../../input/tap";
-import { drawList, drawToasts, drawTransfer, listRows, pageButton, pauseButtons, touchPageSize, transferButtons, type ListView, type TransferView } from "./draw";
+import { drawList, drawSync, drawToasts, drawTransfer, listRows, pageButton, pauseButtons, syncButtons, touchPageSize, transferButtons, type ListView, type SyncView, type TransferView } from "./draw";
 import { ProgressStore, parseWorld, type KeyValueStorage, type WorldSave } from "./progress";
 import { Stats } from "./stats";
 import { ToastQueue } from "./toasts";
@@ -47,6 +49,10 @@ export interface AchievementOptions {
   now?: () => number;
   demos?: DemoStore;
   io?: TransferIO;
+  // The sync server (issue 103). The default is the real one on this origin.
+  backend?: SyncBackend;
+  // The origin the pairing link is made on. The default is this page's.
+  origin?: string;
 }
 
 function browserStorage(): KeyValueStorage | null {
@@ -88,7 +94,11 @@ export class AchievementsFeature implements Layer {
   readonly sync: SyncLocal;
   private readonly demos: DemoStore;
   private readonly io: TransferIO;
-  private page: "list" | "transfer" = "list";
+  private page: "list" | "transfer" | "sync" = "list";
+  readonly syncService: SyncService;
+  private readonly origin: string;
+  private confirmSync: "stop" | "pair" | null = null;
+  private pairKey: string | null = null;
   private confirmRestore = false;
 
   constructor(private readonly game: Game, options: AchievementOptions = {}) {
@@ -110,6 +120,13 @@ export class AchievementsFeature implements Layer {
     this.sync = new SyncLocal(this.storage, { achievementIds: new Set(this.list.map((a) => a.id)) });
     this.demos = options.demos ?? demoStore();
     this.io = options.io ?? browserIO;
+    this.origin = options.origin ?? (typeof location === "undefined" ? "" : location.origin);
+    this.syncService = new SyncService(options.backend ?? new HttpBackend(), this.sync, {
+      doc: () => this.doc(),
+      mergeIncoming: (doc) => this.mergeIncoming(doc),
+      now: () => this.now(),
+      env: () => this.syncEnv(),
+    });
 
     // Load before listening, so restoring the apartment does not count as playing.
     const saved = this.store.load();
@@ -164,6 +181,7 @@ export class AchievementsFeature implements Layer {
     // Ctrl+V on the transfer page imports what was pasted.
     this.io.onPaste((text) => {
       if (this.listOpen && this.page === "transfer") this.importText(text);
+      if (this.listOpen && this.page === "sync") this.run(this.syncService.pair(text));
     });
     game.addLayer(this);
   }
@@ -240,6 +258,23 @@ export class AchievementsFeature implements Layer {
   // Nothing is running that a change of the apartment could break (the same guard as opening the pause screen).
   private canApplyNow(): boolean {
     return this.listOpen || !(this.game.inputLocked || this.game.dialogOpen || this.game.interaction.busy);
+  }
+
+  // A remote document from the server: applied now when nothing is running (the pause screen counts), else
+  // held for the pause screen or the next load.
+  private mergeIncoming(doc: SyncDoc): void {
+    if (this.canApplyNow()) this.applyIncoming(doc);
+    else this.holdMerge(doc);
+  }
+
+  // The game was opened with a pairing link (issue 103): shows the sync page asking whether to sync with it.
+  // Called at load, so nothing is running; the key was already taken out of the address bar.
+  offerPairing(key: string): void {
+    if (!this.openList()) return;
+    this.openSync();
+    this.pairKey = key;
+    this.confirmSync = "pair";
+    this.flash = null;
   }
 
   // Keeps a merge for later (stage 3 uses this) and applies it at once only if the player has not done
@@ -380,6 +415,8 @@ export class AchievementsFeature implements Layer {
     if (!this.listOpen) return;
     this.listOpen = false;
     this.confirmReset = false;
+    this.confirmSync = null;
+    this.pairKey = null;
     this.page = "list";
     this.confirmRestore = false;
     this.releaseLock?.();
@@ -397,8 +434,10 @@ export class AchievementsFeature implements Layer {
     }
     if (!this.listOpen) return;
     if (this.page === "transfer") return this.transferKey(e);
+    if (this.page === "sync") return this.syncKeyPress(e);
     if (e.code === "Escape") return this.closeList();
     if (e.code === UI.transferKey && !e.shiftKey) return this.openTransfer();
+    if (e.code === UI.syncKey && !e.shiftKey) return this.openSync();
     if (e.code === UI.dialogVoiceKey && !e.shiftKey) return this.toggleVoice();
     if (e.code === UI.adBlockerKey && !e.shiftKey) return this.toggleAdBlocker();
     // The arrows, and W and S (the touch layer's pad sends those).
@@ -413,6 +452,105 @@ export class AchievementsFeature implements Layer {
   }
 
   // -- The transfer page ----------------------------------------------------------------------
+
+  // -- The sync page (issue 103) --------------------------------------------------------------
+
+  private openSync(): void {
+    this.page = "sync";
+    this.confirmReset = false;
+    this.confirmSync = null;
+    this.pairKey = null;
+    this.flash = null;
+    this.flashFor = 0;
+  }
+
+  // Runs a sync call and shows what it says. The page may have closed by then; the message is simply not seen.
+  private run(job: Promise<string>): void {
+    void job.then((m) => this.say(m));
+  }
+
+  private syncKeyPress(e: KeyEventLike): void {
+    if (e.ctrlKey || e.metaKey) return;
+    if (this.confirmSync) {
+      if (e.code === "KeyY") this.answerSync(true);
+      else this.answerSync(false);
+      return;
+    }
+    if (e.code === "Escape") {
+      this.page = "list";
+      this.flash = null;
+      return;
+    }
+    if (this.syncService.key === null) {
+      if (e.code === "KeyN") return this.run(this.syncService.turnOn());
+    } else {
+      if (e.code === "KeyC") return this.copyLink();
+      if (e.code === "KeyS") return this.run(this.syncService.syncNow());
+      if (e.code === "KeyX") {
+        this.confirmSync = "stop";
+        this.flash = null;
+        return;
+      }
+    }
+    if (e.code === "KeyV") return this.pasteKey();
+  }
+
+  private answerSync(yes: boolean): void {
+    const asked = this.confirmSync;
+    const key = this.pairKey;
+    this.confirmSync = null;
+    this.pairKey = null;
+    if (!yes) return;
+    if (asked === "stop") this.run(this.syncService.stop());
+    else if (asked === "pair" && key) this.run(this.syncService.pair(key));
+  }
+
+  private copyLink(): void {
+    const key = this.syncService.key;
+    if (key === null) return;
+    void this.io.copy(linkFor(this.origin, key)).then((ok) => this.say(ok ? "LINK COPIED" : "COULD NOT COPY. THE LINK IS IN THE CONSOLE."));
+  }
+
+  private pasteKey(): void {
+    const ask = touchHints() ? "COULD NOT READ THE CLIPBOARD" : "PRESS CTRL+V TO PASTE";
+    this.io.read().then(
+      (text) => (text === null ? this.say(ask) : this.run(this.syncService.pair(text))),
+      () => this.say(ask),
+    );
+  }
+
+  private syncView(): SyncView {
+    const key = this.syncService.key;
+    return {
+      touch: touchHints(),
+      message: this.flashFor > 0 ? this.flash : null,
+      status: STATUS_TEXT[this.syncService.status()],
+      keyLine: key ? `KEY: ${key.slice(0, 4).toUpperCase()}...${key.slice(-4).toUpperCase()}` : null,
+      isOn: key !== null,
+      confirm: this.confirmSync,
+      busy: this.syncService.busy,
+    };
+  }
+
+  private syncTargets(): TapTarget[] {
+    const actions: Record<string, () => void> = {
+      on: () => this.run(this.syncService.turnOn()),
+      copy: () => this.copyLink(),
+      now: () => this.run(this.syncService.syncNow()),
+      paste: () => this.pasteKey(),
+      stop: () => {
+        this.confirmSync = "stop";
+        this.flash = null;
+      },
+      yes: () => this.answerSync(true),
+      no: () => this.answerSync(false),
+      back: () => {
+        this.page = "list";
+        this.flash = null;
+      },
+    };
+    return syncButtons(this.syncView()).map((b) => ({ ...b.rect, run: actions[b.id] }));
+  }
 
   private openTransfer(): void {
     this.page = "transfer";
@@ -549,11 +687,13 @@ export class AchievementsFeature implements Layer {
   tapTargets(): TapTarget[] {
     if (!this.listOpen || !touchHints()) return [];
     if (this.page === "transfer") return this.transferTargets();
+    if (this.page === "sync") return this.syncTargets();
     const view = this.view();
     const actions: Record<string, () => void> = {
       adBlocker: () => this.toggleAdBlocker(),
       voice: () => this.toggleVoice(),
       transfer: () => this.openTransfer(),
+      sync: () => this.openSync(),
       reset: () => {
         this.confirmReset = true;
       },
@@ -624,6 +764,7 @@ export class AchievementsFeature implements Layer {
     drawToasts(ctx, this.toasts.views());
     if (this.listOpen) {
       if (this.page === "transfer") drawTransfer(ctx, this.transferView());
+      else if (this.page === "sync") drawSync(ctx, this.syncView());
       else drawList(ctx, this.view());
     }
   }

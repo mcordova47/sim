@@ -16,6 +16,12 @@ The Netlify site is connected to the GitHub repo (`mcordova47/sim`) and **deploy
 - Dev shortcuts (`?own`, `?days`, `?deliver`, `?encounter`, `?flashcards=demo`, `?set`, `?hour`, `?room`, `?dialogvoice`) are dev-server only. `npm run check:dist` verifies the built bundle does not read them and has no email address or local path in it.
 - Analytics: none.
 
+## The sync server (issue 103)
+`netlify/functions/sync.mjs` answers `/api/sync` (logic in `netlify/lib/sync-handler.mjs`, see `docs/sync.md` section 8) with Netlify Blobs: stores `sync` (production) and `sync-preview` (every other context). It needs no environment variable, secret or Netlify setting: Blobs access is given to a function at runtime, and the `[functions]` block in `netlify.toml` only names the folder. The rate limit (60 requests a minute per IP) is in the function's own config.
+- `npm run dev` and `npm run preview` serve a fake of it (the same handler over an in-memory store, in `vite.config.ts`, cleared on restart). A second browser profile on the same address is "the other device". `npm run check:dist` fails if the fake or the server code is in the build.
+- `netlify dev` runs the real function against a local Blobs sandbox (Marc runs it; agents do not).
+- After a deploy, the function's log is under Logs and metrics, Functions, `sync`. The code logs nothing.
+
 ## Before every deploy
 ```
 npm install

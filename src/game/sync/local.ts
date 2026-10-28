@@ -27,6 +27,8 @@ function randomId(): string {
 
 export class SyncLocal {
   private id: string | null = null;
+  // The key this device syncs with (issue 103). It lives here and nowhere else: never in a save, a code or a file.
+  private syncKey: string | null = null;
   private heldDoc: SyncDoc | null = null;
   private backupData: Backup | null = null;
   private loaded = false;
@@ -45,6 +47,7 @@ export class SyncLocal {
         const raw: unknown = JSON.parse(text);
         if (isRecord(raw)) {
           if (typeof raw.device === "string" && /^[a-z0-9]{1,32}$/.test(raw.device)) this.id = raw.device;
+          if (typeof raw.key === "string" && SYNC.keyPattern.test(raw.key)) this.syncKey = raw.key;
           const held = normaliseDoc(raw.held, this.env);
           if (held.ok) this.heldDoc = held.doc;
         }
@@ -68,7 +71,7 @@ export class SyncLocal {
 
   private write(): void {
     try {
-      this.storage?.setItem(SYNC.storageKey, JSON.stringify({ device: this.id, ...(this.heldDoc && { held: this.heldDoc }) }));
+      this.storage?.setItem(SYNC.storageKey, JSON.stringify({ device: this.id, ...(this.syncKey && { key: this.syncKey }), ...(this.heldDoc && { held: this.heldDoc }) }));
     } catch {
       // Memory only.
     }
@@ -82,6 +85,19 @@ export class SyncLocal {
       this.write();
     }
     return this.id;
+  }
+
+  key(): string | null {
+    this.read();
+    return this.syncKey;
+  }
+
+  // Sets or (with null) clears the key.
+  setKey(key: string | null): void {
+    this.read();
+    this.syncKey = key;
+    this.device();
+    this.write();
   }
 
   held(): SyncDoc | null {

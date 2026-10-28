@@ -60,7 +60,7 @@ describe("the transfer page's text", () => {
 
   it("the pause list shows TRANSFER SAVE as a touch button and the desktop's T key hint, and no button for the question", () => {
     const view = { achievements: ACHIEVEMENTS, unlocked: () => false, cursor: 0, message: null, adBlocker: false, voice: "DIALOG VOICE: BEEP" };
-    expect(pauseButtons({ ...view, touch: true }).map((b) => b.id)).toEqual(["adBlocker", "voice", "transfer", "reset", "close"]);
+    expect(pauseButtons({ ...view, touch: true }).map((b) => b.id)).toEqual(["adBlocker", "voice", "transfer", "sync", "reset", "close"]);
     expect(pauseButtons({ ...view, touch: true, confirmReset: true }).map((b) => b.id)).toEqual(["yes", "no"]);
     for (const touch of [false, true]) {
       vi.mocked(drawText).mockClear();

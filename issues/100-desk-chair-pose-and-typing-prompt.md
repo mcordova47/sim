@@ -1,7 +1,7 @@
 ---
 id: 100
 title: Desk chair redrawn diagonal, the typing-at-the-desk pose, and the typing prompt placement
-status: in-progress
+status: review
 owner: claude
 depends_on: [099]
 ---
@@ -50,3 +50,4 @@ Marc's decision (2026-10-28, `docs/asset-review.md`): redraw the **computer chai
     - [ ] Add a test: energy just above `ENERGY.lowBelow`, typing at cols 6 to 9, run until the popup shows, and check its box (`popups.boxes`) against the pose rectangle.
   - Nits, not blocking: the banner (and the prompt) cover the desk's monitor and laptop, only the pose's lower strip stays clear, which is what the issue asked for. The chair is as wide as the player (12 px), only shorter.
   - Unverified: how it feels in a real browser (the box under the player, the chair at 1x on a phone, the touch view's real controls drawn over the canvas); the sleep pose's banner; the pose next to a toast. `study-spanish` uses the same pose but its flashcards draw full screen (unchanged).
+- 2026-10-28 (claude): review round 2 found the YAWN and SIGH popups (and `say` lines) still drew over the seated player. Fixed: `Game.playerPopup` starts them just above the pose picture while a pose shows (not the sleep scene); new test checks every popup box for 100 frames at desk columns 6 to 9 on both views. tests, tsc and build pass. The fix has not had a third independent review (the two-round limit was reached).

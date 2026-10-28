@@ -92,6 +92,22 @@ describe("the typing prompt and the seated player", () => {
   });
 
   it.each([
+    ["desktop", DESKTOP_VIEW],
+    ["narrow phone", NARROW_VIEW],
+  ])("keeps the player's popups (YAWN, SIGH, say) off the seated player on the %s view", (_n, view) => {
+    for (const col of [6, 7, 8, 9]) {
+      const { seated, game } = playTyping(view, col);
+      const g = game as unknown as { say(t: string): void; popups: { boxes(v: unknown, o: unknown): Rect[] }; camera: { position(a: number): { x: number; y: number } } };
+      g.say("YAWN...");
+      for (let f = 0; f < 100; f++) {
+        game.update(dt, NO_INPUT);
+        const cam = g.camera.position(1);
+        for (const b of g.popups.boxes(view, cam)) expect(overlaps(b, seated), `col ${col} frame ${f}`).toBe(false);
+      }
+    }
+  });
+
+  it.each([
     ["desktop", DESKTOP_VIEW, 64],
     ["narrow phone", NARROW_VIEW, 80],
   ])("also clears the pose with the longest prompt (%s)", (_n, view, seatedTop) => {

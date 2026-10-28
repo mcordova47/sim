@@ -394,7 +394,7 @@ export class Game {
 
   // One plain line over the player.
   private say(text: string): void {
-    this.popups.add(this.player.x + TILE / 2, this.player.y, [{ text, color: COLOR.paper }]);
+    this.playerPopup([{ text, color: COLOR.paper }]);
   }
 
   // Opens the waiting packages: the items are added, and each one is named in one line.
@@ -432,12 +432,12 @@ export class Game {
       change.previous >= ENERGY.lowBelow &&
       change.value < ENERGY.lowBelow
     ) {
-      this.popups.add(this.player.x + TILE / 2, this.player.y, [{ text: "YAWN...", color: COLOR.mist }]);
+      this.playerPopup([{ text: "YAWN...", color: COLOR.mist }]);
     }
     // Dropping below the low-mood line shows a sigh. That is all low mood
     // does for now (a slumped walk is left for later).
     if (change.id === "mood" && change.previous >= MOOD.lowBelow && change.value < MOOD.lowBelow) {
-      this.popups.add(this.player.x + TILE / 2, this.player.y, [{ text: "SIGH...", color: COLOR.mist }]);
+      this.playerPopup([{ text: "SIGH...", color: COLOR.mist }]);
     }
   }
 
@@ -777,6 +777,19 @@ export class Game {
     const col = target.x / TILE;
     const row = target.y / TILE;
     return this.level.pieces.find((p) => p.tiles.some((t) => t.col === col && t.row === row)) ?? null;
+  }
+
+  // A popup over the player. In a pose (issue 100) it ends just above the pose picture, so it
+  // rises above the seated player instead of across them (at the desk the player's own box is a
+  // tile south of where they are drawn).
+  private playerPopup(lines: PopupLine[]): void {
+    const pose = this.currentPose();
+    if (pose && !this.sleepScene) {
+      const { def, piece } = pose;
+      this.popups.add(piece.bounds.x + def.at.x + def.size.w / 2, piece.bounds.y + def.at.y - 4 - 10 * lines.length, lines);
+    } else {
+      this.popups.add(this.player.x + TILE / 2, this.player.y, lines);
+    }
   }
 
   // Where the player is on the screen: the pose's picture while they are in one (the seated

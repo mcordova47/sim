@@ -1,7 +1,7 @@
 ---
 id: 096
 title: Asset review: go over every sprite for perspective and consistency
-status: in-progress
+status: done
 owner: marc + claude
 depends_on: []
 ---

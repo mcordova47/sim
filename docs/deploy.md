@@ -2,6 +2,9 @@
 
 The game is a static Vite bundle (`npm run build` writes `dist/`). Host: Netlify. Config: `netlify.toml`. Nothing here needs the repo on GitHub; you deploy from this machine with the Netlify CLI. An agent never runs `netlify login` or `netlify deploy`: you do, and you approve each one.
 
+## Auto-deploy (Marc, 2026-10-27)
+The Netlify site is connected to the GitHub repo (`mcordova47/sim`) and **deploys automatically**: a push to `main` builds and publishes https://sim.mcord.dev/. So anything on `main` that is pushed goes live; the CLI steps below are for a draft URL or a manual deploy only. The pre-deploy checks (`npm test`, `npm run build`, `npm run check:dist`) are therefore worth running before a push, since there is no manual gate; planners and agents never push, Marc does. Netlify branch deploy previews (`*.netlify.app`) are available for branches and pull requests: Study Spanish with a key does not work on those addresses (the progress endpoint allows `*.mcord.dev` only) but the guest mode does.
+
 ## What is already set up
 - `netlify.toml`: build `npm run build`, publish `dist`, Node 22 (also `.nvmrc`).
 - Headers: `/assets/*` (hashed by Vite) cache for a year; `/`, `/index.html`, `/sprites/*` and the root PNGs revalidate, so a new build shows up. Every page also sends `X-Robots-Tag: noindex, nofollow`.

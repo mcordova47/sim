@@ -1,4 +1,4 @@
-import { GUITAR_SKILL } from "../config";
+import { GUITAR_SKILL, SOUND } from "../config";
 
 // The guitar skill's pure parts (issue 114a): no audio, no clock, no DOM. A level is a
 // function from an arrow to a list of timed notes, so it can be tested without a speaker.
@@ -108,6 +108,31 @@ export function strumNotes(chord: string, pattern: string, seed = 0, tempo = GUI
     }
   });
   return out.sort((a, b) => a.at - b.at);
+}
+
+// One thing to play: an effect, its pitch multiplier, gain and stretch, `at` seconds after the press.
+export interface StrokeEvent {
+  effect: string;
+  at: number;
+  pitch: number;
+  gain: number;
+  stretch: number;
+}
+
+// What a stroke is made of, for a voice ("plain", "steel", "nylon"): a tone for each string
+// (normalised for the string count, ringing `decay` times as long) and the pick's tick (strong on the
+// first string, much softer on the others, or none). The feature plays exactly these, and the loudness tests add them up.
+export function strokeEvents(notes: Note[], voice: string, pick: { enabled: boolean; gain: number; othersGain: number } = GUITAR_SKILL.pick): StrokeEvent[] {
+  const set = SOUND.guitarStrings[voice] ?? SOUND.guitarStrings.steel;
+  const { reference, power } = GUITAR_SKILL.normalise;
+  const scale = notes.length > 0 ? (reference / notes.length) ** power : 1;
+  const out: StrokeEvent[] = [];
+  notes.forEach((note, i) => {
+    out.push({ effect: set.string, at: note.at, pitch: 2 ** (note.semis / 12), gain: note.gain * scale, stretch: GUITAR_SKILL.decay });
+    const tick = i === 0 ? pick.gain : pick.othersGain;
+    if (set.pick && pick.enabled && tick > 0) out.push({ effect: set.pick, at: note.at, pitch: 1, gain: tick, stretch: 1 });
+  });
+  return out;
 }
 
 // What an arrow plays at a level, relative to the press. Level 1 is the notes game's own single

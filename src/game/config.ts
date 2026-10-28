@@ -916,6 +916,14 @@ export const GUITAR_SKILL = {
   // Chord strings ring `decay` times as long as a single note (the effect's `stretch`).
   ramp: 0.18,
   decay: 1.5,
+  // A string's gain is multiplied by (reference / strings) ^ power, so a six-string chord is not
+  // louder than a four-string one (their sum is what could clip). Power 0 turns it off.
+  normalise: { reference: 4, power: 0.5 },
+  // The pick's tick (a short noise burst, unstretched): `gain` of its own loudness on the first
+  // string of a stroke and the much softer `othersGain` on the rest (0 is none). Before issue 114a's
+  // fix every string had its full tick, stretched 1.5 times, which stacked into a crackle on
+  // five or six strings. `enabled: false` (or `?guitarpick=off` in the dev server) leaves just the strings.
+  pick: { enabled: true, gain: 0.5, othersGain: 0.1 },
   rootGain: 1,
   otherGain: 0.8,
   // The pattern strums below, and tempo, swing and humanise above, are not played at the chord levels (Marc, issue 114a: a pattern after the last key press felt slow). They are kept
@@ -989,13 +997,13 @@ export const SOUND = {
     steel: "guitarSteel",
     nylon: "guitarNylon",
   } as Record<string, string>,
-  // The same voices for one string of a chord or strum (issue 114a): `first` starts a
-  // gesture (with the pick's tick), `string` is each other string.
+  // The same voices for one string of a chord (issue 114a): `string` is the tone, `pick` the
+  // pick's short tick (see `GUITAR_SKILL.pick`; the plain voice has none).
   guitarStrings: {
-    plain: { first: "noteKey", string: "noteKey" },
-    steel: { first: "guitarSteelPluck", string: "guitarSteelString" },
-    nylon: { first: "guitarNylonPluck", string: "guitarNylonString" },
-  } as Record<string, { first: string; string: string }>,
+    plain: { string: "noteKey" },
+    steel: { string: "guitarSteelString", pick: "guitarSteelPick" },
+    nylon: { string: "guitarNylonString", pick: "guitarNylonPick" },
+  } as Record<string, { string: string; pick?: string }>,
   effects: {
     stepWood: { priority: "low", voices: [{ noise: "lowpass", freq: 520, q: 0.7, length: 0.06, gain: 0.22 }] },
     stepStone: { priority: "low", voices: [{ noise: "bandpass", freq: 1500, q: 1.1, length: 0.045, gain: 0.2 }] },
@@ -1140,22 +1148,12 @@ export const SOUND = {
         { noise: "lowpass", freq: 900, q: 0.7, length: 0.04, gain: 0.08 },
       ],
     },
-    // The guitar skill's chords and strums (issue 114a): one string is one voice (a "pluck"
-    // adds the pick's tick, for the first string of a gesture), shorter than a single note so
+    // The guitar skill's chords and strums (issue 114a): one string is one voice (the pick's
+    // tick is its own small effect, see `GUITAR_SKILL.pick`), shorter than a single note so
     // four strings fit the voice cap even when pressed quickly. A chop is a muted strum.
-    guitarSteelPluck: {
-      voices: [
-        { wave: "triangle", freq: 440, length: 0.5, gain: 0.16 },
-        { noise: "highpass", freq: 3500, q: 0.8, length: 0.025, gain: 0.08 },
-      ],
-    },
+    guitarSteelPick: { voices: [{ noise: "highpass", freq: 3500, q: 0.8, length: 0.02, gain: 0.08 }] },
     guitarSteelString: { voices: [{ wave: "triangle", freq: 440, length: 0.5, gain: 0.16 }] },
-    guitarNylonPluck: {
-      voices: [
-        { wave: "sine", freq: 440, length: 0.55, gain: 0.2 },
-        { noise: "lowpass", freq: 900, q: 0.7, length: 0.04, gain: 0.06 },
-      ],
-    },
+    guitarNylonPick: { voices: [{ noise: "lowpass", freq: 900, q: 0.7, length: 0.03, gain: 0.06 }] },
     guitarNylonString: { voices: [{ wave: "sine", freq: 440, length: 0.55, gain: 0.2 }] },
     guitarChop: { voices: [{ noise: "bandpass", freq: 1800, q: 1.4, length: 0.05, gain: 0.14 }] },
     // An achievement toast: a short, bright two-note figure.

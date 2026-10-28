@@ -12,7 +12,7 @@ import type { Track } from "../music/track";
 import { browserAudio, type AudioFactory } from "./audio-types";
 import { MoodLift, comboPitch, floorOf, guitarEffect, noteKeyDir, stepEffect, stepGain, stepPitch } from "./decisions";
 import { SoundEngine } from "./engine";
-import { playKey, skillLevel, type Dir, type Level, type Stroke } from "./guitar-skill";
+import { playKey, skillLevel, strokeEvents, type Dir, type Level, type Stroke } from "./guitar-skill";
 import { mumbleNotes } from "../flashcards/mumble";
 import { DEFAULT_SETTINGS, SettingsStore, type DialogVoice } from "./settings";
 
@@ -52,6 +52,8 @@ export interface SoundOptions {
   guitarSessions?: () => number;
   // Forces a skill level, 1 to 4, for the visit (the dev URL `?guitarskill=`).
   guitarSkill?: Level;
+  // Turns the pick's tick off for the visit (the dev URL `?guitarpick=off`), to compare.
+  guitarPick?: boolean;
 }
 
 function browserStorage(): KeyValueStorage | null {
@@ -98,12 +100,14 @@ export class SoundFeature implements Layer {
   // The skill level of the session now playing, read once when it starts, and the next stroke.
   private skill: Level = "notes";
   private stroke: Stroke = "down";
+  private pick = { ...GUITAR_SKILL.pick };
 
   constructor(private readonly game: Game, options: SoundOptions = {}) {
     this.random = options.random ?? Math.random;
     this.guitarVoice = options.guitarVoice;
     this.guitarSessions = options.guitarSessions ?? (() => 0);
     this.guitarSkill = options.guitarSkill;
+    if (options.guitarPick !== undefined) this.pick.enabled = options.guitarPick;
     this.tracks = options.tracks ?? TRACKS;
     this.demos = options.demos ?? demoStore();
     this.demoVersion = this.demos.version;
@@ -213,9 +217,8 @@ export class SoundFeature implements Layer {
       this.engine.play(this.noteEffect(), { pitch: (SOUND.noteKeys[dir] ?? 440) / 440 });
       return;
     }
-    const set = SOUND.guitarStrings[voice] ?? SOUND.guitarStrings.steel;
-    for (const note of playKey(level, dir, 0, this.stroke)) {
-      this.engine.playAt(set.first, { pitch: 2 ** (note.semis / 12), gain: note.gain, stretch: GUITAR_SKILL.decay }, note.at);
+    for (const e of strokeEvents(playKey(level, dir, 0, this.stroke), voice, this.pick)) {
+      this.engine.playAt(e.effect, { pitch: e.pitch, gain: e.gain, stretch: e.stretch }, e.at);
     }
     // The strokes alternate down and up.
     this.stroke = this.stroke === "down" ? "up" : "down";
@@ -449,6 +452,7 @@ export function attachSound(game: Game, options?: SoundOptions): SoundFeature {
     dialogVoice: devDialogVoice(),
     guitarVoice: devGuitarVoice(),
     guitarSkill: devGuitarSkill(),
+    guitarPick: devGuitarPick(),
     ...options,
   });
   // Dev only: `auditionGuitar("steel")` in the console (press a key on the page first).
@@ -475,6 +479,13 @@ export function devGuitarSkill(search = typeof location === "undefined" ? "" : l
   const asked = new URLSearchParams(search).get("guitarskill");
   if (asked === null || !/^[1-9]$/.test(asked)) return undefined;
   return GUITAR_SKILL.levels[Number(asked) - 1]?.id;
+}
+
+// Dev only (issue 114a): `?guitarpick=off` leaves out the pick's tick on chords for the visit
+// (so it can be compared). A built game ignores it.
+export function devGuitarPick(search = typeof location === "undefined" ? "" : location.search, dev = import.meta.env?.DEV): boolean | undefined {
+  if (!dev) return undefined;
+  return new URLSearchParams(search).get("guitarpick") === "off" ? false : undefined;
 }
 
 // Dev only (issue 075): `?dialogvoice=letters` tries the letters voice for the

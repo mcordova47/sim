@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { NO_INPUT, type Controls } from "../../input/controls";
 import { FakeStorage } from "../achievements/fake-storage";
-import { GUITAR_SKILL, SOUND } from "../config";
+import { GUITAR_SKILL, MUSIC, SOUND } from "../config";
 import { Game } from "../game";
 import { TASKS } from "../tasks";
 import { parseTileMap } from "../tilemap";
 import { FakeAudioContext } from "./fake-audio";
-import { SoundFeature, devGuitarSkill, type KeyEventLike, type Listenable } from "./feature";
-import { chordFor, guitarSessions, playKey, seeded, skillLevel, strokeNotes, strumNotes, type Dir, type Level } from "./guitar-skill";
+import { SoundFeature, devGuitarPick, devGuitarSkill, type KeyEventLike, type Listenable } from "./feature";
+import { mixPeak, type MixEvent } from "./guitar-mix";
+import { chordFor, guitarSessions, playKey, strokeEvents, seeded, skillLevel, strokeNotes, strumNotes, type Dir, type Level } from "./guitar-skill";
 
 // Pitch class of a note given semitones from A4: (semis mod 12) with 0 = A. A major = A B C# D E F# G#.
 const inKey = (semis: number) => [0, 2, 4, 5, 7, 9, 11].includes((((semis % 12) + 12) % 12));
@@ -95,7 +96,7 @@ describe("the data", () => {
     for (const [id, inst] of Object.entries(SOUND.instruments)) {
       const set = SOUND.guitarStrings[inst.voice];
       expect(set, id).toBeDefined();
-      expect(SOUND.effects[set.first]).toBeDefined();
+      if (set.pick) expect(SOUND.effects[set.pick]).toBeDefined();
       expect(SOUND.effects[set.string]).toBeDefined();
     }
     expect(SOUND.effects.guitarChop).toBeDefined();
@@ -106,7 +107,7 @@ describe("playKey", () => {
   it("is the single note at level 1", () => {
     for (const d of dirs) expect(playKey("notes", d, 7)).toEqual([{ semis: 7, at: 0, gain: 1, kind: "first" }]);
   });
-  it("plays the plain chord for each arrow at level 2, low to high, spaced by the config, every string with its own pick", () => {
+  it("plays the plain chord for each arrow at level 2, low to high, spaced by the config, with the ramp", () => {
     const names = { left: "A", down: "D", up: "E", right: "F#m" };
     for (const d of dirs) {
       const notes = playKey("chords", d, 0);
@@ -118,7 +119,7 @@ describe("playKey", () => {
         expect(notes[i].gain).toBeLessThanOrEqual(notes[i - 1].gain); // the ramp
       }
       expect(notes[0].at).toBe(0);
-      expect(notes.every((n) => inKey(n.semis) && n.kind === "first")).toBe(true);
+      expect(notes.every((n) => inKey(n.semis))).toBe(true);
     }
   });
   it("has the chord table the design shows", () => {
@@ -343,3 +344,63 @@ function hammer(skill: Level, voice: string, gap: number) {
   }
   return { refused, played, peak, presses };
 }
+
+describe("the pick's tick (issue 114a)", () => {
+  const notes6 = playKey("open", "left", 0);
+  const pickEvents = (voice: string, pick = GUITAR_SKILL.pick) => strokeEvents(notes6, voice, pick).filter((e) => e.effect.endsWith("Pick"));
+  it("is strong on the first string and much softer on the others, unstretched", () => {
+    for (const voice of ["steel", "nylon"]) {
+      const ticks = pickEvents(voice);
+      expect(ticks).toHaveLength(6);
+      expect(ticks[0].gain).toBe(GUITAR_SKILL.pick.gain);
+      for (const t of ticks.slice(1)) expect(t.gain).toBeLessThanOrEqual(ticks[0].gain / 4);
+      expect(ticks.every((t) => t.stretch === 1)).toBe(true);
+      const own = SOUND.effects[ticks[0].effect].voices[0];
+      expect(own.length).toBeLessThanOrEqual(0.03);
+      // all the ticks together are quieter than the strings they sit on
+      const tickSum = ticks.reduce((n, t) => n + t.gain * own.gain, 0);
+      expect(tickSum).toBeLessThan(0.1);
+    }
+  });
+  it("can be turned off, or left only on the first string, and the plain voice has none", () => {
+    expect(pickEvents("steel", { ...GUITAR_SKILL.pick, enabled: false })).toHaveLength(0);
+    expect(pickEvents("steel", { ...GUITAR_SKILL.pick, othersGain: 0 })).toHaveLength(1);
+    expect(pickEvents("plain")).toHaveLength(0);
+  });
+  it("is left out by the dev URL ?guitarpick=off, only on the dev server", () => {
+    expect(devGuitarPick("?guitarpick=off", true)).toBe(false);
+    expect(devGuitarPick("?guitarpick=on", true)).toBeUndefined();
+    expect(devGuitarPick("", true)).toBeUndefined();
+    expect(devGuitarPick("?guitarpick=off", false)).toBeUndefined();
+  });
+});
+
+describe("how loud the chords get (issue 114a)", () => {
+  // The estimate is for the output of the master gain; the browser clips above 1.
+  const events = (level: Level, voice: string, gap: number, presses: number): MixEvent[] => {
+    const out: MixEvent[] = [];
+    for (let i = 0; i < presses; i++)
+      for (const e of strokeEvents(playKey(level, dirs[i % 4], 0, i % 2 ? "up" : "down"), voice))
+        out.push({ effect: e.effect, time: i * gap + e.at, pitch: e.pitch, gain: e.gain, stretch: e.stretch });
+    return out;
+  };
+  it("keeps the loudest single chord and overlapped chords under 0.9, at every level and spacing", () => {
+    const peaks: string[] = [];
+    for (const level of ["chords", "sevenths", "open", "jazz"] as Level[])
+      for (const voice of ["steel", "nylon"])
+        for (const [gap, presses] of [[10, 1], [0.3, 24], [0.1, 40], [0.07, 40]] as const) {
+          const peak = mixPeak(events(level, voice, gap, presses));
+          peaks.push(`${level} ${voice} ${gap}: ${peak.toFixed(3)}`);
+          expect(peak, `${level} ${voice} ${gap}`).toBeLessThan(0.9);
+        }
+    console.log(peaks.join("\n"));
+  });
+  it("does not make a six-string chord louder than a four-string one (the normalising)", () => {
+    const one = (level: Level) => mixPeak(events(level, "nylon", 10, 1));
+    expect(one("open")).toBeLessThan(one("chords") * 1.25);
+  });
+  it("starts and ends every string softly: an attack ramp of at least 2 ms and a release to near zero", () => {
+    expect(MUSIC.attack).toBeGreaterThanOrEqual(0.002);
+    for (const name of ["guitarSteelString", "guitarNylonString", "guitarSteelPick", "guitarNylonPick"]) for (const v of SOUND.effects[name].voices) expect(v.length).toBeGreaterThan(MUSIC.attack * 2);
+  });
+});

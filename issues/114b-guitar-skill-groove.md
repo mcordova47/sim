@@ -1,7 +1,7 @@
 ---
 id: 114b
 title: Guitar skill, stage 2: the groove and the melody over it (level 6)
-status: review
+status: done
 owner: claude
 depends_on: [114a]
 ---
@@ -27,3 +27,9 @@ Marc listened to 114a: pattern strums were dropped and the levels are now six (s
   - UNVERIFIED for Marc (an agent cannot hear): how the loop feels at 92 bpm with swing 0.1 and humanise, the balance of loop (gain 0.55, bass 1.0, harmony 0.7) against the melody, whether the melody notes (two octaves above the root) are too high or sparse-sounding, how the record duck and its 0.5 s return sound, and whether the groove through the music bus level (`SOUND.musicLevel`) is loud enough.
   - Checklist for the author: [ ] set `grooving = true` when `playGroove` starts the loop; [ ] add the pause/resume/pause regression test; [ ] consider ignoring arrows while `game.paused`.
 - 2026-10-28, review round 1 fixes: `playGroove` now sets `grooving` when it (re)starts the loop (pause, resume, arrow, pause again left it running); arrows are ignored while the game is paused; regression test added.
+- 2026-10-28, REVIEW round 2 (independent, fresh agent): verdict APPROVE (code); sound feel UNVERIFIED.
+  - Round 1 findings fixed: `playGroove` sets `grooving = true` when it (re)starts the loop (feature.ts); arrows are ignored while `game.paused`; regression test (pause, arrow while paused adds no oscillators, resume, arrow, pause again, groove stopped) added. Mutation check: removing the `grooving = true` line makes exactly that test fail (22 of 23 pass); restored, tree clean.
+  - Checks: `npx tsc --noEmit` clean; `npx vitest run` 130 files, 2893 passed, 1 skipped (no flake this run); `npm run build` ok.
+  - Criteria: loop under the melody in time and in key, stops on leaving (now also after repeated pauses), muted silent, record ducks and returns, tests/tsc/build: pass (as round 1 plus the fix). Scope of the fix commit: feature.ts, the test, the issue file only.
+  - UNVERIFIED for Marc (an agent cannot hear): loop feel at 92 bpm with swing 0.1 and humanise, loop/melody balance, whether melody notes are too high or sparse, the record duck and its return, loudness through the music bus.
+  - Minor, not blocking: the design doc still says "level 4" in places.

@@ -1,4 +1,4 @@
-# Guitar, nylon-string (issues 050, 107): the same drawing as `guitar` with a pale cedar top, reddish sides, no pickguard, and no stand either. Not wired into the map; it is the gift variant.
+# Guitar, nylon-string (issues 050, 107): the same drawing and small stand as `guitar` with a pale cedar top, reddish sides, no pickguard. Not wired into the map; it is the gift variant.
 size: 16x16
 .........11111..
 ........1aaa991.
@@ -9,10 +9,10 @@ size: 16x16
 .....1aa99999881
 .....1a99999881.
 ......19998811..
-.....17777711...
-....1777971.....
-...1771111......
-..1771..........
-.5a75...........
-.1aa1...........
-.5115...........
+.....1777771111.
+....1777971.1981
+...177111111281.
+..1771188889811.
+.5a75.1999892921
+.1aa1.1999888881
+.5115..11111111.

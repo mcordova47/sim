@@ -1,4 +1,4 @@
-# Guitar (issues 107, redrawn): 1x1 tile at the south wall (col 1, row 6 of the main room). Drawn on its own, no stand: the body sits north-east with its dark sound hole and the neck runs south-west to the headstock and mist tuners, lit from the top-left. The stand is not part of this picture on purpose (Marc, 2026-10-28): while the guitar is played the pose sprite `player-guitar` replaces this piece and draws the empty stand under the player, so it reads as the guitar lifted off its stand.
+# Guitar (issues 107, redrawn): 1x1 tile at the south wall (col 1, row 6 of the main room). The body sits north-east with its dark sound hole and the neck runs south-west to the headstock and mist tuners, lit from the top-left; it rests on a small folding wooden stand (a V of two bars and a padded block, from Marc's photo) at the lower right. While the guitar is played the piece shows `guitar-stand` (the empty stand) instead.
 size: 16x16
 .........11111..
 ........1999881.
@@ -9,10 +9,10 @@ size: 16x16
 .....19988888771
 .....1988888771.
 ......18887711..
-.....17777711...
-....1777971.....
-...1771111......
-..1771..........
-.5875...........
-.1881...........
-.5115...........
+.....1777771111.
+....1777971.1981
+...177111111281.
+..1771188889811.
+.5875.1999892921
+.1881.1999888881
+.5115..11111111.

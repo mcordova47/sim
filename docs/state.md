@@ -51,6 +51,8 @@ A solid can also be conditional with `blockedWhen` (a pile in the way); the grid
 ## Decor is not state
 The package by the front door follows the delivery queue through the derived variable `parcel` (0 or 1, set by the game each frame, never by a task; `docs/decor.md`, stage 3a). Sleeping and napping move the clock by an effect, and `State.onClockSkip` tells the delivery queue how many hours were skipped (for sleep, the real number: the wake hour is at least 7 hours on and never before 06:30, see below).
 
+The guitar's stand (issue 107) works the same way: `guitarOut` (0 or 1) is set by the game each frame to 1 while the guitar task runs and never by a task, and the guitar piece shows `guitar-stand` (the empty stand) while it is 1. A later feature that takes the guitar elsewhere only needs to set it.
+
 Which painting, plant or lamp is in a slot is kept in the decor store (`game.decor`, issue 062, `docs/decor.md`), not in state variables: it is a list of ids, not numbers. The plant's growth and dryness stay state variables (`plantStage`, `plantDry`); the decor slot says which sprites they choose between.
 
 ## Events

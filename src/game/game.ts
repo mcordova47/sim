@@ -391,6 +391,15 @@ export class Game {
     if (this.state.has("parcel") && this.state.get("parcel") !== parcel) this.state.applyEffects([{ var: "parcel", set: parcel }]);
   }
 
+  // The guitar is off its stand (issue 107) while the guitar task runs, so the piece shows the
+  // empty stand. Derived like `parcel`: brought in step each frame, never set by a task, so a save
+  // written mid-song comes back right. Later playing or carrying it elsewhere only needs to set this.
+  private syncGuitar(): void {
+    if (!this.state.has("guitarOut")) return;
+    const out = this.interaction.active?.item.id === "guitar" ? 1 : 0;
+    if (this.state.get("guitarOut") !== out) this.state.applyEffects([{ var: "guitarOut", set: out }]);
+  }
+
   // An arrival happened this frame and has not been said yet.
   private arrivalNoted = false;
 
@@ -608,6 +617,7 @@ export class Game {
   update(dt: number, controls: Controls): void {
     // After a load the saved box state may not match the queue (a save written as a package arrived).
     this.syncParcel();
+    this.syncGuitar();
     // A swap preview lasts only while the swap list is open, whatever closed it.
     if (this.decor.previewing && !this.interaction.active) this.decor.clearPreview();
     // Escape backs out of the running action even while its text or menu is up
@@ -652,6 +662,7 @@ export class Game {
       if (!heldClock) this.tickClock(dt);
       this.interaction.update(dt, this.player, this.inputLocked ? NO_INPUT : controls);
     }
+    this.syncGuitar();
     this.player.stepTimeScale = this.state.get("energy") < ENERGY.lowBelow ? ENERGY.tiredStepFactor : 1;
     // Free to walk unless a task is running or something else has the controls.
     // A running activity may walk the player by script (a cutscene).
@@ -681,6 +692,7 @@ export class Game {
     this.minutes += dt * CLOCK.minutesPerSecond;
     this.deliveries.advance((dt * CLOCK.minutesPerSecond) / 60);
     this.syncParcel();
+    this.syncGuitar();
   }
 
   render(ctx: CanvasRenderingContext2D, alpha: number): void {

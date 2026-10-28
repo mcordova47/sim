@@ -124,7 +124,17 @@ const MAIN: Record<string, ObjectDef> = {
   w: WINDOW_BLINDS,
   W: WINDOW_BLINDS,
   S: { name: "sofa", sprite: "sofa-td", color: "brick", tasks: ["doomscroll", "contemplate", "work-sofa", "nap", "admire-art"] },
-  G: { name: "guitar", sprite: "guitar", color: "tangerine", tasks: ["guitar"] },
+  G: {
+    name: "guitar",
+    sprite: "guitar",
+    color: "tangerine",
+    tasks: ["guitar"],
+    // On its stand, or the empty stand while it is being played (issue 107; `guitarOut` follows the task).
+    variants: [
+      { sprite: "guitar-stand", when: [{ var: "guitarOut", min: 1 }], color: "tangerine" },
+      { sprite: "guitar", color: "tangerine" },
+    ],
+  },
   L: { name: "lamp table", sprite: "lamp-table", color: "butter", slot: "lamp-sofa", tasks: ["swap-lamp-sofa"] },
   R: { name: "record stand", sprite: "record-stand", color: "paper", tasks: ["record-play"] },
   M: { name: "mic stand", sprite: "mic-stand", color: "ink" },

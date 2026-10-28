@@ -12,3 +12,4 @@ Marc (2026-10-28), a stretch goal: the side project could actually have an effec
 ## What to do (design first)
 - Ask Marc one question at a time: what is editable (positions, variants, the glitch), where the config lives (a text file in the repo, or in the pause screen), and whether the picture is drawn live from the config (compose the 320x192 view from sprites and the config) rather than a static PNG.
 - Then plan small issues. The 101 drawing is the starting look.
+- 2026-10-28 (claude): design note written: docs/side-project-config-design.md (config as overrides on a faithful copy, composed at runtime, stages A to F, 5 open questions). Status unchanged.

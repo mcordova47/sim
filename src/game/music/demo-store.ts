@@ -13,6 +13,7 @@ import {
   type DemoGrid,
 } from "./demos";
 import { parseTrack, type Track } from "./track";
+import { trackBody, withTitle } from "./track-body";
 
 // The tracks the player has made, saved under one versioned key (`life.tracks.v1`):
 // the tracks themselves as `.track` text (the one source of truth, parsed with
@@ -259,6 +260,49 @@ export class DemoStore {
     return { ok: true, id: newId, created: existing === null };
   }
 
+  // Adds a track that came from another device (issue 102, docs/sync.md section 4.2). The text is untrusted, so it
+  // is checked like `save` (the real parser, the size limit, the name rules, the write limit). The same track
+  // (its text without the title line) is never added twice; a taken title gets a number after it; at the limit
+  // nothing is added and nothing on the device is replaced.
+  add(text: string, made: number): "added" | "present" | "full" | "invalid" | "storage" {
+    if (typeof text !== "string" || bytesOf(text) > M.maxTextBytes) return "invalid";
+    let title: string;
+    try {
+      title = parseTrack(text, "incoming track").title;
+    } catch {
+      return "invalid";
+    }
+    if (nameProblem(title)) return "invalid";
+    const body = trackBody(text);
+    if (this.entries.some((e) => trackBody(e.text) === body)) return "present";
+    if (this.entries.length >= M.maxTracks) return "full";
+    let stored = text;
+    const taken = this.names(null);
+    if (nameTaken(title, taken)) {
+      let name = "";
+      for (let n = 2; n < 1000 && (name === "" || nameTaken(name, taken)); n++) {
+        const suffix = ` ${n}`;
+        name = `${title.trim().slice(0, M.nameMax - suffix.length).trimEnd()}${suffix}`;
+      }
+      if (nameProblem(name) || nameTaken(name, taken)) return "invalid";
+      stored = withTitle(text, name);
+      if (bytesOf(stored) > M.maxTextBytes) return "invalid";
+      try {
+        parseTrack(stored, "incoming track");
+      } catch {
+        return "invalid";
+      }
+    }
+    const when = typeof made === "number" && Number.isFinite(made) && made >= 0 ? made : 0;
+    const saved = this.commit(() => {
+      this.entries.push({ id: `demo-${this.nextId}`, text: stored, made: when });
+      this.nextId++;
+    });
+    if (!saved) return "storage";
+    this.version++;
+    return "added";
+  }
+
   // Deletes a saved track. False if there is none by that id or storage failed.
   remove(id: string): boolean {
     if (!this.entries.some((e) => e.id === id)) return false;
@@ -312,6 +356,8 @@ export class DemoStore {
     return { paid: true, points: M.reward.points, mood: M.reward.mood };
   }
 }
+
+const bytesOf = (text: string) => new TextEncoder().encode(text).length;
 
 function whole(n: unknown): n is number {
   return typeof n === "number" && Number.isInteger(n);

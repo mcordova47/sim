@@ -67,16 +67,17 @@ export interface ListView {
 // list that is drawn (`pauseButtons`, `listRows`, `pageButton`), so a tap and the picture agree.
 export const PAUSE_TOUCH = {
   margin: 6,
-  buttonH: 22,
-  buttonGap: 4,
+  buttonH: 18,
+  buttonGap: 3,
   buttonsTop: 17,
-  // The achievements: a header line with the page button, then rows.
-  pageTop: 69,
-  rowsTop: 82,
+  // The achievements: a header line with the page button, then rows. Three rows of buttons fit above
+  // them (the ad blocker, the voice, TRANSFER SAVE, RESET and CLOSE).
+  pageTop: 80,
+  rowsTop: 93,
   rowHeight: 10,
 };
 
-export type PauseButtonId = "adBlocker" | "voice" | "reset" | "close" | "yes" | "no";
+export type PauseButtonId = "adBlocker" | "voice" | "transfer" | "reset" | "close" | "yes" | "no";
 
 export interface PauseButton {
   id: PauseButtonId;
@@ -84,8 +85,8 @@ export interface PauseButton {
   rect: Rect;
 }
 
-// The buttons on the touch layout: the settings (the voice one only with the sound feature) and
-// RESET and CLOSE; while the reset question is up, YES and NO instead.
+// The buttons on the touch layout: the settings (the voice one only with the sound feature),
+// TRANSFER SAVE, RESET and CLOSE; while the reset question is up, YES and NO instead.
 export function pauseButtons(view: ListView): PauseButton[] {
   const T = PAUSE_TOUCH;
   const w = Math.floor((VIEW.width - 2 * T.margin - T.buttonGap) / 2);
@@ -106,7 +107,7 @@ export function pauseButtons(view: ListView): PauseButton[] {
   const list: Array<{ id: PauseButtonId; label: string }> = [];
   if (typeof view.adBlocker === "boolean") list.push({ id: "adBlocker", label: `AD BLOCKER: ${view.adBlocker ? "ON" : "OFF"}` });
   if (view.voice) list.push({ id: "voice", label: view.voice });
-  list.push({ id: "reset", label: "RESET PROGRESS" }, { id: "close", label: "CLOSE" });
+  list.push({ id: "transfer", label: "TRANSFER SAVE" }, { id: "reset", label: "RESET PROGRESS" }, { id: "close", label: "CLOSE" });
   return list.map((b, i) => ({ ...b, rect: at(i, T.buttonsTop) }));
 }
 
@@ -177,6 +178,8 @@ export function touchListHint(): string {
   ]);
 }
 
+export const TRANSFER_HINT = "T: TRANSFER SAVE";
+
 export const LEGEND_TEXT = "GOOD HOUR: 1.5X POINTS";
 
 // The list of achievements: a full-screen panel, locked ones as "???".
@@ -211,6 +214,12 @@ export function drawList(ctx: CanvasRenderingContext2D, view: ListView): void {
     drawText(ctx, has ? a.name : "???", rect.x + 3, rect.y + 1, { color: has ? COLOR.paper : COLOR.mist, shadow: null });
   }
 
+  // The desktop's way into the transfer page, in the free line above the footer when the list leaves it free.
+  const rowsBottom = LIST_LAYOUT.top + Math.ceil(view.achievements.length / LIST_LAYOUT.columns) * LIST_LAYOUT.rowHeight;
+  if (!view.touch && rowsBottom <= LIST_LAYOUT.footerTop - 9) {
+    drawText(ctx, TRANSFER_HINT, VIEW.width - 6, LIST_LAYOUT.footerTop - 9, { color: COLOR.mist, shadow: null, align: "right" });
+  }
+
   const picked = view.achievements[view.cursor];
   if (picked) {
     const has = view.unlocked(picked.id);
@@ -225,4 +234,72 @@ export function drawList(ctx: CanvasRenderingContext2D, view: ListView): void {
     color: view.message ? COLOR.tangerine : COLOR.mist,
     align: "center",
   });
+}
+
+// -- The transfer page (issue 102, docs/sync.md section 6) -------------------------------------------
+
+export type TransferButtonId = "copy" | "paste" | "save" | "open" | "restore" | "yes" | "no" | "back";
+
+export interface TransferView {
+  touch: boolean;
+  // A line in the hint's place: what just happened, or the restore question.
+  message: string | null;
+  // Waiting for the answer to "restore?" (touch draws YES and NO buttons for it).
+  confirmRestore: boolean;
+}
+
+export const TRANSFER_LINES = [
+  "MOVE YOUR SAVE TO ANOTHER BROWSER OR DEVICE.",
+  "COPY A CODE OR SAVE A FILE HERE, THEN PASTE",
+  "OR OPEN IT THERE. IMPORTING MERGES: IT NEVER",
+  "TAKES ANYTHING AWAY. A BROWSER CAN CLEAR A",
+  "SAVE, SO KEEP A FILE.",
+];
+
+export const TRANSFER_RESTORE_QUESTION = "GO BACK TO BEFORE THE LAST IMPORT?";
+
+const TRANSFER_TOP = 17 + 9 * TRANSFER_LINES.length + 5;
+
+// What can be pressed on the transfer page, with the desktop key of each. On touch these are buttons
+// (the question has YES and NO in their place); on the desktop they are the lines of a key list.
+export function transferButtons(view: TransferView): Array<{ id: TransferButtonId; label: string; key: string; rect: Rect }> {
+  const T = PAUSE_TOUCH;
+  const w = Math.floor((VIEW.width - 2 * T.margin - T.buttonGap) / 2);
+  const at = (i: number): Rect => ({
+    x: T.margin + (i % 2) * (w + T.buttonGap),
+    y: TRANSFER_TOP + Math.floor(i / 2) * (T.buttonH + T.buttonGap),
+    w,
+    h: T.buttonH,
+  });
+  if (view.confirmRestore) {
+    return [
+      { id: "yes", label: "YES, GO BACK", key: "Y", rect: at(0) },
+      { id: "no", label: "NO", key: "N", rect: at(1) },
+    ];
+  }
+  const list: Array<{ id: TransferButtonId; label: string; key: string }> = [
+    { id: "copy", label: "COPY CODE", key: "C" },
+    { id: "paste", label: "PASTE CODE", key: "V" },
+    { id: "save", label: "SAVE FILE", key: "F" },
+    { id: "open", label: "OPEN FILE", key: "O" },
+    { id: "restore", label: "RESTORE BEFORE IMPORT", key: "SHIFT+R" },
+    { id: "back", label: "BACK", key: "ESC" },
+  ];
+  return list.map((b, i) => ({ ...b, rect: at(i) }));
+}
+
+export function drawTransfer(ctx: CanvasRenderingContext2D, view: TransferView): void {
+  ctx.fillStyle = PANEL;
+  ctx.fillRect(0, 0, VIEW.width, VIEW.height);
+  drawText(ctx, "TRANSFER SAVE", 6, 5, { color: COLOR.butter });
+  TRANSFER_LINES.forEach((line, i) => drawText(ctx, line, 6, 17 + 9 * i, { color: COLOR.paper, shadow: null }));
+  if (view.touch) {
+    for (const b of transferButtons(view)) drawButton(ctx, b.rect, b.label, { color: b.id === "yes" ? COLOR.tangerine : COLOR.paper });
+  } else {
+    transferButtons({ ...view, confirmRestore: false }).forEach((b, i) =>
+      drawText(ctx, hintLine([{ key: b.key, text: b.label }]), 6, TRANSFER_TOP + 10 * i, { color: COLOR.paper, shadow: null }),
+    );
+  }
+  const hint = view.message ?? (view.confirmRestore ? (view.touch ? TRANSFER_RESTORE_QUESTION : `${TRANSFER_RESTORE_QUESTION} Y: YES`) : view.touch ? hintLine([{ key: "ESC", text: "BACK" }]) : null);
+  if (hint) drawText(ctx, hint, VIEW.width / 2, VIEW.height - 9, { color: view.message || view.confirmRestore ? COLOR.tangerine : COLOR.mist, align: "center" });
 }

@@ -32,6 +32,9 @@ export interface SavedProgress {
   deliveries?: unknown;
   // The optional `encounters` field (issue 043 stage B), read by Encounters.load, which is tolerant.
   encounters?: unknown;
+  // Wall-clock time (ms) of the last real player action: a finished task or a decor change (issue 102,
+  // docs/sync.md section 4). Zero for a save that has none. It is read as it is saved; the merge clamps it.
+  activeAt?: number;
 }
 
 const VERSION = 1;
@@ -79,6 +82,7 @@ export class ProgressStore {
         decor: raw.decor,
         deliveries: raw.deliveries,
         encounters: raw.encounters,
+        activeAt: typeof raw.activeAt === "number" && Number.isFinite(raw.activeAt) && raw.activeAt > 0 ? raw.activeAt : 0,
       };
     } catch {
       return emptyProgress();
@@ -87,12 +91,12 @@ export class ProgressStore {
 
   // Returns false if it could not save (nowhere to save to, or a write error).
   // `decor` is left out of the saved value when not given.
-  save(unlocked: string[], stats: StatsData, world: WorldSave | null, decor?: unknown, deliveries?: unknown, encounters?: unknown): boolean {
+  save(unlocked: string[], stats: StatsData, world: WorldSave | null, decor?: unknown, deliveries?: unknown, encounters?: unknown, activeAt?: number): boolean {
     if (!this.storage) return false;
     try {
       this.storage.setItem(
         this.key,
-        JSON.stringify({ version: VERSION, unlocked, stats, world, ...(decor !== undefined && { decor }), ...(deliveries !== undefined && { deliveries }), ...(encounters !== undefined && { encounters }) }),
+        JSON.stringify({ version: VERSION, unlocked, stats, world, ...(decor !== undefined && { decor }), ...(deliveries !== undefined && { deliveries }), ...(encounters !== undefined && { encounters }), ...(activeAt !== undefined && activeAt > 0 && { activeAt }) }),
       );
       return true;
     } catch {

@@ -1,7 +1,7 @@
 ---
 id: 108
 title: The guitar's timbre follows the current instrument
-status: todo
+status: review
 owner: claude
 depends_on: []
 ---
@@ -17,3 +17,15 @@ Marc (2026-10-28): change the timbre of the guitar notes, starting with **timbre
 
 ## Acceptance criteria
 - Notes use the steel-string voice by default and the nylon voice with the nylon guitar; the table is data, not hard-coded; tests pass; Marc listens and approves (an agent cannot hear it; unverified until then).
+
+## Progress log
+- 2026-10-28: plan: a per-instrument voice table in `SOUND` (config.ts), plucked-string voices built from a few partials with their own decay plus a pick tick (no Karplus-Strong, no samples), chosen by the instrument in hand, with a dev URL and console audition.
+- 2026-10-28: done, status review. Changes:
+  - `src/game/config.ts`: `SOUND.defaultInstrument`, `SOUND.instruments` (guitar -> steel, guitar-nylon -> nylon), `SOUND.guitarVoices` (plain = the old `noteKey` blip, steel, nylon) and two new effects `guitarSteel` (triangle + saw edge + three higher partials dying faster + a highpass pick tick) and `guitarNylon` (sine fundamental, weak 2nd and 3rd, a lowpass thump). Pitch is untouched (still `noteKeys`).
+  - `src/game/sound/decisions.ts`: `guitarEffect(instrument)`.
+  - `src/game/sound/feature.ts`: the notes game plays `noteEffect()` instead of `noteKey`. The instrument in hand is the item in a decor slot named `guitar` if the apartment has one (it does not yet: the guitar is not a decor slot, so today it is always steel), else the default. Dev only: `?guitarvoice=plain|steel|nylon` and `auditionGuitar("steel")` in the console.
+  - Tests: `src/game/sound/guitar-voice.test.ts` (table complete, ranges, steel brighter than nylon, selection follows the slot, pitch unchanged, plain restores the old single triangle, mute silent, dev override); the old per-arrow test in feature.test.ts now counts the new voice's oscillators.
+  - Old voice restorable: set an instrument's `voice` to "plain" in config (or `?guitarvoice=plain`). `noteKey` itself is unchanged (the track editor's blips still use it).
+  - Verified: `npx vitest run` (2839 pass), `npx tsc --noEmit`, `npm run build`.
+  - NOT verified: how any of it sounds. An agent cannot hear it; the gain levels, decay lengths and brightness are guesses until Marc listens.
+  - Left over / for the planner: the nylon guitar cannot be in hand in the real game until it becomes a decor slot `guitar` holding an instrument item (docs/decor.md stage 4); the selection code is ready for that (it reads the slot item's sprite). Until then use `?guitarvoice=nylon`.

@@ -10,7 +10,7 @@ import type { DemoStore } from "../music/demo-store";
 import { RECORD_TASK, TRACKS } from "../music/records";
 import type { Track } from "../music/track";
 import { browserAudio, type AudioFactory } from "./audio-types";
-import { MoodLift, comboPitch, floorOf, noteKeyPitch, stepEffect, stepGain, stepPitch } from "./decisions";
+import { MoodLift, comboPitch, floorOf, guitarEffect, noteKeyPitch, stepEffect, stepGain, stepPitch } from "./decisions";
 import { SoundEngine } from "./engine";
 import { mumbleNotes } from "../flashcards/mumble";
 import { DEFAULT_SETTINGS, SettingsStore, type DialogVoice } from "./settings";
@@ -43,6 +43,9 @@ export interface SoundOptions {
   // Uses this dialog voice for the visit without saving it (the dev URL
   // override `?dialogvoice=letters`, issue 075).
   dialogVoice?: DialogVoice;
+  // Uses this guitar voice ("plain", "steel", "nylon": SOUND.guitarVoices) whatever
+  // instrument is in hand (the dev URL `?guitarvoice=`, issue 108).
+  guitarVoice?: string;
 }
 
 function browserStorage(): KeyValueStorage | null {
@@ -83,9 +86,11 @@ export class SoundFeature implements Layer {
   private voiceChosen = false;
   // The ad blocker switch, kept with the settings (issue 043 stage B).
   private adBlocker = false;
+  private readonly guitarVoice: string | undefined;
 
   constructor(private readonly game: Game, options: SoundOptions = {}) {
     this.random = options.random ?? Math.random;
+    this.guitarVoice = options.guitarVoice;
     this.tracks = options.tracks ?? TRACKS;
     this.demos = options.demos ?? demoStore();
     this.demoVersion = this.demos.version;
@@ -151,6 +156,29 @@ export class SoundFeature implements Layer {
 
     options.keys?.addEventListener("keydown", (e) => this.key(e));
     game.addLayer(this);
+  }
+
+  // The instrument in hand: the item in the guitar's decor slot if the apartment has
+  // one (its sprite names it), otherwise the default (the guitar on its stand).
+  get instrument(): string {
+    const { decor } = this.game;
+    return decor.hasSlot("guitar") ? decor.placedIn("guitar").sprite : SOUND.defaultInstrument;
+  }
+
+  // The effect the guitar's notes play now (issue 108).
+  noteEffect(instrument: string = this.instrument): string {
+    if (this.guitarVoice !== undefined && this.guitarVoice in SOUND.guitarVoices) return SOUND.guitarVoices[this.guitarVoice];
+    return guitarEffect(instrument);
+  }
+
+  // Dev audition (issue 108): plays a short run of notes in a voice ("plain",
+  // "steel" or "nylon"). Audio must be unlocked by a key press first.
+  audition(voice: string): void {
+    const effect = SOUND.guitarVoices[voice];
+    if (!effect) return;
+    this.engine.unlock();
+    const pitches = [0, 4, 7, 12, 7, 4, 0].map((n) => 2 ** (n / 12));
+    pitches.forEach((pitch, i) => setTimeout(() => this.engine.play(effect, { pitch }), i * 380));
   }
 
   get track(): Track | null {
@@ -256,7 +284,7 @@ export class SoundFeature implements Layer {
       this.engine.play("key", { pitch: 0.9 + this.random() * 0.2 });
     } else if (activity === "notes") {
       const pitch = noteKeyPitch(e.code);
-      if (pitch !== null) this.engine.play("noteKey", { pitch });
+      if (pitch !== null) this.engine.play(this.noteEffect(), { pitch });
     }
   }
 
@@ -362,11 +390,23 @@ export function fit(text: string, width: number): string {
 
 // Switches the feature on for a game: the one call in features.ts.
 export function attachSound(game: Game, options?: SoundOptions): SoundFeature {
-  return new SoundFeature(game, {
+  const feature = new SoundFeature(game, {
     keys: typeof window === "undefined" ? undefined : window,
     dialogVoice: devDialogVoice(),
+    guitarVoice: devGuitarVoice(),
     ...options,
   });
+  // Dev only: `auditionGuitar("steel")` in the console (press a key on the page first).
+  if (import.meta.env?.DEV) (globalThis as Record<string, unknown>).auditionGuitar = (voice: string) => feature.audition(voice);
+  return feature;
+}
+
+// Dev only (issue 108): `?guitarvoice=plain|steel|nylon` plays the guitar's notes in that
+// voice for the visit, whatever instrument is in hand. A built game ignores it.
+export function devGuitarVoice(search = typeof location === "undefined" ? "" : location.search, dev = import.meta.env?.DEV): string | undefined {
+  if (!dev) return undefined;
+  const asked = new URLSearchParams(search).get("guitarvoice");
+  return asked !== null && asked in SOUND.guitarVoices ? asked : undefined;
 }
 
 // Dev only (issue 075): `?dialogvoice=letters` tries the letters voice for the

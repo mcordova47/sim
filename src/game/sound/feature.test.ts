@@ -331,8 +331,9 @@ describe("mini-game keys", () => {
       s.ctx.currentTime += 5;
       const before = s.ctx.oscillators.length;
       s.keys.press(code);
-      expect(s.ctx.oscillators.length).toBe(before + 1);
-      return s.ctx.oscillators.at(-1)!.frequency.calls[0].value;
+      const tones = SOUND.effects.guitarSteel.voices.filter((v) => "wave" in v).length;
+      expect(s.ctx.oscillators.length).toBe(before + tones);
+      return s.ctx.oscillators[before].frequency.calls[0].value;
     });
     expect(new Set(pitches).size).toBe(4);
     const n = s.ctx.oscillators.length;

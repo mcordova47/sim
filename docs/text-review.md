@@ -7,8 +7,11 @@ Every player-visible string in the game as of 2026-10-23, for Marc to mark. Issu
 Strings added later (mood in 038, the mirror in 041, the gallery view in 040) are not in this list yet.
 
 ## Side-project picture (issue 101)
-New line in the "Work on the side project" view, shown after "A small version of this room, on a small screen. Someone is at the desk." and before "They are looking at a screen too.". It calls out the deliberate glitch in the picture (the tiny figure stands on the desk, facing out, and the room is a little off from the real one, as the game is from the real apartment). Wired in `src/game/side-projects.ts`. Marc to mark: keep / soften / rewrite.
-- The tiny person is standing on the desk, facing you. That is a bug. Someone should tell the main character. -
+"Work on the side project" view, the four lines (Marc rewrote the last three on 2026-10-28; the glitch line calls out the deliberate picture glitch: the tiny figure stands on the desk, facing out). Wired in `src/game/side-projects.ts`. Marc to mark: keep / soften / rewrite.
+- A small version of this room, on a small screen. Someone is at the desk.
+- It looks like the tiny person is... standing on top of the desk? Gotta remember to fix that.
+- Their screen shows another little room with another little guy.
+- You wonder if you're just a little guy on someone else's screen, and the silly notion gives you a good chuckle. -
 
 ## Tasks
 

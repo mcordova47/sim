@@ -1,7 +1,7 @@
 ---
 id: 107
 title: The guitar: flipped so it reads as standing on a stand
-status: review
+status: in-progress
 owner: claude
 depends_on: [100]
 ---
@@ -22,3 +22,14 @@ Marc (2026-10-28): the guitar has been hard to draw as hanging on the wall, so m
   - Poses: `player-guitar` (32x48) draws its own mirrored lap guitar and replaces the piece while playing (`replacesPiece`), so it does not use `guitar.sprite`; left as is. The held-guitar-* overlays are separate carried drawings; left as is. No map, task or code change.
   - Goldens: `UPDATE_GOLDEN=1 npm test` changed nothing; the golden frames do not hash the guitar's pixels, so `main-room-frames.json` is unchanged.
   - Checks: `npm run sprites` clean, `npm test` (2773 pass), `npx tsc --noEmit`, `npm run build` pass. Not checked: how it feels in a browser; Marc to look.
+- 2026-10-28 (claude, independent review): **Verdict: changes needed** (small). Branch `issue/107-guitar-stand`; diff vs main is only the two sprites, their two PNGs and this file.
+  - Rendered before (main) and after at 8x and 16x, and the sofa's west end from `main-room-mockup.png`. Before: neck north-west, body low east, dark side on the bottom-right. After: oval body north-east with a dark sound hole, neck running south-west to a headstock with mist tuners, lit top and left edges, dark bottom and right, a dusk tripod (post and splayed legs) at the lower right. In the room at 4x it reads as a guitar leaning/standing with its neck into the room, beside the sofa arm; the legs are small but legible. Nylon is the same drawing in cream/tan/oak and matches.
+  - Names and sizes: pass (16x16 both, same file names, PNGs 16x16). `guitar-tall` and `guitar-nylon-tall` (sprite and PNG): no diff. No stray files; only ignored generated mockups/contact sheet changed locally. Palette keys only, no text in the sprites. No reference-photos or personal details.
+  - Checks: `npm run sprites` clean, `npx tsc --noEmit` clean, `npm test` 2773 pass, `npm run build` pass. Goldens unchanged, as the author said (not hashed over the guitar's pixels). Browser feel: can't verify (Marc to look).
+  - Neck southwest, light from top-left: pass. Reads as standing on a stand: pass, with the note that the tripod is thin.
+  - **Fails "full ink outline" (issue 099, art-style: 1 px ink around the outside of every object):** I checked every non-ink pixel against its four neighbours. In `guitar.sprite` and `guitar-nylon.sprite` (same rows) the neck heel under the body, row 10, cols 7-9 (`7`, `9`/`8`, `7`), has transparent pixels directly below with no ink row, so a light stub of body colour shows unoutlined under the body (visible in the 16x zoom). The tripod legs (`4` pixels, rows 9-15) are 1 px wide with ink only on their right side; the left side is open. The headstock tuners (`5`) are open on the outside, as the old sprite's were, so that is accepted.
+  - Not a fail but note: `docs/art-style.md` (lines ~98 and ~115) still describes the guitar as hanging on a wall hanger and `player-guitar` as holding the "hanging" guitar; the doc was not updated (not in the issue's list). `player-guitar` still draws its own mirrored guitar, neck east, which replaces the piece while playing, so the stand guitar disappears during play; acceptable as scoped, but Marc may see the neck flip from south-west to east when playing starts.
+  - To do:
+    - [ ] Add an ink pixel row/cells under the neck heel (rows 10-11, cols 7-9) in both sprites so the body and neck are fully outlined.
+    - [ ] Outline the tripod legs on their left side (or draw them as ink-only 1 px lines) in both sprites.
+    - [ ] Re-run `npm run sprites` and re-view at 8x; optionally update the guitar rows in `docs/art-style.md`.

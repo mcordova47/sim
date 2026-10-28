@@ -1,7 +1,7 @@
 ---
 id: 099
 title: Redraw the south-wall pieces near top-down (lamps, fridge, delivery box, record stand)
-status: todo
+status: review
 owner: claude
 depends_on: [096]
 ---
@@ -19,3 +19,14 @@ Marc's decision (2026-10-28, `docs/asset-review.md`): redraw the south-wall piec
 - `npm run sprites` leaves nothing uncommitted; `npm test`, `npx tsc --noEmit`, `npm run build` pass; goldens re-recorded with a note. Marc looks at it in the browser (desktop, the narrow view and at night with the lamps on); unverified items listed.
 
 ## Progress log
+
+- 2026-10-28: Started. Plan: redraw the eight sprites as near-top-down pieces (thin north face strip along the top, the top surface below, light top-left, full ink outline), same names, sizes and footprints.
+- 2026-10-28: Done, ready for review. Viewed before and after at 8x and in the main room and kitchen mockups. No map, decor data or code changes (footprints, 16x16 slot sizes, glow offsets and the candle flicker are untouched; the glows are engine values, not in the sprites).
+  - `lamp-table`, `lamp-warm`, `lamp-candle`, `stool-lamp`: one set. The three table lamps share one small dark-wood side table seen from above (a thin dark north face, then an oak top with a light top-left edge). Table: a linen drum shade is a ring with a lit butter inside and a bulb glint. Warm: a conical shade from above, brick trim ring, butter lit side and tangerine far side, butter tip. Candle: a green votive ring round cream wax with a butter and tangerine flame. Stool lamp: the round walnut seat from above with a small linen drum shade on it. All fully outlined in ink.
+  - `fridge` (32x32): the doors are now a thin strip along the top (seam, two handles, a round badge), then the steel top with a humidifier (teal tank), a wicker basket and a folded black tote, steel shading on the right and bottom. Outlined.
+  - `delivery-box`: now has an ink outline; a thin dark north face along the top, then the lid with tape down the middle and a blank flat label (no print).
+  - `record-stand`: a strip with a row of record spines along the top, then most of the sprite is the black top with a turntable (platter with a brick label, tonearm), two feet.
+  - `phone-charger`: ink outline added round the cable and plug.
+  - Golden frames: `npm test` passed before and after re-recording, because the golden logs drawing calls by sprite name and position, not pixels; `UPDATE_GOLDEN=1` rewrote nothing, so the golden JSON is unchanged. `npm run sprites` re-run leaves nothing uncommitted.
+  - Checks: `npm test` (2706 pass), `npx tsc --noEmit`, `npm run build`.
+  - Not checked: how it looks in the browser (desktop, narrow view, at night with the lamps on).

@@ -149,7 +149,10 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 111 | [The side project picture reacts to editable config (stretch)](issues/111-side-project-config.md) | marc + claude | todo | 101 |
 | 112 | [Real-world effects: what is feasible (research)](issues/112-real-world-effects-research.md) | marc + claude | done | |
 | 113 | [Photo reel: pixelated pictures from your own device (experiment)](issues/113-photo-reel-experiment.md) | marc + claude | todo (design first) | 112 |
-| 114 | [Guitar skill: from single notes to fingerstyle](issues/114-guitar-skill.md) | marc + claude | todo (design first) | 108 |
+| 114 | [Guitar skill: from single notes to fingerstyle](issues/114-guitar-skill.md) | marc + claude | design done (docs/guitar-skill-design.md); build is 114a to 114c | 108 |
+| 114a | [Guitar skill 1: rule, chords, strumming (levels 1 to 3)](issues/114a-guitar-skill-levels-1-3.md) | claude | todo | 108 |
+| 114b | [Guitar skill 2: the groove and melody (level 4)](issues/114b-guitar-skill-groove.md) | claude | todo | 114a |
+| 114c | [Guitar skill 3 (optional): the pause-screen line](issues/114c-guitar-skill-pause-line.md) | claude | todo | 114a |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

@@ -130,3 +130,4 @@ Marc (2026-10-27): asked whether there is an issue for syncing across devices. T
   - [ ] Immediate apply uses the pause-screen guard; name the loader order.
   - [ ] State the clamp's time dependence and the `made` mismatch; tie-break for the 36 trim; fix the monotone test line.
   - [ ] Minor: 90-day expiry versus Safari clearing; author of `activeAt`; "no IP" wording.
+- 2026-10-28: After review round 3, small fixes in docs/sync.md: track identity is the body without the title; `add` validates like `save` and the suffix rule is new; real action means a finished task or decor change, legacy saves handled; RESTORE sets `activeAt`; immediate apply uses the pause-screen guard and the loader order is named; clamp, made, trim tie-break, 90 day versus Safari, IP wording. Not re-reviewed (rule: stop after two rounds; the planner decides).

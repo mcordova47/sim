@@ -1,7 +1,7 @@
 ---
 id: 108
 title: The guitar's timbre follows the current instrument
-status: review
+status: in-progress
 owner: claude
 depends_on: []
 ---
@@ -29,3 +29,17 @@ Marc (2026-10-28): change the timbre of the guitar notes, starting with **timbre
   - Verified: `npx vitest run` (2839 pass), `npx tsc --noEmit`, `npm run build`.
   - NOT verified: how any of it sounds. An agent cannot hear it; the gain levels, decay lengths and brightness are guesses until Marc listens.
   - Left over / for the planner: the nylon guitar cannot be in hand in the real game until it becomes a decor slot `guitar` holding an instrument item (docs/decor.md stage 4); the selection code is ready for that (it reads the slot item's sprite). Until then use `?guitarvoice=nylon`.
+- 2026-10-28: Review (independent agent). Verdict: **changes needed** (one real defect; everything else passes).
+  - Ran: `npx vitest run` 2839 pass, `npx tsc --noEmit` clean, `npm run build` and `check:dist` ok. Plus throwaway edge-case tests (deleted, not committed).
+  - Criterion "steel by default, nylon with the nylon guitar": PASS in the fake audio context (no slot -> steel; slot with `guitar-nylon` item -> nylon oscillators; `__proto__`, `constructor`, empty, unknown keys all fall back to steel without throwing). The nylon guitar cannot be in hand in the real game yet (no `guitar` decor slot), as the author says.
+  - Criterion "table is data, not hard-coded": PASS (`SOUND.instruments`, `SOUND.guitarVoices`, `SOUND.effects.guitarSteel/guitarNylon` in config.ts).
+  - Mute: PASS (no oscillators while muted, sound returns on unmute). Old voice restorable: PASS (`plain` -> `noteKey`, one triangle, unchanged; track editor still uses it).
+  - Dev override dead in a build: PASS. `devGuitarVoice` returns undefined when `import.meta.env.DEV` is false; the built bundle has no `auditionGuitar`, and the `guitarvoice` string is only inside the function that bails out.
+  - No audio files added; no files outside scope; PLAN.md and other issues untouched; no reference-photos content.
+  - Tests pass: PASS. Marc listens and approves: **UNVERIFIED / still open** (an agent cannot hear; levels, decays and brightness are guesses).
+  - **DEFECT (voice cap with fast notes):** the effects are 6 voices (steel) and 4 (nylon) against `SOUND.maxVoices` 14, and `Synth.play` is all-or-nothing, so fast arrow presses are silently dropped. Measured with the fake context, 10 presses 100 ms apart: old `noteKey` plays 10, steel plays only 4, nylon only 8. At 250 ms apart all 10 play. Also the new effects dropped the old `priority: "low"`, so a held-down ring can crowd out other effects. The existing tests never press notes quickly, so they miss this.
+  - Changes needed:
+    - [ ] Make fast repeated guitar notes keep sounding (for example fewer voices per note, shorter tails for the upper partials, or per-voice cap handling for the guitar), and add a test that presses arrows ~100 ms apart and asserts none are dropped.
+    - [ ] Decide on `priority` for the guitar effects (the old blip was low) and test that notes do not starve other effects.
+    - [ ] Minor: the nylon assertion in guitar-voice.test.ts (`voices[0] && noteKeys.up`) is a vacuous expression; tidy it.
+    - [ ] Marc listens (still open after the above).

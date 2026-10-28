@@ -1,7 +1,7 @@
 ---
 id: 102
 title: Sync stage 1: export and import a save, and the pure mergeSaves
-status: review
+status: done
 owner: claude
 depends_on: [095]
 ---
@@ -50,3 +50,20 @@ Build stage 1 of `docs/sync.md` (issue 095; read sections 2, 4, 6, 12 and 13 and
   5. Junk: paste any other text. It says NOT A SAVE FROM THIS GAME and nothing changes.
   6. On the transfer page Esc goes back to the list, Esc again closes the pause screen.
   **Unverified (needs a real phone or a real second browser by hand):** the touch buttons' look and size on a phone and the PAUSE button route to them; the iOS clipboard "Paste" bubble for PASTE CODE; the iOS file chooser and download for SAVE FILE and OPEN FILE (the chooser opens from the tap; it has not been run on iOS); installed home-screen app behaviour; feel of the touch layout change (fifth button, smaller page). Not run at all: any real two-browser round trip by me (only a fake clipboard and storages in tests, and one headless Chrome session for the desktop pages).
+
+- 2026-10-28 (independent review): **Verdict: APPROVE** (status set to done; the planner updates the PLAN.md table).
+  - **Criterion 1, works with no server; behaves as before when sync is not used; goldens unchanged: PASS.** My own probe (outside the repo): a fresh feature that only saves writes just `life.progress.v1` with no `activeAt` field; `life.sync.v1` and the backup key appear only when the transfer page is used. Goldens (`main-room-frames.json`, `sleep-frames.json`) and `pause.test.ts` are unedited and pass. The diff against main (three-dot) touches nothing in `art/src`, `public/sprites` or `docs/art-style.md`, does not edit PLAN.md or other issues, and has no personal details or secrets (grepped the added lines). `activeAt` checks in my probe: apply stamps the winner's time, not now; a delivery change does not stamp; restore stamps now, twice in a row works, restore with no backup returns false; corrupt `life.sync.v1` / backup text loads without error.
+  - **Criterion 2, `npm test`, `npx tsc --noEmit`, `npm run build`: PASS, with one flake.** tsc and build clean. `npm test`: 3 runs, 2 fully green (2764 pass, 1 skipped); one run failed `flashcards.test.ts > does not remember a key that was never accepted, and says so offline`. That file and its code are untouched by this branch, so I judge it a pre-existing timing flake, not this work (I did not run it on main).
+  - **Independent checks of mergeSaves (my own generators, 200k trials x 2 modes, plus a low-entropy mode where activeAt, hours and device all tie and only owned/queues/encounters differ):** commutative 0 failures, associative 0, idempotent (m with m, m with a) 0, nothing owned left in pending or waiting 0. The author's suite adds no-loss and read-back checks; I read them.
+  - **Hostile input through decodeSave/normaliseDoc: PASS.** Deflate bomb (50 MB of spaces) and a valid 10 MB JSON: tooBig in a few ms; 600k-char text: tooBig; 50,000-deep JSON inside the limit parses; bad base64, truncated deflate, empty prefix: unreadable; `format` 1.5 damaged, 99 newer; array, null, junk: notASave; `__proto__` keys in taskCounts, rooms, owned, placed, vars do not pollute `Object.prototype` and are handled; lone surrogate and 1e999 `activeAt` are read safely; an encoded then decoded doc is identical.
+  - **DemoStore.add: PASS.** Added, present (same body under another title), taken title renamed ("Foo 2", "Foo 3"), reserved name renamed, junk/oversize/over-long name/null all invalid, NaN `made` stored as 0, stops at 12 and says "full" (the local cap of design 4.2; the 36 is the blob cap). Nothing on the device replaced.
+  - **Held-merge guard and restore: PASS** (author's tests read; my probe agrees on restore). Apply at load / pause-screen open / before the first real action, guarded like `openList`.
+  - **Nits folded in (activeAt tie by game hours then device then canonical text; deterministic title and body-only comparison; cap trimmed by body text; same-device tie on canonical text): PASS** (fuzz above). Deviations 1-9 in the log are reasonable and honestly disclosed. Hours instead of `playSeconds`/`totalPoints` for the tie-break is justified (keeps associativity).
+  - **Defects: none blocking.**
+  - **Nits (non-blocking):**
+    1. `importText` while a run is blocked calls `sync.hold(result.doc)` and so replaces a merge already held, where `holdMerge` merges with the prior one (my probe: a second blocked import dropped the first one's stats). Only reachable if the pause screen closes between the paste request and its answer; the player can paste again. Use `holdMerge`'s merge there.
+    2. `applyHeld` clears the held doc before `applyIncoming`; if that threw, the held merge would be lost.
+    3. `pickFile` never resolves when the chooser is cancelled on browsers that fire no event (harmless, noted in its comment); the file input is not attached to the DOM (see unverified).
+    4. On the list page `Ctrl+T` (or Cmd+T) also opens the transfer page, since the list handler checks `!shiftKey` only.
+    5. `activeAt` imported from a device whose clock is up to a day ahead becomes the local stamp until read past it (by design, clamp one day).
+  - **Could NOT verify (recorded as unverified, not passing):** the feel and layout of the new touch buttons on a real phone (the fifth button, 18 px buttons, 12-achievement touch page; only the draw tests and the author's desktop screenshots exist); the iOS clipboard paste bubble for PASTE CODE; the iOS file chooser and download (the detached `<input type=file>` click and the `<a download>` route); installed home-screen app behaviour; any real two-browser round trip by hand (only fake storages, clipboards and files, and my scripts). Marc's steps in the entry above are the check for these.

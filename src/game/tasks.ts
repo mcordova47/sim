@@ -1,4 +1,4 @@
-import { CLOCK, ENERGY, MIRROR, NAP, SLEEP_WAKE } from "./config";
+import { BATTERY, CLOCK, ENERGY, MIRROR, NAP, SLEEP_WAKE } from "./config";
 import { CONTEMPLATE, MIRROR_DAY, MIRROR_MORNING, MIRROR_NIGHT, MIRROR_TIRED } from "./dialog-data";
 import { ART_SCENES } from "./art-pieces";
 import { DECOR_SLOTS, type DecorKind } from "./decor-data";
@@ -203,7 +203,7 @@ const STATE_RULES: Record<string, Partial<Task>> = {
   "sort-records-fav": sortStep(2),
   "sort-records-color": sortStep(3),
   // The rest of the mood table (small numbers; see docs/tasks.md).
-  doomscroll: { effects: [{ var: "mood", add: -8 }] },
+  doomscroll: { effects: [{ var: "mood", add: -8 }, { var: "battery", add: -BATTERY.doomscrollCost }] },
   // Issue 088: the phone fills up. Nothing drains it and nothing reads it, so this is all it does.
   "charge-phone": { effects: [{ var: "battery", set: 100 }] },
   journal: { effects: [{ var: "mood", add: 6 }], pointsBonus: { var: "mood", perUnit: 0.2 } },

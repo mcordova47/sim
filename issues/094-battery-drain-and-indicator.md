@@ -1,7 +1,7 @@
 ---
 id: 094
 title: Phone battery: drains a little, and looks like a phone battery indicator
-status: review
+status: done
 owner: claude
 depends_on: [088]
 ---
@@ -31,3 +31,14 @@ Marc's answers to the open questions of issue 088 (2026-10-27): the battery drai
   - Goldens: `main-room-frames.json` (48 frames) and `sleep-frames.json` (14) re-recorded; every frame is exactly +3 draw calls, so only the HUD slot changed. I looked at the room in headless Chrome at `?set=battery:60` (battery with 3 green segments, fits the chip).
   - Checks: `npm test`, `npx tsc --noEmit`, `npm run build`, `npm run sprites` pass.
   - Not checked: how it feels in a real browser over time (drain pace), and the touch layer on a phone. Dev shortcut to look: `npm run dev`, `/?set=battery:15` (brick, one segment), `battery:45`, `battery:0`, add `&touch=1` for the narrow view.
+- 2026-10-27: Review (independent, fresh agent). Verdict: **approve**.
+  - Commands: `npm test` 113 files, 2659 passed, 1 skipped; `npx tsc --noEmit` clean; `npm run build` ok; `npm run sprites` ok (177 sprites; no tracked file changed).
+  - Drain, tick and skipped time: pass. My own vite-node checks: Doomscroll -6 from 2 clamps at 0; negative, NaN and zero clock adds and `tick(0)`/`tick(-5)` leave the level alone; a clock add alongside a battery set leaves the set winning; sleep and nap drain at half rate (the wake effect is a `clock` effect with `wake`, which the added code does not count, so the sleep drain comes only from `add` effects; this matches what the log says and the tests cover `wake` only as "less than"). Doomscroll's own effect list sets nothing on the clock, so no double drain. Charge sets 100 and keeps its 60 s cooldown (existing and new tests).
+  - Old saves: pass (test with a save lacking `battery` gives 40; 9999 clamps to 100; a text value falls back to 40).
+  - Nothing else reads the battery: pass. `grep battery src` outside tests, config and the HUD shows only the state drain, the Doomscroll effect and the charge effect (plus a flavor string). No task requires it, no ad or mood or energy code touches it.
+  - Segments and colour at 0, 19, 20, 50, 51, 99, 100 (checked directly, plus 0.5, 19.99, 25, 25.01, 50.01, 76, out of range): segments 0, 1, 1, 1, 2, 3(51), 4(99), 4; colours brick at 19, tangerine at 20 and 50, leaf at 51. Out of range clamps. NaN gives NaN segments (draws none; no code path produces NaN, minor, not a failure).
+  - Chip fit: pass. I drew the real HUD with a recording context at digits 1, 5, 8, 10 (desktop) and 1, 5, 7, 8 (narrow), battery 0 and 100: the nub's right edge is always exactly the chip's inner padding (3 px slack) on both views; the slot is 20 px, 3 px smaller than before. Existing in-band, in-view and chip-gap tests pass.
+  - Goldens: `main-room-frames.json` (48) and `sleep-frames.json` (14): same keys, every frame's call count is exactly +3 and every hash changed, consistent with only the HUD slot changing and the drain not moving the states. I could not independently diff pixels (hashes only), so "only the HUD slot changed" rests on the uniform +3 and the unchanged keys.
+  - Scope and privacy: diff touches config, state, state-vars, tasks, hud, their tests, goldens, three docs and the issue file only; nothing in `src/input`, PLAN.md or other issues; no new sprites (so no stock or reference imagery), no personal details. Docs (`state.md`, `tasks.md`, `hud-design.md` section 8) match the code. Conventions: all numbers in `BATTERY` and `HUD` in config.
+  - Minor, not blocking: the two edited existing tests (`state.test.ts` event order, `escape.test.ts` snapshot exclusion) change expectations deliberately and the changes are right. `icon-phone` and `icon-plug` stay in the art folder unused (declared in the log and docs).
+  - Unverified (not checked by me): how the drain pace and the indicator look and feel in a real browser over time, and the touch layer on a phone. I did not render a screenshot; the author's log reports one. Marc should look at `/?set=battery:15`, `battery:45`, `battery:0`, and `&touch=1`.

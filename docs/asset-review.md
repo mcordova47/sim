@@ -18,13 +18,13 @@ A pass over every sprite in `art/src/` (and what `public/sprites/` carries, whic
 **Recommendation for `docs/art-style.md` (Perspective section):**
 1. Replace "furniture is front-on with a visible top slice" with the two-part rule: **south-wall pieces (the wall at the bottom of the screen, the one the viewer looks at from behind) are near top-down, seen as if from behind and above; every other piece is diagonal from the top and front**, with the top surface taking roughly a third to a half of the height and the front face the rest.
 2. Name the allowed exceptions: very large flat things (bed, rug, tub) and things stood on end as dividers (the bookshelf) may stay near top-down because that is how they read at 1x; wall hangings and things fixed flat to a wall (windows, radiator, front door, paintings, hood) are drawn face-on; the player and anything held keeps the "slight downward tilt" rule.
-3. Say how to decide a piece's class: **by the wall it stands against in the map** (south wall means the `#` row directly below the piece), not by what it is. A piece that can be swapped into a south-wall slot (a decor lamp for the lamp table) must be drawn for that slot.
+3. Say how to decide a piece's class: **by the wall it stands against in the map** (south wall means the `#` row directly below the piece), not by what it is; a piece at the end of a south-wall run, like the lamp table, follows the run unless noted. A piece that can be swapped into a south-wall slot (a decor lamp for the lamp table) must be drawn for that slot.
 4. Say that things placed **on** a piece take the piece's class (a plant on the top-down bookshelf, a mug on the diagonal table).
 5. Add a short "south wall" and "diagonal" example sprite for each, naming `sofa-td`, `counter`, `stove` and, for diagonal, `table` and `desk`.
 6. Correct the stale lines in the reuse table (see "Doc housekeeping" below).
 
 ## Where each piece stands (the map facts)
-- **Main room** (`MAIN_MAP`): north wall (top): table, mic stand, desk (and its chair just south of it), bookshelf (stands out from the wall, 1x4), nightstand, three paintings. East wall: radiator, two windows, bed's east edge. West wall: the doorway pair, guitar. **South wall** (stepped): sofa (rows 5-6), lamp table (right of the sofa, wall directly below), record stand (wall directly below), front door (decoration, in the wall), and the package spot `x` in front of the door. The bed fills the east end.
+- **Main room** (`MAIN_MAP`): north wall (top): table, mic stand, desk (and its chair just south of it), bookshelf (stands out from the wall, 1x4), nightstand, three paintings. East wall: radiator, two windows, bed's east edge. West wall: the doorway pair, guitar. **South wall** (stepped): sofa (rows 5-6), lamp table (at the east end of the sofa, where the wall steps down: the tile directly below it is floor, so it is on the sofa's run but not directly against the wall), record stand (wall directly below), front door (decoration, in the wall), and the package spot `x` in front of the door. The bed fills the east end.
 - **Kitchen** (`KITCHEN_MAP`): the bar's **south wall** (the wall above the bath) carries the counter with sink, the stove and the hood. North wall: bin, boxes, pantry (east end). West wall: curtain window. The leg's **south wall** has the **fridge** (rows 7-8, wall directly below).
 - **Bath** (`BATH_MAP`): north wall: toilet, vanity. West wall: tub. East wall: door. Nothing stands against the bath's south wall.
 
@@ -35,12 +35,12 @@ A pass over every sprite in `art/src/` (and what `public/sprites/` carries, whic
 | Sprite | Size | Where | Footprint | Class | Matches the rule? | Verdict | Reason and other findings | Effort |
 |---|---|---|---|---|---|---|---|---|
 | `sofa-td` | 96x32 | main, south wall | 6x2 | TD (from behind, back rail near, cushions far) | Yes, the model piece | Keep | Outline complete; light from top-left on the oak arms. The sit and read poses are person-only overlays on it and fit | none |
-| `lamp-table` | 16x16 | main, south wall (right of sofa); decor slot `lamp-sofa` | 1 | DG leaning FO (shade seen from the side, table top a sliver) | **No** (south wall, should be near top-down) | **Redraw** (with the other lamps) | Marc already noticed. Outline only 71 % closed; shade and base read well at 1x | S, a few lamps |
+| `lamp-table` | 16x16 | main, at the sofa's east end, beside the south-wall step (floor below it); decor slot `lamp-sofa` | 1 | DG leaning FO (shade seen from the side, table top a sliver) | **Borderline.** Not directly against the wall, but it sits in the sofa's row beside the south wall, and the written rule has no answer for it. Marc has flagged it | **Redraw** (with the other lamps) | Marc already noticed. Redraw near top-down so it sits with the sofa (decision 4). Outline only 71 % closed; shade and base read well at 1x | S, a few lamps |
 | `record-stand` | 16x16 | main, south wall | 1 | DG (turntable top from above, crate front) | Partly (needs more top) | Adjust | Crate is front-on, deck is from above; looks fine at 1x. The style doc says 16x48, the file is 16x16 | S |
 | `guitar` | 16x16 | main, west wall (a hanger) | 1 | PR | Exception: wall hanging, side view | Keep | Profile like the player facing right; 90 % ink edge. Variants `guitar-nylon`, `guitar-tall`, `guitar-nylon-tall` are unused | none |
 | `front-door` | 32x16 | main, south wall | 2x1 (wall piece) | FO / FL | Yes (a wall face is face-on) | Keep | Layers of paint, no text. From this camera the south wall's face is rarely seen, so check it reads as a door at 1x | none |
 | `delivery-box` | 16x16 | main, floor in front of the front door (south wall) | 1 | DG | **No** (south wall) and it has **no ink outline at all** (0 % of its edge is `1`) | **Redraw** | Only sprite among the pieces that breaks the outline rule | S |
-| `desk-chair` | 16x16 | main, just south of the desk (middle of the room) | 1 | TD (flat striped seat, a frame) | **No** (not on the south wall, should be DG) | **Redraw** | Marc already noticed. It is also as big as the player; only 54 % ink edge. The type pose draws the chair from behind, which fits a DG chair better | S |
+| `desk-chair` | 16x16 | main, just south of the desk (middle of the room) | 1 | TD (flat striped seat, a frame) | **No** (not on the south wall, should be DG) | **Redraw** | Marc already noticed. It is also as big as the player; only 54 % ink edge. `player-type-desk` draws the chair from above too, so it must be redone with it | S |
 | `table` | 64x32 | main, north wall | 4x2 | DG (items on top seen from above, apron and legs front) | Yes | Keep | Good model for DG. Microwave, grinder, kettle, dripper readable | none |
 | `table-plate` | 64x32 | main, north wall (variant) | 4x2 | DG | Yes | Keep | Same frame as `table`; check the plate is the only change | none |
 | `mug-table` | 16x16 | prop on the table | 1 (37 px) | DG | Yes | Keep | Small: at 1.0x it is a few orange pixels; fine as a detail | none |
@@ -72,7 +72,7 @@ A pass over every sprite in `art/src/` (and what `public/sprites/` carries, whic
 | `art-robin`, `art-concert-poster`, `art-snow-wagon`, `art-serenity-now`, `art-canoes`, `art-great-wave`, `art-starry-night`, `art-water-lilies`, `art-sunflowers` | 32x16 | gifts for the three wall slots | FL | Yes | Keep | All impressions; **no readable text or signatures** in the sheet. Sunflowers is narrow in its slot (centred), as decided in 076. Edge ink 97 to 100 % |
 | `painting-robin` | 16x16 | unused (kept for a possible cutscene) | FL | n/a | Delete or keep unused | The robin print is `art-robin` now |
 | `gallery-wall` | 96x16 | not placed (south wall face is never visible) | FL | n/a | Keep unused, or delete | Same ten pieces as `view-gallery-wall`. 87 % ink edge |
-| `lamp-warm`, `lamp-candle` | 16x16 | gifts for slot `lamp-sofa` | DG leaning FO (shade side, candle side-on) | **No** (the slot is on the south wall) | **Redraw** with `lamp-table` | Shade tones and candle fine; 64 to 66 % ink |
+| `lamp-warm`, `lamp-candle` | 16x16 | gifts for slot `lamp-sofa` | DG leaning FO (shade side, candle side-on) | Borderline (the slot is at the sofa's east end, see `lamp-table`) | **Redraw** with `lamp-table` | Shade tones and candle fine; 64 to 66 % ink |
 | `plant-0..3`, `plant-wilted`, `plant-dried` | 16x16 | prop on the bookshelf top (`plant-shelf`) | DG to FO (pot front, leaves upright) | **Clash:** the shelf top is TD, the plant is seen from the front | Adjust | Same pot and rim across stages (good). Leaves are only 25 to 53 % ink-edged: the outline rule is not followed here. At 1x they are readable. Lower priority |
 
 ## Characters and poses
@@ -104,7 +104,7 @@ A pass over every sprite in `art/src/` (and what `public/sprites/` carries, whic
 ## Mismatch list (short)
 | Piece | Place | What is wrong | Proposed fix |
 |---|---|---|---|
-| `lamp-table`, `lamp-warm`, `lamp-candle` (and `stool-lamp`) | south wall, slot `lamp-sofa` | Drawn front/top-side, should be near top-down | Redraw as a set, near top-down, same table |
+| `lamp-table`, `lamp-warm`, `lamp-candle` (and `stool-lamp`) | sofa's east end by the south-wall step, slot `lamp-sofa` (not directly on the wall) | Drawn front/top-side; Marc flagged it; the sofa row is near top-down | Redraw as a set, near top-down, same table |
 | `desk-chair` | under the desk (middle of the room) | Drawn top-down, should be diagonal; as big as the player | Redraw diagonal; redo `player-type-desk` |
 | `fridge` | kitchen leg, south wall | Front-on, should be near top-down | Redraw with a top slice that dominates |
 | `delivery-box` | south wall, in front of the door | Diagonal and has no outline | Redraw near top-down with an ink outline |
@@ -126,6 +126,8 @@ A pass over every sprite in `art/src/` (and what `public/sprites/` carries, whic
 - **Unused or duplicate:** `window`, `window-blinds` (default only), `floor-tile`, `rug`, `painting-robin`, `gallery-wall`, `guitar-nylon`, `guitar-tall`, `guitar-nylon-tall`, `mic-stand-vintage`, `view-bookshelf`, `icon-phone`, `icon-plug`, `stool` (test item only), and probably `held-guitar-*`.
 - **Doc housekeeping:** `docs/art-style.md` still says `bed-made` is a placeholder, lists `record-stand` as 16x48 and the fridge as 32x96 to trim, and says everything is front-on. Fix when the perspective rule is rewritten.
 
+Coverage note: rows give groups for runs of names (`dishes-0..3`, `plant-0..3`, `player-<outfit>-...`, `held-*`, `wall-*`, `icon-*`, `view-ad-email/-social/-text`).
+
 ## Overall verdict
 **Adjust, with a short redraw list.** The art is consistent in palette, outline, lighting, scale and animation; the main inconsistency is perspective, and it is concentrated in about a dozen small or medium pieces (lamps, chair, fridge, delivery box, record stand, plants). The big pieces already follow Marc's rule or can be written as exceptions. Nothing needs a wholesale redraw.
 
@@ -136,7 +138,7 @@ A pass over every sprite in `art/src/` (and what `public/sprites/` carries, whic
 3. Big flat pieces off the south wall (bed, tub, toilet, bookshelf): keep near top-down and write them as exceptions? Recommend yes; redrawing the bed also means redoing both sleeping sprites.
 
 **B. South wall (redraw to near top-down)**
-4. Redraw the lamps (`lamp-table`, `lamp-warm`, `lamp-candle`, `stool-lamp`) as one set? Recommend yes.
+4. The lamp slot sits at the sofa's east end, beside the south-wall step but with floor below it. Should it count as a south-wall piece (near top-down, like the sofa) so the lamps are redrawn as one set? Recommend yes: it reads as part of the sofa group.
 5. Redraw the `fridge` near top-down? Recommend yes.
 6. Redraw the `delivery-box` near top-down with an outline, and give `record-stand` more top? Recommend yes.
 

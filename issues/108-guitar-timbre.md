@@ -56,3 +56,9 @@ Marc (2026-10-28): change the timbre of the guitar notes, starting with **timbre
   - Process note: the round-2 source changes (config.ts, guitar-voice.test.ts) were NOT committed by the author; they sit uncommitted in the worktree. They need committing before merge.
   - Shortening the tails (steel 0.5 s fundamental, nylon 0.55 s) and dropping partials changes the sound: how it sounds is UNVERIFIED.
   - Criterion "Marc listens and approves": still OPEN. All other criteria pass (steel default, nylon via the slot item or `?guitarvoice=nylon`, table is data, tests pass).
+
+## Round 3 (decay tweak)
+- 2026-10-28: Marc listened (by ear, after the round 2 review): steel and nylon sound great and much better than before; the timbre is approved. One tweak: a longer decay.
+- Decay lengths (seconds, config.ts `guitarSteel`, `guitarNylon`), before to after (about 1.8x): steel fundamental 0.5 to 0.9, steel 2nd partial 0.28 to 0.5; nylon fundamental 0.55 to 1.0, nylon 2nd partial 0.22 to 0.4. The pick tick and thump are unchanged (0.025, 0.04). Gains unchanged.
+- The longer tails would hit the voice cap (14) when notes come about 100 ms apart, so `SOUND.maxVoices` went from 14 to 28 (`lowReserve` stays 6). That only matters in a big pile-up; the oscillators stop when their tail ends, so the count stays bounded (about 20 live at 70 ms spacing, 2 voices of headroom checked by test).
+- Test "quick notes" now presses 30 notes at 70, 100, 150 and 200 ms in steel, nylon and plain: all play, and a chime still fits under the cap.

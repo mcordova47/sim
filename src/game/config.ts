@@ -858,7 +858,7 @@ export const SOUND = {
   musicLevel: 0.7,
   // At most this many effect voices (oscillators and noise bursts) at once;
   // low-priority effects need `maxVoices - lowReserve` or fewer already playing.
-  maxVoices: 14,
+  maxVoices: 28,
   lowReserve: 6,
   // Mute toggle (a KeyboardEvent.code). Not Tab, Escape, E, X, L or the arrows,
   // which other features use. The typing game reads letters, so M is ignored while it runs.
@@ -1044,15 +1044,15 @@ export const SOUND = {
     // Three voices each, so quick notes (about 100 ms apart) all play within the voice cap.
     guitarSteel: {
       voices: [
-        { wave: "triangle", freq: 440, length: 0.5, gain: 0.2 },
-        { wave: "sawtooth", freq: 880, length: 0.28, gain: 0.07 },
+        { wave: "triangle", freq: 440, length: 0.9, gain: 0.2 },
+        { wave: "sawtooth", freq: 880, length: 0.5, gain: 0.07 },
         { noise: "highpass", freq: 3500, q: 0.8, length: 0.025, gain: 0.1 },
       ],
     },
     guitarNylon: {
       voices: [
-        { wave: "sine", freq: 440, length: 0.55, gain: 0.24 },
-        { wave: "sine", freq: 880, length: 0.22, gain: 0.05 },
+        { wave: "sine", freq: 440, length: 1.0, gain: 0.24 },
+        { wave: "sine", freq: 880, length: 0.4, gain: 0.05 },
         { noise: "lowpass", freq: 900, q: 0.7, length: 0.04, gain: 0.08 },
       ],
     },

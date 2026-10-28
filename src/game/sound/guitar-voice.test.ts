@@ -157,18 +157,23 @@ describe("choosing the voice", () => {
 });
 
 describe("quick notes", () => {
-  it("plays every note pressed 100 ms apart, in each voice", () => {
+  it("plays every note pressed 70 to 200 ms apart, in each voice, with a chime still fitting after", () => {
     for (const voice of ["steel", "nylon", "plain"]) {
-      const s = setup({ guitarVoice: voice });
-      const per = toneCount(SOUND.effects[SOUND.guitarVoices[voice]]);
-      let made = 0;
-      for (let i = 0; i < 12; i++) {
-        s.ctx.currentTime += 0.1;
-        const before = s.ctx.oscillators.length;
-        s.keys.press(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"][i % 4]);
-        made += s.ctx.oscillators.length - before;
+      for (const gap of [0.07, 0.1, 0.15, 0.2]) {
+        const s = setup({ guitarVoice: voice });
+        const per = toneCount(SOUND.effects[SOUND.guitarVoices[voice]]);
+        let made = 0;
+        for (let i = 0; i < 30; i++) {
+          s.ctx.currentTime += gap;
+          const before = s.ctx.oscillators.length;
+          s.keys.press(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"][i % 4]);
+          made += s.ctx.oscillators.length - before;
+        }
+        expect(made, `${voice} at ${gap}s`).toBe(30 * per);
+        // Never more live voices than the cap, and a chime still fits.
+        const live = s.ctx.oscillators.filter((o) => (o.stoppedAt ?? 0) > s.ctx.currentTime).length;
+        expect(live, `${voice} at ${gap}s`).toBeLessThanOrEqual(SOUND.maxVoices - SOUND.effects.taskComplete.voices.length);
       }
-      expect(made, voice).toBe(12 * per);
     }
   });
 });

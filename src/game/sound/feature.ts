@@ -12,7 +12,7 @@ import type { Track } from "../music/track";
 import { browserAudio, type AudioFactory } from "./audio-types";
 import { MoodLift, comboPitch, floorOf, guitarEffect, noteKeyDir, stepEffect, stepGain, stepPitch } from "./decisions";
 import { SoundEngine } from "./engine";
-import { playKey, skillLevel, strokeEvents, type Dir, type Level, type Stroke } from "./guitar-skill";
+import { melodyNote, playKey, skillLevel, strokeEvents, type Dir, type Level, type Stroke } from "./guitar-skill";
 import { mumbleNotes } from "../flashcards/mumble";
 import { DEFAULT_SETTINGS, SettingsStore, type DialogVoice } from "./settings";
 
@@ -50,7 +50,7 @@ export interface SoundOptions {
   // How many guitar sessions have been finished (issue 114a); the skill level follows it.
   // Without it the guitar stays at level 1, the single note.
   guitarSessions?: () => number;
-  // Forces a skill level, 1 to 4, for the visit (the dev URL `?guitarskill=`).
+  // Forces a skill level, 1 to 6, for the visit (the dev URL `?guitarskill=`).
   guitarSkill?: Level;
   // Turns the pick's tick off for the visit (the dev URL `?guitarpick=off`), to compare.
   guitarPick?: boolean;
@@ -101,6 +101,10 @@ export class SoundFeature implements Layer {
   private skill: Level = "notes";
   private stroke: Stroke = "down";
   private pick = { ...GUITAR_SKILL.pick };
+  // The groove is on for a session or a dev audition (which the activity check leaves alone).
+  private grooving = false;
+  private auditioning = false;
+  private sessionSeed = 0;
 
   constructor(private readonly game: Game, options: SoundOptions = {}) {
     this.random = options.random ?? Math.random;
@@ -147,6 +151,7 @@ export class SoundFeature implements Layer {
       if (item.activity?.type === "notes") this.startGuitarSession();
     });
     events.on("taskComplete", ({ award }) => {
+      this.stopGroove();
       this.engine.play("taskComplete");
       if (award.chain > 1) this.engine.play("combo", { pitch: comboPitch(award.chain) });
       if (award.timeFactor > 1) this.engine.play("goodHour");
@@ -154,6 +159,7 @@ export class SoundFeature implements Layer {
       if (!game.interaction.active) this.endPreview();
     });
     events.on("taskCancelled", () => {
+      this.stopGroove();
       if (!game.interaction.active) this.endPreview();
       this.engine.play("taskCancelled");
     });
@@ -205,14 +211,40 @@ export class SoundFeature implements Layer {
   // one (the session that earns a level still sounds like the one before).
   private startGuitarSession(): void {
     this.skill = this.guitarSkill ?? skillLevel(this.guitarSessions());
+    this.sessionSeed = Math.floor(this.random() * 1e6);
     this.stroke = "down";
+    this.stopGroove();
+    this.grooving = this.skill === "groove";
+  }
+
+  // The string tone the groove and the melody use: the instrument's voice.
+  private voiceName(): string {
+    return this.guitarVoice !== undefined && this.guitarVoice in SOUND.guitarVoices ? this.guitarVoice : (SOUND.instruments[this.instrument]?.voice ?? "steel");
+  }
+
+  private stopGroove(): void {
+    this.engine.groove.stop();
+    this.grooving = false;
+  }
+
+  // The groove level (issue 114b): the first arrow starts the loop; every arrow is a single
+  // note (the instrument's own voice, on the effects bus) of the chord sounding right now, played
+  // at once, never waiting for the loop's grid.
+  private playGroove(dir: Dir): void {
+    if (!this.engine.groove.running) this.engine.groove.start((SOUND.guitarStrings[this.voiceName()] ?? SOUND.guitarStrings.steel).string, this.sessionSeed);
+    const semis = melodyNote(this.engine.groove.chordAt(this.engine.now), dir);
+    this.engine.play(this.noteEffect(), { pitch: 2 ** (semis / 12) });
   }
 
   // What an arrow sounds like now (issue 114a). Level 1 is the plain single note (as in 108).
   // A higher level is one stroke over a chord, handed to the audio clock at once (it is over
   // within about 0.2 s), and nothing plays after it.
   private playArrow(dir: Dir, level: Level = this.skill): void {
-    const voice = this.guitarVoice !== undefined && this.guitarVoice in SOUND.guitarVoices ? this.guitarVoice : (SOUND.instruments[this.instrument]?.voice ?? "steel");
+    const voice = this.voiceName();
+    if (level === "groove") {
+      this.playGroove(dir);
+      return;
+    }
     if (level === "notes") {
       this.engine.play(this.noteEffect(), { pitch: (SOUND.noteKeys[dir] ?? 440) / 440 });
       return;
@@ -236,6 +268,33 @@ export class SoundFeature implements Layer {
         this.playArrow(dir, id);
       }, i * 1400),
     );
+  }
+
+  // Dev audition (issue 114b): the groove loop alone for `bars` bars, or with the arrows as
+  // melody over it (a note every beat or so, walking the four arrows). `auditionGuitarGroove(4)`,
+  // `auditionGuitarGroove(8, true)`, `auditionGuitarGroove(0)` stops it.
+  auditionGroove(bars = 4, melody = false, voice?: string): void {
+    this.engine.unlock();
+    this.stopGroove();
+    if (bars <= 0) {
+      this.auditioning = false;
+      return;
+    }
+    if (voice) this.guitarVoice = voice;
+    this.auditioning = true;
+    this.grooving = true;
+    this.engine.groove.start((SOUND.guitarStrings[this.voiceName()] ?? SOUND.guitarStrings.steel).string, 1);
+    const beat = 60000 / GUITAR_SKILL.tempo;
+    const total = bars * 4 * beat;
+    if (melody) {
+      const dirs: Dir[] = ["left", "up", "right", "up", "down", "right", "left", "left"];
+      for (let i = 0; i * beat * 1.5 < total - beat; i++) setTimeout(() => this.auditioning && this.playGroove(dirs[i % dirs.length]), 400 + i * beat * 1.5);
+    }
+    setTimeout(() => {
+      if (!this.auditioning) return;
+      this.auditioning = false;
+      this.stopGroove();
+    }, total + 400);
   }
 
   get track(): Track | null {
@@ -348,6 +407,8 @@ export class SoundFeature implements Layer {
   update(dt: number): void {
     this.nowPlayingFor = Math.max(0, this.nowPlayingFor - dt);
     this.indicatorFor = Math.max(0, this.indicatorFor - dt);
+    // The groove stops when the notes game is no longer running (or the game is paused).
+    if (this.grooving && !this.auditioning && (this.game.interaction.active?.item.activity?.type !== "notes" || this.game.paused)) this.stopGroove();
     this.engine.update();
     this.engine.updateSleep(this.game.sleepScene);
     if (this.demos.version !== this.demoVersion) this.syncDemos();
@@ -460,6 +521,8 @@ export function attachSound(game: Game, options?: SoundOptions): SoundFeature {
     (globalThis as Record<string, unknown>).auditionGuitar = (voice: string) => feature.audition(voice);
     // `auditionGuitarSkill(3)` (or `(3, "nylon")`): a run of arrows at skill level 1 to 4.
     (globalThis as Record<string, unknown>).auditionGuitarSkill = (level: number, voice?: string) => feature.auditionSkill(level, voice);
+    // `auditionGuitarGroove(4)` the loop alone for 4 bars; `(8, true)` with the arrows' melody over it; `(0)` stops.
+    (globalThis as Record<string, unknown>).auditionGuitarGroove = (bars?: number, melody?: boolean, voice?: string) => feature.auditionGroove(bars, melody, voice);
   }
   return feature;
 }

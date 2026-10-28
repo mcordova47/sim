@@ -1,5 +1,6 @@
-import { SOUND } from "../config";
+import { GUITAR_SKILL, SOUND } from "../config";
 import type { AudioContextLike, AudioFactory } from "./audio-types";
+import { GuitarGroove } from "./guitar-groove";
 import { MusicPlayer } from "./music-player";
 import { SleepSound } from "./sleep-sound";
 import type { SleepScene } from "../sleep";
@@ -10,6 +11,8 @@ import { Synth, type Bus, type PlayOptions } from "./synth";
 // then (and if audio is missing or throws) every call quietly does nothing.
 export class SoundEngine {
   readonly music = new MusicPlayer();
+  // The guitar's groove (issue 114b): it ducks the record while it plays.
+  readonly groove = new GuitarGroove();
   // The sleep sequence's lullaby, snore and the record's ducking (issue 078).
   readonly sleep = new SleepSound();
   private ctx: AudioContextLike | null = null;
@@ -94,7 +97,9 @@ export class SoundEngine {
   update(): void {
     if (!this.synth) return;
     try {
+      this.music.duck = this.groove.running ? GUITAR_SKILL.groove.duck : 1;
       this.music.update(this.synth);
+      this.groove.update(this.synth);
     } catch {
       // Same: no sound is worth an error.
     }

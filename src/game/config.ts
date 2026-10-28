@@ -933,6 +933,28 @@ export const GUITAR_SKILL = {
   up: { strings: 3, gain: 0.75, spacing: 0.018 },
   down: { spacing: 0.03 },
   chopGain: 1,
+  // The groove (level 6, issue 114b): a looping fingerstyle-like bass and harmony pattern on
+  // the music bus, one chord per bar, under the arrows' melody. Tempo, swing and humanise are
+  // the ones above (the off-eighths are late by `swing`, the melody is never delayed). A bar is
+  // eight eighths; in `pattern`, "r" is the bass root, "f" the bass fifth (the thumb, on the
+  // beats), a digit is the voicing's string at that index (the fingers, off the beats) and "."
+  // a rest. The melody plays an arrow's interval above the chord's root (`melody[chord]`, in
+  // the order left, right, up, down: root, third, fifth, a sixth or seventh), an octave and a
+  // half above the bass, so it is always a note of the chord sounding now and in A major.
+  groove: {
+    progression: ["A", "E", "F#m", "D"],
+    pattern: "r3f2r3f1",
+    bassGain: 1,
+    harmonyGain: 0.7,
+    accent: 1.15, // the first slot of a bar
+    gain: 0.55, // all of it, next to the melody
+    leadIn: 0.05, // seconds from the first press to the first slot
+    melodyOctave: 24, // semitones above the chord's root
+    melody: { A: [0, 4, 7, 9], D: [0, 4, 7, 9], E: [0, 4, 7, 9], "F#m": [0, 3, 7, 10] } as Record<string, number[]>,
+    // The record is turned down to this fraction while the groove plays, over `duckFade` seconds.
+    duck: 1 / 3,
+    duckFade: 0.5,
+  },
 };
 
 export const SOUND = {

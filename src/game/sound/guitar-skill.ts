@@ -144,3 +144,51 @@ export function playKey(level: Level, dir: Dir, noteSemis: number, stroke: Strok
   if (!chords) return [{ semis: noteSemis, at: 0, gain: 1, kind: "first" }];
   return strokeNotes(chords[dir], stroke);
 }
+
+// The groove (issue 114b). One bar of it, for the bar at `bar` (counted from the first one, so
+// the chord is `progression[bar % 4]`): notes with `slot` (0 to 7) and their pitch, gain and a
+// small seeded wobble in time (the scheduler adds the swing). Pure, so it can be tested without audio.
+export interface GrooveNote {
+  slot: number;
+  semis: number;
+  gain: number;
+  role: "bass" | "harmony";
+  wobble: number; // seconds
+}
+
+export function grooveChord(bar: number): string {
+  const { progression } = GUITAR_SKILL.groove;
+  return progression[((Math.floor(bar) % progression.length) + progression.length) % progression.length];
+}
+
+export function grooveBar(bar: number, seed = 0): GrooveNote[] {
+  const g = GUITAR_SKILL.groove;
+  const chord = GUITAR_SKILL.chords[grooveChord(bar)];
+  const rand = seeded(seed * 7919 + Math.floor(bar) * 104729 + 1);
+  const out: GrooveNote[] = [];
+  [...g.pattern].forEach((ch, slot) => {
+    const wobble = (rand() * 2 - 1) * GUITAR_SKILL.humanise.time;
+    const wobbleG = 1 + (rand() * 2 - 1) * GUITAR_SKILL.humanise.gain;
+    const accent = slot === 0 ? g.accent : 1;
+    if (ch === "r") out.push({ slot, semis: chord.root, gain: g.bassGain * accent * wobbleG, role: "bass", wobble });
+    else if (ch === "f") out.push({ slot, semis: chord.root + 7, gain: g.bassGain * 0.9 * wobbleG, role: "bass", wobble });
+    else if (/\d/.test(ch)) {
+      const interval = chord.voicing[Number(ch)];
+      if (interval !== undefined) out.push({ slot, semis: chord.root + interval, gain: g.harmonyGain * wobbleG, role: "harmony", wobble });
+    }
+  });
+  return out;
+}
+
+// The seconds, from the groove's origin, at which eighth number `k` (counted from 0 across all bars) falls: the odd ones late by the swing.
+export function grooveSlotTime(k: number, tempo = GUITAR_SKILL.tempo, swing = GUITAR_SKILL.swing): number {
+  return k * eighth(tempo) + (k % 2 === 1 ? swing * eighth(tempo) : 0);
+}
+
+// The semitone (from A4) an arrow plays over a chord of the groove: a chord tone, or the chord's sixth or seventh.
+export function melodyNote(chord: string, dir: Dir): number {
+  const g = GUITAR_SKILL.groove;
+  const order: Dir[] = ["left", "right", "up", "down"];
+  const interval = (g.melody[chord] ?? g.melody.A)[order.indexOf(dir)];
+  return GUITAR_SKILL.chords[chord].root + g.melodyOctave + interval;
+}

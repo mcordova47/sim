@@ -128,7 +128,7 @@ describe("playKey", () => {
     expect(table("sevenths")).toEqual(["Amaj7", "Dadd9", "E7", "F#m7"]);
     expect(table("open")).toEqual(["Asus2", "Dsus2", "Esus4", "F#m11"]);
     expect(table("jazz")).toEqual(["Amaj9", "D6/9", "E13", "F#m9"]);
-    expect(table("groove")).toEqual(table("jazz")); // until 114b
+    expect(table("groove")).toEqual(table("jazz")); // the data stays; the feature plays the groove instead (guitar-groove.test.ts)
   });
   it("plays down then up at every chord level: reversed order, tighter, quieter, over within a quarter second", () => {
     for (const level of ["chords", "sevenths", "open", "jazz", "groove"] as Level[])
@@ -279,9 +279,9 @@ describe("the feature at each level", () => {
     s.advance(0.3);
     expect(s.count() - b).toBe(toneVoices("guitarSteel")); // still a single note
   });
-  it("uses the level's chord for a session that starts with 4, 10, 20, 35 and 55 finished sessions", () => {
-    // ArrowUp is E: 4 strings, E7 (5), Esus4 (6), E13 (5), E13 (5)
-    for (const [n, voices] of [[4, 4], [10, 5], [20, 6], [35, 5], [55, 5]] as const) {
+  it("uses the level's chord for a session that starts with 4, 10, 20 and 35 finished sessions", () => {
+    // ArrowUp is E: 4 strings, E7 (5), Esus4 (6), E13 (5); the groove level (55) has its own tests
+    for (const [n, voices] of [[4, 4], [10, 5], [20, 6], [35, 5]] as const) {
       const s = setup({ sessions: () => n });
       const b = s.count();
       s.keys.press("ArrowUp");

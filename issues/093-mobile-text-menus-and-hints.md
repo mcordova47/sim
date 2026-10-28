@@ -1,7 +1,7 @@
 ---
 id: 093
 title: Mobile stage 3: key entry, a tappable pause screen, and key hints that match the controls
-status: review
+status: done
 owner: claude
 depends_on: [087, 089]
 ---
@@ -54,3 +54,12 @@ Also his question: should the list screen simply be called **Pause**?
   **Unverified (needs a real phone, recorded as not passing):** the OS keyboard rising on a tap, the iOS paste bubble over the hidden field, `navigator.clipboard.readText` permission in Safari, the soft keyboard's Go key arriving as Enter, viewport resize with the keyboard open, tap target comfort (pause buttons about 26 CSS px, below 44 pt) and scroll feel, the caret behaviour above, and the practice-deck narrow layout.
 
 - 2026-10-27 (claude), round 2 after the first review (changes needed): (1) FIXED the stray letters: in text mode `TouchPad` ignores the pad and the PAUSE, SOUND and CHOICE pills (only A as Enter and B as Escape send keys), and entering text mode lets go of any pad or pill key already down; three tests added in `flashcards-touch.test.ts`. (2) FIXED the committed `node_modules` symlink: removed from the index (`git rm --cached`), the link itself is left in place. Minor items left as they are: pills in text mode take no pointer capture (a slid-off finger may leave one looking held until the next press), caret movement from the per-frame field sync (unverified on a phone).
+
+- 2026-10-27 (reviewer), round 2: **Review. Verdict: approve.** `npm test` (116 files, 2682 passed, 1 skipped), `npx tsc --noEmit` clean, `npm run build` ok.
+  **Round 1 findings, re-checked with my own tests (throwaway, deleted):**
+  - Stray letters on the sync key screen: **fixed.** With the real `Keyboard`, `readControls` and `TouchPad`, a pad finger and a PAUSE pill held and already seen by updates, then text mode on, typed nothing and left no held keys after release. In text mode PAUSE, SOUND, CHOICE and the pad send nothing; A sends Enter, B sends Escape (the game's Escape handling backs out of the activity). A pill pressed in text mode and text mode ended before the lift leaves no stuck key. Edge only: a pad key first pressed in the very same frame the key screen opens (before text mode switches on) can still type one letter; a one-frame window, not blocking.
+  - `node_modules` symlink: **fixed.** `git ls-files node_modules` is empty and `git diff main...HEAD --name-only` has no node_modules; the untracked link is still in the worktree.
+  **Edge cases:** A held across the mode change in both directions is let go as the key it began with, no stuck key. Leaving text mode with fingers down: no stuck keys; the pad works again after. Desktop output and goldens: unchanged by this branch (`git diff main...HEAD` touches no golden file; a plain `git diff main` shows golden and battery changes only because main moved on with 088/094). No new string naming an unpressable key in the 088/094 additions on main.
+  **Merge note:** the branch is based before 088/094 (battery). `git merge-tree` against current main is clean, but run build and tests after merging.
+  **Acceptance criteria:** all pass as in round 1 (touch key entry, guest/key/pause actions, hint function and no unpressable key, pause holds the clock with PAUSE pill and title and a test, npm test/tsc/build, text-review doc).
+  **Unverified (needs a real phone):** the OS keyboard rising on a tap, the iOS paste bubble, `navigator.clipboard.readText` permission in Safari, the soft keyboard's Go key arriving as Enter, viewport resize with the keyboard open, tap target comfort (pause buttons about 26 CSS px), scroll feel on the achievements list, caret movement from the per-frame field sync, the practice-deck narrow layout. Minor cosmetic: pills in text mode take no pointer capture.

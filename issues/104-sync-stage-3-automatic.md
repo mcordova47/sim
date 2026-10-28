@@ -1,7 +1,7 @@
 ---
 id: 104
 title: Sync stage 3: automatic sync and the pause-screen control
-status: review
+status: done
 owner: claude
 depends_on: [103, 093]
 ---
@@ -42,3 +42,19 @@ Build stage 3 of `docs/sync.md` (sections 5, 11 and 12): sync happens by itself 
   5. L, P, A: AUTO SYNC: OFF; the status says so; nothing syncs by itself; S still works.
 
   **Not verified:** real Netlify; a phone; `visibilitychange` and `keepalive` timing on iOS (a suspended tab may not finish a hide-sync; the next load or return does); how the pause screen looks by eye with six buttons (checked by test for fit); the real clock over a 5 minute wait.
+
+- 2026-10-28 (review agent): Review. Verdict: **approve**.
+
+  Criteria. (1) Automatic sync never blocks play, no error as pressure, quiet retries: pass (AutoSync.run is never awaited by a frame or input and catches everything; idle() keeps it off the pause screen, tasks and dialogs; the status line has no "ERROR" and no key; a backend that throws in get or put was exercised for 10 minutes with no throw). (2) Pause screen shows state in plain words, text in docs/text-review.md: pass (14 lines added, matches statusLine and button labels). (3) Tests with fake clock, fake network, two devices: pass (auto.test.ts, 12 tests, backoff 5/35/95/215/455/755 s confirmed). (4) npm test (127 files, 2831 passed), npx tsc --noEmit (clean), npm run build, npm run check:dist: pass, run by me. (5) Marc tries it on phone and laptop: can't verify (his step).
+  Scope: only sync, achievements feature/draw, config, docs/text-review.md and this file changed; nothing under art/src or public/sprites; PLAN.md untouched.
+
+  My own checks (outside the repo, same two-device harness): merge arriving during a hide-sync with input locked is held, survives reload, applies on opening the pause screen; two held merges combine; manual SYNC NOW during an auto run says ONE MOMENT; key-not-found stops auto, pasting a new key resumes it (GET, PUT after 5 min); STOP SYNCING then TURN ON resumes; AUTO SYNC off persists in life.sync.v1 and survives stop; keepalive is true only for PUT bodies up to 60000 chars (false above and for GET). All passed.
+
+  Notes, not blocking:
+  - A merge arriving while the player has only walked (no real action yet this visit) applies at once, even mid-walk, so the player can jump. This is what docs/sync.md 4.3 decided ("before the first real action"), but it is wider than the issue's "never mid-play".
+  - hidden() ignores backoff and "changed", so 30 quick hide/show flaps made 30 GETs (no PUTs). Within the 60 a minute server limit.
+  - The keepalive guard counts characters, not bytes; a save with multibyte text near 60000 characters could exceed the 64 KB keepalive limit and the fetch would fail (quietly, as NO CONNECTION). Tracks are restricted to a mostly ASCII character set, so this is unlikely.
+  - The hide-sync does a GET before its PUT, and only the PUT carries keepalive, so on iOS the PUT may never go out after the page is suspended. Best effort, as docs 5 says.
+  - RESTORE BEFORE LAST SYNC is not a button on the sync page; the restore lives on the transfer page as RESTORE BEFORE IMPORT (stage 1/2 work, unchanged here).
+
+  Unverified (not checkable by an agent): real Netlify; a phone; visibilitychange and keepalive behaviour on iOS; how six buttons look by eye on the touch pause screen; the real clock over a 5 minute wait.

@@ -44,7 +44,7 @@ y   0 +----------------------------------+ 12   B TO LEAVE hint (touch wording)
   0 | [ RAINY TUESDAY     ][-100 +]   | 12..30   | panel x 220..316, 2 columns x 3 rows
  30 | [1 MELODY][2 BASS][3 BEAT]      | 30..48   |  [PLAY] [SAVE]
  50 | grid: gutter 24 + 8 x 24 = 216  | 50..170  |  [LENGTH 1] [MORE]
-170 | [1-8][9-16][17-24][25-32]       |          |  [UNDO] [EXIT? no: B leaves]
+170 | [1-8][9-16][17-24][25-32]       |          |  [UNDO] [NEXT PAGE]
 ```
 Same code, a different rectangle set (the panel is on the right instead of a bar at the bottom). The cell is 24 x 20 game px (40 x 33 CSS px).
 

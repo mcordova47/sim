@@ -1,7 +1,7 @@
 ---
 id: 114a
 title: Guitar skill, stage 1: the rule and the chord levels (levels 1 to 5)
-status: done
+status: review
 owner: claude
 depends_on: [108]
 ---

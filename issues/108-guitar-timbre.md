@@ -1,7 +1,7 @@
 ---
 id: 108
 title: The guitar's timbre follows the current instrument
-status: in-progress
+status: review
 owner: claude
 depends_on: []
 ---
@@ -43,3 +43,16 @@ Marc (2026-10-28): change the timbre of the guitar notes, starting with **timbre
     - [ ] Decide on `priority` for the guitar effects (the old blip was low) and test that notes do not starve other effects.
     - [ ] Minor: the nylon assertion in guitar-voice.test.ts (`voices[0] && noteKeys.up`) is a vacuous expression; tidy it.
     - [ ] Marc listens (still open after the above).
+
+## Round 2 (author)
+- 2026-10-28: review items done: steel and nylon cut to 3 voices with shorter tails (fund 0.5 / 0.55 s) so notes 100 ms apart all play (new test "quick notes", 12 presses in each voice, plain included); priority stays normal (the pick and tails are short; at most about 9 guitar voices live at 100 ms spacing, under the cap of 14, so a chime still fits); the vacuous nylon assertion now checks the arrow's pitch. Tests 2840 pass, tsc clean. Status review. Still unverified: how it sounds.
+
+## Review round 2 (independent agent)
+- 2026-10-28: Verdict: **approve the code; the issue stays open only for Marc's listening** (status left at `review`, not `done`, until he approves the sound).
+  - Ran in the worktree: `npx vitest run` 2840 pass, `npx tsc --noEmit` clean, `npm run build` ok.
+  - Round-1 items: (1) fast notes: FIXED. Own simulation outside the repo (real `Synth`, fake context, 40 presses per run): steel and nylon play 40/40 at 70, 80, 100, 150, 200 ms spacing; peak live voices at 100 ms is 11 (steel) and 10 (nylon) of 14. Key repeat is already ignored in `feature.ts`. (2) priority: kept normal, reasoning is sound (peak 11 of 14 leaves a chime room). (3) vacuous nylon assertion: FIXED (checks `noteKeys.up`).
+  - Limits found (not blocking, no change asked): at 50 ms spacing steel plays 31/40 and nylon 28/40, at 30 ms 19/40 (the old `noteKey` blip never dropped, being 1 voice). A human cannot press arrows that fast without key repeat, which is ignored. With sustained mashing at 100 ms, `taskComplete` (3 voices, all-or-nothing) was dropped 2 of 8 times for steel, and at 80 ms 7 of 8 times (the combo effect fit instead). A chime right after the last press is fine (11 + 3 = 14, exactly the cap). If a chime is ever lost while a run of notes is going, this is why.
+  - Nit: the new test is titled "...and leaves room for other effects" but only asserts the notes are not dropped; it never plays another effect. Rename or add the assertion.
+  - Process note: the round-2 source changes (config.ts, guitar-voice.test.ts) were NOT committed by the author; they sit uncommitted in the worktree. They need committing before merge.
+  - Shortening the tails (steel 0.5 s fundamental, nylon 0.55 s) and dropping partials changes the sound: how it sounds is UNVERIFIED.
+  - Criterion "Marc listens and approves": still OPEN. All other criteria pass (steel default, nylon via the slot item or `?guitarvoice=nylon`, table is data, tests pass).

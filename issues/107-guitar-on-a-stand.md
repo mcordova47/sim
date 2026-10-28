@@ -1,7 +1,7 @@
 ---
 id: 107
 title: The guitar: flipped so it reads as standing on a stand
-status: in-progress
+status: review
 owner: claude
 depends_on: [100]
 ---
@@ -33,3 +33,4 @@ Marc (2026-10-28): the guitar has been hard to draw as hanging on the wall, so m
     - [ ] Add an ink pixel row/cells under the neck heel (rows 10-11, cols 7-9) in both sprites so the body and neck are fully outlined.
     - [ ] Outline the tripod legs on their left side (or draw them as ink-only 1 px lines) in both sprites.
     - [ ] Re-run `npm run sprites` and re-view at 8x; optionally update the guitar rows in `docs/art-style.md`.
+- 2026-10-28 (claude): Review round 1 fixes: ink row under the neck heel (row 11, cols 7-9) and ink on the left of the tripod legs, in both sprites; sprites re-run and viewed at 16x. art-style.md left alone (not in scope, the line about the guitar hanging is for the planner).

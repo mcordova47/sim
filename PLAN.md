@@ -130,13 +130,16 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 092 | [Mobile landscape: the controls must not cover the picture](issues/092-mobile-landscape-controls.md) | claude | done | 087, 090 |
 | 093 | [Mobile stage 3: key entry, a tappable pause screen, and key hints that match the controls](issues/093-mobile-text-menus-and-hints.md) | claude | done | 087, 089 |
 | 094 | [Phone battery: drains a little, and looks like a phone battery indicator](issues/094-battery-drain-and-indicator.md) | claude | done | 088 |
-| 095 | [Sync the game's progress across devices (design first)](issues/095-sync-across-devices.md) | marc + claude | todo | |
+| 095 | [Sync the game's progress across devices (design first)](issues/095-sync-across-devices.md) | marc + claude | in-progress (design note merged; the builds are issues 102 to 104) | |
 | 096 | [Asset review: go over every sprite for perspective and consistency](issues/096-asset-review.md) | marc + claude | in-progress (survey merged and answered; fixes are issues 098 to 101) | |
 | 097 | [A guided walkthrough of the codebase, with small hands-on tasks](issues/097-codebase-walkthrough.md) | marc + claude | in-progress | |
 | 098 | [Art style doc: the perspective rule](issues/098-art-style-perspective-rule.md) | claude | todo | 096 |
 | 099 | [Redraw the south-wall pieces near top-down](issues/099-south-wall-pieces-top-down.md) | claude | todo | 096 |
 | 100 | [Desk chair diagonal, the desk pose, and the typing prompt placement](issues/100-desk-chair-pose-and-typing-prompt.md) | claude | todo | 099 |
 | 101 | [Asset cleanup: plant pots, side-project picture, unused sprites](issues/101-asset-cleanup.md) | claude | todo | 100 |
+| 102 | [Sync stage 1: export and import a save, and the pure mergeSaves](issues/102-sync-stage-1-export-import-merge.md) | claude | todo | 095 |
+| 103 | [Sync stage 2: the Netlify Function with Blobs and the pairing link](issues/103-sync-stage-2-server.md) | claude | todo | 102 |
+| 104 | [Sync stage 3: automatic sync and the pause-screen control](issues/104-sync-stage-3-automatic.md) | claude | todo | 103, 093 |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

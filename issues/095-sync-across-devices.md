@@ -1,7 +1,7 @@
 ---
 id: 095
 title: Sync the game's progress across devices (design first)
-status: done
+status: in-progress
 owner: marc + claude
 depends_on: []
 ---

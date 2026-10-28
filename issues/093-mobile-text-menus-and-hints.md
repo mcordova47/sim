@@ -1,7 +1,7 @@
 ---
 id: 093
 title: Mobile stage 3: key entry, a tappable pause screen, and key hints that match the controls
-status: todo
+status: in-progress
 owner: claude
 depends_on: [087, 089]
 ---
@@ -26,3 +26,5 @@ Also his question: should the list screen simply be called **Pause**?
 - `npm test`, `npx tsc --noEmit`, `npm run build` pass; the text goes into `docs/text-review.md`; anything that needs a real phone (the OS keyboard, the paste bubble, scroll feel) is listed as unverified.
 
 ## Progress log
+
+- 2026-10-27 (claude): Started. Plan: (1) one hint module (`src/render/hints.ts`) that names controls for the live control set; (2) tap targets: screens list rectangles in game pixels, a tap on the canvas runs the one under the finger; (3) a hidden text input (logic in `src/input/text-entry.ts`, DOM in touch-ui) for the sync key; A sends Enter while text is wanted; (4) the list screen becomes PAUSE, holds the clock, has tappable buttons; (5) tests and `docs/text-review.md`. Quick check first: today the list screen does NOT hold the clock (input is locked but `tickClock` still runs), which I will prove with a test before changing it.

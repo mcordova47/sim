@@ -130,7 +130,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 092 | [Mobile landscape: the controls must not cover the picture](issues/092-mobile-landscape-controls.md) | claude | done | 087, 090 |
 | 093 | [Mobile stage 3: key entry, a tappable pause screen, and key hints that match the controls](issues/093-mobile-text-menus-and-hints.md) | claude | done | 087, 089 |
 | 094 | [Phone battery: drains a little, and looks like a phone battery indicator](issues/094-battery-drain-and-indicator.md) | claude | done | 088 |
-| 095 | [Sync the game's progress across devices (design first)](issues/095-sync-across-devices.md) | marc + claude | in-progress (design note merged; the builds are issues 102 to 104) | |
+| 095 | [Sync the game's progress across devices (design first)](issues/095-sync-across-devices.md) | marc + claude | done (the note, and the builds 102 to 104; Marc still checks the server with netlify dev and two browsers) | |
 | 096 | [Asset review: go over every sprite for perspective and consistency](issues/096-asset-review.md) | marc + claude | in-progress (survey merged and answered; fixes are issues 098 to 101) | |
 | 097 | [A guided walkthrough of the codebase, with small hands-on tasks](issues/097-codebase-walkthrough.md) | marc + claude | in-progress | |
 | 098 | [Art style doc: the perspective rule](issues/098-art-style-perspective-rule.md) | claude | done | 096 |
@@ -139,7 +139,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 101 | [Asset cleanup: plant pots, side-project picture, unused sprites](issues/101-asset-cleanup.md) | claude | todo | 100 |
 | 102 | [Sync stage 1: export and import a save, and the pure mergeSaves](issues/102-sync-stage-1-export-import-merge.md) | claude | done | 095 |
 | 103 | [Sync stage 2: the Netlify Function with Blobs and the pairing link](issues/103-sync-stage-2-server.md) | claude | done | 102 |
-| 104 | [Sync stage 3: automatic sync and the pause-screen control](issues/104-sync-stage-3-automatic.md) | claude | todo | 103, 093 |
+| 104 | [Sync stage 3: automatic sync and the pause-screen control](issues/104-sync-stage-3-automatic.md) | claude | done | 103, 093 |
 | 105 | [Dried flowers should not offer to be watered](issues/105-dried-flowers-no-watering.md) | claude | done | |
 | 106 | [The track editor (mixing tool) on phones](issues/106-track-editor-on-phones.md) | marc + claude | todo | 093 |
 | 107 | [The guitar: flipped so it reads as standing on a stand](issues/107-guitar-on-a-stand.md) | claude | todo | 100 |

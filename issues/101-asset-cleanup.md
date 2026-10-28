@@ -1,7 +1,7 @@
 ---
 id: 101
 title: Asset cleanup: plant pots, the side-project picture, unused sprites
-status: review
+status: done
 owner: claude
 depends_on: [100]
 ---
@@ -26,3 +26,14 @@ Marc's decisions (2026-10-28, `docs/asset-review.md`): (1) the **plants on the b
   - Unverified: how the plants and picture look at game scale in a browser; Marc's own judgement of the art (he must look at the plants and the picture). Plants were judged only at 8x against a flat oak color, not in the room.
   - PLAN.md table needs updating by the planner (101 done).
 - 2026-10-28 (claude, after review): Marc's decision: the plants keep the top-front perspective (they sit on the bookshelf divider in the middle of the room, so the diagonal rule applies, not the south-wall one). The "pots seen from above" idea in asset-review.md is withdrawn for these. Restored plant-0..3, plant-wilted and plant-dried exactly from main (`git show main:art/src/plant-*.sprite`; byte-identical, no outline change since the pots already carry the ink outline); re-ran `npm run sprites` and `npm run brand` (public/social.png is back to main's). docs/art-style.md updated. The earlier log entry's plant redraw is superseded. The picture and the deletions are unchanged. Needs one fresh review round.
+- 2026-10-28 (claude, independent review, round 2 after the plant restore): verdict APPROVE. Per check:
+  - Plants: pass. `git diff main -- art/src/plant-* public/sprites/plant-*` is empty (byte-identical to main, all six sprites and PNGs).
+  - public/social.png: pass, `git diff main` empty.
+  - docs/art-style.md: pass. The Plants entry records Marc's decision (plants keep the top-front view, the bookshelf is a divider so the diagonal rule applies, "pots seen from above" withdrawn, plant sprites unchanged by 101). Minor, not a failure: the older line 15 ("a plant on the near top-down bookshelf is drawn from above") was not touched and reads against the decision; the bookshelf is described elsewhere as top-down. Worth a one-line tidy later.
+  - view-side-project: pass. art/src sprite lines are 320 wide, public PNG is 320x192 RGBA; unchanged since the first review (plain shapes, HUD bars not text).
+  - 8 deletions: pass. All 8 source files and PNGs are deleted. Grep over the repo (excluding node_modules, dist, .git, reference-photos, issues) finds no code or data use of any of the 8 names; hits are only docs history (asset-review.md, art-style, hud-design, decor), the deletion tests (sprite-names.test.ts, apartment.test.ts `expect(sprite("window")).toBeUndefined()`), `window` as the browser global in two test stubs, and DecorKind "rug" (a decor category, not the sprite). Reserved four (view-bookshelf, gallery-wall, guitar-nylon, mic-stand-vintage) are listed in art-style.
+  - Scope: pass. `git diff main..HEAD --name-status` shows only art/src (8 deletions, view-side-project), public/sprites (same), docs (art-style, decor, hud-design, tasks), scripts/room-mockup.mjs, src/game/apartment.ts (one comment), apartment.test.ts, sprite-names.test.ts and this issue file. No plant, social.png, PLAN.md, other issues or reference-photos.
+  - `npx tsc --noEmit` pass; `npm run build` pass; `npm run sprites` renders 170 sprites and `git status` is clean afterwards.
+  - `npm test`: 2826 passed, 1 skipped on three reruns. The very first run in this review showed 1 failed test file (1 test) that I did not identify (output was cut off) and could not reproduce in 3 reruns; treat as a possible flaky test, unrelated to sprites.
+  - Unverified: how the picture looks in a browser at game scale; Marc's own judgement of the art (the picture; the plants are back to main's).
+  - PLAN.md table needs updating by the planner (101 done).

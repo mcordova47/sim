@@ -143,6 +143,8 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 105 | [Dried flowers should not offer to be watered](issues/105-dried-flowers-no-watering.md) | claude | done | |
 | 106 | [The track editor (mixing tool) on phones](issues/106-track-editor-on-phones.md) | marc + claude | todo | 093 |
 | 107 | [The guitar: flipped so it reads as standing on a stand](issues/107-guitar-on-a-stand.md) | claude | todo | 100 |
+| 108 | [A different timbre for the guitar notes](issues/108-guitar-timbre.md) | marc + claude | todo | |
+| 109 | [A browsable inventory, like a pokedex](issues/109-browsable-inventory.md) | marc + claude | todo | 073 |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

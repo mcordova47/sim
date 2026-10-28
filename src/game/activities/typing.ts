@@ -67,12 +67,36 @@ export class TypingActivity extends BaseActivity {
     return Math.min(1, Math.max(0, (slow - this.elapsed) / (slow - fast)));
   }
 
-  draw(ctx: CanvasRenderingContext2D, screen: { width: number; height: number }): void {
+  // Where the prompt box goes: centred, unless that covers `avoid` (the player or their pose),
+  // then just below it, or just above it if there is no room below (issue 100).
+  static boxPlace(
+    screen: { width: number; height: number },
+    w: number,
+    h: number,
+    avoid?: { x: number; y: number; w: number; h: number },
+  ): { x: number; y: number } {
+    const x = Math.round((screen.width - w) / 2);
+    const centred = Math.round(screen.height / 2 - h / 2);
+    if (!avoid) return { x, y: centred };
+    const gap = TYPING.avoidGap;
+    const clear = (y: number) =>
+      y >= 0 && y + h <= screen.height && (y + h + gap <= avoid.y || y >= avoid.y + avoid.h + gap || x + w + gap <= avoid.x || x >= avoid.x + avoid.w + gap);
+    const below = avoid.y + avoid.h + gap;
+    const above = avoid.y - gap - h;
+    for (const y of [centred, below, above]) if (clear(y)) return { x, y };
+    // No room either way: the side with more space, as far from the player as fits.
+    return { x, y: Math.max(0, Math.min(screen.height - h, avoid.y + avoid.h / 2 < screen.height / 2 ? screen.height - h : 0)) };
+  }
+
+  draw(
+    ctx: CanvasRenderingContext2D,
+    screen: { width: number; height: number },
+    avoid?: { x: number; y: number; w: number; h: number },
+  ): void {
     const lineH = GLYPH_H + 3;
     const w = Math.min(screen.width - 24, Math.max(...this.lines.map((l) => textWidth(l))) + 16);
     const h = this.lines.length * lineH + 22;
-    const x = Math.round((screen.width - w) / 2);
-    const y = Math.round(screen.height / 2 - h / 2);
+    const { x, y } = TypingActivity.boxPlace(screen, w, h, avoid);
 
     ctx.fillStyle = COLOR.ink;
     ctx.fillRect(x, y, w, h);

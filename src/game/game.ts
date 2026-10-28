@@ -714,7 +714,7 @@ export class Game {
     this.drawWorldUi(ctx, { ...actor, x: actor.x - cam.x, y: actor.y - cam.y }, cam);
     this.drawHud(ctx);
     // A mini-game's own picture, then any dialog on top of it.
-    this.drawActivity(ctx);
+    this.drawActivity(ctx, cam);
     const dialogView = this.dialog.view;
     if (dialogView) drawDialog(ctx, dialogView);
     if (this.interaction.active?.activity.cancellable && this.interaction.active.item.decorSlot === undefined && !this.interaction.active.item.encounter) this.hud.drawStopHint(ctx);
@@ -723,11 +723,11 @@ export class Game {
 
   // A mini-game's picture. One that throws cancels its task (like a throwing
   // `update`) and the loop carries on.
-  private drawActivity(ctx: CanvasRenderingContext2D): void {
+  private drawActivity(ctx: CanvasRenderingContext2D, cam: { x: number; y: number }): void {
     const active = this.interaction.active;
     if (!active?.activity.draw) return;
     try {
-      active.activity.draw(ctx, VIEW);
+      active.activity.draw(ctx, VIEW, this.playerScreenRect(cam));
     } catch (error) {
       this.interaction.abandonActive(error);
     }
@@ -777,6 +777,21 @@ export class Game {
     const col = target.x / TILE;
     const row = target.y / TILE;
     return this.level.pieces.find((p) => p.tiles.some((t) => t.col === col && t.row === row)) ?? null;
+  }
+
+  // Where the player is on the screen: the pose's picture while they are in one (the seated
+  // player, the chair and the desk's edge), otherwise their own box. Mini-games keep clear of it.
+  playerScreenRect(cam: { x: number; y: number }): { x: number; y: number; w: number; h: number } {
+    const pose = this.currentPose();
+    if (pose) {
+      return {
+        x: pose.piece.bounds.x + pose.def.at.x - cam.x,
+        y: pose.piece.bounds.y + pose.def.at.y - cam.y,
+        w: pose.def.size.w,
+        h: pose.def.size.h,
+      };
+    }
+    return { x: Math.round(this.player.x) - cam.x, y: Math.round(this.player.y) - cam.y, w: this.player.w, h: this.player.h };
   }
 
   // The pose the player is in right now: the running task's, if it belongs to

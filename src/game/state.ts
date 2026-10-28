@@ -1,4 +1,4 @@
-import { CLOCK, ENERGY, MOOD, PLANT } from "./config";
+import { BATTERY, CLOCK, ENERGY, MOOD, PLANT } from "./config";
 
 // One thing about the apartment or the character that tasks can read and
 // change. The list lives in state-vars.ts; adding a variable is a data change.
@@ -133,6 +133,13 @@ export class ApartmentState {
     for (const e of effects) {
       this.write(e.var, e.set ?? this.get(e.var) + (e.add ?? 0), changes);
     }
+    // Time that is skipped (sleep, a nap) runs the phone down too, at the gentler sleeping rate; an
+    // effect list that sets the battery itself (charging) is left alone.
+    if (this.has("battery") && !effects.some((e) => e.var === "battery")) {
+      let hours = 0;
+      for (const e of effects) if (e.var === "clock" && e.set === undefined && typeof e.add === "number" && Number.isFinite(e.add) && e.add > 0) hours += e.add;
+      if (hours > 0) this.write("battery", this.get("battery") - hours * BATTERY.fallPerHour * BATTERY.sleepFactor, changes);
+    }
     this.announce(changes, false);
     for (const e of effects) {
       if (e.var === "clock" && e.set === undefined && typeof e.add === "number" && Number.isFinite(e.add) && e.add > 0) this.onClockSkip?.(e.add);
@@ -156,6 +163,8 @@ export class ApartmentState {
     if (this.has("plantDry")) {
       this.write("plantDry", Math.min(PLANT.maxDryHours, this.get("plantDry") + hours), changes);
     }
+    // The phone runs down slowly (issue 094).
+    if (this.has("battery")) this.write("battery", this.get("battery") - hours * BATTERY.fallPerHour, changes);
     this.announce(changes, true);
   }
 

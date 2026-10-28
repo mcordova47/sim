@@ -205,7 +205,7 @@ it("the stop hint is drawn while an action runs, notes included, and not when id
 
 // The apartment's flags and counts (not the clock or energy, which tick by themselves).
 const snap = (g: Game) =>
-  JSON.stringify(STATE_VARS.filter((v) => !["clock", "time", "energy", "mood", "plantDry"].includes(v.id)).map((v) => g.state.get(v.id)));
+  JSON.stringify(STATE_VARS.filter((v) => !["clock", "time", "energy", "mood", "plantDry", "battery"].includes(v.id)).map((v) => g.state.get(v.id)));
 
 describe("every real task, Escape pressed at many moments", () => {
   const rooms = APARTMENT.rooms;

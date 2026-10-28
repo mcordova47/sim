@@ -6,6 +6,7 @@ import { FakeStorage } from "./achievements/fake-storage";
 import { APARTMENT } from "./apartment";
 import { Game } from "./game";
 import { taskSpots } from "./plan-checks";
+import { BATTERY, CLOCK, SLEEP_WAKE } from "./config";
 import { ApartmentState } from "./state";
 import { STATE_VARS } from "./state-vars";
 import { TASKS } from "./tasks";
@@ -36,10 +37,33 @@ describe("the battery variable", () => {
     expect(battery.initial).toBeLessThan(100);
   });
 
-  it("does not drain with time, however long it runs", () => {
+  it("drains with game time at the configured rate, and never below 0", () => {
     const s = new ApartmentState(STATE_VARS);
+    s.applyEffects([{ var: "battery", set: 100 }]);
+    const secondsPerHour = 60 / CLOCK.minutesPerSecond;
+    s.tick(secondsPerHour * 10);
+    expect(s.get("battery")).toBeCloseTo(100 - 10 * BATTERY.fallPerHour, 6);
     s.tick(100000);
-    expect(s.get("battery")).toBe(battery.initial);
+    expect(s.get("battery")).toBe(0);
+  });
+
+  it("drains through skipped time (sleep, a nap) at the gentler sleeping rate", () => {
+    const s = new ApartmentState(STATE_VARS);
+    s.applyEffects([{ var: "battery", set: 100 }]);
+    s.applyEffects([{ var: "clock", add: 8 }]);
+    expect(s.get("battery")).toBeCloseTo(100 - 8 * BATTERY.fallPerHour * BATTERY.sleepFactor, 6);
+    s.applyEffects([{ var: "clock", wake: SLEEP_WAKE }]);
+    expect(s.get("battery")).toBeLessThan(100 - 8 * BATTERY.fallPerHour * BATTERY.sleepFactor);
+    s.applyEffects([{ var: "battery", set: 3 }, { var: "clock", add: 100 }]);
+    expect(s.get("battery"), "an effect list that sets it wins").toBe(3);
+    s.applyEffects([{ var: "clock", add: 100 }]);
+    expect(s.get("battery")).toBe(0);
+  });
+
+  it("is rounded to sensible numbers: a full phone lasts days, not minutes", () => {
+    expect(BATTERY.fallPerHour * 24).toBeLessThan(50);
+    expect(BATTERY.doomscrollCost).toBeLessThanOrEqual(10);
+    expect(BATTERY.sleepFactor).toBeLessThanOrEqual(1);
   });
 
   it("is saved, and an old save without it starts at the initial value", () => {
@@ -91,13 +115,29 @@ describe("the charge task", () => {
     expect(doTask(game, "charge-phone")).toBe(true);
   });
 
-  it("is the only task that changes the battery, and no task requires it", () => {
+  it("is the only task that raises the battery, Doomscroll the only one that lowers it, and no task requires it", () => {
     for (const t of TASKS) {
-      const touches = (t.effects ?? []).some((e) => e.var === "battery");
-      expect(touches, t.id).toBe(t.id === "charge-phone");
+      const touches = (t.effects ?? []).filter((e) => e.var === "battery");
+      expect(touches.length > 0, t.id).toBe(t.id === "charge-phone" || t.id === "doomscroll");
       const checks = (t.requires ?? []).flatMap((r) => ("anyOf" in r ? r.anyOf : [r]));
       expect(checks.some((c) => c.var === "battery"), t.id).toBe(false);
     }
+  });
+
+  it("a completed Doomscroll takes the configured points, and clamps at 0", () => {
+    // Only the sofa's doomscroll is offered (an object offers its first task), and no ad rolls.
+    const main = { ...rooms.main, interactables: rooms.main.interactables.filter((i) => i.id === "doomscroll") };
+    const game = new Game(main, { rooms, random: () => 0.99 });
+    game.state.applyEffects([{ var: "battery", set: 80 }]);
+    const clock = game.state.get("clock");
+    expect(doTask(game, "doomscroll")).toBe(true);
+    // The task takes game time too, so allow for the clock's share.
+    const hours = game.state.get("clock") - clock;
+    expect(game.state.get("battery")).toBeCloseTo(80 - BATTERY.doomscrollCost - hours * BATTERY.fallPerHour, 1);
+    game.state.applyEffects([{ var: "battery", set: 2 }]);
+    game.update(60, NO_INPUT);
+    expect(doTask(game, "doomscroll")).toBe(true);
+    expect(game.state.get("battery")).toBe(0);
   });
 
   it("does not move any other variable", () => {

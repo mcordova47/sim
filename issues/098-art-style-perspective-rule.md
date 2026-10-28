@@ -1,7 +1,7 @@
 ---
 id: 098
 title: Art style doc: the perspective rule (south wall near top-down, the rest diagonal)
-status: in-progress
+status: review
 owner: claude
 depends_on: [096]
 ---
@@ -28,3 +28,4 @@ Write Marc's perspective rule into `docs/art-style.md` (decisions in `docs/asset
   - [ ] Wrong: "Items that are decoration only and not placed (`stool`, `rug`, `guitar` in profile on its wall hanger)". `guitar` is placed (`G` at col 1, row 5 of MAIN_MAP, with the `guitar` task); only `stool` and `rug` are unplaced. Move the guitar out of that list (it is a face-on/profile piece in the classes, like the mic stand) or say so.
   - Minor, optional: `delivery-box` (placed on the `x` tile, to be redrawn near top-down) is not named in any class; the 'Scale' bullet still says "Until then" about issue 020's floor plan; the legend still defines **Adapt** though no row uses it; the opening Room orientation sentence says far-wall pieces are drawn diagonally, but the bookshelf and bed on that wall are exceptions (it does say 'see Perspective').
   - Build and tests not run (docs-only diff).
+- 2026-10-28: round 1 review fixes: tub and bath south-wall wording, guitar removed from the unplaced list, delivery-box named. Back to review.

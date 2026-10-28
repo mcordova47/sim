@@ -1,7 +1,7 @@
 ---
 id: 098
 title: Art style doc: the perspective rule (south wall near top-down, the rest diagonal)
-status: review
+status: done
 owner: claude
 depends_on: [096]
 ---
@@ -39,3 +39,4 @@ Write Marc's perspective rule into `docs/art-style.md` (decisions in `docs/asset
   - Minor, optional (carried from round 1): the opening Room orientation sentence says far-wall pieces are diagonal though the bookshelf and bed are exceptions; 'Until then' in the Scale bullet; the Overhang bullet now uses the sofa as its example although `sofa-td` has no overhang rows (6x2 tiles, 2x... footprint 6x2).
   - Build and tests not run (docs-only diff).
 - 2026-10-28: round 2 review fix: hood taken out of the south-wall list; tub nit, overhang example and orientation line tidied. Two review rounds done; stopping per the skill.
+- 2026-10-28: **Review round 3 (independent): APPROVED.** Checked the last fixes (6f7f783) against the sprites and maps. Hood: in KITCHEN_MAP it is `hhh` in the row-5 wall line, 48x16, and the doc now lists it only as face-on (not in the south-wall list); the Perspective bullet says so explicitly. Tub: BATH_MAP rows 1-4, cols 1-2, 32x64 (2x4), wall at col 0, so it takes its long (west) wall and is a named exception; the parenthetical in the south-wall test says so. Delivery box: `x` at row 8 col 10 of MAIN_MAP with the front door `ff` below, 16x16, named as a south-wall piece (near top-down), matching Marc's answer 2. Overhang example: `sofa-td` is 96x32 = 6x2 tiles, no overhang rows, so the example is right. Also re-confirmed sizes of bed-made (80x96), bookshelf (16x64, 1x4, north wall above), toilet (32x32), fridge, record-stand, nightstand. Rule, four classes and named exceptions match Marc's answers 1 to 5. Fridge and record-stand rows saying "Redraw (issue 099)" are expected until 099 merges. Scope: docs only. Non-blocking nits: the south-wall test sentence has nested parentheses and reads awkwardly; the legend still defines **Adapt** though no row uses it; the Scale bullet still says "Until then" about issue 020. status: done.

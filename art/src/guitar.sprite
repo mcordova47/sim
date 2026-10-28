@@ -1,4 +1,4 @@
-# Guitar on a stand (issue 107): 1x1 tile, the old diagonal flipped over a horizontal line: the body sits north-east with its dark sound hole, the neck runs south-west to the headstock and tuners, as if the guitar stood on a stand facing into the room, with a small dusk tripod under the body. Shaded for light from the top-left (lit top and left edges, dark bottom and right). The first version (neck north-west, hanging) is in git history.
+# Guitar (issues 107, redrawn): 1x1 tile at the south wall (col 1, row 6 of the main room). Drawn on its own, no stand: the body sits north-east with its dark sound hole and the neck runs south-west to the headstock and mist tuners, lit from the top-left. The stand is not part of this picture on purpose (Marc, 2026-10-28): while the guitar is played the pose sprite `player-guitar` replaces this piece and draws the empty stand under the player, so it reads as the guitar lifted off its stand.
 size: 16x16
 .........11111..
 ........1999881.
@@ -9,10 +9,10 @@ size: 16x16
 .....19988888771
 .....1988888771.
 ......18887711..
-.....1777771141.
-....17779711141.
-...1771111..141.
-..1771.....1441.
-.5875.....14441.
-.1881....1441441
-.5115....1411141
+.....17777711...
+....1777971.....
+...1771111......
+..1771..........
+.5875...........
+.1881...........
+.5115...........

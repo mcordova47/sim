@@ -310,7 +310,7 @@ describe("task effects", () => {
 
   it("sends notes from the guitar while it is played", () => {
     const { game, feature } = setup();
-    game.player.placeAt(1, 4, "down");
+    game.player.placeAt(1, 5, "down");
     run(game, 0.05);
     game.update(dt, press);
     expect(game.interaction.active?.item.id).toBe("guitar");

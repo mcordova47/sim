@@ -69,7 +69,7 @@ describe("doing poses", () => {
     ["doomscroll", 5, 4, "down", {}, "player-sit-sofa", 93, 80],
     ["work", 6, 3, "up", {}, "player-type-desk", 128, 32],
     ["drink-coffee", 2, 3, "up", { mug: 1 }, "player-eat-table", 40, 32],
-    ["guitar", 1, 4, "down", {}, "player-guitar", 16, 64],
+    ["guitar", 1, 5, "down", {}, "player-guitar", 16, 80],
     ["sleep", 11, 4, "right", { bedMade: 1, energy: 10 }, "player-sleep-bed", 192, 32],
   ];
 
@@ -125,7 +125,7 @@ describe("doing poses", () => {
     const game = setup(sprites);
     frame(game, sprites);
     expect(sprites.names()).toContain("guitar");
-    start(game, 1, 4, "down", "guitar");
+    start(game, 1, 5, "down", "guitar");
     frame(game, sprites);
     expect(sprites.names()).not.toContain("guitar");
     expect(sprites.names()).toContain("player-guitar");
@@ -185,7 +185,7 @@ describe("held items", () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     const sprites = new Recorder((n) => n !== "player-guitar");
     const game = setup(sprites);
-    start(game, 1, 4, "down", "guitar");
+    start(game, 1, 5, "down", "guitar");
     frame(game, sprites);
     expect(sprites.names()).toContain("held-guitar-down");
     expect(sprites.names()).toContain("guitar");

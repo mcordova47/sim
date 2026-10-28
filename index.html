@@ -92,6 +92,12 @@
         display: flex; align-items: center; justify-content: center;
       }
       .tp-btn.tp-held, .tp-pill.tp-held { background: #8a847a; }
+      /* The hidden text field (issue 093): on the page so it can take focus, but not to be seen. 16px
+         keeps iOS from zooming in when it is focused. */
+      .tp-text {
+        position: fixed; left: 0; bottom: 0; width: 1px; height: 1px; padding: 0; border: 0;
+        opacity: 0; font-size: 16px; pointer-events: none; user-select: text; -webkit-user-select: text;
+      }
       .tp-face { position: relative; width: 164px; height: 120px; }
       .tp-pills { display: flex; gap: 12px; justify-content: space-between; }
 

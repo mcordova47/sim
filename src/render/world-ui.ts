@@ -1,6 +1,7 @@
 import type { Interactable } from "../game/interactable";
 import { COLOR, withAlpha } from "./colors";
 import { GLYPH_H, drawText, textWidth } from "./font";
+import { keyLabel } from "./hints";
 import { HUD_BOX, placeLabel, type Box } from "./layout";
 import type { SpriteDrawer } from "./sprites";
 
@@ -102,7 +103,7 @@ export function drawPrompt(
   if (!cooling) {
     ctx.fillStyle = KEY_BG;
     ctx.fillRect(box.x + 2, box.y + 2, 9, 9);
-    drawText(ctx, "E", box.x + 4, box.y + 3, { color: KEY_FG, shadow: null });
+    drawText(ctx, keyLabel("E"), box.x + 4, box.y + 3, { color: KEY_FG, shadow: null });
     textX += KEY_WIDTH;
   }
   drawText(ctx, label, textX, box.y + 3, { color: cooling ? DIM : TEXT, shadow: null });

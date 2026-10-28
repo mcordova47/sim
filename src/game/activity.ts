@@ -1,4 +1,5 @@
 import type { Controls } from "../input/controls";
+import type { TapTarget } from "../input/tap";
 import type { DialogNode, DialogResult } from "./dialog";
 import type { Direction } from "./direction";
 import type { SpriteDrawer } from "../render/sprites";
@@ -142,6 +143,14 @@ export interface Activity {
   update(dt: number, controls: Controls): void;
   // Drawn in screen space, over the HUD, while it runs.
   draw?(ctx: CanvasRenderingContext2D, screen: { width: number; height: number }): void;
+  // Buttons on its screen that a tap on the touch layer can press, in game pixels (issue 093).
+  // Asked each time the player taps, so they follow what is drawn right now.
+  tapTargets?(screen: { width: number; height: number }): TapTarget[];
+  // True while the screen wants the player to type (the sync key), so the touch layer raises
+  // the phone's keyboard; `textValue` is what it holds and `setText` takes the whole text.
+  readonly wantsText?: boolean;
+  textValue?(): string;
+  setText?(text: string): void;
   // Backs out of it. The interaction system calls it only when Escape is
   // pressed and `cancellable` is true (or by the game when Escape is pressed
   // while the activity's dialog is up). It

@@ -5,7 +5,9 @@ import type { Level } from "../level";
 import { clearGuestCards } from "../flashcards/guest";
 import { STATE_VARS } from "../state-vars";
 import { ACHIEVEMENTS, type Achievement } from "./data";
-import { drawList, drawToasts } from "./draw";
+import { touchHints } from "../../render/hints";
+import type { TapTarget } from "../../input/tap";
+import { drawList, drawToasts, listRows, pageButton, pauseButtons, touchPageSize, type ListView } from "./draw";
 import { ProgressStore, parseWorld, type KeyValueStorage, type WorldSave } from "./progress";
 import { Stats } from "./stats";
 import { ToastQueue } from "./toasts";
@@ -70,6 +72,8 @@ export class AchievementsFeature implements Layer {
   constructor(private readonly game: Game, options: AchievementOptions = {}) {
     // The list is drawn for 320 x 192, so the phone's narrow view switches size while it is open (issue 090).
     game.fullPictureWhen.push(() => this.listOpen);
+    // The pause screen holds the clock (issue 093): it is a pause, and the game has no pressure.
+    game.pausedWhen.push(() => this.listOpen);
     this.list = options.list ?? ACHIEVEMENTS;
     this.rooms = options.rooms ?? APARTMENT.rooms;
     this.unlocks = new Unlocks(this.list);
@@ -245,27 +249,89 @@ export class AchievementsFeature implements Layer {
     }
     if (!this.listOpen) return;
     if (e.code === "Escape") return this.closeList();
-    if (e.code === UI.dialogVoiceKey && !e.shiftKey) {
-      this.game.dialogVoice?.toggle();
-      return;
-    }
-    // The ad blocker (issue 043 stage B): kept with the settings, so a progress reset leaves it alone.
-    if (e.code === UI.adBlockerKey && !e.shiftKey) {
-      this.confirmReset = false;
-      this.game.setAdBlocker(!this.game.adBlockerOn);
-      this.flash = `AD BLOCKER: ${this.game.adBlockerOn ? "ON" : "OFF"}`;
-      this.flashFor = UI.flashSeconds;
-      return;
-    }
-    if (e.code === "ArrowUp" || e.code === "ArrowDown") {
+    if (e.code === UI.dialogVoiceKey && !e.shiftKey) return this.toggleVoice();
+    if (e.code === UI.adBlockerKey && !e.shiftKey) return this.toggleAdBlocker();
+    // The arrows, and W and S (the touch layer's pad sends those).
+    const down = e.code === "ArrowDown" || e.code === "KeyS";
+    if (down || e.code === "ArrowUp" || e.code === "KeyW") {
       e.preventDefault?.();
-      const n = this.list.length;
-      this.cursor = (this.cursor + (e.code === "ArrowDown" ? 1 : n - 1)) % n;
-      this.confirmReset = false;
+      this.moveCursor(down ? 1 : -1);
       return;
     }
     if (this.confirmReset && e.code === "KeyY") return this.reset();
     this.confirmReset = e.code === "KeyR" && !!e.shiftKey;
+  }
+
+  private toggleVoice(): void {
+    this.game.dialogVoice?.toggle();
+  }
+
+  // The ad blocker (issue 043 stage B): kept with the settings, so a progress reset leaves it alone.
+  private toggleAdBlocker(): void {
+    this.confirmReset = false;
+    this.game.setAdBlocker(!this.game.adBlockerOn);
+    this.flash = `AD BLOCKER: ${this.game.adBlockerOn ? "ON" : "OFF"}`;
+    this.flashFor = UI.flashSeconds;
+  }
+
+  private moveCursor(step: number): void {
+    const n = this.list.length;
+    this.cursor = (this.cursor + step + n) % n;
+    this.confirmReset = false;
+  }
+
+  // What the screen shows right now. One place, so the picture and the taps agree.
+  private view(): ListView {
+    const touch = touchHints();
+    return {
+      achievements: this.list,
+      unlocked: (id) => this.unlocks.has(id),
+      cursor: this.cursor,
+      voice: this.game.dialogVoice?.label() ?? null,
+      // On touch the question is drawn with YES and NO buttons, so it has no text line.
+      message: this.confirmReset ? (touch ? null : "RESET ALL PROGRESS? Y: YES") : this.flashFor > 0 ? this.flash : null,
+      adBlocker: this.game.adBlockerOn,
+      sprites: this.game.sprites,
+      touch,
+      confirmReset: this.confirmReset,
+    };
+  }
+
+  // Everything on the pause screen that a finger can press (issue 093): each setting, RESET with
+  // its YES and NO, CLOSE, the achievement rows and the page button.
+  tapTargets(): TapTarget[] {
+    if (!this.listOpen || !touchHints()) return [];
+    const view = this.view();
+    const actions: Record<string, () => void> = {
+      adBlocker: () => this.toggleAdBlocker(),
+      voice: () => this.toggleVoice(),
+      reset: () => {
+        this.confirmReset = true;
+      },
+      yes: () => this.reset(),
+      no: () => {
+        this.confirmReset = false;
+      },
+      close: () => this.closeList(),
+    };
+    const targets: TapTarget[] = [];
+    for (const { index, rect } of listRows(view)) {
+      targets.push({ ...rect, run: () => {
+        this.cursor = index;
+        this.confirmReset = false;
+      } });
+    }
+    const page = pageButton(view);
+    if (page) {
+      const size = touchPageSize();
+      targets.push({ ...page.rect, run: () => {
+        // The first achievement of the next page, back to the first page after the last.
+        this.cursor = ((Math.floor(this.cursor / size) + 1) * size) % this.list.length;
+        this.confirmReset = false;
+      } });
+    }
+    for (const b of pauseButtons(view)) targets.push({ ...b.rect, run: actions[b.id] });
+    return targets;
   }
 
   update(dt: number): void {
@@ -286,17 +352,7 @@ export class AchievementsFeature implements Layer {
 
   drawHud(ctx: CanvasRenderingContext2D): void {
     drawToasts(ctx, this.toasts.views());
-    if (this.listOpen) {
-      drawList(ctx, {
-        achievements: this.list,
-        unlocked: (id) => this.unlocks.has(id),
-        cursor: this.cursor,
-        voice: this.game.dialogVoice?.label() ?? null,
-        message: this.confirmReset ? "RESET ALL PROGRESS? Y: YES" : this.flashFor > 0 ? this.flash : null,
-        adBlocker: this.game.adBlockerOn,
-        sprites: this.game.sprites,
-      });
-    }
+    if (this.listOpen) drawList(ctx, this.view());
   }
 }
 

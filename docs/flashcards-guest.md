@@ -30,7 +30,7 @@ Study Spanish
 
 Up and down pick, E confirms, Escape leaves (as everywhere). "Enter a sync key" opens the screen that exists today unchanged. Wording is a draft for the text pass (issue 037) and the screen is never shown to Marc himself once a key is saved (the saved key goes straight to the cards, as now).
 
-**Which mode opens next time.** The browser remembers the last choice (a `mode` of `"key"` or `"guest"`, beside the key in `life.flashcards.v1`): a returning guest goes straight to their cards; a saved key goes straight to its cards. Leaving a mode is a second small control (open question 3).
+**Which mode opens next time.** The browser remembers the last choice (a `mode` of `"key"` or `"guest"`, beside the key in `life.flashcards.v1`): a saved key goes straight to its cards. *Changed in issue 093:* a returning guest with no key sees the choice screen every visit (cursor on "Study without a key", so continuing is one press), because otherwise there was no quick way to reach the key entry. Leaving a mode is a second small control (open question 3).
 
 ## 4. Point 2: where a guest's progress lives (the three options)
 ### (a) In this browser only, with the same core (recommended)
@@ -87,7 +87,7 @@ So the "language argument" and "a way to start from empty progress" you asked ab
 - Pasting a key from the guest's menu opens the key screen as today and starts from **that account's own progress** (GET, `session`, and so on). The guest blob is not read, not sent and not merged. No prompt about it.
 - **The guest blob is kept, untouched,** under its own storage key. Leaving the key later (see the next point) returns to the same guest progress. It costs nothing and avoids a destructive act. If Marc would rather the guest blob be deleted on entering a key, that is open question 4; the default here is to keep it.
 - The guest and key paths never write to each other's storage. The key path never reads the guest blob; the guest path never reads the key.
-- Marc himself is unaffected: he has a saved key, and the choice screen only shows when neither a mode nor a key is saved.
+- Marc himself is unaffected: he has a saved key, and the choice screen shows whenever no key is saved (issue 093; it first showed only when no mode was saved either).
 
 Switching back and forth, and forgetting a key, are interface questions (open question 3). The current game has no "forget key" button; a guest's choice screen makes one more worth having.
 
@@ -131,7 +131,7 @@ Switching back and forth, and forgetting a key, are interface questions (open qu
 
 **Stage 2: storage and the second visit (small).**
 - The guest blob store (`life.flashcards.guest.<language>.v1`, wrapped in try/catch like the others), read fresh before every grade.
-- A returning guest opens straight to their cards; a one-line "saved in this browser only" note on the opening or done screen.
+- A returning guest sees the choice screen first, with the cursor on "Study without a key" (issue 093; it first opened straight to the cards); a one-line "saved in this browser only" note on the opening or done screen.
 - The unreadable path with an explicit "Start again" (one confirm).
 - Tests for reload, two sessions in a row, cleared storage and blocked storage.
 

@@ -148,6 +148,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 110 | [A manual deploy button on GitHub](issues/110-manual-deploy-action.md) | claude | review | |
 | 111 | [The side project picture reacts to editable config (stretch)](issues/111-side-project-config.md) | marc + claude | todo | 101 |
 | 112 | [Real-world effects: what is feasible (research)](issues/112-real-world-effects-research.md) | marc + claude | todo | |
+| 113 | [Photo reel: pixelated pictures from your own device (experiment)](issues/113-photo-reel-experiment.md) | marc + claude | todo (design first) | 112 |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

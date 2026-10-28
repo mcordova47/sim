@@ -182,3 +182,8 @@ Order: a, b, c, d, e (f any time after a). b is the first thing Marc can really 
 3. **Should the skill show anywhere?** Recommendation: one deadpan line on the pause screen after the first session ("STILL THREE CHORDS" and so on), no numbers. Options: (a) that; (b) nowhere, you only hear it; (c) the line plus a quiet achievement at the top level.
 4. **While a record is playing, what does the groove do?** Recommendation: duck the record to about a third while you play at level 4. Options: (a) duck; (b) stop the record while the guitar is out; (c) play over it untouched.
 5. **Is the first-session sound still the old plain note?** Recommendation: yes, level 1 stays exactly today's single note (it is the joke's start: "play three chords" and it is one note). Options: (a) yes; (b) start at chords but with the clumsy strum (one flat chord per press), and make single notes only a dev preview.
+
+## Marc's answers (2026-10-28)
+- **Q2, what fingerstyle means: (a)** the persistent bass and harmony loop with each keypress playing a melody over it. "Let's try it and see how it feels."
+- **Decided by the planner without Marc (easy to change, all in config):** level 1 stays today's single note; the record ducks to about a third while the groove plays; skill shows as one deadpan pause line after the first session (114f, optional); level pace 4 / 12 / 30 sessions.
+- **Build order:** 114a (rule, data, chords, strumming: levels 1 to 3) first, then 114b (the groove and the melody over it: level 4) so Marc can hear and feel each step; 114c (the pause line) any time after 114a.

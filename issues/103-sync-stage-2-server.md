@@ -1,7 +1,7 @@
 ---
 id: 103
 title: Sync stage 2: the Netlify Function with Blobs and the pairing link
-status: review
+status: done
 owner: claude
 depends_on: [102]
 ---
@@ -56,3 +56,26 @@ Build stage 2 of `docs/sync.md` (sections 3, 8, 9, 10 and 12): a small server in
   8. Without Netlify: `npm run dev` also works (an in-memory fake that resets when you stop it).
 
   **Leftover:** stage 3 (automatic sync, QR, status on load) is issue 104. `docs/sync.md` was not edited (it is the design); where this build differs: the sync page is reached by P on the desktop, the origin in the link is the page's own, and there is no CORS header at all.
+
+- 2026-10-28 (reviewer, independent): **Verdict: approve.** Status set to done. PLAN.md table needs updating by the planner.
+
+  **Commands (run by me):** `npm test` 125 files, 2810 passed, 1 skipped; `npx tsc --noEmit` clean; `npm run build` ok; `npm run check:dist` "dist/ looks ready to deploy". I grepped `dist/` myself: no `life-dev-sync-fake`, `unplayedMs`, `sweepAbove`, `@netlify/blobs`, memoryStore or `x-sync-key`; one `/api/sync` (the client); `#sync=` only as the bare marker. The diff touches nothing in `art/src`, `public/sprites` or the typing activity, and has no secrets, env vars, emails, local paths or Netlify settings changes (`netlify.toml` gains only `[functions] directory`; `process.env` appears only in a test asserting its absence). `package-lock.json` gains about 35 transitive packages from `@netlify/blobs` (all registry.npmjs.org).
+
+  **My own checks (scratchpad, not in the repo).**
+  - Handler against my own store (quoted etags, list with etag and directories, random latency): bad keys all 400 and never echoed; unminted GET and PUT 404 and no key created; a multi-byte body just over 128 KB is 413, exactly 128 KB accepted, cap+1 413, a streamed body with no Content-Length over the cap 413; 17 shape cases (arrays, null, wrong app, format 2, unknown field, `__proto__`, 37 tracks, bad types, empty, bad JSON, invalid UTF-8) all 400; 405 for OPTIONS and PATCH; `no-store` on every answer; the key never appears in a response; console silent, including when the store throws (500, no detail). Sweep with a fake clock: unplayed key 404 at 7 days even if read at 6.9 days, empty save (activeAt 0) at 7 days, played key alive at 89 days and gone after 91 unseen; more than 100 keys makes a mint sweep 150 expired keys; 1000 live keys gives 503; 1000 expired keys then mint works; last-seen refresh only after a day, with `onlyIfMatch`; DELETE then GET 404.
+  - Store calls match `@netlify/blobs` 11.1.7 types and the current Netlify Blobs docs (`getWithMetadata` type text, `getMetadata`, `set` with metadata and `onlyIfNew` or `onlyIfMatch` returning `modified`, `delete`, `list()` returning `{blobs,directories}`).
+  - Client over `HttpBackend` with a stubbed fetch to my handler: offline, hang (aborts at the timeout, also when the body read hangs), an HTML 200 answer, 429 and 500 all give NO CONNECTION with no throw and game state untouched; double clicks give ONE MOMENT; two devices syncing at the same time then again converge; an upper case pasted link works; the key is only in `life.sync.v1` (every storage entry checked), not in the document, code or save file; `reset()` keeps the key; every request goes to `/api/sync`; newer-format, garbage and `[]` blobs are left untouched on the server. A blob with a bad inner field is read tolerantly and overwritten by the merged save, which is fine.
+  - Dev fake: ran `vite` on a spare port; curl showed POST mint (32 chars), GET `{}` with `no-store`, 405, 400. Stopped afterwards.
+  - `src/main.ts` `#sync=` flow read, not run in a browser: the hash is removed with `replaceState` before the question, even for an invalid key.
+
+  **Criteria:** two browsers pair and converge: pass (fake server and my HTTP-level two-device test; not two real browsers on Netlify); production build has no dev fake: pass; `check:dist`: pass; test, tsc, build: pass; Marc's instructions in the log: pass (steps 1 to 8); unverified list: pass.
+
+  **Non-blocking observations (no change needed to merge):**
+  - A PUT racing a DELETE can recreate the key (my parallel PUT, DELETE, PUT left it present); the 90 day expiry cleans it up.
+  - Concurrent mints near 1000 keys have no atomic count and could overshoot by a few.
+  - A 429 from the rate limit shows as SYNC: NO CONNECTION.
+  - `rateLimit` omits the documented `action` field; the docs list it among the properties and do not say it is optional. Marc's step 7 (the deploy log) covers it.
+  - Every mint does one `list()`.
+  - Pairing with a new key while already paired replaces the old key without asking.
+
+  **Unverified (author's and mine):** the real function on Netlify or under `netlify dev` (not run); that `context.deploy.context` equals `"production"` (the docs page defines the property but lists no values; the fallback is the `sync-preview` store); that `rateLimit` is accepted on Marc's plan and that omitting `action` is fine (the docs page states no plan limits); Blobs `list` and `getMetadata` cost at 1000 keys; whether the platform logs request headers (`X-Sync-Key`); credit cost; feel on a phone and the full touch layout by eye; the `#sync=` flow in a real browser (clipboard, address bar removal).

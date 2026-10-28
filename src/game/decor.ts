@@ -129,6 +129,24 @@ export class Decor {
     return this.items.get(this.previewed?.get(slotId) ?? this.heldBy(slotId))!;
   }
 
+  // Whether the item really in the slot is a live one (a family that grows or droops, like the
+  // snake plant) and so offers watering. Dried flowers and other still items are not (issue 105).
+  isLive(slotId: string): boolean {
+    const rules = this.placedIn(slotId).family ? this.data.families[this.placedIn(slotId).family!] : undefined;
+    return !!rules && (rules.stages > 0 || rules.droops);
+  }
+
+  // The state variables of slots that hold something that is not live: they stand still (issue 105),
+  // so the live plant's stage, growth and dryness are as it left them when it comes back.
+  frozenVars(): Set<string> {
+    const ids = new Set<string>();
+    for (const s of this.data.slots) {
+      if (this.isLive(s.id)) continue;
+      for (const v of [s.stageVar, s.growthVar, s.dryVar]) if (v) ids.add(v);
+    }
+    return ids;
+  }
+
   // The item that is really in the slot, whatever is being previewed.
   placedIn(slotId: string): DecorItem {
     if (!this.slots.has(slotId)) throw new Error(`Unknown decor slot "${slotId}"`);

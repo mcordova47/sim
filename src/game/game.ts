@@ -170,6 +170,8 @@ export class Game {
     this.painter = new RoomPainter(options.sprites);
     this.grid = new Grid(level.size, this.activeSolids());
     this.state.onChange = (change) => this.stateChanged(change);
+    // A slot holding something that is not a live plant keeps the live plant's state as it was (issue 105).
+    this.state.frozen = (id) => this.decor.frozenVars().has(id);
     // Sleeping and napping skip hours, and a delivery due in that time arrives when you wake.
     this.state.onClockSkip = (hours) => this.deliveries.advance(hours);
     this.deliveries.canArrive = () => !this.onPackageSpot();
@@ -221,7 +223,7 @@ export class Game {
     this.interaction.host = this.activityHost();
     // A swap with nothing to swap to is not offered (no prompt, not in the choice cycle).
     this.interaction.hidden = (item) =>
-      (item.decorSlot !== undefined && !this.decor.canChange(item.decorSlot)) || (item.delivery === true && !this.deliveries.waiting) ||
+      (item.decorSlot !== undefined && !this.decor.canChange(item.decorSlot)) || (item.liveSlot !== undefined && !this.decor.isLive(item.liveSlot)) || (item.delivery === true && !this.deliveries.waiting) ||
       // Taking out the recycling is only offered at the boxes when they are flat (issues 070 and 071); otherwise Flatten the boxes is what shows.
       (item.id === "recycle-boxes" && this.state.has("boxes") && this.state.get("boxes") !== 0);
     this.dialog = new DialogRunner({

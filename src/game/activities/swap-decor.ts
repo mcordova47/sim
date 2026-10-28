@@ -81,13 +81,15 @@ export class SwapDecorActivity extends BaseActivity {
     this.decor.clearPreview();
     if (!item) return this.leave();
     const plan = this.decor.plan(this.slotId, item.id);
+    const wasLive = new Map(plan.ok ? plan.changes.map((c) => [c.slot, this.decor.isLive(c.slot)] as const) : []);
     // Refused (the other slot cannot take what is here): the list stays open and says why.
     if (!plan.ok) return;
     if (plan.changes.length && this.decor.place(this.slotId, item.id)) {
-      // A plant you put in starts small: the growth and dryness of every slot that got a new item start over.
+      // A live plant you put in over another live plant starts small: its slot's growth and dryness start over.
+      // A still item (dried flowers) standing in, or leaving, keeps the live plant's state as it was (issue 105).
       for (const c of plan.changes) {
         const slot = this.decor.slot(c.slot);
-        if (slot) for (const id of [slot.stageVar, slot.growthVar, slot.dryVar]) if (id) this.host.setState(id, 0);
+        if (slot && wasLive.get(c.slot) && this.decor.isLive(c.slot)) for (const id of [slot.stageVar, slot.growthVar, slot.dryVar]) if (id) this.host.setState(id, 0);
       }
     }
     this.finish({ completed: false, quiet: true });

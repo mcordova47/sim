@@ -216,15 +216,34 @@ describe("the swap list", () => {
     expect(game.state.get("clock")).toBe(clock);
   });
 
-  it("swapping the plant starts the new one small", () => {
-    const { game, decor } = start(["plant-test-grown"], "swap-plant-shelf");
-    game.state.applyEffects([{ var: "plantStage", set: 3 }, { var: "plantDry", set: 50 }]);
+  it("a still item standing in the plant slot keeps the live plant's state, and it freezes (issue 105)", () => {
+    const { game, decor } = start(["plant-dried"], "swap-plant-shelf");
+    game.state.applyEffects([{ var: "plantStage", set: 2 }, { var: "plantDry", set: 5 }, { var: "plantGrowth", set: 1 }]);
     game.update(dt, down);
     game.update(dt, press);
-    expect(decor.placedIn("plant-shelf").id).toBe("plant-test-grown");
-    expect(game.state.get("plantStage")).toBe(0);
-    expect(game.state.get("plantDry")).toBe(0);
-    expect(game.state.get("plantGrowth")).toBe(0);
+    expect(decor.placedIn("plant-shelf").id).toBe("plant-dried");
+    expect([game.state.get("plantStage"), game.state.get("plantDry"), game.state.get("plantGrowth")]).toEqual([2, 5, 1]);
+    // Time, a nap and a night's sleep do not dry it, and the plant tasks are not offered.
+    game.state.tick(3600);
+    game.state.applyEffects([{ var: "clock", add: 3 }, { var: "plantDry", add: 3 }]);
+    expect(game.state.get("plantDry")).toBe(5);
+    const plantTasks = APARTMENT.rooms.main.interactables.filter((i) => i.liveSlot);
+    expect(plantTasks.map((i) => i.id).sort()).toEqual(["check-plant", "water-plant", "water-plant-droop"]);
+    for (const t of plantTasks) expect(game.interaction.hidden?.(t)).toBe(true);
+    // Back to the snake plant: its state is as it was, it dries again and the tasks return.
+    standAt(game, "swap-plant-shelf");
+    for (let i = 0; i < 6 && game.interaction.nearby?.id !== "swap-plant-shelf"; i++) game.update(dt, TAB);
+    expect(game.interaction.nearby?.id).toBe("swap-plant-shelf");
+    game.update(dt, press);
+    game.update(dt, up);
+    game.update(dt, press);
+    expect(decor.placedIn("plant-shelf").id).toBe("plant-snake");
+    expect(game.state.get("plantStage")).toBe(2);
+    expect(game.state.get("plantDry")).toBe(5);
+    expect(game.state.get("plantGrowth")).toBe(1);
+    game.state.tick(3600);
+    expect(game.state.get("plantDry")).toBeGreaterThan(5);
+    for (const t of plantTasks) expect(game.interaction.hidden?.(t)).toBe(false);
   });
 
   it("escaping a plant swap leaves the plant as it grew", () => {

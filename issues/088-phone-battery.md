@@ -1,7 +1,7 @@
 ---
 id: 088
 title: A phone battery (a gag) and a charge-your-phone task
-status: review
+status: done
 owner: claude
 depends_on: [086]
 ---
@@ -32,3 +32,13 @@ Marc (2026-10-27), on the 048 design: the phone battery is kind of a gag, plus a
   - Goldens: `main-room-frames.json` and `sleep-frames.json` re-recorded; what changed is the phone slot in the ribbon and the charger prop on the nightstand. I looked at the room in headless Chrome (desktop and `?touch=1`) and a 3x crop of the nightstand.
   - Drain: none, by Marc's answer. Open questions for Marc (not built): (1) drain a little with each Doomscroll (fits the joke)? (2) drain slowly with the clock? (3) should a dead phone ever refuse Doomscroll and the other phone tasks, or the encounter ads? (4) should the bar hide at rest and only appear for 4 s on change, as the note first said?
   - Could not check: how it feels in a real browser, and the touch layer on a real phone.
+- 2026-10-27: Review (independent, fresh agent). Verdict: approve.
+  - Checks run: `npm test` (113 files, 2654 passed, 1 skipped), `npx tsc --noEmit` (clean), `npm run build` (ok). My own throwaway checks (removed): setter clamps -5 to 0 and 250 to 100; `tick(1e6)` leaves a full battery at 100; chip positions for 5 to 10 digits on both views; ribbon bottom is y 15, inside the 32 px band, on both views.
+  - Saved and loaded: pass. `battery.test.ts` covers an old save (starts at 40), a value of 9999 (clamps to 100) and a string (ignored, 40). Nothing else reads or sets `battery`: grep finds it only in state-vars, tasks (the charge effect), hud and tests; the test also proves no task requires it or changes it.
+  - Task: pass. At the nightstand with a prop, never gated (works from 0, 40 and 100), 60 s cooldown (test, and `cooldowns.test.ts` row), no other variable moved. Text passes `unsupportedChars`. Drain: none, per Marc's answer; open options noted in the log above.
+  - Ribbon: pass. Phone and bar in the fourth slot, brick under 20, plug for 4 s after a rise, not on a fall. Desktop: right chip ends at x 316 of 320, no overlap up to 10 digits. Narrow: ends at 220 of 224, clear up to 8 digits.
+  - Goldens: pass. Every changed frame in both files differs by exactly +6 draw calls (62 of 62), the same on every frame, so it is the phone slot and the charger prop and nothing else.
+  - Scope: pass. No change in `src/input`, the pause screen, flashcards or hint code; PLAN.md and other issues untouched; no personal details or reference photos in the diff.
+  - Not verified (can't verify here): how it looks and feels in a real browser, and the touch layer on a real phone; I judged the sprites only from their source.
+  - Notes for Marc and the planner, not blockers: (1) the narrow view now overlaps the two chips at a 9 or 10 digit score (left chip ends at x 101 or 107, right chip starts at x 99); the author weakened `hud.test.ts` from 10 to 8 digits on narrow to match. 8 digits is ten million points; a score that large is unlikely but this loosens a guarantee from an earlier issue. (2) "the later strip" in the acceptance criteria does not exist yet (it is the portrait shell stage), so nothing to verify; the strip must show the phone when it is built. (3) The bar is always drawn, not hidden at rest as docs/hud-design.md section 8 first said; the show-on-change stage (section 10, question 1) is the place for that. (4) "Marc looks at it" is still open.
+  - Merge: branch `issue/088-phone-battery`. PLAN.md table needs updating by the planner.

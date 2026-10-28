@@ -1,7 +1,7 @@
 ---
 id: 096
 title: Asset review: go over every sprite for perspective and consistency
-status: review
+status: done
 owner: marc + claude
 depends_on: []
 ---
@@ -37,3 +37,13 @@ Marc (2026-10-27): an asset review, going over all the assets in detail and deci
     - [ ] (optional) State that coverage rows for the 48 player frames, walls, held items and icons are by group, or list `dishes-1..3`, `plant-1..3`, `view-ad-*` etc. in the table text, so a name search finds them.
   - Not a blocker: the `view-side-project` HUD text judgment is Marc's call (decision 11).
 - 2026-10-28 (agent): Round 1 review items fixed in `docs/asset-review.md`: (1) the lamp table is at the sofa's east end beside the south-wall step with floor below it, not directly against the wall, now said everywhere and made decision 4; (2) the desk-chair row no longer contradicts the poses table; (3) a coverage note for grouped names. Status back to review.
+- 2026-10-28 (reviewer 2, fresh agent): **Re-review after round 1 fixes. Verdict: approve (survey step).**
+  - Method: rendered sofa-td, lamp-table, lamp-warm, lamp-candle, desk-chair, fridge, delivery-box, record-stand, stool, vanity, toilet, plant-0/1/3/wilted, phone-charger, bookshelf, tub, counter, stove, table, desk, bed-made, pantry, radiator, player-type-desk, player-eat-table at 5x-8x with `scripts/sprite-lib.mjs` (outside the repo) and viewed them; recomputed silhouette outline coverage with my own script; re-read the three maps in `src/game/apartment.ts` cell by cell.
+  - Round 1 items: (1) lamp table: `L` is at MAIN_MAP row 6 col 8, row 7 col 8 is floor, wall `#` in row 7 covers cols 0-7 only; the doc now says so in the map facts, the furniture row, the lamp rows, the mismatch list and decision 4. Fixed. (2) desk-chair row no longer contradicts the poses table (both say the chair is drawn from above). Fixed. (3) coverage note added. Fixed.
+  - Wall claims re-checked against the maps: sofa (rows 5-6, wall row 7), record stand (col 9 row 7, wall below), delivery box (col 10 row 8, front door row 9), counter and stove (hood row 5), fridge (rows 7-8, wall row 9), desk chair directly south of the desk, bed, tub (west), pantry (east), toilet and vanity (north). All hold.
+  - Perspective classes match the sprites: sofa, counter, bed, tub, bookshelf, desk-chair, toilet top-down; table, desk, delivery-box, record-stand diagonal; fridge, vanity, pantry, radiator front-on (fridge has a top band with items). Outline figures reproduce: delivery-box 0 %, desk-chair 54 %, lamp-table 71 %, lamp-warm 66 %, lamp-candle 64 %, plant-0 53 %, plant-3 25 %, phone-charger 54 %, tub 65 %; fridge, vanity, toilet, bookshelf, stove, counter 100 %.
+  - Unused list consistent with round 1's grep (not repeated). 177 files in `art/src`; every name is in the doc literally or by a range or group row (the coverage note says so).
+  - Consistency: the mismatch list, the style-doc recommendation (6 points) and decisions 1-12 line up (lamps = 4, fridge = 5, delivery box and record stand = 6, chair = 7, plants = 8, bed/tub/toilet/bookshelf = 3, radiator/pantry = 2, outline = 10, view-side-project = 11, unused = 12). The acceptance criteria (every sprite in use covered, mismatches with a fix, ordered decisions, no sprite/map/code change, no private details) are met.
+  - Scope and privacy: `git diff main...HEAD` touches only `docs/asset-review.md` and this file. No address, contact detail or reference-photo content.
+  - Minor, non-blocking notes for the planner when asking Marc: (a) `stove` is called TD in the doc, but the render is mostly a front-on oven face under a thin burner strip (about a sixth of the height); it is more mixed than the counter, so worth asking Marc whether it counts as a model piece. (b) `toilet` and `vanity` carry verdict "Adjust, low priority" in the table, but decision 9 recommends skip and decision 3 / the mismatch list treat the toilet as an exception; treat them as "skip unless Marc says otherwise". (c) record-stand edge ink is 82 %, not mentioned; harmless.
+  - **Unverified:** how the game looks in a browser at 1.0x to 1.67x on a phone; light direction on every sprite (only sampled). Both are stated in the doc and are not blocking for a survey. Steps 3 and 4 (Marc's decisions, follow-up issues) are still to do; the survey step is approved and status set to done, but the planner may prefer to keep the issue open until Marc's answers are recorded.

@@ -1,7 +1,7 @@
 ---
 id: 100
 title: Desk chair redrawn diagonal, the typing-at-the-desk pose, and the typing prompt placement
-status: review
+status: in-progress
 owner: claude
 depends_on: [099]
 ---
@@ -24,3 +24,14 @@ Marc's decision (2026-10-28, `docs/asset-review.md`): redraw the **computer chai
   - Viewed before and after at 8x (throwaway script in the session scratchpad) and the chair in the room (`scripts/main-room-mockup.mjs`).
   - Goldens: the main-room frame golden records sprite names and calls, not pixels, so it did not change and was not re-recorded. `npm test`, `npx tsc --noEmit`, `npm run sprites` pass.
   - Not checked: how it feels in a browser (the box under the player while typing, the chair at 1x). Flashcards (also at the desk with this pose) draw their own full screen and were not changed. Docs: `docs/art-style.md` pose paragraph updated.
+
+- 2026-10-28 (claude, review): **changes needed.**
+  - Checked: `npm test` 2711 passed, `npx tsc --noEmit` clean, `npm run build` ok, `npm run sprites` leaves no diff. Diff against the merge base touches only the chair and pose sources and PNGs, typing.ts, activity.ts, config.ts, game.ts (playerScreenRect, passing `cam`), the new test, `docs/art-style.md` and this file. Nothing in save code, pause screen, plant/decor logic, south-wall pieces or sleeping sprites. (A plain `git diff main` also shows PLAN.md and issue 107, only because main moved on after the branch point.)
+  - Art, pass. Rendered at 8x before and after beside `player-idle-down`, the 099 lamp-table, fridge and record-stand, and in `scripts/main-room-mockup.mjs`. The chair is 12x13 against the player's 12x16 (a little smaller, though as wide as the player), full ink outline, top-left light, a seat top above a striped backrest, two legs; it reads as the diagonal class. `player-type-desk` rows 22..31 are identical to `desk-chair` rows 6..15 (checked in code), and rows 0..5 (the desk edge) are unchanged from main.
+  - Prompt box, pass. A sweep of `TypingActivity.boxPlace` (1..6 lines, widths 60 to full, avoid rects 16x32 and 16x48 at every y, both views) never leaves the screen; it overlaps the avoid rect only in synthetic cases where no vertical position fits (6 lines, 60 px wide, avoid rect mid-screen). In the real game (player at cols 6..9 of row 3, the desk) the box is at y 100 (desktop) and y 116 (narrow) against a pose at y 64..96 and 80..112; with 6 lines it ends at y 182 of 192 and 198 of 208. Without the pose art the box clears the plain player rectangle too. The other typing tasks (`work-sofa`, `work-bed`) go through the same `avoid`, and no other activity's draw changed.
+  - **FAIL: the "WORK" progress banner still covers the seated player.** `drawWorldUi` runs `drawProgress` with the player's own box (the player stands at cols 6..9 of row 3, not on the chair tile), and `placeLabel` puts the banner above that box. In the real game, for every standing column 6, 7, 8, 9 on both views, the banner (83 x 18, 75 percent ink, with the name and a bar) overlaps the pose rectangle: desktop banner y 59..77 against pose y 64..96, narrow banner y 75..93 against pose y 80..112. The seated player's head (pose rows 6..12, so y 70..77 desktop and y 86..93 narrow) lies entirely under it, and so does the desk's edge. That is the same problem Marc raised ("he had never seen the chair pose"), and the issue text says to move "anything else drawn over the desk while typing". The new test only checks the prompt box, so it does not catch this.
+  - Checklist for the author:
+    - [ ] Keep the progress banner (and anything else drawn in screen space while typing at the desk) off the pose rectangle, on both views and for every standing column, or hide or move it while a pose is showing. Use `Game.playerScreenRect`, which already gives the pose rectangle.
+    - [ ] Add a test that checks the banner box against the pose rectangle (desktop and narrow, more than one standing column), as well as the prompt box.
+    - [ ] Re-view a render of the desk during typing (banner, prompt and pose together) on both views.
+  - Unverified (not run in a real browser): how it feels in play (the box under the player, the chair at 1x, the touch view at /?touch=1 with the real controls on top of the canvas), and the pose seen next to the actual banner. `study-spanish` uses the same pose but its flashcards draw full screen, so the pose is hidden there (not changed, as the author said).

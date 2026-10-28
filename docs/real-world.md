@@ -181,6 +181,10 @@ Game use: the record player or speaker shows the artist as pixel text. Privacy: 
 9. In-game browser: do you want it, with a curated allowlist (which of your own sites or feeds, plus Wikipedia and Hacker News), feeds first, and fake in-world sites as the always-on default?
 10. Email: do you still want it given the weekly re-login and the others' data on screen, or drop it?
 
+## Marc's decisions so far (2026-10-28)
+- **In-game browser:** start **client-only**: only sources that send the cross-origin header (Wikipedia's API, probably the Hacker News API, Marc's own sites on Netlify, where he can add the header himself). No function and no credits at first; a function is only for arbitrary blogs later.
+- **Instagram:** not doable as a real integration (no public API for other accounts; the personal-account API was shut down at the end of 2024, from memory, not checked; the Graph API needs a business or creator account and app review). Maybe a fake in-world photo-sharing feed as chrome around the photo reel, or just the plain photo reel. Open.
+
 ## 12. Sources
 
 - Google OAuth app verification and production readiness: https://developers.google.com/identity/protocols/oauth2/production-readiness/policy-compliance

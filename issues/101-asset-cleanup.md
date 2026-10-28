@@ -1,7 +1,7 @@
 ---
 id: 101
 title: Asset cleanup: plant pots, the side-project picture, unused sprites
-status: review
+status: done
 owner: claude
 depends_on: [100]
 ---
@@ -38,3 +38,15 @@ Marc's decisions (2026-10-28, `docs/asset-review.md`): (1) the **plants on the b
   - Unverified: how the picture looks in a browser at game scale; Marc's own judgement of the art (the picture; the plants are back to main's).
   - PLAN.md table needs updating by the planner (101 done).
 - 2026-10-28 (claude, Marc's notes on the picture): redrew view-side-project as a slightly degraded copy of the game's own room (not plain shapes): kept the HUD bars, wall and floor; furniture follows MAIN_MAP (table NW, mic stand, desk right of it, bookshelf as a divider with a plant on top and colored book tops, nightstand with a lamp, bed on the east, sofa on the south wall with its back rail on the near edge, guitar, lamp table, rug, three wall-art rectangles); rounded corners to be less blocky; furniture in dimmer keys (oak, walnut, slate, dusk instead of paper and butter); perspective left off on purpose. The tiny figure stands on the desk facing out as a deliberate glitch; new line in src/game/side-projects.ts ("The tiny person is standing on the desk, facing you. That is a bug. Someone should tell the main character."), listed in docs/text-review.md for Marc to mark. No text in the picture, palette only, 320x192. Viewed at 4x and 8x; not viewed in the page. Plants unchanged from main. Needs one fresh review.
+- 2026-10-28 (claude, independent review, round 3: picture redrawn after Marc's notes): verdict APPROVE. Per check:
+  - Picture, looked at (320x192 PNG, whole at 4x, crops at 8x; scaled with sips, so slightly smoothed): a small monitor on a desk showing a slightly degraded copy of the room. HUD stays as four label bars with value bars (no letters or digits anywhere), wall (cream strip with dots) and wood floor kept. Rounded corners, not blocky. Furniture in dimmer keys (oak, walnut, slate, dusk); the floor and the cream wall are still the lightest areas but not bright. Perspective is a bit off on purpose (front-facing furniture, bed and rug flat): fine per Marc.
+  - Layout against MAIN_MAP: pass. Table at the north-west, mic stand, desk right of it, bookshelf as a tall divider with a plant on top and coloured book tops, nightstand with a lamp and the bed on the east, sofa on the south wall with its brown back rail on the near (bottom) edge, lamp table beside it, guitar at the west, rug in the middle, three wall-art plain coloured rectangles (one reads as a window). Small liberties (rug, guitar tiny) are within "need not be exact".
+  - Glitch figure: pass. A tiny person with a face stands on the desk facing out, readable at 4x.
+  - New line: pass. Present in src/game/side-projects.ts, second in the view (after "A small version of this room..." and before "They are looking at a screen too."), plain ASCII; side-projects.test.ts runs unsupportedChars over every line and passes; the line is listed in docs/text-review.md under "Side-project picture (issue 101)" for Marc to mark.
+  - Size and palette: pass (320x192; `npm run sprites` maps to palette colours only; no photos).
+  - Plants: pass, `git diff main -- art/src/plant-* public/sprites/plant-* public/social.png` is empty.
+  - Scope: pass. `git diff main..HEAD --name-only` has no PLAN.md, reference-photos, other issues or other worktree files; only the earlier-reviewed set plus src/game/side-projects.ts, docs/text-review.md and the sprite and PNG.
+  - `npm test` 127 files, 2826 passed, 1 skipped; `npx tsc --noEmit` pass; `npm run build` pass; `npm run sprites` (170 sprites) leaves `git status` clean.
+  - Minor, not failures: docs/art-style.md line 15 still reads against the plants decision (noted in round 2); the guitar is a tiny ring and hard to read.
+  - Unverified: how the picture looks in a browser page at game scale; Marc's own judgement of the art.
+  - PLAN.md table needs updating by the planner (101 done).

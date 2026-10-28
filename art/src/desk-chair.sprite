@@ -1,17 +1,17 @@
-# Desk chair (issue 100): seen from behind, above and a little in front (the diagonal class, like the desk it sits at). The seat top with its cream and green ticking, the backrest's top rail and striped back cushion, two short legs. 12 wide by 13 tall in a 1x1 tile, a little smaller than the player. Light from the top-left. `player-type-desk` draws the same chair with the player in it.
+# Desk chair (issue 100): seen from behind, above and a little in front (the diagonal class, like the desk it sits at). Seat top and backrest cushions with cream and green ticking running vertically, rounded cushion corners, a light wood top rail, thin oak arms on each side, two short legs. 14 wide by 13 tall in a 1x1 tile, a little smaller than the player. Full ink outline, light from the top-left. `player-type-desk` draws the same chair with the player in it.
 size: 16x16
 ................
 ................
-..111111111111..
-..1eeeeeeeeee1..
-..166666666661..
-..1eeeeeeeeee1..
-..111111111111..
-..1aaaaaaaaaa1..
-..199999999981..
-..17eeeeeeee81..
-..176666666681..
-..111111111111..
+....11111111....
+.111e6e6e6e6111.
+.1a1e6e6e6e6181.
+.1a1e6e6e6e6181.
+.1a.11111111.81.
+.1a1aaaaaaaa181.
+.1a199999998181.
+.1a1e6e6e6e6181.
+.1a1e6e6e6e6181.
+.11.11111111.11.
 ...1981..1981...
 ...1981..1981...
 ...1111..1111...

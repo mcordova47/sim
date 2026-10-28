@@ -1,4 +1,4 @@
-# Typing at the desk (issue 034, redone in issue 100): the desk's lower row at the chair's column (desk x 32..47, y 16) plus the diagonal desk chair, the player seen from behind and above with hair and shoulders over the backrest's top edge. 16x32; draw it at the desk's x 32..47 and y 16 (the desk's lower tile row and the chair tile). The chair part matches `desk-chair`: the same 12 wide frame, striped back cushion and legs.
+# Typing at the desk (issue 034, redone in issue 100): the desk's lower row at the chair's column (desk x 32..47, y 16) plus the diagonal desk chair, the player seen from behind and above, sitting low with the head close to the shoulders, the hair and shoulders over the backrest's top edge. 16x32; draw it at the desk's x 32..47 and y 16. Rows 22 to 30 are the `desk-chair` rows 6 to 14, identical.
 size: 16x32
 1111111111119999
 8888888888888888
@@ -6,6 +6,9 @@ size: 16x32
 1111111111111111
 8888888888888888
 1111111111111111
+................
+................
+................
 ....11.1111.....
 ...1998998881...
 ..189889898881..
@@ -14,20 +17,17 @@ size: 16x32
 ..188988998881..
 ..189889898981..
 ..1ihhhhhhhhh1..
-..1hhhhhhhhhh1..
-..1ahhhhhhhha1..
-..1ahhhhhhhha1..
-.1hhhhhhhhhhhh1.
 .1hhhhhhhhhhhh1.
 .1ahhhhhhhhhha1.
-.1ahhhhhhhhhha1.
-.1hhhhhhhhhhhh1.
-..111111111111..
-..1aaaaaaaaaa1..
-..199999999981..
-..17eeeeeeee81..
-..176666666681..
-..111111111111..
+.111hhhhhhhh111.
+.1a1hhhhhhhh181.
+.1a1hhhhhhhh181.
+.1a.11111111.81.
+.1a1aaaaaaaa181.
+.1a199999998181.
+.1a1e6e6e6e6181.
+.1a1e6e6e6e6181.
+.11.11111111.11.
 ...1981..1981...
 ...1981..1981...
 ...1111..1111...

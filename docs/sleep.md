@@ -129,7 +129,7 @@ Within the existing voice types, no files. A snore is one in-breath and one out-
   - a **formant voice**: source `sawtooth` at about 58 Hz, two band-pass resonances (about 240 Hz and 520 Hz, `q` 3 and 4), length 1.1 s, gain `snoreGain` (0.07). The low buzzy source through those resonances gives the rattle of a snore; the existing envelope (attack and decay) gives the breath shape.
   - a **noise voice** under it: low-pass noise at about 300 Hz, length 1.3 s, gain 0.04, for the air.
 - It plays through `engine.play("snore")` once per breath, at the start of the out-breath, only in the asleep phase and only when `snore` is true. Muted, or with no synth, `engine.play` already does nothing.
-- Two voices of the 14 voice cap, low priority. The footsteps and so on are not affected.
+- Two voices of the 28 voice cap (issue 108), low priority. The footsteps and so on are not affected.
 - The loudness is lower than every other effect (the quietest today are the 0.16 mumble and the footstep). Tune by ear; the number is one config line.
 
 ### The lullaby (a system track)

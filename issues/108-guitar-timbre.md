@@ -1,7 +1,7 @@
 ---
 id: 108
 title: The guitar's timbre follows the current instrument
-status: review
+status: done
 owner: claude
 depends_on: []
 ---

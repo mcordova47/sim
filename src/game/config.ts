@@ -938,6 +938,11 @@ export const GUITAR_SKILL = {
 export const SOUND = {
   // Whole-game loudness, 0 to 1. Kept modest on purpose.
   master: 0.35,
+  // A gentle limiter between the master gain and the speakers (issue 115): a
+  // DynamicsCompressor with a high threshold and ratio and a quick attack, so quiet
+  // sounds pass untouched and only peaks near full scale are pulled down. `enabled: false`
+  // leaves it out; in dev, `?limiter=off` does the same for a visit (to A/B it).
+  limiter: { enabled: true, threshold: -3, knee: 0, ratio: 20, attack: 0.003, release: 0.15 },
   // How loud the music is next to the effects (the music bus multiplies by this).
   musicLevel: 0.7,
   // At most this many effect voices (oscillators and noise bursts) at once (raised from 28 to 96

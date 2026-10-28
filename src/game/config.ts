@@ -1041,21 +1041,18 @@ export const SOUND = {
       ],
     },
     noteKey: { priority: "low", voices: [{ wave: "triangle", freq: 440, length: 0.14, gain: 0.22 }] },
+    // Three voices each, so quick notes (about 100 ms apart) all play within the voice cap.
     guitarSteel: {
       voices: [
-        { wave: "triangle", freq: 440, length: 0.9, gain: 0.2 },
-        { wave: "sawtooth", freq: 440, length: 0.35, gain: 0.05 },
-        { wave: "triangle", freq: 880, length: 0.6, gain: 0.11 },
-        { wave: "sine", freq: 1320, length: 0.4, gain: 0.08 },
-        { wave: "sine", freq: 1762, length: 0.25, gain: 0.05 },
+        { wave: "triangle", freq: 440, length: 0.5, gain: 0.2 },
+        { wave: "sawtooth", freq: 880, length: 0.28, gain: 0.07 },
         { noise: "highpass", freq: 3500, q: 0.8, length: 0.025, gain: 0.1 },
       ],
     },
     guitarNylon: {
       voices: [
-        { wave: "sine", freq: 440, length: 1.1, gain: 0.24 },
-        { wave: "triangle", freq: 880, length: 0.4, gain: 0.05 },
-        { wave: "sine", freq: 1320, length: 0.2, gain: 0.02 },
+        { wave: "sine", freq: 440, length: 0.55, gain: 0.24 },
+        { wave: "sine", freq: 880, length: 0.22, gain: 0.05 },
         { noise: "lowpass", freq: 900, q: 0.7, length: 0.04, gain: 0.08 },
       ],
     },

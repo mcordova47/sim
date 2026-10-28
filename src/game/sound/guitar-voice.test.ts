@@ -50,7 +50,7 @@ function setup(opts: { withSlot?: boolean; guitarVoice?: string; muted?: boolean
     keys.press(code);
     return ctx.oscillators.slice(before);
   };
-  return { game, decor, feature, ctx, play };
+  return { game, decor, feature, ctx, play, keys };
 }
 
 const toneCount = (def: EffectDef) => def.voices.filter((v) => "wave" in v).length;
@@ -123,7 +123,7 @@ describe("choosing the voice", () => {
     const made = s.play();
     expect(made).toHaveLength(toneCount(SOUND.effects.guitarNylon));
     expect(made[0].type).toBe("sine");
-    expect(made[0].frequency.calls[0].value).toBeCloseTo(SOUND.effects.guitarNylon.voices[0] && (SOUND.noteKeys.up as number), 1);
+    expect(made[0].frequency.calls[0].value).toBeCloseTo(SOUND.noteKeys.up, 1);
   });
 
   it("keeps the pitch of each arrow the same in every voice", () => {
@@ -153,6 +153,23 @@ describe("choosing the voice", () => {
 
   it("does not play a guitar note for the other keys", () => {
     expect(setup().play("KeyQ")).toHaveLength(0);
+  });
+});
+
+describe("quick notes", () => {
+  it("plays every note pressed 100 ms apart, in each voice", () => {
+    for (const voice of ["steel", "nylon", "plain"]) {
+      const s = setup({ guitarVoice: voice });
+      const per = toneCount(SOUND.effects[SOUND.guitarVoices[voice]]);
+      let made = 0;
+      for (let i = 0; i < 12; i++) {
+        s.ctx.currentTime += 0.1;
+        const before = s.ctx.oscillators.length;
+        s.keys.press(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"][i % 4]);
+        made += s.ctx.oscillators.length - before;
+      }
+      expect(made, voice).toBe(12 * per);
+    }
   });
 });
 

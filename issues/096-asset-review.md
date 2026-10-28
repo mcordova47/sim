@@ -1,7 +1,7 @@
 ---
 id: 096
 title: Asset review: go over every sprite for perspective and consistency
-status: in-progress
+status: review
 owner: marc + claude
 depends_on: []
 ---
@@ -36,3 +36,4 @@ Marc (2026-10-27): an asset review, going over all the assets in detail and deci
     - [ ] **Desk-chair row contradicts the poses table.** The furniture row says "the type pose draws the chair from behind, which fits a DG chair better"; the poses table says `type-desk` and `eat-table` show the chair and stool from above, and the rendered `player-type-desk` shows a striped seat from above under the player's back. Pick one and fix it.
     - [ ] (optional) State that coverage rows for the 48 player frames, walls, held items and icons are by group, or list `dishes-1..3`, `plant-1..3`, `view-ad-*` etc. in the table text, so a name search finds them.
   - Not a blocker: the `view-side-project` HUD text judgment is Marc's call (decision 11).
+- 2026-10-28 (agent): Round 1 review items fixed in `docs/asset-review.md`: (1) the lamp table is at the sofa's east end beside the south-wall step with floor below it, not directly against the wall, now said everywhere and made decision 4; (2) the desk-chair row no longer contradicts the poses table; (3) a coverage note for grouped names. Status back to review.

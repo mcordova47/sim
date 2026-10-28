@@ -189,6 +189,43 @@ describe("the key screen by touch (issue 093)", () => {
   });
 });
 
+describe("the pad and the pills on the key screen", () => {
+  it("send nothing in text mode, so no letter is typed into the key", async () => {
+    const t = setup();
+    t.a.start();
+    t.a.phase = "key";
+    t.pad.setTextMode(true);
+    t.pad.pressControl(1, "list");
+    t.pad.releasePointer(1);
+    t.pad.pressControl(2, "mute");
+    t.pad.releasePointer(2);
+    t.pad.pressControl(3, "cycle");
+    t.pad.releasePointer(3);
+    t.pad.padMove(4, "left");
+    t.pad.padMove(4, "down");
+    t.pad.releasePointer(4);
+    for (let i = 0; i < 3; i++) await t.frame();
+    expect(t.a.textValue()).toBe("");
+    expect(t.pad.held()).toEqual([]);
+  });
+
+  it("a pad direction held when the key screen opens is let go", async () => {
+    const t = setup();
+    t.pad.padMove(1, "left");
+    t.pad.setTextMode(true);
+    await t.frame();
+    await t.frame();
+    expect(t.pad.held()).toEqual([]);
+  });
+
+  it("B still leaves (Escape)", async () => {
+    const t = setup();
+    t.pad.setTextMode(true);
+    t.pad.pressControl(1, "b");
+    expect(t.pad.held()).toEqual(["Escape"]);
+  });
+});
+
 describe("the choice screen by touch", () => {
   it("both rows are buttons: the first studies without a key, the second asks for a key", async () => {
     const first = setup();

@@ -1,7 +1,7 @@
 ---
 id: 093
 title: Mobile stage 3: key entry, a tappable pause screen, and key hints that match the controls
-status: in-progress
+status: review
 owner: claude
 depends_on: [087, 089]
 ---
@@ -52,3 +52,5 @@ Also his question: should the list screen simply be called **Pause**?
   - In text mode the KEYBOARD and PASTE pills take no pointer capture, so a finger that slides off and lifts leaves the pill looking held until the next press. Cosmetic.
   - Typing a space or an over-long value is rewritten by the per-frame field sync (the field is forced back to the game's text), which can move the caret on a real phone. Unverified.
   **Unverified (needs a real phone, recorded as not passing):** the OS keyboard rising on a tap, the iOS paste bubble over the hidden field, `navigator.clipboard.readText` permission in Safari, the soft keyboard's Go key arriving as Enter, viewport resize with the keyboard open, tap target comfort (pause buttons about 26 CSS px, below 44 pt) and scroll feel, the caret behaviour above, and the practice-deck narrow layout.
+
+- 2026-10-27 (claude), round 2 after the first review (changes needed): (1) FIXED the stray letters: in text mode `TouchPad` ignores the pad and the PAUSE, SOUND and CHOICE pills (only A as Enter and B as Escape send keys), and entering text mode lets go of any pad or pill key already down; three tests added in `flashcards-touch.test.ts`. (2) FIXED the committed `node_modules` symlink: removed from the index (`git rm --cached`), the link itself is left in place. Minor items left as they are: pills in text mode take no pointer capture (a slid-off finger may leave one looking held until the next press), caret movement from the per-frame field sync (unverified on a phone).

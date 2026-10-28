@@ -78,6 +78,8 @@ export class TouchPad {
   // Switches what A sends (issue 093): `Enter` while a text field is up, `KeyE` otherwise.
   // A press already held keeps the key it began with, so it is let go as the same key.
   setTextMode(on: boolean): void {
+    // Keys already down for the pad or the pills are let go first (pressed before the screen wanted text).
+    if (on) for (const [id, o] of [...this.owners]) if (o.kind === "pad" || o.control !== "a" && o.control !== "b") this.releasePointer(id);
     this.confirmCode = on ? "Enter" : TOUCH_KEYS.a;
   }
 
@@ -95,6 +97,9 @@ export class TouchPad {
   // A finger went down on a button.
   pressControl(pointerId: number, control: TouchControl): void {
     if (this.owners.has(pointerId)) this.releasePointer(pointerId);
+    // On a text screen only A (Enter) and B (Escape) send keys: the pad's W, A, S, D and the pills' L,
+    // M and Tab would be typed into the text as letters.
+    if (this.textMode && control !== "a" && control !== "b") return;
     const code = control === "a" ? this.confirmCode : control === "cycle" ? "" : TOUCH_KEYS[control];
     this.owners.set(pointerId, { kind: "button", control, code });
     const count = (this.presses.get(control) ?? 0) + 1;
@@ -115,6 +120,7 @@ export class TouchPad {
 
   // A finger is on the pad, in this direction (null is the dead zone or off the pad).
   padMove(pointerId: number, dir: Direction | null): void {
+    if (this.textMode) return;
     let owner = this.owners.get(pointerId);
     if (owner && owner.kind !== "pad") {
       this.releasePointer(pointerId);

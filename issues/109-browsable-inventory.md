@@ -15,3 +15,7 @@ Marc (2026-10-28): a browsable inventory, like a pokedex: a place to look throug
 
 ## Acceptance criteria
 - A short design agreed with Marc, then build issues filed.
+
+## Progress log
+
+- 2026-10-28 (claude): design written in `docs/inventory-design.md` (pause-screen THINGS page, read-only first, optional silhouettes for seen items, four staged issues, five open questions). Status unchanged.

@@ -24,3 +24,6 @@ Marc (2026-10-28): layer in progression after the timbre (108). A new **"guitar 
 
 ## Progress log
 - 2026-10-28: design written in `docs/guitar-skill-design.md` (branch `issue/114-design`): skill derived from `stats.taskCounts.guitar` (no new save field, sync merge already max), four levels as data, pure `key -> timed notes` functions, a groove scheduler on the music bus, staged plan 114a to 114g, 5 open questions for Marc. Status unchanged (todo).
+
+## Later ideas (Marc, 2026-10-28)
+- **Wrong key presses sound messed up** (nice to have, later): a wrong key in the notes game plays a deliberately off sound, such as a muted-string thunk, a buzz or a dissonant clash, instead of a clean note. Could depend on skill (a beginner clunks more, a better player's slips are subtler). Needs a look at how the notes activity decides what a wrong press is; file as its own small issue when picked.

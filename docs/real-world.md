@@ -18,6 +18,7 @@ Effort is for a first small version. Risk is privacy/safety on a public site.
 | 4e | Reminders to the phone (ntfy or web push) | none (ntfy topic) / permission prompt | works only as the installed home-screen app | free | medium | low-medium (pressure rule) | Defer; against "quiet extra" |
 | 1 | Browse Gmail | Google OAuth, restricted scope | works | free to test, expensive to publish | large | **high** (others' mail on screen) | Do not build for the public site |
 | 4f | Send email | Google OAuth, sensitive scope | works | free | medium | high (account safety) | Skip |
+| 5 | In-game browser (allowlisted feeds, later reader mode) | none | works | free | medium (feeds) / large (HTML) | low-medium (others' content, abuse) | Build feeds first, after the photo frame |
 | 3 | Uber Eats ordering | n/a | link opens the app | free | tiny (link only) | low as a link, high if automated | Only a quiet "suggest dinner" link |
 
 ## 2. Ground rules (from the issue and the pillars)
@@ -91,6 +92,41 @@ Game use: the record player or speaker shows the artist as pixel text. Privacy: 
 
 **f. Send email.** `gmail.send` is a sensitive scope, but the risk is the reverse of reading: a bug or abuse sends mail as Marc. Skip. (`mailto:` links need no OAuth if ever wanted.)
 
+## 6a. Idea 5: an in-game browser (allowlisted reader)
+
+**The idea.** A computer or phone object opens a pixel "browser" that shows a simplified, pixel-styled view of a page: headings, paragraphs, links, images pixelated. No JS or CSS. Instead of a free-text URL bar, a **curated allowlist** of sites chosen by Marc (a "bookmarks" menu, in the existing dialog/menu style).
+
+**Why a function is required.** A browser page cannot read another site's HTML: without the other site's `Access-Control-Allow-Origin` header the fetch is blocked (CORS). Feeds and APIs that do send CORS headers can be called directly (Hacker News API is public, no auth, "no rate limit" per its docs; CORS not stated on the fetched page, **unverified**). For ordinary pages the Netlify Function fetches server-side and returns a small simplified document (JSON of blocks: heading, paragraph, link, image ref, plus the source URL and a fetched-at time). The game never renders HTML; it draws blocks, so nothing from a page is ever inserted into the DOM.
+
+**Two versions.**
+1. *Easy first version: feeds and APIs only.* RSS/Atom/JSON feeds of allowlisted blogs, Wikipedia's REST API, the Hacker News API. The data is already structured (title, summary, link, date), no HTML parsing, no extraction guesses. Wikimedia requires a descriptive `User-Agent` with contact info for server calls and may return 403 for generic ones; browsers should send `Api-User-Agent` instead (policy page). Feed content fields can contain HTML, so strip to text (or a tiny tag whitelist) in the function.
+2. *Harder version: HTML reader mode.* Fetch the page, parse it with `jsdom` or `linkedom`, run Mozilla Readability (Apache-2.0) to pull the article, then convert to blocks. Readability's README says it does **not** sanitise unsafe input and recommends DOMPurify; here that is covered by converting to a closed set of plain blocks and discarding everything else, but pass the URL so relative links resolve and keep jsdom's script and resource loading **off** (its default). Works for blog-type pages; it fails on JS-rendered sites, paywalls, login pages and odd layouts. Maintenance is per site: allowlist entries are tested, not guessed.
+
+**Allowlist as the safety answer.** The function accepts a site **id** (not a URL) and maps it server-side to a fixed origin and path pattern, so it is not an open proxy and cannot be used for SSRF (making the server call internal addresses). Even with an allowlist: resolve DNS and refuse private, loopback and link-local ranges (10/8, 172.16/12, 192.168/16, 127/8, 169.254/16, ::1, fc00::/7), do not follow redirects off the allowlisted host (or re-check each hop), cap response size and time, accept only `text/html`, `application/xml`, `application/json`. The allowlist lives in the function config or a server file, not as secrets, but it is public in the repo (fine: Marc's own sites and public feeds, no personal data). Origin check and per-IP rate limit as in section 7.
+
+**Rendering.** Text goes through the pixel font and the dialog box machinery (issue 023 already wraps, pages and types text and has a glyph-coverage test). The font's coverage is the constraint: real prose has curly quotes, dashes, accents, ampersands, digits and possibly uppercase and lowercase. Plan: normalise in the function (curly to straight quotes, em dash to " - ", strip accents or map to the nearest glyph, replace unknown characters with `?` or drop them) so the client never meets a glyph it cannot draw; extend the font only if Marc wants accents. Long text pages by interact key (keyboard) or tap (touch) with up/down to scroll, headings as a bigger style or a menu title, links as a selectable list (choose to follow within the allowlist, or "open in real browser" as an outbound link). Cap an article to the first N characters with "read more on the real site".
+
+**Images.** The function returns image URLs only from allowlisted hosts (or not at all); the client fetches through the function's image route (CORS again), downsizes and quantises to the game palette on a canvas (the same `pixelate` as the photo frame), then caches the tiny result in IndexedDB keyed by URL. Never hotlink the original from the player's browser (it would leak the player's IP to the third party and fail on CORS).
+
+**Caching and cost.** Cache the simplified document in Netlify Blobs or an HTTP cache header for hours, so a hundred players cost one upstream fetch. Compute is billed as GB-hours at 10 credits each with 1 GB default memory (Netlify docs): a one-second fetch is about 0.003 credits, so 1,000 uncached fetches is about 3 credits, plus bandwidth at 20 credits per GB (tiny JSON) and 2 credits per 10,000 web requests. Credit cost is not the issue; abuse control is (rate limit, allowlist, cache). Synchronous function timeout and response size limits were not confirmed on a primary page; I believe about 10 seconds and 6 MB (**unverified**, check the Netlify function configuration docs). Keep responses to tens of KB.
+
+**Copyright, terms and robots.** Showing others' content is the real question, not the code.
+- Prefer sources that invite it: Marc's own sites, feeds meant for readers, Wikipedia (CC BY-SA, needs attribution and a link), Hacker News API. For anyone else, written permission or skip.
+- A transformed text-only reader view with attribution, the original link and a short excerpt is the defensible shape, but it is still a republication; a site's terms may forbid automated fetching or caching, and robots.txt should be honoured for HTML fetches (fetch it in the function and refuse disallowed paths; legal weight is jurisdiction-dependent, not legal advice, **unverified**).
+- Send an honest `User-Agent` naming the game and a contact (Wikimedia requires this), low volume, cache hard.
+- Show the source name and URL on every page, a clear "fake browser" frame, and no ads or tracking of the original.
+- Do not strip a site's paywall or login content; fail with "page not available".
+
+**Hostile content and prompt injection.** Treat every fetched page as untrusted. Output is a closed block schema drawn as pixels, so scripts and styles cannot run. Limit text length and block count. Links go only to allowlisted ids or an explicit "open externally" button (a normal `rel="noopener noreferrer"` link). If an LLM were ever used to summarise pages, injection becomes real (page text instructing the model); do not add one. Show page text only, never act on it.
+
+**Fit with the pillars.** The mundane-is-the-joke part is strong: doomscrolling already exists as a task; a pixel browser with a bookmarks list of "my blog", "an encyclopedia", "the orange-site front page" is that joke made real. In-world sites can be fake brands (ad copy and fake sites as part of the game, no real brand logos) mixed with a few real feeds; the real ones are a quiet extra, off by default, never a "new posts" badge. The game never waits on a fetch: a loading line in the character's voice, and a friendly failure ("the wifi is out").
+
+**iPhone/Safari.** Everything client-side is canvas, IndexedDB and fetch to our own origin: works on iPhone. **Login.** None. **Privacy.** The function sees which site id a player opened (our own logs, not stored by us); the target site sees the function, not the player. No personal data. **Cost.** Free at this scale. **Effort.** Feed version: medium (function, block schema, allowlist, text normaliser, a reader screen). HTML reader mode: large and per-site.
+
+**Recommendation.** Worth building, **feeds first**: it reuses the dialog text machinery, needs no login and has a clear safety story. Do it after the photo frame and weather because it needs the proxy function that Last.fm and calendar need anyway; so design that function once (section 7). HTML reader mode only for Marc's own sites, later.
+
+**First allowlist shape.** Entries like `{ id, label, kind: "feed" | "api" | "html", origin, path, maxChars }`: (1) Marc's own blog or site feed (his, so permission is trivial), (2) Wikipedia via its REST API ("random article" as the cheerful default), (3) the Hacker News API (top ten titles), (4) one or two reader-friendly feeds Marc chooses, (5) a couple of fake in-world sites bundled as static data (no network at all), so the browser object works offline and with every real site off.
+
 ## 7. Architecture notes
 
 - **No secrets in the bundle or repo.** Vite inlines `import.meta.env.VITE_*` at build time; anything with that prefix is public. Server secrets (Last.fm key, ICS URL, a Google client secret, VAPID keys) go in Netlify environment variables read only in the function.
@@ -121,11 +157,12 @@ Game use: the record player or speaker shows the artist as pixel text. Privacy: 
 1. **Pixelated photos** (high charm, small effort, near-zero risk).
 2. **Weather in the window** (tiny effort, no risk, small charm).
 3. **Now playing via Last.fm** (small effort, low risk, a lovely touch on the record player).
-4. **Calendar via a private ICS link** (medium effort, medium risk, strong "real day" feeling).
-5. **GitHub activity** (small, low value).
-6. **Uber Eats link** (tiny, harmless, depends on taste).
-7. Reminders / push (medium, goes against the quiet rule).
-8. Gmail read (large, high risk, low payoff), then Strava, Spotify, send email: skip.
+4. **In-game browser, feeds and allowlist only** (medium effort, low-medium risk, strong joke fit, shares the proxy function).
+5. **Calendar via a private ICS link** (medium effort, medium risk, strong "real day" feeling).
+6. **GitHub activity** (small, low value).
+7. **Uber Eats link** (tiny, harmless, depends on taste).
+8. Reminders / push (medium, goes against the quiet rule).
+9. Gmail read (large, high risk, low payoff), then Strava, Spotify, send email: skip.
 
 ## 10. Recommended first experiment
 
@@ -141,7 +178,8 @@ Game use: the record player or speaker shows the artist as pixel text. Privacy: 
 6. Calendar: personal calendar only, and shown as unnamed shapes rather than titles?
 7. Do you want any push or reminder at all, or is "no notifications ever" the rule?
 8. Uber Eats: a plain "order food" link in the game, or nothing?
-9. Email: do you still want it given the weekly re-login and the others' data on screen, or drop it?
+9. In-game browser: do you want it, with a curated allowlist (which of your own sites or feeds, plus Wikipedia and Hacker News), feeds first, and fake in-world sites as the always-on default?
+10. Email: do you still want it given the weekly re-login and the others' data on screen, or drop it?
 
 ## 12. Sources
 
@@ -161,8 +199,12 @@ Game use: the record player or speaker shows the artist as pixel text. Privacy: 
 - WebKit Web Push on iOS: https://webkit.org/blog/13878/web-push-for-web-apps-on-ios-and-ipados/
 - ntfy PWA and known issues: https://docs.ntfy.sh/subscribe/pwa/ and https://docs.ntfy.sh/known-issues/
 - Netlify credit pricing update: https://www.netlify.com/changelog/2026-04-14-pricing-updates-april-2026/
+- Netlify function usage and billing: https://docs.netlify.com/build/functions/usage-and-billing/
+- Mozilla Readability (Node use, sanitising warning): https://github.com/mozilla/readability
+- Hacker News API: https://github.com/HackerNews/API
+- Wikimedia User-Agent policy: https://foundation.wikimedia.org/wiki/Policy:Wikimedia_Foundation_User-Agent_Policy
 - File System Access API: https://developer.mozilla.org/en-US/docs/Web/API/Window/showOpenFilePicker
 
 ## 13. Not verified
 
-Safari status of the File System Access API (page table did not load); Uber Eats deep-link formats and Uber terms on automation; Apple Music/MusicKit requirements; GitHub unauthenticated limit; Open-Meteo CORS and key policy; whether the Google ICS endpoint sends CORS headers; iOS standalone OAuth return behaviour; Netlify free-plan credit amount; exact Spotify 2026 dev-mode changes; the cost of Google's CASA assessment; whether the Calendar scopes are sensitive.
+Safari status of the File System Access API (page table did not load); Uber Eats deep-link formats and Uber terms on automation; Apple Music/MusicKit requirements; GitHub unauthenticated limit; Open-Meteo CORS and key policy; whether the Google ICS endpoint sends CORS headers; iOS standalone OAuth return behaviour; Netlify free-plan credit amount; Netlify function timeout and response size limits; Hacker News API CORS; robots.txt and terms of service questions for each reused site; exact Spotify 2026 dev-mode changes; the cost of Google's CASA assessment; whether the Calendar scopes are sensitive.

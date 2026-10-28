@@ -16,3 +16,4 @@ Marc (2026-10-28): how far can we push real-world effects, like the flashcards p
 
 ## Progress log
 - 2026-10-28: Research done, `docs/real-world.md` written (summary table, per-idea assessment, risks, ranked list, first experiment, open questions). Status set to review.
+- 2026-10-28: Added idea 5 (in-game browser) at Marc's request.

@@ -132,6 +132,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 094 | [Phone battery: drains a little, and looks like a phone battery indicator](issues/094-battery-drain-and-indicator.md) | claude | done | 088 |
 | 095 | [Sync the game's progress across devices (design first)](issues/095-sync-across-devices.md) | marc + claude | todo | |
 | 096 | [Asset review: go over every sprite for perspective and consistency](issues/096-asset-review.md) | marc + claude | todo | |
+| 097 | [A guided walkthrough of the codebase, with small hands-on tasks](issues/097-codebase-walkthrough.md) | marc + claude | in-progress | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

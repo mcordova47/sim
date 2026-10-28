@@ -22,7 +22,7 @@ import { parseTileMap, type ObjectDef, type PropDef } from "./tilemap";
 // with the nightstand above it and the radiator and windows on the east wall.
 // There is one lane to walk: down the west side of the bed and along its foot.
 // The sofa is on the south wall, which steps down toward the front door (the
-// door is decoration for now): guitar by the sofa's west end, lamp table and
+// door is decoration for now): guitar against the south wall at the sofa's west end, lamp table and
 // record stand by its east end. The passage to the kitchen is in the west wall
 // between the table and the sofa.
 export const MAIN_MAP = [
@@ -31,8 +31,8 @@ export const MAIN_MAP = [
   "#TTTTMDDDDH.BBBBBr#",
   "1.......C.H.BBBBBrw",
   "2....@....H.BBBBB.w",
-  "#GSSSSSS....BBBBB.#",
-  "#.SSSSSSL...BBBBB.W",
+  "#.SSSSSS....BBBBB.#",
+  "#GSSSSSSL...BBBBB.W",
   "########.R..BBBBB.W",
   "##########x.......#",
   "##########ff#######",
@@ -124,7 +124,17 @@ const MAIN: Record<string, ObjectDef> = {
   w: WINDOW_BLINDS,
   W: WINDOW_BLINDS,
   S: { name: "sofa", sprite: "sofa-td", color: "brick", tasks: ["doomscroll", "contemplate", "work-sofa", "nap", "admire-art"] },
-  G: { name: "guitar", sprite: "guitar", color: "tangerine", tasks: ["guitar"] },
+  G: {
+    name: "guitar",
+    sprite: "guitar",
+    color: "tangerine",
+    tasks: ["guitar"],
+    // On its stand, or the empty stand while it is being played (issue 107; `guitarOut` follows the task).
+    variants: [
+      { sprite: "guitar-stand", when: [{ var: "guitarOut", min: 1 }], color: "tangerine" },
+      { sprite: "guitar", color: "tangerine" },
+    ],
+  },
   L: { name: "lamp table", sprite: "lamp-table", color: "butter", slot: "lamp-sofa", tasks: ["swap-lamp-sofa"] },
   R: { name: "record stand", sprite: "record-stand", color: "paper", tasks: ["record-play"] },
   M: { name: "mic stand", sprite: "mic-stand", color: "ink" },

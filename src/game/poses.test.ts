@@ -69,7 +69,7 @@ describe("doing poses", () => {
     ["doomscroll", 5, 4, "down", {}, "player-sit-sofa", 93, 80],
     ["work", 6, 3, "up", {}, "player-type-desk", 128, 32],
     ["drink-coffee", 2, 3, "up", { mug: 1 }, "player-eat-table", 40, 32],
-    ["guitar", 1, 4, "down", {}, "player-guitar", 16, 64],
+    ["guitar", 1, 5, "down", {}, "player-guitar", 16, 80],
     ["sleep", 11, 4, "right", { bedMade: 1, energy: 10 }, "player-sleep-bed", 192, 32],
   ];
 
@@ -120,20 +120,22 @@ describe("doing poses", () => {
     expect(sprites.names().indexOf("desk")).toBeLessThan(sprites.names().indexOf("player-type-desk"));
   });
 
-  it("swaps the hanging guitar for the pose while it plays, and back afterwards", () => {
+  it("swaps the guitar on its stand for the empty stand while it plays, and back afterwards (issue 107)", () => {
     const sprites = new Recorder();
     const game = setup(sprites);
     frame(game, sprites);
     expect(sprites.names()).toContain("guitar");
-    start(game, 1, 4, "down", "guitar");
+    start(game, 1, 5, "down", "guitar");
     frame(game, sprites);
     expect(sprites.names()).not.toContain("guitar");
+    expect(sprites.names()).toContain("guitar-stand");
     expect(sprites.names()).toContain("player-guitar");
     // Backing out puts the plain player and the guitar back.
     game.update(dt, { ...NO_INPUT, keys: ["Escape"] });
     frame(game, sprites);
     expect(game.interaction.active).toBeNull();
     expect(sprites.names()).toContain("guitar");
+    expect(sprites.names()).not.toContain("guitar-stand");
     expect(sprites.names()).not.toContain("player-guitar");
     expect(plain(sprites.names())).toHaveLength(1);
   });
@@ -185,10 +187,11 @@ describe("held items", () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     const sprites = new Recorder((n) => n !== "player-guitar");
     const game = setup(sprites);
-    start(game, 1, 4, "down", "guitar");
+    start(game, 1, 5, "down", "guitar");
     frame(game, sprites);
     expect(sprites.names()).toContain("held-guitar-down");
-    expect(sprites.names()).toContain("guitar");
+    expect(sprites.names()).toContain("guitar-stand"); // the guitar is off its stand whatever the pose shows (issue 107)
+    expect(game.state.get("guitarOut")).toBe(1);
   });
 
   it("is not drawn on top of a pose", () => {

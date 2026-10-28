@@ -35,7 +35,7 @@ Columns and rows counted inside the walls, from the top left (col 0, row 0).
 | Radiator | 1 x 3 at col 16, row 0 | east wall, in front of the upper window (16x48 sprite; was 1 x 4, issue 044) | (decor) |
 | Windows | east wall, rows 2-3 (the upper one, its lower half past the radiator's end) and rows 5-6 | | open and close blinds (both windows; the upper one is reached from row 4 only, the radiator is west of its top tile) |
 | Sofa | 6 x 2 at col 1, row 4 | south wall | doomscroll, work |
-| Guitar | 1 x 1 at col 0, row 4 | hangs on the west wall by the sofa's west end (16x16 sprite). The tile south of it (col 0, row 5) is floor, but sealed in by the wall, the sofa and the guitar, so nobody can reach it | guitar |
+| Guitar | 1 x 1 at col 1, row 6 | against the south wall at the sofa's west end (16x16 sprite, issue 107). Played from the floor tile north of it (col 1, row 5), which stays free | guitar |
 | Lamp table | 1 at col 7, row 5 | by the sofa's east end | (decor) |
 | Record stand | 1 at col 8, row 6 | | flip record |
 | Front door | 2, in the south wall at cols 9-10 | | (decoration) |

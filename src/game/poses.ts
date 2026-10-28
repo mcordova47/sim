@@ -46,12 +46,13 @@ export const POSES: Record<string, PoseDef> = {
   "type-desk": { sprite: "player-type-desk", size: { w: 16, h: 32 }, on: "desk", at: { x: 32, y: 16 } },
   // On the stool south of the table.
   "eat-table": { sprite: "player-eat-table", size: { w: 16, h: 32 }, on: "table", at: { x: 24, y: 16 } },
-  // Standing north of the guitar's wall hanger, holding it across the body: the
-  // pose draws the guitar, so the hanging one is hidden. It is two tiles wide
+  // Standing north of the guitar's stand, holding it across the body. The piece shows
+  // the empty stand while this plays (state var `guitarOut`), so the pose does not hide
+  // it or know about it. It is two tiles wide
   // (issue 057): the player is on the left-hand tile and the neck runs out east
   // (Marc is right-handed) over col 2, row 4, the floor above the sofa's west
   // arm, in front of which it is drawn.
-  guitar: { sprite: "player-guitar", size: { w: 32, h: 48 }, on: "guitar", at: { x: 0, y: -16 }, replacesPiece: true },
+  guitar: { sprite: "player-guitar", size: { w: 32, h: 48 }, on: "guitar", at: { x: 0, y: -16 } },
   // The whole bed, with the sleeper in it. The bed looks different made and
   // unmade, so there is one sprite for each, picked when the task starts (the
   // covers are part of the picture, so they can't be one overlay for both).

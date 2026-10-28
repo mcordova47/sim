@@ -1,7 +1,7 @@
 ---
 id: 095
 title: Sync the game's progress across devices (design first)
-status: review
+status: done
 owner: marc + claude
 depends_on: []
 ---
@@ -131,3 +131,27 @@ Marc (2026-10-27): asked whether there is an issue for syncing across devices. T
   - [ ] State the clamp's time dependence and the `made` mismatch; tie-break for the 36 trim; fix the monotone test line.
   - [ ] Minor: 90-day expiry versus Safari clearing; author of `activeAt`; "no IP" wording.
 - 2026-10-28: After review round 3, small fixes in docs/sync.md: track identity is the body without the title; `add` validates like `save` and the suffix rule is new; real action means a finished task or decor change, legacy saves handled; RESTORE sets `activeAt`; immediate apply uses the pause-screen guard and the loader order is named; clamp, made, trim tie-break, 90 day versus Safari, IP wording. These edits were made after the last review and were NOT re-reviewed (rule: stop after two rounds; the planner decides).
+
+- 2026-10-28, Review round 4 (independent, fresh agent; rule: keep it small, approve unless a blocking defect). **Verdict: APPROVED for the design-note step; no blocking defect.** Status set to `done`. Only this file edited; no code, flashcards repo read only (namespace regex, 500 KB cap and `*.mcord.dev` CORS re-checked). The branch is behind main (a plain `git diff main` also shows files added on main since); the branch's own change is only `docs/sync.md` and this issue.
+
+  **Round-3 defects, checked in docs/sync.md against the code:**
+  1. Track identity: **fixed.** Identity is the body without the title line, so the rename-on-clash cannot make a track look new; traced two devices with the same title (A "Foo" body B1, B "Foo" body B2) and the edited-track case: each ends with both bodies, stable after one round, no loop. `add` validates like `save` (`parseTrack`, `maxTextBytes`, `nameProblem`, 64 KB write via `commit`); the suffix rule is stated as new; ids never reused (`nextId`), `version` bumps. Matches `demo-store.ts`.
+  2. First-sync winner: **fixed** (a real action is a finished task or a decor change; legacy saves count 0; a step does not count). The both-zero case (nit 1) is accepted in the note and does not lose owned items, stats or tracks.
+  3. RESTORE sets `activeAt` to now: **fixed**; the backup claim is softened (cannot undo unions or maxima).
+  4. Immediate apply: **fixed.** Uses the `openList` guard (`inputLocked`, `dialogOpen`, `interaction.busy`, feature.ts 223); the loader order `Stats.load`, `Unlocks.load`, `restoreWorld`, `Decor.load`, `Deliveries.load`, `Encounters.load` is exactly the order in feature.ts 89-108 (all replace-style; the `resetting` guard exists; `progress.ts` save writes only known fields, so `activeAt` needs the one-field addition the note names).
+  Small overclaims (clamp time dependence, `made` mismatch, 36 trim tie-break, 90 day versus Safari, IP wording): stated.
+
+  **Merge algebra.** Throwaway model of section 4 at a fixed now, 20000 random triples per run, outside the repo: `/private/tmp/claude-501/-Users-marccordova-Dev-repos-mcordova47-sim/515a2b28-2575-46b4-b906-65e037702ff1/scratchpad/algebra.mjs`. With distinct device ids and normalised inputs: commutative, associative and idempotent for unions, maxima, the winner's world group minus the unioned owned, the `activeAt` clamp, and the track set union with min `made` (0 failures). Owned items, achievements, rooms and track bodies are never lost; no owned item stays in `pending` or `waiting`. Three edge cases fall outside the claim (nits 2 to 4).
+
+  **Nits (non-blocking; fix in the build issues or a one-line edit, no new round needed):**
+  1. **Both-zero tie can put a blank apartment over a played legacy one.** A played laptop and a new phone that have both done nothing since the update are both `activeAt` 0 and the device id decides. Owned things, stats and tracks are kept and RESTORE BEFORE LAST SYNC brings the apartment back, but it is a coin flip on the main first-sync use case. Cheap fix that keeps the order total: on an `activeAt` tie compare `stats.playSeconds` (or `totalPoints`) first, then the device id.
+  2. **Track title choice is order-dependent.** "The first one seen keeps its title" makes `mergeSaves(a,b)` differ from `(b,a)` in the title (body set and `made` are fine); if the "differs from remote" test compares titles, two devices that renamed one track differently PUT back and forth forever. Say the comparison is by body ignoring `made`, or pick the title deterministically (earlier `made`, then smaller text).
+  3. **Same-device ties.** The local document is built with this device's id but may carry an `activeAt` applied from another device, and a remote copy written by this device earlier has the same pair with a different world group (steps, clock). The pair ties, so the group choice depends on argument order (modelled: not commutative). Harmless (a few steps); break an exact tie on the canonical group text.
+  4. **The 36 track trim by min `made` is not associative** once three or more devices together hold more than 36 distinct tracks (modelled: 225 of 20000 random heavy triples). Only which surplus track the blob drops changes; devices keep their own tracks. Trimming by a fixed key (body hash or text) instead of `made` makes top-36 exactly associative.
+  5. **Immediate apply should re-merge with live state too.** The merge is computed from the state at fetch time; steps, a visited room or an achievement unlocked by walking in the fetch window are not a "real action" and could be overwritten by the replace-style loaders (an achievement would re-unlock with a toast). Re-merge with `toJSON` at apply time on every path, as the later path already does.
+  6. RESTORE should also clear `held`; and `activeAt` should be set by the player's own decor change or finished task, not by a delivery arrival that calls `decor.onChange` (feature.ts 96) nor by apply.
+  7. Carried from round 3: the "drop a placed slot whose item is not owned" repair cannot fire. Harmless.
+
+  **Unverified by anyone (the note marks each as unverified; none is claimed true):** Netlify plan and credits; the `rateLimit` option; per-context Blobs store selection; whether the platform logs request headers (the `X-Sync-Key` claim is conditional); Blobs `list` and metadata cost at 1000 keys; iPhone feel (installed-app pairing, clipboard, `visibilitychange` with `keepalive`). The abuse limits as written do not claim lock-out proof, so they are not false. `npm test` not run (no code changed).
+
+  **Key-holder check:** a key holder can overwrite the blob with extra owned items, raised counters and an apartment up to a day ahead; that cannot remove another device's owned items, achievements, stats or tracks (unions and maxima), and the apartment is recoverable through the one-step backup on the device that replaced it. No blocking defect.

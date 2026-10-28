@@ -1,7 +1,7 @@
 ---
 id: 100
 title: Desk chair redrawn diagonal, the typing-at-the-desk pose, and the typing prompt placement
-status: review
+status: done
 owner: claude
 depends_on: [099]
 ---

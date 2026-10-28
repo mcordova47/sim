@@ -1,7 +1,7 @@
 ---
 id: 107
 title: The guitar: flipped so it reads as standing on a stand
-status: todo
+status: review
 owner: claude
 depends_on: [100]
 ---
@@ -18,3 +18,7 @@ Marc (2026-10-28): the guitar has been hard to draw as hanging on the wall, so m
 - The guitar and the nylon guitar read as standing on a stand with the neck pointing southwest; before and after images are viewed and described in the log; sizes and names unchanged; `npm run sprites` clean; goldens re-recorded deliberately with a note; `npm test`, `npx tsc --noEmit`, `npm run build` pass; Marc looks at it.
 
 ## Progress log
+- 2026-10-28 (claude): Flipped `guitar` and `guitar-nylon` over a horizontal line: body north-east (dark sound hole), neck running south-west to the headstock with mist tuners. Redid the shading for light from the top-left (lit top and left edges, dark bottom and right; the plain flip had put the dark side on top) and added a small dusk tripod (post and three splayed legs, ink outline) under the body, inside the 16x16 tile, palette only. Nylon: the same drawing in cream/tan/oak. Viewed before and after at 16x (old hanging guitar left, stand version right) and in the room mockup at the sofa's west end: the body sits over the floor with the tripod legs reading as a stand; headstock points into the room. A left-right mirror (neck south-east) was not drawn: Marc asked for neck south-west, and a mirror would put the neck toward the sofa. Names and sizes unchanged; `guitar-tall` and `guitar-nylon-tall` untouched. Files: art/src/guitar.sprite, art/src/guitar-nylon.sprite, public/sprites/guitar.png, guitar-nylon.png.
+  - Poses: `player-guitar` (32x48) draws its own mirrored lap guitar and replaces the piece while playing (`replacesPiece`), so it does not use `guitar.sprite`; left as is. The held-guitar-* overlays are separate carried drawings; left as is. No map, task or code change.
+  - Goldens: `UPDATE_GOLDEN=1 npm test` changed nothing; the golden frames do not hash the guitar's pixels, so `main-room-frames.json` is unchanged.
+  - Checks: `npm run sprites` clean, `npm test` (2773 pass), `npx tsc --noEmit`, `npm run build` pass. Not checked: how it feels in a browser; Marc to look.

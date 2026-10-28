@@ -1,18 +1,18 @@
-# Guitar, nylon-string (issue 050): the diagonal profile of `guitar` with a pale cedar top, reddish sides, a rosette around the sound hole and no pickguard. Not wired into the map.
+# Guitar, nylon-string (issues 050, 107): the stand drawing of `guitar` with a pale cedar top, reddish sides, and no pickguard. Not wired into the map; same flip and light as `guitar`.
 size: 16x16
-.5115...........
-.1aa1...........
-.5a75...........
-..1771..........
-...1771.........
-....177111......
-.....177a81.....
-......17a98111..
-.....1aa999aa81.
-.....18999999981
-......1899977981
-.......1a9711781
-.......1a9711781
-.......189977881
-........1888881.
 .........11111..
+........1aaa991.
+.......1aa99981.
+.......1a9911981
+.......1a9911981
+......1a99999881
+.....1aa99999881
+.....1a99999881.
+......19998811..
+.....1777771.41.
+....17779711.41.
+...1771......41.
+..1771......441.
+.5a75......4441.
+.1aa1.....44.441
+.5115....14.1.41

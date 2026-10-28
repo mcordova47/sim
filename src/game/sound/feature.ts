@@ -54,6 +54,8 @@ export interface SoundOptions {
   guitarSkill?: Level;
   // Turns the pick's tick off for the visit (the dev URL `?guitarpick=off`), to compare.
   guitarPick?: boolean;
+  // Turns the groove's snap of an arrow to the pattern's high-note slot off for the visit (the dev URL `?guitarsnap=off`).
+  guitarSnap?: boolean;
 }
 
 function browserStorage(): KeyValueStorage | null {
@@ -102,6 +104,7 @@ export class SoundFeature implements Layer {
   private stroke: Stroke = "down";
   private pick = { ...GUITAR_SKILL.pick };
   // The groove is on for a session or a dev audition (which the activity check leaves alone).
+  private snap = true;
   private grooving = false;
   private auditioning = false;
   private sessionSeed = 0;
@@ -112,6 +115,7 @@ export class SoundFeature implements Layer {
     this.guitarSessions = options.guitarSessions ?? (() => 0);
     this.guitarSkill = options.guitarSkill;
     if (options.guitarPick !== undefined) this.pick.enabled = options.guitarPick;
+    if (options.guitarSnap !== undefined) this.snap = options.guitarSnap;
     this.tracks = options.tracks ?? TRACKS;
     this.demos = options.demos ?? demoStore();
     this.demoVersion = this.demos.version;
@@ -235,8 +239,14 @@ export class SoundFeature implements Layer {
       this.grooving = true;
       this.engine.groove.start((SOUND.guitarStrings[this.voiceName()] ?? SOUND.guitarStrings.steel).string, this.sessionSeed);
     }
-    const semis = melodyNote(this.engine.groove.chordAt(this.engine.now), dir);
-    this.engine.play(this.noteEffect(), { pitch: 2 ** (semis / 12) });
+    const { snap, melodyGain } = GUITAR_SKILL.groove;
+    const now = this.engine.now;
+    // An arrow just before a high-note slot of the pattern is played on it (a few milliseconds
+    // later at most), so it lands in the pattern; otherwise at once, as always.
+    const near = this.snap && snap.enabled ? this.engine.groove.highSlotNear(now, snap.window) : null;
+    const when = near && near.time > now ? near.time - now : 0;
+    const semis = melodyNote(near?.chord ?? this.engine.groove.chordAt(now), dir);
+    this.engine.playAt(this.noteEffect(), { pitch: 2 ** (semis / 12), gain: melodyGain }, when);
   }
 
   // What an arrow sounds like now (issue 114a). Level 1 is the plain single note (as in 108).
@@ -291,7 +301,7 @@ export class SoundFeature implements Layer {
     const total = bars * 4 * beat;
     if (melody) {
       const dirs: Dir[] = ["left", "up", "right", "up", "down", "right", "left", "left"];
-      for (let i = 0; i * beat * 1.5 < total - beat; i++) setTimeout(() => this.auditioning && this.playGroove(dirs[i % dirs.length]), 400 + i * beat * 1.5);
+      for (let i = 0; i * beat * 2 < total - beat; i++) setTimeout(() => this.auditioning && this.playGroove(dirs[i % dirs.length]), 400 + i * beat * 2);
     }
     setTimeout(() => {
       if (!this.auditioning) return;
@@ -517,6 +527,7 @@ export function attachSound(game: Game, options?: SoundOptions): SoundFeature {
     guitarVoice: devGuitarVoice(),
     guitarSkill: devGuitarSkill(),
     guitarPick: devGuitarPick(),
+    guitarSnap: devGuitarSnap(),
     ...options,
   });
   // Dev only: `auditionGuitar("steel")` in the console (press a key on the page first).
@@ -552,6 +563,13 @@ export function devGuitarSkill(search = typeof location === "undefined" ? "" : l
 export function devGuitarPick(search = typeof location === "undefined" ? "" : location.search, dev = import.meta.env?.DEV): boolean | undefined {
   if (!dev) return undefined;
   return new URLSearchParams(search).get("guitarpick") === "off" ? false : undefined;
+}
+
+// Dev only (issue 114b): `?guitarsnap=off` plays the groove's melody exactly when pressed, with
+// no snapping to the pattern's high-note slots, for the visit. A built game ignores it.
+export function devGuitarSnap(search = typeof location === "undefined" ? "" : location.search, dev = import.meta.env?.DEV): boolean | undefined {
+  if (!dev) return undefined;
+  return new URLSearchParams(search).get("guitarsnap") === "off" ? false : undefined;
 }
 
 // Dev only (issue 075): `?dialogvoice=letters` tries the letters voice for the

@@ -34,7 +34,7 @@ Why this and not a new stat or play-time:
 | 3 | `sevenths` | 10 | 7ths and add9: Amaj7, Dadd9, E7, F#m7 |
 | 4 | `open` | 20 | open-tuning flavour, six strings: Asus2, Dsus2, Esus4, F#m11 |
 | 5 | `jazz` | 35 | jazz voicings: Amaj9, D6/9, E13, F#m9 |
-| 6 | `groove` | 55 | a bass and harmony loop underneath; the arrows play melody over it (issue 114b; plays like level 5 until built) |
+| 6 | `groove` | 55 | a bass and harmony loop underneath; the arrows play melody over it (issue 114b, built; see section 6b) |
 
 **Revision 2026-10-28, after Marc listened to 114a (planner decisions).** (1) Pattern strumming per press felt slow (a few notes played after the last key press), so it is gone: a press plays exactly its own stroke and nothing continues; rhythm is the player's. The pattern, tempo, swing and humanise data stay in config for the groove (114b). (2) The old levels 3 and 4 became six: each chord level is a chord set per arrow (same four degrees, I IV V vi, left/down/up/right), richer at each level, as data in `GUITAR_SKILL.levels[].chords`. (3) Every chord stroke alternates down (low to high, 30 ms between strings) and up (high to low, 18 ms, quieter), each string has its own pick attack, a slight gain ramp, and rings 1.5 times as long as a single note (`GUITAR_SKILL.decay`, passed as the effect `stretch`). (4) `SOUND.maxVoices` went from 28 to 96 so six-string chords at 100 ms spacing never drop a string (at 70 ms only a couple of nylon strings in 240 are refused). (5) Thresholds 0 / 4 / 10 / 20 / 35 / 55 are suggestions Marc can retune in config. The open level is not a literal DADGAD (its G is not in A major); it is open-voiced drone chords in the same spirit.
 
@@ -85,7 +85,7 @@ Arrow to chord, **fixed and learnable** (decided): left = A (I, home), down = D 
 ### Level 3: strum
 Same chord per arrow, but a press plays a **one-bar strum pattern** starting at the press: a string of 8 slots (eighths) like `D . D U . U D U` (D = down-strum low to high, U = up-strum high to low with fewer strings and softer, `.` = rest, `x` = muted chop, a short noise tick; optional). Patterns are data (`GUITAR_SKILL.strums`), a few of them; which one is used per session is picked with the session's seeded random once, so one song-ish groove per session ("same chords, a different, slightly worse, song"). A new press **cancels the unplayed rest of the previous pattern** (the already struck chord keeps ringing) and starts a new one on its chord, so the strum always follows the player and never queues up. All offsets are relative to the press, so a press is always "in time with itself".
 
-### Level 4: groove (fingerstyle feel)
+### Level 6: groove (fingerstyle feel; the built version is in section 6b)
 Two layers:
 1. **The accompaniment**, a looping pattern that starts at the first press of the session and stops when the session ends (or is cancelled; its notes ring out on their own decay): a Travis-style picking pattern, thumb on bass (root, then fifth, alternating) on beats and fingers on the upper strings of the chord on the off-beats, one chord per bar, progression **I V vi IV** (A E F#m D), 4 bars, then around. Patterns are data (a bar is eight slots of `{string, gain}`), the bass is one octave under the harmony.
 2. **The melody**, the arrows: each arrow plays a note **relative to the chord sounding at that moment**: left = chord root (octave up), right = the chord's third, up = fifth, down = the sixth/second step of the pentatonic (a gentle passing tone). Every one is a chord tone or a pentatonic neighbour, so it always fits, and because the chord underneath changes each bar, the same four arrows move through the changes by themselves. Plays immediately on the effects bus, the same voice as today; the groove plays on the music bus, quieter (about 0.55 of the melody gain), pan-less.
@@ -96,12 +96,26 @@ The scheduler for the groove is the only piece with time in it, section 6.
 
 The record player's trick, reused: no timers; each frame `update(synth)` schedules the groove events that fall in the next `GUITAR.lookahead` (0.25 s, same as `MUSIC.lookahead`) on the audio clock.
 
-- **Anchor:** the groove's beat grid starts at the first accompanied moment (the first press of a level-4 session, plus a lead-in of 0.05 s as `MusicPlayer` has). From then the grid is `origin + k * eighth`, with swing applied to odd eighths. The bar index is `floor(k / 8) % 4`.
+- **Anchor:** the groove's beat grid starts at the first accompanied moment (the first press of a level-6 session, plus a lead-in of 0.05 s as `MusicPlayer` has). From then the grid is `origin + k * eighth`, with swing applied to odd eighths. The bar index is `floor(k / 8) % 4`.
 - **Melody stays free.** The press plays at once at its own moment. Because the groove is a steady background and the melody is sparse (a note every 0.3 to 1.5 s), the melody never has to land on the grid to sound right; and no quantising means no input lag. The only coupling is read-only: at press time the melody asks the scheduler "which chord is it?" (from the current bar index at `synth.now`), so the note is a chord tone of the harmony you hear at that instant (a press just before a bar change picks the old chord, which is correct: it is what is sounding).
 - **Late frames.** Same rule as `MusicPlayer.skipLate`: events later than 0.08 s are skipped, and a long stall (tab in the background) jumps whole bars forward instead of playing a burst.
 - **Buses.** Groove on `music` (not counted in the voice cap and cannot starve other effects; the guitar melody keeps the effects bus and the cap headroom measured in issue 108). **Muted means silent** via the synth's existing mute; the record player is not affected (the groove stops while the notes game is not running).
-- **Where it lives.** `GuitarGroove` class in `src/game/sound/guitar-groove.ts` (like `MusicPlayer`; constructor takes the bus; `start()`, `stop()`, `update(synth)`, `chordNow(now)`); `SoundFeature` owns one, starts it on the first notes keypress at level 4, stops it when the activity is no longer `notes`. It uses the pure `groove(bar)` for what to play.
-- **While a record is playing:** the record player is not stopped; the guitar then is a second layer. Possible clash of keys (the tracks are in many keys). Accepted: recommended behaviour for level 4 is to **duck the record to 30% while the groove plays** (same mechanism the sleep scene uses to fade buses). Decide at build time (114e) by ear; see risks.
+- **Where it lives.** `GuitarGroove` class in `src/game/sound/guitar-groove.ts` (like `MusicPlayer`; constructor takes the bus; `start()`, `stop()`, `update(synth)`, `chordNow(now)`); `SoundFeature` owns one, starts it on the first notes keypress at level 6, stops it when the activity is no longer `notes`. It uses the pure `groove(bar)` for what to play.
+- **While a record is playing:** the record player is not stopped; the guitar then is a second layer. Possible clash of keys (the tracks are in many keys). Accepted: recommended (and built) behaviour for level 6 is to **duck the record to 30% while the groove plays** (same mechanism the sleep scene uses to fade buses). Decide at build time (114e) by ear; see risks.
+
+## 6b. The built groove: a Travis-style pattern (issue 114b, after Marc listened)
+
+Marc asked for a more Travis-like picking pattern, faster, with the melody note about every fourth pluck and the melody quieter. Built as data in `GUITAR_SKILL.groove`. The bar is 16 sixteenths (`pattern`, one character per slot), tempo 116 bpm (was 92), swing 0.04 of a slot on the odd slots (was 0.1 of an eighth), melody gain 0.7 (was 1). One chord per bar, I V vi IV (A E F#m D):
+
+```
+slot   0 1 2 3 | 4 5 6 7 | 8 9 10 11 | 12 13 14 15
+beat   1 . . . | 2 . . . | 3 .  .  . | 4  .  .  .
+loop   r . 3 h | f . 2 h | r .  3  h | f  .  2  h
+```
+
+`r` thumb on the chord's root, `f` thumb on its fifth (so the bass alternates root, fifth, root, fifth on every beat), digits the fingers on the voicing's strings 3 and 2 (inner strings, between the beats), `h` an empty slot where the high string would be plucked, `.` a rest. The loop never plays the `h` slots: the player's arrow is the high note, so a press can land on one of four high slots in a bar.
+
+Snap (`groove.snap`, on by default, `?guitarsnap=off` on the dev server): an arrow pressed within `window` (0.075 s) before an `h` slot is played on that slot (so a delay of at most 75 ms) and uses the chord of that slot's bar; any other press plays at once, as before, and a press just after a slot is never moved. The melody note is always a note of the chord sounding (`melody[chord]`).
 
 ## 7. Where the level is read (decided)
 
@@ -134,7 +148,7 @@ The notes activity itself does not change (same arrows, same window and gap, sam
 - `skillLevel`: each threshold, one below and one at it; 0, negative, NaN, huge, non-integer; the thresholds are strictly increasing; level ids unique.
 - Data: the table is complete (a name for every level, patterns well-formed: 8 slots; chord voicings in the key; every chord in the progression exists; tempo, swing and humanise in range).
 - `playKey`: level 1 equals today's `noteKeys` (regression); every arrow has a chord at level 2 and 3; all notes' `semis` are in A major; offsets are non-decreasing; the fixed arrow-to-chord table; a down-strum goes low to high, an up-strum high to low; `.` produces no notes; a re-press truncates the earlier strum's remaining events (scheduler test).
-- Melody (level 4): for each of the four chords and each arrow the note is a chord tone or pentatonic neighbour; the same press in different bars gives different notes; the chord of bar k is `[A, E, F#m, D][k % 4]`.
+- Melody (level 6): for each of the four chords and each arrow the note is a chord tone or pentatonic neighbour; the same press in different bars gives different notes; the chord of bar k is `[A, E, F#m, D][k % 4]`.
 - Scheduling: with a fake clock, the groove schedules each event once, in order, within the lookahead; loops after 4 bars; swing delays only odd eighths; a long stall skips whole bars and does not burst; `stop()` schedules nothing more; muted is silent; the groove is on the music bus and the melody on effects; a press at 70 ms spacing still plays all notes (the issue-108 "no drop" check holds with a groove running).
 - Level read once per session: changing the count mid-session does not change that session.
 - Save/sync: a property test that `mergeSaves` keeps `taskCounts.guitar` the max (already covered generally; add one example with `guitar`), and that no new key appears in the progress group.
@@ -160,7 +174,7 @@ Order: a, b, c, d, e (f any time after a). b is the first thing Marc can really 
 - **It might sound bad.** Pure Web Audio plucks stack: a six-string chord in the steel voice is 18 voices (3 each) of the cap (28 when designed, 96 since 114a). Mitigations: strum and chord notes use fewer partials (a `light` voice variant: just the fundamental plus the pick tick, data), cap the stacked strings at 4 for chords and 3 for upper picking, and reuse the 108 "no-drop" test across spacings with chords. Honest: this is the biggest risk and it can only be settled by ear.
 - **Voice cap.** Level 2 and 3 at fast pressing can drop other effects (a chime). The groove avoids it by using the music bus. Mitigation as above plus lower priority for strum notes; test with the 70/100/150 ms spacings.
 - **Latency.** Scheduling by `Synth.play(delay)` is sample-accurate on the audio clock; nothing waits for a frame, only the lookahead for the groove (the melody does not use it).
-- **Key clash with the record player** (tracks are in other keys). Duck or stop the record while level 4 plays; by ear.
+- **Key clash with the record player** (tracks are in other keys). Duck or stop the record while level 6 plays; by ear.
 - **Skill by session count feels fast or slow.** The thresholds are data; tune after listening. Fallback stat in section 9.
 - **A hidden surprise is easy to miss:** a player who stops at level 1 never hears the rest. That is fine (no pressure), and the pause line, if added, is the nudge.
 - **Docs drift:** `docs/sleep.md` still says "the 14 voice cap" (noted in the 108 review); fix when touching sound docs.
@@ -190,5 +204,5 @@ Order: a, b, c, d, e (f any time after a). b is the first thing Marc can really 
 ## Marc's answers (2026-10-28)
 - **Q2, what fingerstyle means: (a)** the persistent bass and harmony loop with each keypress playing a melody over it. "Let's try it and see how it feels."
 - **Decided by the planner without Marc (easy to change, all in config):** level 1 stays today's single note; the record ducks to about a third while the groove plays; skill shows as one deadpan pause line after the first session (114f, optional); level pace 4 / 12 / 30 sessions.
-- **Build order:** 114a (rule, data, chords, strumming: levels 1 to 3) first, then 114b (the groove and the melody over it: level 4) so Marc can hear and feel each step; 114c (the pause line) any time after 114a.
+- **Build order:** 114a (rule, data, chords, strumming: levels 1 to 3) first, then 114b (the groove and the melody over it: now level 6) so Marc can hear and feel each step; 114c (the pause line) any time after 114a.
 - **After listening to 114a (2026-10-28):** pattern strumming dropped, the levels are now six (see section 3), the groove with melody is level 6 (issue 114b).

@@ -907,8 +907,8 @@ export const GUITAR_SKILL = {
   ] as { id: "notes" | "chords" | "sevenths" | "open" | "jazz" | "groove"; from: number; name: string; chords?: GuitarChordSet }[],
   // The plain chords by name (for the groove's progression, issue 114b, and the pattern strums).
   chords: Object.fromEntries(Object.values(SIMPLE).map((c) => [c.name, { root: c.root, voicing: c.voicing }])) as Record<string, { root: number; voicing: number[] }>,
-  tempo: 92, // beats per minute; a slot of a strum is an eighth
-  swing: 0.1, // the off-eighths come this fraction of an eighth late (0 is straight)
+  tempo: 116, // beats per minute; a slot of a strum is an eighth, a slot of the groove a sixteenth
+  swing: 0.04, // the odd slots come this fraction of a slot late (0 is straight)
   humanise: { time: 0.008, gain: 0.08 }, // up to this many seconds and this fraction, seeded
   // One press is one stroke, and nothing plays after it (rhythm is the player's). Strokes
   // alternate down and up from level 2. Seconds between strings (the pick hitting each in turn),
@@ -933,20 +933,24 @@ export const GUITAR_SKILL = {
   up: { strings: 3, gain: 0.75, spacing: 0.018 },
   down: { spacing: 0.03 },
   chopGain: 1,
-  // The groove (level 6, issue 114b): a looping fingerstyle-like bass and harmony pattern on
-  // the music bus, one chord per bar, under the arrows' melody. Tempo, swing and humanise are
-  // the ones above (the off-eighths are late by `swing`, the melody is never delayed). A bar is
-  // eight eighths; in `pattern`, "r" is the bass root, "f" the bass fifth (the thumb, on the
-  // beats), a digit is the voicing's string at that index (the fingers, off the beats) and "."
-  // a rest. The melody plays an arrow's interval above the chord's root (`melody[chord]`, in
-  // the order left, right, up, down: root, third, fifth, a sixth or seventh), an octave and a
-  // half above the bass, so it is always a note of the chord sounding now and in A major.
+  // The groove (level 6, issue 114b): a Travis-style fingerpicking loop on the music bus, one chord
+  // per bar of four beats, under the arrows' melody. A bar is 16 sixteenths (`pattern`, one character
+  // each): "r" the thumb on the chord's root, "f" the thumb on its fifth (the thumb falls on every
+  // beat, alternating), a digit a finger on the voicing's string at that index (the inner strings,
+  // between the beats), "h" an empty slot where the high note would be plucked (the player's arrow
+  // supplies it), "." a rest. Tempo, swing and humanise are the ones above (the melody is never
+  // delayed except by the optional `snap`: an arrow pressed within `snap.window` seconds before
+  // an "h" slot is played on the slot instead, so it lands in the pattern). The melody plays an
+  // arrow's interval above the chord's root (`melody[chord]`, in the order left, right, up,
+  // down: root, third, fifth, a sixth or seventh), so it is always a note of the chord now and in A major.
   groove: {
     progression: ["A", "E", "F#m", "D"],
-    pattern: "r3f2r3f1",
+    pattern: "r.3hf.2hr.3hf.2h",
     bassGain: 1,
     harmonyGain: 0.7,
     accent: 1.15, // the first slot of a bar
+    melodyGain: 0.7, // the arrows' notes next to the pattern (was 1 before Marc found it high)
+    snap: { enabled: true, window: 0.075 },
     gain: 0.55, // all of it, next to the melody
     leadIn: 0.05, // seconds from the first press to the first slot
     melodyOctave: 24, // semitones above the chord's root

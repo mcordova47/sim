@@ -180,9 +180,14 @@ export function grooveBar(bar: number, seed = 0): GrooveNote[] {
   return out;
 }
 
-// The seconds, from the groove's origin, at which eighth number `k` (counted from 0 across all bars) falls: the odd ones late by the swing.
+// Slots (sixteenths) in a bar, and the seconds of one slot and of a bar.
+export const grooveSlots = (): number => GUITAR_SKILL.groove.pattern.length;
+export const slotLength = (tempo = GUITAR_SKILL.tempo): number => eighth(tempo) / 2;
+export const barLength = (tempo = GUITAR_SKILL.tempo): number => grooveSlots() * slotLength(tempo);
+
+// The seconds, from the groove's origin, at which slot number `k` (counted from 0 across all bars) falls: the odd ones late by the swing.
 export function grooveSlotTime(k: number, tempo = GUITAR_SKILL.tempo, swing = GUITAR_SKILL.swing): number {
-  return k * eighth(tempo) + (k % 2 === 1 ? swing * eighth(tempo) : 0);
+  return k * slotLength(tempo) + (k % 2 === 1 ? swing * slotLength(tempo) : 0);
 }
 
 // The semitone (from A4) an arrow plays over a chord of the groove: a chord tone, or the chord's sixth or seventh.

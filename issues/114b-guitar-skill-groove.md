@@ -1,7 +1,7 @@
 ---
 id: 114b
 title: Guitar skill, stage 2: the groove and the melody over it (level 6)
-status: done
+status: review
 owner: claude
 depends_on: [114a]
 ---
@@ -33,3 +33,4 @@ Marc listened to 114a: pattern strums were dropped and the levels are now six (s
   - Criteria: loop under the melody in time and in key, stops on leaving (now also after repeated pauses), muted silent, record ducks and returns, tests/tsc/build: pass (as round 1 plus the fix). Scope of the fix commit: feature.ts, the test, the issue file only.
   - UNVERIFIED for Marc (an agent cannot hear): loop feel at 92 bpm with swing 0.1 and humanise, loop/melody balance, whether melody notes are too high or sparse, the record duck and its return, loudness through the music bus.
   - Minor, not blocking: the design doc still says "level 4" in places.
+- 2026-10-28, round 2 (Marc listened, wanted changes). Merged main (the 115 limiter) first: clean, no conflicts. Travis redesign, data in `GUITAR_SKILL.groove`: 16-slot bar `r.3hf.2hr.3hf.2h` (thumb on every beat alternating root and fifth, fingers on voicing strings 3 and 2 between, `h` = empty high-note slot every fourth slot that the arrow supplies); tempo 92 to 116, swing 0.1 of an eighth to 0.04 of a sixteenth, melody gain 0.7 (-30%), loop gain unchanged (0.55). Snap: an arrow within 75 ms before an `h` slot plays on it (never earlier than the press; the slot's bar chord is used); off with `groove.snap.enabled` or `?guitarsnap=off`. Docs: design doc section 6b added, stale "level 4" text fixed. Tests updated and added (pattern, alternating bass, high slots empty, slot timing and swing, snap inside and outside the window, off switch). `tsc`, tests and build run before the review.

@@ -1,5 +1,5 @@
 import { GUITAR_SKILL, MUSIC, SOUND } from "../config";
-import { grooveBar, grooveChord, grooveSlotTime } from "./guitar-skill";
+import { barLength, grooveBar, grooveChord, grooveSlotTime, grooveSlots } from "./guitar-skill";
 import type { Synth } from "./synth";
 
 // The guitar's groove (issue 114b): a looping bass-and-harmony pattern on the music bus, played
@@ -36,22 +36,38 @@ export class GuitarGroove {
   // Which chord is sounding at audio time `now` (the first one before the loop has begun).
   chordAt(now: number): string {
     if (this.origin === null) return grooveChord(0);
-    return grooveChord(Math.max(0, Math.floor((now - this.origin) / grooveSlotTime(8, GUITAR_SKILL.tempo, 0))));
+    return grooveChord(Math.max(0, Math.floor((now - this.origin) / barLength())));
+  }
+
+  // The "h" slot nearest to `now`, if one is within `window` seconds: its time and the chord of its bar.
+  // Null when stopped, before the loop has begun, or when none is close enough.
+  highSlotNear(now: number, window: number): { time: number; chord: string } | null {
+    if (!this.on || this.origin === null) return null;
+    const slots = grooveSlots();
+    const pattern = GUITAR_SKILL.groove.pattern;
+    const around = Math.floor((now - this.origin) / (barLength() / slots));
+    let best: { time: number; chord: string } | null = null;
+    for (let k = Math.max(0, around - slots); k <= around + slots; k++) {
+      if (pattern[k % slots] !== "h") continue;
+      const time = this.origin + grooveSlotTime(k);
+      if (Math.abs(time - now) <= window && (!best || Math.abs(time - now) < Math.abs(best.time - now))) best = { time, chord: grooveChord(Math.floor(k / slots)) };
+    }
+    return best;
   }
 
   update(synth: Synth | null): void {
     if (!this.on || !synth) return;
     const now = synth.now;
     if (this.origin === null) this.origin = now + GUITAR_SKILL.groove.leadIn;
-    const bars = (n: number) => grooveSlotTime(n * 8);
+    const bars = (n: number) => grooveSlotTime(n * grooveSlots());
     // Fell far behind (the tab was in the background): jump forward whole bars, no burst.
     const behind = now - (this.origin + grooveSlotTime(this.k));
-    if (behind > bars(1)) this.k += Math.floor(behind / bars(1)) * 8;
+    if (behind > bars(1)) this.k += Math.floor(behind / bars(1)) * grooveSlots();
     for (let guard = 0; guard < 1000; guard++) {
       const time = this.origin + grooveSlotTime(this.k);
       if (time > now + MUSIC.lookahead) return;
-      const bar = Math.floor(this.k / 8);
-      const slot = this.k % 8;
+      const bar = Math.floor(this.k / grooveSlots());
+      const slot = this.k % grooveSlots();
       for (const note of grooveBar(bar, this.seed)) {
         if (note.slot !== slot) continue;
         const t = Math.max(this.origin, time + note.wobble);

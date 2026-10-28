@@ -133,8 +133,11 @@ export class FlashcardsActivity extends BaseActivity {
     this.store.clock = () => this.host.gameMinutes?.() ?? 0;
     this.unlisten = this.clipboard.onPaste((text) => this.paste(text));
     if (this.backend.usesKey === false) return this.connect("");
-    if (this.store.mode() === "guest") return this.startGuest();
     const key = this.store.key();
+    // A guest with no key sees the choice every visit (issue 093), so the sync key is one tap away:
+    // the cursor starts on "Study without a key", so continuing as a guest is one press. A key holder
+    // goes straight to the cards, and a guest mode saved beside a key (from G on the done screen) too.
+    if (this.store.mode() === "guest" && key) return this.startGuest();
     if (key) this.connect(key);
     else this.phase = "choice";
   }

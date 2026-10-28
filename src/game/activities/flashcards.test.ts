@@ -551,13 +551,63 @@ describe("FlashcardsActivity: a guest", () => {
     expect(t.storage!.getItem(guestStorageKey())).toBe('{"a":1}');
   });
 
-  it("goes straight to the cards when guest mode is remembered, and only one blob per visit", async () => {
+  it("a guest's second visit shows the choice screen, with the cursor on 'Study without a key'", async () => {
     const storage = new FakeStorage();
     new StudyStore(storage).setMode("guest");
     const t = guestSetup({ storage });
     t.a.start();
     await flush();
+    expect(t.a.phase).toBe("choice");
+    expect(t.a.chosen).toBe(0);
+    expect(t.opens).toEqual([]);
+  });
+
+  it("choosing the first item continues the saved guest session, cards untouched", async () => {
+    const storage = new FakeStorage();
+    storage.setItem(guestStorageKey(), '{"a":1}');
+    new StudyStore(storage).setMode("guest");
+    const t = guestSetup({ storage });
+    t.a.start();
+    await t.step(E);
+    await flush();
     expect(t.a.phase).toBe("front");
+    expect(t.a.guest).toBe(true);
+    expect(storage.getItem(guestStorageKey())).toBe('{"a":1}');
+    expect(t.opens).toEqual([]);
+  });
+
+  it("choosing the second item reaches the key screen; Escape leaves with the guest mode and cards untouched", async () => {
+    const storage = new FakeStorage();
+    storage.setItem(guestStorageKey(), '{"a":1}');
+    new StudyStore(storage).setMode("guest");
+    const t = guestSetup({ storage });
+    t.a.start();
+    const before = storage.getItem(F.storageKey);
+    await t.step({ ...NO_INPUT, dir: "down", dirPressed: "down" });
+    await t.step(E);
+    expect(t.a.phase).toBe("key");
+    t.a.cancel();
+    expect(t.a.done).toBe(true);
+    expect(new StudyStore(storage).mode()).toBe("guest");
+    expect(storage.getItem(F.storageKey)).toBe(before);
+    expect(storage.getItem(guestStorageKey())).toBe('{"a":1}');
+    expect(new StudyStore(storage).key()).toBeNull();
+  });
+
+  it("a saved key still goes straight to the cards, and so does a guest mode saved beside a key", async () => {
+    const storage = new FakeStorage();
+    new StudyStore(storage).saveKey(KEY);
+    const keyHolder = guestSetup({ storage });
+    keyHolder.a.start();
+    await flush();
+    expect(keyHolder.a.phase).toBe("front");
+    expect(keyHolder.a.guest).toBe(false);
+    new StudyStore(storage).setMode("guest");
+    const both = guestSetup({ storage });
+    both.a.start();
+    await flush();
+    expect(both.a.phase).toBe("front");
+    expect(both.a.guest).toBe(true);
   });
 
   it("with blocked storage studies unsaved, warns, and pays nothing", async () => {
@@ -589,6 +639,7 @@ describe("FlashcardsActivity: a guest", () => {
     new StudyStore(storage).setMode("guest");
     const t = guestSetup({ storage, core: refusing });
     t.a.start();
+    await t.step(E);
     await flush();
     expect(t.a.phase).toBe("problem");
     expect(storage.getItem(guestStorageKey())).toBe("damaged");
@@ -697,6 +748,7 @@ describe("FlashcardsActivity: a guest", () => {
     new StudyStore(storage).setMode("guest");
     const t = guestSetup({ storage });
     t.a.start();
+    await t.step(E);
     await flush();
     await t.step(keys("KeyK"));
     expect(t.a.phase).toBe("front");

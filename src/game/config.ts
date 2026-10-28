@@ -269,8 +269,14 @@ export const HUD = {
   // A status bar beside its icon.
   barWidth: 12,
   barHeight: 3,
-  // Room kept for the phone icon of the battery issue (088); empty for now.
-  phoneSlotWidth: 0,
+  // Room for the phone's slot (issue 088): the group gap, the icon, its gap and a shorter bar (it
+  // is a gag, and a full-size one would not leave a gap on the narrow view for a long score).
+  phoneBarWidth: 8,
+  phoneSlotWidth: 6 + 7 + 2 + 8,
+  // The phone's bar turns brick below this, and the plug icon shows in place of the phone for this
+  // many seconds after the level goes up.
+  phoneLowBelow: 20,
+  plugSeconds: 4,
   // Mood face: happy from this value up (sad is below MOOD.lowBelow).
   happyFrom: 70,
   // The clock's icon by hour: dawn and dusk share one.

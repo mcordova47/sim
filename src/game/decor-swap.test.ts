@@ -80,9 +80,9 @@ describe("the swap tasks", () => {
     // The table keeps its four tasks and no cycle entry for the art.
     standAt(game, "swap-art-table");
     expect(game.interaction.nearby?.id).toBe("coffee");
-    // The nightstand and lamp table have nothing at all to do.
+    // The nightstand offers only the phone charger (issue 088) and the lamp table has nothing at all to do.
     standAt(game, "swap-art-bed");
-    expect(game.interaction.nearby).toBeNull();
+    expect(game.interaction.nearby?.id).toBe("charge-phone");
     standAt(game, "swap-lamp-sofa");
     expect(game.interaction.nearby).toBeNull();
   });
@@ -97,7 +97,7 @@ describe("the swap tasks", () => {
     expect(game.interaction.nearby?.id).toBe("swap-art-table");
     // The other walls still have nothing (the barn test item fits the table and the desk, not the bed).
     standAt(game, "swap-art-bed");
-    expect(game.interaction.nearby).toBeNull();
+    expect(game.interaction.nearby?.id).toBe("charge-phone");
   });
 
   it("are offered for one fitting item only at the slots it fits", () => {

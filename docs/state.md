@@ -46,6 +46,8 @@ A solid can also be conditional with `blockedWhen` (a pile in the way); the grid
 
 - `boxes` (1 a stack, 0 flattened, 2 gone, issues 066 and 070; 1 and 0 keep their 066 meaning so nothing saved changes, 2 is new and only means the boxes were taken out): the cardboard boxes in the kitchen. It starts at 1, today's look, so an older save without it shows the stack. Flatten the boxes needs 1 (otherwise `NO BOXES TO FLATTEN`) and sets 0; Take out the recycling (`recycle-boxes`, at the boxes, only when flat; there is no recycling bin) sets 2; opening a package at the front door (`collect-delivery`) sets 1 again from any of the three. There is only ever one stack, however many packages arrive. The object's variant list picks `boxes-gone`, `boxes` or `boxes-flat` from it. `?set=boxes:0` shows the flat look in the dev server.
 
+- `battery` (0 to 100, issue 088): the phone's charge, drawn as a phone and a bar in the ribbon's last slot. Starts at 40. Only `charge-phone` changes it (sets 100); nothing drains it with time and no task reads it. A save without it starts at 40.
+
 ## Decor is not state
 The package by the front door follows the delivery queue through the derived variable `parcel` (0 or 1, set by the game each frame, never by a task; `docs/decor.md`, stage 3a). Sleeping and napping move the clock by an effect, and `State.onClockSkip` tells the delivery queue how many hours were skipped (for sleep, the real number: the wake hour is at least 7 hours on and never before 06:30, see below).
 

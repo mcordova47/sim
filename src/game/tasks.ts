@@ -21,6 +21,8 @@ const CONTENT: Task[] = [
   // Bed nook
   { id: 'make-bed', name: 'Make the bed', prompt: 'Make the bed', duration: 3, points: 30,
     flavor: 'It will be undone in eleven hours. Worth it.' },
+  { id: 'charge-phone', name: 'Charge your phone', prompt: 'Charge your phone', duration: 3, points: 8, cooldown: 60,
+    flavor: 'One hundred percent. You will not need it.' },
   { id: 'open-blinds', name: 'Open the blinds', prompt: 'Open the blinds', duration: 1, points: 10,
     flavor: 'The outside is still there. Good to know.' },
   { id: 'close-blinds', name: 'Close the blinds', prompt: 'Close the blinds', duration: 1, points: 10,
@@ -202,6 +204,8 @@ const STATE_RULES: Record<string, Partial<Task>> = {
   "sort-records-color": sortStep(3),
   // The rest of the mood table (small numbers; see docs/tasks.md).
   doomscroll: { effects: [{ var: "mood", add: -8 }] },
+  // Issue 088: the phone fills up. Nothing drains it and nothing reads it, so this is all it does.
+  "charge-phone": { effects: [{ var: "battery", set: 100 }] },
   journal: { effects: [{ var: "mood", add: 6 }], pointsBonus: { var: "mood", perUnit: 0.2 } },
   shower: { effects: [{ var: "mood", add: 6 }] },
   "brush-teeth": { effects: [{ var: "mood", add: 2 }] },

@@ -27,7 +27,7 @@ const KEPT: Record<string, number> = {
   dishes: 45, sleep: 60, nap: 60, "check-plant": 60, "admire-art": 60, "tidy-desk": 90, "take-trash": DEFAULT_TASK_COOLDOWN,
   doomscroll: DEFAULT_TASK_COOLDOWN, guitar: DEFAULT_TASK_COOLDOWN, "sort-records": 45, work: 30, "work-sofa": 30,
   "work-bed": 30, contemplate: 30, reheat: DEFAULT_TASK_COOLDOWN, "eat-dinner": DEFAULT_TASK_COOLDOWN, cook: DEFAULT_TASK_COOLDOWN,
-  "mirror-day": 60, "side-project-game": 90,
+  "mirror-day": 60, "charge-phone": 60, "side-project-game": 90,
 };
 
 describe("the cooldown table (issue 071)", () => {

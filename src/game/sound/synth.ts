@@ -17,6 +17,13 @@ export type Bus = "effects" | "music" | "sleep";
 const NOISE_SECONDS = 0.5;
 const FLOOR = 0.0001;
 
+// Dev only (issue 115): `?limiter=off` leaves the limiter out for the visit, to compare.
+// A built game ignores it.
+export function devLimiter(search = typeof location === "undefined" ? "" : location.search, dev = import.meta.env?.DEV): boolean {
+  if (!dev) return true;
+  return new URLSearchParams(search).get("limiter") !== "off";
+}
+
 const isNoise = (v: Voice): v is NoiseVoice => "noise" in v;
 const isFormant = (v: Voice): v is FormantVoice => "formants" in v;
 
@@ -38,10 +45,22 @@ export class Synth {
   constructor(
     private readonly ctx: AudioContextLike,
     private readonly random: () => number = Math.random,
+    limiter: boolean = SOUND.limiter.enabled && devLimiter(),
   ) {
     this.master = ctx.createGain();
     this.master.gain.value = SOUND.master;
-    this.master.connect(ctx.destination);
+    // master -> limiter -> speakers (or master -> speakers with no limiter)
+    const comp = limiter ? ctx.createDynamicsCompressor?.() : undefined;
+    if (comp) {
+      const L = SOUND.limiter;
+      comp.threshold.value = L.threshold;
+      comp.knee.value = L.knee;
+      comp.ratio.value = L.ratio;
+      comp.attack.value = L.attack;
+      comp.release.value = L.release;
+      this.master.connect(comp);
+      comp.connect(ctx.destination);
+    } else this.master.connect(ctx.destination);
     const effects = ctx.createGain();
     const music = ctx.createGain();
     effects.gain.value = 1;

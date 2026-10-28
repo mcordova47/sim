@@ -153,7 +153,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 114a | [Guitar skill 1: rule, chords, strumming (levels 1 to 3)](issues/114a-guitar-skill-levels-1-3.md) | claude | done | 108 |
 | 114b | [Guitar skill 2: the groove and melody (level 4)](issues/114b-guitar-skill-groove.md) | claude | todo | 114a |
 | 114c | [Guitar skill 3 (optional): the pause-screen line](issues/114c-guitar-skill-pause-line.md) | claude | todo | 114a |
-| 115 | [A gentle limiter on the master output (clipping safety)](issues/115-master-limiter.md) | claude | todo | |
+| 115 | [A gentle limiter on the master output (clipping safety)](issues/115-master-limiter.md) | claude | done | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

@@ -4,7 +4,7 @@ Status: design only, nothing built. Decisions are marked **decided** with a reas
 
 ## 1. Summary
 
-Playing the guitar gets richer the more you have played it, with no number to chase. The skill is **derived from the count of finished guitar sessions the save already keeps** (`stats.taskCounts.guitar`), so there is **no new saved field and nothing new to merge**: the sync rule "per task, the larger" already does the right thing across devices. Four levels, as data: single notes (first session), then chords after 4 sessions, strumming patterns after 12, and a looping bass-and-harmony groove with the arrows playing melody over it after 30. Pitch, key and voices stay as they are (A major, steel or nylon from issue 108); everything new is built as pure functions (`key -> notes`) plus one small scheduler for the groove, driven by the audio clock like the record player. Skill is never lost, never shown as a bar; at most one deadpan line appears on the pause screen after the first session. One skill for all instruments.
+Playing the guitar gets richer the more you have played it, with no number to chase. The skill is **derived from the count of finished guitar sessions the save already keeps** (`stats.taskCounts.guitar`), so there is **no new saved field and nothing new to merge**: the sync rule "per task, the larger" already does the right thing across devices. Six levels, as data (see the revision in section 3): single notes, simple chords, 7ths and add9, open-tuning chords, jazz voicings, and finally a looping bass-and-harmony groove with the arrows playing melody over it (thresholds 0 / 4 / 10 / 20 / 35 / 55). Pitch, key and voices stay as they are (A major, steel or nylon from issue 108); everything new is built as pure functions (`key -> notes`) plus one small scheduler for the groove, driven by the audio clock like the record player. Skill is never lost, never shown as a bar; at most one deadpan line appears on the pause screen after the first session. One skill for all instruments.
 
 ## 2. What exists today (read first)
 
@@ -27,12 +27,16 @@ Why this and not a new stat or play-time:
 
 **Levels as data** (new `GUITAR_SKILL` in `config.ts`; all tunable, these are first guesses to be heard and adjusted):
 
-| level | id | from session | what you hear |
+| level | id | from session | what you hear (one stroke per press, down then up, nothing after it) |
 |---|---|---|---|
 | 1 | `notes` | 0 (the very first) | one note per arrow (today) |
-| 2 | `chords` | 4 | one chord per arrow |
-| 3 | `strum` | 12 | a strummed pattern per arrow |
-| 4 | `groove` | 30 | a bass and harmony loop underneath; the arrows play melody over it |
+| 2 | `chords` | 4 | simple chords: A, D, E, F#m |
+| 3 | `sevenths` | 10 | 7ths and add9: Amaj7, Dadd9, E7, F#m7 |
+| 4 | `open` | 20 | open-tuning flavour, six strings: Asus2, Dsus2, Esus4, F#m11 |
+| 5 | `jazz` | 35 | jazz voicings: Amaj9, D6/9, E13, F#m9 |
+| 6 | `groove` | 55 | a bass and harmony loop underneath; the arrows play melody over it (issue 114b; plays like level 5 until built) |
+
+**Revision 2026-10-28, after Marc listened to 114a (planner decisions).** (1) Pattern strumming per press felt slow (a few notes played after the last key press), so it is gone: a press plays exactly its own stroke and nothing continues; rhythm is the player's. The pattern, tempo, swing and humanise data stay in config for the groove (114b). (2) The old levels 3 and 4 became six: each chord level is a chord set per arrow (same four degrees, I IV V vi, left/down/up/right), richer at each level, as data in `GUITAR_SKILL.levels[].chords`. (3) Every chord stroke alternates down (low to high, 30 ms between strings) and up (high to low, 18 ms, quieter), each string has its own pick attack, a slight gain ramp, and rings 1.5 times as long as a single note (`GUITAR_SKILL.decay`, passed as the effect `stretch`). (4) `SOUND.maxVoices` went from 28 to 96 so six-string chords at 100 ms spacing never drop a string (at 70 ms only a couple of nylon strings in 240 are refused). (5) Thresholds 0 / 4 / 10 / 20 / 35 / 55 are suggestions Marc can retune in config. The open level is not a literal DADGAD (its G is not in A major); it is open-voiced drone chords in the same spirit.
 
 Each level also carries a deadpan `name` for the pause line (section 8). The thresholds are `n` values, so the first session you ever play is level 1 and the fourth completed session is the first one that sounds like chords (n=4 means four finished sessions behind you).
 
@@ -108,7 +112,7 @@ The notes activity itself does not change (same arrows, same window and gap, sam
 ## 8. How skill shows (decided: barely)
 
 - Nowhere in the world and no toast.
-- **One line on the pause screen's stats**, only once `taskCounts.guitar >= 1`, deadpan: `GUITAR: "STILL THREE CHORDS"` at level 1, then `"A FOURTH CHORD, TECHNICALLY"` (chords), `"STRUMMING, ON PURPOSE"` (strum), `"FINGERS, SOMEHOW"` (groove). Wording lives in the level data and is Marc's to rewrite. It is a "meaningless stat" in the sense of `docs/decor.md`: it describes, it unlocks nothing, no task, ad, achievement or score reads it.
+- **One line on the pause screen's stats**, only once `taskCounts.guitar >= 1`, deadpan: `GUITAR: "STILL THREE CHORDS"` at level 1, then `"A FOURTH CHORD, TECHNICALLY"`, `"SEVENTHS, ON PURPOSE"`, `"OPEN TUNING, A PERSONALITY"`, `"JAZZ CHORDS, UNPROVOKED"`, `"FINGERS, SOMEHOW"` (groove). Wording lives in the level data and is Marc's to rewrite. It is a "meaningless stat" in the sense of `docs/decor.md`: it describes, it unlocks nothing, no task, ad, achievement or score reads it.
 - No numeric progress ("3 of 4 sessions to next"), no bar, no achievements tied to it at first (an achievement later, if any, should be a quiet one like "A Fourth Chord", never "Master Guitarist").
 - The whole line can also be omitted; the skill works without it (see question 3).
 
@@ -122,8 +126,8 @@ The notes activity itself does not change (same arrows, same window and gap, sam
 ## 10. Dev shortcuts and tests
 
 **Dev shortcuts** (dev server only, `import.meta.env.DEV`, dead in a build, as `?guitarvoice=`):
-- `?guitarskill=1..4` forces the level without touching the save (or counts).
-- Console: `auditionGuitarSkill(level)` plays a short fixed demonstration of that level (a few presses of the arrows 1 s apart, for level 4 a four-bar run), like `auditionGuitar`. `?guitarskill=` composes with `?guitarvoice=` so any level can be heard in any voice.
+- `?guitarskill=1..6` forces the level without touching the save (or counts).
+- Console: `auditionGuitarSkill(level)` plays a short fixed demonstration of that level (eight presses of the arrows 1.4 s apart, then silence), like `auditionGuitar`. `?guitarskill=` composes with `?guitarvoice=` so any level can be heard in any voice.
 - Optionally `?guitar=N` to pretend N sessions (so the real thresholds can be tested end to end).
 
 **Tests** (vitest, no audio hardware; same fake audio context as `guitar-voice.test.ts`):
@@ -141,10 +145,10 @@ The notes activity itself does not change (same arrows, same window and gap, sam
 
 All stages are independent of the save format. Each ends with `npx vitest run`, `npx tsc --noEmit`, `npm run build` and Marc listening.
 
-- **114a: the skill rule and the data.** `GUITAR_SKILL` in config (levels, thresholds, names, key, tempo, swing, chord voicings, strum patterns, groove patterns as empty/placeholder), `skillLevel`, wiring `Game` to hand the session count to `SoundFeature`, read once per session, the dev override `?guitarskill=`. At level 1 it changes no sound. Tests: the level function and the data checks.
+- **114a (built, revised after listening): the skill rule, the data and levels 1 to 5 (chords through jazz voicings).** Originally the rule and data only; `GUITAR_SKILL` in config (levels, thresholds, names, key, tempo, swing, chord voicings, strum patterns, groove patterns as empty/placeholder), `skillLevel`, wiring `Game` to hand the session count to `SoundFeature`, read once per session, the dev override `?guitarskill=`. At level 1 it changes no sound. Tests: the level function and the data checks.
 - **114b: chords (level 2).** `chordFor`, `playKey` for chords, the roll, scheduling the offsets through `Synth.play(..., delay)`. Dev audition. Tests: chords.
 - **114c: strumming (level 3).** Strum patterns, down/up, seeded pattern choice per session, cancel-on-next-press. Tests: strum.
-- **114d: the groove (level 4, accompaniment only).** `GuitarGroove` scheduler on the music bus, the progression, a travis pattern, tempo and swing, stop on end, mute. Dev audition of the loop alone. Tests: scheduling.
+- **114d (in issue 114b; now level 6): the groove (accompaniment only).** `GuitarGroove` scheduler on the music bus, the progression, a travis pattern, tempo and swing, stop on end, mute. Dev audition of the loop alone. Tests: scheduling.
 - **114e: the melody over the groove.** Arrow to chord tone against the chord sounding now, the duck-the-record decision, the no-drop test with the groove on, the voice cap check. 
 - **114f (optional): the pause-screen line.** The deadpan stat line and its test; only if Marc says yes (question 3).
 - **114g (optional, later): `maxLevel` per instrument,** and an achievement, if wanted.
@@ -187,3 +191,4 @@ Order: a, b, c, d, e (f any time after a). b is the first thing Marc can really 
 - **Q2, what fingerstyle means: (a)** the persistent bass and harmony loop with each keypress playing a melody over it. "Let's try it and see how it feels."
 - **Decided by the planner without Marc (easy to change, all in config):** level 1 stays today's single note; the record ducks to about a third while the groove plays; skill shows as one deadpan pause line after the first session (114f, optional); level pace 4 / 12 / 30 sessions.
 - **Build order:** 114a (rule, data, chords, strumming: levels 1 to 3) first, then 114b (the groove and the melody over it: level 4) so Marc can hear and feel each step; 114c (the pause line) any time after 114a.
+- **After listening to 114a (2026-10-28):** pattern strumming dropped, the levels are now six (see section 3), the groove with melody is level 6 (issue 114b).

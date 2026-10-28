@@ -27,8 +27,14 @@ export function guitarSessions(taskCounts: Record<string, number>, ids: readonly
   return ids.reduce((sum, id) => sum + (taskCounts[id] ?? 0), 0);
 }
 
-export function chordFor(dir: Dir): string {
-  return GUITAR_SKILL.arrows[dir];
+// The definition of a level.
+export function levelDef(level: Level) {
+  return GUITAR_SKILL.levels.find((l) => l.id === level) ?? GUITAR_SKILL.levels[0];
+}
+
+// The chord an arrow plays at a level (the plain chord set by default).
+export function chordFor(dir: Dir, level: Level = "chords"): string {
+  return levelDef(level).chords?.[dir].name ?? "";
 }
 
 // Small seeded random numbers (mulberry32), so a strum is the same for the same seed.
@@ -48,15 +54,33 @@ const strings = (chord: string): number[] => {
   return c.voicing.map((i) => c.root + i);
 };
 
-// One chord, rolled from the low string to the high one; the root a little louder.
-export function chordNotes(chord: string): Note[] {
-  const c = GUITAR_SKILL.chords[chord];
-  return strings(chord).map((semis, i) => ({
-    semis,
-    at: i * GUITAR_SKILL.roll,
-    gain: c.voicing[i] === 0 ? GUITAR_SKILL.rootGain : GUITAR_SKILL.otherGain,
-    kind: i === 0 ? "first" : "string",
+export type Stroke = "down" | "up";
+export interface Voicing {
+  root: number;
+  voicing: number[];
+}
+
+// One stroke over a chord: a down stroke goes low to high, an up stroke high to low with
+// shorter spacing and a bit quieter. Each string is its own pick (`first`, with the tick), and
+// the last string to sound is a little quieter than the first (a ramp). Nothing plays after it.
+export function strokeNotes(chord: Voicing, stroke: Stroke = "down"): Note[] {
+  const { down, up, ramp } = GUITAR_SKILL;
+  const n = chord.voicing.length;
+  const order = chord.voicing.map((_, i) => i);
+  if (stroke === "up") order.reverse();
+  const spacing = stroke === "down" ? down.spacing : up.spacing;
+  const base = stroke === "down" ? 1 : up.gain;
+  return order.map((i, k) => ({
+    semis: chord.root + chord.voicing[i],
+    at: k * spacing,
+    gain: base * (1 - (n > 1 ? (ramp * k) / (n - 1) : 0)),
+    kind: "first" as Kind,
   }));
+}
+
+// A plain chord by name, down stroke.
+export function chordNotes(chord: string): Note[] {
+  return strokeNotes(GUITAR_SKILL.chords[chord], "down");
 }
 
 export const eighth = (tempo = GUITAR_SKILL.tempo) => 60 / tempo / 2;
@@ -86,12 +110,12 @@ export function strumNotes(chord: string, pattern: string, seed = 0, tempo = GUI
   return out.sort((a, b) => a.at - b.at);
 }
 
-// What an arrow plays at a level, relative to the press. Level 1 is the notes game's own
-// single note. The groove level plays as strumming until the groove is built (issue 114b).
-export function playKey(level: Level, dir: Dir, noteSemis: number, strumIndex = 0, seed = 0): Note[] {
-  if (level === "notes") return [{ semis: noteSemis, at: 0, gain: 1, kind: "first" }];
-  const chord = chordFor(dir);
-  if (level === "chords") return chordNotes(chord);
-  const patterns = GUITAR_SKILL.strums;
-  return strumNotes(chord, patterns[((strumIndex % patterns.length) + patterns.length) % patterns.length], seed);
+// What an arrow plays at a level, relative to the press. Level 1 is the notes game's own single
+// note. Every higher level is one stroke over the arrow's chord at that level (`stroke` is
+// given by the caller, who alternates down and up). Nothing plays after the stroke. The groove
+// level plays like the one before it until the groove is built (issue 114b).
+export function playKey(level: Level, dir: Dir, noteSemis: number, stroke: Stroke = "down"): Note[] {
+  const chords = levelDef(level).chords;
+  if (!chords) return [{ semis: noteSemis, at: 0, gain: 1, kind: "first" }];
+  return strokeNotes(chords[dir], stroke);
 }

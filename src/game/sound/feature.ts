@@ -12,7 +12,7 @@ import type { Track } from "../music/track";
 import { browserAudio, type AudioFactory } from "./audio-types";
 import { MoodLift, comboPitch, floorOf, guitarEffect, noteKeyDir, stepEffect, stepGain, stepPitch } from "./decisions";
 import { SoundEngine } from "./engine";
-import { playKey, skillLevel, type Dir, type Level, type Note } from "./guitar-skill";
+import { playKey, skillLevel, type Dir, type Level, type Stroke } from "./guitar-skill";
 import { mumbleNotes } from "../flashcards/mumble";
 import { DEFAULT_SETTINGS, SettingsStore, type DialogVoice } from "./settings";
 
@@ -95,12 +95,9 @@ export class SoundFeature implements Layer {
   private guitarVoice: string | undefined;
   private readonly guitarSessions: () => number;
   private readonly guitarSkill: Level | undefined;
-  // The skill level and strum pattern of the session now playing, read once when it starts,
-  // and the strum notes not yet handed to the audio clock.
+  // The skill level of the session now playing, read once when it starts, and the next stroke.
   private skill: Level = "notes";
-  private strumIndex = 0;
-  private strumSeed = 0;
-  private pending: { time: number; note: Note; voice: string }[] = [];
+  private stroke: Stroke = "down";
 
   constructor(private readonly game: Game, options: SoundOptions = {}) {
     this.random = options.random ?? Math.random;
@@ -204,44 +201,31 @@ export class SoundFeature implements Layer {
   // one (the session that earns a level still sounds like the one before).
   private startGuitarSession(): void {
     this.skill = this.guitarSkill ?? skillLevel(this.guitarSessions());
-    this.strumIndex = Math.floor(this.random() * GUITAR_SKILL.strums.length);
-    this.strumSeed = Math.floor(this.random() * 2 ** 31);
-    this.pending = [];
+    this.stroke = "down";
   }
 
   // What an arrow sounds like now (issue 114a). Level 1 is the plain single note (as in 108).
+  // A higher level is one stroke over a chord, handed to the audio clock at once (it is over
+  // within about 0.2 s), and nothing plays after it.
   private playArrow(dir: Dir, level: Level = this.skill): void {
     const voice = this.guitarVoice !== undefined && this.guitarVoice in SOUND.guitarVoices ? this.guitarVoice : (SOUND.instruments[this.instrument]?.voice ?? "steel");
     if (level === "notes") {
       this.engine.play(this.noteEffect(), { pitch: (SOUND.noteKeys[dir] ?? 440) / 440 });
       return;
     }
-    this.strumSeed = (this.strumSeed + 1) >>> 0;
-    // A new press cancels the rest of the earlier strum; what was struck rings on.
-    const start = this.engine.now;
-    this.pending = playKey(level, dir, 0, this.strumIndex, this.strumSeed).map((note) => ({ time: start + note.at, note, voice }));
-    this.flush();
-  }
-
-  // Hands the notes that fall in the next moment to the audio clock.
-  private flush(): void {
-    if (this.pending.length === 0) return;
-    const now = this.engine.now;
-    const due = this.pending.filter((p) => p.time <= now + GUITAR_SKILL.lookahead);
-    if (due.length === 0) return;
-    this.pending = this.pending.filter((p) => p.time > now + GUITAR_SKILL.lookahead);
-    for (const { time, note, voice } of due) {
-      const set = SOUND.guitarStrings[voice] ?? SOUND.guitarStrings.steel;
-      const effect = note.kind === "chop" ? "guitarChop" : note.kind === "first" ? set.first : set.string;
-      this.engine.playAt(effect, note.kind === "chop" ? { gain: note.gain } : { pitch: 2 ** (note.semis / 12), gain: note.gain }, time - now);
+    const set = SOUND.guitarStrings[voice] ?? SOUND.guitarStrings.steel;
+    for (const note of playKey(level, dir, 0, this.stroke)) {
+      this.engine.playAt(set.first, { pitch: 2 ** (note.semis / 12), gain: note.gain, stretch: GUITAR_SKILL.decay }, note.at);
     }
+    // The strokes alternate down and up.
+    this.stroke = this.stroke === "down" ? "up" : "down";
   }
 
   // Dev audition (issue 114a): a short run of arrows at a skill level (1 to 4), a second apart.
   auditionSkill(level: number, voice?: string): void {
     const id = GUITAR_SKILL.levels[Math.min(Math.max(Math.floor(level), 1), GUITAR_SKILL.levels.length) - 1].id;
     this.engine.unlock();
-    this.strumIndex = 0;
+    this.stroke = "down";
     const dirs: Dir[] = ["left", "left", "down", "up", "right", "left", "down", "up"];
     dirs.forEach((dir, i) =>
       setTimeout(() => {
@@ -362,7 +346,6 @@ export class SoundFeature implements Layer {
     this.nowPlayingFor = Math.max(0, this.nowPlayingFor - dt);
     this.indicatorFor = Math.max(0, this.indicatorFor - dt);
     this.engine.update();
-    this.flush();
     this.engine.updateSleep(this.game.sleepScene);
     if (this.demos.version !== this.demoVersion) this.syncDemos();
     this.blips();

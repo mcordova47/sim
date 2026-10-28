@@ -131,7 +131,7 @@ Switching back and forth, and forgetting a key, are interface questions (open qu
 
 **Stage 2: storage and the second visit (small).**
 - The guest blob store (`life.flashcards.guest.<language>.v1`, wrapped in try/catch like the others), read fresh before every grade.
-- A returning guest opens straight to their cards; a one-line "saved in this browser only" note on the opening or done screen.
+- A returning guest sees the choice screen first, with the cursor on "Study without a key" (issue 093; it first opened straight to the cards); a one-line "saved in this browser only" note on the opening or done screen.
 - The unreadable path with an explicit "Start again" (one confirm).
 - Tests for reload, two sessions in a row, cleared storage and blocked storage.
 

@@ -221,7 +221,7 @@ export class SoundFeature implements Layer {
     this.stroke = this.stroke === "down" ? "up" : "down";
   }
 
-  // Dev audition (issue 114a): a short run of arrows at a skill level (1 to 4), a second apart.
+  // Dev audition (issue 114a): a short run of arrows at a skill level (1 to 6), a second apart.
   auditionSkill(level: number, voice?: string): void {
     const id = GUITAR_SKILL.levels[Math.min(Math.max(Math.floor(level), 1), GUITAR_SKILL.levels.length) - 1].id;
     this.engine.unlock();
@@ -468,7 +468,7 @@ export function devGuitarVoice(search = typeof location === "undefined" ? "" : l
   return asked !== null && asked in SOUND.guitarVoices ? asked : undefined;
 }
 
-// Dev only (issue 114a): `?guitarskill=1|2|3|4` forces the guitar's skill level for the
+// Dev only (issue 114a): `?guitarskill=1 to 6` forces the guitar's skill level for the
 // visit without touching the save. A built game ignores it.
 export function devGuitarSkill(search = typeof location === "undefined" ? "" : location.search, dev = import.meta.env?.DEV): Level | undefined {
   if (!dev) return undefined;

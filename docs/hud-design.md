@@ -405,6 +405,8 @@ Calm-tone rules that come with it: no flashing, no sound on low, no red bar unti
 
 **Sprites** (all small `icon-*` sprites, not on the 16 px grid, in the warm palette; `art/src/icon-*.sprite`, drawn by the existing pipeline and loaded by name with a text fallback, as `icon-good-hour` is): `icon-sun`, `icon-dusk` (dawn and dusk share it), `icon-moon`, `icon-bolt`, `icon-bolt-low`, `icon-face-happy`, `icon-face-flat`, `icon-face-sad`, `icon-star`, and later `icon-phone` and `icon-plug`. Eleven 7 x 7 sprites in all (nine for stages 1 and 2, `icon-phone` and `icon-plug` with the phone slot), about 5 minutes each; the section 4 sheet shows ten of them (no plug yet). If a sprite is missing, the widget falls back to the one-letter label the HUD has today, so nothing breaks.
 
+(Issue 101: `icon-phone` and `icon-plug` were drawn but never used and are deleted.)
+
 **Code:**
 - `src/render/hud-model.ts` (new, pure): from `Scoreboard`, `ApartmentState` and a small timer table, returns the items with value, level, `changedRecently` and `visible`. Tests: no canvas needed.
 - `src/render/hud.ts`: `Hud.update(dt, score, state)` (the bar timers are the Hud's own memory, **not game state**); `draw` becomes `drawOverlay(ctx, model)` plus `drawStrip(ctx, model, size)` sharing one `drawWidget(ctx, item, x, y, scale)`; `drawStopHint` takes its position from the container.

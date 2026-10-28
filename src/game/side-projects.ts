@@ -37,8 +37,9 @@ export const SIDE_PROJECTS: SideProject[] = [
     // Draft wording; Marc reviews it in the text pass (037). Plain, like the mirror lines.
     lines: [
       "A small version of this room, on a small screen. Someone is at the desk.",
-      "They are looking at a screen too.",
-      "You do not follow that all the way down.",
+      "It looks like the tiny person is... standing on top of the desk? Gotta remember to fix that.",
+      "Their screen shows another little room with another little guy.",
+      "You wonder if you're just a little guy on someone else's screen, and the silly notion gives you a good chuckle.",
     ],
     flavor: "Same room, one size smaller.",
   },

@@ -120,7 +120,7 @@ const MAIN: Record<string, ObjectDef> = {
   },
   r: { name: "radiator", sprite: "radiator", color: "paper" },
   // Both east windows have blinds and follow the one `blinds` state (issue 065),
-  // so either window's task changes both. The plain `window` sprite stays for later.
+  // so either window's task changes both. The plain `window` sprite was deleted in issue 101.
   w: WINDOW_BLINDS,
   W: WINDOW_BLINDS,
   S: { name: "sofa", sprite: "sofa-td", color: "brick", tasks: ["doomscroll", "contemplate", "work-sofa", "nap", "admire-art"] },

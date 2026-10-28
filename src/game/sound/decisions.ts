@@ -66,3 +66,10 @@ export class MoodLift {
     this.minutes = 0;
   }
 }
+
+// The effect a guitar note plays for an instrument (issue 108): its voice from
+// SOUND.instruments, then that voice's effect. An unknown instrument gets the default's.
+export function guitarEffect(instrument: string | null | undefined): string {
+  const def = SOUND.instruments[instrument ?? ""] ?? SOUND.instruments[SOUND.defaultInstrument];
+  return SOUND.guitarVoices[def.voice] ?? SOUND.guitarVoices.steel;
+}

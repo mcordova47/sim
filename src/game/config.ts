@@ -858,7 +858,7 @@ export const SOUND = {
   musicLevel: 0.7,
   // At most this many effect voices (oscillators and noise bursts) at once;
   // low-priority effects need `maxVoices - lowReserve` or fewer already playing.
-  maxVoices: 14,
+  maxVoices: 28,
   lowReserve: 6,
   // Mute toggle (a KeyboardEvent.code). Not Tab, Escape, E, X, L or the arrows,
   // which other features use. The typing game reads letters, so M is ignored while it runs.
@@ -893,6 +893,25 @@ export const SOUND = {
   dialogVoices: ["letters", "beep"] as const,
   // Mini-game keys. The notes game plays a different note for each arrow.
   noteKeys: { up: note(7), down: note(-5), left: note(0), right: note(4) } as Record<string, number>,
+  // The voice of the guitar's notes depends on the instrument in hand (issue 108).
+  // `instruments` maps an instrument (the sprite name of the item in the guitar's
+  // decor slot, or "guitar" for the one on the stand) to a voice in `guitarVoices`;
+  // `defaultInstrument` is used when nothing says which. Pitch is the notes game's own
+  // (`noteKeys`) whatever the voice. To go back to the old plain triangle blip
+  // set an instrument's voice to "plain" (or try it with `?guitarvoice=plain` in the dev server).
+  defaultInstrument: "guitar",
+  instruments: {
+    guitar: { name: "steel-string guitar", voice: "steel" },
+    "guitar-nylon": { name: "nylon-string guitar", voice: "nylon" },
+  } as Record<string, { name: string; voice: string }>,
+  // Plucked strings from a few partials, each dying at its own rate (the high ones
+  // fastest, so the note darkens as it rings) and a short noise tick for the pick.
+  // Steel: bright, a hint of inharmonic shimmer. Nylon: soft, round, a gentle thump.
+  guitarVoices: {
+    plain: "noteKey",
+    steel: "guitarSteel",
+    nylon: "guitarNylon",
+  } as Record<string, string>,
   effects: {
     stepWood: { priority: "low", voices: [{ noise: "lowpass", freq: 520, q: 0.7, length: 0.06, gain: 0.22 }] },
     stepStone: { priority: "low", voices: [{ noise: "bandpass", freq: 1500, q: 1.1, length: 0.045, gain: 0.2 }] },
@@ -1022,6 +1041,21 @@ export const SOUND = {
       ],
     },
     noteKey: { priority: "low", voices: [{ wave: "triangle", freq: 440, length: 0.14, gain: 0.22 }] },
+    // Three voices each, so quick notes (about 100 ms apart) all play within the voice cap.
+    guitarSteel: {
+      voices: [
+        { wave: "triangle", freq: 440, length: 0.9, gain: 0.2 },
+        { wave: "sawtooth", freq: 880, length: 0.5, gain: 0.07 },
+        { noise: "highpass", freq: 3500, q: 0.8, length: 0.025, gain: 0.1 },
+      ],
+    },
+    guitarNylon: {
+      voices: [
+        { wave: "sine", freq: 440, length: 1.0, gain: 0.24 },
+        { wave: "sine", freq: 880, length: 0.4, gain: 0.05 },
+        { noise: "lowpass", freq: 900, q: 0.7, length: 0.04, gain: 0.08 },
+      ],
+    },
     // An achievement toast: a short, bright two-note figure.
     toast: {
       voices: [

@@ -362,5 +362,6 @@ Not planned work: things Marc would like to find as decor over time, under the q
 - **Tech and music:** a new laptop, microphones, recording equipment, instruments.
 - **Plants and the plant slot:** the shelf slot may hold things that are not live plants (dried flowers today; see issue 105); a live plant offers watering, other items do not.
 - **Desk clutter** is the clutter-states issue 042 (desk, clothes, mail): Marc wants some clutter on the desk.
+- **Added 2026-10-28:** a canned raccoon (photo in reference-photos/toys); other coffee apparatuses (french press, syphon, aeropress, moka pot, percolator, espresso machine); meaningless stats affected by things like clothes; equippable things in the spirit of materia that do nothing (a cool rock); coasters that get more and more extravagant but look almost the same (the better-armour treadmill, as a joke). The browsable inventory, like a pokedex, and a new guitar note timbre are separate ideas (see PLAN.md notes).
 When an idea is picked, it becomes an item line in `decor-data.ts` plus a sprite, and a checkpoint or a delivery source if it is a gift (`docs/random-encounters.md`).
 

@@ -41,3 +41,8 @@
   for = "/*.png"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+# The sync function (issue 103): netlify/functions/sync.mjs answers /api/sync. It uses Netlify Blobs with
+# the site's own runtime access, so there is nothing to configure here or in the Netlify settings.
+[functions]
+  directory = "netlify/functions"

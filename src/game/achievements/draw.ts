@@ -77,7 +77,7 @@ export const PAUSE_TOUCH = {
   rowHeight: 10,
 };
 
-export type PauseButtonId = "adBlocker" | "voice" | "transfer" | "reset" | "close" | "yes" | "no";
+export type PauseButtonId = "adBlocker" | "voice" | "transfer" | "sync" | "reset" | "close" | "yes" | "no";
 
 export interface PauseButton {
   id: PauseButtonId;
@@ -107,7 +107,7 @@ export function pauseButtons(view: ListView): PauseButton[] {
   const list: Array<{ id: PauseButtonId; label: string }> = [];
   if (typeof view.adBlocker === "boolean") list.push({ id: "adBlocker", label: `AD BLOCKER: ${view.adBlocker ? "ON" : "OFF"}` });
   if (view.voice) list.push({ id: "voice", label: view.voice });
-  list.push({ id: "transfer", label: "TRANSFER SAVE" }, { id: "reset", label: "RESET PROGRESS" }, { id: "close", label: "CLOSE" });
+  list.push({ id: "transfer", label: "TRANSFER SAVE" }, { id: "sync", label: "SYNC" }, { id: "reset", label: "RESET PROGRESS" }, { id: "close", label: "CLOSE" });
   return list.map((b, i) => ({ ...b, rect: at(i, T.buttonsTop) }));
 }
 
@@ -179,6 +179,7 @@ export function touchListHint(): string {
 }
 
 export const TRANSFER_HINT = "T: TRANSFER SAVE";
+export const SYNC_HINT = "P: SYNC";
 
 export const LEGEND_TEXT = "GOOD HOUR: 1.5X POINTS";
 
@@ -218,6 +219,7 @@ export function drawList(ctx: CanvasRenderingContext2D, view: ListView): void {
   const rowsBottom = LIST_LAYOUT.top + Math.ceil(view.achievements.length / LIST_LAYOUT.columns) * LIST_LAYOUT.rowHeight;
   if (!view.touch && rowsBottom <= LIST_LAYOUT.footerTop - 9) {
     drawText(ctx, TRANSFER_HINT, VIEW.width - 6, LIST_LAYOUT.footerTop - 9, { color: COLOR.mist, shadow: null, align: "right" });
+    drawText(ctx, SYNC_HINT, 6, LIST_LAYOUT.footerTop - 9, { color: COLOR.mist, shadow: null });
   }
 
   const picked = view.achievements[view.cursor];
@@ -302,4 +304,83 @@ export function drawTransfer(ctx: CanvasRenderingContext2D, view: TransferView):
   }
   const hint = view.message ?? (view.confirmRestore ? (view.touch ? TRANSFER_RESTORE_QUESTION : `${TRANSFER_RESTORE_QUESTION} Y: YES`) : view.touch ? hintLine([{ key: "ESC", text: "BACK" }]) : null);
   if (hint) drawText(ctx, hint, VIEW.width / 2, VIEW.height - 9, { color: view.message || view.confirmRestore ? COLOR.tangerine : COLOR.mist, align: "center" });
+}
+
+// -- The sync page (issue 103, docs/sync.md section 5) ------------------------------------------------
+
+export type SyncButtonId = "on" | "copy" | "now" | "paste" | "stop" | "yes" | "no" | "back";
+
+export interface SyncView {
+  touch: boolean;
+  // A line in the hint's place: what just happened, or the question.
+  message: string | null;
+  // The status line (SYNC: ON ...) and, when a key is kept, its start and end.
+  status: string;
+  keyLine: string | null;
+  isOn: boolean;
+  // Waiting for a yes or no: stopping, or pairing with the link's save.
+  confirm: "stop" | "pair" | null;
+  busy: boolean;
+}
+
+export const SYNC_LINES = [
+  "KEEP YOUR SAVE IN STEP ON TWO DEVICES.",
+  "TURN ON SYNC, THEN OPEN THE LINK ON THE OTHER",
+  "DEVICE, OR PASTE THE KEY THERE. A SYNC MERGES:",
+  "IT NEVER TAKES ANYTHING AWAY. ANYONE WITH THE",
+  "LINK CAN READ THIS SAVE. KEEP A SAVE FILE TOO.",
+];
+
+export const SYNC_QUESTIONS = { stop: "STOP SYNCING AND DELETE THE SAVED COPY?", pair: "SYNC WITH THE SAVE IN THIS LINK?" };
+
+const SYNC_TOP = 17 + 9 * (SYNC_LINES.length + 2) + 5;
+
+export function syncButtons(view: SyncView): Array<{ id: SyncButtonId; label: string; key: string; rect: Rect }> {
+  const T = PAUSE_TOUCH;
+  const w = Math.floor((VIEW.width - 2 * T.margin - T.buttonGap) / 2);
+  const at = (i: number): Rect => ({
+    x: T.margin + (i % 2) * (w + T.buttonGap),
+    y: SYNC_TOP + Math.floor(i / 2) * (T.buttonH + T.buttonGap),
+    w,
+    h: T.buttonH,
+  });
+  if (view.confirm) {
+    return [
+      { id: "yes", label: "YES", key: "Y", rect: at(0) },
+      { id: "no", label: "NO", key: "N", rect: at(1) },
+    ];
+  }
+  const list: Array<{ id: SyncButtonId; label: string; key: string }> = view.isOn
+    ? [
+        { id: "copy", label: "COPY LINK", key: "C" },
+        { id: "now", label: "SYNC NOW", key: "S" },
+        { id: "paste", label: "PASTE KEY OR LINK", key: "V" },
+        { id: "stop", label: "STOP SYNCING", key: "X" },
+        { id: "back", label: "BACK", key: "ESC" },
+      ]
+    : [
+        { id: "on", label: "TURN ON SYNC", key: "N" },
+        { id: "paste", label: "PASTE KEY OR LINK", key: "V" },
+        { id: "back", label: "BACK", key: "ESC" },
+      ];
+  return list.map((b, i) => ({ ...b, rect: at(i) }));
+}
+
+export function drawSync(ctx: CanvasRenderingContext2D, view: SyncView): void {
+  ctx.fillStyle = PANEL;
+  ctx.fillRect(0, 0, VIEW.width, VIEW.height);
+  drawText(ctx, "SYNC", 6, 5, { color: COLOR.butter });
+  SYNC_LINES.forEach((line, i) => drawText(ctx, line, 6, 17 + 9 * i, { color: COLOR.paper, shadow: null }));
+  drawText(ctx, view.busy ? "SYNC: WORKING..." : view.status, 6, 17 + 9 * SYNC_LINES.length, { color: COLOR.butter, shadow: null });
+  if (view.keyLine) drawText(ctx, view.keyLine, 6, 17 + 9 * (SYNC_LINES.length + 1), { color: COLOR.mist, shadow: null });
+  if (view.touch) {
+    for (const b of syncButtons(view)) drawButton(ctx, b.rect, b.label, { color: b.id === "yes" ? COLOR.tangerine : COLOR.paper });
+  } else {
+    syncButtons({ ...view, confirm: null }).forEach((b, i) =>
+      drawText(ctx, hintLine([{ key: b.key, text: b.label }]), 6, SYNC_TOP + 10 * i, { color: COLOR.paper, shadow: null }),
+    );
+  }
+  const question = view.confirm ? SYNC_QUESTIONS[view.confirm] : null;
+  const hint = view.message ?? (question ? (view.touch ? question : `${question} Y: YES`) : view.touch ? hintLine([{ key: "ESC", text: "BACK" }]) : null);
+  if (hint) drawText(ctx, hint, VIEW.width / 2, VIEW.height - 9, { color: view.message || question ? COLOR.tangerine : COLOR.mist, align: "center" });
 }

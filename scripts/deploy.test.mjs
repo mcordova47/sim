@@ -51,7 +51,8 @@ describe("deploy setup", () => {
     expect(toml).toMatch(/for = "\/sprites\/\*"[\s\S]*?must-revalidate/);
   });
   it("serves from the root (no Vite base) and loads sprites from /sprites/", () => {
-    expect(existsSync(join(root, "vite.config.ts")) || existsSync(join(root, "vite.config.js"))).toBe(false);
+    // There is a vite.config.ts since issue 103 (the sync dev fake); it must not set a base.
+    expect(read("vite.config.ts")).not.toMatch(/\bbase\s*:/);
     expect(read("src/render/sprites.ts")).toMatch(/BASE_URL.*SPRITE_DIR/);
   });
   it("has the head tags, using only files that exist in public/", () => {
@@ -67,5 +68,22 @@ describe("deploy setup", () => {
     const r = spawnSync("node", [join(root, "scripts", "brand.mjs"), "--check"], { encoding: "utf8" });
     expect(r.stderr).toBe("");
     expect(r.status).toBe(0);
+  });
+});
+
+describe("check-dist and the sync server (issue 103)", () => {
+  it("flags the sync dev fake, server code and a baked-in pairing link, and accepts the client's own mentions", () => {
+    expect(problemsIn(fakeDist('"life-dev-sync-fake"')).join()).toMatch(/sync dev fake/);
+    expect(problemsIn(fakeDist("const a={unplayedMs:1}")).join()).toMatch(/sync dev fake/);
+    expect(problemsIn(fakeDist(`"https://x/#sync=${"a1".repeat(16)}"`)).join()).toMatch(/pairing link/);
+    expect(problemsIn(fakeDist('fetch("/api/sync",{headers:{"X-Sync-Key":k}});const m="#sync=";const h="' + "b2".repeat(16) + '"')).join()).toBe("");
+  });
+  it("the function, its handler and the dev fake exist, and the config adds no secrets or settings", () => {
+    const fn = read("netlify/functions/sync.mjs");
+    expect(fn).toMatch(/path: "\/api\/sync"/);
+    expect(fn).not.toMatch(/process\.env|Netlify\.env|token|secret/i);
+    expect(read("netlify.toml")).toMatch(/\[functions\][\s\S]*directory = "netlify\/functions"/);
+    expect(read("netlify.toml")).not.toMatch(/SECRET|TOKEN|KEY\s*=/);
+    expect(read("vite.config.ts")).toMatch(/life-dev-sync-fake/);
   });
 });

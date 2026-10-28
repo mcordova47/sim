@@ -1,7 +1,7 @@
 ---
 id: 115
 title: A gentle limiter on the master output (clipping safety)
-status: review
+status: done
 owner: claude
 depends_on: []
 ---

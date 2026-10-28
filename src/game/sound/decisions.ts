@@ -38,6 +38,9 @@ const ARROWS: Record<string, string> = {
   ArrowUp: "up", KeyW: "up", ArrowDown: "down", KeyS: "down",
   ArrowLeft: "left", KeyA: "left", ArrowRight: "right", KeyD: "right",
 };
+export function noteKeyDir(code: string): "up" | "down" | "left" | "right" | null {
+  return (ARROWS[code] as "up" | "down" | "left" | "right" | undefined) ?? null;
+}
 export function noteKeyPitch(code: string): number | null {
   const dir = ARROWS[code];
   return dir ? (SOUND.noteKeys[dir] ?? 440) / 440 : null;

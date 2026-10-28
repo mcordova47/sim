@@ -63,6 +63,23 @@ export class SoundEngine {
   }
 
   // Plays the named effect from config.ts (an unknown name does nothing).
+  // The audio clock's time (0 before audio is ready).
+  get now(): number {
+    return this.synth?.now ?? 0;
+  }
+
+  // Plays an effect after `delay` seconds on the audio clock. False if it was left out
+  // (muted, no audio, or too many voices).
+  playAt(name: string, options: PlayOptions | undefined, delay: number): boolean {
+    const def = SOUND.effects[name];
+    if (!def || !this.synth || this.isMuted) return false;
+    try {
+      return this.synth.play(def, options, Math.max(0, delay));
+    } catch {
+      return false; // A sound that fails to play must never break the game.
+    }
+  }
+
   play(name: string, options?: PlayOptions): void {
     const def = SOUND.effects[name];
     if (!def || !this.synth || this.isMuted) return;

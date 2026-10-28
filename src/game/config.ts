@@ -851,6 +851,46 @@ const voicedStopEffect = (burst: number): EffectDef => ({
   ],
 });
 
+// The guitar skill (issue 114, design in docs/guitar-skill-design.md). Skill is a pure
+// function of how many guitar sessions have been finished (`stats.taskCounts`, summed over
+// `taskIds`), so nothing new is saved or merged. A level is the highest one whose `from` is
+// at most that count. Levels change only how the notes game sounds, never how it plays.
+// Everything is in A major. Semitones are counted from A4 (0 = 440 Hz). All first guesses,
+// to be tuned by ear.
+export const GUITAR_SKILL = {
+  taskIds: ["guitar"],
+  levels: [
+    { id: "notes", from: 0, name: "STILL THREE CHORDS" },
+    { id: "chords", from: 4, name: "A FOURTH CHORD, TECHNICALLY" },
+    { id: "strum", from: 12, name: "STRUMMING, ON PURPOSE" },
+    { id: "groove", from: 30, name: "FINGERS, SOMEHOW" },
+  ] as { id: "notes" | "chords" | "strum" | "groove"; from: number; name: string }[],
+  // The four chords (A2, D3, E3, F#3 roots, nothing below A2): the root (semitones from A4) and four strings low to high, as
+  // semitones above the root (the stack is capped at four strings so it fits the voice cap).
+  chords: {
+    A: { root: -24, voicing: [0, 7, 12, 16] },
+    D: { root: -19, voicing: [0, 7, 12, 16] },
+    E: { root: -17, voicing: [0, 7, 12, 16] },
+    "F#m": { root: -15, voicing: [0, 7, 12, 15] },
+  } as Record<string, { root: number; voicing: number[] }>,
+  // Which chord each arrow plays (learnable: left is home, right is the odd one).
+  arrows: { left: "A", down: "D", up: "E", right: "F#m" } as Record<string, string>,
+  tempo: 92, // beats per minute; a slot of a strum is an eighth
+  swing: 0.1, // the off-eighths come this fraction of an eighth late (0 is straight)
+  humanise: { time: 0.008, gain: 0.08 }, // up to this many seconds and this fraction, seeded
+  roll: 0.012, // seconds between the strings of a chord (low to high)
+  rootGain: 1,
+  otherGain: 0.8,
+  // A strum is eight slots: D down (low to high), U up (the top `strings`, high to low,
+  // softer), x a muted chop, . a rest. One is picked for each session.
+  strums: ["D.DU.UDU", "D..U.UDU", "DxDU.UDx", "D.DUDUD."],
+  up: { strings: 3, gain: 0.6, spacing: 0.01 },
+  down: { spacing: 0.012 },
+  chopGain: 1,
+  // A new press cancels what is left of the earlier strum; notes already struck ring on.
+  lookahead: 0.08, // seconds of strum to hand to the audio clock at a time
+};
+
 export const SOUND = {
   // Whole-game loudness, 0 to 1. Kept modest on purpose.
   master: 0.35,
@@ -912,6 +952,13 @@ export const SOUND = {
     steel: "guitarSteel",
     nylon: "guitarNylon",
   } as Record<string, string>,
+  // The same voices for one string of a chord or strum (issue 114a): `first` starts a
+  // gesture (with the pick's tick), `string` is each other string.
+  guitarStrings: {
+    plain: { first: "noteKey", string: "noteKey" },
+    steel: { first: "guitarSteelPluck", string: "guitarSteelString" },
+    nylon: { first: "guitarNylonPluck", string: "guitarNylonString" },
+  } as Record<string, { first: string; string: string }>,
   effects: {
     stepWood: { priority: "low", voices: [{ noise: "lowpass", freq: 520, q: 0.7, length: 0.06, gain: 0.22 }] },
     stepStone: { priority: "low", voices: [{ noise: "bandpass", freq: 1500, q: 1.1, length: 0.045, gain: 0.2 }] },
@@ -1056,6 +1103,24 @@ export const SOUND = {
         { noise: "lowpass", freq: 900, q: 0.7, length: 0.04, gain: 0.08 },
       ],
     },
+    // The guitar skill's chords and strums (issue 114a): one string is one voice (a "pluck"
+    // adds the pick's tick, for the first string of a gesture), shorter than a single note so
+    // four strings fit the voice cap even when pressed quickly. A chop is a muted strum.
+    guitarSteelPluck: {
+      voices: [
+        { wave: "triangle", freq: 440, length: 0.5, gain: 0.16 },
+        { noise: "highpass", freq: 3500, q: 0.8, length: 0.025, gain: 0.08 },
+      ],
+    },
+    guitarSteelString: { voices: [{ wave: "triangle", freq: 440, length: 0.5, gain: 0.16 }] },
+    guitarNylonPluck: {
+      voices: [
+        { wave: "sine", freq: 440, length: 0.55, gain: 0.2 },
+        { noise: "lowpass", freq: 900, q: 0.7, length: 0.04, gain: 0.06 },
+      ],
+    },
+    guitarNylonString: { voices: [{ wave: "sine", freq: 440, length: 0.55, gain: 0.2 }] },
+    guitarChop: { voices: [{ noise: "bandpass", freq: 1800, q: 1.4, length: 0.05, gain: 0.14 }] },
     // An achievement toast: a short, bright two-note figure.
     toast: {
       voices: [

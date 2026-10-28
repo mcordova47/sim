@@ -1,18 +1,18 @@
-# Delivery box (issue 062 stage 3a): a plain cardboard box seen from a little above, tape down the middle, a flat label. No print, no brand. 1x1 tile; sits on the floor in front of the front door and is only there while a package waits.
+# Delivery box (issues 062, 099): a plain cardboard box seen near top-down, with an ink outline: a thin dark north face along the top, the lid with tape down the middle and a flat blank label. No print, no brand. 1x1 tile; sits on the floor in front of the front door and is only there while a package waits.
 size: 16x16
 ................
 ................
-................
-................
-..7777777777777.
-.79aaaaaa9aaaaa7
-.79aaaaaa9aaaaa7
-.79aaaa66a6aaaa7
-.79aaaa66a6aaaa7
-.79aaaaaa9aaaaa7
-.7999999999999a7
-.78888888888888.
-.78888888888888.
-.77777777777777.
-................
+..111111111111..
+.19999999999991.
+.18888899888881.
+.18888899888881.
+.16666699666661.
+.16aaaa99aaaa91.
+.16aaaa99666691.
+.16aaaa99655691.
+.16aaaa99666691.
+.16aaaa99555591.
+.16aaaa99aaaa91.
+.16999999999991.
+..111111111111..
 ................

@@ -1,7 +1,7 @@
 ---
 id: 114b
 title: Guitar skill, stage 2: the groove and the melody over it (level 6)
-status: in-progress
+status: review
 owner: claude
 depends_on: [114a]
 ---
@@ -26,3 +26,4 @@ Marc listened to 114a: pattern strums were dropped and the levels are now six (s
   - Beyond the criteria: bus is `music` as the design says (no effect-voice use; melody stays on effects, no-drop at 70 ms with the groove on verified by author test); stall handling jumps whole bars and chordAt stays consistent with the jump; `engine.ts` change is 7 lines (a member, the duck line, the update call), small and local, so it should merge cleanly next to the master limiter work; no Stats/save/sync files touched; scope is clean (only the issue file, config, sound files, tests). Design doc still says "level 4" in places (author noted; not edited).
   - UNVERIFIED for Marc (an agent cannot hear): how the loop feels at 92 bpm with swing 0.1 and humanise, the balance of loop (gain 0.55, bass 1.0, harmony 0.7) against the melody, whether the melody notes (two octaves above the root) are too high or sparse-sounding, how the record duck and its 0.5 s return sound, and whether the groove through the music bus level (`SOUND.musicLevel`) is loud enough.
   - Checklist for the author: [ ] set `grooving = true` when `playGroove` starts the loop; [ ] add the pause/resume/pause regression test; [ ] consider ignoring arrows while `game.paused`.
+- 2026-10-28, review round 1 fixes: `playGroove` now sets `grooving` when it (re)starts the loop (pause, resume, arrow, pause again left it running); arrows are ignored while the game is paused; regression test added.

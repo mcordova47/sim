@@ -231,7 +231,10 @@ export class SoundFeature implements Layer {
   // note (the instrument's own voice, on the effects bus) of the chord sounding right now, played
   // at once, never waiting for the loop's grid.
   private playGroove(dir: Dir): void {
-    if (!this.engine.groove.running) this.engine.groove.start((SOUND.guitarStrings[this.voiceName()] ?? SOUND.guitarStrings.steel).string, this.sessionSeed);
+    if (!this.engine.groove.running) {
+      this.grooving = true;
+      this.engine.groove.start((SOUND.guitarStrings[this.voiceName()] ?? SOUND.guitarStrings.steel).string, this.sessionSeed);
+    }
     const semis = melodyNote(this.engine.groove.chordAt(this.engine.now), dir);
     this.engine.play(this.noteEffect(), { pitch: 2 ** (semis / 12) });
   }
@@ -400,7 +403,7 @@ export class SoundFeature implements Layer {
       this.engine.play("key", { pitch: 0.9 + this.random() * 0.2 });
     } else if (activity === "notes") {
       const dir = noteKeyDir(e.code);
-      if (dir !== null) this.playArrow(dir);
+      if (dir !== null && !this.game.paused) this.playArrow(dir);
     }
   }
 

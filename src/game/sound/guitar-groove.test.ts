@@ -254,6 +254,28 @@ describe("the groove in the game (level 6)", () => {
     }
     expect(s.engine.groove.running).toBe(false);
   });
+  it("stops at every pause, also after a resume and a new arrow (regression), and ignores arrows while paused", () => {
+    const s = setup();
+    let paused = false;
+    s.game.pausedWhen.push(() => paused);
+    s.keys.press("ArrowLeft");
+    s.advance(0.3);
+    expect(s.engine.groove.running).toBe(true);
+    paused = true;
+    s.advance(0.1);
+    expect(s.engine.groove.running).toBe(false);
+    const n = s.ctx.oscillators.length;
+    s.keys.press("ArrowLeft");
+    s.advance(0.3);
+    expect(s.ctx.oscillators.length).toBe(n);
+    paused = false;
+    s.keys.press("ArrowLeft");
+    s.advance(0.3);
+    expect(s.engine.groove.running).toBe(true);
+    paused = true;
+    s.advance(0.1);
+    expect(s.engine.groove.running).toBe(false);
+  });
   it("is silent when muted", () => {
     const s = setup();
     s.feature.setMuted(true);

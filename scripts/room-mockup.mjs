@@ -19,8 +19,7 @@ const blit = (img, ox, oy) => {
 const floor = [];
 for (let r = 1; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
   const bath = c >= 7 && r >= 5;
-  const rug = c >= 3 && c <= 6 && r >= 3 && r <= 5;
-  floor.push([bath ? "floor-tile" : rug ? "rug" : "floor-wood", c, r]);
+  floor.push([bath ? "floor-bath" : "floor-wood", c, r]);
 }
 for (let c = 0; c < COLS; c++) floor.push([c === 4 ? "doorway" : "wall-back", c, 0]);
 for (let r = 1; r < ROWS; r++) { floor.push(["wall-side-left", 0, r]); floor.push(["wall-side-right", COLS - 1, r]); }

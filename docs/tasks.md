@@ -27,7 +27,7 @@ Lists: `src/game/typing-text.ts`.
 - **Admire the art** (`admire-art`, sofa): a scene that shows a full-screen picture of the south gallery wall (`view-gallery-wall`), then pushes in on one of the ten pieces (2x, 4x, 8x, scaled from the same picture, so the last is big square pixels) with a serious line at each level, and takes it away. A different piece each time, in the order of `src/game/art-pieces.ts` (the `artPiece` state variable, which wraps); that file holds all the text. Nobody walks; the map is unchanged.
 
 ## Notes
-- The blinds use `window-blinds-open` and `window-blinds-closed`, on both east windows. The plain `window` sprite is kept for later use.
+- The blinds use `window-blinds-open` and `window-blinds-closed`, on both east windows. The plain `window` sprite was deleted in issue 101.
 - The coffee mug on the table (issue 065) is a prop (`mug-table`, 8x6 inside a 16x16 cell) drawn only while `mug` is 0: making coffee takes it off the table (the player carries the held-mug overlay) and drinking puts it back.
 - The dinner plate (issue 065): the `plate` state variable, saved like the others; an old save without it starts at 0.
 - `view-gallery-wall` is a labelled placeholder (320x192) until an art issue draws it from Marc's photos.

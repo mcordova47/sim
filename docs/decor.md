@@ -250,7 +250,7 @@ Drawn from real things in the apartment first (the Photos rule: photos stay in `
 | Barn drawing `painting` (exists) | 32x16 | barn painting photo |
 | `painting-desk` (exists) | 32x16 | the gold and orange abstract |
 | `painting-wide` (exists) | 48x16 | the silkscreen over the bed |
-| `art-robin` (sprite `painting-robin`, exists, 16x16, drawn but off camera) | 16x16: needs a 32x16 mat version, 1 new | the robin print |
+| `art-robin` (the old 16x16 sprite `painting-robin` was deleted in issue 101) | 16x16: needs a 32x16 mat version, 1 new | the robin print |
 | Swamp | 32x16 | gallery wall |
 | Italy architecture | 32x16 | gallery wall |
 | Insect painting (two of them) | 32x16, 2 new | gallery wall |

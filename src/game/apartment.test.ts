@@ -192,7 +192,7 @@ describe("furniture", () => {
   it("uses the wide painting over the nightstand and blinds on both east windows", () => {
     const sprite = (name: string) => rooms.main.pieces.find((p) => p.name === name)?.sprite;
     expect(sprite("painting over the nightstand")).toBe("painting-wide");
-    // Issue 065: both east windows have blinds now; the plain `window` sprite is kept for later.
+    // Issue 065: both east windows have blinds now; the plain `window` sprite was deleted in issue 101.
     expect(sprite("window")).toBeUndefined();
     expect(rooms.main.pieces.filter((p) => p.name === "window and blinds").map((p) => p.sprite)).toEqual(["window-blinds", "window-blinds"]);
   });

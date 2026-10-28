@@ -1,7 +1,7 @@
 ---
 id: 101
 title: Asset cleanup: plant pots, the side-project picture, unused sprites
-status: done
+status: review
 owner: claude
 depends_on: [100]
 ---
@@ -37,3 +37,4 @@ Marc's decisions (2026-10-28, `docs/asset-review.md`): (1) the **plants on the b
   - `npm test`: 2826 passed, 1 skipped on three reruns. The very first run in this review showed 1 failed test file (1 test) that I did not identify (output was cut off) and could not reproduce in 3 reruns; treat as a possible flaky test, unrelated to sprites.
   - Unverified: how the picture looks in a browser at game scale; Marc's own judgement of the art (the picture; the plants are back to main's).
   - PLAN.md table needs updating by the planner (101 done).
+- 2026-10-28 (claude, Marc's notes on the picture): redrew view-side-project as a slightly degraded copy of the game's own room (not plain shapes): kept the HUD bars, wall and floor; furniture follows MAIN_MAP (table NW, mic stand, desk right of it, bookshelf as a divider with a plant on top and colored book tops, nightstand with a lamp, bed on the east, sofa on the south wall with its back rail on the near edge, guitar, lamp table, rug, three wall-art rectangles); rounded corners to be less blocky; furniture in dimmer keys (oak, walnut, slate, dusk instead of paper and butter); perspective left off on purpose. The tiny figure stands on the desk facing out as a deliberate glitch; new line in src/game/side-projects.ts ("The tiny person is standing on the desk, facing you. That is a bug. Someone should tell the main character."), listed in docs/text-review.md for Marc to mark. No text in the picture, palette only, 320x192. Viewed at 4x and 8x; not viewed in the page. Plants unchanged from main. Needs one fresh review.

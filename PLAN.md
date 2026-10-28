@@ -138,8 +138,8 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 100 | [Desk chair diagonal, the desk pose, and the typing prompt placement](issues/100-desk-chair-pose-and-typing-prompt.md) | claude | todo | 099 |
 | 101 | [Asset cleanup: plant pots, side-project picture, unused sprites](issues/101-asset-cleanup.md) | claude | todo | 100 |
 | 102 | [Sync stage 1: export and import a save, and the pure mergeSaves](issues/102-sync-stage-1-export-import-merge.md) | claude | todo | 095 |
-| 103 | [Sync stage 2: the Netlify Function with Blobs and the pairing link](issues/103-sync-stage-2-server.md) | claude | todo | 102 |
-| 104 | [Sync stage 3: automatic sync and the pause-screen control](issues/104-sync-stage-3-automatic.md) | claude | todo | 103, 093 |
+| 103 | [Sync stage 2: the Netlify Function with Blobs and the pairing link](issues/103-sync-stage-2-server.md) | claude | on hold (Marc, 2026-10-28: not on Netlify's credit-metered functions; see issue 095) | 102 |
+| 104 | [Sync stage 3: automatic sync and the pause-screen control](issues/104-sync-stage-3-automatic.md) | claude | on hold (Marc, 2026-10-28: not on Netlify's credit-metered functions; see issue 095) | 103, 093 |
 | 105 | [Dried flowers should not offer to be watered](issues/105-dried-flowers-no-watering.md) | claude | done | |
 | 106 | [The track editor (mixing tool) on phones](issues/106-track-editor-on-phones.md) | marc + claude | todo | 093 |
 | 107 | [The guitar: flipped so it reads as standing on a stand](issues/107-guitar-on-a-stand.md) | claude | todo | 100 |

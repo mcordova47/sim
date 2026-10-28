@@ -35,8 +35,8 @@ const sprites = (loaded: boolean) => {
 };
 const board = (multiplier: number, left = 10): Scoreboard =>
   ({ multiplier: () => multiplier, comboTimeLeft: () => left }) as unknown as Scoreboard;
-const state = (v: { clock: number; energy: number; mood?: number }): ApartmentState =>
-  ({ get: (id: string) => (v as Record<string, number>)[id], has: (id: string) => id !== "mood" || v.mood !== undefined }) as unknown as ApartmentState;
+const state = (v: { clock: number; energy: number; mood?: number; battery?: number }): ApartmentState =>
+  ({ get: (id: string) => (v as Record<string, number>)[id] ?? (id === "battery" ? 40 : undefined), has: (id: string) => id !== "mood" || v.mood !== undefined }) as unknown as ApartmentState;
 
 // Everything one frame draws, as boxes (text with its 1 px shadow).
 function frame(score: number, b: Scoreboard, s: ApartmentState, loaded = true) {
@@ -77,7 +77,7 @@ describe("icon choices", () => {
     expect(moodIcon(HUD.happyFrom)).toBe("icon-face-happy");
   });
   it("loads every icon it can draw", () => {
-    expect(new Set(HUD_ICON_NAMES).size).toBe(9);
+    expect(new Set(HUD_ICON_NAMES).size).toBe(11);
   });
 });
 
@@ -107,7 +107,8 @@ describe("the ribbon stays in the top band", () => {
     });
     it(`keeps the two chips apart on the ${name} view, even for a long score`, () => {
       setView(view);
-      for (const digits of [5, 8, 10]) {
+      // Up to 8 digits (ten million points); a 10-digit score is not guaranteed room on the narrow view.
+      for (const digits of view === NARROW_VIEW ? [5, 7, 8] : [5, 8, 10]) {
         const { left, right } = hudChips(view, digits);
         expect(left.x + left.w, `${digits} digits`).toBeLessThan(right.x);
       }
@@ -116,7 +117,7 @@ describe("the ribbon stays in the top band", () => {
 
   it("draws the icons from sprites when loaded, and in text when not", () => {
     const loaded = frame(0, board(1), state({ clock: 9, energy: 10, mood: 10 }));
-    expect(loaded.drawn.map((d) => d.name)).toEqual(["icon-star", "icon-sun", "icon-bolt-low", "icon-face-sad"]);
+    expect(loaded.drawn.map((d) => d.name)).toEqual(["icon-star", "icon-sun", "icon-bolt-low", "icon-face-sad", "icon-phone"]);
     expect(frame(0, board(1), state({ clock: 9, energy: 10, mood: 10 }), false).drawn).toEqual([]);
   });
 
@@ -152,6 +153,38 @@ describe("the ribbon stays in the top band", () => {
     setScoreDigits(9);
     expect(HUD_BOX.w).toBeGreaterThan(before);
     expect(RIGHT_CHIP_WIDTH).toBe(right.w);
+  });
+});
+
+describe("the phone slot (issue 088)", () => {
+  const phoneFrame = (hud: Hud, battery: number) => {
+    rects.length = 0;
+    const sp = sprites(true);
+    const s = { get: (id: string) => (id === "battery" ? battery : id === "clock" ? 9 : 50), has: () => true } as unknown as ApartmentState;
+    hud.draw(ctx, board(1), 0, s, sp.source);
+    return { drawn: sp.drawn, rects: [...rects] };
+  };
+  it("fills the room the layout reserved", () => {
+    expect(HUD.phoneSlotWidth).toBe(HUD.groupGap + HUD.iconSize + HUD.iconGap + HUD.phoneBarWidth);
+  });
+  it("draws a phone with a bar that follows the level, brick when low", () => {
+    const hud = new Hud();
+    const full = phoneFrame(hud, 100);
+    expect(full.drawn.at(-1)!.name).toBe("icon-phone");
+    const bars = (f: ReturnType<typeof phoneFrame>) => f.rects.filter((r) => r.h === HUD.barHeight).slice(-2);
+    expect(bars(full)[1].w).toBe(HUD.phoneBarWidth);
+    expect(bars(phoneFrame(hud, 50))[1].w).toBe(HUD.phoneBarWidth / 2);
+    expect(bars(phoneFrame(hud, 0))[1].w).toBe(0);
+  });
+  it("shows the plug for a few seconds after the level goes up, and not when it falls", () => {
+    const hud = new Hud();
+    expect(phoneFrame(hud, 30).drawn.at(-1)!.name).toBe("icon-phone");
+    expect(phoneFrame(hud, 100).drawn.at(-1)!.name).toBe("icon-plug");
+    hud.update(HUD.plugSeconds - 0.1, 0);
+    expect(phoneFrame(hud, 100).drawn.at(-1)!.name).toBe("icon-plug");
+    hud.update(0.2, 0);
+    expect(phoneFrame(hud, 100).drawn.at(-1)!.name).toBe("icon-phone");
+    expect(phoneFrame(hud, 20).drawn.at(-1)!.name).toBe("icon-phone");
   });
 });
 

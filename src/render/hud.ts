@@ -21,6 +21,8 @@ export const HUD_ICONS = {
   happy: "icon-face-happy",
   flat: "icon-face-flat",
   sad: "icon-face-sad",
+  phone: "icon-phone",
+  plug: "icon-plug",
 } as const;
 export type HudIcon = (typeof HUD_ICONS)[keyof typeof HUD_ICONS];
 
@@ -38,6 +40,8 @@ const FALLBACK: Record<HudIcon, { text: string; color: string }> = {
   "icon-face-happy": { text: "M", color: COLOR.butter },
   "icon-face-flat": { text: "M", color: COLOR.butter },
   "icon-face-sad": { text: "M", color: COLOR.tangerine },
+  "icon-phone": { text: "P", color: COLOR.paper },
+  "icon-plug": { text: "P", color: COLOR.leaf },
 };
 
 // The sun by day, the dusk icon at dawn and dusk, the moon at night.
@@ -61,8 +65,12 @@ export function moodIcon(mood: number): HudIcon {
 export class Hud {
   // The score shown, which counts up toward the real one.
   private shown = 0;
+  // The battery last seen, and the seconds left of showing the plug after it rose (issue 088).
+  private lastBattery: number | null = null;
+  private plugLeft = 0;
 
   update(dt: number, score: number): void {
+    this.plugLeft = Math.max(0, this.plugLeft - dt);
     const diff = score - this.shown;
     this.shown = Math.abs(diff) < 1 ? score : this.shown + diff * Math.min(1, dt * 10);
     setScoreDigits(String(this.displayedScore).length);
@@ -123,20 +131,25 @@ export class Hud {
     drawText(ctx, formatClockShort(clock), x, rowY, { color: TEXT });
     x += textWidth(CLOCK_FIELD);
 
-    const meter = (name: HudIcon, value: number, color: string): void => {
+    const meter = (name: HudIcon, value: number, color: string, width = HUD.barWidth): void => {
       x += HUD.groupGap;
       icon(name, x);
       x += HUD.iconSize + HUD.iconGap;
       const barY = rowY + Math.floor((HUD.iconSize - HUD.barHeight) / 2);
       ctx.fillStyle = COLOR.ink;
-      ctx.fillRect(x, barY, HUD.barWidth, HUD.barHeight);
+      ctx.fillRect(x, barY, width, HUD.barHeight);
       ctx.fillStyle = color;
-      ctx.fillRect(x, barY, Math.round(HUD.barWidth * (Math.min(Math.max(value, 0), 100) / 100)), HUD.barHeight);
-      x += HUD.barWidth;
+      ctx.fillRect(x, barY, Math.round(width * (Math.min(Math.max(value, 0), 100) / 100)), HUD.barHeight);
+      x += width;
     };
     meter(energyIcon(energy), energy, energy < ENERGY.lowBelow ? COLOR.brick : COLOR.leaf);
     meter(moodIcon(mood), mood, mood < MOOD.lowBelow ? COLOR.brick : COLOR.butter);
-    // The phone's slot (the battery issue, 088) follows here; it has no width yet.
+    // The phone: a plug in its place for a few seconds after it is charged. A state without
+    // the variable (an old custom room) shows an empty bar.
+    const battery = state.has("battery") ? state.get("battery") : 0;
+    if (this.lastBattery !== null && battery > this.lastBattery) this.plugLeft = HUD.plugSeconds;
+    this.lastBattery = battery;
+    meter(this.plugLeft > 0 ? HUD_ICONS.plug : HUD_ICONS.phone, battery, battery < HUD.phoneLowBelow ? COLOR.brick : COLOR.leaf, HUD.phoneBarWidth);
   }
 
   // While an action that can be backed out of runs: how to stop it. Drawn last, over a picture or

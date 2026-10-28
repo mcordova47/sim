@@ -25,7 +25,7 @@ export function leftChipWidth(digits: number): number {
 }
 
 // Width of the right chip: time icon and clock, then an icon with a small bar for energy and for
-// mood, then the (empty) phone slot.
+// mood, then the phone slot (icon and bar).
 export const RIGHT_CHIP_WIDTH =
   HUD.pad +
   HUD.iconSize + HUD.iconGap + textWidth(CLOCK_FIELD) +

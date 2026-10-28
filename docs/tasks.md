@@ -21,6 +21,7 @@ Lists: `src/game/typing-text.ts`.
 
 ## New
 - **Clean the desk** (`tidy-desk`, desk): points and a flavor line only; changes nothing; cooldown 90 s.
+- **Charge your phone** (`charge-phone`, nightstand, with the phone-on-charger prop `phone-charger`; issue 088): sets the state variable `battery` (0 to 100, shown in the ribbon as a phone and a bar) to 100; 8 points, 3 seconds, 60 s cooldown (nothing in the state stops repeats, so it keeps one). Nothing drains the battery and no task reads or is refused by it. The ribbon shows the plug for 4 seconds after the level rises and the bar turns brick under 20. A drain, or phone tasks that care about a flat phone, are open questions for Marc (see the issue log).
 - **Take a nap** (`nap`, sofa): needs energy under `NAP.below`; adds `NAP.energy` and an hour; leaves the bed alone. A 5 second smaller version of the sleep sequence (`docs/sleep.md`): a gentler dark, a breath, a z, no lullaby, no snore, the record plays on.
 - **Go to sleep** (`sleep`, bed; issue 078): a 9 second sequence (`docs/sleep.md`), not a plain wait. When it finishes the clock moves on to the **wake hour**: at least 7 hours later and never before 06:30 (`SLEEP_WAKE`: `clock` has `wake: { atLeast: 7, notBefore: 6.5 }`). A 22:00 bedtime wakes at 06:30 (8.5 hours), a 02:00 one at 09:00 (7 hours), a sleep at 14:00 at 21:00 (7 hours). Plant dryness, the deliveries and every listener get the real hours (`plantDry` has `addSkipped: true`: it adds however many hours the `clock` effect moved). Energy goes to 100, the bed is unmade, mood +10. Escape applies none of it.
 - **Admire the art** (`admire-art`, sofa): a scene that shows a full-screen picture of the south gallery wall (`view-gallery-wall`), then pushes in on one of the ten pieces (2x, 4x, 8x, scaled from the same picture, so the last is big square pixels) with a serious line at each level, and takes it away. A different piece each time, in the order of `src/game/art-pieces.ts` (the `artPiece` state variable, which wraps); that file holds all the text. Nobody walks; the map is unchanged.
@@ -114,6 +115,7 @@ A time cooldown is only there where nothing else stops you doing a task again at
 | `sort-records` (and year, fav, color) | each waits its turn, then the cycle wraps | 45 | the cycle never ends, so it can be repeated |
 | `work`, `work-sofa`, `work-bed` | energy at least 10 | 30 | tiring but not blocked for long |
 | `tidy-desk` | none | 90 | a gag; keeps it from being farmed |
+| `charge-phone` | none (it can always be done; it only sets the battery to 100) | 60 | nothing in the state stops repeating it |
 | `sleep` | tired or late at night | 60 | after sleeping the late hours can still allow it |
 | `nap` | energy under `NAP.below` | 60 | a nap leaves you still under the line |
 | `admire-art` | none | 60 | repeatable |

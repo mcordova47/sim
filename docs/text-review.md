@@ -304,3 +304,17 @@ The pixel font is capitals only, so these draw in capitals. Opened from the paus
 - Import refused: NOT A SAVE FROM THIS GAME / THAT SAVE IS FROM A NEWER GAME / THAT SAVE COULD NOT BE READ / THAT SAVE IS TOO BIG
 - Restore result: BACK TO BEFORE THE LAST IMPORT / NOTHING TO GO BACK TO
 - Hint (touch): B: BACK
+
+## Sync page, status and automatic sync (issues 103 and 104)
+Capitals only. Nothing animated, no counters, no "ERROR". A failure is a plain line, and the game says it will try again by itself.
+- Status line, by state: SYNC: OFF / SYNC: ON / SYNC: WORKING...
+- Status, on, after one worked this visit: SYNC: ON. LAST SYNCED JUST NOW (or LAST SYNCED 5 MIN AGO, LAST SYNCED 2 H AGO)
+- Status, on, automatic sync switched off: SYNC: ON. AUTOMATIC SYNC IS OFF
+- Status, no network or the server is not answering: SYNC: NO CONNECTION. TRYING AGAIN LATER (with automatic sync off: SYNC: NO CONNECTION)
+- Status, the server does not know the key (automatic sync stops until you act): SYNC: KEY NOT FOUND. PASTE A NEW KEY
+- Status, other: SYNC: UNAVAILABLE / SYNC: UPDATE THE GAME / SYNC: SAVE ON THE SERVER IS UNREADABLE / SYNC: THE SERVER REFUSED THE SAVE
+- Button (the key A on a keyboard): AUTO SYNC: ON / AUTO SYNC: OFF
+- Message after pressing it: AUTOMATIC SYNC IS ON / AUTOMATIC SYNC IS OFF. SYNC NOW STILL WORKS
+- Messages after a manual sync (stage 2): SYNC IS ON / SYNCED / SYNC IS OFF / ONE MOMENT / PAIRED. SYNC IS ON / THAT IS NOT A SYNC KEY OR LINK / SYNC STOPPED. THE SAVED COPY IS DELETED / LINK COPIED
+- Questions: STOP SYNCING AND DELETE THE SAVED COPY? / SYNC WITH THE SAVE IN THIS LINK?
+- No message at all when a save from another device is picked up (decided: no "picked up where you left off").

@@ -40,7 +40,8 @@ export class HttpBackend implements SyncBackend {
       const headers: Record<string, string> = {};
       if (key !== null) headers[SYNC.keyHeader] = key;
       if (body !== undefined) headers["Content-Type"] = "application/json";
-      const response = await fetch(this.path, { method, headers, body, cache: "no-store", signal: controller?.signal });
+      const keepalive = body !== undefined && body.length <= SYNC.auto.keepaliveMaxChars;
+      const response = await fetch(this.path, { method, headers, body, cache: "no-store", keepalive, signal: controller?.signal });
       return { status: response.status, text: await response.text() };
     } catch {
       return null;

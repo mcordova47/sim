@@ -1,7 +1,7 @@
 ---
 id: 096
 title: Asset review: go over every sprite for perspective and consistency
-status: todo
+status: review
 owner: marc + claude
 depends_on: []
 ---
@@ -20,3 +20,6 @@ Marc (2026-10-27): an asset review, going over all the assets in detail and deci
 - Independent review of the survey (a fresh agent spot-checks the classifications against the sprites).
 
 ## Progress log
+
+- 2026-10-27 (agent): Started the survey step. Plan: read the style guide, floor plan, maps and pipeline; render contact sheets of every group (outside the repo) and look at each piece in its room; write `docs/asset-review.md` with the table, the mismatch list, a style-doc recommendation and the decision checklist. No sprite, map or code changes.
+- 2026-10-27 (agent): Survey done. Wrote `docs/asset-review.md` (table per kind, mismatch list, style-doc recommendation, 12 ordered decisions). Viewed contact sheets of every group and the room mockups (kept outside the repo). No sprite, map or code changes. Not checked: the real game at 1.0x to 1.67x on a phone; light direction on every sprite (sampled). Files: `docs/asset-review.md`, this file.

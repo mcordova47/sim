@@ -1,7 +1,7 @@
 ---
 id: 107
 title: The guitar: flipped so it reads as standing on a stand
-status: in-progress
+status: review
 owner: claude
 depends_on: [100]
 ---
@@ -46,3 +46,4 @@ Marc (2026-10-28): the guitar has been hard to draw as hanging on the wall, so m
     - [ ] Ink the post's left side (rows 9-11, col 12) or draw the post as a 1 px ink line, in `guitar.sprite` and `guitar-nylon.sprite`.
     - [ ] Close the leg top (12,12) above and the left foot (14,11) below / (15,10) right, or accept those as the leg's diagonal ends and say so in the log.
     - [ ] Re-run `npm run sprites`, re-run the outline check at 8x.
+- 2026-10-28 (claude): Review round 2 fixes: inked the tripod post's left side (rows 9-11) and the foot gap (row 15), in both sprites; no open sides remain except the tuners (as before) and the feet on the tile's bottom edge. Not re-reviewed (two rounds used); reported to Marc.

@@ -1,7 +1,7 @@
 ---
 id: 100
 title: Desk chair redrawn diagonal, the typing-at-the-desk pose, and the typing prompt placement
-status: in-progress
+status: review
 owner: claude
 depends_on: [099]
 ---
@@ -35,3 +35,4 @@ Marc's decision (2026-10-28, `docs/asset-review.md`): redraw the **computer chai
     - [ ] Add a test that checks the banner box against the pose rectangle (desktop and narrow, more than one standing column), as well as the prompt box.
     - [ ] Re-view a render of the desk during typing (banner, prompt and pose together) on both views.
   - Unverified (not run in a real browser): how it feels in play (the box under the player, the chair at 1x, the touch view at /?touch=1 with the real controls on top of the canvas), and the pose seen next to the actual banner. `study-spanish` uses the same pose but its flashcards draw full screen, so the pose is hidden there (not changed, as the author said).
+- 2026-10-28 (claude): review round 1 asked for changes (the progress banner covered the seated player). Fixed: in a pose (not the sleep scene) the banner is anchored to the pose's screen rectangle (`Game.playerScreenRect`) instead of the player's box, so it sits above the pose (desktop y 43..61 over pose y 64..96; narrow y 59..77 over pose y 80..112). New test checks banner against the pose and the prompt on both views from desk columns 6 to 9. `npm test`, tsc pass. Status back to review.

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { SOUND, type EffectDef } from "../config";
 import { FakeAudioContext } from "./fake-audio";
-import { Synth } from "./synth";
+import { Synth, devLimiter } from "./synth";
 
 const tone = (length = 0.1, extra = {}): EffectDef => ({ voices: [{ wave: "square", freq: 440, length, gain: 0.2, ...extra }] });
 
@@ -17,7 +17,38 @@ describe("Synth", () => {
     // master, effects bus and music bus
     expect(ctx.gains).toHaveLength(3);
     expect(ctx.gains[0].gain.value).toBe(SOUND.master);
-    expect(ctx.gains[0].connections).toContain(ctx.destination);
+    // master -> limiter -> speakers
+    expect(ctx.compressors).toHaveLength(1);
+    expect(ctx.gains[0].connections).toContain(ctx.compressors[0]);
+    expect(ctx.compressors[0].connections).toContain(ctx.destination);
+  });
+
+  it("sets the limiter from config (issue 115)", () => {
+    const { ctx } = setup();
+    const c = ctx.compressors[0];
+    expect(c.threshold.value).toBe(SOUND.limiter.threshold);
+    expect(c.ratio.value).toBe(SOUND.limiter.ratio);
+    expect(c.attack.value).toBe(SOUND.limiter.attack);
+    expect(c.release.value).toBe(SOUND.limiter.release);
+    expect(c.knee.value).toBe(SOUND.limiter.knee);
+  });
+
+  it("leaves the limiter out when switched off, or when the context cannot make one", () => {
+    const off = new FakeAudioContext();
+    new Synth(off, () => 0.5, false);
+    expect(off.compressors).toHaveLength(0);
+    expect(off.gains[0].connections).toContain(off.destination);
+    const none = new FakeAudioContext();
+    (none as { createDynamicsCompressor?: unknown }).createDynamicsCompressor = undefined;
+    new Synth(none, () => 0.5, true);
+    expect(none.gains[0].connections).toContain(none.destination);
+  });
+
+  it("reads ?limiter=off only on the dev server", () => {
+    expect(devLimiter("?limiter=off", true)).toBe(false);
+    expect(devLimiter("?limiter=on", true)).toBe(true);
+    expect(devLimiter("", true)).toBe(true);
+    expect(devLimiter("?limiter=off", false)).toBe(true);
   });
 
   it("plays a tone as an oscillator with an envelope, started now and stopped after it ends", () => {

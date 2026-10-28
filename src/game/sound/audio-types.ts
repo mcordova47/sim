@@ -33,6 +33,14 @@ export interface FilterLike extends NodeLike {
   Q: ParamLike;
 }
 
+export interface CompressorLike extends NodeLike {
+  threshold: ParamLike;
+  knee: ParamLike;
+  ratio: ParamLike;
+  attack: ParamLike;
+  release: ParamLike;
+}
+
 export interface BufferLike {
   getChannelData(channel: number): Float32Array;
 }
@@ -53,6 +61,8 @@ export interface AudioContextLike {
   createGain(): GainLike;
   createOscillator(): OscillatorLike;
   createBiquadFilter(): FilterLike;
+  // Optional so a context without one still plays (no limiter).
+  createDynamicsCompressor?(): CompressorLike;
   createBuffer(channels: number, length: number, sampleRate: number): BufferLike;
   createBufferSource(): BufferSourceLike;
 }

@@ -146,6 +146,8 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 108 | [A different timbre for the guitar notes](issues/108-guitar-timbre.md) | marc + claude | todo | |
 | 109 | [A browsable inventory, like a pokedex](issues/109-browsable-inventory.md) | marc + claude | todo | 073 |
 | 110 | [A manual deploy button on GitHub](issues/110-manual-deploy-action.md) | claude | review | |
+| 111 | [The side project picture reacts to editable config (stretch)](issues/111-side-project-config.md) | marc + claude | todo | 101 |
+| 112 | [Real-world effects: what is feasible (research)](issues/112-real-world-effects-research.md) | marc + claude | todo | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

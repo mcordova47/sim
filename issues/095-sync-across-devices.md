@@ -1,7 +1,7 @@
 ---
 id: 095
 title: Sync the game's progress across devices (design first)
-status: todo
+status: review
 owner: marc + claude
 depends_on: []
 ---
@@ -27,3 +27,5 @@ Marc (2026-10-27): asked whether there is an issue for syncing across devices. T
 - Independent review of the note (a fresh agent), as for any design note.
 
 ## Progress log
+
+- 2026-10-27: Worked in worktree ../sim-worktrees/095-sync-design. Wrote docs/sync.md (design only, no code): recommendation (export/import, then a Netlify Function + Blobs with a ?sync= link, then automatic sync), field-wise merge table, limits, dev fake, tests, staged plan. Decisions made on Marc's behalf are listed in section 15; two questions remain (Netlify plan, privacy sentence). Not checked: Netlify's exact current plan limits, the rate-limit config option name and the store-by-context variable (marked 'verify' in the note); nothing was run in a browser.

@@ -1,7 +1,7 @@
 ---
 id: 098
 title: Art style doc: the perspective rule (south wall near top-down, the rest diagonal)
-status: review
+status: in-progress
 owner: claude
 depends_on: [096]
 ---
@@ -29,3 +29,12 @@ Write Marc's perspective rule into `docs/art-style.md` (decisions in `docs/asset
   - Minor, optional: `delivery-box` (placed on the `x` tile, to be redrawn near top-down) is not named in any class; the 'Scale' bullet still says "Until then" about issue 020's floor plan; the legend still defines **Adapt** though no row uses it; the opening Room orientation sentence says far-wall pieces are drawn diagonally, but the bookshelf and bed on that wall are exceptions (it does say 'see Perspective').
   - Build and tests not run (docs-only diff).
 - 2026-10-28: round 1 review fixes: tub and bath south-wall wording, guitar removed from the unplaced list, delivery-box named. Back to review.
+- 2026-10-28: **Review round 2 (independent): CHANGES NEEDED (one small contradiction; round 1's two fixes check out).**
+  - Scope: `git diff main...HEAD` is only `docs/art-style.md` and this issue file. No sprite, map or code change; no personal details.
+  - Round 1 fixes verified: tub (BATH_MAP rows 1-4, cols 1-2, `#` row 5 below, wall at col 0) now reads as a west-wall piece that is an exception, near top-down either way, so the outcome is right (wording nit: by the doc's own `#`-below test the tub passes as south wall; harmless). `guitar` is placed (`G`, row 5 col 1, wall at col 0): described as a placed west-wall hanging in profile, left as is; unplaced list is now `stool` and `rug` only. `delivery-box` (`x`, row 8 col 10, front door `f` directly below, 16x16): named as a south-wall piece, near top-down, which matches Marc's answer 2.
+  - Re-checked against maps: sofa (rows 5-6, cols 2-7, `#` below), record stand R (row 7 col 9, `#` below), lamp table L (row 6 col 8, floor below at the step), counter and stove (kitchen rows 3-4, wall row 5 below), fridge (rows 7-8, cols 8-9, wall below), bed 5x6, nightstand 3x1, bookshelf 1x4 standing from the north wall, radiator 1x3, pantry 1x2, mic stand col 5 rows 1-2, four lamps (lamp-table, lamp-warm, lamp-candle, stool-lamp; `lamp-sofa` is the slot id). All sizes in the reuse table and text match `public/sprites/*.png` (nightstand 48x16, hood 48x16, front-door 32x16, delivery-box 16x16 included).
+  - Sprites viewed at 6x: tub, toilet, guitar, delivery-box, fridge, record-stand, stove, counter, bed-made, sofa-td, bookshelf, bin, hood, nightstand, lamp-table, table, desk. Descriptions match (stove: knob row, cyan display, four burners 2x2, no oven face; counter: wood fronts on top, worktop and sink; bed: two pillows north, duvet; toilet: tank strip over bowl; fridge: thin top strip over steel doors; table and desk as written).
+  - Criteria: rule, exceptions and classes stated (pass); reuse table matches the sprites (pass); no sprite or code changes (pass); every claim checked against sprites and maps (one failure below). Marc's answers 1 to 5 all reflected.
+  - [ ] Contradiction: the Perspective bullet 'How to tell the class' lists "the counter, stove and hood on the kitchen bar" as south-wall pieces (near top-down), but the Face-on class and the reuse table (`hood`: "Wall-mounted, 3x1 tiles, face-on") make the hood face-on. The hood is a wall-line piece (`h` in WALL_PIECES, row 5 of KITCHEN_MAP), not furniture against the wall, and the sprite is a face-on vent. Remove the hood from the south-wall list (or say wall-line pieces such as the hood and the front door are face-on whichever wall they are on; the Exceptions sentence only names side-wall fixtures).
+  - Minor, optional (carried from round 1): the opening Room orientation sentence says far-wall pieces are diagonal though the bookshelf and bed are exceptions; 'Until then' in the Scale bullet; the Overhang bullet now uses the sofa as its example although `sofa-td` has no overhang rows (6x2 tiles, 2x... footprint 6x2).
+  - Build and tests not run (docs-only diff).

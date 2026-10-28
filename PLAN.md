@@ -134,7 +134,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 096 | [Asset review: go over every sprite for perspective and consistency](issues/096-asset-review.md) | marc + claude | in-progress (survey merged and answered; fixes are issues 098 to 101) | |
 | 097 | [A guided walkthrough of the codebase, with small hands-on tasks](issues/097-codebase-walkthrough.md) | marc + claude | in-progress | |
 | 098 | [Art style doc: the perspective rule](issues/098-art-style-perspective-rule.md) | claude | done | 096 |
-| 099 | [Redraw the south-wall pieces near top-down](issues/099-south-wall-pieces-top-down.md) | claude | todo | 096 |
+| 099 | [Redraw the south-wall pieces near top-down](issues/099-south-wall-pieces-top-down.md) | claude | done | 096 |
 | 100 | [Desk chair diagonal, the desk pose, and the typing prompt placement](issues/100-desk-chair-pose-and-typing-prompt.md) | claude | todo | 099 |
 | 101 | [Asset cleanup: plant pots, side-project picture, unused sprites](issues/101-asset-cleanup.md) | claude | todo | 100 |
 | 102 | [Sync stage 1: export and import a save, and the pure mergeSaves](issues/102-sync-stage-1-export-import-merge.md) | claude | todo | 095 |

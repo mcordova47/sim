@@ -110,13 +110,13 @@ Sorted for the top-down view. **Reuse:** use as-is (wall-mounted or flat). **Ada
 | pantry | 16x32 | New (issue 072) | Clear bins with navy lids and a yellow lid on the lowest, pantry food piled on top, from the photo. No labels. |
 | counter | 48x32 | Done | Near top-down (3x2 tiles, the south-wall model with `stove`): wood cabinet fronts along the top edge, the worktop and sink below. `dishes-0..3` share the frame. |
 | desk | 64x32 | Done | Diagonal (4x2 tiles): the top surface with the laptop and monitor, steel legs below. |
-| fridge | 32x32 | Redraw (issue 099) | 2x2 tiles on the kitchen leg's south wall. Today: a thin top strip (humidifier, items) over front-on steel doors, so it breaks the rule; to be redrawn near top-down. |
+| fridge | 32x32 | Redrawn near top-down (issue 099) | 2x2 tiles on the kitchen leg's south wall. Today: a thin top strip (humidifier, items) over front-on steel doors, so it breaks the rule; to be redrawn near top-down. |
 | gallery-wall | 96x16 | Redraw | Issue 036, redone in 034 from the close-ups: the ten pieces in their real arrangement as a 6x1 strip on the south wall face (`wall-front` colours). Not placed on the map: from this camera the south wall's face is never visible; it is shown by the admire-art view (`view-gallery-wall`, issue 040). |
 | guitar | 16x16 | Redraw | Issue 047, redone after the playtest: 1x1 tile, in profile like the player facing right (headstock west on a wall hanger, neck east, body east with its face skewed up and its side below). Placed as a single `G` tile at col 1, row 5 of the main room (issue 044). |
 | hood | 48x16 | Reuse | Wall-mounted, 3x1 tiles, face-on. |
 | mic-stand | 16x32 | Redraw | Issue 056: bluebird-style mic (about 9 px) on a thin pole and tripod, to real proportions; `mic-stand-vintage` is an unplaced variant with the vintage slatted mic. 1x2 tiles. Placed at col 5, rows 1-2 of the main room, between the table and the desk (issue 044). |
 | player-idle, -walk-1..4, -jump, -fall, -task | 16x16 | Redraw | Side-view poses. Replaced by the `player-<state>-<direction>` set (issue 030); the old files are removed. |
-| record-stand | 16x16 | Redraw (issue 099) | 1x1 tile on the main room's south wall: turntable deck from above over a front-on crate. Gets more top. |
+| record-stand | 16x16 | Redrawn near top-down (issue 099) | 1x1 tile on the main room's south wall: turntable deck from above over a front-on crate. Gets more top. |
 | sofa-arm | | Deleted | Issue 034: `sofa-td` already has its arms, and the floor plan has a plain 6x2 sofa. |
 | sofa | 96x32 | Done | `sofa-td` (6x2 tiles), the south-wall model. |
 | spice-rack | | Deleted | Issue 034: a side-view piece the floor plan never uses. If a wall rack by the hood is wanted later, draw it new from the kitchen photos. |

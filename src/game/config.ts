@@ -392,6 +392,8 @@ export const TYPING = {
   // box fits the 320 px screen.
   maxLines: 6,
   maxLineWidth: 280,
+  // Clear space between the prompt box and the player at the desk (issue 100).
+  avoidGap: 4,
 };
 
 // The key-notes mini-game: arrows appear one at a time and you press the same

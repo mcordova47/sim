@@ -1,18 +1,18 @@
-# Desk chair (issue 034, from the overhead chair photo): wooden armchair seen from above with cream and green ticking-stripe seat and back cushions. 1x1.
+# Desk chair (issue 100): seen from behind, above and a little in front (the diagonal class, like the desk it sits at). Seat top and backrest cushions with cream and green ticking running vertically, rounded cushion corners, a light wood top rail, thin oak arms on each side, two short legs. 14 wide by 13 tall in a 1x1 tile, a little smaller than the player. Full ink outline, light from the top-left. `player-type-desk` draws the same chair with the player in it.
 size: 16x16
 ................
-.11111111111111.
-.71999999999997.
-.71eeeeeeeeee87.
-.71666666666687.
-.71eeeeeeeeee87.
-.71666666666687.
-.71eeeeeeeeee87.
-.71666666666687.
-.71eeeeeeeeee87.
-.71555555555587.
-.71166666666187.
-.711eeeeeeee187.
-.71888888888887.
-.11111111111111.
+................
+....11111111....
+.111e6e6e6e6111.
+.1a1e6e6e6e6181.
+.1a1e6e6e6e6181.
+.1a.11111111.81.
+.1a1aaaaaaaa181.
+.1a199999998181.
+.1a1e6e6e6e6181.
+.1a1e6e6e6e6181.
+.11.11111111.11.
+...1981..1981...
+...1981..1981...
+...1111..1111...
 ................

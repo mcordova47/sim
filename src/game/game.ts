@@ -396,7 +396,7 @@ export class Game {
 
   // One plain line over the player.
   private say(text: string): void {
-    this.popups.add(this.player.x + TILE / 2, this.player.y, [{ text, color: COLOR.paper }]);
+    this.playerPopup([{ text, color: COLOR.paper }]);
   }
 
   // Opens the waiting packages: the items are added, and each one is named in one line.
@@ -434,12 +434,12 @@ export class Game {
       change.previous >= ENERGY.lowBelow &&
       change.value < ENERGY.lowBelow
     ) {
-      this.popups.add(this.player.x + TILE / 2, this.player.y, [{ text: "YAWN...", color: COLOR.mist }]);
+      this.playerPopup([{ text: "YAWN...", color: COLOR.mist }]);
     }
     // Dropping below the low-mood line shows a sigh. That is all low mood
     // does for now (a slumped walk is left for later).
     if (change.id === "mood" && change.previous >= MOOD.lowBelow && change.value < MOOD.lowBelow) {
-      this.popups.add(this.player.x + TILE / 2, this.player.y, [{ text: "SIGH...", color: COLOR.mist }]);
+      this.playerPopup([{ text: "SIGH...", color: COLOR.mist }]);
     }
   }
 
@@ -716,7 +716,7 @@ export class Game {
     this.drawWorldUi(ctx, { ...actor, x: actor.x - cam.x, y: actor.y - cam.y }, cam);
     this.drawHud(ctx);
     // A mini-game's own picture, then any dialog on top of it.
-    this.drawActivity(ctx);
+    this.drawActivity(ctx, cam);
     const dialogView = this.dialog.view;
     if (dialogView) drawDialog(ctx, dialogView);
     if (this.interaction.active?.activity.cancellable && this.interaction.active.item.decorSlot === undefined && !this.interaction.active.item.encounter) this.hud.drawStopHint(ctx);
@@ -725,11 +725,11 @@ export class Game {
 
   // A mini-game's picture. One that throws cancels its task (like a throwing
   // `update`) and the loop carries on.
-  private drawActivity(ctx: CanvasRenderingContext2D): void {
+  private drawActivity(ctx: CanvasRenderingContext2D, cam: { x: number; y: number }): void {
     const active = this.interaction.active;
     if (!active?.activity.draw) return;
     try {
-      active.activity.draw(ctx, VIEW);
+      active.activity.draw(ctx, VIEW, this.playerScreenRect(cam));
     } catch (error) {
       this.interaction.abandonActive(error);
     }
@@ -779,6 +779,34 @@ export class Game {
     const col = target.x / TILE;
     const row = target.y / TILE;
     return this.level.pieces.find((p) => p.tiles.some((t) => t.col === col && t.row === row)) ?? null;
+  }
+
+  // A popup over the player. In a pose (issue 100) it ends just above the pose picture, so it
+  // rises above the seated player instead of across them (at the desk the player's own box is a
+  // tile south of where they are drawn).
+  private playerPopup(lines: PopupLine[]): void {
+    const pose = this.currentPose();
+    if (pose && !this.sleepScene) {
+      const { def, piece } = pose;
+      this.popups.add(piece.bounds.x + def.at.x + def.size.w / 2, piece.bounds.y + def.at.y - 4 - 10 * lines.length, lines);
+    } else {
+      this.popups.add(this.player.x + TILE / 2, this.player.y, lines);
+    }
+  }
+
+  // Where the player is on the screen: the pose's picture while they are in one (the seated
+  // player, the chair and the desk's edge), otherwise their own box. Mini-games keep clear of it.
+  playerScreenRect(cam: { x: number; y: number }): { x: number; y: number; w: number; h: number } {
+    const pose = this.currentPose();
+    if (pose) {
+      return {
+        x: pose.piece.bounds.x + pose.def.at.x - cam.x,
+        y: pose.piece.bounds.y + pose.def.at.y - cam.y,
+        w: pose.def.size.w,
+        h: pose.def.size.h,
+      };
+    }
+    return { x: Math.round(this.player.x) - cam.x, y: Math.round(this.player.y) - cam.y, w: this.player.w, h: this.player.h };
   }
 
   // The pose the player is in right now: the running task's, if it belongs to
@@ -981,10 +1009,13 @@ export class Game {
         if (interaction.active.item.decorSlot === undefined && !interaction.active.item.encounter) {
           // The banner fades while asleep, so it is not over the sleeper's head (issue 078).
           const alpha = this.sleepScene?.bannerAlpha ?? 1;
-          if (alpha >= 1) drawProgress(ctx, actor, interaction.active.item, interaction.progress, VIEW, popupBoxes);
+          // In a pose (issue 100) the banner sits above the whole pose picture, not over its top half:
+          // at the desk the player stands a tile south of where they are drawn seated.
+          const anchor = this.currentPose() && !this.sleepScene ? this.playerScreenRect(cam) : actor;
+          if (alpha >= 1) drawProgress(ctx, anchor, interaction.active.item, interaction.progress, VIEW, popupBoxes);
           else if (alpha > 0.01) {
             ctx.globalAlpha = alpha;
-            drawProgress(ctx, actor, interaction.active.item, interaction.progress, VIEW, popupBoxes);
+            drawProgress(ctx, anchor, interaction.active.item, interaction.progress, VIEW, popupBoxes);
             ctx.globalAlpha = 1;
           }
         }

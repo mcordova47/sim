@@ -141,8 +141,13 @@ export interface Activity {
   // Called every frame while the task runs, except while a dialog is open (the
   // clock stands still then, see `DIALOG.pauseClock`).
   update(dt: number, controls: Controls): void;
-  // Drawn in screen space, over the HUD, while it runs.
-  draw?(ctx: CanvasRenderingContext2D, screen: { width: number; height: number }): void;
+  // Drawn in screen space, over the HUD, while it runs. `avoid` is where the player (or their pose)
+  // is on the screen: a picture that can move should keep clear of it (issue 100).
+  draw?(
+    ctx: CanvasRenderingContext2D,
+    screen: { width: number; height: number },
+    avoid?: { x: number; y: number; w: number; h: number },
+  ): void;
   // Buttons on its screen that a tap on the touch layer can press, in game pixels (issue 093).
   // Asked each time the player taps, so they follow what is drawn right now.
   tapTargets?(screen: { width: number; height: number }): TapTarget[];

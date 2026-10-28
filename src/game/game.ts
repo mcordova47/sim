@@ -1,4 +1,5 @@
 import { NO_INPUT, type Controls } from "../input/controls";
+import { targetAt, type TapTarget } from "../input/tap";
 import { Camera } from "../render/camera";
 import { COLOR } from "../render/colors";
 import { drawDialog } from "../render/dialog-box";
@@ -63,6 +64,9 @@ export interface Layer {
   drawWorld?(ctx: CanvasRenderingContext2D, camera: { x: number; y: number }): void;
   // Drawn in screen space, after the HUD.
   drawHud?(ctx: CanvasRenderingContext2D): void;
+  // Buttons a tap on the touch layer can press while this layer has a screen up (the pause
+  // screen), in game pixels. Empty or missing when it has none.
+  tapTargets?(): TapTarget[];
 }
 
 // How to set up a game beyond its first level.
@@ -467,6 +471,47 @@ export class Game {
   // Screens that are drawn for 320 x 192 and cover the world register here (the achievements list).
   readonly fullPictureWhen: Array<() => boolean> = [];
 
+  // Screens that stop the apartment's clock while they are up (the pause screen, issue 093): no
+  // time passes, so no energy, no cooldown, no delivery. Like a dialog, nothing in the
+  // simulation moves, but the layers still run (the screen can animate, play time is counted).
+  readonly pausedWhen: Array<() => boolean> = [];
+
+  get paused(): boolean {
+    return this.pausedWhen.some((f) => f());
+  }
+
+  // The buttons a tap can press right now, in game pixels: the pause screen's, else the running
+  // activity's. A dialog or menu has none yet (the pad and A work there).
+  tapTargets(): TapTarget[] {
+    for (const layer of this.layers) {
+      const targets = layer.tapTargets?.();
+      if (targets && targets.length > 0) return targets;
+    }
+    if (this.dialog.open) return [];
+    return this.interaction.active?.activity.tapTargets?.(VIEW) ?? [];
+  }
+
+  // Presses the button at a point in the picture, if there is one. True if one was pressed.
+  tapAt(x: number, y: number): boolean {
+    const target = targetAt(this.tapTargets(), x, y);
+    if (!target) return false;
+    target.run();
+    return true;
+  }
+
+  // Whether a screen wants the player to type, and what it holds (the touch layer's keyboard).
+  get wantsText(): boolean {
+    return !this.dialog.open && this.interaction.active?.activity.wantsText === true;
+  }
+
+  textValue(): string {
+    return this.interaction.active?.activity.textValue?.() ?? "";
+  }
+
+  setText(text: string): void {
+    if (this.wantsText) this.interaction.active?.activity.setText?.(text);
+  }
+
   // True while a full-screen picture covers the world: an ad encounter card or a cutscene `view`.
   // Those are drawn for the desktop's 320 x 192, so the phone's narrow view switches to that size
   // while one is up (issue 090).
@@ -598,6 +643,8 @@ export class Game {
         this.tickClock(dt);
         this.interaction.update(dt, this.player, NO_INPUT);
       }
+    } else if (this.paused) {
+      // The pause screen: the clock, the cooldowns and the combo all stand still.
     } else {
       // The frame that backs out of a clock-holding activity leaves the clock exactly as it was.
       if (!heldClock) this.tickClock(dt);

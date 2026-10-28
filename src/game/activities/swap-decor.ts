@@ -2,6 +2,7 @@ import type { Controls } from "../../input/controls";
 import { COLOR } from "../../render/colors";
 import { GLYPH_H, drawText, textWidth } from "../../render/font";
 import { fitLabel } from "../../render/dialog-box";
+import { hintLine } from "../../render/hints";
 import { BaseActivity, needHost, registerActivity, type ActivityHost } from "../activity";
 import type { Decor } from "../decor";
 import type { DecorItem } from "../decor-data";
@@ -25,7 +26,13 @@ const HEAD = ROW + 3;
 const NOTE = ROW + 1;
 const FOOT = ROW + 2;
 
-const FOOTER = "UP DOWN: LOOK   E: PUT UP   ESC: BACK";
+// The line of keys at the foot; on the touch layer it names the pad and the buttons (issue 093).
+export const footer = (): string =>
+  hintLine([
+    { key: "UP DOWN", text: "LOOK" },
+    { key: "E", text: "PUT UP" },
+    { key: "ESC", text: "BACK" },
+  ]);
 const HERE = "(IN PLACE)";
 
 export class SwapDecorActivity extends BaseActivity {
@@ -146,7 +153,7 @@ export class SwapDecorActivity extends BaseActivity {
       if (tag) drawText(ctx, tag, right, top, { ...opts, align: "right" });
     }
     drawText(ctx, fitLabel(this.note(this.list[this.cursor]), right - left), left, y + PAD + HEAD + rows * ROW + 1, opts);
-    drawText(ctx, FOOTER, left, y + h - PAD - GLYPH_H, opts);
+    drawText(ctx, footer(), left, y + h - PAD - GLYPH_H, opts);
   }
 }
 

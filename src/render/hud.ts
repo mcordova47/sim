@@ -3,6 +3,7 @@ import type { Scoreboard } from "../game/scoring";
 import { formatClockShort, type ApartmentState } from "../game/state";
 import { COLOR, withAlpha } from "./colors";
 import { drawText, GLYPH_H, textWidth } from "./font";
+import { stopHintText } from "./hints";
 import { COMBO_TEXT, CLOCK_FIELD, hudChips, setScoreDigits } from "./layout";
 import type { SpriteDrawer } from "./sprites";
 
@@ -143,10 +144,11 @@ export class Hud {
   // dialog. It sits in the gap between the two chips when the words fit there (the desktop view),
   // and otherwise on a line just under them (the narrow view), so it is never on a chip.
   drawStopHint(ctx: CanvasRenderingContext2D): void {
-    drawText(ctx, STOP_HINT, ...stopHintAt(VIEW), { color: LABEL, align: "center" });
+    drawText(ctx, stopHintText(), ...stopHintAt(VIEW), { color: LABEL, align: "center" });
   }
 }
 
+// The desktop wording; the touch layer says "B TO STOP" (`stopHintText`).
 export const STOP_HINT = "ESC TO STOP";
 
 // Where the stop hint's centre-top goes in a view of this width, with the score at `digits`.
@@ -154,7 +156,7 @@ export function stopHintAt(view: { width: number }, digits?: number): [number, n
   const { left, right } = hudChips(view, digits);
   const gapLeft = left.x + left.w;
   const centre = Math.round((gapLeft + right.x) / 2);
-  const half = textWidth(STOP_HINT) / 2;
+  const half = textWidth(stopHintText()) / 2;
   const fits = centre - half >= gapLeft + 2 && centre + half + 1 <= right.x - 2;
   return fits ? [centre, 3] : [Math.round(view.width / 2), left.y + left.h + 2];
 }

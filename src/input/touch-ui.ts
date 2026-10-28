@@ -1,3 +1,5 @@
+import { pointToGame } from "./tap";
+import { TextEntry, type TextHost } from "./text-entry";
 import { dpadDirection, eventKeySink, TouchPad, touchLayerVisible, type TouchControl } from "./touch";
 
 // The DOM side of the touch layer (issue 087): builds the d-pad and buttons in code, turns
@@ -10,6 +12,13 @@ export interface TouchUiOptions {
   onGesture?: () => void;
   // Called when the layer shows or hides.
   onVisible?: (visible: boolean) => void;
+  // Taps on the picture (issue 093): the canvas, the picture's size in game pixels right now, and
+  // the game's answer to "is there a button here, and was it pressed".
+  canvas?: HTMLCanvasElement;
+  viewSize?: () => { width: number; height: number };
+  tapAt?: (x: number, y: number) => boolean;
+  // The game's text field, for the phone's keyboard (the sync key screen).
+  text?: TextHost;
 }
 
 export interface TouchUi {
@@ -52,7 +61,7 @@ export function mountTouchUi(options: TouchUiOptions): TouchUi {
     ["a", "tp-btn tp-a", "A"],
     ["b", "tp-btn tp-b", "B"],
     ["cycle", "tp-pill tp-cycle", "CHOICE"],
-    ["list", "tp-pill tp-list", "LIST"],
+    ["list", "tp-pill tp-list", "PAUSE"],
     ["mute", "tp-pill tp-mute", "SOUND"],
   ];
   const buttonEls = new Map<TouchControl, HTMLElement>();
@@ -67,9 +76,82 @@ export function mountTouchUi(options: TouchUiOptions): TouchUi {
 
   const press = (node: HTMLElement, on: boolean) => node.classList.toggle("tp-held", on);
 
+  // The hidden text field (issue 093). It stays in the page, 1 px and see-through (display: none
+  // fields cannot be focused), with a 16 px font so iOS does not zoom in. Its key events are
+  // stopped here: the game must not also read them as keys, and a soft keyboard's key is
+  // "trusted", which would hide this layer as if a real keyboard had come.
+  const field = document.createElement("input");
+  field.type = "text";
+  field.className = "tp-text";
+  field.autocomplete = "off";
+  field.autocapitalize = "off";
+  field.spellcheck = false;
+  field.setAttribute("autocorrect", "off");
+  field.setAttribute("enterkeyhint", "go");
+  field.setAttribute("aria-label", "Sync key");
+  document.body.appendChild(field);
+  const entry = options.text ? new TextEntry(options.text, (code) => pad.tapKey(code)) : null;
+  field.addEventListener("input", () => entry?.input(field.value));
+  field.addEventListener("keydown", (e) => {
+    e.stopPropagation();
+    if (entry?.key(e.key)) e.preventDefault();
+  });
+  field.addEventListener("keyup", (e) => e.stopPropagation());
+  field.addEventListener("paste", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    field.value = entry?.paste(e.clipboardData?.getData("text") ?? "") ?? field.value;
+  });
+
+  // While the game wants text, the CHOICE and SOUND pills become KEYBOARD and PASTE (neither of
+  // their keys does anything on that screen), and A sends Enter.
+  let textOn = false;
+  const labels = new Map<TouchControl, [string, string]>([
+    ["cycle", ["CHOICE", "KEYBOARD"]],
+    ["mute", ["SOUND", "PASTE"]],
+  ]);
+  const syncText = () => {
+    const want = visible && !!entry?.wanted;
+    if (want !== textOn) {
+      textOn = want;
+      pad.setTextMode(want);
+      for (const [control, [plain, text]] of labels) buttonEls.get(control)!.textContent = want ? text : plain;
+      if (want) field.value = options.text!.textValue();
+      else {
+        field.blur();
+        field.value = "";
+      }
+    }
+    if (!textOn) return;
+    const next = entry!.syncValue(field.value);
+    if (next !== null) field.value = next;
+  };
+  const textAction = (control: TouchControl) => {
+    if (control === "cycle") field.focus();
+    else {
+      // PASTE reads the clipboard (a tap is the gesture the browser wants; Safari asks once). Where
+      // that is not allowed, the field is raised so the keyboard's own paste bubble can be used.
+      const read = navigator.clipboard?.readText?.();
+      if (!read) return field.focus();
+      read.then((text) => (field.value = entry!.paste(text))).catch(() => field.focus());
+    }
+  };
+
   for (const [control, node] of buttonEls) {
+    if (control === "cycle" || control === "mute") {
+      node.addEventListener("pointerup", (e) => {
+        if (textOn) {
+          e.preventDefault();
+          textAction(control);
+        }
+      });
+    }
     node.addEventListener("pointerdown", (e) => {
       e.preventDefault();
+      if (textOn && (control === "cycle" || control === "mute")) {
+        press(node, true);
+        return;
+      }
       try {
         node.setPointerCapture(e.pointerId);
       } catch {
@@ -113,6 +195,17 @@ export function mountTouchUi(options: TouchUiOptions): TouchUi {
   dpad.addEventListener("pointercancel", endPad);
   dpad.addEventListener("lostpointercapture", endPad);
 
+  // A tap on the picture: a button the game drew, else (on a text screen) the phone's keyboard.
+  // Raised from the pointer-up itself, which iOS needs for the keyboard to open.
+  options.canvas?.addEventListener("pointerup", (e) => {
+    if (!visible) return;
+    const rect = options.canvas!.getBoundingClientRect();
+    const at = pointToGame(e.clientX, e.clientY, rect, options.viewSize?.() ?? { width: rect.width, height: rect.height });
+    if (!at) return;
+    if (options.tapAt?.(at.x, at.y)) return;
+    if (textOn) field.focus();
+  });
+
   const clearLook = () => {
     for (const node of buttonEls.values()) press(node, false);
     for (const name of ["up", "down", "left", "right"]) dpad.classList.remove(`tp-on-${name}`);
@@ -138,7 +231,10 @@ export function mountTouchUi(options: TouchUiOptions): TouchUi {
     });
     if (next === visible) return;
     visible = next;
-    if (!visible) releaseAll();
+    if (!visible) {
+      releaseAll();
+      pad.setTextMode(false);
+    }
     document.body.classList.toggle("touch", visible);
     options.onVisible?.(visible);
   };
@@ -180,6 +276,9 @@ export function mountTouchUi(options: TouchUiOptions): TouchUi {
     get visible() {
       return visible;
     },
-    afterFrame: () => pad.afterFrame(),
+    afterFrame: () => {
+      pad.afterFrame();
+      syncText();
+    },
   };
 }

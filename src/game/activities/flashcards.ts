@@ -1,6 +1,9 @@
 import { browserClipboard, type ClipboardLike } from "../../input/clipboard";
 import type { Controls } from "../../input/controls";
+import type { TapTarget } from "../../input/tap";
+import { drawButton } from "../../render/button";
 import { COLOR } from "../../render/colors";
+import { hintLine, touchHints } from "../../render/hints";
 import { GLYPH_H, drawText, textWidth } from "../../render/font";
 import { drawIpa, ipaWidth } from "../../render/ipa-font";
 import { BaseActivity, needHost, registerActivity, type ActivityHost, type ActivityResult } from "../activity";
@@ -30,6 +33,21 @@ export const PROGRESS_LAYOUT = { margin: 16, barY: 22, barH: 7, textY: 33, row: 
 const TONE: Record<Tone, string> = { paper: COLOR.paper, mist: COLOR.mist, leaf: COLOR.leaf, butter: COLOR.butter };
 
 const GRADES: Grade[] = ["again", "gotit"];
+
+// The touch layer's buttons on these screens (issue 093), in pixels from the box's corner.
+const TOUCH = {
+  pad: 16,
+  buttonH: 16,
+  // The two rows on the choice screen (the desktop's are 14 apart; fingers need more).
+  choiceRows: [32, 52],
+  restartY: 64,
+  confirmY: 80,
+  // The done page grows by this much for a row of buttons, that many pixels above the box's bottom.
+  doneExtra: 30,
+  doneButtonsFromBottom: 46,
+  sayItW: 42,
+  voiceW: 54,
+};
 const LABEL: Record<Grade, string> = { again: "Again", gotit: "Got it" };
 
 export class FlashcardsActivity extends BaseActivity {
@@ -45,6 +63,17 @@ export class FlashcardsActivity extends BaseActivity {
   confirmRestart = false;
   get readsLetters(): boolean {
     return this.phase === "key";
+  }
+  // The key screen wants typing: on the touch layer that raises the phone's keyboard (issue 093).
+  get wantsText(): boolean {
+    return !this.done && this.phase === "key";
+  }
+  textValue(): string {
+    return this.typed;
+  }
+  // The whole text from the touch layer's field: typed, pasted, or a pairing link.
+  setText(text: string): void {
+    this.paste(text);
   }
 
   phase: Phase = "connecting";
@@ -191,10 +220,7 @@ export class FlashcardsActivity extends BaseActivity {
       this.switchVoice(controls);
     }
     if (this.phase === "front") {
-      if (controls.interactPressed || controls.keys.includes("Space")) {
-        this.phase = "back";
-        this.speakIf("back");
-      }
+      if (controls.interactPressed || controls.keys.includes("Space")) this.flip();
       return;
     }
     if (this.phase === "back") {
@@ -211,6 +237,12 @@ export class FlashcardsActivity extends BaseActivity {
     if ((this.phase === "problem" || this.phase === "done") && (controls.interactPressed || controls.keys.includes("Enter"))) {
       this.finish({ completed: false, quiet: true });
     }
+  }
+
+  private flip(): void {
+    if (this.phase !== "front") return;
+    this.phase = "back";
+    this.speakIf("back");
   }
 
   // "Says" the card's Spanish if it is on the side that has just appeared.
@@ -237,15 +269,23 @@ export class FlashcardsActivity extends BaseActivity {
   private switchVoice(controls: Controls): void {
     if (!this.backend.practice || !controls.keys.includes("KeyV")) return;
     if (controls.keysDown.some((k) => /^(Shift|Control|Meta|Alt)/.test(k))) return;
+    this.nextVoice();
+  }
+
+  private nextVoice(): void {
     // The next voice in the cycle (the first one if the current voice is not in it).
     const cycle = this.backend.voiceCycle ?? VOICE_CYCLE;
     this.voiceStyle = cycle[(cycle.indexOf(this.voiceStyle) + 1) % cycle.length];
-    this.repeat({ ...controls, keys: [F.mumble.repeatKey], keysDown: [] });
+    this.sayAgain();
   }
 
   // R says the Spanish again, once it is showing.
   private repeat(controls: Controls): void {
     if (!controls.keys.includes(F.mumble.repeatKey) || controls.keysDown.some((k) => /^Shift/.test(k))) return;
+    this.sayAgain();
+  }
+
+  private sayAgain(): void {
     const card = this.card;
     if (!card) return;
     const showing = this.phase === "back" || (card.speaks ?? "back") === "front";
@@ -257,12 +297,12 @@ export class FlashcardsActivity extends BaseActivity {
     if (controls.dirPressed === "up") this.chosen = 0;
     if (controls.dirPressed === "down") this.chosen = 1;
     if (!controls.interactPressed && !controls.keys.includes("Enter")) return;
+    this.confirmChoice();
+  }
+
+  private confirmChoice(): void {
     if (this.chosen === 0) this.startGuest();
-    else {
-      this.typed = "";
-      this.message = "";
-      this.phase = "key";
-    }
+    else this.toKeyScreen();
   }
 
   // The small control to leave a mode, on the done screen only (never mid-card).
@@ -270,24 +310,27 @@ export class FlashcardsActivity extends BaseActivity {
   // A key is never merged with the guest's cards and neither path reads the other's.
   private switchMode(controls: Controls): boolean {
     if (this.backend.usesKey === false) return false;
-    if (controls.keys.includes("KeyK")) {
-      if (this.guest) {
-        // Nothing is saved yet: the mode and the key change only when a key is accepted.
-        this.guest = false;
-        const key = this.store.key();
-        if (key) this.connect(key);
-        else this.toKeyScreen();
-      } else {
-        // The saved key stays until a new one has been accepted (Escape leaves everything as it was).
-        this.toKeyScreen();
-      }
-      return true;
-    }
+    if (controls.keys.includes("KeyK")) return this.useKey();
     if (controls.keys.includes("KeyG") && !this.guest) {
       this.startGuest();
       return true;
     }
     return false;
+  }
+
+  // K, or its button: use a key (a different one, from key mode).
+  private useKey(): true {
+    if (this.guest) {
+      // Nothing is saved yet: the mode and the key change only when a key is accepted.
+      this.guest = false;
+      const key = this.store.key();
+      if (key) this.connect(key);
+      else this.toKeyScreen();
+    } else {
+      // The saved key stays until a new one has been accepted (Escape leaves everything as it was).
+      this.toKeyScreen();
+    }
+    return true;
   }
 
   private toKeyScreen(): void {
@@ -299,17 +342,19 @@ export class FlashcardsActivity extends BaseActivity {
   // "Start again" after the core refused a guest's saved cards: S, then Y.
   private restart(controls: Controls): boolean {
     if (this.message !== "The saved cards could not be read.") return false;
-    if (this.confirmRestart && controls.keys.includes("KeyY")) {
-      this.guestBackend.forget?.();
-      this.confirmRestart = false;
-      this.connect("");
-      return true;
-    }
+    if (this.confirmRestart && controls.keys.includes("KeyY")) return this.eraseAndRestart();
     if (controls.keys.includes("KeyS")) {
       this.confirmRestart = true;
       return true;
     }
     return false;
+  }
+
+  private eraseAndRestart(): true {
+    this.guestBackend.forget?.();
+    this.confirmRestart = false;
+    this.connect("");
+    return true;
   }
 
   private updateKey(controls: Controls): void {
@@ -388,13 +433,90 @@ export class FlashcardsActivity extends BaseActivity {
 
   // -- Drawing ---------------------------------------------------------------------
 
-  draw(ctx: CanvasRenderingContext2D, screen: { width: number; height: number }): void {
-    const w = 264;
+  // The box everything is drawn in, and what the touch layer's buttons are placed from.
+  private box(screen: { width: number; height: number }): { x: number; y: number; w: number; h: number } {
+    // 264 wide, or the picture's width less a margin when the phone's narrow view is narrower.
+    const w = Math.min(264, screen.width - 8);
     // Taller in the practice deck, which shows the transcription as well.
     // A guest's box has a line more, for the note that progress stays in this browser.
-    const h = this.backend.practice ? 140 : this.guest ? 132 : 120;
-    const x = Math.round((screen.width - w) / 2);
-    const y = Math.round((screen.height - h) / 2);
+    let h = this.backend.practice ? 140 : this.guest ? 132 : 120;
+    // The done page has a row of buttons on the touch layer (K and G have no key there).
+    if (this.phase === "done" && this.touchSwitchButtons().length > 0) h += TOUCH.doneExtra;
+    return { x: Math.round((screen.width - w) / 2), y: Math.round((screen.height - h) / 2), w, h };
+  }
+
+  // The done page's mode buttons: "other key" and "no key" (a key's study), or "use a key" (a guest's).
+  private touchSwitchButtons(): Array<{ label: string; run: () => void }> {
+    if (!touchHints() || this.backend.usesKey === false) return [];
+    if (this.guest) return [{ label: "USE A KEY", run: () => this.useKey() }];
+    return [
+      { label: "OTHER KEY", run: () => this.useKey() },
+      { label: "NO KEY", run: () => this.startGuest() },
+    ];
+  }
+
+  // The buttons a finger can press on the current screen (issue 093), in game pixels. They are
+  // the same rectangles `draw` paints on the touch layer. Nothing here changes the screen unless
+  // the keyboard's key for it would.
+  tapTargets(screen: { width: number; height: number }): TapTarget[] {
+    if (this.done || !touchHints()) return [];
+    const { x, y, w, h } = this.box(screen);
+    const out: TapTarget[] = [];
+    const add = (rect: { x: number; y: number; w: number; h: number }, run: () => void) => out.push({ ...rect, run });
+    if (this.phase === "choice") {
+      TOUCH.choiceRows.forEach((ty, i) =>
+        add({ x: x + TOUCH.pad, y: y + ty - 4, w: w - 2 * TOUCH.pad, h: TOUCH.buttonH }, () => {
+          this.chosen = i;
+          this.confirmChoice();
+        }),
+      );
+    } else if (this.phase === "problem" && this.guest && this.message === "The saved cards could not be read.") {
+      if (this.confirmRestart) {
+        for (const [i, run] of [() => this.eraseAndRestart(), () => (this.confirmRestart = false)].entries()) {
+          add(this.pairRect(x, y, w, TOUCH.confirmY, i), () => void run());
+        }
+      } else add({ x: x + 60, y: y + TOUCH.restartY, w: w - 120, h: TOUCH.buttonH }, () => (this.confirmRestart = true));
+    } else if (this.phase === "done") {
+      this.touchSwitchButtons().forEach((b, i, all) => add(this.pairRect(x, y, w, h - TOUCH.doneButtonsFromBottom, i, all.length), b.run));
+    } else if (this.phase === "front") {
+      // The whole box flips the card.
+      add({ x, y, w, h }, () => this.flip());
+    } else if (this.phase === "back") {
+      GRADES.forEach((g, i) => add(this.gradeRect(x, y, w, h, i, true), () => this.answer(g)));
+      if (this.showsSayIt()) add({ x: x + w - TOUCH.sayItW - 4, y: y + 2, w: TOUCH.sayItW + 4, h: TOUCH.buttonH }, () => this.sayAgain());
+      if (this.backend.practice) add({ x: x + 4, y: y + 2, w: TOUCH.voiceW, h: TOUCH.buttonH }, () => this.nextVoice());
+    }
+    // The say-it button also works on the front when the card speaks its front.
+    if (this.phase === "front" && this.showsSayIt()) {
+      out.push({ x: x + w - TOUCH.sayItW - 4, y: y + 2, w: TOUCH.sayItW + 4, h: TOUCH.buttonH, run: () => this.sayAgain() });
+    }
+    return out;
+  }
+
+  // Two buttons side by side (or one, centred), `top` pixels from the box's top.
+  private pairRect(x: number, y: number, w: number, top: number, i: number, of = 2): { x: number; y: number; w: number; h: number } {
+    const gap = 6;
+    const bw = Math.floor((w - 2 * TOUCH.pad - gap) / 2);
+    const left = of === 1 ? x + Math.round((w - bw) / 2) : x + TOUCH.pad + i * (bw + gap);
+    return { x: left, y: y + top, w: bw, h: TOUCH.buttonH };
+  }
+
+  // The "again" and "got it" buttons. `forTap` makes them taller, a finger's size, without
+  // changing what is drawn.
+  private gradeRect(x: number, y: number, w: number, h: number, i: number, forTap = false): { x: number; y: number; w: number; h: number } {
+    const bw = w / 2 - 42;
+    return { x: x + 28 + i * (w / 2 - 14), y: y + h - 30 - (forTap ? 4 : 0), w: bw, h: forTap ? 26 : 18 };
+  }
+
+  // True when "say it" is on screen (the Spanish is showing).
+  private showsSayIt(): boolean {
+    const card = this.card;
+    return !!card && (this.phase === "back" || (card.speaks ?? "back") === "front");
+  }
+
+  draw(ctx: CanvasRenderingContext2D, screen: { width: number; height: number }): void {
+    const touch = touchHints();
+    const { x, y, w, h } = this.box(screen);
     ctx.fillStyle = COLOR.ink;
     ctx.fillRect(x, y, w, h);
     ctx.fillStyle = COLOR.night;
@@ -407,30 +529,45 @@ export class FlashcardsActivity extends BaseActivity {
       line("Study Spanish", 8, COLOR.butter);
       ["Study without a key", "Enter a sync key"].forEach((text, i) => {
         const on = this.chosen === i;
-        line(`${on ? "> " : "  "}${text}`, 34 + i * 14, on ? COLOR.butter : COLOR.paper);
+        if (touch) {
+          drawButton(ctx, { x: x + TOUCH.pad, y: y + TOUCH.choiceRows[i] - 4, w: w - 2 * TOUCH.pad, h: TOUCH.buttonH }, text, { color: on ? COLOR.butter : COLOR.paper, border: on ? COLOR.butter : COLOR.ink });
+        } else line(`${on ? "> " : "  "}${text}`, 34 + i * 14, on ? COLOR.butter : COLOR.paper);
       });
       line("Without a key, progress is saved", 74, COLOR.mist);
       line("in this browser only.", 84, COLOR.mist);
-      line("Up, Down, E: pick   Esc: back", h - 14, COLOR.mist);
+      line(hintLine([{ key: "Up, Down, E", text: "pick", touch: "TAP, OR PAD AND A" }, { key: "Esc", text: "back" }]), h - 14, COLOR.mist);
     } else if (this.phase === "key") {
       line("Sync key", 8, COLOR.butter);
       line("Paste your pairing link", 24);
       line("or type the key", 35);
       const masked = "*".repeat(Math.min(this.typed.length, 32));
+      // On touch the field is a box (a tap anywhere on the picture opens the phone's keyboard).
+      if (touch) {
+        ctx.fillStyle = COLOR.mist;
+        ctx.fillRect(x + 8, y + 50, w - 16, 28);
+        ctx.fillStyle = COLOR.ink;
+        ctx.fillRect(x + 9, y + 51, w - 18, 26);
+      }
       line(masked || "_", 56, COLOR.mist);
       line(`${this.typed.length} characters`, 68, COLOR.slate);
       if (this.message) line(this.message, 82, COLOR.tangerine);
-      line("Enter: ok   Esc: back", h - 14, COLOR.mist);
+      if (touch) line("Tap the box to type or paste", 94, COLOR.mist);
+      line(hintLine([{ key: "Enter", text: "ok" }, { key: "Esc", text: "back" }]), h - 14, COLOR.mist);
     } else if (this.phase === "connecting") {
       line("Connecting...", h / 2 - 4, COLOR.mist);
     } else if (this.phase === "problem") {
       line("Study Spanish", 8, COLOR.butter);
       line(this.message, 50, COLOR.tangerine);
       if (this.guest && this.message === "The saved cards could not be read.") {
-        if (this.confirmRestart) line("Erase them and start again? Y: yes", 70, COLOR.butter);
+        if (touch) {
+          if (this.confirmRestart) {
+            line("Erase them and start again?", TOUCH.confirmY - 14, COLOR.butter);
+            ["YES, ERASE", "NO"].forEach((label, i) => drawButton(ctx, this.pairRect(x, y, w, TOUCH.confirmY, i), label, { color: i === 0 ? COLOR.tangerine : COLOR.paper }));
+          } else drawButton(ctx, { x: x + 60, y: y + TOUCH.restartY, w: w - 120, h: TOUCH.buttonH }, "START AGAIN");
+        } else if (this.confirmRestart) line("Erase them and start again? Y: yes", 70, COLOR.butter);
         else line("S: start again", 70, COLOR.mist);
       }
-      line("E: leave", h - 14, COLOR.mist);
+      line(hintLine([{ key: "E", text: "leave" }]), h - 14, COLOR.mist);
     } else if (this.phase === "done") {
       line("Study Spanish", 8, COLOR.butter);
       if (this.summary) this.drawProgress(ctx, x, y, w, line, this.summary);
@@ -439,8 +576,15 @@ export class FlashcardsActivity extends BaseActivity {
         if (this.paid > 0) line(`${this.paid * F.pointsPerCard} points`, 66, COLOR.leaf);
       }
       if (this.guest) line(this.session?.unsaved ? "Progress was not kept." : "Saved in this browser only.", h - 26, this.session?.unsaved ? COLOR.tangerine : COLOR.slate);
-      const leave = this.backend.usesKey === false ? "E: leave" : this.guest ? "E: leave   K: use a key" : "E: leave   K: other key   G: no key";
-      line(leave, h - 14, COLOR.mist);
+      // K and G have buttons on the touch layer (drawn above the hint), so they drop out of the hint.
+      const leave =
+        this.backend.usesKey === false
+          ? [{ key: "E", text: "leave" }]
+          : this.guest
+            ? [{ key: "E", text: "leave" }, { key: "K", text: "use a key", touch: null }]
+            : [{ key: "E", text: "leave" }, { key: "K", text: "other key", touch: null }, { key: "G", text: "no key", touch: null }];
+      this.touchSwitchButtons().forEach((b, i, all) => drawButton(ctx, this.pairRect(x, y, w, h - TOUCH.doneButtonsFromBottom, i, all.length), b.label));
+      line(hintLine(leave), h - 14, COLOR.mist);
     } else {
       this.drawCard(ctx, x, y, w, h, line);
     }
@@ -496,9 +640,14 @@ export class FlashcardsActivity extends BaseActivity {
     if (!card) return;
     line(`Card ${Math.min(this.index + 1, this.queue.length)} of ${this.queue.length}`, 8, COLOR.slate);
     if (this.phase === "back" || (card.speaks ?? "back") === "front") {
-      drawText(ctx, "R: say it", x + w - 8, y + 8, { align: "right", color: COLOR.slate, shadow: null });
-      if (this.backend.practice) {
-        drawText(ctx, `V: ${VOICE_STYLES[this.voiceStyle]}`, x + 8, y + 8, { color: COLOR.slate, shadow: null });
+      if (touchHints()) {
+        drawButton(ctx, { x: x + w - TOUCH.sayItW - 4, y: y + 3, w: TOUCH.sayItW, h: 12 }, "SAY IT");
+        if (this.backend.practice) drawButton(ctx, { x: x + 4, y: y + 3, w: TOUCH.voiceW, h: 12 }, VOICE_STYLES[this.voiceStyle].toUpperCase());
+      } else {
+        drawText(ctx, "R: say it", x + w - 8, y + 8, { align: "right", color: COLOR.slate, shadow: null });
+        if (this.backend.practice) {
+          drawText(ctx, `V: ${VOICE_STYLES[this.voiceStyle]}`, x + 8, y + 8, { color: COLOR.slate, shadow: null });
+        }
       }
     }
     // Each part is drawn under the one before it. A part is big when it fits on one
@@ -531,7 +680,7 @@ export class FlashcardsActivity extends BaseActivity {
     if (this.session?.unsaved) drawText(ctx, "NOT SAVED", x + 8, y + 8, { color: COLOR.tangerine, shadow: null });
     if (this.phase === "front") {
       if (this.session?.unsaved) line("Progress will not be kept.", h - 28, COLOR.tangerine);
-      line("E: flip", h - 14, COLOR.mist);
+      line(hintLine([{ key: "E", text: "flip", touch: "TAP OR A" }]), h - 14, COLOR.mist);
       return;
     }
     ty = block(card.answer, ty, COLOR.butter);
@@ -540,8 +689,7 @@ export class FlashcardsActivity extends BaseActivity {
     if (card.hint) wrapText(card.hint, w - 16).slice(0, 2).forEach((part, i) => line(part, ty + i * 9, COLOR.mist));
     const saving = this.phase === "saving";
     GRADES.forEach((g, i) => {
-      const bx = x + 28 + i * (w / 2 - 14);
-      const bw = w / 2 - 42;
+      const { x: bx, w: bw } = this.gradeRect(x, y, w, h, i);
       const on = !saving && this.selected === i;
       ctx.fillStyle = on ? COLOR.butter : COLOR.ink;
       ctx.fillRect(bx, y + h - 30, bw, 18);

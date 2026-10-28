@@ -1,4 +1,4 @@
-import { DESKTOP_VIEW, NARROW, NARROW_VIEW, setView } from "./game/config";
+import { DESKTOP_VIEW, NARROW, NARROW_VIEW, VIEW, setView } from "./game/config";
 import { APARTMENT } from "./game/apartment";
 import { attachFeatures } from "./game/features";
 import { deliverFromSearch, encounterOnFirstKey, ownFromSearch, skipDaysFromSearch } from "./game/decor-dev";
@@ -9,6 +9,7 @@ import { readControls } from "./input/controls";
 import { Keyboard } from "./input/keyboard";
 import { mountTouchUi } from "./input/touch-ui";
 import { createScreen } from "./render/canvas";
+import { setTouchHints } from "./render/hints";
 import { spriteNames } from "./render/sprite-names";
 import { Sprites } from "./render/sprites";
 
@@ -72,9 +73,22 @@ try {
 const touch = mountTouchUi({
   root: document.getElementById("touch-ui") as HTMLElement,
   onGesture: () => features.unlockAudio(),
-  onVisible: (on) => screen.setTouch(on),
+  onVisible: (on) => {
+    screen.setTouch(on);
+    // Every hint names the controls in use, decided live as the layer shows and hides (issue 093).
+    setTouchHints(on);
+  },
+  canvas,
+  viewSize: () => ({ width: VIEW.width, height: VIEW.height }),
+  tapAt: (x, y) => game.tapAt(x, y),
+  text: {
+    wantsText: () => game.wantsText,
+    textValue: () => game.textValue(),
+    setText: (text) => game.setText(text),
+  },
 });
 screen.setTouch(touch.visible);
+setTouchHints(touch.visible);
 
 // Keep the browser from zooming or selecting when a finger is on the game.
 document.addEventListener("contextmenu", (e) => {

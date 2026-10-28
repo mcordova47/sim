@@ -63,20 +63,40 @@ interface KeyState {
   shift: boolean;
 }
 
-type Owner = { kind: "pad"; dir: Direction | null } | { kind: "button"; control: TouchControl };
+type Owner = { kind: "pad"; dir: Direction | null } | { kind: "button"; control: TouchControl; code: string };
 
 export class TouchPad {
   private keys = new Map<string, KeyState>();
   private owners = new Map<number, Owner>();
   private presses = new Map<TouchControl, number>();
+  // What A sends: E normally, Enter while the game wants text (E would be typed as a letter).
+  private confirmCode: string = TOUCH_KEYS.a;
   private cycle: { held: boolean; ms: number; long: boolean; tabSent: boolean; finishing: boolean } | null = null;
 
   constructor(private readonly sink: KeySink) {}
 
+  // Switches what A sends (issue 093): `Enter` while a text field is up, `KeyE` otherwise.
+  // A press already held keeps the key it began with, so it is let go as the same key.
+  setTextMode(on: boolean): void {
+    this.confirmCode = on ? "Enter" : TOUCH_KEYS.a;
+  }
+
+  get textMode(): boolean {
+    return this.confirmCode !== TOUCH_KEYS.a;
+  }
+
+  // One quick press of a key, as if tapped (Enter from the on-screen keyboard's Go key). It is
+  // held back one update like any other release, so the game sees it.
+  tapKey(code: string, shift = false): void {
+    this.down(code, shift);
+    this.up(code);
+  }
+
   // A finger went down on a button.
   pressControl(pointerId: number, control: TouchControl): void {
     if (this.owners.has(pointerId)) this.releasePointer(pointerId);
-    this.owners.set(pointerId, { kind: "button", control });
+    const code = control === "a" ? this.confirmCode : control === "cycle" ? "" : TOUCH_KEYS[control];
+    this.owners.set(pointerId, { kind: "button", control, code });
     const count = (this.presses.get(control) ?? 0) + 1;
     this.presses.set(control, count);
     if (count > 1) return;
@@ -89,7 +109,7 @@ export class TouchPad {
       }
       this.cycle = { held: true, ms: 0, long: false, tabSent: false, finishing: false };
     } else {
-      this.down(TOUCH_KEYS[control]);
+      this.down(code);
     }
   }
 
@@ -130,7 +150,7 @@ export class TouchPad {
     }
     this.presses.delete(owner.control);
     if (owner.control === "cycle") this.releaseCycle();
-    else this.up(TOUCH_KEYS[owner.control]);
+    else this.up(owner.code);
   }
 
   // Lets go of everything at once: blur, the page hidden, the layer switched off. The loop
@@ -225,6 +245,7 @@ export class TouchPad {
 const KEY_NAMES: Record<string, string> = {
   Escape: "Escape",
   Tab: "Tab",
+  Enter: "Enter",
   ShiftLeft: "Shift",
 };
 

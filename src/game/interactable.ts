@@ -56,6 +56,10 @@ export interface Interactable {
   // slot has something else to put in it, so a game with nothing to swap shows
   // nothing new. It has no points, mood or cooldown and always ends quietly.
   decorSlot?: string;
+  // A task about a growing plant (issue 105): only offered (not even a prompt) while this
+  // decor slot holds a live item, one whose family has stages or droops. Dried flowers or
+  // anything else that stands in the slot hides it.
+  liveSlot?: string;
   // The task of opening a delivered package (issue 062 stage 3a). Only offered
   // while a package waits, ends quietly and pays nothing.
   delivery?: boolean;

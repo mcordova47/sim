@@ -168,9 +168,14 @@ export class ApartmentState {
     this.announce(changes, true);
   }
 
+  // Variables that may not rise right now (issue 105: a plant's state while dried flowers stand in its place).
+  // Lowering and setting back still work, so a swap or a dev shortcut can reset them.
+  frozen?: (id: string) => boolean;
+
   private write(id: string, wanted: number, changes: Map<string, StateChange>): void {
     const def = this.defs.get(id);
     if (!def) throw new Error(`Unknown state variable "${id}"`);
+    if (wanted > this.get(id) && this.frozen?.(id)) return;
     const span = def.max - def.min;
     const value = def.wrap
       ? def.min + ((((wanted - def.min) % span) + span) % span)

@@ -1,7 +1,7 @@
 ---
 id: 114a
 title: Guitar skill, stage 1: the rule, chords and strumming (levels 1 to 3)
-status: review
+status: done
 owner: claude
 depends_on: [108]
 ---
@@ -18,3 +18,14 @@ Build stages 114a, 114b and 114c of `docs/guitar-skill-design.md` (section 11): 
 - Checks: `npx tsc --noEmit`, `npm test` (2862 pass, incl. 108 no-drop tests), `npm run build` pass. New tests: thresholds and junk, data shape, pure chord/strum functions, level read once, no refused notes at 0.1/0.15/0.3 s spacing for chords and strums in steel, nylon and plain with headroom for a chime.
 - Not verified: how it sounds (an agent cannot hear), and the features.ts wiring from real stats (no automated test; read by eye). Not checked: pressing faster than 0.1 s at levels 2 and 3 (may drop strings at the cap).
 - Audition: `npm run dev`, open `http://localhost:5173/?guitarskill=2` (or 3, or 4 which is strumming for now), face the guitar, press E, play arrows; add `&guitarvoice=nylon`. Or in the console after pressing a key: `auditionGuitarSkill(2)` / `(3, "nylon")`.
+- 2026-10-28: **Review (independent agent): approve.** Unverified by an agent: how it sounds, and browser feel (Marc listens, steps above). Level 4 plays as strumming until 114b, as intended.
+  - Thresholds 4 / 12 / 30 from config: pass. `GUITAR_SKILL.levels` is data; `skillLevel` checked at each edge. Real wiring checked through `attachFeatures` with the real Stats and the real guitar task (my own test, outside the repo, 14 sessions started, each finished or cancelled): levels read at taskStart were notes x4, chords x8, strum from the 13th start. The wiring is correct (the author's "read by eye" is now confirmed once, but the repo still has no automated test of it).
+  - Levels 2 and 3 through the current voice: pass. Chords are four strings at A2/D3/E3/F#3 roots (in A major, nothing below A2); WASD works; key repeat ignored. Instrument and voice are read at each press, so a mid-session change applies from the next press.
+  - No dropped notes: pass for the 108 tests (all pass) and the author's 0.1 / 0.15 / 0.3 s checks. **Gap at 70 ms** (the 108 spacing, and one the design names), my own check, 60 presses over all arrows: steel 8 of 240 strings refused (chords and strum), nylon 21 of 240, plain 0; at 0.1 s none; at 0.04 s steel 90 and nylon 105. A refused string is silent (a chord missing a string), no crash. Needs a mash of about 14 presses a second. Not a blocker; follow-up: shorter string length or fewer strings, and add a 70 ms test. Level 1 at 70 ms is unchanged.
+  - Save and sync unchanged: pass. The diff touches no save, stats, merge or sync file; no new saved field.
+  - `npx tsc --noEmit`, `npm test` (129 files, 2862 pass, 1 skipped), `npm run build`: pass.
+  - Level 1 identical to before: pass (my test: same effect `guitarSteel` and pitches `noteKeys[dir]/440` for all four arrows; no stats wired stays at level 1).
+  - Other edge cases tried: mute mid-strum is silent (due notes are dropped, nothing saved up); a new press replaces the pending rest of the strum; level read once per session; no throw when audio is unavailable; `?guitarskill=` is only 1 to 4 and `auditionGuitarSkill` is absent from the build (the string `guitarskill` stays once in the bundle, like `guitarvoice` already does).
+  - Minor, not blocking: (1) a strum keeps playing for up to its bar (about 2.6 s) after the session is cancelled or finished (15 more notes seen after a cancel). (2) After a stalled frame (background tab, 2 s) the rest of a strum, 14 notes, goes out in one frame; the groove design's skipLate would drop them. Bounded to one bar. (3) Cosmetic: in `engine.ts` the `now` getter and `playAt` sit between the doc comment of `play` and `play`.
+  - Scope: only the issue file, config, features, the sound files and one new test. No other issues, PLAN.md or worktrees touched.
+  - PLAN.md table needs updating by the planner: 114a done (branch `issue/114a-guitar-skill-levels`).

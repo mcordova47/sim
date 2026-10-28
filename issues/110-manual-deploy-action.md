@@ -1,7 +1,7 @@
 ---
 id: 110
 title: A manual "deploy to production" button on GitHub
-status: todo
+status: review
 owner: claude
 depends_on: []
 ---

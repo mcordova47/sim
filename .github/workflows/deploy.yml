@@ -1,0 +1,41 @@
+# Manual deploy (issue 110): run from the Actions tab. Checks main, then
+# fast-forwards the `production` branch, which Netlify builds and publishes.
+name: Deploy to production
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Commit, tag or branch to deploy (default main)
+        default: main
+        required: false
+
+permissions:
+  contents: write
+
+concurrency: deploy-production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || 'main' }}
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+      - run: npm run check:dist
+      - name: Fast-forward production
+        run: |
+          git fetch origin production || true
+          git push origin HEAD:refs/heads/production
+          {
+            echo "Deployed $(git rev-parse --short HEAD) to the production branch."
+            echo "Netlify builds it next: https://sim.mcord.dev/"
+          } >> "$GITHUB_STEP_SUMMARY"

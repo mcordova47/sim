@@ -5,14 +5,24 @@ Rules for every sprite in the game. The palette lives in [art/palette.json](../a
 > **Top-down rewrite, 2026-10-22.** The side-view rules (front elevations, 1 tile = 1 ft, jump-height scale) are in git history and the tag `side-view-prototype`. Everything below is for the top-down game.
 
 ## Room orientation
-Marc's decision (2026-10-23): the main room is seen from the sofa side, looking toward the table, desk, bookshelf and bed wall. Pieces on the far (top) wall are drawn front-on with a visible top slice. The sofa sits on the near (bottom) wall and is drawn from behind and above. `sofa-td` was redrawn from the sofa photos in issue 047; `bed-made` is still a placeholder.
+Marc's decision (2026-10-23): the main room is seen from the sofa side, looking toward the table, desk, bookshelf and bed wall. Pieces on the far (top) wall are drawn diagonally, with a band of top surface above the front face (see Perspective). The sofa sits on the near (bottom) wall and is drawn from behind and above. `sofa-td` was redrawn from the sofa photos in issue 047; `bed-made` and `bed-unmade` (80x96) are the real bed, not a placeholder.
 
 ## Perspective
 Early Game Boy Pokemon: the camera looks at the room from slightly above and in front.
-- **Furniture is drawn front-on with a visible top slice.** You see the front face of a piece (a fridge's doors, a sofa's seat) and a thin band of its top surface above it. Pieces against the back wall look like they are standing against it.
+- **The rule (Marc, 2026-10-27, adopted 2026-10-28; the survey is `docs/asset-review.md`):** pieces that stand against a **south wall** (the wall at the bottom of the screen) are drawn **nearly top-down**, as if seen from behind and above: the top surface fills most of the sprite and the front shows only as a thin slice or not at all. **Every other piece is drawn diagonally from the top and front**: a front face with a good band of top surface, roughly a third to a half of the height. Old rule "all furniture is front-on with a top slice" no longer applies.
+- **How to tell the class: by the wall the piece stands against in the room map, not by what it is.** A piece is on the south wall when the `#` wall row sits directly below its footprint (the sofa and the record stand in the main room, and the lamp table by the step; the counter, stove and hood on the kitchen bar; the fridge in the kitchen leg). "South" is relative to the screen: the main room's bottom wall, the kitchen bar's bottom wall (the wall above the bath), the kitchen leg's bottom wall. The bath has nothing against its south wall.
+- **The lamp slot counts as south wall.** The lamp table (and every lamp that can be swapped into its slot, `lamp-sofa`) stands at the sofa's east end where the south wall steps down, so there is floor directly below it; it is part of the sofa group and is drawn near top-down like the sofa. A piece that can be swapped into a slot is drawn for that slot, so the four lamps share one view.
+- **Things placed on a piece take that piece's class**: a plant on the near top-down bookshelf is drawn from above, a mug or kettle on the diagonal table is drawn diagonally.
+- **The four classes, with the sprites that show them:**
+  - **Near top-down (TD):** south-wall pieces. Models: `sofa-td` (96x32; the back rail on the near edge, two seat cushions beyond it), `counter` (48x32, the sink counter; a strip of wood cabinet fronts along the top edge and the worktop filling the rest, under `dishes-0..3`), and `stove` (48x32; a control strip with a row of knobs and a small display along the top, then a black cooktop with four burners in a 2 x 2 layout filling the rest; no oven door face and no hood are drawn). Counter and stove are the same size and sit side by side. They are the model pieces to copy.
+  - **Diagonal (DG):** everything else that is not an exception below. Models: `table` (64x32; the top surface with the microwave, grinder, kettle and dripper on it, then the apron and legs) and `desk` (64x32; a wide oak top with the laptop and monitor, then two steel legs). Also `nightstand`, `bin`, `boxes`.
+  - **Face-on (FO):** wall fixtures on side walls and things fixed flat to a wall: `radiator` (16x48), `pantry` (16x32, clear bins seen from the front), the windows (`window-blinds-open`, `window-blinds-closed`, `window-curtain`), paintings and gallery pieces, `front-door`, `hood`. Thin free-standing things where the class barely shows, such as `mic-stand` (a pole and tripod), are also drawn face-on. The `vanity` (mirror and cabinet doors) is face-on with no top band; it is accepted as is.
+  - **Flat (FL):** floors, wall tiles, doorways, icons and the `view-*` pictures.
+- **Exceptions (decided with Marc, 2026-10-28):** the big flat pieces that are not on a south wall keep their near top-down drawing: `bed-made` / `bed-unmade` (80x96; pillows on the north end, the duvet filling the rest), `tub` (32x64), `toilet` (32x32; a tank strip at the top, the bowl and seat below) and the `bookshelf` (16x64; stands out from the north wall as a divider, shown with its top and its south end). The sleeping poses follow the bed, so they are not redone. Wall fixtures on side walls (radiator, pantry, windows) stay face-on. These stay as they are; do not redraw them diagonal.
+- **Not covered by the rule:** the player and anything held keep the slight downward tilt below. Items that are decoration only and not placed (`stool`, `rug`, `guitar` in profile on its wall hanger) follow the nearest class and are not a target.
 - **Floors are flat patterns** seen from above. **The back wall** is front-on: a lit top slice, the wall face and a baseboard. **Side walls** are seen edge-on: an ink outline, a lit top face about 3 px wide and a shadow strip on the floor.
 - **Characters are front-on** (down), back-on (up) or in profile (left, right) with the same slight downward tilt: you see the top of the head a little.
-- **Overhang:** a sprite is `footprint rows + overhang rows`. The footprint is the tiles the piece blocks; the overhang is extra rows above it (a tall fridge, a sofa back) drawn over the tile behind. The sofa is 2x2 tiles with a 2x1 footprint. Draw order is by the bottom edge of the footprint: lower on screen is in front.
+- **Overhang:** a sprite is `footprint rows + overhang rows`. The footprint is the tiles the piece blocks; the overhang is extra rows above it drawn over the tile behind. The sofa (`sofa-td`) is 6x2 tiles. Draw order is by the bottom edge of the footprint: lower on screen is in front.
 - **Scale:** how many tiles a piece covers is decided by the floor plan (issue 020). Until then, draw to the footprints in the reuse table below; one tile is a bit more than one person wide, not a real-world foot.
 
 ## Grid
@@ -93,30 +103,30 @@ Sorted for the top-down view. **Reuse:** use as-is (wall-mounted or flat). **Ada
 
 | Sprite | Size | Verdict | Why |
 |--------|------|---------|-----|
-| bed | 64x32 | Redraw | Side profile. Replaced by `bed-made` (32x48, new). |
-| bin | 16x32 | Adapt | Front-facing; add a lid top, trim to 16x16 plus a few rows. |
+| bed | 64x32 | Redraw | Side profile. Replaced by `bed-made` and `bed-unmade` (80x96, 5x6 tiles, near top-down; an exception to the rule, see Perspective). |
+| bin | 16x16 | Done | Diagonal with a lid top; 1x1 tile. |
 | bookshelf | 16x64 | Redraw | Issue 047: top-down, the oak top with the plant, books, bowl and vase on it and the shelf's south end as the front slice (1x4 tiles). The face-on drawing with the book spines is kept as `view-bookshelf` (see below). |
 | boxes | 16x16 | Redraw | A stack seen from the side; drawn as a 16x16 box with a top face. Three states (stack, flat, gone = empty). Issue 072: no pantry tub in it any more. |
 | pantry | 16x32 | New (issue 072) | Clear bins with navy lids and a yellow lid on the lowest, pantry food piled on top, from the photo. No labels. |
-| counter | 32x48 | Adapt | Front cabinets are right; add a counter top slice. |
-| desk | 48x48 | Redraw | Table on legs; from above the top surface matters. |
-| fridge | 32x96 | Adapt | Front doors are right; too tall, trim to about 2x4 and add a top slice. |
+| counter | 48x32 | Done | Near top-down (3x2 tiles, the south-wall model with `stove`): wood cabinet fronts along the top edge, the worktop and sink below. `dishes-0..3` share the frame. |
+| desk | 64x32 | Done | Diagonal (4x2 tiles): the top surface with the laptop and monitor, steel legs below. |
+| fridge | 32x32 | Redraw (issue 099) | 2x2 tiles on the kitchen leg's south wall. Today: a thin top strip (humidifier, items) over front-on steel doors, so it breaks the rule; to be redrawn near top-down. |
 | gallery-wall | 96x16 | Redraw | Issue 036, redone in 034 from the close-ups: the ten pieces in their real arrangement as a 6x1 strip on the south wall face (`wall-front` colours). Not placed on the map: from this camera the south wall's face is never visible; it is shown by the admire-art view (`view-gallery-wall`, issue 040). |
 | guitar | 16x16 | Redraw | Issue 047, redone after the playtest: 1x1 tile, in profile like the player facing right (headstock west on a wall hanger, neck east, body east with its face skewed up and its side below). Placed as a single `G` tile at col 1, row 5 of the main room (issue 044). |
-| hood | 48x32 | Reuse | Wall-mounted. |
+| hood | 48x16 | Reuse | Wall-mounted, 3x1 tiles, face-on. |
 | mic-stand | 16x32 | Redraw | Issue 056: bluebird-style mic (about 9 px) on a thin pole and tripod, to real proportions; `mic-stand-vintage` is an unplaced variant with the vintage slatted mic. 1x2 tiles. Placed at col 5, rows 1-2 of the main room, between the table and the desk (issue 044). |
 | player-idle, -walk-1..4, -jump, -fall, -task | 16x16 | Redraw | Side-view poses. Replaced by the `player-<state>-<direction>` set (issue 030); the old files are removed. |
-| record-stand | 16x48 | Adapt | Front-facing; trim and add a top. |
+| record-stand | 16x16 | Redraw (issue 099) | 1x1 tile on the main room's south wall: turntable deck from above over a front-on crate. Gets more top. |
 | sofa-arm | | Deleted | Issue 034: `sofa-td` already has its arms, and the floor plan has a plain 6x2 sofa. |
-| sofa | 32x16 | Adapt | Done: `sofa-td` (32x32). |
+| sofa | 96x32 | Done | `sofa-td` (6x2 tiles), the south-wall model. |
 | spice-rack | | Deleted | Issue 034: a side-view piece the floor plan never uses. If a wall rack by the hood is wanted later, draw it new from the kitchen photos. |
-| stove | 48x48 | Adapt | Front-facing; add a top slice with burners. |
-| table | 48x32 | Redraw | Draw the tabletop from above with the mug and kettle on it. |
-| toilet | 32x32 | Redraw | Front elevation; needs the lid and seat seen from above and in front. |
+| stove | 48x32 | Done | Near top-down (3x2 tiles, a model piece): control strip with knobs and display, four burners filling the rest. No oven face. |
+| table | 64x32 | Done | Diagonal (4x2 tiles): the tabletop with the coffee items on it, apron and legs below. `table-plate` is the variant with the dinner plate. |
+| toilet | 32x32 | Done | Tank strip over a bowl seen from above; an exception (near top-down off the south wall). |
 | tote | | Removed (issue 072) | The kitchen tote bag was taken out. |
-| tub | 48x32 | Redraw | Side view; draw the long edge facing the player. |
-| vanity | 32x48 | Adapt | Front-facing; add a top slice. |
-| window-blinds, window-curtain | 32x64 | Reuse | Hang on the back wall; trim height to fit the wall band. |
+| tub | 32x64 | Done | 2x4 tiles, seen from above down the west wall; an exception. |
+| vanity | 32x32 | Done | Mirror over cabinet doors, face-on; accepted without a top band. |
+| window-blinds, window-curtain | 16x32 | Reuse | 1x2 tiles; face-on fixtures. `window-curtain` is the kitchen's west wall; `window-blinds` is the object default (the open and closed variants below are what is drawn). |
 | window-blinds-open, window-blinds-closed | 16x32 | New | Issue 036: the two states of `window-blinds` (raised, showing glass; lowered, tan slats edge to edge). Same size and frame, so either can replace it. |
 | icon-phone, icon-plug, phone-charger | 7x7, 7x7, 16x16 | New | Issue 088: the phone (a phone, never a battery shape) and plug icons for the HUD ribbon, and a small phone-on-charger prop drawn over the nightstand at x 18, y 0. |
 | painting, painting-desk, painting-wide | 32x16, 32x16, 48x16 | Redraw | Issue 036: abstract impressions of the real prints over the table (barn drawing, cream frame), the desk (gold and orange abstract, walnut frame) and the nightstand (small green print in a wide white mat). |
@@ -129,13 +139,13 @@ Added in issue 074 (art for the first gifts of issue 043; not registered or plac
 
 Issue 076 (Marc's rule: every additional artwork is real, either his own piece or a famous public-domain work): **`art-concert-poster`** redrawn (unframed paper, a dark gig-poster impression with no text, from poster examples 1 to 7), and **`art-snow-wagon`**, **`art-serenity-now`** and **`art-canoes`** from Marc's own unhung pieces (no text, loose impressions), and **`art-great-wave`** (Hokusai), **`art-starry-night`** (Van Gogh), **`art-water-lilies`** (Monet) and **`art-sunflowers`** (Van Gogh), impressions of public-domain works. All 32x16, for the table and desk wall slots (the paintings in tall frames are centred in the slot, the rest fill it). Look at them with `npm run sprites -- --sheet=art-,lamp-,plant-dried` and `node scripts/gifts-mockup.mjs` (writes `art/mockup-gifts.png` at 4x and `art/mockup-gifts-1x.png`).
 
-Verdict totals: 6 reuse, 10 adapt, 7 redraw (plus the 8 player poses, all redraw). Issue 034 deleted `sofa-arm` and `spice-rack`.
+Issue 034 deleted `sofa-arm` and `spice-rack`. The verdicts above are from the side-view audit; the sizes and notes were brought up to date for the current sprites in issue 098.
 
 ## Doorways
 Marc does not read door leaves at this size, so every doorway is an **open passage** (issue 034): the floor of the room you are in carries through the wall tile, and the floor of the next room shows in the thickness of the wall. `doorway` is the main room's west wall (wood, with the kitchen's stone in the wall), `doorway-right-kitchen` is the kitchen's east wall, `doorway-left-kitchen` is the kitchen leg's west wall (bath tile in the wall) and `doorway-right-bath` is the bath's east wall. The wall tiles above and below end flat, so the gap reads at 1x. The front door is decoration and is drawn white, painted over many times.
 
 ## Samples in the repo (for approval)
-`floor-wood`, `floor-tile`, `rug`, `wall-back`, `wall-side-left`, `wall-side-right`, `doorway` (the tileset); `sofa-td` (adapted) and `bed-made` (new); `player-idle-down` and `player-walk-down-1` (the character, 16x16). Run `npm run sprites -- --sheet=floor-,rug,wall-,doorway,bed-,sofa-td,player-idle-down,player-walk-down` and `node scripts/room-mockup.mjs`, then open `art/contact-sheet.png` and `art/room-mockup.png`. Left-over rules from the side view (outline, palette) are unchanged. Furniture batches are not drawn until Marc approves this look.
+`floor-wood`, `floor-tile`, `rug`, `wall-back`, `wall-side-left`, `wall-side-right`, `doorway` (the tileset); `sofa-td` and `bed-made`; `player-idle-down` and `player-walk-down-1` (the character, 16x16). Run `npm run sprites -- --sheet=floor-,rug,wall-,doorway,bed-,sofa-td,player-idle-down,player-walk-down` and `node scripts/room-mockup.mjs`, then open `art/contact-sheet.png` and `art/room-mockup.png`. Left-over rules from the side view (outline, palette) are unchanged. Furniture batches are not drawn until Marc approves this look.
 
 ## Source format
 Plain text, one file per sprite in `art/src/`:

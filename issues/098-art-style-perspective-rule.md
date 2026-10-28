@@ -1,7 +1,7 @@
 ---
 id: 098
 title: Art style doc: the perspective rule (south wall near top-down, the rest diagonal)
-status: todo
+status: review
 owner: claude
 depends_on: [096]
 ---
@@ -13,3 +13,6 @@ Write Marc's perspective rule into `docs/art-style.md` (decisions in `docs/asset
 - `docs/art-style.md` states the rule, the exceptions and the classes; the reuse table matches the real sprites; no sprite or code changes. A reviewer checks every claim against the sprites and the maps.
 
 ## Progress log
+
+- 2026-10-28: started. Plan: rewrite the Perspective section of docs/art-style.md with the rule, the way to decide a class, the lamp-slot and on-top rules, the four classes with example sprites, the exceptions; fix stale sizes and notes in the reuse table (bed, bin, counter, desk, fridge, record-stand, sofa, stove, table, toilet, tub, vanity, hood, window) and the 'bed-made placeholder' line.
+- 2026-10-28: done. Only docs/art-style.md and this file changed. Claims checked against MAIN_MAP/KITCHEN_MAP/BATH_MAP in src/game/apartment.ts, sprite sizes in art/src, and the sprites viewed at 6x (stove, counter, sofa-td, table, desk, fridge, record-stand, bed-made, bookshelf, radiator, toilet, tub, pantry, vanity, desk-chair). The stove is described per the planner's re-check (near top-down, controls strip, four burners, no oven face). Notes: the reuse table's fridge and record-stand rows say 'Redraw' and point to the south-wall redraws (099); update them when that lands. Not changed: wall-tile text, long Naming paragraphs.

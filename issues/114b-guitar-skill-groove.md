@@ -1,7 +1,7 @@
 ---
 id: 114b
 title: Guitar skill, stage 2: the groove and the melody over it (level 6)
-status: review
+status: done
 owner: claude
 depends_on: [114a]
 ---
@@ -34,3 +34,9 @@ Marc listened to 114a: pattern strums were dropped and the levels are now six (s
   - UNVERIFIED for Marc (an agent cannot hear): loop feel at 92 bpm with swing 0.1 and humanise, loop/melody balance, whether melody notes are too high or sparse, the record duck and its return, loudness through the music bus.
   - Minor, not blocking: the design doc still says "level 4" in places.
 - 2026-10-28, round 2 (Marc listened, wanted changes). Merged main (the 115 limiter) first: clean, no conflicts. Travis redesign, data in `GUITAR_SKILL.groove`: 16-slot bar `r.3hf.2hr.3hf.2h` (thumb on every beat alternating root and fifth, fingers on voicing strings 3 and 2 between, `h` = empty high-note slot every fourth slot that the arrow supplies); tempo 92 to 116, swing 0.1 of an eighth to 0.04 of a sixteenth, melody gain 0.7 (-30%), loop gain unchanged (0.55). Snap: an arrow within 75 ms before an `h` slot plays on it (never earlier than the press; the slot's bar chord is used); off with `groove.snap.enabled` or `?guitarsnap=off`. Docs: design doc section 6b added, stale "level 4" text fixed. Tests updated and added (pattern, alternating bass, high slots empty, slot timing and swing, snap inside and outside the window, off switch). `tsc`, tests and build run before the review.
+- 2026-10-28, review of round 2 (independent). Verdict: approve.
+  - Checks: `npm run build` ok; `npx vitest run` 130 files, 2901 passed, 1 skipped. Own script (outside the repo, vite-node) over the real GuitarGroove: 35,611 presses at 0.7 ms steps over 12 bars, 10,284 snapped, 0 violations: delay never negative and never above the 75 ms window, the target is always an `h` slot, the chord is that slot's bar's chord. The only `h` slot near a bar line (15) ends 124 ms before the bar, outside the window, so snap never crosses a bar boundary. Presses just after a slot are not moved. Loop notes over 8 bars (seed 5) all in A major, melody notes for every chord and arrow in key, no note on an `h` slot, slots sounded are exactly the 8 non-h ones, all on the music bus. 30 s stall gives no burst, stop schedules nothing, restart works with 16-slot bars.
+  - Merge: main..HEAD touches no synth.ts, engine limiter, audio-types or fake-audio (the 115 limiter files come only via main); no save/sync files changed; no new save keys.
+  - Docs: section 6b matches config (16 slots, pattern, 116 bpm, swing 0.04, melody gain 0.7, window 0.075, switch `?guitarsnap=off`); stale "level 4" text fixed. Repo has no folk song name or notes, only the generic "Travis-style" picking shape.
+  - Minor, not blocking: the design doc's test-plan line still says "patterns well-formed: 8 slots" and the older section 5 says "eight slots"; bar is now 16. The `h` slots are every third pluck of the loop (4 of 12 slots filled), close to "every fourth".
+  - UNVERIFIED for Marc (an agent cannot hear): groove feel at 116 bpm with small swing, whether the snap feels natural or laggy, melody at 0.7 versus the loop, loudness with the limiter.

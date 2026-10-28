@@ -490,6 +490,8 @@ export const ACHIEVEMENTS_UI = {
   dialogVoiceKey: "KeyD",
   // The ad blocker switch (issue 043 stage B), also in the list screen.
   adBlockerKey: "KeyB",
+  // Opens the transfer page (issue 102), where a save is copied, saved, pasted or opened.
+  transferKey: "KeyT",
   // How long "AD BLOCKER: ON" shows after the key is pressed, in seconds.
   flashSeconds: 1.5,
   // Progress is saved this often as well as when a task finishes, an achievement
@@ -1439,4 +1441,28 @@ export const FLASHCARDS = {
   // "demo" studies a small built-in deck with no server and pays nothing (for
   // trying the screens); "real" talks to the app.
   backend: "real" as "demo" | "real",
+};
+
+// Moving a save between devices (issue 102, docs/sync.md). The numbers and names only; the rules are in sync/merge.ts.
+export const SYNC = {
+  app: "life",
+  format: 1,
+  // Local-only data about this device: its random id. Never part of a save code.
+  storageKey: "life.sync.v1",
+  // The progress group as it was before the last import that changed it (one step back).
+  backupKey: "life.sync.backup.v1",
+  // A pasted code or opened file longer than this is refused unread. The decoded text is held to the same limit.
+  maxChars: 256 * 1024,
+  // The most made tracks a save carries, trimmed by a fixed key so the merge stays associative.
+  maxTracks: 36,
+  // The most rooms and task ids a save carries (a real one has about 10 and 40).
+  maxRooms: 100,
+  maxTaskIds: 300,
+  // An activeAt later than this far past the clock is cut back to it.
+  futureMs: 24 * 60 * 60 * 1000,
+  codePrefix: "LIFE1.",
+  plainPrefix: "LIFE1p.",
+  fileName: "life-save.json",
+  // How long a message on the transfer page stays up, in seconds.
+  flashSeconds: 4,
 };

@@ -290,3 +290,17 @@ The pixel font is capitals only, so these draw in capitals. On the touch layer a
 - Card buttons (touch): SAY IT (and the voice name in the practice deck)
 - Done screen buttons (touch): OTHER KEY, NO KEY (a key holder); USE A KEY (a guest); hint A: leave
 - Start again (touch): START AGAIN, then "Erase them and start again?" with YES, ERASE and NO
+
+## Moving a save to another device: the transfer page (issue 102)
+The pixel font is capitals only, so these draw in capitals. Opened from the pause screen: the touch button TRANSFER SAVE, or the key T on the desktop (the pause screen shows `T: TRANSFER SAVE` above its hint line when the list leaves the line free).
+- Page title: TRANSFER SAVE
+- Explanation, five lines: MOVE YOUR SAVE TO ANOTHER BROWSER OR DEVICE. / COPY A CODE OR SAVE A FILE HERE, THEN PASTE / OR OPEN IT THERE. IMPORTING MERGES: IT NEVER / TAKES ANYTHING AWAY. A BROWSER CAN CLEAR A / SAVE, SO KEEP A FILE.
+- Buttons (touch) and keys (desktop): COPY CODE (C), PASTE CODE (V, or Ctrl+V), SAVE FILE (F), OPEN FILE (O), RESTORE BEFORE IMPORT (Shift+R), BACK (Esc)
+- Restore question: GO BACK TO BEFORE THE LAST IMPORT? with the buttons YES, GO BACK and NO (desktop: the same line then Y: YES)
+- Copy: CODE COPIED / COULD NOT COPY. THE CODE IS IN THE CONSOLE. / COULD NOT MAKE A CODE
+- File: FILE SAVED / COULD NOT SAVE A FILE / COULD NOT READ THAT FILE
+- Paste, when the browser will not give the clipboard: PRESS CTRL+V TO PASTE (touch: COULD NOT READ THE CLIPBOARD. TRY OPEN FILE.)
+- Import result: SAVE MERGED / SAVE MERGED. THE TRACK LIST IS FULL. / NOTHING NEW IN THAT SAVE
+- Import refused: NOT A SAVE FROM THIS GAME / THAT SAVE IS FROM A NEWER GAME / THAT SAVE COULD NOT BE READ / THAT SAVE IS TOO BIG
+- Restore result: BACK TO BEFORE THE LAST IMPORT / NOTHING TO GO BACK TO
+- Hint (touch): B: BACK

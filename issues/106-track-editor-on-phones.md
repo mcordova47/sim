@@ -17,3 +17,4 @@ Marc (2026-10-28): the track mixing tool (the make-track editor, `docs/make-trac
 - A track can be made, played, saved, renamed and deleted by touch only on a phone-sized view; no hint in the editor names a key the player cannot press on the touch layer; `npm test`, `npx tsc --noEmit`, `npm run build` pass; Marc tries it on his phone; unverified items listed.
 
 ## Progress log
+- 2026-10-28: design note written: `docs/track-editor-phones-design.md` (touch layout in two shapes, tap and long-press gestures, hints, playback, share and paste, 5 build stages, 5 open questions).

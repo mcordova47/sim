@@ -2,7 +2,7 @@ import { COLOR, withAlpha } from "../../render/colors";
 import { drawText, textWidth } from "../../render/font";
 import { APARTMENT } from "../apartment";
 import type { KeyValueStorage } from "../achievements/progress";
-import { CLOCK, DIALOG, MUSIC, SOUND, VIEW } from "../config";
+import { CLOCK, DIALOG, GUITAR_SKILL, MUSIC, SOUND, VIEW } from "../config";
 import { isTypingKey } from "../activities/typing";
 import type { Game, Layer } from "../game";
 import { demoStore } from "../music/demo-library";
@@ -10,8 +10,9 @@ import type { DemoStore } from "../music/demo-store";
 import { RECORD_TASK, TRACKS } from "../music/records";
 import type { Track } from "../music/track";
 import { browserAudio, type AudioFactory } from "./audio-types";
-import { MoodLift, comboPitch, floorOf, guitarEffect, noteKeyPitch, stepEffect, stepGain, stepPitch } from "./decisions";
+import { MoodLift, comboPitch, floorOf, guitarEffect, noteKeyDir, stepEffect, stepGain, stepPitch } from "./decisions";
 import { SoundEngine } from "./engine";
+import { playKey, skillLevel, strokeEvents, type Dir, type Level, type Stroke } from "./guitar-skill";
 import { mumbleNotes } from "../flashcards/mumble";
 import { DEFAULT_SETTINGS, SettingsStore, type DialogVoice } from "./settings";
 
@@ -46,6 +47,13 @@ export interface SoundOptions {
   // Uses this guitar voice ("plain", "steel", "nylon": SOUND.guitarVoices) whatever
   // instrument is in hand (the dev URL `?guitarvoice=`, issue 108).
   guitarVoice?: string;
+  // How many guitar sessions have been finished (issue 114a); the skill level follows it.
+  // Without it the guitar stays at level 1, the single note.
+  guitarSessions?: () => number;
+  // Forces a skill level, 1 to 4, for the visit (the dev URL `?guitarskill=`).
+  guitarSkill?: Level;
+  // Turns the pick's tick off for the visit (the dev URL `?guitarpick=off`), to compare.
+  guitarPick?: boolean;
 }
 
 function browserStorage(): KeyValueStorage | null {
@@ -86,11 +94,20 @@ export class SoundFeature implements Layer {
   private voiceChosen = false;
   // The ad blocker switch, kept with the settings (issue 043 stage B).
   private adBlocker = false;
-  private readonly guitarVoice: string | undefined;
+  private guitarVoice: string | undefined;
+  private readonly guitarSessions: () => number;
+  private readonly guitarSkill: Level | undefined;
+  // The skill level of the session now playing, read once when it starts, and the next stroke.
+  private skill: Level = "notes";
+  private stroke: Stroke = "down";
+  private pick = { ...GUITAR_SKILL.pick };
 
   constructor(private readonly game: Game, options: SoundOptions = {}) {
     this.random = options.random ?? Math.random;
     this.guitarVoice = options.guitarVoice;
+    this.guitarSessions = options.guitarSessions ?? (() => 0);
+    this.guitarSkill = options.guitarSkill;
+    if (options.guitarPick !== undefined) this.pick.enabled = options.guitarPick;
     this.tracks = options.tracks ?? TRACKS;
     this.demos = options.demos ?? demoStore();
     this.demoVersion = this.demos.version;
@@ -125,7 +142,10 @@ export class SoundFeature implements Layer {
       this.room = id;
       this.engine.play("door");
     });
-    events.on("taskStart", () => this.engine.play("taskStart"));
+    events.on("taskStart", ({ item }) => {
+      this.engine.play("taskStart");
+      if (item.activity?.type === "notes") this.startGuitarSession();
+    });
     events.on("taskComplete", ({ award }) => {
       this.engine.play("taskComplete");
       if (award.chain > 1) this.engine.play("combo", { pitch: comboPitch(award.chain) });
@@ -179,6 +199,43 @@ export class SoundFeature implements Layer {
     this.engine.unlock();
     const pitches = [0, 4, 7, 12, 7, 4, 0].map((n) => 2 ** (n / 12));
     pitches.forEach((pitch, i) => setTimeout(() => this.engine.play(effect, { pitch }), i * 380));
+  }
+
+  // The skill is read once when a notes session starts, so it never changes in the middle of
+  // one (the session that earns a level still sounds like the one before).
+  private startGuitarSession(): void {
+    this.skill = this.guitarSkill ?? skillLevel(this.guitarSessions());
+    this.stroke = "down";
+  }
+
+  // What an arrow sounds like now (issue 114a). Level 1 is the plain single note (as in 108).
+  // A higher level is one stroke over a chord, handed to the audio clock at once (it is over
+  // within about 0.2 s), and nothing plays after it.
+  private playArrow(dir: Dir, level: Level = this.skill): void {
+    const voice = this.guitarVoice !== undefined && this.guitarVoice in SOUND.guitarVoices ? this.guitarVoice : (SOUND.instruments[this.instrument]?.voice ?? "steel");
+    if (level === "notes") {
+      this.engine.play(this.noteEffect(), { pitch: (SOUND.noteKeys[dir] ?? 440) / 440 });
+      return;
+    }
+    for (const e of strokeEvents(playKey(level, dir, 0, this.stroke), voice, this.pick)) {
+      this.engine.playAt(e.effect, { pitch: e.pitch, gain: e.gain, stretch: e.stretch }, e.at);
+    }
+    // The strokes alternate down and up.
+    this.stroke = this.stroke === "down" ? "up" : "down";
+  }
+
+  // Dev audition (issue 114a): a short run of arrows at a skill level (1 to 6), a second apart.
+  auditionSkill(level: number, voice?: string): void {
+    const id = GUITAR_SKILL.levels[Math.min(Math.max(Math.floor(level), 1), GUITAR_SKILL.levels.length) - 1].id;
+    this.engine.unlock();
+    this.stroke = "down";
+    const dirs: Dir[] = ["left", "left", "down", "up", "right", "left", "down", "up"];
+    dirs.forEach((dir, i) =>
+      setTimeout(() => {
+        if (voice) this.guitarVoice = voice;
+        this.playArrow(dir, id);
+      }, i * 1400),
+    );
   }
 
   get track(): Track | null {
@@ -283,8 +340,8 @@ export class SoundFeature implements Layer {
     } else if (activity === "typing" && isTypingKey(e.code)) {
       this.engine.play("key", { pitch: 0.9 + this.random() * 0.2 });
     } else if (activity === "notes") {
-      const pitch = noteKeyPitch(e.code);
-      if (pitch !== null) this.engine.play(this.noteEffect(), { pitch });
+      const dir = noteKeyDir(e.code);
+      if (dir !== null) this.playArrow(dir);
     }
   }
 
@@ -394,10 +451,16 @@ export function attachSound(game: Game, options?: SoundOptions): SoundFeature {
     keys: typeof window === "undefined" ? undefined : window,
     dialogVoice: devDialogVoice(),
     guitarVoice: devGuitarVoice(),
+    guitarSkill: devGuitarSkill(),
+    guitarPick: devGuitarPick(),
     ...options,
   });
   // Dev only: `auditionGuitar("steel")` in the console (press a key on the page first).
-  if (import.meta.env?.DEV) (globalThis as Record<string, unknown>).auditionGuitar = (voice: string) => feature.audition(voice);
+  if (import.meta.env?.DEV) {
+    (globalThis as Record<string, unknown>).auditionGuitar = (voice: string) => feature.audition(voice);
+    // `auditionGuitarSkill(3)` (or `(3, "nylon")`): a run of arrows at skill level 1 to 4.
+    (globalThis as Record<string, unknown>).auditionGuitarSkill = (level: number, voice?: string) => feature.auditionSkill(level, voice);
+  }
   return feature;
 }
 
@@ -407,6 +470,22 @@ export function devGuitarVoice(search = typeof location === "undefined" ? "" : l
   if (!dev) return undefined;
   const asked = new URLSearchParams(search).get("guitarvoice");
   return asked !== null && asked in SOUND.guitarVoices ? asked : undefined;
+}
+
+// Dev only (issue 114a): `?guitarskill=1 to 6` forces the guitar's skill level for the
+// visit without touching the save. A built game ignores it.
+export function devGuitarSkill(search = typeof location === "undefined" ? "" : location.search, dev = import.meta.env?.DEV): Level | undefined {
+  if (!dev) return undefined;
+  const asked = new URLSearchParams(search).get("guitarskill");
+  if (asked === null || !/^[1-9]$/.test(asked)) return undefined;
+  return GUITAR_SKILL.levels[Number(asked) - 1]?.id;
+}
+
+// Dev only (issue 114a): `?guitarpick=off` leaves out the pick's tick on chords for the visit
+// (so it can be compared). A built game ignores it.
+export function devGuitarPick(search = typeof location === "undefined" ? "" : location.search, dev = import.meta.env?.DEV): boolean | undefined {
+  if (!dev) return undefined;
+  return new URLSearchParams(search).get("guitarpick") === "off" ? false : undefined;
 }
 
 // Dev only (issue 075): `?dialogvoice=letters` tries the letters voice for the

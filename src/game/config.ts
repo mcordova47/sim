@@ -851,14 +851,99 @@ const voicedStopEffect = (burst: number): EffectDef => ({
   ],
 });
 
+// One chord for an arrow: its name, its root (semitones from A4) and its strings low to high as
+// semitones above the root. Roots are A2, D3, E3 and F#3 (nothing is below A2); all notes are in A major.
+type GuitarChord = { name: string; root: number; voicing: number[] };
+type GuitarChordSet = Record<"left" | "down" | "up" | "right", GuitarChord>;
+const chord = (name: string, root: number, voicing: number[]): GuitarChord => ({ name, root, voicing });
+// The arrows are the same four degrees at every level: left I (home), down IV, up V, right vi.
+// Each level swaps in richer voicings of the same four chords, so the progression stays
+// recognisable while it gets lusher.
+const SIMPLE: GuitarChordSet = {
+  left: chord("A", -24, [0, 7, 12, 16]),
+  down: chord("D", -19, [0, 7, 12, 16]),
+  up: chord("E", -17, [0, 7, 12, 16]),
+  right: chord("F#m", -15, [0, 7, 12, 15]),
+};
+const SEVENTHS: GuitarChordSet = {
+  left: chord("Amaj7", -24, [0, 7, 11, 16, 19]),
+  down: chord("Dadd9", -19, [0, 7, 14, 16, 19]),
+  up: chord("E7", -17, [0, 7, 10, 16, 19]),
+  right: chord("F#m7", -15, [0, 7, 10, 15, 19]),
+};
+// An open-tuning flavour (a DADGAD-like drone of fifths with a sus tone on top), six strings. Not
+// a literal DADGAD: its G is not in A major.
+const OPEN: GuitarChordSet = {
+  left: chord("Asus2", -24, [0, 7, 12, 14, 19, 24]),
+  down: chord("Dsus2", -19, [0, 7, 12, 14, 19, 24]),
+  up: chord("Esus4", -17, [0, 7, 12, 17, 19, 24]),
+  right: chord("F#m11", -15, [0, 7, 10, 15, 17, 24]),
+};
+// Jazz voicings: maj9, 6/9, 13 and m9, drop-2 and shell style (root, a seventh or sixth, the third, then colour).
+const JAZZ: GuitarChordSet = {
+  left: chord("Amaj9", -24, [0, 11, 16, 19, 26]),
+  down: chord("D6/9", -19, [0, 9, 14, 16, 19]),
+  up: chord("E13", -17, [0, 10, 16, 19, 21]),
+  right: chord("F#m9", -15, [0, 10, 15, 19, 26]),
+};
+
+// The guitar skill (issue 114, design in docs/guitar-skill-design.md). Skill is a pure
+// function of how many guitar sessions have been finished (`stats.taskCounts`, summed over
+// `taskIds`), so nothing new is saved or merged. A level is the highest one whose `from` is
+// at most that count. Levels change only how the notes game sounds, never how it plays.
+// Everything is in A major. Semitones are counted from A4 (0 = 440 Hz). All first guesses,
+// to be tuned by ear. A level with `chords` plays one stroke of the arrow's chord per press (down,
+// then up, alternating); the first level plays the single note. The last level (the groove,
+// issue 114b) plays like the one before it until it is built.
+export const GUITAR_SKILL = {
+  taskIds: ["guitar"],
+  levels: [
+    { id: "notes", from: 0, name: "STILL THREE CHORDS" },
+    { id: "chords", from: 4, name: "A FOURTH CHORD, TECHNICALLY", chords: SIMPLE },
+    { id: "sevenths", from: 10, name: "SEVENTHS, ON PURPOSE", chords: SEVENTHS },
+    { id: "open", from: 20, name: "OPEN TUNING, A PERSONALITY", chords: OPEN },
+    { id: "jazz", from: 35, name: "JAZZ CHORDS, UNPROVOKED", chords: JAZZ },
+    { id: "groove", from: 55, name: "FINGERS, SOMEHOW", chords: JAZZ },
+  ] as { id: "notes" | "chords" | "sevenths" | "open" | "jazz" | "groove"; from: number; name: string; chords?: GuitarChordSet }[],
+  // The plain chords by name (for the groove's progression, issue 114b, and the pattern strums).
+  chords: Object.fromEntries(Object.values(SIMPLE).map((c) => [c.name, { root: c.root, voicing: c.voicing }])) as Record<string, { root: number; voicing: number[] }>,
+  tempo: 92, // beats per minute; a slot of a strum is an eighth
+  swing: 0.1, // the off-eighths come this fraction of an eighth late (0 is straight)
+  humanise: { time: 0.008, gain: 0.08 }, // up to this many seconds and this fraction, seeded
+  // One press is one stroke, and nothing plays after it (rhythm is the player's). Strokes
+  // alternate down and up from level 2. Seconds between strings (the pick hitting each in turn),
+  // the up stroke's gain, and how much quieter the last string is than the first (a ramp).
+  // Chord strings ring `decay` times as long as a single note (the effect's `stretch`).
+  ramp: 0.18,
+  decay: 1.5,
+  // A string's gain is multiplied by (reference / strings) ^ power, so a six-string chord is not
+  // louder than a four-string one (their sum is what could clip). Power 0 turns it off.
+  normalise: { reference: 4, power: 0.5 },
+  // The pick's tick (a short noise burst, unstretched): `gain` of its own loudness on the first
+  // string of a stroke and the much softer `othersGain` on the rest (0 is none). Before issue 114a's
+  // fix every string had its full tick, stretched 1.5 times, which stacked into a crackle on
+  // five or six strings. `enabled: false` (or `?guitarpick=off` in the dev server) leaves just the strings.
+  pick: { enabled: true, gain: 0.5, othersGain: 0.1 },
+  rootGain: 1,
+  otherGain: 0.8,
+  // The pattern strums below, and tempo, swing and humanise above, are not played at the chord levels (Marc, issue 114a: a pattern after the last key press felt slow). They are kept
+  // for the groove (issue 114b). A pattern is eight slots: D down, U up (the top `strings`,
+  // high to low, softer), x a muted chop, . a rest.
+  strums: ["D.DU.UDU", "D..U.UDU", "DxDU.UDx", "D.DUDUD."],
+  up: { strings: 3, gain: 0.75, spacing: 0.018 },
+  down: { spacing: 0.03 },
+  chopGain: 1,
+};
+
 export const SOUND = {
   // Whole-game loudness, 0 to 1. Kept modest on purpose.
   master: 0.35,
   // How loud the music is next to the effects (the music bus multiplies by this).
   musicLevel: 0.7,
-  // At most this many effect voices (oscillators and noise bursts) at once;
+  // At most this many effect voices (oscillators and noise bursts) at once (raised from 28 to 96
+  // in issue 114a: a six-string chord rings 0.8 s and is six voices plus the picks' ticks);
   // low-priority effects need `maxVoices - lowReserve` or fewer already playing.
-  maxVoices: 28,
+  maxVoices: 96,
   lowReserve: 6,
   // Mute toggle (a KeyboardEvent.code). Not Tab, Escape, E, X, L or the arrows,
   // which other features use. The typing game reads letters, so M is ignored while it runs.
@@ -912,6 +997,13 @@ export const SOUND = {
     steel: "guitarSteel",
     nylon: "guitarNylon",
   } as Record<string, string>,
+  // The same voices for one string of a chord (issue 114a): `string` is the tone, `pick` the
+  // pick's short tick (see `GUITAR_SKILL.pick`; the plain voice has none).
+  guitarStrings: {
+    plain: { string: "noteKey" },
+    steel: { string: "guitarSteelString", pick: "guitarSteelPick" },
+    nylon: { string: "guitarNylonString", pick: "guitarNylonPick" },
+  } as Record<string, { string: string; pick?: string }>,
   effects: {
     stepWood: { priority: "low", voices: [{ noise: "lowpass", freq: 520, q: 0.7, length: 0.06, gain: 0.22 }] },
     stepStone: { priority: "low", voices: [{ noise: "bandpass", freq: 1500, q: 1.1, length: 0.045, gain: 0.2 }] },
@@ -1056,6 +1148,14 @@ export const SOUND = {
         { noise: "lowpass", freq: 900, q: 0.7, length: 0.04, gain: 0.08 },
       ],
     },
+    // The guitar skill's chords and strums (issue 114a): one string is one voice (the pick's
+    // tick is its own small effect, see `GUITAR_SKILL.pick`), shorter than a single note so
+    // four strings fit the voice cap even when pressed quickly. A chop is a muted strum.
+    guitarSteelPick: { voices: [{ noise: "highpass", freq: 3500, q: 0.8, length: 0.02, gain: 0.08 }] },
+    guitarSteelString: { voices: [{ wave: "triangle", freq: 440, length: 0.5, gain: 0.16 }] },
+    guitarNylonPick: { voices: [{ noise: "lowpass", freq: 900, q: 0.7, length: 0.03, gain: 0.06 }] },
+    guitarNylonString: { voices: [{ wave: "sine", freq: 440, length: 0.55, gain: 0.2 }] },
+    guitarChop: { voices: [{ noise: "bandpass", freq: 1800, q: 1.4, length: 0.05, gain: 0.14 }] },
     // An achievement toast: a short, bright two-note figure.
     toast: {
       voices: [

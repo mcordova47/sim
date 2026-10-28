@@ -21,3 +21,6 @@ Marc (2026-10-28): layer in progression after the timbre (108). A new **"guitar 
 
 ## Acceptance criteria
 - A short design agreed with Marc, then small build issues filed.
+
+## Progress log
+- 2026-10-28: design written in `docs/guitar-skill-design.md` (branch `issue/114-design`): skill derived from `stats.taskCounts.guitar` (no new save field, sync merge already max), four levels as data, pure `key -> timed notes` functions, a groove scheduler on the music bus, staged plan 114a to 114g, 5 open questions for Marc. Status unchanged (todo).

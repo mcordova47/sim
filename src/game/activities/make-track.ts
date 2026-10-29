@@ -1,7 +1,9 @@
 import { browserClipboard, type ClipboardLike } from "../../input/clipboard";
 import type { Controls } from "../../input/controls";
 import { normalizeText, unsupportedChars } from "../../render/font";
+import { touchHints } from "../../render/hints";
 import { drawTrackEditor, type EditorView } from "../../render/track-editor";
+import { drawTrackEditorTouch } from "../../render/track-editor-touch";
 import { BaseActivity, needHost, registerActivity, type ActivityHost, type ActivityResult } from "../activity";
 import { MAKE_TRACKS as M } from "../config";
 import { choice, menu } from "../dialog";
@@ -42,6 +44,10 @@ const START_DRAFT = "Continue your draft";
 const START_NEW = "New track";
 const START_CANCEL = "Cancel";
 
+// The fallback when the clipboard cannot be read. A phone has no Ctrl (hint rule of issue 093); the
+// hidden paste box of issue 106d is what a touch player will use, so until then it says it cannot.
+const PASTE_BY_HAND = () => (touchHints() ? "Could not read the clipboard." : "Press Ctrl+V to paste.");
+
 // Where the editor's sound blips sit: a drum hit has no pitch, so each gets one.
 const DRUM_BLIP = [220, 660, 1320];
 
@@ -61,6 +67,9 @@ export function typedChar(code: string, shift: boolean): string | null {
 }
 
 type Phase = "start" | "edit";
+
+// Whether a note was placed yet this session (the touch look shows a tip until then).
+let tappedANote = false;
 
 export class MakeTrackActivity extends BaseActivity {
   cancellable = true;
@@ -288,6 +297,7 @@ export class MakeTrackActivity extends BaseActivity {
     } else {
       return this.flash("No room for a note here.");
     }
+    tappedANote = true;
     this.changed();
   }
 
@@ -401,15 +411,15 @@ export class MakeTrackActivity extends BaseActivity {
     if (countNotes(this.grid) === 0) return this.flash("Nothing to copy yet.");
     const text = gridToTrackText({ ...this.grid, title: this.grid.title.trim() });
     void this.clipboard.copy(text).then(
-      (ok) => this.flash(ok ? "Copied." : "Could not copy. The text is in the browser console."),
+      (ok) => this.flash(ok ? "Copied." : touchHints() ? "Could not copy." : "Could not copy. The text is in the browser console."),
       () => this.flash("Could not copy."),
     );
   }
 
   private paste(): void {
     void this.clipboard.read().then(
-      (text) => (text === null ? this.flash("Press Ctrl+V to paste.") : this.importText(text)),
-      () => this.flash("Press Ctrl+V to paste."),
+      (text) => (text === null ? this.flash(PASTE_BY_HAND()) : this.importText(text)),
+      () => this.flash(PASTE_BY_HAND()),
     );
   }
 
@@ -450,8 +460,15 @@ export class MakeTrackActivity extends BaseActivity {
     };
   }
 
-  draw(ctx: CanvasRenderingContext2D, _screen: { width: number; height: number }): void {
-    drawTrackEditor(ctx, this.view());
+  // On the touch layer the editor draws its own bigger look in the live view (issue 106a); the game
+  // leaves out its "B TO STOP" line there, because the editor's top strip says it.
+  get hidesStopHint(): boolean {
+    return touchHints();
+  }
+
+  draw(ctx: CanvasRenderingContext2D, screen: { width: number; height: number }): void {
+    if (touchHints()) drawTrackEditorTouch(ctx, { ...this.view(), firstTouch: !tappedANote }, screen);
+    else drawTrackEditor(ctx, this.view());
   }
 }
 

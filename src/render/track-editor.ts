@@ -28,6 +28,10 @@ export interface EditorView {
   playStep: number | null;
   message: string;
   drums: readonly string[];
+  // The touch look only (render/track-editor-touch.ts): the page of 8 steps shown (default: the page the
+  // cursor is on), and whether this is the first time the editor is shown in the session.
+  page?: number;
+  firstTouch?: boolean;
 }
 
 // Layout in pixels, for the 320x192 screen. The game draws "ESC TO STOP" in the top 10.

@@ -128,7 +128,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 090 | [Mobile: a taller, squarer picture that scrolls (assess, then prototype)](issues/090-mobile-narrow-view.md) | claude | done | 087 |
 | 091 | [Encounter music: a short battle-style track during an ad, and a result jingle](issues/091-encounter-music.md) | marc + claude | design done, build issues filed | 080 |
 | 091a | [Encounter music 1: bus, scene, placeholder track](issues/091a-encounter-bus-scene.md) | claude | done | 091 |
-| 091b | [Encounter music 2: result jingles (success only)](issues/091b-encounter-jingles.md) | claude | todo | 091a |
+| 091b | [Encounter music 2: result jingles (success only)](issues/091b-encounter-jingles.md) | claude | done | 091a |
 | 091c | [Encounter music 3: docs and tuning](issues/091c-encounter-docs.md) | claude | todo | 091b |
 | 091d | [Encounter music 4: Marc writes the real track](issues/091d-encounter-real-track.md) | marc | todo | 091a |
 | 092 | [Mobile landscape: the controls must not cover the picture](issues/092-mobile-landscape-controls.md) | claude | done | 087, 090 |
@@ -184,7 +184,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 117c | [Photo gallery 3: manage mode with delete one](issues/117c-gallery-manage.md) | claude | done | 117b |
 | 117d | [Photo gallery 4: the LOOK switch](issues/117d-gallery-look-switch.md) | claude | todo | 117a, 117c |
 | 117e | [Photo gallery 5: the sofa scene replaces the slideshow](issues/117e-gallery-scene.md) | claude | done | 117b |
-| 117f | [Photo gallery 6: an ad can interrupt the close-up](issues/117f-gallery-ad-interrupt.md) | claude | todo | 117e |
+| 117f | [Photo gallery 6: an ad can interrupt the close-up](issues/117f-gallery-ad-interrupt.md) | claude | done | 117e |
 | 117g | [Photo gallery 7: text review, phone pass, docs](issues/117g-gallery-pass.md) | claude | todo | 117f, 117d |
 | 118 | [Ads for framing a photo, then hang or shelve it](issues/118-framed-photos.md) | marc + claude | todo | 117 |
 | 119 | [A Simagotchi logo and favicon](issues/119-simagotchi-logo.md) | claude | todo | 116 |

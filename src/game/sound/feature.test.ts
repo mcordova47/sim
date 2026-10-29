@@ -224,7 +224,7 @@ describe("effects from game events", () => {
   it("plays each encounter entrance cue through the sound feature, the pulse higher with its pitch, and nothing while muted", () => {
     const s = setup();
     s.unlock();
-    const cues = ["encounter-buzz", "encounter-pulse", "encounter-hit", "encounter-exit", "encounter-soft"];
+    const cues = ["encounter-buzz", "encounter-pulse", "encounter-hit", "encounter-exit", "encounter-soft", "encounter-unsubscribed", "encounter-cart"];
     for (const name of cues) {
       s.ctx.currentTime += 5;
       const before = s.ctx.oscillators.length;

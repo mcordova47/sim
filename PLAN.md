@@ -179,7 +179,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 118 | [Ads for framing a photo, then hang or shelve it](issues/118-framed-photos.md) | marc + claude | todo | 117 |
 | 119 | [A Simagotchi logo and favicon](issues/119-simagotchi-logo.md) | claude | todo | 116 |
 | 120 | [Pause legend overlap on the narrow view](issues/120-pause-legend-narrow.md) | claude | todo | 116 |
-| 121 | [Fix the flaky flashcards activity test](issues/121-flaky-flashcards-test.md) | claude | todo | |
+| 121 | [Fix the flaky flashcards activity test](issues/121-flaky-flashcards-test.md) | claude | done | |
 | 122 | [A dev-only music lab](issues/122-music-lab.md) | claude | todo | |
 
 ## Order of work

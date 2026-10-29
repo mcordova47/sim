@@ -1,8 +1,10 @@
 # SYSTEM TRACK for the ad encounter (issue 091a). Not in the record player: it is
 # played on the encounter bus from the entrance's hit chord (frame 32) while the
-# card is open.
+# card is open. Key of G (the entrance's pulse run), 135 bpm,
+# 16 beats = ~7 seconds a pass, four passes then a fade. It starts
+# on the downbeat the hit lands on.
 title: Encounter Battle
-note: System track for ad encounters. Placeholder. Not in the record player.
+note: System track for ad encounters. Not in the record player.
 tempo: 135
 
 [melody square 0.3]

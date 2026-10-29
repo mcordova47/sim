@@ -164,6 +164,8 @@ export interface Activity {
   // True while the screen wants the player to type (the sync key), so the touch layer raises
   // the phone's keyboard; `textValue` is what it holds and `setText` takes the whole text.
   readonly wantsText?: boolean;
+  // True when the text is a block to paste (issue 106d): the touch layer shows the field as a visible box.
+  readonly textBox?: boolean;
   textValue?(): string;
   setText?(text: string): void;
   // Backs out of it. The interaction system calls it only when Escape is

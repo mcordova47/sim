@@ -99,6 +99,12 @@
         position: fixed; left: 0; bottom: 0; width: 1px; height: 1px; padding: 0; border: 0;
         opacity: 0; font-size: 16px; pointer-events: none; user-select: text; -webkit-user-select: text;
       }
+      /* The paste box (issue 106d): the same field, shown over the picture (touch-ui sets its place). */
+      .tp-text.tp-box {
+        width: auto; height: auto; opacity: 1; pointer-events: auto; box-sizing: border-box; padding: 8px;
+        border: 2px solid #f2c14e; border-radius: 6px; background: #1c2233; color: #f4efe6; resize: none;
+        z-index: 5;
+      }
       .tp-face { position: relative; width: 164px; height: 120px; }
       .tp-pills { display: flex; gap: 12px; justify-content: space-between; }
 

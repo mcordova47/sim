@@ -12,6 +12,8 @@ export interface EditorView {
   started: boolean;
   title: string;
   naming: boolean;
+  // The touch paste box is open (issue 106d).
+  pasting?: boolean;
   blink: boolean;
   tempo: number;
   steps: number;

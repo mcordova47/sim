@@ -10,6 +10,8 @@
 export interface TextHost {
   // True while a screen wants the player to type (the sync key screen).
   wantsText(): boolean;
+  // True when the text is a block to paste, shown as a visible box (the track editor, issue 106d).
+  boxed?(): boolean;
   // What the game holds as the text right now.
   textValue(): string;
   // The player's whole text, as the field holds it. A pasted pairing link is reduced to its key

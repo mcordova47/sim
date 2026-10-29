@@ -80,8 +80,10 @@ export function mountTouchUi(options: TouchUiOptions): TouchUi {
   // fields cannot be focused), with a 16 px font so iOS does not zoom in. Its key events are
   // stopped here: the game must not also read them as keys, and a soft keyboard's key is
   // "trusted", which would hide this layer as if a real keyboard had come.
-  const field = document.createElement("input");
-  field.type = "text";
+  // A textarea, not an input: a pasted track has line breaks, which a one-line input would drop. A name
+  // is still one line (Enter is the game's key, and the game filters the text).
+  const field = document.createElement("textarea");
+  field.rows = 1;
   field.className = "tp-text";
   field.autocomplete = "off";
   field.autocapitalize = "off";
@@ -120,11 +122,29 @@ export function mountTouchUi(options: TouchUiOptions): TouchUi {
       else {
         field.blur();
         field.value = "";
+        placeBox();
       }
     }
     if (!textOn) return;
     const next = entry!.syncValue(field.value);
     if (next !== null) field.value = next;
+    placeBox();
+  };
+  // The paste box (issue 106d): while the game asks for a block of text the field is shown over the
+  // middle of the picture (below its top strip), so the player can press and hold it and choose Paste.
+  const placeBox = () => {
+    const boxed = !!options.text?.boxed?.() && !!options.canvas;
+    field.classList.toggle("tp-box", boxed);
+    field.placeholder = boxed ? "Press and hold here, choose Paste" : "";
+    if (!boxed) {
+      field.style.cssText = "";
+      return;
+    }
+    const r = options.canvas!.getBoundingClientRect();
+    field.style.left = `${r.left + r.width * 0.06}px`;
+    field.style.top = `${r.top + r.height * 0.18}px`;
+    field.style.width = `${r.width * 0.88}px`;
+    field.style.height = `${r.height * 0.3}px`;
   };
   const textAction = (control: TouchControl) => {
     if (control === "cycle") field.focus();

@@ -576,6 +576,10 @@ export class Game {
     return !this.dialog.open && this.interaction.active?.activity.wantsText === true;
   }
 
+  get textBox(): boolean {
+    return this.wantsText && this.interaction.active?.activity.textBox === true;
+  }
+
   textValue(): string {
     return this.interaction.active?.activity.textValue?.() ?? "";
   }

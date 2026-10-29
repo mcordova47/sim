@@ -64,3 +64,24 @@ export const browserClipboard: ClipboardLike = {
     return () => window.removeEventListener("paste", handler);
   },
 };
+
+// The phone's share sheet (issue 106d). `share` must be called straight from a tap, before any await, or
+// the browser refuses it. It says what happened so the caller can fall back to Copy.
+export type ShareResult = "shared" | "cancelled" | "unsupported" | "failed";
+
+export interface ShareLike {
+  share(title: string, text: string): Promise<ShareResult>;
+}
+
+export const browserShare: ShareLike = {
+  async share(title, text) {
+    if (typeof navigator === "undefined" || typeof navigator.share !== "function") return "unsupported";
+    try {
+      await navigator.share({ title, text });
+      return "shared";
+    } catch (error) {
+      // The player closing the sheet is a choice, not a failure.
+      return (error as { name?: string } | null)?.name === "AbortError" ? "cancelled" : "failed";
+    }
+  },
+};

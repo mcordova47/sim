@@ -72,6 +72,9 @@ export function unsubscribeChance(mood: number, persistence: number): number {
 export interface EncounterEnv {
   // The id of the task that was completed.
   taskId: string;
+  // The roll is for an ad that interrupts a running task (`ENCOUNTERS.interrupts`) and not for a completion
+  // (`ENCOUNTERS.tasks`). Each list answers to its own kind of roll only (issue 117f).
+  interrupt?: boolean;
   // The delivery clock, in game hours (it stands still while something holds the clock).
   hours: number;
   random(): number;
@@ -93,7 +96,7 @@ export class Encounters {
   // Gates, in order (the note's section 4). True if an encounter could be rolled for now.
   // Pure: it changes nothing.
   eligible(env: EncounterEnv): boolean {
-    if (!ENCOUNTERS.tasks.includes(env.taskId)) return false;
+    if (!(env.interrupt ? ENCOUNTERS.interrupts : ENCOUNTERS.tasks).includes(env.taskId)) return false;
     if (env.blocked) return false;
     if (!(env.hours / 24 >= ENCOUNTERS.firstDay)) return false;
     const last = this.save.last;

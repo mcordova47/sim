@@ -133,7 +133,8 @@ export class EncounterActivity extends BaseActivity {
     if (this.done || this.phase === "leaving") return;
     this.phase = "leaving";
     this.frame = 0;
-    if (!this.reduced) this.host.cue(ENCOUNTERS.entrance.exitCue);
+    // The soft echo is for the exits that had no jingle (failure, refusal, Ignore, a plain leave).
+    if (!this.reduced && !this.jingle()) this.host.cue(ENCOUNTERS.entrance.exitCue);
   }
 
   // Escape, and anything that drops the encounter: leave at once, with no mood change and no purchase.
@@ -196,11 +197,18 @@ export class EncounterActivity extends BaseActivity {
     this.speak(impulse ? `${ENCOUNTER_WORDS.impulse}\n${confirmed}` : confirmed, "cart");
   }
 
+  // The result jingle's cue for the outcome so far, or null (only a success has one; issue 091b).
+  private jingle(): string | null {
+    return (this.outcome && ENCOUNTERS.music.jingles[this.outcome]) || null;
+  }
+
   // One narrator line, then it is over. The scene is in its `result` phase while the line is up.
   private speak(text: string, outcome: EncounterOutcome): void {
     this.phase = "result";
     this.frame = 0;
     this.outcome = outcome;
+    const jingle = this.jingle();
+    if (jingle) this.host.cue(jingle);
     if (!this.host.openDialog(say(text), (result) => (result.cancelled ? this.quit() : this.leave()))) this.quit();
   }
 

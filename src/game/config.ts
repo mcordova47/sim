@@ -148,6 +148,9 @@ export const DELIVERIES = {
 export const ENCOUNTERS = {
   // The tasks (ids) whose completion rolls. `work-sofa` and `work-bed` do not.
   tasks: ["doomscroll", "work"] as readonly string[],
+  // The tasks that can be interrupted by an ad while they run (issue 117f): the sofa scene rolls once per
+  // session, a while into its close-up. They never roll on completion, and `tasks` never roll mid-task.
+  interrupts: ["scroll-photos"] as readonly string[],
   // The roll per eligible completion, and the roll right after a failed unsubscribe.
   chance: 0.22,
   afterFailChance: 0.5,
@@ -223,6 +226,10 @@ export const ENCOUNTERS = {
     duckUp: 1.5,
     resultFade: 0.35,
     escapeFade: 0.25,
+    // The result jingles (issue 091b): a cue (in `SOUND.cues`) played when the closing line opens, for the
+    // outcomes that succeeded only. Any outcome not listed (a failed unsubscribe, a refusal, Ignore) has no
+    // jingle and keeps the plain exit echo (`entrance.exitCue`); an outcome with a jingle never plays the echo.
+    jingles: { unsubscribed: "encounter-unsubscribed", cart: "encounter-cart" } as Readonly<Record<string, string>>,
   },
   // Mood edges for the extra narrator line (tone only, no change to the odds).
   toneLow: 30,
@@ -463,6 +470,8 @@ export const DIALOG = {
 // pools). The pools are plain lists for the text review (docs/text-review.md): drop or change a line here.
 export const REEL = {
   pass: 6,
+  // Seconds of close-up time before the scene's one ad roll (issue 117f). A player who leaves sooner gets none.
+  adAfter: 8,
   phoneLines: [
     "You scroll for a while, because why not.",
     "There is a lot of it, and it is all yours.",
@@ -1310,12 +1319,31 @@ export const SOUND = {
         { wave: "square", freq: note(0, 392), delay: 0.06, length: 0.08, gain: 0.05 },
       ],
     },
+    // Result jingles (issue 091b), each under a second, in the entrance's key (G). Unsubscribed: a bright
+    // rising three-note flourish ending on a held top note.
+    encounterUnsubscribed: {
+      voices: [
+        { wave: "square", freq: note(0, 392), length: 0.09, gain: 0.09 },
+        { wave: "square", freq: note(4, 392), delay: 0.09, length: 0.09, gain: 0.09 },
+        { wave: "square", freq: note(7, 392), delay: 0.18, length: 0.09, gain: 0.09 },
+        { wave: "square", freq: note(12, 392), delay: 0.27, length: 0.3, gain: 0.1 },
+        { wave: "triangle", freq: note(-12, 392), delay: 0.27, length: 0.3, gain: 0.12 },
+      ],
+    },
+    // Add to cart: a quick "ka-ching", two bright notes and a sparkle of noise.
+    encounterCart: {
+      voices: [
+        { wave: "square", freq: note(12, 392), length: 0.07, gain: 0.08 },
+        { wave: "square", freq: note(19, 392), delay: 0.08, length: 0.28, gain: 0.09 },
+        { noise: "highpass", freq: 5000, delay: 0.08, length: 0.06, gain: 0.04 },
+      ],
+    },
     // Reduced motion: one plain soft note.
     encounterSoft: { voices: [{ wave: "triangle", freq: 523.25, length: 0.12, gain: 0.1 }] },
     unmute: { voices: [{ wave: "triangle", freq: 523.25, length: 0.07, gain: 0.18 }] },
   } as Record<string, EffectDef>,
   // Named moments in a cutscene (`{ cue: "name" }`) that make a sound.
-  cues: { "record-spin": "needle", "achievement": "toast", "encounter-buzz": "encounterBuzz", "encounter-pulse": "encounterPulse", "encounter-hit": "encounterHit", "encounter-exit": "encounterExit", "encounter-soft": "encounterSoft" } as Record<string, string>,
+  cues: { "record-spin": "needle", "achievement": "toast", "encounter-buzz": "encounterBuzz", "encounter-pulse": "encounterPulse", "encounter-hit": "encounterHit", "encounter-exit": "encounterExit", "encounter-soft": "encounterSoft", "encounter-unsubscribed": "encounterUnsubscribed", "encounter-cart": "encounterCart" } as Record<string, string>,
 };
 
 // Music (issue 009a). Tracks are text files in src/game/music/tracks (see

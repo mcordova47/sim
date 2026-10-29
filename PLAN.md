@@ -160,7 +160,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 113a | [Photo reel 1: pixelate](issues/113a-reel-pixelate.md) | claude | done | 113 |
 | 113b | [Photo reel 2: the store](issues/113b-reel-store.md) | claude | done | 113 |
 | 113c | [Photo reel 3: PHOTOS page](issues/113c-reel-photos-page.md) | claude | done | 113a, 113b |
-| 113d | [Photo reel 4: the reel and sofa task](issues/113d-reel-activity.md) | claude | todo | 113c |
+| 113d | [Photo reel 4: the reel and sofa task](issues/113d-reel-activity.md) | claude | done | 113c |
 | 113e | [Photo reel 5: on-device pass](issues/113e-reel-phone-pass.md) | claude | todo | 113d |
 | 114 | [Guitar skill: from single notes to fingerstyle](issues/114-guitar-skill.md) | marc + claude | design done (docs/guitar-skill-design.md); build is 114a to 114c | 108 |
 | 114a | [Guitar skill 1: rule, chords, strumming (levels 1 to 3)](issues/114a-guitar-skill-levels-1-3.md) | claude | done | 108 |

@@ -85,7 +85,7 @@ Not in v1. Placing stays a physical task at the object (a swap list with a live 
 - Read-only first, so the pause screen does not become a second way to change the room before Marc says so.
 
 ## 7. Open questions for Marc (most important first)
-1. **Silhouettes?** (a) None: only what you own (simplest, calmest). (b) **Recommended:** only things the game showed you and you did not take (ads you ignored), with `???` and no hint, no count. (c) A shape for every item that exists (the real pokedex, which breaks the "no one is missing anything" rule).
+1. **Silhouettes? ANSWERED by Marc 2026-10-28: (b).** (a) None: only what you own (simplest, calmest). (b) **Recommended:** only things the game showed you and you did not take (ads you ignored), with `???` and no hint, no count. (c) A shape for every item that exists (the real pokedex, which breaks the "no one is missing anything" rule).
 2. **Placing from the page?** (a) **Recommended:** no; it points to the object and you place it there. (b) A PUT UP button on the entry that swaps like the list does, with its plan text and no room preview. (c) PUT UP, then the page closes so you see the room.
 3. **Where does the page open from?** (a) **Recommended:** the pause screen only (button and `I`). (b) Also from the swap list, as a "look at everything" link. (c) A thing in the room (a shelf or box) you walk up to instead.
 4. **Deadpan lines: when?** (a) **Recommended:** write them in 109a as a small batch, then add a line with each new gift. (b) Leave them to the text pass (issue 037) and ship without. (c) No lines, name and source only.

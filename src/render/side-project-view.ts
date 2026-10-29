@@ -40,22 +40,38 @@ export interface Look {
   scanline: number; // opacity of the dark line on every other row
   speckles: number; // how many noise dots
   speckle: number; // opacity of a noise dot
+  distort: Distort; // the room drifts from the real one's shape; all zeros leaves it exact
 }
 
-// Four looks between the old hand-drawn picture and a straight dark copy (issue 111c, for Marc to pick).
+// A degraded copy of the real room's shape, drawn row by row (at 1x, before the downscale).
+// Same values give the same picture every time; zeros skip the step entirely.
+export interface Distort {
+  squash: number; // 0 to 0.5: rows are crowded in some bands and stretched in others (vertical unevenness)
+  shear: number; // real-room pixels the bottom leans sideways relative to the top (0 to 24)
+  bend: number; // real-room pixels of slow wave in the wall edges (0 to 6)
+  seed: number; // which wave: changes where it bends
+}
+
+export const NO_DISTORT: Distort = { squash: 0, shear: 0, bend: 0, seed: 1 };
+
+// Looks between the old hand-drawn picture and a straight dark copy (issue 111c, for Marc to pick).
 export const LOOKS = {
   // The first version: the dark soft copy.
-  dark: { backdrop: "ink", dim: 0.3, lift: 0, smooth: true, snap: false, wobble: 0, scanline: 0.07, speckles: 140, speckle: 0.1 },
+  dark: { backdrop: "ink", dim: 0.3, lift: 0, smooth: true, snap: false, wobble: 0, scanline: 0.07, speckles: 140, speckle: 0.1, distort: NO_DISTORT },
   // Lighter and warmer, still soft.
-  bright: { backdrop: "night", dim: 0.12, lift: 16, smooth: true, snap: false, wobble: 0, scanline: 0.04, speckles: 90, speckle: 0.07 },
+  bright: { backdrop: "night", dim: 0.12, lift: 16, smooth: true, snap: false, wobble: 0, scanline: 0.04, speckles: 90, speckle: 0.07, distort: NO_DISTORT },
   // Pixels picked, not averaged: crisp and chunky.
-  chunky: { backdrop: "night", dim: 0.14, lift: 14, smooth: false, snap: false, wobble: 0, scanline: 0.05, speckles: 90, speckle: 0.07 },
+  chunky: { backdrop: "night", dim: 0.14, lift: 14, smooth: false, snap: false, wobble: 0, scanline: 0.05, speckles: 90, speckle: 0.07, distort: NO_DISTORT },
   // Softened, then snapped back to the palette, a bright flat look, with pieces a little off.
-  cartoon: { backdrop: "slate", dim: 0.08, lift: 22, smooth: true, snap: true, wobble: 2, scanline: 0.04, speckles: 70, speckle: 0.06 },
+  cartoonFlat: { backdrop: "slate", dim: 0.08, lift: 22, smooth: true, snap: true, wobble: 2, scanline: 0.04, speckles: 70, speckle: 0.06, distort: NO_DISTORT },
+  // The same, with the room's shape a little off: a degraded copy of the game's reality (Marc's pick).
+  cartoon: { backdrop: "slate", dim: 0.08, lift: 22, smooth: true, snap: true, wobble: 2, scanline: 0.04, speckles: 70, speckle: 0.06, distort: { squash: 0.14, shear: 6, bend: 1.5, seed: 3 } },
+  // Twice as much.
+  cartoonStrong: { backdrop: "slate", dim: 0.08, lift: 22, smooth: true, snap: true, wobble: 2, scanline: 0.04, speckles: 70, speckle: 0.06, distort: { squash: 0.28, shear: 12, bend: 3, seed: 3 } },
 } satisfies Record<string, Look>;
 
 // The look in the game.
-export const LOOK: Look = LOOKS.bright;
+export const LOOK: Look = LOOKS.cartoon;
 
 // The pieces of the main room, as a small hard-coded list, until the composer (111b) and the
 // config (111a, 111d) feed the view. `h` is the footprint's bottom edge offset, for draw order.
@@ -175,6 +191,7 @@ export class SideProjectView implements ComposedView {
       sprites.draw(rctx, op.sprite, op.x + dx, op.y + dy);
     });
 
+    const shown = distortRoom(room, look.distort, make);
     const out = make(FULL_VIEW.w, FULL_VIEW.h);
     const ctx = out.getContext("2d")!;
     ctx.fillStyle = COLOR[look.backdrop];
@@ -182,7 +199,7 @@ export class SideProjectView implements ComposedView {
     // Half scale, smoothed: averaging neighbours is the soft, slightly degraded copy.
     ctx.imageSmoothingEnabled = look.smooth;
     if (look.smooth) ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(room, 0, 0, ROOM.w, ROOM.h, AT.x, AT.y, HALF.w, HALF.h);
+    ctx.drawImage(shown, 0, 0, ROOM.w, ROOM.h, AT.x, AT.y, HALF.w, HALF.h);
     if (look.snap) snapToPalette(ctx, AT.x, AT.y, HALF.w, HALF.h);
     // Dim, then scanlines and speckles, only inside the window.
     ctx.save();
@@ -217,6 +234,25 @@ export class SideProjectView implements ComposedView {
     sprites.draw(ctx, FRAME_SPRITE, 0, 0);
     return out;
   }
+}
+
+// The room redrawn one row at a time, each row taken from a slightly different source row and
+// shifted sideways: crowded and stretched bands (squash), a lean (shear) and a slow wave (bend).
+// Returns `room` itself when there is nothing to do.
+export function distortRoom(room: Canvas, d: Distort, make: (w: number, h: number) => Canvas): Canvas {
+  if (!(d.squash || d.shear || d.bend)) return room;
+  const out = make(ROOM.w, ROOM.h);
+  const ctx = out.getContext("2d")!;
+  ctx.imageSmoothingEnabled = false;
+  const phase = ((d.seed * 2.399963) % 1) * 2 * Math.PI; // a different wave for each seed
+  for (let y = 0; y < ROOM.h; y++) {
+    const t = (y + 0.5) / ROOM.h;
+    // Monotonic for squash below 1, so rows never fold back.
+    const source = Math.min(ROOM.h - 1, Math.max(0, Math.floor((t + (d.squash * Math.sin(2 * Math.PI * t)) / (2 * Math.PI)) * ROOM.h)));
+    const dx = Math.round(d.shear * (t - 0.5) + d.bend * Math.sin(4 * Math.PI * t + phase));
+    ctx.drawImage(room, 0, source, ROOM.w, 1, dx, y, ROOM.w, 1);
+  }
+  return out;
 }
 
 // Moves every pixel of a rectangle to the nearest colour of the house palette.

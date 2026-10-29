@@ -1,7 +1,7 @@
 ---
 id: 111c
 title: Side project config 3: the view and the painter
-status: done
+status: review
 owner: claude
 depends_on: [111]
 ---
@@ -42,3 +42,4 @@ Design and Marc's answers (2026-10-29): `docs/side-project-config-design.md` (th
   - (d) Checks above: PASS.
   - Minor, no action: `cartoon` snaps before the lift and dim, so its final colours are not exactly palette colours (only the snap step is); snapping per frame is not an issue since it runs once per cache fill. `snapToPalette` re-parses the palette on each call (cache fill only). The `layer: "figure"` option is unused until 111d.
   - **Unverified (not passed):** Marc's taste (which look, the figure's size, the grey bed and top-down view) and how it feels in the real browser game end to end on a phone. His own look is still needed. Planner: update the `PLAN.md` table for 111c.
+- 2026-10-29 (claude, round 3, Marc picked): merged main (091b, 117f). Default `LOOK` is now `cartoon`. The figure in `desk-with-figure` is larger (12 x 15 px, brick-red sweater so it reads against the tan desk, drawn above the half-scale proportion; still 64x32 like `desk`, standing on the desk). New `Look.distort` { squash, shear, bend, seed } (0 skips the step, exact): `distortRoom` redraws the 1x room row by row before the downscale, with crowded and stretched bands, a lean and a slow wave (bent wall edges); same values give the same picture. `LOOKS`: `cartoonFlat` (the previous, no distortion), `cartoon` (default: squash 0.14, shear 6, bend 1.5, seed 3), `cartoonStrong` (twice that), plus dark, bright, chunky. Tests: zero distortion equals the undistorted result whatever the seed, same values same output, strength and seed change it, every row drawn once from rows in order, limits. Sheets in the scratchpad: `round3-1x.png`, `round3-2x.png`, `round3-desk-zoom.png`. The specific wrong placements (sofa the wrong way, desk and table swapped) are left to 111d's config.

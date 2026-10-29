@@ -30,7 +30,7 @@ export class MusicPlayer {
   // Context time at which the first loop began; null until it can be set.
   private origin: number | null = null;
   // A track waiting for the end of the loop that is playing (see `swap`).
-  private pending: Track | null = null;
+  protected pending: Track | null = null;
   // The record's level while a guitar groove plays (1 is as written): `duck` is where it is going
   // and `level` where it is now, moving by `duckFade` seconds for the whole way (issue 114b).
   duck = 1;

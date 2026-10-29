@@ -636,8 +636,9 @@ const SOURCES = import.meta.glob("../../**/*.ts", { query: "?raw", import: "defa
 describe("removing the feature", () => {
   it("leaves nothing in the game importing sound code except features.ts", () => {
     const offenders = Object.entries(SOURCES)
+      // The dev-only music lab (src/lab, issue 122) is not part of the game and is never in a build.
       // Files of the sound folder itself have keys like "./synth.ts".
-      .filter(([path]) => !path.startsWith("./") && !path.includes("/sound/") && !path.endsWith(".test.ts") && !path.endsWith("/features.ts"))
+      .filter(([path]) => !path.startsWith("./") && !path.includes("/sound/") && !path.includes("/lab/") && !path.endsWith(".test.ts") && !path.endsWith("/features.ts"))
       .filter(([, text]) => /from\s+["'][^"']*\/sound\//.test(text) || /AudioContext|webkitAudioContext/.test(text))
       .map(([path]) => path);
     expect(offenders).toEqual([]);

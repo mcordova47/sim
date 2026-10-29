@@ -37,6 +37,9 @@ The sound has a third bus, `sleep`, next to `effects` and `music`. It is made th
 - **Mute** is untouched: the master gain is 0 and everything is silent, the fades going on in time, so unmuting part way is at the right point of the fade. The sequence never changes the mute or writes the saved settings (a duck is never saved).
 - With **no audio** (before the first key, or no audio in the browser) the sequence runs in silence. The lullaby starts only if there is a synth when the sequence begins: audio that starts part way through stays silent to its end.
 
+## The music lab (issue 122)
+A dev-only page for trying tracks with the real synth (live `.track` editing, an intro and a loop heard together, sliders, the real encounter): see `docs/music-lab.md`.
+
 ## Mute
 Press **M** to mute and unmute. While muted a small `MUTE` tag shows at the top of the screen; after unmuting `SOUND ON` shows for a moment. M is a letter in the typing (work) mini-game, and while a name is typed in the track editor, so it does nothing there.
 

@@ -75,6 +75,14 @@ try {
   if (import.meta.env.DEV) skipDaysFromSearch(game.deliveries, location.search);
   // `?encounter=ad-candle` shows that ad's encounter on the first key press, so audio is unlocked (`random` picks one; `&again=1` replays after each one).
   if (import.meta.env.DEV) encounterOnFirstKey(game, location.search, window, () => keyboard.endFrame());
+  // `&labmusic=1` plays the music lab's track (/music-lab.html) under that encounter (issue 122).
+  if (import.meta.env.DEV) {
+    // A dynamic import, so a build has none of the lab's code at all.
+    void import("./lab/lab-encounter").then(({ labEncounterMusic }) => {
+      const engine = (globalThis as unknown as { simSoundEngine: Parameters<typeof labEncounterMusic>[1] }).simSoundEngine;
+      if (engine) labEncounterMusic(game, engine, location.search, localStorage);
+    });
+  }
 } catch {
   // No address to read (never in a browser).
 }

@@ -21,6 +21,8 @@ export function attachFeatures(game: Game): { unlockAudio(): void; offerPairing(
   attachParticles(game, {
     musicPlaying: () => sound.track !== null && !sound.muted && !((game.sleepScene?.settings.duckTo ?? 1) < 1),
   });
+  // The dev music lab's encounter hook (issue 122) finds the engine here; a build drops this line.
+  if (import.meta.env.DEV) (globalThis as { simSoundEngine?: unknown }).simSoundEngine = sound.engine;
   // A phone has no key press to start audio; the touch layer calls this from a real touch.
   return { unlockAudio: () => sound.engine.unlock(), offerPairing: (key) => achievements.offerPairing(key) };
 }

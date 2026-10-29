@@ -30,6 +30,10 @@ export function problemsIn(dist) {
     if (js.includes(`get("${p}")`)) problems.push(`the bundle still reads ?${p}=`);
   }
   if (/DEV_CHECKPOINTS|ownFromSearch|deliverFromSearch|skipDaysFromSearch|encounterOnFirstKey/.test(js)) problems.push("dev shortcut code is in the bundle");
+  // The dev music lab (issue 122) is a root page the dev server serves and a build never includes; its code
+  // and its saved-state key must not be in the bundle, and no lab page may be in dist/.
+  if (existsSync(join(dist, "music-lab.html"))) problems.push("dist/ contains music-lab.html (the dev music lab)");
+  if (/life\.musiclab|labEncounterMusic|LabMusicPlayer|dev-lab-encounter|simSoundEngine|labmusic/.test(js + html)) problems.push("the dev music lab code is in the bundle");
   // ?set= is also read once by the flashcards practice deck, which is off in a build (its backend is
   // the real one); the main.ts shortcut would be a second read.
   if ((js.match(/get\("set"\)/g) ?? []).length > 1) problems.push("the bundle reads ?set= outside the flashcards demo");

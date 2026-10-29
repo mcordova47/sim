@@ -149,7 +149,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 106a | [Track editor on phones 1: touch layout and drawing](issues/106a-editor-touch-layout.md) | claude | done | 093 |
 | 106b | [Track editor on phones 2: taps that edit](issues/106b-editor-touch-taps.md) | claude | done | 106a |
 | 106c | [Track editor on phones 3: name, More menu, delete](issues/106c-editor-touch-name-menu.md) | claude | done | 106b |
-| 106d | [Track editor on phones 4: share and paste](issues/106d-editor-touch-share-paste.md) | claude | todo | 106c |
+| 106d | [Track editor on phones 4: share and paste](issues/106d-editor-touch-share-paste.md) | claude | done | 106c |
 | 106e | [Track editor on phones 5: long press, drag paint, polish (optional)](issues/106e-editor-touch-polish.md) | claude | todo | 106d |
 | 107 | [The guitar: flipped so it reads as standing on a stand](issues/107-guitar-on-a-stand.md) | claude | done | 100 |
 | 108 | [The guitar's timbre follows the current instrument](issues/108-guitar-timbre.md) | claude | done | |

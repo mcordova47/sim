@@ -1,7 +1,7 @@
 ---
 id: 109
 title: A browsable inventory, like a pokedex
-status: todo
+status: done
 owner: marc + claude
 depends_on: [073]
 ---
@@ -19,3 +19,4 @@ Marc (2026-10-28): a browsable inventory, like a pokedex: a place to look throug
 ## Progress log
 
 - 2026-10-28 (claude): design written in `docs/inventory-design.md` (pause-screen THINGS page, read-only first, optional silhouettes for seen items, four staged issues, five open questions). Status unchanged.
+- 2026-10-28 (planner): Marc answered all five questions; build issues 109a, 109b, 109c filed (109d, put up from here, dropped by his answer).

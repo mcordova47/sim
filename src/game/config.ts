@@ -907,8 +907,8 @@ export const GUITAR_SKILL = {
   ] as { id: "notes" | "chords" | "sevenths" | "open" | "jazz" | "groove"; from: number; name: string; chords?: GuitarChordSet }[],
   // The plain chords by name (for the groove's progression, issue 114b, and the pattern strums).
   chords: Object.fromEntries(Object.values(SIMPLE).map((c) => [c.name, { root: c.root, voicing: c.voicing }])) as Record<string, { root: number; voicing: number[] }>,
-  tempo: 116, // beats per minute; a slot of a strum is an eighth, a slot of the groove a sixteenth
-  swing: 0.04, // the odd slots come this fraction of a slot late (0 is straight)
+  tempo: 116, // beats per minute (only the dropped pattern strums use it; the groove has `pluckBpm`)
+  swing: 0.04, // (only the dropped pattern strums use it; the groove has its own `swing`)
   humanise: { time: 0.008, gain: 0.08 }, // up to this many seconds and this fraction, seeded
   // One press is one stroke, and nothing plays after it (rhythm is the player's). Strokes
   // alternate down and up from level 2. Seconds between strings (the pick hitting each in turn),
@@ -935,20 +935,34 @@ export const GUITAR_SKILL = {
   chopGain: 1,
   // The groove (level 6, issue 114b): a Travis-style fingerpicking loop on the music bus, under the
   // arrows' melody. Every pluck is one beat (`pluckBpm`, plucks a minute). The loop is a cycle of four
-  // plucks: three background plucks and a fourth that is a rest, where the player's arrow plays the
-  // melody note instead (nothing plays there if no key is pressed). `cycle` lists the cycles' shapes
-  // one after another (repeating): "b" the thumb, alternating the chord's root and fifth from one
-  // cycle to the next, a digit a finger on the voicing's string at that index (the inner strings),
-  // "h" the rest left for the melody. `cyclesPerBar` cycles make a bar, one chord per bar. Swing and
-  // humanise are small. The melody is never delayed except by the optional `snap`: an arrow pressed
-  // within `snap.window` seconds before an "h" slot is played on that slot instead, so it lands in the
-  // pattern. The melody plays an arrow's interval above the chord's root (`melody[chord]`, in the order
-  // left, right, up, down: root, third, fifth, a sixth or seventh), so it is always a note of the chord
-  // sounding now and in A major.
+  // plucks: three background plucks and one that is a rest, where the player's arrow plays the melody
+  // note instead (nothing plays there if no key is pressed). `cycle` lists the cycles' shapes, one
+  // character a pluck, repeating one after another; `cyclesPerBar` cycles make a bar, one chord per
+  // bar. The characters are string roles, as a fingerstyle player thinks of them (never a run
+  // straight up the strings): "r" the thumb on the chord's bass-root string, "a" the thumb on its
+  // alternate bass string (the fifth), "m" a finger on a mid string, "i" a finger on a high string,
+  // "h" the rest left for the melody. Which string each role is, per chord, is in `voicings`
+  // (strings numbered 6 low E to 1 high E, semitones from A4, as in an open-position chord; a role
+  // whose string a chord lacks takes the nearest string it has). Swing and humanise are small. The
+  // melody is never delayed except by the optional `snap`: an arrow pressed within `snap.window`
+  // seconds before an "h" slot is played on that slot instead, so it lands in the pattern (the slot
+  // differs by cycle shape). The melody plays an arrow's interval above the chord's root
+  // (`melody[chord]`, in the order left, right, up, down: root, third, fifth, a sixth or seventh), so
+  // it is always a note of the chord sounding now and in A major.
   groove: {
     progression: ["A", "E", "F#m", "D"],
     pluckBpm: 460,
-    cycle: ["b32h", "b23h"],
+    // Cycle A (classic): thumb root, a mid string, thumb alternate, then the melody. Cycle B (inverted):
+    // thumb root, the melody on the second pluck, thumb alternate, a mid string. By string (low 6): 5 3 4 [h], then 5 [h] 4 3.
+    cycle: ["rmah", "rham"],
+    // The strings of the open chords (6 low E ... 1 high E; semitones from A4). `root` and `alt` are the
+    // bass strings (the lowest three: 6, 5, 4); `mid` and `high` the strings the "m" and "i" roles take.
+    voicings: {
+      A: { strings: { 5: -24, 4: -17, 3: -12, 2: -8, 1: -5 }, root: 5, alt: 4, mid: 3, high: 2 }, // x02220
+      E: { strings: { 6: -29, 5: -22, 4: -17, 3: -13, 2: -10, 1: -5 }, root: 6, alt: 5, mid: 3, high: 2 }, // 022100
+      "F#m": { strings: { 6: -27, 5: -20, 4: -15, 3: -12, 2: -8, 1: -3 }, root: 6, alt: 5, mid: 3, high: 2 }, // 244222 (barre)
+      D: { strings: { 5: -24, 4: -19, 3: -12, 2: -7, 1: -3 }, root: 4, alt: 5, mid: 3, high: 2 }, // xx0232 (no 6th string; the alternate bass is the open A under it)
+    } as Record<string, { strings: Record<number, number>; root: number; alt: number; mid: number; high: number }>,
     cyclesPerBar: 4,
     swing: 0.01, // the odd plucks come this fraction of a pluck late
     bassGain: 1,

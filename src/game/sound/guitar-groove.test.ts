@@ -24,8 +24,9 @@ const escape: Controls = { ...NO_INPUT, keys: ["Escape"], cancelPressed: true };
 describe("the groove's data and pure parts", () => {
   it("has a well-formed pattern and the I V vi IV progression in A major", () => {
     expect(groovePattern()).toHaveLength(4 * G.cyclesPerBar);
-    expect(groovePattern()).toMatch(/^[rf.h0-9]+$/);
-    for (const c of G.cycle) expect(c).toMatch(/^b[0-9]{2}h$/); // three plucks, then the rest
+    expect(groovePattern()).toMatch(/^[ramih.]+$/);
+    for (const c of G.cycle) expect(c).toMatch(/^[ramih]{4}$/); // three background plucks and one rest each
+    for (const c of G.cycle) expect([...c].filter((x) => x === "h")).toHaveLength(1);
     expect([2, 4]).toContain(G.cyclesPerBar);
     expect(G.pluckBpm).toBeGreaterThanOrEqual(400);
     expect(G.swing).toBeLessThanOrEqual(0.05);
@@ -44,32 +45,56 @@ describe("the groove's data and pure parts", () => {
       for (const n of notes) {
         expect(inKey(n.semis)).toBe(true);
         expect(tones).toContain(pc(n.semis));
-        expect(n.semis).toBeGreaterThanOrEqual(-24);
+        expect(n.semis).toBeGreaterThanOrEqual(-29); // the low E
         expect(n.gain).toBeGreaterThan(0);
         expect(Math.abs(n.wobble)).toBeLessThanOrEqual(GUITAR_SKILL.humanise.time);
-        expect(n.role === "bass").toBe(n.slot % 4 === 0);
+        expect(n.role === "bass").toBe("ra".includes(groovePattern()[n.slot]));
+        expect(n.role === "bass" ? n.string >= 4 : n.string <= 3).toBe(true);
       }
       const maxBass = Math.max(...notes.filter((n) => n.role === "bass").map((n) => n.semis));
       const minHarmony = Math.min(...notes.filter((n) => n.role === "harmony").map((n) => n.semis));
       expect(maxBass).toBeLessThan(minHarmony + 8);
     }
   });
-  it("is a cycle of three plucks and a rest: the thumb first, alternating root and fifth cycle to cycle, then two inner strings, nothing on the fourth", () => {
-    expect(groovePattern()).toBe("r32hf23hr32hf23h");
+  it("follows real fingerstyle string roles: bass strings only for the thumb, never a run up the strings, melody slot per cycle shape", () => {
+    expect(groovePattern()).toBe("rmahrhamrmahrham");
+    const restSlots = [...groovePattern()].flatMap((c, i) => (c === "h" ? [i] : []));
+    expect(restSlots).toEqual([3, 5, 11, 13]); // slot 4 of cycle A, slot 2 of cycle B
     for (let bar = 0; bar < 4; bar++) {
       const notes = grooveBar(bar, 0);
-      const chord = GUITAR_SKILL.chords[grooveChord(bar)];
+      const name = grooveChord(bar);
+      const v = G.voicings[name];
+      // the thumb: root then alternate string, in every cycle; strings 6, 5, 4 only
       const bass = notes.filter((n) => n.role === "bass");
-      expect(bass.map((n) => n.slot)).toEqual([0, 4, 8, 12]);
-      expect(bass.map((n) => n.semis)).toEqual([chord.root, chord.root + 7, chord.root, chord.root + 7]);
-      expect(notes.filter((n) => n.role === "harmony").map((n) => n.slot)).toEqual([1, 2, 5, 6, 9, 10, 13, 14]);
-      expect(notes.filter((n) => n.role === "harmony").map((n) => n.semis - chord.root)).toEqual([3, 2, 2, 3, 3, 2, 2, 3].map((i) => chord.voicing[i]));
-      // the fourth pluck of every cycle is a rest, left for the arrow
-      expect(notes.some((n) => n.slot % 4 === 3)).toBe(false);
+      expect(bass.map((n) => n.slot)).toEqual([0, 2, 4, 6, 8, 10, 12, 14]);
+      expect(bass.map((n) => n.string)).toEqual([v.root, v.alt, v.root, v.alt, v.root, v.alt, v.root, v.alt]);
+      for (const n of bass) expect(n.string).toBeGreaterThanOrEqual(4);
+      // the fingers: mid string, one per cycle
+      expect(notes.filter((n) => n.role === "harmony").map((n) => n.slot)).toEqual([1, 7, 9, 15]);
+      for (const n of notes.filter((n) => n.role === "harmony")) expect(n.string).toBeLessThanOrEqual(3);
+      // nothing on a rest slot
+      expect(notes.some((n) => restSlots.includes(n.slot))).toBe(false);
+      // no cycle climbs the strings low to high (counting the melody's high note)
+      for (let c = 0; c < G.cyclesPerBar; c++) {
+        // the melody's rest counts as the high string (1), as the arrow plays a high note there
+        const strings = [...groovePattern()].slice(c * 4, c * 4 + 4).map((ch, i) => (ch === "h" ? 1 : notes.find((n) => n.slot === c * 4 + i)!.string));
+        const rising = strings.every((x, i) => i === 0 || x < strings[i - 1]); // a lower string number is higher
+        expect(rising, `${name} cycle ${c}: ${strings}`).toBe(false);
+      }
     }
-    expect([...groovePattern()].flatMap((c, i) => (c === "h" ? [i] : []))).toEqual([3, 7, 11, 15]);
-    // the bass keeps alternating across the bar line
-    expect(groovePattern().replace(/[^rf]/g, "")).toBe("rfrf");
+    // the alternate bass is the fifth of the chord
+    for (const name of G.progression) {
+      const v = G.voicings[name];
+      const root = v.strings[v.root];
+      expect(pc(v.strings[v.alt] - root)).toBe(7);
+    }
+  });
+  it("picks the nearest string when a chord lacks one (D has no 6th string)", () => {
+    for (const name of G.progression) {
+      const v = G.voicings[name];
+      for (const s of [v.root, v.alt, v.mid, v.high]) expect(v.strings[s]).toBeDefined();
+    }
+    expect(G.voicings.D.strings[6]).toBeUndefined();
   });
   it("is the same for the same seed and repeats every four bars apart from the wobble", () => {
     expect(grooveBar(2, 5)).toEqual(grooveBar(2, 5));
@@ -143,7 +168,7 @@ describe("the scheduler", () => {
     r.run(2 * barLength() + 0.5);
     const origin = G.leadIn + dt;
     const times = r.ctx.oscillators.map((o) => o.startedAt ?? 0);
-    for (let k = 3; k < 28; k += 4) {
+    for (const k of [3, 5, 11, 13, 19, 21, 27, 29]) {
       const t = origin + grooveSlotTime(k);
       expect(times.filter((x) => Math.abs(x - t) < slotLength() / 2 - 0.02), `rest ${k}`).toHaveLength(0);
     }
@@ -270,13 +295,13 @@ describe("the groove in the game (level 6)", () => {
     expect(s.ctx.oscillators.slice(b)[0].startedAt).toBeCloseTo(s.ctx.currentTime, 6);
   });
   describe("snapping an arrow to the pattern's high-note slot", () => {
-    // Advances to `lead` seconds before the next "h" slot (slot 7 of the next bar to come), then presses.
-    function pressBefore(lead: number, snap?: boolean) {
+    // Advances to `lead` seconds before an "h" slot (by default slot 3 of the second bar), then presses.
+    function pressBefore(lead: number, snap?: boolean, slotInBar = 3, bar = 1) {
       const s = setup("groove", false, snap);
       s.keys.press("ArrowLeft"); // starts the loop
       s.advance(0.5);
       const groove = s.engine.groove as unknown as { origin: number };
-      const slot = grooveSlotTime(7 + 16); // the high slot of the second bar
+      const slot = grooveSlotTime(slotInBar + 16 * bar);
       const target = groove.origin + slot;
       s.ctx.currentTime = target - lead;
       const b = s.ctx.oscillators.length;
@@ -303,6 +328,15 @@ describe("the groove in the game (level 6)", () => {
       expect(out.start).toBeCloseTo(out.now, 6);
       const note = Math.round(r.s.ctx.oscillators.filter((o) => (o.startedAt ?? 0) === r.start)[0].frequency.calls[0].value);
       expect(note).toBe(Math.round(440 * 2 ** (melodyNote("E", "up") / 12)));
+    });
+    it("follows the rest slot of each cycle shape: slot 3 in cycle A and slot 5 in cycle B, in other bars too", () => {
+      for (const [slot, bar] of [[3, 1], [5, 1], [11, 2], [13, 2]] as const) {
+        const r = pressBefore(0.05, undefined, slot, bar);
+        expect(r.start, `slot ${slot}`).toBeCloseTo(r.target, 6);
+      }
+      // a press 50 ms before a background slot (slot 4) is not snapped to a rest slot (the next is 0.13 s on)
+      const near = pressBefore(0.05, undefined, 4, 1);
+      expect(near.start).toBeCloseTo(near.now, 6);
     });
     it("can be switched off: the press plays at once", () => {
       const r = pressBefore(0.05, false);

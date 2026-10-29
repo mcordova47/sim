@@ -1,7 +1,7 @@
 ---
 id: 114b
 title: Guitar skill, stage 2: the groove and the melody over it (level 6)
-status: done
+status: review
 owner: claude
 depends_on: [114a]
 ---
@@ -49,3 +49,4 @@ Marc listened to 114a: pattern strums were dropped and the levels are now six (s
   - Stall/restart/pause/mute/duck tests pass; no change to save/sync files; no folk song name in the repo; docs 6b matches config (460 bpm, 4 cycles, 0.01 swing, window 0.12, gains 0.7/0.55); only the allowed section 5 strum mention remains.
   - Minor, not blocking: with an odd cyclesPerBar (3) the bass restarts at the root each bar (r f r | r f r); the test limits it to 2 or 4. Stale comments: config line 910-911 (tempo/swing "slot of the groove a sixteenth"), GrooveNote "slot (0 to 7)" in guitar-skill.ts.
   - UNVERIFIED for Marc: the feel at 460 bpm, whether the loop is too busy or fast, melody 0.7 against it, snap naturalness, loudness.
+- 2026-10-28, round 4 (Marc: real fingerstyle string roles, never four ascending notes). The fixed cycle is now role data: `cycle: ["rmah", "rham"]` (r thumb root, a thumb alternate bass, m mid, i high, h melody rest), `voicings` per chord with the open-position strings (6 low E to 1 high E): A x02220, E 022100, F#m 244222, D xx0232 (no 6th string: its alternate bass is the open A; a missing role string takes the nearest). Bass only on strings 6/5/4, mid string 3. Rest slots: pluck 4 of cycle A, pluck 2 of cycle B; snap follows `h` per cycle shape (it already searched the pattern). Pluck rate, bar, snap, gains unchanged. Stale comments fixed. Tests: bass strings, no cycle climbing the strings (melody counted as the high string), rest slots, snap in both shapes. Doc 6b rewritten.

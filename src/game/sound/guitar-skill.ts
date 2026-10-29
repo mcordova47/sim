@@ -146,13 +146,14 @@ export function playKey(level: Level, dir: Dir, noteSemis: number, stroke: Strok
 }
 
 // The groove (issue 114b). One bar of it, for the bar at `bar` (counted from the first one, so
-// the chord is `progression[bar % 4]`): notes with `slot` (0 to 7) and their pitch, gain and a
+// the chord is `progression[bar % 4]`): notes with `slot` (the pluck in the bar, 0 up) and their pitch, gain and a
 // small seeded wobble in time (the scheduler adds the swing). Pure, so it can be tested without audio.
 export interface GrooveNote {
   slot: number;
   semis: number;
   gain: number;
   role: "bass" | "harmony";
+  string: number; // 6 (low E) to 1 (high E)
   wobble: number; // seconds
 }
 
@@ -161,31 +162,38 @@ export function grooveChord(bar: number): string {
   return progression[((Math.floor(bar) % progression.length) + progression.length) % progression.length];
 }
 
+// The string a role plays on a chord: its own, or the nearest the chord has.
+function stringFor(chord: string, want: number): { string: number; semis: number } {
+  const v = GUITAR_SKILL.groove.voicings[chord];
+  const have = Object.keys(v.strings).map(Number);
+  const string = have.includes(want) ? want : have.reduce((best, n) => (Math.abs(n - want) < Math.abs(best - want) ? n : best));
+  return { string, semis: v.strings[string] };
+}
+
 export function grooveBar(bar: number, seed = 0): GrooveNote[] {
   const g = GUITAR_SKILL.groove;
-  const chord = GUITAR_SKILL.chords[grooveChord(bar)];
+  const name = grooveChord(bar);
+  const v = g.voicings[name];
   const rand = seeded(seed * 7919 + Math.floor(bar) * 104729 + 1);
   const out: GrooveNote[] = [];
   [...groovePattern()].forEach((ch, slot) => {
     const wobble = (rand() * 2 - 1) * GUITAR_SKILL.humanise.time;
     const wobbleG = 1 + (rand() * 2 - 1) * GUITAR_SKILL.humanise.gain;
     const accent = slot === 0 ? g.accent : 1;
-    if (ch === "r") out.push({ slot, semis: chord.root, gain: g.bassGain * accent * wobbleG, role: "bass", wobble });
-    else if (ch === "f") out.push({ slot, semis: chord.root + 7, gain: g.bassGain * 0.9 * wobbleG, role: "bass", wobble });
-    else if (/\d/.test(ch)) {
-      const interval = chord.voicing[Number(ch)];
-      if (interval !== undefined) out.push({ slot, semis: chord.root + interval, gain: g.harmonyGain * wobbleG, role: "harmony", wobble });
-    }
+    const want = ch === "r" ? v.root : ch === "a" ? v.alt : ch === "m" ? v.mid : ch === "i" ? v.high : 0;
+    if (want === 0) return; // "h" (the rest left for the melody) or "."
+    const { string, semis } = stringFor(name, want);
+    const bass = ch === "r" || ch === "a";
+    out.push({ slot, semis, string, gain: (bass ? g.bassGain * (ch === "a" ? 0.9 : 1) * accent : g.harmonyGain) * wobbleG, role: bass ? "bass" : "harmony", wobble });
   });
   return out;
 }
 
-// The bar as one character a pluck: the cycles repeated `cyclesPerBar` times, the thumb "b" being "r" (root)
-// on even cycles and "f" (fifth) on odd ones, so the bass alternates. "h" is the rest left for the melody.
+// The bar as one character a pluck: the cycle shapes repeated `cyclesPerBar` times ("h" is the rest left for the melody).
 export function groovePattern(): string {
   const g = GUITAR_SKILL.groove;
   let out = "";
-  for (let c = 0; c < g.cyclesPerBar; c++) out += g.cycle[c % g.cycle.length].replace("b", c % 2 === 0 ? "r" : "f");
+  for (let c = 0; c < g.cyclesPerBar; c++) out += g.cycle[c % g.cycle.length];
   return out;
 }
 

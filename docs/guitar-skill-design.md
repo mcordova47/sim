@@ -103,19 +103,21 @@ The record player's trick, reused: no timers; each frame `update(synth)` schedul
 - **Where it lives.** `GuitarGroove` class in `src/game/sound/guitar-groove.ts` (like `MusicPlayer`; constructor takes the bus; `start()`, `stop()`, `update(synth)`, `chordNow(now)`); `SoundFeature` owns one, starts it on the first notes keypress at level 6, stops it when the activity is no longer `notes`. It uses the pure `groove(bar)` for what to play.
 - **While a record is playing:** the record player is not stopped; the guitar then is a second layer. Possible clash of keys (the tracks are in many keys). Accepted: recommended (and built) behaviour for level 6 is to **duck the record to 30% while the groove plays** (same mechanism the sleep scene uses to fade buses). Decide at build time (114e) by ear; see risks.
 
-## 6b. The built groove: a pluck-a-beat Travis pattern (issue 114b, after Marc listened twice)
+## 6b. The built groove: pluck-a-beat Travis pattern with real string roles (issue 114b, after Marc listened three times)
 
-Marc asked for a Travis-like picking pattern, fast, where the player's note REPLACES the fourth pluck instead of layering on a busy pattern. Built as data in `GUITAR_SKILL.groove`. Each pluck is one beat: `pluckBpm` 460 plucks a minute (a pluck every 0.130 s; the first Travis version was 116 bpm with a pluck about every 0.26 s), swing 0.01 of a pluck. The loop is a cycle of four plucks: three background plucks and a rest. `cycle: ["b32h", "b23h"]` lists the cycle shapes one after another, and `cyclesPerBar` (4) cycles make a bar (16 plucks, 2.09 s) with one chord per bar, I V vi IV (A E F#m D). `b` is the thumb, alternating the chord's root and fifth from cycle to cycle; a digit is a finger on the voicing's string at that index (inner strings); `h` is the rest.
+A Travis-like fingerstyle loop, fast, where the player's note REPLACES one pluck of every four instead of layering on a busy pattern. Data in `GUITAR_SKILL.groove`. Each pluck is one beat: `pluckBpm` 460 plucks a minute (0.130 s a pluck), swing 0.01. The loop is a cycle of four plucks (three background plucks and a rest, `h`, the arrow's slot). Two cycle shapes alternate (`cycle: ["rmah", "rham"]`), `cyclesPerBar` (4) cycles make a bar (16 plucks, 2.09 s), one chord per bar, I V vi IV (A E F#m D). Characters are string roles, not notes: `r` thumb on the bass-root string, `a` thumb on the alternate bass string (the fifth), `m` a finger on a mid string, `i` a finger on a high string, `h` the rest. It never runs straight up the strings.
 
 ```
-pluck   0 1 2 3 | 4 5 6 7 | 8 9 10 11 | 12 13 14 15
-cycle   b 3 2 h | b 2 3 h | b 3  2  h  | b  2  3  h
-bass    r       | f       | r         | f
+cycle A   r m a h     strings on the A chord: 5 3 4 [melody]
+cycle B   r h a m     strings on the A chord: 5 [melody] 4 3
+(a bar is A B A B)
 ```
 
-Melody: nothing plays on an `h` pluck in the loop; the player's arrow is that note (one of four chances a bar, about every 0.52 s). With no key pressed it stays silent. The note is always a note of the chord sounding (`melody[chord]`) at gain 0.7 (the loop is 0.55).
+The strings of each chord are data (`voicings`, strings 6 low E to 1 high E, open-position shapes): A x02220 (root string 5, alt 4), E 022100 (root 6, alt 5), F#m 244222 (root 6, alt 5), D xx0232 (root string 4; no 6th string, so its alternate bass is the open A string 5). Mid is string 3 and high string 2. A role whose string a chord lacks takes the nearest string the chord has. Bass strings are only 6, 5 and 4.
 
-Snap (`groove.snap`, on by default, `?guitarsnap=off` on the dev server): an arrow pressed within `window` (0.12 s) before an `h` pluck is played on it (delay at most 120 ms, never before the press) and uses the chord of that pluck's bar; any other press plays at once, and a press just after a pluck is not moved.
+Melody: nothing plays on an `h` pluck in the loop; the arrow is that note (rest slots are pluck 4 of cycle A and pluck 2 of cycle B, so 4 chances a bar, alternately 0.26 s and 0.78 s apart). With no key pressed it stays silent. The note is a note of the chord sounding (`melody[chord]`), gain 0.7 (the loop 0.55).
+
+Snap (`groove.snap`, on by default, `?guitarsnap=off`): an arrow pressed within `window` (0.12 s) before an `h` pluck is played on it (at most 120 ms late, never before the press) and uses that pluck's bar's chord; any other press plays at once.
 
 ## 7. Where the level is read (decided)
 

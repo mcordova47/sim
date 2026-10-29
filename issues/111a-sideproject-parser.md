@@ -1,7 +1,7 @@
 ---
 id: 111a
 title: Side project config 1: the parser and command set
-status: todo
+status: review
 owner: claude
 depends_on: [111]
 ---
@@ -16,3 +16,7 @@ Design and Marc's answers (2026-10-29): `docs/side-project-config-design.md` (th
 
 ## Progress log
 
+
+- 2026-10-29 (claude): Started. Plan: a pure `parseConfig` in `src/game/side-project-config.ts` with tests, nothing imported by the game.
+- 2026-10-29 (claude): Built. Commands `move`, `look`, `hide`, `add <sprite> at x y`, `figure on <piece> dx dy`, `dim`; `#` comments; a bad line is reported as "line N: ..." and skipped, the rest still applies; repeats of the same move/look/hide/figure/dim are reported and the first wins. Limits (exported `LIMITS`): 8000 chars, 200 lines, 120 chars a line, 100 commands, moves within 160, `add` inside x -64..384 and y -64..256, dim 0..0.6. The parser is syntax only: whether a piece or sprite exists is stage B (compose) and D (shipped file). Files: `src/game/side-project-config.ts`, `src/game/side-project-config.test.ts` (19 tests). Checked: `npm test` (152 files pass), `npx tsc --noEmit`, `npm run build`, `npm run check:dist` all pass; nothing imports the parser so the build is unchanged in behavior.
+- Left over: Marc's idea of the side project's own title ("Siminal Crossing") is text for the text review, not built here (no title command in the config; it belongs in `side-projects.ts`).

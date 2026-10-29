@@ -67,17 +67,17 @@ export interface ListView {
 // list that is drawn (`pauseButtons`, `listRows`, `pageButton`), so a tap and the picture agree.
 export const PAUSE_TOUCH = {
   margin: 6,
-  buttonH: 18,
-  buttonGap: 3,
+  buttonH: 16,
+  buttonGap: 2,
   buttonsTop: 17,
-  // The achievements: a header line with the page button, then rows. Three rows of buttons fit above
-  // them (the ad blocker, the voice, TRANSFER SAVE, RESET and CLOSE).
-  pageTop: 80,
-  rowsTop: 93,
+  // The achievements: a header line with the page button, then rows. Four rows of buttons fit above
+  // them (the ad blocker, the voice, TRANSFER SAVE, SYNC, THINGS, RESET and CLOSE).
+  pageTop: 89,
+  rowsTop: 102,
   rowHeight: 10,
 };
 
-export type PauseButtonId = "adBlocker" | "voice" | "transfer" | "sync" | "reset" | "close" | "yes" | "no";
+export type PauseButtonId = "adBlocker" | "voice" | "transfer" | "sync" | "things" | "reset" | "close" | "yes" | "no";
 
 export interface PauseButton {
   id: PauseButtonId;
@@ -107,7 +107,7 @@ export function pauseButtons(view: ListView): PauseButton[] {
   const list: Array<{ id: PauseButtonId; label: string }> = [];
   if (typeof view.adBlocker === "boolean") list.push({ id: "adBlocker", label: `AD BLOCKER: ${view.adBlocker ? "ON" : "OFF"}` });
   if (view.voice) list.push({ id: "voice", label: view.voice });
-  list.push({ id: "transfer", label: "TRANSFER SAVE" }, { id: "sync", label: "SYNC" }, { id: "reset", label: "RESET PROGRESS" }, { id: "close", label: "CLOSE" });
+  list.push({ id: "transfer", label: "TRANSFER SAVE" }, { id: "sync", label: "SYNC" }, { id: "things", label: "THINGS" }, { id: "reset", label: "RESET PROGRESS" }, { id: "close", label: "CLOSE" });
   return list.map((b, i) => ({ ...b, rect: at(i, T.buttonsTop) }));
 }
 
@@ -180,6 +180,7 @@ export function touchListHint(): string {
 
 export const TRANSFER_HINT = "T: TRANSFER SAVE";
 export const SYNC_HINT = "P: SYNC";
+export const THINGS_HINT = "I: THINGS";
 
 export const LEGEND_TEXT = "GOOD HOUR: 1.5X POINTS";
 
@@ -220,6 +221,7 @@ export function drawList(ctx: CanvasRenderingContext2D, view: ListView): void {
   if (!view.touch && rowsBottom <= LIST_LAYOUT.footerTop - 9) {
     drawText(ctx, TRANSFER_HINT, VIEW.width - 6, LIST_LAYOUT.footerTop - 9, { color: COLOR.mist, shadow: null, align: "right" });
     drawText(ctx, SYNC_HINT, 6, LIST_LAYOUT.footerTop - 9, { color: COLOR.mist, shadow: null });
+    drawText(ctx, THINGS_HINT, VIEW.width / 2, LIST_LAYOUT.footerTop - 9, { color: COLOR.mist, shadow: null, align: "center" });
   }
 
   const picked = view.achievements[view.cursor];

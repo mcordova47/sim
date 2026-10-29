@@ -7,6 +7,7 @@ import { browserAudio } from "../game/sound/audio-types";
 import { SoundEngine } from "../game/sound/engine";
 import { LAB_ENCOUNTER } from "./lab-encounter";
 import { LabMusicPlayer, labAudio } from "./lab-audio";
+import { IntroPreview, introPlan } from "./lab-intro";
 import { LabPlayer } from "./lab-player";
 import { loadLab, saveLab, type LabState } from "./lab-store";
 import { SAMPLE_TEXT, bake, channelRows, configLines, copyBack, parseLab, playable, type LabTrack, type Mode, type Tweaks } from "./lab-text";
@@ -28,6 +29,17 @@ const engine = new SoundEngine(browserAudio);
 const audio = labAudio(engine);
 const music = new LabMusicPlayer();
 const player = new LabPlayer(music, () => engine.ready, () => engine.now);
+// "Play with the encounter intro" (issue 123): the real entrance sounds, then the loop on the hit, on the same
+// bus the encounter hook uses (`sleep`, at the encounter music level) so the level is what the game will have.
+const introMusic = new LabMusicPlayer("sleep");
+const introPlayer = new LabPlayer(introMusic, () => engine.ready, () => engine.now);
+const preview = new IntroPreview({
+  playAt: (effect, pitch, delay) => void engine.playAt(effect, pitch === undefined ? undefined : { pitch }, delay),
+  startLoop: () => {
+    const now = current();
+    if (now) introPlayer.start(null, now.loop);
+  },
+});
 
 const text = $<HTMLTextAreaElement>("text");
 const status = $("status");
@@ -107,7 +119,7 @@ function changed(): void {
     const t = state.tweaks.tempo ?? lab.loop.tempo;
     setStatus(`ok. ${lab.intro ? `intro ${seconds(lab.intro.beats, t)}, ` : "no intro, "}loop ${seconds(lab.loop.beats, t)} at ${t} bpm.`, "ok");
     if (channelRows(lab).map((r) => r.key).join("|") !== rowsKey) renderChannels();
-    if (state.live && player.playing) apply();
+    if (state.live && (player.playing || introPlayer.playing)) apply();
   } else {
     setStatus(result.error, "error");
   }
@@ -124,12 +136,22 @@ function apply(): void {
   clearTimeout(timer);
   timer = setTimeout(() => {
     const now = current();
-    if (now) player.update(now.intro, now.loop);
+    if (!now) return;
+    if (introPlayer.playing) introPlayer.update(null, now.loop);
+    else if (player.playing) player.update(now.intro, now.loop);
   }, 150);
+}
+
+function stopAll(): void {
+  preview.stop();
+  introPlayer.stop();
+  player.stop();
 }
 
 function play(): void {
   engine.unlock();
+  preview.stop();
+  introPlayer.stop();
   if (state.tweaks.master !== undefined) audio.setMaster(state.tweaks.master);
   const now = current();
   if (!now) return;
@@ -145,7 +167,20 @@ text.addEventListener("keydown", (e) => {
   }
 });
 $("play").addEventListener("click", play);
-$("stop").addEventListener("click", () => player.stop());
+// Plays the encounter's real entrance sounds and starts the loop on the hit (the intro section of the text is
+// not used: the entrance is the intro). The loop is read when the hit comes, so edits before it count.
+function playWithIntro(): void {
+  engine.unlock();
+  if (!engine.ready) return setStatus("audio is not ready yet: press the button again", "error");
+  if (!current()) return;
+  if (state.tweaks.master !== undefined) audio.setMaster(state.tweaks.master);
+  stopAll();
+  audio.rampBus("sleep", state.tweaks.encounterGain ?? LAB_ENCOUNTER.defaultGain, 0);
+  preview.start(introPlan(), engine.now);
+}
+
+$("play-intro").addEventListener("click", playWithIntro);
+$("stop").addEventListener("click", stopAll);
 $<HTMLInputElement>("live").addEventListener("change", (e) => {
   state.live = (e.target as HTMLInputElement).checked;
   persist();
@@ -187,6 +222,8 @@ $("encounter").addEventListener("click", () => {
 for (const type of ["pointerdown", "keydown"] as const) document.addEventListener(type, () => engine.unlock());
 (function frame() {
   audio.update(music);
+  preview.tick(engine.now);
+  if (introPlayer.playing) audio.update(introMusic);
   requestAnimationFrame(frame);
 })();
 

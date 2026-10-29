@@ -18,7 +18,7 @@ import { EncounterActivity } from "./activities/encounter";
 import type { Ad } from "./encounter-ads";
 import { Encounters } from "./encounters";
 import { CLOCK, DEBUG, DIALOG, ENERGY, MOOD, TILE, VIEW } from "./config";
-import type { ActivityHost, RecordState } from "./activity";
+import type { Activity, ActivityHost, RecordState } from "./activity";
 import { openReelStore, type ReelPic, type ReelStoreHandle } from "./reel/reel-store";
 import type { Interactable } from "./interactable";
 import { DialogRunner, say, type DialogNode, type DialogResult, type DialogView } from "./dialog";
@@ -270,12 +270,21 @@ export class Game {
   // Shows `ad` as an encounter now (the roll does, and so does the dev shortcut). False if something
   // else is running or open, or its item does not exist.
   startEncounter(ad: Ad): boolean {
+    if (this.interaction.busy || this.dialog.open) return false;
+    const activity = this.buildEncounter(ad);
+    return activity !== null && this.interaction.begin(ENCOUNTER_TASK, activity);
+  }
+
+  // The encounter for `ad`, ready to start, with everything it needs from the game; null if its item does
+  // not exist. It does not begin: `startEncounter` runs it as the active task, and an activity that an ad may
+  // interrupt (the sofa scene) runs it as its child.
+  private buildEncounter(ad: Ad): EncounterActivity | null {
     const product = this.decor.item(ad.item);
-    if (!product || this.interaction.busy || this.dialog.open) return false;
+    if (!product) return null;
     // Keys from a typing or notes game that just ended may still be coming: the encounter's first dialog,
     // 0.8 s later, must not hear them either (issue 081).
     const afterKeyGame = this.strayKeysPossible();
-    const activity = new EncounterActivity(ad, this.activityHost(), {
+    return new EncounterActivity(ad, this.activityHost(), {
       owns: (id) => this.decor.owns(id),
       queued: (id) => this.deliveries.pendingItems.some((p) => p.id === id) || this.deliveries.waitingItems.includes(id),
       deliver: (id, hours) => this.deliveries.deliver(id, hours),
@@ -289,7 +298,21 @@ export class Game {
       afterKeyGame,
       product: { sprite: product.sprite, w: product.w, h: product.h },
     });
-    return this.interaction.begin(ENCOUNTER_TASK, activity);
+  }
+
+  // The roll for an ad in the middle of a running task (the sofa scene's close-up, issue 117f). The running
+  // task is the scene itself, so `interaction.busy` is not a reason to wait; an open dialog or locked input is.
+  private interruptWithAd(): Activity | null {
+    const ad = this.encounters.roll({
+      taskId: this.interaction.active?.item.id ?? "",
+      interrupt: true,
+      hours: this.deliveries.hours,
+      random: () => this.random(),
+      blocked: this.adBlockerOn,
+      busy: this.dialog.open || this.inputLocked,
+      usable: (a) => this.decor.item(a.item) !== undefined,
+    });
+    return ad ? this.buildEncounter(ad) : null;
   }
 
   // Switches the ad blocker on or off (saved by the sound feature, which keeps the settings).
@@ -341,6 +364,7 @@ export class Game {
       getState: (id) => this.state.get(id),
       random: () => this.random(),
       reelPictures: () => this.reelPics,
+      interruptWithAd: () => this.interruptWithAd(),
     };
   }
 

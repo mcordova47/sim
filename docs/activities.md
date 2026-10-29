@@ -69,6 +69,7 @@ What happened before and after issue 046 (reproduced on the real `Game`; `src/ga
 | typing | running | cancels | cancels |
 | make-track | any moment: editing, playing, typing a name, the start menu, the delete question, a paste | cancels at once, from anywhere (it does not close one box first) | cancels, pays nothing; the draft is already kept and the preview stops |
 | notes | running | ignored | cancels (made cancellable at Marc's request; no points, effects or cooldown, and a buffered E cannot restart it) |
+| photo scene (sofa) | an ad is over the close-up (issue 117f) | n/a | cancels only the ad, the same close-up returns; a second Escape leaves paying nothing; no second ad that session (`src/game/reel-ad.test.ts`) |
 
 ## How it scores
 

@@ -158,7 +158,13 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 109b | [Inventory 2: the THINGS page](issues/109b-inventory-page.md) | claude | done | 109a |
 | 109c | [Inventory 3: seen silhouettes](issues/109c-inventory-silhouettes.md) | claude | todo | 109b |
 | 110 | [A manual deploy button on GitHub](issues/110-manual-deploy-action.md) | claude | review | |
-| 111 | [The side project picture reacts to editable config (stretch)](issues/111-side-project-config.md) | marc + claude | todo | 101 |
+| 111 | [The side project picture reacts to editable config (stretch)](issues/111-side-project-config.md) | marc + claude | done | 101 |
+| 111a | [Side project config 1: the parser and command set](issues/111a-sideproject-parser.md) | claude | todo | 111 |
+| 111b | [Side project config 2: compose the little room from the real one](issues/111b-sideproject-compose.md) | claude | todo | 111 |
+| 111c | [Side project config 3: the view and the painter](issues/111c-sideproject-view.md) | claude | todo | 111 |
+| 111d | [Side project config 4: the real config file and the figure](issues/111d-sideproject-room.md) | claude | todo | 111a, 111b, 111c |
+| 111e | [Side project config 5: `when` conditions](issues/111e-sideproject-when.md) | claude | todo | 111d |
+| 111f | [Side project config 6: one real effect (later)](issues/111f-sideproject-effects.md) | marc + claude | todo | 111e |
 | 112 | [Real-world effects: what is feasible (research)](issues/112-real-world-effects-research.md) | marc + claude | done | |
 | 113 | [Photo reel: pixelated pictures from your own device (experiment)](issues/113-photo-reel-experiment.md) | marc + claude | todo (design first) | 112 |
 | 113a | [Photo reel 1: pixelate](issues/113a-reel-pixelate.md) | claude | done | 113 |

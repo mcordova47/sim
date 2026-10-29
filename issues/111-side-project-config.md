@@ -1,7 +1,7 @@
 ---
 id: 111
 title: The side project picture reacts to editable config (stretch)
-status: todo
+status: done
 owner: marc + claude
 depends_on: [101]
 ---
@@ -14,3 +14,4 @@ Marc (2026-10-28), a stretch goal: the side project could actually have an effec
 - Then plan small issues. The 101 drawing is the starting look.
 - 2026-10-28 (claude): design note written: docs/side-project-config-design.md (config as overrides on a faithful copy, composed at runtime, stages A to F, 5 open questions). Status unchanged.
 - 2026-10-29 (Marc): the side project, as a game inside the game, could have its own title, something like "Siminal Crossing" (the game's name is Simagotchi). Text for `docs/text-review.md` when picked; fits the side-project lines in `src/game/side-projects.ts`.
+- 2026-10-29 (planner): design merged (docs/side-project-config-design.md), Marc answered the questions (drift: faithful copy plus overrides; look: smoothed half scale); build issues 111a to 111f filed.

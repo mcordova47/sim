@@ -1,135 +1,127 @@
 import type { Controls } from "../../input/controls";
-import type { Rect, TapTarget } from "../../input/tap";
+import type { TapTarget } from "../../input/tap";
 import { COLOR } from "../../render/colors";
-import { drawText } from "../../render/font";
-import { drawPic } from "../achievements/photos-draw";
+import { hintLine } from "../../render/hints";
+import { drawCloseup, drawGrid, drawPhone, drawPhoneFoot } from "../achievements/gallery-draw";
 import { BaseActivity, needHost, registerActivity, type ActivityHost } from "../activity";
 import { REEL } from "../config";
-import { wrapText } from "../dialog";
+import { closeupLayout, gridLayout, move, open, pictureAt, sceneGallery, tapCell, type Dir, type Gallery } from "../reel/gallery";
 import type { ReelPic } from "../reel/reel-store";
 
-// "Scroll through photos" (issue 113d, docs/photo-reel-design.md section 6): a free-form activity
-// modelled on the track editor. It shows the stored pictures on a phone-screen panel, one at a time,
-// shuffled, and moves on by itself every REEL.seconds; Right (or a tap) goes on early. One pass of up
-// to REEL.pass pictures, then it ends and pays the task's few points. Escape (or a tap outside the
-// panel) leaves at once, paying nothing. Nothing about a picture is known to the game: the caption is
-// one fixed line chosen when the session starts and shown once, under the first picture.
+// "Scroll through photos", the sofa scene (issue 117e, docs/photo-gallery-design.md section 3.5). It
+// replaces the 113d slideshow. A phone view shows six pictures picked at random on one screen (no paging)
+// with one fixed line under them; the player moves a highlight with the arrows and presses E to open a
+// close-up of one. In the close-up E leaves and pays the task's points; Escape, anywhere, leaves and pays
+// nothing (the universal back-out). There is no add, delete or setting here. Nothing about a picture is
+// known to the game: both lines come from fixed pools in `REEL` and say nothing about what is shown.
+// All geometry comes from `reel/gallery.ts`, so what is drawn is what a tap hits.
 
-const BEZEL = 4;
-const LINE = 9;
-const CAPTION_LINES = 2;
-// The panel is one phone shape that holds either orientation: a square screen for the picture, the caption below.
-const SCREEN = 48 * REEL.scale;
-const PANEL_W = SCREEN + BEZEL * 2;
-const PANEL_H = BEZEL + SCREEN + 3 + LINE * CAPTION_LINES + BEZEL;
+const pick = (pool: readonly string[], random: () => number): string => (pool.length > 0 ? pool[Math.min(pool.length - 1, Math.floor(random() * pool.length))] : "");
 
-export interface ReelLayout {
-  panel: Rect;
-  screen: Rect;
-  captionTop: number;
-}
+const KEY_DIR: Record<string, Dir> = { ArrowLeft: "left", KeyA: "left", ArrowRight: "right", KeyD: "right", ArrowUp: "up", KeyW: "up", ArrowDown: "down", KeyS: "down" };
 
-// Where everything sits, for any picture size: the drawn panel and the tap on it read this one function.
-export function reelLayout(screen: { width: number; height: number }): ReelLayout {
-  const x = Math.floor((screen.width - PANEL_W) / 2);
-  const y = Math.max(0, Math.floor((screen.height - PANEL_H) / 2));
-  return {
-    panel: { x, y, w: PANEL_W, h: PANEL_H },
-    screen: { x: x + BEZEL, y: y + BEZEL, w: SCREEN, h: SCREEN },
-    captionTop: y + BEZEL + SCREEN + 3,
-  };
-}
-
-// A fresh order of the pictures with no repeats, using the game's random source, up to one pass.
-export function shuffledPass(pics: readonly ReelPic[], random: () => number, pass: number = REEL.pass): ReelPic[] {
-  const order = [...pics];
-  for (let i = order.length - 1; i > 0; i--) {
-    const j = Math.min(i, Math.floor(random() * (i + 1)));
-    [order[i], order[j]] = [order[j], order[i]];
-  }
-  return order.slice(0, pass);
+export interface ReelLines {
+  phoneLines: readonly string[];
+  closeupLines: readonly string[];
 }
 
 export class ReelActivity extends BaseActivity {
   cancellable = true;
-  // Right and E are this screen's keys, so a press made during it is its own.
+  // E and the arrows are this screen's keys, so a press made during it is its own.
   readonly readsKeys = true;
   // No time pressure: the apartment's clock stands still while it runs.
   readonly holdsClock = true;
 
-  readonly pass: readonly ReelPic[];
-  // The one caption of this session, or "" when the pool is empty.
-  readonly caption: string;
-  index = 0;
-  private shown = 0;
+  gallery: Gallery<ReelPic>;
+  // The one line under the grid, fixed for the whole session ("" when the pool is empty).
+  readonly phoneLine: string;
+  // The close-up's caption, chosen each time a close-up opens and kept while it is up.
+  caption = "";
+  private readonly closeupLines: readonly string[];
+  private readonly random: () => number;
 
-  constructor(
-    host: ActivityHost,
-    captions: readonly string[] = REEL.captions,
-  ) {
+  constructor(host: ActivityHost, lines: ReelLines = REEL) {
     super();
-    this.pass = shuffledPass(host.reelPictures?.() ?? [], () => host.random());
-    this.caption = captions.length > 0 ? captions[Math.min(captions.length - 1, Math.floor(host.random() * captions.length))] : "";
+    this.random = () => host.random();
+    this.gallery = sceneGallery(host.reelPictures?.() ?? [], this.random, REEL.pass);
+    this.phoneLine = pick(lines.phoneLines, this.random);
+    this.closeupLines = lines.closeupLines;
+  }
+
+  get inCloseup(): boolean {
+    return this.gallery.view === "closeup";
   }
 
   // With no picture there is nothing to scroll: end quietly and pay nothing.
   start(): void {
-    if (this.pass.length === 0) this.cancel();
+    if (this.gallery.pics.length === 0) this.cancel();
   }
 
+  // Escape (or LEAVE): from either view, pays nothing.
   cancel(): void {
     this.finish({ completed: false, quiet: true });
   }
 
-  get current(): ReelPic | null {
-    return this.pass[this.index] ?? null;
+  private openCloseup(): void {
+    if (this.inCloseup) return;
+    const next = open(this.gallery);
+    if (next === this.gallery) return;
+    this.gallery = next;
+    this.caption = pick(this.closeupLines, this.random);
   }
 
-  private next(): void {
-    if (this.done) return;
-    this.shown = 0;
-    this.index++;
-    this.progress = Math.min(1, this.index / Math.max(1, this.pass.length));
-    if (this.index >= this.pass.length) this.finish({ completed: true });
+  // E (or a tap) in the close-up: the one way to finish, and it pays.
+  private finishCloseup(): void {
+    if (this.inCloseup) this.finish({ completed: true });
   }
 
-  update(dt: number, controls: Controls): void {
+  update(_dt: number, controls: Controls): void {
     if (this.done) return;
     for (const code of controls.keys) {
       if (this.done) return;
-      if (code === "ArrowRight" || code === "KeyE") this.next();
+      if (code === "KeyE") {
+        if (this.inCloseup) this.finishCloseup();
+        else this.openCloseup();
+      } else if (!this.inCloseup && code in KEY_DIR) this.gallery = move(this.gallery, KEY_DIR[code]);
     }
-    if (this.done) return;
-    this.shown += dt;
-    if (this.shown >= REEL.seconds) this.next();
   }
 
   tapTargets(screen: { width: number; height: number }): TapTarget[] {
-    const { panel } = reelLayout(screen);
-    return [
-      // Outside the panel leaves; the panel goes to the next picture (later targets win).
-      { x: 0, y: 0, w: screen.width, h: screen.height, run: () => this.cancel() },
-      { ...panel, run: () => this.next() },
+    const full = { x: 0, y: 0, w: screen.width, h: screen.height };
+    if (this.inCloseup) return [{ ...full, run: () => this.finishCloseup() }];
+    const layout = gridLayout({ mode: "scene", screen, line: this.phoneLine });
+    const targets: TapTarget[] = [
+      // Outside the phone leaves (paying nothing); the phone itself swallows a stray tap.
+      { ...full, run: () => this.cancel() },
+      { ...layout.phone!.panel, run: () => undefined },
     ];
+    layout.cells.forEach((cell, i) => targets.push({ ...cell, run: () => this.tapCell(i) }));
+    for (const b of layout.phone!.buttons) targets.push({ ...b.rect, run: () => (b.id === "continue" ? this.openCloseup() : this.cancel()) });
+    return targets;
+  }
+
+  private tapCell(i: number): void {
+    const next = tapCell(this.gallery, i);
+    if (next.view === "closeup") this.openCloseup();
+    else this.gallery = next;
   }
 
   draw(ctx: CanvasRenderingContext2D, screen: { width: number; height: number }): void {
-    const pic = this.current;
+    const pic = pictureAt(this.gallery);
     if (!pic) return;
-    const l = reelLayout(screen);
+    if (this.inCloseup) {
+      const layout = closeupLayout({ mode: "scene", screen, pic, caption: this.caption });
+      drawCloseup(ctx, layout, pic, { hint: hintLine([{ key: "E", text: "DONE" }]) });
+      return;
+    }
     ctx.fillStyle = COLOR.night;
     ctx.globalAlpha = 0.7;
     ctx.fillRect(0, 0, screen.width, screen.height);
     ctx.globalAlpha = 1;
-    ctx.fillStyle = COLOR.paper;
-    ctx.fillRect(l.panel.x, l.panel.y, l.panel.w, l.panel.h);
-    ctx.fillStyle = COLOR.ink;
-    ctx.fillRect(l.screen.x, l.screen.y, l.screen.w, l.screen.h);
-    drawPic(ctx, pic, l.screen, REEL.scale);
-    if (this.index === 0 && this.caption) {
-      const lines = wrapText(this.caption, l.screen.w).slice(0, CAPTION_LINES);
-      lines.forEach((line, i) => drawText(ctx, line, l.panel.x + l.panel.w / 2, l.captionTop + i * LINE, { color: COLOR.ink, align: "center", shadow: null }));
-    }
+    const layout = gridLayout({ mode: "scene", screen, line: this.phoneLine });
+    drawPhone(ctx, layout);
+    drawGrid(ctx, this.gallery, layout, "scene");
+    drawPhoneFoot(ctx, layout);
   }
 }
 

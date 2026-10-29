@@ -438,22 +438,30 @@ export const DIALOG = {
   textWidth: VIEW.width - 2 * 4 - 2 * 6,
 };
 
-// The photo reel's sofa task (issue 113d, docs/photo-reel-design.md section 6). A session shows up to
-// `pass` of the stored pictures, shuffled, `seconds` each, then ends. The caption is one line, chosen
-// from `captions` when the task starts and shown once, under the first picture. Marc's rule: no line
-// ever mentions resolution, size or pixels (a test checks the pool). Edit the pool here; the five are
-// the design note's, for the text review (docs/text-review.md).
+// The photo reel's sofa scene (issue 117e, docs/photo-gallery-design.md sections 3.5 and 8). `pass`
+// pictures are picked at random and shown on the one phone-view screen. `phoneLines` holds the fixed line
+// under the grid (one is chosen when the scene starts and kept for the session); `closeupLines` holds the
+// close-up's caption (one is chosen each time a close-up opens). Marc's rule: no line ever mentions
+// resolution, size or pixels, and none claims anything about what a picture shows (a test checks both
+// pools). The pools are plain lists for the text review (docs/text-review.md): drop or change a line here.
 export const REEL = {
   pass: 6,
-  seconds: 4,
-  // A stored picture is shown at this multiple, so every source pixel is a crisp block.
-  scale: 3,
-  captions: [
-    "You look at the pictures.",
-    "You were there for most of these.",
-    "You almost recognize the room.",
-    "Nice light.",
+  phoneLines: [
     "You scroll for a while, because why not.",
+    "There is a lot of it, and it is all yours.",
+    "Mostly the same few places.",
+    "You have taken a lot of pictures of this.",
+    "You were there for most of these.",
+    "Nothing here needs an answer.",
+  ] as readonly string[],
+  closeupLines: [
+    "Ah, memories.",
+    "You remember this. Mostly.",
+    "Look at that.",
+    "Good times, probably.",
+    "You were there.",
+    "Was it always like that?",
+    "You could look at this all day. You do not.",
   ] as readonly string[],
 } as const;
 

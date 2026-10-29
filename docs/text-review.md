@@ -33,7 +33,10 @@ The pause-screen page where pictures are added and removed. The first five lines
 - Buttons: ADD PHOTOS, REMOVE ALL, SURE? REMOVE ALL, BACK. Pause screen: PHOTOS (touch button), O: PHOTOS (desktop hint).
 - After REMOVE ALL: The pictures are gone. The originals were never here.
 - Sofa task (issue 113d, wired): name and prompt "Scroll through photos"; unmet reason NO PICTURES (never shown to the player in practice: with no pictures the task is not listed). The task has no flavor line.
-- Sofa-task captions (issue 113d, wired in `REEL.captions` in `src/game/config.ts`; one is chosen per session and shown once, under the first picture; the pool is a plain list, so marking one "rewrite" or deleting it is a one-line change): You look at the pictures. - / You were there for most of these. - / You almost recognize the room. - / Nice light. - / You scroll for a while, because why not. -
+- Sofa scene (issue 117e, replaces the 113d slideshow and its five captions; pools are `REEL.phoneLines` and `REEL.closeupLines` in `src/game/config.ts`, plain lists, so a "rewrite" or a deletion is a one-line change; no line mentions resolution, size or pixels or claims anything about what a picture shows, and a test checks that). Marc to mark each: keep / soften / rewrite.
+  - Fixed phone-view line (one is chosen when the scene starts and shown under the grid for the whole session): You scroll for a while, because why not. - / There is a lot of it, and it is all yours. - / Mostly the same few places. - / You have taken a lot of pictures of this. - / You were there for most of these. - / Nothing here needs an answer. -
+  - Close-up caption (one is chosen each time a close-up opens): Ah, memories. - / You remember this. Mostly. - / Look at that. - / Good times, probably. - / You were there. - / Was it always like that? - / You could look at this all day. You do not. -
+  - Scene chrome: title PHOTOS; hints E: CONTINUE   ESC: LEAVE (wide), buttons CONTINUE and LEAVE (narrow), E: DONE in the close-up (A: DONE on the touch layer). -
 
 ## Tasks
 

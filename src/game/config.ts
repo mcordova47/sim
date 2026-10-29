@@ -490,6 +490,8 @@ export const MAKE_TRACKS = {
   reward: { points: 90, mood: 6, cooldownHours: 6, minNotes: 8, minChannels: 2 },
   // Seconds a message in the editor's footer stays.
   messageSeconds: 3,
+  // On the touch look, a page a tap chose stays shown this long while playing before it follows the playhead.
+  pageHoldSeconds: 3,
 };
 
 // Debug drawing, off in normal play.

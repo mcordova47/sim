@@ -207,6 +207,23 @@ export const ENCOUNTERS = {
     fadeInFrames: 12,
     fadeOutFrames: 8,
   },
+  // The encounter's music (issue 091a, docs/encounter-music-design.md): a system track on its own
+  // `encounter` bus. It starts on the entrance's hit chord (`startFrame` must be that cue's frame; a test
+  // checks), or when the card opens if E skipped the entrance; it plays `maxLoops` passes and then fades out
+  // over `loopFadeOut`; a record playing is turned down to `duckTo` (0: silent, it keeps its place) over
+  // `duckDown` and back over `duckUp`. Every leave fades the loop: `resultFade` when the closing line (or
+  // the exit) comes, `escapeFade` at once for Escape. With reduced motion there is no music and no duck.
+  music: {
+    startFrame: 32,
+    gain: 0.35,
+    maxLoops: 4,
+    loopFadeOut: 4,
+    duckTo: 0,
+    duckDown: 0.3,
+    duckUp: 1.5,
+    resultFade: 0.35,
+    escapeFade: 0.25,
+  },
   // Mood edges for the extra narrator line (tone only, no change to the odds).
   toneLow: 30,
   toneHigh: 80,

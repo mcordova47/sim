@@ -80,7 +80,8 @@ try {
     // A dynamic import, so a build has none of the lab's code at all.
     void import("./lab/lab-encounter").then(({ labEncounterMusic }) => {
       const engine = (globalThis as unknown as { simSoundEngine: Parameters<typeof labEncounterMusic>[1] }).simSoundEngine;
-      if (engine) labEncounterMusic(game, engine, location.search, localStorage);
+      // The lab's stand-in replaces the placeholder track while it plays, so the two never stack.
+      if (engine && labEncounterMusic(game, engine, location.search, localStorage)) engine.encounter.disabled = true;
     });
   }
 } catch {

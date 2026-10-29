@@ -22,3 +22,4 @@ Marc (2026-10-27): "encounter music", like the fight music in Pokemon or Final F
 - `npm test`, `npx tsc --noEmit`, `npm run build` pass; how it sounds is Marc's call and is listed as unverified until he plays it.
 
 ## Progress log
+- 2026-10-28: Design note written: `docs/encounter-music-design.md` (branch issue/091-design). Awaiting Marc's answers to its open questions before any build.

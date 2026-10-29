@@ -138,7 +138,7 @@ Same style as `flashcards-touch.test.ts`: build the activity with a fake host an
 Docs: update `docs/make-tracks.md` (a "On phones" section) and `docs/mobile.md` section 4 (the editor row, "Skipped on phones" line) when 106a lands. Close with the unverified list from section 5.
 
 ## 8. Open questions for Marc (one at a time, most important first)
-1. **How tall should the grid cells be?** 6 pitch rows of 20 game px (33 CSS px tall) shows more melody; 5 rows of 22 (37 CSS px) is easier to hit.
+1. **How tall should the grid cells be? ANSWERED by Marc 2026-10-28: (a) 6 rows of 20 game px.** 6 pitch rows of 20 game px (33 CSS px tall) shows more melody; 5 rows of 22 (37 CSS px) is easier to hit.
    - A (recommended): 6 rows, try it on the phone, drop to 5 only if you miss.
    - B: 5 rows from the start.
    - C: 4 rows of 26 (43 CSS px), the full tap-size rule, but a lot of scrolling.

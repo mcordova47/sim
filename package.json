@@ -10,7 +10,10 @@
     "preview": "vite preview",
     "sprites": "node scripts/sprites.mjs",
     "brand": "node scripts/brand.mjs",
-    "check:dist": "node scripts/check-dist.mjs"
+    "check:dist": "node scripts/check-dist.mjs",
+    "tools": "node scripts/tools.mjs",
+    "lab": "node scripts/tools.mjs lab",
+    "pixel": "node scripts/tools.mjs pixel"
   },
   "devDependencies": {
     "typescript": "^5.6.0",

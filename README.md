@@ -28,3 +28,6 @@ Controls: WASD or arrow keys to walk (a new direction turns you first, holding i
 - `art/`: sprite sources, the palette and the style guide notes (`docs/art-style.md`)
 - `issues/`: the issue files; one file per issue, tracked by `PLAN.md`
 - `.claude/skills/`: the `work-issue`, `review-issue` and `merge-issue` skills used to run the project
+
+## Tools
+`npm run tools` lists the project's tools and how to run them. The ones you will reach for: `npm run lab` (the music lab, a live `.track` editor on the game's own synth) and `npm run pixel` (the pixel looks page, to see a picture through the game's palette). Others (`sprites`, `brand`, `walk`, `room`, `check`, `worktrees`) run with `npm run tools -- <name>`.

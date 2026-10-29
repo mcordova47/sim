@@ -93,6 +93,14 @@ export function move<P extends PicSize>(g: Gallery<P>, dir: Dir): Gallery<P> {
   return atFlat(g, to);
 }
 
+// Turn to the previous or next page, keeping the highlight on the same cell number (or on the last picture
+// of a short page). At the ends nothing happens.
+export function turnPage<P extends PicSize>(g: Gallery<P>, delta: 1 | -1): Gallery<P> {
+  const page = g.page + delta;
+  if (page < 0 || page > pageCount(g.pics.length) - 1) return g;
+  return { ...g, page, cursor: Math.min(g.cursor, cellsOnPage(g.pics.length, page) - 1) };
+}
+
 export function open<P extends PicSize>(g: Gallery<P>): Gallery<P> {
   return indexAt(g) === null ? g : { ...g, view: "closeup" };
 }

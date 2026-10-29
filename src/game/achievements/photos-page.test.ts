@@ -225,7 +225,7 @@ describe.each([
         for (const r of [...l.buttons.map((b) => b.rect), ...l.thumbs.map((t) => t.rect)]) {
           expect(r.x).toBeGreaterThanOrEqual(0);
           expect(r.x + r.w).toBeLessThanOrEqual(VIEW.width);
-          expect(r.y + r.h).toBeLessThanOrEqual(VIEW.height - 11);
+          expect(r.y + r.h).toBeLessThanOrEqual(VIEW.height); // 117c: the grid page uses the foot of the view
         }
         const rects = [...l.buttons.map((b) => b.rect), ...l.thumbs.map((t) => t.rect)];
         for (let i = 0; i < rects.length; i++) for (let j = i + 1; j < rects.length; j++) {
@@ -247,7 +247,8 @@ describe.each([
     s.press("KeyO");
     await s.tick();
     const drawn = photosLayout(s.internals.photosView()).buttons.map((b) => b.rect);
-    expect(s.game.tapTargets().map(({ x, y, w, h }) => ({ x, y, w, h }))).toEqual(drawn);
+    // 117c: the buttons come first, then the grid's cells (a tap on a cell moves the highlight)
+    expect(s.game.tapTargets().slice(0, drawn.length).map(({ x, y, w, h }) => ({ x, y, w, h }))).toEqual(drawn);
     const withMessage = photosLayout({ ...s.internals.photosView(), message: ["a", "b"] }).buttons.map((b) => b.rect);
     expect(withMessage).toEqual(drawn);
   });

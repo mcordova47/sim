@@ -145,7 +145,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 107 | [The guitar: flipped so it reads as standing on a stand](issues/107-guitar-on-a-stand.md) | claude | done | 100 |
 | 108 | [The guitar's timbre follows the current instrument](issues/108-guitar-timbre.md) | claude | done | |
 | 109 | [A browsable inventory, like a pokedex](issues/109-browsable-inventory.md) | marc + claude | done | 073 |
-| 109a | [Inventory 1: entry data](issues/109a-inventory-entry-data.md) | claude | todo | 109 |
+| 109a | [Inventory 1: entry data](issues/109a-inventory-entry-data.md) | claude | done | 109 |
 | 109b | [Inventory 2: the THINGS page](issues/109b-inventory-page.md) | claude | todo | 109a |
 | 109c | [Inventory 3: seen silhouettes](issues/109c-inventory-silhouettes.md) | claude | todo | 109b |
 | 110 | [A manual deploy button on GitHub](issues/110-manual-deploy-action.md) | claude | review | |

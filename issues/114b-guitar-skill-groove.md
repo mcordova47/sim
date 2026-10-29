@@ -1,7 +1,7 @@
 ---
 id: 114b
 title: Guitar skill, stage 2: the groove and the melody over it (level 6)
-status: done
+status: review
 owner: claude
 depends_on: [114a]
 ---
@@ -59,3 +59,4 @@ Marc listened to 114a: pattern strums were dropped and the levels are now six (s
   - Loudness: modelled the summed envelope of the loop (peak and rms of the overlapping plucks) for the previous cycle and the new one: same twelve notes a bar, peak 0.108 vs 0.104 and rms 0.043 vs 0.040 before the bus gains (about +4 percent and +9 percent). Pitch is lower now (E2 82 Hz bass) but per-note gains are unchanged, so the level is far below the limiter (threshold -3 dB, about 0.71 of full scale, after master 0.35 and music 0.7). Low triangle notes on small speakers may sound weaker or boomier, not louder; for Marc to hear.
   - Minor, not blocking: a comment in guitar-groove.ts (`k`, "the next eighth to schedule") is still stale (it is a pluck). The alternate bass is now always the same string each cycle (root, then fifth), not alternating root/fifth across cycles, as asked. The bass in a D bar goes D3 then A2, below the root.
   - UNVERIFIED for Marc (an agent cannot hear): how the string roles and the low bass feel at 460 bpm, whether the mid-string note sits well in A and B, the melody against it, loudness.
+- 2026-10-28, round 5 (Marc: melody still stands out). Added `GUITAR_SKILL.groove.pitchTilt` ({dbPerOctave 2.5, reference -24}, 0 = off, `?guitartilt=` dev override): the loop's mid notes and the melody get 2.5 dB less per octave above the low A (bass strings are at or near the reference, barely touched; the chord levels' per-string normalising is separate and unchanged). `melodyGain` 0.7 to 0.6 (applied before the tilt). Per-note peaks (offline mix, steel): melody before 0.062 to 0.085 (4.8 to 7.2 dB over the loudest loop note, 0.037); after 0.022 to 0.041 (+0.9 to -4.5 dB); loop mid 0.020-0.022 to 0.015-0.017. Nylon: melody before 0.069 to 0.080, after 0.023 to 0.036 against a loop up to 0.048. Tests: tilt maths, 0 reproduces old gains, balance (at most 2 dB over the loudest loop note, at most 7 under, above the mid notes), dev override.

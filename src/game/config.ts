@@ -968,7 +968,12 @@ export const GUITAR_SKILL = {
     bassGain: 1,
     harmonyGain: 0.7,
     accent: 1.15, // the first slot of a bar
-    melodyGain: 0.7, // the arrows' notes next to the pattern (was 1 before Marc found it high)
+    melodyGain: 0.6, // the arrows' notes next to the pattern, before the tilt (1, then 0.7, before Marc found it high)
+    // Higher notes sound louder at the same level, so the loop's mid notes and the melody are turned down
+    // by `dbPerOctave` for each octave above `reference` (semitones from A4; -24 is the low A, the bass
+    // range). The bass strings sit at or near it and are barely touched. 0 turns the tilt off (`?guitartilt=0`
+    // in the dev server tries other values).
+    pitchTilt: { dbPerOctave: 2.5, reference: -24 },
     snap: { enabled: true, window: 0.12 },
     gain: 0.55, // all of it, next to the melody
     leadIn: 0.05, // seconds from the first press to the first slot

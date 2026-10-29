@@ -7,9 +7,10 @@ import { parseTrack } from "../music/track";
 import { TASKS } from "../tasks";
 import { parseTileMap } from "../tilemap";
 import { FakeAudioContext } from "./fake-audio";
-import { SoundFeature, type KeyEventLike, type Listenable } from "./feature";
+import { devGuitarTilt, SoundFeature, type KeyEventLike, type Listenable } from "./feature";
 import { GuitarGroove } from "./guitar-groove";
-import { barLength, grooveBar, grooveChord, groovePattern, grooveSlotTime, grooveSlots, melodyNote, slotLength, type Dir } from "./guitar-skill";
+import { mixPeak } from "./guitar-mix";
+import { tiltGain, barLength, grooveBar, grooveChord, groovePattern, grooveSlotTime, grooveSlots, melodyNote, slotLength, type Dir } from "./guitar-skill";
 import { Synth } from "./synth";
 
 const inKey = (semis: number) => [0, 2, 4, 5, 7, 9, 11].includes(((semis % 12) + 12) % 12);
@@ -122,6 +123,81 @@ describe("the groove's data and pure parts", () => {
       expect(pc(notes[2] - notes[0])).toBe(7);
     }
     expect(melodyNote("A", "left")).not.toBe(melodyNote("D", "left"));
+  });
+});
+
+describe("the balance of melody and loop (pitch tilt)", () => {
+  const db = (x: number) => 20 * Math.log10(x);
+  // The peak of one note at the output, through the offline mix (the same envelopes as the synth).
+  const peak = (effect: string, semis: number, gain: number, stretch: number) => mixPeak([{ effect, time: 0, pitch: 2 ** (semis / 12), gain, stretch }]);
+  const voices = ["steel", "nylon"];
+  function peaks(voice: string, tilt?: number) {
+    const loop: { chord: string; role: string; peak: number }[] = [];
+    const melody: { chord: string; dir: Dir; peak: number }[] = [];
+    for (let bar = 0; bar < 4; bar++)
+      for (const n of grooveBar(bar, 0, tilt))
+        loop.push({ chord: grooveChord(bar), role: n.role, peak: peak(SOUND.guitarStrings[voice].string, n.semis, n.gain * G.gain, GUITAR_SKILL.decay) });
+    for (const chord of G.progression)
+      for (const d of dirs) {
+        const semis = melodyNote(chord, d);
+        melody.push({ chord, dir: d, peak: peak(SOUND.guitarVoices[voice], semis, G.melodyGain * tiltGain(semis, tilt), 1) });
+      }
+    return { loop, melody };
+  }
+  it("has no tilt below the reference, dbPerOctave dB less for every octave above it, and 0 reproduces the old gains", () => {
+    const { reference } = G.pitchTilt;
+    expect(tiltGain(reference - 12)).toBe(1);
+    expect(tiltGain(reference)).toBe(1);
+    expect(db(tiltGain(reference + 12))).toBeCloseTo(-G.pitchTilt.dbPerOctave, 6);
+    expect(db(tiltGain(reference + 24))).toBeCloseTo(-2 * G.pitchTilt.dbPerOctave, 6);
+    for (const semis of [-29, -12, 0, 12, 19]) expect(tiltGain(semis, 0)).toBe(1);
+    // with the tilt off the loop's gains are the untilted ones: the bass is untouched, mid notes are harmonyGain
+    for (const n of grooveBar(0, 0, 0)) if (n.role === "harmony") expect(n.gain / G.harmonyGain).toBeGreaterThan(1 - GUITAR_SKILL.humanise.gain - 1e-9);
+    expect(grooveBar(0, 0, 0).filter((n) => n.role === "harmony").map((n) => n.gain)).not.toEqual(grooveBar(0, 0).filter((n) => n.role === "harmony").map((n) => n.gain));
+  });
+  it("keeps the melody balanced with the loop: at most 2 dB over its loudest note and at most 7 dB under it (the high notes are turned down to sound level with the low ones), and over the loop's mid notes, in every voice and chord", () => {
+    for (const voice of voices) {
+      const { loop, melody } = peaks(voice);
+      const loudest = Math.max(...loop.map((n) => n.peak));
+      const mid = Math.max(...loop.filter((n) => n.role === "harmony").map((n) => n.peak));
+      for (const m of melody) {
+        const over = db(m.peak / loudest);
+        expect(over, `${voice} ${m.chord} ${m.dir}: ${over.toFixed(1)} dB`).toBeGreaterThanOrEqual(-7);
+        expect(over, `${voice} ${m.chord} ${m.dir}: ${over.toFixed(1)} dB`).toBeLessThanOrEqual(2);
+        expect(m.peak).toBeGreaterThan(mid);
+      }
+    }
+  });
+  it("is quieter with the tilt than without for the high notes (it is what keeps them from standing out)", () => {
+    const tilted = peaks("steel");
+    const flat = peaks("steel", 0);
+    expect(Math.max(...tilted.melody.map((m) => m.peak))).toBeLessThan(Math.max(...flat.melody.map((m) => m.peak)));
+  });
+  it("reads ?guitartilt= only in dev, 0 to 12", () => {
+    expect(devGuitarTilt("?guitartilt=0", true)).toBe(0);
+    expect(devGuitarTilt("?guitartilt=3.5", true)).toBe(3.5);
+    expect(devGuitarTilt("?guitartilt=-1", true)).toBeUndefined();
+    expect(devGuitarTilt("?guitartilt=x", true)).toBeUndefined();
+    expect(devGuitarTilt("?guitartilt=", true)).toBeUndefined();
+    expect(devGuitarTilt("", true)).toBeUndefined();
+    expect(devGuitarTilt("?guitartilt=2", false)).toBeUndefined();
+  });
+  it("was far louder before the tilt and the lower gain (melody 0.7, no tilt)", () => {
+    for (const voice of voices) {
+      const loudest = Math.max(...peaks(voice).loop.map((n) => n.peak));
+      const before = Math.max(...G.progression.flatMap((c) => dirs.map((d) => peak(SOUND.guitarVoices[voice], melodyNote(c, d), 0.7, 1))));
+      const after = Math.max(...peaks(voice).melody.map((m) => m.peak));
+      expect(db(before / loudest)).toBeGreaterThan(4);
+      expect(after).toBeLessThan(before * 0.7);
+    }
+  });
+  it("prints the per-note peaks (informational)", () => {
+    for (const voice of voices) {
+      const { loop, melody } = peaks(voice);
+      const flat = peaks(voice, 0);
+      const f = (xs: number[]) => `${Math.min(...xs).toFixed(3)} to ${Math.max(...xs).toFixed(3)}`;
+      console.log(`${voice} loop bass ${f(loop.filter((n) => n.role === "bass").map((n) => n.peak))}, loop mid ${f(loop.filter((n) => n.role === "harmony").map((n) => n.peak))} (untilted ${f(flat.loop.filter((n) => n.role === "harmony").map((n) => n.peak))}), melody ${f(melody.map((n) => n.peak))}`);
+    }
   });
 });
 

@@ -170,7 +170,15 @@ function stringFor(chord: string, want: number): { string: number; semis: number
   return { string, semis: v.strings[string] };
 }
 
-export function grooveBar(bar: number, seed = 0): GrooveNote[] {
+// The gain multiplier for a note at `semis` (from A4): 1 up to the reference note, then `dbPerOctave`
+// dB less for every octave above it. The groove's mid notes and the melody use it (the chord levels'
+// per-string normalising in `strokeEvents` is separate and does not apply to single notes).
+export function tiltGain(semis: number, dbPerOctave = GUITAR_SKILL.groove.pitchTilt.dbPerOctave, reference = GUITAR_SKILL.groove.pitchTilt.reference): number {
+  const octaves = Math.max(0, (semis - reference) / 12);
+  return 10 ** (-(dbPerOctave * octaves) / 20);
+}
+
+export function grooveBar(bar: number, seed = 0, tilt = GUITAR_SKILL.groove.pitchTilt.dbPerOctave): GrooveNote[] {
   const g = GUITAR_SKILL.groove;
   const name = grooveChord(bar);
   const v = g.voicings[name];
@@ -184,7 +192,7 @@ export function grooveBar(bar: number, seed = 0): GrooveNote[] {
     if (want === 0) return; // "h" (the rest left for the melody) or "."
     const { string, semis } = stringFor(name, want);
     const bass = ch === "r" || ch === "a";
-    out.push({ slot, semis, string, gain: (bass ? g.bassGain * (ch === "a" ? 0.9 : 1) * accent : g.harmonyGain) * wobbleG, role: bass ? "bass" : "harmony", wobble });
+    out.push({ slot, semis, string, gain: (bass ? g.bassGain * (ch === "a" ? 0.9 : 1) * accent : g.harmonyGain * tiltGain(semis, tilt)) * wobbleG, role: bass ? "bass" : "harmony", wobble });
   });
   return out;
 }

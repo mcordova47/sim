@@ -13,13 +13,15 @@ export class GuitarGroove {
   private on = false;
   private effect = SOUND.guitarStrings.steel.string;
   private seed = 0;
+  private tilt = GUITAR_SKILL.groove.pitchTilt.dbPerOctave;
 
   get running(): boolean {
     return this.on;
   }
 
   // Starts the loop from the next update. `effect` is the string tone it is played in (the instrument's).
-  start(effect: string, seed = 0): void {
+  start(effect: string, seed = 0, tilt = GUITAR_SKILL.groove.pitchTilt.dbPerOctave): void {
+    this.tilt = tilt;
     this.on = true;
     this.effect = effect;
     this.seed = seed;
@@ -68,7 +70,7 @@ export class GuitarGroove {
       if (time > now + MUSIC.lookahead) return;
       const bar = Math.floor(this.k / grooveSlots());
       const slot = this.k % grooveSlots();
-      for (const note of grooveBar(bar, this.seed)) {
+      for (const note of grooveBar(bar, this.seed, this.tilt)) {
         if (note.slot !== slot) continue;
         const t = Math.max(this.origin, time + note.wobble);
         if (t >= now - MUSIC.skipLate) this.sound(synth, note.semis, note.gain, t);

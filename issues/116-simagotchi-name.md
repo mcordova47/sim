@@ -1,7 +1,7 @@
 ---
 id: 116
 title: Name the game Simagotchi (title, link preview, README, pause screen)
-status: todo
+status: review
 owner: claude
 depends_on: []
 ---
@@ -16,3 +16,6 @@ Open question for Marc, not part of this issue: a different title for the game a
 
 ## Progress log
 
+
+- 2026-10-29: Started. Plan: name into index.html (title, og/twitter, descriptions, screen-reader line), README, pause header; keep social.png picture.
+- 2026-10-29: Done, in review. Changed: `index.html` (title, og:title, twitter:title, added og:site_name, hidden line; descriptions are unchanged because they never carried the old name), `README.md` (heading and first sentence, note that the repo keeps `sim`), `src/game/achievements/draw.ts` + `pause.test.ts` (pause header now "SIMAGOTCHI  n/m"; the old "PAUSE  ACHIEVEMENTS n/m" plus the name would collide with the good-hour legend), `docs/text-review.md` (new entry). Link preview: the picture is unchanged (sprites carry no readable text, so no lettering); the name is in the og/twitter text only, so `public/social.png` and `npm run brand -- --check` are untouched. Golden frames unchanged (the pause screen is not in them). No save, storage key, URL, package name or build output name changed. `docs/` had no mention of "Life" as the product name; `PLAN.md` line 1 still says "Life" (not mine to edit; planner). Checked: npm test, tsc --noEmit, npm run build, check:dist, brand --check all pass. Unverified: how the pause header looks in a browser.

@@ -1,6 +1,6 @@
-# Sim
+# Simagotchi
 
-A top-down, Pokemon-style game set in a studio apartment. Walk tile to tile, face something, press E, earn points. See [PLAN.md](PLAN.md) for the design and the issue list.
+Simagotchi is a top-down, Pokemon-style game set in a studio apartment. Walk tile to tile, face something, press E, earn points. The repo and the site address keep the working name `sim`. See [PLAN.md](PLAN.md) for the design and the issue list.
 
 The first version was a side-view platformer; it is kept in the git tag `side-view-prototype`.
 

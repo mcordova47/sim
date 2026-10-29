@@ -1,6 +1,7 @@
 import { DECOR_DATA, itemSprites } from "../game/decor-data";
 import type { Level } from "../game/level";
 import { TASKS } from "../game/tasks";
+import { composedViewSprites } from "./composed-views";
 import { CARD_SPRITE } from "./encounter-card";
 import { HUD_ICON_NAMES } from "./hud";
 import { GOOD_HOUR_ICON } from "./world-ui";
@@ -32,5 +33,7 @@ export function spriteNames(rooms: Iterable<Level>): string[] {
     if (spec?.type !== "cutscene" || !Array.isArray(spec.steps)) continue;
     for (const step of spec.steps) if (step && typeof (step as { view?: unknown }).view === "string") names.add((step as { view: string }).view);
   }
+  // What the composed pictures draw (issue 111c): the frame and each piece.
+  for (const name of composedViewSprites()) names.add(name);
   return [...names].sort();
 }

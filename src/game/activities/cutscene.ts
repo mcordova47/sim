@@ -1,4 +1,5 @@
 import { COLOR } from "../../render/colors";
+import { composedView } from "../../render/composed-views";
 import type { Controls } from "../../input/controls";
 import { NO_INPUT } from "../../input/controls";
 import { BaseActivity, needHost, registerActivity, type ActivityHost, type ValidationContext } from "../activity";
@@ -114,6 +115,9 @@ export class CutsceneActivity extends BaseActivity {
   draw(ctx: CanvasRenderingContext2D, screen: { width: number; height: number }): void {
     if (this.viewSprite === null || this.done) return;
     const sprites = this.host.sprites;
+    // A composed picture (issue 111c) first; if it cannot draw, the sprite of the same name.
+    const composed = composedView(this.viewSprite);
+    if (sprites && composed && composed.draw(ctx, sprites, this.viewRect)) return;
     if (sprites?.has(this.viewSprite)) {
       const r = this.viewRect;
       if (r.w !== FULL_VIEW.w && sprites.drawRegion) sprites.drawRegion(ctx, this.viewSprite, r, screen);

@@ -1,7 +1,7 @@
 ---
 id: 111c
 title: Side project config 3: the view and the painter
-status: review
+status: done
 owner: claude
 depends_on: [111]
 ---
@@ -22,3 +22,14 @@ Design and Marc's answers (2026-10-29): `docs/side-project-config-design.md` (th
 - Checks: `npm run build` ok, `npm test` 152 files pass, golden frames unchanged (the screen is not in them), `npm run check:dist` run. Rendered the old and composed pictures side by side at 1x in headless Chrome on 320 x 192 and 224 x 208 canvases and at 2x, and looked at them: the composed room reads as the real room, dimmer and softer, with its walls and the bed; on 224 x 208 both are cropped alike, but the game switches to 320 x 192 for any full picture (`showsFullPicture`), so that size is not seen in play. Zoom: unit-tested only. A bug found by a test: the vertical centring was 27.5, fixed to a whole pixel.
 - How 111d wires the composed list in: `side-project-view.ts` registers `new SideProjectView({ source: defaultRoomOps })`. 111b's `composeSideProject(APARTMENT.rooms.main, parseConfig(text).ops)` returns `DrawOp[]` (same `{ sprite, x, y }`, real-room pixels, in order) so 111d replaces `source` with `() => composeSideProject(...)` (floor and walls included, so `defaultRoomOps` and the hard-coded `PIECES` list go), and passes `key` for state changes (111e). The tiny figure is not drawn yet (111d). If 111b's room size differs from 304 x 160 the `ROOM` constant changes.
 - Not checked: how it feels in the real browser game (the desk task end to end with the phone shell), and whether Marc likes the dim (`LOOK.dim`, 0.3; it is on the dark side) and the grey bed (the real bed sprite, not the old blue one). Old PNG kept as fallback.
+- 2026-10-29 (reviewer, independent): **Review. Verdict: approve** (Marc's own look still needed, below).
+  - Build ok, `tsc --noEmit` clean, `npm test` 152 files / 3365 pass, `check:dist` ok. No stray files in the tree.
+  - Desk task shows the composed room: PASS. Own scratch test through the real `Game` (side-project task at the desk, fake sprites that have everything): the composed picture is drawn on every dialog frame, the old `view-side-project` sprite is never drawn, and `showsFullPicture` is true (so the phone's narrow view switches to 320 x 192 and the picture's desktop coordinates are right).
+  - Fallback to the old PNG: PASS. Own test, real Game, with `bed-made` missing, and again with only the frame missing: the old sprite is drawn on every frame, nothing composed, and `console.warn` fires exactly once. All 19 pieces plus floors and walls exist in `public/sprites`; `spriteNames` contains the frame and every op sprite.
+  - Cache: PASS. Real Chrome: first render 4.1 ms, 100 cached draws 0.10 ms total. (The singleton's cache is not reset when sprites change; cannot happen in play, only matters for tests sharing the module.)
+  - Zoom windows (1/2, 1/4, 1/8 scale, corners): PASS at unit level; each is one `drawImage` of the cached picture into 0,0,320,192, smoothing off. Not seen live (no zoom step uses this picture yet).
+  - Import cycle: PASS. Importing `side-project-view` first in a fresh test still leaves the cutscene activity registered; registering from `main.ts` is the right call, and `cutscene.ts` only imports the cycle-free `composed-views.ts`.
+  - Look: rendered the real PNGs in headless Chrome at 2x beside the old picture. The composed room reads as the real room, clipped cleanly inside the monitor, dim and soft, noise subtle. It is a top-down plan of the real room, so it looks quite different from the old front-on picture (design intent). Judged by eye only.
+  - Scope: `main.ts` (1 import) and `sprite-names.ts` (3 lines) are touched beyond the issue's list. Both justified and harmless (registration cannot live in `cutscene.ts` because of the cycle; the loader must load the frame and pieces). `drawScaled` is added but unused (the author explains why); optional on the interface, harmless. No other issues, PLAN.md or docs changed. Golden frames unchanged (all tests pass).
+  - **Unverified (not passed):** how it feels in the real browser game end to end on a phone; Marc's taste on the dim level (0.3) and the look (grey real bed, top-down view). That is the "Marc looks at it beside the old one on both views" part of the criterion, so his own look is still needed.
+  - Minor, no action: after a failure the view re-runs `source()` and the sprite check every frame (cheap, warns once). Planner: update the `PLAN.md` table for 111c.

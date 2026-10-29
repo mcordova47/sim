@@ -32,7 +32,8 @@ const isFormant = (v: Voice): v is FormantVoice => "formants" in v;
 // done and refuses new effect voices past the cap, so a pile-up can't clip or
 // swamp the page. It only talks to the `AudioContextLike` it is given.
 export class Synth {
-  private readonly master: GainLike;
+  // Readable so the dev music lab can move it (type-level only: nothing changes in the build).
+  readonly master: GainLike;
   private readonly buses: Partial<Record<Bus, GainLike>>;
   // Where each bus's level is going: it left `from` at `t0` and reaches `to` at `t1`
   // (context seconds), so its level at any moment is known without asking the node.

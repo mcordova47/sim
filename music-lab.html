@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Music lab (dev only)</title>
+    <!-- Issue 122: served by `npm run dev` only. It is not a build input, so a production build has no
+         copy of it, and `npm run check:dist` fails if one (or its code) turns up in dist/. -->
+    <style>
+      body { font: 14px/1.4 system-ui, sans-serif; background: #1b1b1f; color: #e8e6e3; margin: 0; padding: 16px; max-width: 1000px; }
+      h1 { font-size: 18px; margin: 0 0 4px; }
+      p.note { margin: 0 0 12px; color: #9a9aa2; }
+      textarea { width: 100%; height: 340px; box-sizing: border-box; background: #121215; color: #e8e6e3; border: 1px solid #3a3a42; padding: 8px; font: 13px/1.4 ui-monospace, Menlo, monospace; tab-size: 2; }
+      .bar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 10px 0; }
+      button, select { font: inherit; padding: 4px 10px; background: #2a2a31; color: inherit; border: 1px solid #4a4a54; border-radius: 4px; cursor: pointer; }
+      button.primary { background: #2f6f4f; border-color: #3f8f66; }
+      #status { min-height: 1.4em; }
+      #status.error { color: #ff8f8f; }
+      #status.ok { color: #8fd4a8; }
+      .grid { display: grid; grid-template-columns: 170px 1fr 52px 60px; gap: 6px 10px; align-items: center; max-width: 640px; }
+      .grid input[type="range"] { width: 100%; }
+      fieldset { border: 1px solid #3a3a42; margin: 12px 0; padding: 8px 12px; }
+      legend { color: #9a9aa2; }
+      pre { background: #121215; padding: 8px; min-height: 1.4em; margin: 6px 0; }
+      .dim { color: #9a9aa2; }
+    </style>
+  </head>
+  <body>
+    <h1>Music lab <span class="dim">(dev only)</span></h1>
+    <p class="note">Plays with the game's own synth and track player. Edit the .track text below; see docs/music-lab.md.</p>
+    <textarea id="text" spellcheck="false" aria-label="track text"></textarea>
+    <div id="status"></div>
+    <div class="bar">
+      <button id="play" class="primary" title="Ctrl or Cmd + Enter">Play (from the top)</button>
+      <button id="stop">Stop</button>
+      <label><input type="checkbox" id="live" /> Live preview (while playing, edits are heard as you type)</label>
+      <label>Play <select id="mode">
+        <option value="both">intro, then loop</option>
+        <option value="loop">loop only</option>
+        <option value="intro">intro only (repeating)</option>
+      </select></label>
+    </div>
+    <fieldset>
+      <legend>Levels (sliders override the text until baked in)</legend>
+      <div class="grid" id="levels"></div>
+    </fieldset>
+    <fieldset>
+      <legend>Channels</legend>
+      <div class="grid" id="channels"></div>
+    </fieldset>
+    <div class="bar">
+      <button id="bake">Write slider values into the text</button>
+      <button id="copy">Copy text</button>
+      <button id="reset">Reset sliders</button>
+    </div>
+    <div>Values that belong in config.ts (copy by hand):</div>
+    <pre id="config"></pre>
+    <fieldset>
+      <legend>The real encounter (needs the game tab; opens in a new tab)</legend>
+      <div class="bar">
+        <select id="ad"></select>
+        <button id="encounter">Try in the encounter</button>
+        <span class="dim">Press any key in the game tab to start it; Escape leaves.</span>
+      </div>
+    </fieldset>
+    <script type="module" src="/src/lab/music-lab.ts"></script>
+  </body>
+</html>

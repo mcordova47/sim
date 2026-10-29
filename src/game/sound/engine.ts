@@ -16,7 +16,8 @@ export class SoundEngine {
   // The sleep sequence's lullaby, snore and the record's ducking (issue 078).
   readonly sleep = new SleepSound();
   private ctx: AudioContextLike | null = null;
-  private synth: Synth | null = null;
+  // Readable (a type-level change only, no change in the build) so the dev music lab can reach the synth.
+  synth: Synth | null = null;
   private broken = false;
   private isMuted = false;
 

@@ -87,3 +87,14 @@ describe("check-dist and the sync server (issue 103)", () => {
     expect(read("vite.config.ts")).toMatch(/life-dev-sync-fake/);
   });
 });
+
+describe("check-dist and the dev music lab (issue 122)", () => {
+  it("flags the lab's code, its saved key and a lab page in dist/", () => {
+    expect(problemsIn(fakeDist('"life.musiclab.v1"')).join()).toMatch(/music lab code/);
+    expect(problemsIn(fakeDist("labEncounterMusic()")).join()).toMatch(/music lab code/);
+    const dist = fakeDist("console.log(1)");
+    writeFileSync(join(dist, "music-lab.html"), "<title>x</title>");
+    expect(problemsIn(dist).join()).toMatch(/music-lab\.html/);
+    expect(problemsIn(fakeDist("console.log(1)"))).toEqual([]);
+  });
+});

@@ -1,3 +1,4 @@
+import { loadLook, saveLook } from "../reel/look-settings";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { NO_INPUT } from "../../input/controls";
 import { drawText, textWidth, unsupportedChars } from "../../render/font";
@@ -179,6 +180,17 @@ describe("photos and the rest of the save", () => {
     expect(JSON.stringify(s.internals.doc())).toBe(before);
     const keys = Object.keys(s.internals.doc() as object).sort();
     expect(keys.some((k) => /reel|pic|photo/i.test(k))).toBe(false);
+  });
+
+  it("the chosen look is outside the sync document and survives a reset and the save", async () => {
+    const s = setup();
+    const before = JSON.stringify(s.internals.doc());
+    saveLook("chunky", s.storage);
+    expect(JSON.stringify(s.internals.doc())).toBe(before);
+    expect(before).not.toMatch(/look|chunky/i);
+    s.feature.save();
+    s.feature.reset();
+    expect(loadLook(s.storage)).toBe("chunky");
   });
 
   it("a reset keeps the photos", async () => {

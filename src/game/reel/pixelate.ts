@@ -15,6 +15,8 @@ export interface PixelateOptions {
   dither?: number;
   // The palette to map onto; default the game palette.
   palette?: readonly Rgb[];
+  // Landscape output size (portrait is the swap). Default 48 x 36.
+  size?: { w: number; h: number };
 }
 
 export interface Pixelated {
@@ -114,7 +116,7 @@ function toPalette(px: Float32Array, w: number, h: number, pal: readonly Rgb[], 
 }
 
 // rgba: width * height * 4 bytes (alpha is ignored). Portrait sources (taller
-// than wide) give 36 x 48, everything else 48 x 36.
+// than wide) give the swapped size (36 x 48 by default), everything else 48 x 36 by default.
 export function pixelate(
   rgba: Uint8ClampedArray,
   width: number,
@@ -125,7 +127,11 @@ export function pixelate(
     throw new Error("pixelate: width and height must be positive integers");
   }
   if (rgba.length < width * height * 4) throw new Error("pixelate: pixel buffer is too short");
-  const shape = height > width ? PORTRAIT : LANDSCAPE;
+  const land = opts.size ?? LANDSCAPE;
+  if (!Number.isInteger(land.w) || !Number.isInteger(land.h) || land.w < 1 || land.h < 1) {
+    throw new Error("pixelate: size must be positive integers");
+  }
+  const shape = height > width ? (opts.size ? { w: land.h, h: land.w } : PORTRAIT) : land;
   const dither = Math.min(100, Math.max(0, opts.dither ?? DEFAULT_DITHER));
   const levelled = autoLevels(shrink(rgba, width, height, shape.w, shape.h));
   const px = toPalette(levelled, shape.w, shape.h, opts.palette ?? REEL_PALETTE, dither);

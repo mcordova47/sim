@@ -1,3 +1,4 @@
+import { lookById, DEFAULT_LOOK_ID } from "./looks";
 import { pixelate } from "./pixelate";
 import type { PhotoIO } from "./photo-io";
 import { REEL_CAP, type ReelPicInput, type ReelStore } from "./reel-store";
@@ -19,7 +20,8 @@ export type AddProgress = (done: number, total: number) => void;
 
 const nextTurn = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
-export async function addPhotos(files: readonly Blob[], io: PhotoIO, store: ReelStore, onProgress: AddProgress = () => {}): Promise<AddSummary> {
+export async function addPhotos(files: readonly Blob[], io: PhotoIO, store: ReelStore, onProgress: AddProgress = () => {}, lookId: string = DEFAULT_LOOK_ID): Promise<AddSummary> {
+  const look = lookById(lookId);
   const summary: AddSummary = { added: 0, duplicates: 0, full: 0, unreadable: 0, storageError: false };
   let before: number;
   try {
@@ -39,8 +41,8 @@ export async function addPhotos(files: readonly Blob[], io: PhotoIO, store: Reel
     try {
       const image = await io.decode(files[i]);
       if (image) {
-        const { w, h, px } = pixelate(image.rgba, image.width, image.height);
-        made.push({ w, h, px });
+        const { w, h, px } = pixelate(image.rgba, image.width, image.height, { size: { w: look.w, h: look.h }, dither: look.dither });
+        made.push({ w, h, px, look: look.id });
       } else summary.unreadable++;
     } catch {
       summary.unreadable++;

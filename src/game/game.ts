@@ -288,6 +288,7 @@ export class Game {
       owns: (id) => this.decor.owns(id),
       queued: (id) => this.deliveries.pendingItems.some((p) => p.id === id) || this.deliveries.waitingItems.includes(id),
       deliver: (id, hours) => this.deliveries.deliver(id, hours),
+      markSeen: (id) => void this.decor.markSeen(id),
       mood: () => (this.state.has("mood") ? this.state.get("mood") : MOOD.rest),
       addMood: (n) => {
         if (this.state.has("mood")) this.state.applyEffects([{ var: "mood", add: n }]);

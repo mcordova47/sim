@@ -40,6 +40,8 @@ export function randomDoc(r: ReturnType<typeof rng>, opts: { devices?: string[];
   const items = DECOR_DATA.items.map((i) => i.id);
   const slots = DECOR_DATA.slots;
   const owned = r.some(items, 0.4);
+  // Seen but not taken: some of these may also be owned (a hand edit, or the other side took it).
+  const seen = r.some(items, 0.15);
   const placed: Record<string, string> = {};
   for (const slot of r.some(slots, 0.3)) placed[slot.id] = r.pick(items);
   const queue = r.some(items, 0.2);
@@ -74,7 +76,7 @@ export function randomDoc(r: ReturnType<typeof rng>, opts: { devices?: string[];
         playSeconds: r.int(100000) / 7,
       },
       world: { vars, room: r.pick(["main", "kitchen"]), col: r.int(8), row: r.int(8), facing: r.pick(["up", "down", "left", "right"]) },
-      decor: { owned, placed },
+      decor: { owned, placed, ...(seen.length ? { seen } : {}) },
       deliveries: {
         hours,
         pending: queue.slice(0, 3).map((id) => ({ id, at: hours + r.int(30) })),

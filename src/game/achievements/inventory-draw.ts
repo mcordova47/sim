@@ -21,6 +21,10 @@ export const THINGS_ROWS = 4;
 // The pantry is 32 tall at its own size: its cell shows the top of it, the entry box all of it.
 const PAD = 4;
 const SPRITE_SCALE = 2;
+// The silhouette of something seen in an ad and not taken, and the two lines of its entry.
+const SHAPE = COLOR.ink;
+export const SILHOUETTE_NAME = "???";
+export const SILHOUETTE_LINE = "YOU HAVE SEEN ONE OF THESE.";
 const LINE = 9;
 
 export interface ThingsView {
@@ -132,6 +136,12 @@ export function entryLayout(entry: InventoryEntry): { sprite: Rect; lines: Entry
       rest = rest.slice(first.length).trimStart();
     }
   };
+  if (entry.silhouette) {
+    // Nothing about it: not its name, where it came from or how to get one.
+    add(SILHOUETTE_NAME, COLOR.butter);
+    add(SILHOUETTE_LINE, COLOR.paper, 2);
+    return { sprite, lines, bottom: y };
+  }
   add(entry.item.name, COLOR.butter);
   add(entry.item.note, COLOR.paper, 2);
   add(entry.from, COLOR.mist, 3);
@@ -149,7 +159,14 @@ export function thingsHint(): string {
 }
 
 // A sprite drawn at a whole-number scale and position, cropped to `h` rows when it is taller than its room.
-function drawSprite(ctx: CanvasRenderingContext2D, sprites: SpriteDrawer | undefined, name: string, at: { x: number; y: number }, size: { w: number; h: number }, scale: number, rows = size.h): void {
+function drawSprite(ctx: CanvasRenderingContext2D, sprites: SpriteDrawer | undefined, name: string, at: { x: number; y: number }, size: { w: number; h: number }, scale: number, rows = size.h, flat = false): void {
+  if (flat) {
+    // A flat dark shape; without a drawer that can cut one out, a plain dark box of the same size.
+    if (sprites?.drawFlat && sprites.has(name)) return sprites.drawFlat(ctx, name, at.x, at.y, scale, SHAPE, rows);
+    ctx.fillStyle = SHAPE;
+    ctx.fillRect(Math.round(at.x), Math.round(at.y), size.w * scale, rows * scale);
+    return;
+  }
   if (!sprites) return;
   if (!sprites.drawRegion) return sprites.draw(ctx, name, at.x, at.y, { width: size.w, height: size.h });
   ctx.save();
@@ -175,11 +192,12 @@ export function drawThings(ctx: CanvasRenderingContext2D, view: ThingsView): voi
     ctx.fillRect(rect.x + 1, rect.y + 1, rect.w - 2, rect.h - 2);
     ctx.fillStyle = COLOR.slate;
     ctx.fillRect(rect.x + 2, rect.y + 2, rect.w - 4, rect.h - 4);
-    const item = view.entries[index].item;
+    const entry = view.entries[index];
+    const item = entry.item;
     const rows = Math.min(item.h, rect.h - 4);
     const x = rect.x + Math.floor((rect.w - item.w) / 2);
     const y = rect.y + 2 + Math.floor((rect.h - 4 - rows) / 2);
-    drawSprite(ctx, view.sprites, item.sprite, { x, y }, item, 1, rows);
+    drawSprite(ctx, view.sprites, item.sprite, { x, y }, item, 1, rows, entry.silhouette);
   }
 
   const box = thingsBox();
@@ -190,7 +208,7 @@ export function drawThings(ctx: CanvasRenderingContext2D, view: ThingsView): voi
   const entry = view.entries[Math.min(Math.max(view.cursor, 0), view.entries.length - 1)];
   if (entry) {
     const layout = entryLayout(entry);
-    drawSprite(ctx, view.sprites, entry.item.sprite, layout.sprite, entry.item, SPRITE_SCALE);
+    drawSprite(ctx, view.sprites, entry.item.sprite, layout.sprite, entry.item, SPRITE_SCALE, entry.item.h, entry.silhouette);
     for (const l of layout.lines) drawText(ctx, l.text, l.x, l.y, { color: l.color, shadow: null });
   }
   drawText(ctx, thingsHint(), VIEW.width / 2, VIEW.height - 9, { color: COLOR.mist, align: "center" });

@@ -1,7 +1,7 @@
 ---
 id: 117
 title: Photos like a phone gallery: browse, delete one at a time, a close-up scene
-status: todo
+status: done
 owner: marc + claude
 depends_on: [113]
 ---
@@ -25,3 +25,4 @@ Write `docs/photo-gallery-design.md` and ask Marc one question at a time: how ma
 
 ## Progress log
 
+- 2026-10-29 (planner): design merged (docs/photo-gallery-design.md), Marc answered all questions; build issues 117a to 117g filed.

@@ -161,14 +161,21 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 113b | [Photo reel 2: the store](issues/113b-reel-store.md) | claude | done | 113 |
 | 113c | [Photo reel 3: PHOTOS page](issues/113c-reel-photos-page.md) | claude | done | 113a, 113b |
 | 113d | [Photo reel 4: the reel and sofa task](issues/113d-reel-activity.md) | claude | done | 113c |
-| 113e | [Photo reel 5: on-device pass](issues/113e-reel-phone-pass.md) | claude | todo | 113d |
+| 113e | [Photo reel 5: on-device pass](issues/113e-reel-phone-pass.md) | claude | todo (superseded by 117g) | 113d |
 | 114 | [Guitar skill: from single notes to fingerstyle](issues/114-guitar-skill.md) | marc + claude | design done (docs/guitar-skill-design.md); build is 114a to 114c | 108 |
 | 114a | [Guitar skill 1: rule, chords, strumming (levels 1 to 3)](issues/114a-guitar-skill-levels-1-3.md) | claude | done | 108 |
 | 114b | [Guitar skill 2: the groove and melody (level 4)](issues/114b-guitar-skill-groove.md) | claude | done | 114a |
 | 114c | [Guitar skill 3 (optional): the pause-screen line](issues/114c-guitar-skill-pause-line.md) | claude | todo | 114a |
 | 115 | [A gentle limiter on the master output (clipping safety)](issues/115-master-limiter.md) | claude | done | |
 | 116 | [Name the game Simagotchi](issues/116-simagotchi-name.md) | claude | done | |
-| 117 | [Photos like a phone gallery: browse, delete one, close-up scene](issues/117-photo-gallery.md) | marc + claude | todo | 113 |
+| 117 | [Photos like a phone gallery: browse, delete one, close-up scene](issues/117-photo-gallery.md) | marc + claude | done | 113 |
+| 117a | [Photo gallery 1: looks and the store](issues/117a-gallery-looks.md) | claude | todo | 113c |
+| 117b | [Photo gallery 2: the gallery core (not wired)](issues/117b-gallery-core.md) | claude | todo | 113c |
+| 117c | [Photo gallery 3: manage mode with delete one](issues/117c-gallery-manage.md) | claude | todo | 117b |
+| 117d | [Photo gallery 4: the LOOK switch](issues/117d-gallery-look-switch.md) | claude | todo | 117a, 117c |
+| 117e | [Photo gallery 5: the sofa scene replaces the slideshow](issues/117e-gallery-scene.md) | claude | todo | 117b |
+| 117f | [Photo gallery 6: an ad can interrupt the close-up](issues/117f-gallery-ad-interrupt.md) | claude | todo | 117e |
+| 117g | [Photo gallery 7: text review, phone pass, docs](issues/117g-gallery-pass.md) | claude | todo | 117f, 117d |
 | 118 | [Ads for framing a photo, then hang or shelve it](issues/118-framed-photos.md) | marc + claude | todo | 117 |
 | 119 | [A Simagotchi logo and favicon](issues/119-simagotchi-logo.md) | claude | todo | 116 |
 | 120 | [Pause legend overlap on the narrow view](issues/120-pause-legend-narrow.md) | claude | todo | 116 |

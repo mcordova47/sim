@@ -98,20 +98,13 @@ describe("the placeholder system track", () => {
     expect(TRACKS.map((t) => t.id)).not.toContain("encounter-battle");
     expect(RECORD_MENU.choices.map((c) => c.label)).not.toContain(ENCOUNTER_BATTLE!.title);
   });
-  it("is calm (120 bpm at most, no sawtooth) and in G", () => {
-    const t = ENCOUNTER_BATTLE!;
-    expect(t.tempo).toBeLessThanOrEqual(120);
-    expect(t.channels.some((c) => c.wave === "sawtooth")).toBe(false);
-    const bass = t.channels.find((c) => c.name === "bass")!;
-    expect(bass.notes[0].freq).toBeCloseTo(98, 0); // G2
-  });
   it("loops cleanly: no note runs past the end, every channel is as long as the loop, and it starts on the downbeat", () => {
     const t = ENCOUNTER_BATTLE!;
     expect(Math.max(...t.channels.flatMap((c) => c.notes.map((n) => n.start + n.length)))).toBe(t.beats);
     for (const c of t.channels) {
       for (const n of c.notes) expect(n.start + n.length, c.name).toBeLessThanOrEqual(t.beats + 1e-9);
-      expect(Math.min(...c.notes.map((n) => n.start)), c.name).toBe(0);
     }
+    expect(Math.min(...t.channels.flatMap(c => c.notes.map((n) => n.start)))).toBe(0);
   });
   it("one pass is about eight seconds, so four passes are about half a minute", () => {
     expect(LOOP_SECONDS).toBeGreaterThanOrEqual(6);

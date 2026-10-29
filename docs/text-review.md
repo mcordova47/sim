@@ -13,6 +13,22 @@ Strings added later (mood in 038, the mirror in 041, the gallery view in 040) ar
 - Their screen shows another little room with another little guy.
 - You wonder if you're just a little guy on someone else's screen, and the silly notion gives you a good chuckle. -
 
+## PHOTOS page (issue 113c)
+The pause-screen page where pictures are added and removed. The first five lines are the design note's (`docs/photo-reel-design.md` section 7); the rest were written with the build. No line mentions resolution, size or pixels (Marc's rule). Wired in `src/game/achievements/photos-draw.ts` and `src/game/reel/photo-add.ts`. Marc to mark: keep / soften / rewrite.
+- Page text (one paragraph): Pick some pictures. They will be kept on this device. The originals are not kept. Nothing leaves this device.
+- Nothing stored: No pictures yet. The sofa has nothing to scroll. (the sofa task is issue 113d; until it is built the line points at nothing)
+- Count: 12 pictures on this device / 1 picture on this device
+- Progress: Making picture 3 of 12
+- Added: 12 pictures added. / 1 picture added. / No pictures added.
+- Already stored (new): 2 were already here. / 1 was already here.
+- Not readable: 2 could not be read.
+- Over the cap: Room for 60. The rest stayed where they were.
+- Storage trouble (new): This browser could not keep them all. / This browser could not read the pictures. / This browser could not remove them all.
+- No storage in this browser: This browser will not keep pictures.
+- Buttons: ADD PHOTOS, REMOVE ALL, SURE? REMOVE ALL, BACK. Pause screen: PHOTOS (touch button), O: PHOTOS (desktop hint).
+- After REMOVE ALL: The pictures are gone. The originals were never here.
+- Sofa-task captions (one chosen per session, for 113d, not wired yet): You look at the pictures. / You were there for most of these. / You almost recognize the room. / Nice light. / You scroll for a while, because why not.
+
 ## Tasks
 
 | id | name | prompt | flavor | unmet reasons | mark |

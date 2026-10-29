@@ -17,6 +17,10 @@ import { AutoSync } from "../sync/auto";
 import { STATUS_TEXT, SyncService } from "../sync/service";
 import type { TapTarget } from "../../input/tap";
 import { drawThings, moveThingsCursor, thingsButtons, thingsCells, thingsPage, thingsPages, thingsGrid, type ThingsView } from "./inventory-draw";
+import { drawPhotos, photosLayout, PHOTOS_REMOVED, type PhotosView } from "./photos-draw";
+import { addPhotos, summaryLines } from "../reel/photo-add";
+import { browserPhotoIO, type PhotoIO } from "../reel/photo-io";
+import { openReelStore, type ReelPic, type ReelStore, type ReelStoreHandle } from "../reel/reel-store";
 import { drawList, drawSync, drawToasts, drawTransfer, listRows, pageButton, pauseButtons, syncButtons, touchPageSize, transferButtons, type ListView, type SyncView, type TransferView } from "./draw";
 import { ProgressStore, parseWorld, type KeyValueStorage, type WorldSave } from "./progress";
 import { Stats } from "./stats";
@@ -51,6 +55,10 @@ export interface AchievementOptions {
   now?: () => number;
   demos?: DemoStore;
   io?: TransferIO;
+  // The photo reel (issue 113c): its store (the default is the browser's IndexedDB, opened when first needed) and the
+  // browser parts of adding pictures.
+  reel?: ReelStoreHandle;
+  photoIO?: PhotoIO;
   // The sync server (issue 103). The default is the real one on this origin.
   backend?: SyncBackend;
   // The origin the pairing link is made on. The default is this page's.
@@ -96,8 +104,16 @@ export class AchievementsFeature implements Layer {
   readonly sync: SyncLocal;
   private readonly demos: DemoStore;
   private readonly io: TransferIO;
-  private page: "list" | "transfer" | "sync" | "things" = "list";
+  private page: "list" | "transfer" | "sync" | "things" | "photos" = "list";
   private thingsCursor = 0;
+  // The PHOTOS page (issue 113c). The store is opened when first asked for, so a player who never opens the
+  // page never touches IndexedDB. Photos are not part of the save, the sync document or a reset.
+  private reelHandle: ReelStoreHandle | null;
+  private readonly photoIO: PhotoIO;
+  private photos: readonly ReelPic[] | null = null;
+  private photoProgress: { done: number; total: number } | null = null;
+  private photoMessage: readonly string[] = [];
+  private confirmRemove = false;
   readonly syncService: SyncService;
   private readonly auto: AutoSync;
   private readonly origin: string;
@@ -124,6 +140,8 @@ export class AchievementsFeature implements Layer {
     this.sync = new SyncLocal(this.storage, { achievementIds: new Set(this.list.map((a) => a.id)) });
     this.demos = options.demos ?? demoStore();
     this.io = options.io ?? browserIO;
+    this.reelHandle = options.reel ?? null;
+    this.photoIO = options.photoIO ?? browserPhotoIO;
     this.origin = options.origin ?? (typeof location === "undefined" ? "" : location.origin);
     this.syncService = new SyncService(options.backend ?? new HttpBackend(), this.sync, {
       doc: () => this.doc(),
@@ -456,10 +474,12 @@ export class AchievementsFeature implements Layer {
     if (this.page === "transfer") return this.transferKey(e);
     if (this.page === "sync") return this.syncKeyPress(e);
     if (this.page === "things") return this.thingsKey(e);
+    if (this.page === "photos") return this.photosKey(e);
     if (e.code === "Escape") return this.closeList();
     if (e.code === UI.transferKey && !e.shiftKey) return this.openTransfer();
     if (e.code === UI.syncKey && !e.shiftKey) return this.openSync();
     if (e.code === UI.thingsKey && !e.shiftKey) return this.openThings();
+    if (e.code === UI.photosKey && !e.shiftKey) return this.openPhotos();
     if (e.code === UI.dialogVoiceKey && !e.shiftKey) return this.toggleVoice();
     if (e.code === UI.adBlockerKey && !e.shiftKey) return this.toggleAdBlocker();
     // The arrows, and W and S (the touch layer's pad sends those).
@@ -513,6 +533,116 @@ export class AchievementsFeature implements Layer {
     };
     for (const b of thingsButtons(view)) targets.push({ ...b.rect, run: actions[b.id] });
     return targets;
+  }
+
+  // -- The PHOTOS page (issue 113c) -------------------------------------------------------------
+
+  // The store for the reel, made on first use.
+  get reel(): ReelStoreHandle {
+    return (this.reelHandle ??= openReelStore());
+  }
+
+  private openPhotos(): void {
+    this.page = "photos";
+    this.confirmReset = false;
+    this.confirmRemove = false;
+    this.photoMessage = [];
+    this.photos = null;
+    this.flash = null;
+    this.flashFor = 0;
+    void this.refreshPhotos();
+  }
+
+  // Reads the list again; a failing store shows as an empty list and a line, never a crash.
+  private async refreshPhotos(): Promise<void> {
+    try {
+      this.photos = await this.reel.store.list();
+    } catch {
+      this.photos = [];
+      this.photoMessage = ["This browser could not read the pictures."];
+    }
+  }
+
+  private photosKey(e: KeyEventLike): void {
+    if (e.ctrlKey || e.metaKey) return;
+    const wasArmed = this.confirmRemove;
+    this.confirmRemove = false;
+    if (e.code === "Escape") {
+      // Escape first puts away the question; with none asked it goes back.
+      if (!wasArmed) this.page = "list";
+      return;
+    }
+    if (e.code === UI.photosKey && !e.shiftKey && !wasArmed) {
+      this.page = "list";
+      return;
+    }
+    if (e.code === "KeyA") return this.addPictures();
+    if (e.code === "KeyR" || (wasArmed && e.code === "KeyY")) return this.removePictures(wasArmed);
+  }
+
+  // Called straight from the tap or key press: the chooser has to open in this call (iOS).
+  private addPictures(): void {
+    if (this.photoProgress || !this.reel.persistent) return;
+    const chosen = this.photoIO.pickImages();
+    this.photoMessage = [];
+    void chosen.then(async (files) => {
+      if (!files || files.length === 0 || this.photoProgress) return;
+      this.photoProgress = { done: 0, total: files.length };
+      try {
+        const summary = await addPhotos(files, this.photoIO, this.reel.store, (done, total) => (this.photoProgress = { done, total }));
+        this.photoMessage = summaryLines(summary);
+      } catch {
+        this.photoMessage = ["This browser could not keep them all."];
+      } finally {
+        this.photoProgress = null;
+      }
+      await this.refreshPhotos();
+    });
+  }
+
+  // The first press asks; the second (R or the button again, or Y) does it.
+  private removePictures(confirmed: boolean): void {
+    if (this.photoProgress || !this.reel.persistent || !this.photos || this.photos.length === 0) return;
+    if (!confirmed) {
+      this.confirmRemove = true;
+      return;
+    }
+    const store: ReelStore = this.reel.store;
+    this.photoMessage = [];
+    void store.clear().then(
+      () => (this.photoMessage = [PHOTOS_REMOVED]),
+      () => (this.photoMessage = ["This browser could not remove them all."]),
+    ).then(() => this.refreshPhotos());
+  }
+
+  private photosView(): PhotosView {
+    return {
+      touch: touchHints(),
+      pics: this.photos,
+      persistent: this.reel.persistent,
+      progress: this.photoProgress,
+      message: this.photoMessage,
+      confirmRemove: this.confirmRemove,
+    };
+  }
+
+  private photosTargets(): TapTarget[] {
+    const actions = {
+      add: () => {
+        this.confirmRemove = false;
+        this.addPictures();
+      },
+      remove: () => {
+        const was = this.confirmRemove;
+        this.confirmRemove = false;
+        this.removePictures(was);
+      },
+      back: () => {
+        this.confirmRemove = false;
+        this.page = "list";
+      },
+    };
+    return photosLayout(this.photosView()).buttons.map((b) => ({ ...b.rect, run: actions[b.id] }));
   }
 
   // -- The sync page (issue 103) --------------------------------------------------------------
@@ -777,6 +907,7 @@ export class AchievementsFeature implements Layer {
     if (this.page === "transfer") return this.transferTargets();
     if (this.page === "sync") return this.syncTargets();
     if (this.page === "things") return this.thingsTargets();
+    if (this.page === "photos") return this.photosTargets();
     const view = this.view();
     const actions: Record<string, () => void> = {
       adBlocker: () => this.toggleAdBlocker(),
@@ -784,6 +915,7 @@ export class AchievementsFeature implements Layer {
       transfer: () => this.openTransfer(),
       sync: () => this.openSync(),
       things: () => this.openThings(),
+      photos: () => this.openPhotos(),
       reset: () => {
         this.confirmReset = true;
       },
@@ -857,6 +989,7 @@ export class AchievementsFeature implements Layer {
       if (this.page === "transfer") drawTransfer(ctx, this.transferView());
       else if (this.page === "sync") drawSync(ctx, this.syncView());
       else if (this.page === "things") drawThings(ctx, this.thingsView());
+      else if (this.page === "photos") drawPhotos(ctx, this.photosView());
       else drawList(ctx, this.view());
     }
   }

@@ -1,7 +1,7 @@
 ---
 id: 111c
 title: Side project config 3: the view and the painter
-status: done
+status: review
 owner: claude
 depends_on: [111]
 ---
@@ -57,3 +57,4 @@ Design and Marc's answers (2026-10-29): `docs/side-project-config-design.md` (th
   - Minor, no action now: `distortRoom` does not clamp, only the `LOOKS` table is checked against the limits. Out of range or invalid values misbehave: squash at or above 1 folds rows (squash 3 repeats and reverses bands); shear 1000 and bend 500 smear the picture to garbage; a NaN shear, a NaN seed or an infinite seed (with bend not 0) leaves the room blank, because a NaN offset makes `drawImage` draw nothing, while a NaN squash alone is treated as zero. Nothing in the repo can set these today. When 111d reads them from a config file, parse and clamp them (0 to 0.5, 0 to 24, 0 to 6, finite seed) with a validation message, as the design's other config limits.
   - Scope: only the files named in the issue; nothing else changed. Merged-in main changes not reviewed.
   - **Unverified (not passed):** Marc's taste (how much distortion, the figure's look and size, the cartoon palette) and how it feels in the real browser game end to end on a phone. His own look is still needed. Planner: update the `PLAN.md` table for 111c.
+- 2026-10-29 (claude, round 4): Marc's "perspective" did not mean a geometric warp; it means each piece drawn from a different, wrong viewpoint (the couch from behind, the bed and bookshelf top-down), as per-piece art variants chosen by the config's `look <piece> <variant>` op. Removed the row-by-row distortion from round 3 (`Look.distort`, `Distort`, `NO_DISTORT`, `distortRoom`, `cartoonStrong`, their tests and limits). `cartoon` is now what `cartoonFlat` was (the default, no distortion). Kept: the bigger figure and `desk-with-figure`, the registry, the fallback, the other looks, `wobble`. 111d carries the wrong-viewpoint variants (new art, one sprite per piece named for the `look` op). Sheet: scratchpad `round4-2x.png` (old picture vs new default).

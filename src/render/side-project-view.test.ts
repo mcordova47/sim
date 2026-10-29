@@ -3,7 +3,7 @@ import { FULL_VIEW } from "../game/view-zoom";
 import { composedView, composedViewSprites } from "./composed-views";
 import { spriteNames } from "./sprite-names";
 import { APARTMENT } from "../game/apartment";
-import { defaultRoomOps, FRAME_SPRITE, LOOK, LOOKS, NO_DISTORT, distortRoom, type Look, SIDE_PROJECT_VIEW_NAME, SideProjectView, type DrawOp } from "./side-project-view";
+import { defaultRoomOps, FRAME_SPRITE, LOOK, LOOKS, SIDE_PROJECT_VIEW_NAME, SideProjectView, type DrawOp } from "./side-project-view";
 import type { SpriteDrawer } from "./sprites";
 import { Sprites } from "./sprites";
 
@@ -129,10 +129,6 @@ describe("the looks", () => {
       expect(l.lift).toBeGreaterThanOrEqual(0);
       expect(l.lift).toBeLessThanOrEqual(60);
       expect(l.wobble).toBeGreaterThanOrEqual(0);
-      expect(l.distort.squash).toBeGreaterThanOrEqual(0);
-      expect(l.distort.squash).toBeLessThanOrEqual(0.5);
-      expect(l.distort.shear).toBeLessThanOrEqual(24);
-      expect(l.distort.bend).toBeLessThanOrEqual(6);
     }
   });
 
@@ -152,47 +148,6 @@ describe("the looks", () => {
     const [x, y] = a[2].split("@")[1].split(",").map(Number);
     expect(Math.abs(x - 32)).toBeLessThanOrEqual(2);
     expect(Math.abs(y - 80)).toBeLessThanOrEqual(2);
-  });
-
-  const logs = (look: Look) => {
-    const made: ReturnType<typeof fakeCanvas>[] = [];
-    const v = new SideProjectView({ source: () => ops, look, makeCanvas: (w, h) => (made.push(fakeCanvas(w, h)), made.at(-1)! as unknown as HTMLCanvasElement) });
-    v.draw(ctx(), sprites().s, FULL_VIEW);
-    return made;
-  };
-
-  it("distortion zero is the undistorted result, whatever the seed (no extra canvas, same calls)", () => {
-    const flat = logs(LOOKS.cartoonFlat);
-    const zero = logs({ ...LOOKS.cartoonFlat, distort: { ...NO_DISTORT, seed: 99 } });
-    expect(flat.length).toBe(2);
-    expect(zero.map((c) => c.log)).toEqual(flat.map((c) => c.log));
-  });
-
-  it("distortion is the same for the same values and differs by strength and seed", () => {
-    const a = logs(LOOKS.cartoon).map((c) => c.log);
-    expect(logs(LOOKS.cartoon).map((c) => c.log)).toEqual(a);
-    expect(a.length).toBe(3);
-    expect(a).not.toEqual(logs(LOOKS.cartoonFlat).map((c) => c.log));
-    expect(a).not.toEqual(logs(LOOKS.cartoonStrong).map((c) => c.log));
-    expect(a).not.toEqual(logs({ ...LOOKS.cartoon, distort: { ...LOOKS.cartoon.distort, seed: 4 } }).map((c) => c.log));
-  });
-
-  it("distortion draws every row once, from rows inside the room, in order, shifted by a few pixels at most", () => {
-    const room = fakeCanvas(304, 160);
-    const out: ReturnType<typeof fakeCanvas>[] = [];
-    const shown = distortRoom(room as never, LOOKS.cartoonStrong.distort, (w, h) => (out.push(fakeCanvas(w, h)), out[0] as never));
-    expect(shown).not.toBe(room);
-    const rows = out[0].log.filter((l) => l.startsWith("drawImage")).map((l) => l.slice(l.indexOf("(") + 1, -1).split(",").map((x) => (x === "canvas" ? 0 : Number(x))));
-    expect(rows.length).toBe(160);
-    rows.forEach(([, sx, sy, sw, sh, dx, dy], i) => {
-      expect([sx, sw, sh, dy]).toEqual([0, 304, 1, i]);
-      expect(sy).toBeGreaterThanOrEqual(0);
-      expect(sy).toBeLessThan(160);
-      expect(Math.abs(dx)).toBeLessThanOrEqual(12 / 2 + 3 + 1);
-    });
-    const ys = rows.map((r) => r[2]);
-    expect([...ys].sort((a, b) => a - b)).toEqual(ys); // never folds back
-    expect(distortRoom(room as never, NO_DISTORT, () => { throw new Error("no canvas needed"); })).toBe(room);
   });
 
   it("the little room's desk is the desk with the tiny person on it, the same size as the desk", () => {

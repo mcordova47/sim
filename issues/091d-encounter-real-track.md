@@ -1,7 +1,7 @@
 ---
 id: 091d
 title: Encounter music 4: Marc writes the real track
-status: todo
+status: review
 owner: marc
 depends_on: [091a]
 ---
@@ -15,4 +15,5 @@ Design and Marc's answers (2026-10-29): `docs/encounter-music-design.md` (Marc c
 - Marc's track is in, parses and loops cleanly.
 
 ## Progress log
+- 2026-10-29 (Marc): Added harmonies; increased tempo; raised volume because the intro was a lot louder than the music, which was a bit jarring. Updated tests: No "zen" rule for the battle music being calm, and loosened the downbeat rule: some channel must start on the downbeat.
 

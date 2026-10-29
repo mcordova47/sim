@@ -1,7 +1,7 @@
 ---
 id: 117c
 title: Photo gallery 3: manage mode with delete one
-status: review
+status: done
 owner: claude
 depends_on: [117b]
 ---
@@ -23,3 +23,14 @@ Design and Marc's answers (2026-10-29): `docs/photo-gallery-design.md` (shared 3
   - Changed existing tests on purpose: `photos-page.test.ts` layout bound `VIEW.height - 11` became `VIEW.height` (the grid page uses the foot of the view; the old hint line is gone), and the tap-list equality compares the buttons (first in the list) and leaves the grid cells after them. Everything else in it is untouched and green.
   - Verified: `npm test` 3342 pass, `npm run build` and `npm run check:dist` pass. Rendered grid, message/armed state, close-ups of Soft, Crisp, Chunky and a portrait, on wide keyboard, wide touch and narrow touch at 1x and 3x with synthetic pictures and looked at them. Sofa task untouched.
   - Not checked: a real browser or phone (touch feel, thumb size, scaling), the wording (placeholders in `docs/text-review.md`).
+
+- 2026-10-29 (claude, independent review): Verdict **approve**. Checked in the worktree on branch issue/117c-gallery-manage against main.
+  - `npm test`: 3342 pass (1 skipped, as on main); `npm run build` passes. Diff scope: feature.ts, photos-draw.ts, gallery.ts (turnPage), the new test, two edits in photos-page.test.ts, docs/text-review.md. No save, sync, PLAN.md or other-issue changes; nothing from reference-photos.
+  - My own temporary tests (deleted, not committed; 17 cases, all green): Delete/Backspace/Y do nothing in the grid; Delete asks only in the close-up; second Delete/Backspace/Y deletes exactly one; Esc, arrows, E, Enter, A, R, Space and X while asked only cancel (stay in the close-up, nothing deleted, next single Delete only asks); Esc layering is cancel, close-up to grid, grid to list; keys (Esc, arrows, Delete) during an in-flight delete are ignored and exactly one picture goes; after it the state is the grid. Delete from page 2 with one picture goes back to page 1 cell 6; delete of the last cell, the newest cell, and the only picture (hasPhotos 1 to 0 at once, page falls back to the intro list with ADD and BACK, later E/Delete harmless). hasPhotos stays 1 after a delete on page 2 of 12. REMOVE ALL (R, R/Y) still clears and sets hasPhotos 0; a Delete key in the grid cancels the REMOVE question.
+  - Touch at 320x192 and 224x208 (9 and 14 pictures): the centre and both corners of every drawn button, cell and the close-up back area resolve through `targetAt` (last match wins) to the target with that same rectangle, in the grid and the close-up. In the SURE? DELETE state the DELETE button still deletes, a tap on the picture, BACK or > only cancels (no navigation), and one picture is left deleted after DELETE+DELETE; taps during a delete in flight are swallowed. Page buttons do not overlap cells; `>` stops at the last page. All 6 stored sizes (Crisp, Soft, Chunky and portrait twins) lay out inside the view with no button over the picture (author's layout tests also cover this, armed and not, both inputs).
+  - Rendered both views at 1x with synthetic pictures (wide keyboard, wide touch, narrow touch: grid, page 3 of 3 with empty cells, REMOVE ALL asked, message, every size close-up plain and armed) and looked at several: nothing clipped or overlapping, SURE? state in tangerine, the keyboard foot line fits.
+  - Nothing about pictures reaches the save or sync document (author's test, and no changes under save/sync); new strings pass the font check.
+  - The two edits in photos-page.test.ts: (1) tap-list: justified, the cells are legitimately appended after the buttons; it still checks the buttons are first and equal to the drawn rectangles. It no longer proves there are no extra targets, but my tests did cover the cells. (2) bottom bound `VIEW.height - 11` to `VIEW.height`: needed for the grid (touch buttons end 1 px above the bottom), but it loosens the check for the intro/list states too. I ran the original test with the old bound kept for list mode: passes, so no regression is hidden. Suggest (not required) keeping the -11 for list mode.
+  - Notes, not blockers: (a) wide close-up reserves a foot, so a wide Soft portrait is 3x where design 3.3 said 4x (author's judgement call 1; Marc may want a look). (b) The page number is in the title row, not the status line as in design 3.4. (c) The LOOK switch (S) is not in this stage (assumed 117d).
+  - Unverified (not passed): how it looks and feels in a real browser or on a phone, thumb feel and target size, scaling at real device pixel ratios, and the wording of the new lines (placeholders in docs/text-review.md, Marc to mark).
+  - PLAN.md table needs updating by the planner (117c done). Branch to merge: issue/117c-gallery-manage.

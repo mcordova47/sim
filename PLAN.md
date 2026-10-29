@@ -182,12 +182,12 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 117a | [Photo gallery 1: looks and the store](issues/117a-gallery-looks.md) | claude | done | 113c |
 | 117b | [Photo gallery 2: the gallery core (not wired)](issues/117b-gallery-core.md) | claude | done | 113c |
 | 117c | [Photo gallery 3: manage mode with delete one](issues/117c-gallery-manage.md) | claude | done | 117b |
-| 117d | [Photo gallery 4: the LOOK switch](issues/117d-gallery-look-switch.md) | claude | todo | 117a, 117c |
+| 117d | [Photo gallery 4: the LOOK switch](issues/117d-gallery-look-switch.md) | claude | done | 117a, 117c |
 | 117e | [Photo gallery 5: the sofa scene replaces the slideshow](issues/117e-gallery-scene.md) | claude | done | 117b |
 | 117f | [Photo gallery 6: an ad can interrupt the close-up](issues/117f-gallery-ad-interrupt.md) | claude | done | 117e |
 | 117g | [Photo gallery 7: text review, phone pass, docs](issues/117g-gallery-pass.md) | claude | todo | 117f, 117d |
 | 118 | [Ads for framing a photo, then hang or shelve it](issues/118-framed-photos.md) | marc + claude | todo | 117 |
-| 119 | [A Simagotchi logo and favicon](issues/119-simagotchi-logo.md) | claude | todo | 116 |
+| 119 | [A Simagotchi logo and favicon](issues/119-simagotchi-logo.md) | claude | done | 116 |
 | 120 | [Pause legend overlap on the narrow view](issues/120-pause-legend-narrow.md) | claude | todo | 116 |
 | 121 | [Fix the flaky flashcards activity test](issues/121-flaky-flashcards-test.md) | claude | done | |
 | 122 | [A dev-only music lab](issues/122-music-lab.md) | claude | done | |

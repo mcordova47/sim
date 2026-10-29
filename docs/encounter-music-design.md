@@ -97,7 +97,7 @@ Existing tests: the golden main-room frames and the golden voice files should be
 - **Placeholder by the agent, real track by Marc.**
 
 ## 8. Open questions for Marc (most important first)
-1. **Who writes the real track?**
+1. **Who writes the real track? ANSWERED by Marc 2026-10-29: (a) Marc composes in the editor or the music lab (issue 122), agent writes a placeholder first.**
    Recommend: Marc, in the editor; the agent only a placeholder.
    (a) Marc composes in the editor, agent placeholder first. (b) Agent writes it by hand with sixteenth-note bass and Marc tunes it. (c) Agent only, and it stays as is.
 2. **What happens to the record during an encounter?**

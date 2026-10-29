@@ -73,7 +73,7 @@ The scene is `null` when no encounter runs; the sound module treats a vanished s
 
 ## 5. Staged build plan (small issues)
 1. **091a Bus and scene.** The `encounter` bus, `EncounterScene`, `encounter-sound.ts` with start, loop, bounded loops, stop and fades, ducking the record, and the placeholder track. Tests (fake audio, as `sleep-sound` tests): starts at frame 32 and not before; E skip starts at the open; Escape at every frame leaves buses at rest within `escapeFade`; record ducks to 0 and returns, keeping its place; muted is silent with the same schedule; no synth means silence; loop has no note past its end; `startFrame` equals the hit's frame; 4 loops then fade.
-2. **091b Result jingles.** Four cues and effects, the phase `result`, the exit echo only when there is no jingle. Tests: each outcome plays one jingle, never with the exit echo, muted plays none, refusal plays none.
+2. **091b Result jingles (Marc 2026-10-29: only when the action succeeds).** Two cues and effects (unsubscribed, add to cart), the phase `result`, the exit echo whenever there is no jingle (failed unsubscribe, refusals, Ignore). Tests: each successful outcome plays one jingle, never with the exit echo; failure, refusal and Ignore play none and keep the exit echo; muted plays none.
 3. **091c Docs and tuning pass.** Section in `docs/random-encounters.md` and `docs/music.md`; every number in `ENCOUNTERS.music`. Not verifiable here: how it sounds.
 4. **091d Marc's track.** Marc replaces the placeholder (no code); a test already guards that it parses and loops cleanly.
 Existing tests: the golden main-room frames and the golden voice files should be unchanged (they do not run encounters with sound). The entrance tests in `encounter-game.test.ts` stay valid because the music is driven from the scene, not from `host.cue`.
@@ -103,12 +103,12 @@ Existing tests: the golden main-room frames and the golden voice files should be
 2. **What happens to the record during an encounter? ANSWERED by Marc 2026-10-29: (a) duck to silence.**
    Recommend: duck to silence (keeps its place, no clash).
    (a) Silence, continues unheard. (b) Quiet duck like sleep (12 percent). (c) Truly pause and resume where it stopped.
-3. **Which results get a jingle?**
+3. **Which results get a jingle? ANSWERED by Marc 2026-10-29: a jingle only when the action succeeds, none when it fails.** So: unsubscribed and add to cart get a jingle; a failed unsubscribe, a refusal (already own it, cart full) and Ignore get none and keep the plain soft exit (`encounter-exit`). (Original recommendation was unsubscribed, failed and cart.)
    Recommend: unsubscribed, failed, and cart; Ignore keeps the plain soft end.
    (a) Those three. (b) All four including Ignore. (c) None, just the loop's fade.
-4. **How long should the battle music play if the card stays open?**
+4. **How long should the battle music play if the card stays open? DECIDED by the planner 2026-10-29 (Marc: use judgement): (a) four passes, then fade into quiet; all numbers in `ENCOUNTERS.music`, easy to change.**
    Recommend: four passes (about 30 s), then fade into quiet.
    (a) Four passes then fade. (b) Loop until you choose. (c) One pass only.
-5. **Reduced motion: music or no music?**
+5. **Reduced motion: music or no music? DECIDED by the planner 2026-10-29: (a) no music.**
    Recommend: no music (keeps the quiet path quiet).
    (a) No music. (b) Music at a gentler gain with a slower fade-in.

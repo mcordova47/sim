@@ -1,7 +1,7 @@
 ---
 id: 109a
 title: Inventory stage 1: entry data
-status: todo
+status: done
 owner: claude
 depends_on: [109]
 ---
@@ -16,3 +16,7 @@ Design and Marc's answers: `docs/inventory-design.md` (answers 2026-10-28: silho
 
 ## Progress log
 
+
+- 2026-10-28 (claude): started. Plan: `from`/`note` on the real items, `Decor.entries()`, tests, lines to docs/text-review.md.
+- 2026-10-28 (claude): done, in review. Added `DecorItem.from`, `NOTE_MAX`/`FROM_MAX` and validation of both (font and length) in `decor-data.ts`/`decor.ts`; `note` and `from` for all 19 real items (starting items `ALREADY HERE`, gifts `A PACKAGE`; test items have none and are never listed). `Decor.entries()` returns `{item, from (full "FROM: ..." line), where, changeAt?}` in owned order (starting items first, kept through save/load), skipping test items and unknown ids; `changeAt` is the full `CHANGE IT AT THE DINING TABLE` line (several objects joined with OR for an item in the inventory; none for the pantry). No save change, no count in the result. Tests in `src/game/decor-entries.test.ts` (order, save round trip, test and unknown ids hidden, where for placed/inventory/swapped, pantry, plants, from fallback, no save change, line length/font/no counts). Lines added to `docs/text-review.md` for Marc; `docs/decor.md` "Not built" note updated. `npm test`, `npx tsc --noEmit`, `npm run build` pass. Not checked: nothing is drawn yet (109b).
+- 2026-10-28 (review, claude, independent): **approve.** `npm test` (131 files, 2923 passed), `npx tsc --noEmit`, `npm run build` all pass. Criteria: order follows owned order, kept through save/load (pass; test plus my own check with out-of-order gifts); where text for placed, inventory and swapped items (pass); test items and unknown ids never listed (pass); pantry and plants included, pantry has no change line (pass); no save change, `toJSON` identical before/after `entries()`, result has no count (pass); lines in `docs/text-review.md` for all 19 real items plus source lines (pass). Own edge checks (outside the repo): `preview()` leaves `entries()` unchanged; hand-edited saves (null, number, `{}`, non-array owned, non-string and duplicate ids, placements of unowned/unknown slots, one item in two slots) give no duplicates, starting six first, every entry with where and a `FROM:` line; own-everything run shows every non-pantry item with a change-at line, no crash. Text: all 19 notes deadpan, capitals, within 48 characters, no counts/hints/missing-set wording, no real artist or band names, no pixels or the game, nothing needing readable text. Scope: only decor.ts, decor-data.ts, the new test, docs/decor.md, docs/text-review.md and this file; PLAN.md untouched. Nothing is drawn. Minor, not blocking: an item placed in a slot shows only that slot's object in change-at, not other objects that could also take it (matches the design). PLAN.md table needs updating by the planner.

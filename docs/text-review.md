@@ -325,3 +325,28 @@ Capitals only. Nothing animated, no counters, no "ERROR". A failure is a plain l
 - Messages after a manual sync (stage 2): SYNC IS ON / SYNCED / SYNC IS OFF / ONE MOMENT / PAIRED. SYNC IS ON / THAT IS NOT A SYNC KEY OR LINK / SYNC STOPPED. THE SAVED COPY IS DELETED / LINK COPIED
 - Questions: STOP SYNCING AND DELETE THE SAVED COPY? / SYNC WITH THE SAVE IN THIS LINK?
 - No message at all when a save from another device is picked up (decided: no "picked up where you left off").
+
+## Browsable inventory: item lines (issue 109a)
+Capitals only. One deadpan note and one source per real item, shown in the THINGS page (issue 109b). Marc marks each: keep, change or cut. A new gift gets a line when it is added.
+The entry also shows the where-now line (the slot's "where" text, or IN THE INVENTORY) and, for something you can change, CHANGE IT AT THE DINING TABLE (or the STANDING DESK, CUBE BOOKSHELF, LAMP TABLE, or "X OR Y" when two fit).
+- Source, starting things: FROM: ALREADY HERE
+- Source, everything that arrives: FROM: A PACKAGE (fallbacks if a source is not written: A GIFT, A FIND, A DELIVERY, SOME BROWSING)
+- BARN DRAWING: A BARN. IT HAS BEEN A BARN FOR A WHILE.
+- GOLD ABSTRACT: GOLD, MOSTLY. IT HAS NEVER EXPLAINED ITSELF.
+- SILKSCREEN: A LONG PRINT. IT FILLS ITS WALL.
+- SNAKE PLANT: A SNAKE PLANT. IT ASKS FOR VERY LITTLE.
+- LAMP: A LAMP. IT DOES THE ONE THING.
+- CLEAR BINS: CLEAR BINS. YOU CAN SEE WHAT IS IN THEM.
+- ROBIN PRINT: A BIRD ON A BRANCH. IT IS STAYING PUT.
+- CONCERT POSTER: A POSTER FOR A SHOW THAT HAPPENED.
+- WARM LAMP: A LAMP, BUT WARMER.
+- DRIED FLOWERS: DRIED FLOWERS. THEY ARE DONE, AND THAT IS FINE.
+- SNOW WAGON: A WAGON. IT HAS SEEN SOME SNOW.
+- STOOL LAMP: A SMALL LAMP ON A STOOL. A GOOD ARRANGEMENT.
+- SERENITY NOW: IT ASKS FOR CALM, NOT VERY CALMLY.
+- CANOES: SOME CANOES. NOBODY IS IN A HURRY.
+- CANDLE: A CANDLE. IT MOVES A LITTLE, ON ITS OWN.
+- GREAT WAVE: A BIG WAVE. IT IS STILL ABOUT TO ARRIVE.
+- STARRY NIGHT: A NIGHT SKY. IT IS QUITE BUSY UP THERE.
+- WATER LILIES: LILIES ON WATER. VERY RESTFUL.
+- SUNFLOWERS: SUNFLOWERS IN A VASE. THEY ARE HOLDING UP.

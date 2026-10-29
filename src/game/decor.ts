@@ -1,6 +1,6 @@
 import { unsupportedChars } from "../render/font";
 import { DECOR, PLANT, TILE } from "./config";
-import { DECOR_DATA, isTestItem, itemSprites, type DecorData, type DecorItem, type DecorSlot } from "./decor-data";
+import { DECOR_DATA, FROM_MAX, NOTE_MAX, isTestItem, itemSprites, type DecorData, type DecorItem, type DecorSlot } from "./decor-data";
 import type { Level } from "./level";
 import type { ApartmentState } from "./state";
 import type { Rect } from "./world";
@@ -33,6 +33,26 @@ export type DecorPlan = { ok: true; changes: { slot: string; item: string }[] } 
 const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
 
+// One row of the browsable inventory (issue 109, docs/inventory-design.md).
+export interface InventoryEntry {
+  item: DecorItem;
+  // Where it came from, a full line: "FROM: A PACKAGE".
+  from: string;
+  // Where it is now: the slot's "where" text, or "IN THE INVENTORY".
+  where: string;
+  // The object in the room that changes it, a full line ("CHANGE IT AT THE DINING TABLE"),
+  // or none when nothing there can.
+  changeAt?: string;
+}
+
+const FROM_BY_HOW: Record<NonNullable<DecorItem["how"]>, string> = {
+  start: "ALREADY HERE",
+  gift: "A GIFT",
+  find: "A FIND",
+  delivery: "A DELIVERY",
+  browse: "SOME BROWSING",
+};
+
 export const sameSize = (a: Rect, b: { w: number; h: number }) => a.w === b.w && a.h === b.h;
 
 // An item fits a slot when its kind is allowed there, its sprite is the slot's
@@ -55,6 +75,11 @@ export function validateDecorData(data: DecorData): void {
     for (const id of item.slots ?? []) if (!data.slots.some((s) => s.id === id)) bad.push(`item "${item.id}" names the unknown slot "${id}"`);
     if (item.family && !data.families[item.family]) bad.push(`item "${item.id}" uses the unknown family "${item.family}"`);
     if (unsupportedChars(item.name).length) bad.push(`item "${item.id}" name has letters the font cannot draw`);
+    for (const [what, text, max] of [["note", item.note, NOTE_MAX], ["from", item.from, FROM_MAX]] as const) {
+      if (text === undefined) continue;
+      if (unsupportedChars(text).length) bad.push(`item "${item.id}" ${what} has letters the font cannot draw`);
+      if (text.length === 0 || text.length > max) bad.push(`item "${item.id}" ${what} must be 1 to ${max} characters`);
+    }
   }
   const seen = new Set<string>();
   for (const slot of data.slots) {
@@ -161,6 +186,28 @@ export class Decor {
   // The inventory: known items you own that no slot shows.
   inventory(): DecorItem[] {
     return this.data.items.filter((i) => this.owned.has(i.id) && !this.displayedAt(i.id));
+  }
+
+  // Everything you own for the browsable inventory, in the order you got it (starting items
+  // first). Pure: reads only what is owned and shown. Items this build does not know and the
+  // TEST items are left out. There is no count anywhere on purpose (docs/decor.md, collecting).
+  entries(): InventoryEntry[] {
+    const out: InventoryEntry[] = [];
+    for (const id of this.owned) {
+      const item = this.items.get(id);
+      if (!item || isTestItem(item)) continue;
+      const slot = this.displayedAt(id);
+      const objects = (slot ? [slot] : this.data.slots.filter((s) => fits(s, item)))
+        .map((s) => s.object)
+        .filter((o, i, all): o is string => o !== undefined && all.indexOf(o) === i);
+      out.push({
+        item,
+        from: `FROM: ${item.from ?? (item.how ? FROM_BY_HOW[item.how] : "SOMEWHERE")}`,
+        where: slot ? (slot.where ?? slot.name) : "IN THE INVENTORY",
+        changeAt: objects.length ? `CHANGE IT AT ${objects.map((o) => `THE ${o.toUpperCase()}`).join(" OR ")}` : undefined,
+      });
+    }
+    return out;
   }
 
   get previewing(): boolean {

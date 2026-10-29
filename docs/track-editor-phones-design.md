@@ -154,7 +154,7 @@ Docs: update `docs/make-tracks.md` (a "On phones" section) and `docs/mobile.md` 
    - A (recommended): the system share sheet with the text, falling back to Copy.
    - B: Copy only.
    - C: also a `.track` file download (more code, and iOS handles downloads awkwardly).
-5. **Paste on a phone: how much effort?**
+5. **Paste on a phone: how much effort? ANSWERED by Marc 2026-10-28: (a) clipboard first, then hidden text box.**
    - A (recommended): try the clipboard first, then fall back to a hidden text box the player pastes into.
    - B: only the hidden text box (one path, always the same).
    - C: skip paste on phones for now; the laptop imports (sync 095 already moves tracks across).

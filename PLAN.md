@@ -142,7 +142,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 104 | [Sync stage 3: automatic sync and the pause-screen control](issues/104-sync-stage-3-automatic.md) | claude | done | 103, 093 |
 | 105 | [Dried flowers should not offer to be watered](issues/105-dried-flowers-no-watering.md) | claude | done | |
 | 106 | [The track editor (mixing tool) on phones](issues/106-track-editor-on-phones.md) | marc + claude | done | 093 |
-| 106a | [Track editor on phones 1: touch layout and drawing](issues/106a-editor-touch-layout.md) | claude | todo | 093 |
+| 106a | [Track editor on phones 1: touch layout and drawing](issues/106a-editor-touch-layout.md) | claude | done | 093 |
 | 106b | [Track editor on phones 2: taps that edit](issues/106b-editor-touch-taps.md) | claude | todo | 106a |
 | 106c | [Track editor on phones 3: name, More menu, delete](issues/106c-editor-touch-name-menu.md) | claude | todo | 106b |
 | 106d | [Track editor on phones 4: share and paste](issues/106d-editor-touch-share-paste.md) | claude | todo | 106c |

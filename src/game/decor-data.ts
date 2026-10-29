@@ -15,6 +15,10 @@ export interface GlowFlicker {
   seed: number;
 }
 
+// The most characters in a `note` or `from` (two lines of the entry box in issue 109b).
+export const NOTE_MAX = 48;
+export const FROM_MAX = 30;
+
 export type DecorKind = "art" | "plant" | "lamp" | "prop" | "rug" | "instrument" | "plugin" | "pantry";
 
 // A place that holds one item. `area` is where the item's sprite is drawn, in
@@ -69,9 +73,13 @@ export interface DecorItem {
   // An item without `glow` gives no light, whatever its sprite or slot.
   // `flicker` (the candle) makes the light wander a little over game time, see `flickerAt`.
   glow?: { radius: number; alpha: number; flicker?: GlowFlicker };
-  // One deadpan line for when it goes up (stage 2 on).
+  // One short deadpan line, capitals, at most NOTE_MAX characters (issue 109a). Shown in the
+  // browsable inventory. Add one for every new real item.
   note?: string;
-  // Where it came from, for later. Nothing reads these.
+  // Where it came from, as the words after "FROM: " ("A PACKAGE"). It records the past and
+  // never hints at how to get anything else. Without it the entry falls back to `how`.
+  from?: string;
+  // Where it came from, in broad terms. The inventory falls back to this when there is no `from`.
   how?: "start" | "gift" | "find" | "delivery" | "browse";
   // "test" marks an item that only exists so the swap can be tried before there
   // is a way to get anything (stage 2). Stage 4 removes them; `?own=` is the only way to get one.
@@ -105,12 +113,12 @@ export const DECOR_SLOTS: DecorSlot[] = [
 
 // Today's room, as items. These are the starting set: owned from the first run.
 export const DECOR_ITEMS: DecorItem[] = [
-  { id: "art-barn", name: "BARN DRAWING", kind: "art", sprite: "painting", w: 32, h: 16, color: "paper", how: "start", slots: ["art-table", "art-desk"] },
-  { id: "art-abstract", name: "GOLD ABSTRACT", kind: "art", sprite: "painting-desk", w: 32, h: 16, color: "paper", how: "start", slots: ["art-table", "art-desk"] },
-  { id: "art-silkscreen", name: "SILKSCREEN", kind: "art", sprite: "painting-wide", w: 48, h: 16, color: "paper", how: "start", slots: ["art-bed"] },
-  { id: "plant-snake", name: "SNAKE PLANT", kind: "plant", sprite: "plant-1", family: "plant", w: 16, h: 16, color: "leaf", how: "start" },
-  { id: "lamp-table", name: "LAMP", kind: "lamp", sprite: "lamp-table", w: 16, h: 16, color: "butter", how: "start", glow: { radius: 40, alpha: 0.2 } },
-  { id: "pantry-bins", name: "CLEAR BINS", kind: "pantry", sprite: "pantry", w: 16, h: 32, color: "mist", how: "start" },
+  { id: "art-barn", name: "BARN DRAWING", kind: "art", sprite: "painting", w: 32, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "A BARN. IT HAS BEEN A BARN FOR A WHILE.", slots: ["art-table", "art-desk"] },
+  { id: "art-abstract", name: "GOLD ABSTRACT", kind: "art", sprite: "painting-desk", w: 32, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "GOLD, MOSTLY. IT HAS NEVER EXPLAINED ITSELF.", slots: ["art-table", "art-desk"] },
+  { id: "art-silkscreen", name: "SILKSCREEN", kind: "art", sprite: "painting-wide", w: 48, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "A LONG PRINT. IT FILLS ITS WALL.", slots: ["art-bed"] },
+  { id: "plant-snake", name: "SNAKE PLANT", kind: "plant", sprite: "plant-1", family: "plant", w: 16, h: 16, color: "leaf", how: "start", from: "ALREADY HERE", note: "A SNAKE PLANT. IT ASKS FOR VERY LITTLE." },
+  { id: "lamp-table", name: "LAMP", kind: "lamp", sprite: "lamp-table", w: 16, h: 16, color: "butter", how: "start", from: "ALREADY HERE", note: "A LAMP. IT DOES THE ONE THING.", glow: { radius: 40, alpha: 0.2 } },
+  { id: "pantry-bins", name: "CLEAR BINS", kind: "pantry", sprite: "pantry", w: 16, h: 32, color: "mist", how: "start", from: "ALREADY HERE", note: "CLEAR BINS. YOU CAN SEE WHAT IS IN THEM." },
 ];
 
 // The real gifts (issue 043 stage A, docs/random-encounters.md section 3), in the
@@ -119,21 +127,21 @@ export const DECOR_ITEMS: DecorItem[] = [
 // nothing wide yet); items with no slot yet are still ownable inventory.
 const WALL = ["art-table", "art-desk"];
 export const GIFT_ITEMS: DecorItem[] = [
-  { id: "art-robin", name: "ROBIN PRINT", kind: "art", sprite: "art-robin", w: 32, h: 16, color: "paper", how: "gift", slots: WALL },
-  { id: "art-concert-poster", name: "CONCERT POSTER", kind: "art", sprite: "art-concert-poster", w: 32, h: 16, color: "paper", how: "gift", slots: WALL },
-  { id: "lamp-warm", name: "WARM LAMP", kind: "lamp", sprite: "lamp-warm", w: 16, h: 16, color: "tangerine", how: "gift", glow: { radius: 40, alpha: 0.2 } },
-  { id: "plant-dried", name: "DRIED FLOWERS", kind: "plant", sprite: "plant-dried", w: 16, h: 16, color: "leaf", how: "gift" },
-  { id: "art-snow-wagon", name: "SNOW WAGON", kind: "art", sprite: "art-snow-wagon", w: 32, h: 16, color: "paper", how: "gift", slots: WALL },
-  { id: "lamp-stool-lamp", name: "STOOL LAMP", kind: "lamp", sprite: "stool-lamp", w: 16, h: 16, color: "butter", how: "gift", glow: { radius: 24, alpha: 0.2 } },
-  { id: "art-serenity-now", name: "SERENITY NOW", kind: "art", sprite: "art-serenity-now", w: 32, h: 16, color: "paper", how: "gift", slots: WALL },
-  { id: "art-canoes", name: "CANOES", kind: "art", sprite: "art-canoes", w: 32, h: 16, color: "paper", how: "gift", slots: WALL },
+  { id: "art-robin", name: "ROBIN PRINT", kind: "art", sprite: "art-robin", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "A BIRD ON A BRANCH. IT IS STAYING PUT.", slots: WALL },
+  { id: "art-concert-poster", name: "CONCERT POSTER", kind: "art", sprite: "art-concert-poster", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "A POSTER FOR A SHOW THAT HAPPENED.", slots: WALL },
+  { id: "lamp-warm", name: "WARM LAMP", kind: "lamp", sprite: "lamp-warm", w: 16, h: 16, color: "tangerine", how: "gift", from: "A PACKAGE", note: "A LAMP, BUT WARMER.", glow: { radius: 40, alpha: 0.2 } },
+  { id: "plant-dried", name: "DRIED FLOWERS", kind: "plant", sprite: "plant-dried", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "DRIED FLOWERS. THEY ARE DONE, AND THAT IS FINE." },
+  { id: "art-snow-wagon", name: "SNOW WAGON", kind: "art", sprite: "art-snow-wagon", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "A WAGON. IT HAS SEEN SOME SNOW.", slots: WALL },
+  { id: "lamp-stool-lamp", name: "STOOL LAMP", kind: "lamp", sprite: "stool-lamp", w: 16, h: 16, color: "butter", how: "gift", from: "A PACKAGE", note: "A SMALL LAMP ON A STOOL. A GOOD ARRANGEMENT.", glow: { radius: 24, alpha: 0.2 } },
+  { id: "art-serenity-now", name: "SERENITY NOW", kind: "art", sprite: "art-serenity-now", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "IT ASKS FOR CALM, NOT VERY CALMLY.", slots: WALL },
+  { id: "art-canoes", name: "CANOES", kind: "art", sprite: "art-canoes", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "SOME CANOES. NOBODY IS IN A HURRY.", slots: WALL },
   // A small light that wanders a little, slowly (never a strobe).
-  { id: "lamp-candle", name: "CANDLE", kind: "lamp", sprite: "lamp-candle", w: 16, h: 16, color: "butter", how: "gift", glow: { radius: 20, alpha: 0.18, flicker: { alpha: 0.2, radius: 0.08, seed: 11 } } },
-  { id: "art-great-wave", name: "GREAT WAVE", kind: "art", sprite: "art-great-wave", w: 32, h: 16, color: "paper", how: "gift", slots: WALL },
+  { id: "lamp-candle", name: "CANDLE", kind: "lamp", sprite: "lamp-candle", w: 16, h: 16, color: "butter", how: "gift", from: "A PACKAGE", note: "A CANDLE. IT MOVES A LITTLE, ON ITS OWN.", glow: { radius: 20, alpha: 0.18, flicker: { alpha: 0.2, radius: 0.08, seed: 11 } } },
+  { id: "art-great-wave", name: "GREAT WAVE", kind: "art", sprite: "art-great-wave", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "A BIG WAVE. IT IS STILL ABOUT TO ARRIVE.", slots: WALL },
   // After the first ten (the later list): owned only once something gives them.
-  { id: "art-starry-night", name: "STARRY NIGHT", kind: "art", sprite: "art-starry-night", w: 32, h: 16, color: "paper", how: "gift", slots: WALL },
-  { id: "art-water-lilies", name: "WATER LILIES", kind: "art", sprite: "art-water-lilies", w: 32, h: 16, color: "paper", how: "gift", slots: WALL },
-  { id: "art-sunflowers", name: "SUNFLOWERS", kind: "art", sprite: "art-sunflowers", w: 32, h: 16, color: "paper", how: "gift", slots: WALL },
+  { id: "art-starry-night", name: "STARRY NIGHT", kind: "art", sprite: "art-starry-night", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "A NIGHT SKY. IT IS QUITE BUSY UP THERE.", slots: WALL },
+  { id: "art-water-lilies", name: "WATER LILIES", kind: "art", sprite: "art-water-lilies", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "LILIES ON WATER. VERY RESTFUL.", slots: WALL },
+  { id: "art-sunflowers", name: "SUNFLOWERS", kind: "art", sprite: "art-sunflowers", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "SUNFLOWERS IN A VASE. THEY ARE HOLDING UP.", slots: WALL },
 ];
 
 // TEST items (issue 062 stage 2): borrowed sprites, so the swap can be tried and

@@ -1,9 +1,10 @@
 import { browserClipboard, type ClipboardLike } from "../../input/clipboard";
 import type { Controls } from "../../input/controls";
+import type { TapTarget } from "../../input/tap";
 import { normalizeText, unsupportedChars } from "../../render/font";
 import { touchHints } from "../../render/hints";
 import { drawTrackEditor, type EditorView } from "../../render/track-editor";
-import { drawTrackEditorTouch } from "../../render/track-editor-touch";
+import { TOUCH_EDITOR, drawTrackEditorTouch, stepKeyAt, touchEditorLayout, touchRowKeys } from "../../render/track-editor-touch";
 import { BaseActivity, needHost, registerActivity, type ActivityHost, type ActivityResult } from "../activity";
 import { MAKE_TRACKS as M } from "../config";
 import { choice, menu } from "../dialog";
@@ -97,6 +98,10 @@ export class MakeTrackActivity extends BaseActivity {
   message = "";
   phase: Phase = "start";
 
+  // The page of 8 steps a tap chose to show (touch look), or null to show the page the cursor is on.
+  // While playing, the page follows the play position unless one was chosen in the last few seconds.
+  private viewPage: number | null = null;
+  private pageChosenAt = -Infinity;
   private messageLeft = 0;
   private playTime = 0;
   private clock = 0;
@@ -195,6 +200,8 @@ export class MakeTrackActivity extends BaseActivity {
     for (const code of controls.keys) {
       if (this.done) return;
       if (command) continue;
+      // The pad moves the cursor, and the window follows it.
+      if (code.startsWith("Arrow")) this.viewPage = null;
       if (this.naming !== null) this.typeKey(code, shift);
       else this.editKey(code);
     }
@@ -324,6 +331,7 @@ export class MakeTrackActivity extends BaseActivity {
     if (steps === this.grid.steps) return;
     this.grid.steps = steps;
     this.step = Math.min(this.step, steps - 1);
+    if (this.viewPage !== null && this.viewPage * TOUCH_EDITOR.pageSteps >= steps) this.viewPage = null;
     this.changed();
   }
 
@@ -440,6 +448,7 @@ export class MakeTrackActivity extends BaseActivity {
   private view(): EditorView {
     const g = normalizeGrid(this.grid);
     const stepSeconds = (60 / g.tempo) * M.stepBeats;
+    const playStep = this.playing ? Math.floor(this.playTime / stepSeconds) % g.steps : null;
     return {
       started: this.phase === "edit",
       title: this.naming ?? this.grid.title,
@@ -454,10 +463,89 @@ export class MakeTrackActivity extends BaseActivity {
       row: this.rows[this.channel],
       pen: this.pen,
       playing: this.playing,
-      playStep: this.playing ? Math.floor(this.playTime / stepSeconds) % g.steps : null,
+      playStep,
+      page: this.shownPage(playStep),
       message: this.message,
       drums: DRUM_LETTERS,
     };
+  }
+
+  // The page of 8 steps the touch look shows: the one a tap chose, else (while playing) the playhead's,
+  // else the cursor's.
+  private shownPage(playStep: number | null): number {
+    const per = TOUCH_EDITOR.pageSteps;
+    const held = this.viewPage !== null && (playStep === null || this.clock - this.pageChosenAt < M.pageHoldSeconds);
+    if (held && this.viewPage !== null) return this.viewPage;
+    return Math.floor((playStep ?? this.step) / per);
+  }
+
+  // -- Taps (issue 106b) ---------------------------------------------------------------
+
+  private choosePage(page: number): void {
+    const per = TOUCH_EDITOR.pageSteps;
+    if (page < 0 || page * per >= this.grid.steps) return;
+    this.viewPage = page;
+    this.pageChosenAt = this.clock;
+    // The cursor goes with it, in the same column, so the pad carries on from here.
+    this.step = Math.min(this.grid.steps - 1, page * per + (this.step % per));
+  }
+
+  // Scrolls the six pitches shown by a window (the cursor goes with it, so the window follows).
+  private scrollPitches(by: number): void {
+    const { low, high } = keyRange(this.channel);
+    this.rows[this.channel] = Math.min(high, Math.max(low, this.rows[this.channel] + by * TOUCH_EDITOR.pitchRows));
+  }
+
+  // The buttons a tap can press on the touch look: the same rectangles `draw` paints (the layout of
+  // render/track-editor-touch.ts). Each does what the keyboard's key for it does. The name, More and Undo
+  // buttons are drawn but wait for issue 106c.
+  tapTargets(screen: { width: number; height: number }): TapTarget[] {
+    if (this.done || !touchHints() || this.phase !== "edit" || this.naming !== null) return [];
+    const T = TOUCH_EDITOR;
+    const keys = touchRowKeys(this.channel, this.rows[this.channel]);
+    const layout = touchEditorLayout(screen, { steps: this.grid.steps, rows: keys.length });
+    const beat = this.channel === "beat";
+    const out: TapTarget[] = [];
+    const add = (rect: { x: number; y: number; w: number; h: number }, run: () => void) => out.push({ ...rect, run });
+    const later = () => this.flash("Not on the phone yet.");
+
+    // The grid first: a tap moves the cursor to the cell and places or clears there, as E does. The
+    // cell's page is the one shown now, so the step is right on any page.
+    const shown = this.shownPage(this.playing ? this.view().playStep : null);
+    for (let row = 0; row < keys.length; row++) {
+      for (let col = 0; col < layout.pageSteps; col++) {
+        const step = shown * T.pageSteps + col;
+        if (step >= this.grid.steps) continue;
+        const at = { x: layout.grid.x + col * layout.cellW, y: layout.grid.y + row * layout.rowH, w: layout.cellW, h: layout.rowH };
+        add(at, () => {
+          const hit = stepKeyAt(layout, at.x, at.y, shown, keys);
+          if (!hit) return;
+          this.step = hit.step;
+          this.rows[this.channel] = hit.key;
+          this.viewPage = shown;
+          this.pageChosenAt = this.clock;
+          this.placeOrClear();
+        });
+      }
+    }
+    // A pitch label plays that pitch and places nothing.
+    layout.gutter.forEach((r, i) => add(r, () => this.host.blip?.(beat ? DRUM_BLIP[keys[i]] : midiFreq(keys[i]))));
+    CHANNELS.forEach((id, i) => add(layout.tabs[i], () => (this.channel = id)));
+    layout.pages.forEach((r, i) => add(r, () => this.choosePage(i)));
+    if (!beat) {
+      add(layout.pitchUp, () => this.scrollPitches(1));
+      add(layout.pitchDown, () => this.scrollPitches(-1));
+    }
+    add(layout.tempoDown, () => this.changeTempo(-M.tempo.step));
+    add(layout.tempoUp, () => this.changeTempo(M.tempo.step));
+    add(layout.play, () => this.togglePlay());
+    add(layout.save, () => this.save());
+    add(layout.length, () => this.changeLength());
+    add(layout.name, later);
+    add(layout.more, later);
+    if (layout.undo) add(layout.undo, later);
+    if (layout.nextPage) add(layout.nextPage, () => this.choosePage((shown + 1) % layout.pages.length));
+    return out;
   }
 
   // On the touch layer the editor draws its own bigger look in the live view (issue 106a); the game

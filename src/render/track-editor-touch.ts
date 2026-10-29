@@ -52,6 +52,10 @@ export interface TouchLayout {
   rowH: number;
   // One button per page of the track (2 for 16 steps, 4 for 32).
   pages: Rect[];
+  // Scroll the six pitches shown up or down by a window (pitched channels only; issue 106b, so every
+  // pitch is reachable by taps).
+  pitchUp: Rect;
+  pitchDown: Rect;
   play: Rect;
   save: Rect;
   length: Rect;
@@ -113,7 +117,12 @@ export function touchEditorLayout(
   const pageCount = Math.max(1, Math.ceil(steps / T.pageSteps));
   const pagesY = gridY + gridH + gap;
   const pagesX = landscape ? gridX : m;
-  const pagesW = landscape ? gridW : screen.width - 2 * m;
+  // The pitch scroll buttons sit at the right end of the strip.
+  const scrollW = 22;
+  const stripW = landscape ? gridW : screen.width - 2 * m;
+  const pagesW = stripW - 2 * (scrollW + gap);
+  const pitchUp = rect(pagesX + stripW - 2 * scrollW - gap, pagesY, scrollW, T.pageH);
+  const pitchDown = rect(pagesX + stripW - scrollW, pagesY, scrollW, T.pageH);
   const pageW = Math.floor((pagesW - (pageCount - 1) * gap) / pageCount);
   const pages = Array.from({ length: pageCount }, (_, i) => rect(pagesX + i * (pageW + gap), pagesY, pageW, T.pageH));
 
@@ -154,6 +163,8 @@ export function touchEditorLayout(
     cellW,
     rowH,
     pages,
+    pitchUp,
+    pitchDown,
     play,
     save,
     length,
@@ -211,6 +222,8 @@ export function layoutRects(layout: TouchLayout): { name: string; rect: Rect }[]
     { name: "save", rect: layout.save },
     { name: "length", rect: layout.length },
     { name: "more", rect: layout.more },
+    { name: "pitchUp", rect: layout.pitchUp },
+    { name: "pitchDown", rect: layout.pitchDown },
   ];
   layout.tabs.forEach((r, i) => out.push({ name: `tab${i}`, rect: r }));
   layout.gutter.forEach((r, i) => out.push({ name: `gutter${i}`, rect: r }));
@@ -369,6 +382,12 @@ export function drawTrackEditorTouch(ctx: CanvasRenderingContext2D, v: EditorVie
       ctx.fillRect(r.x + r.w - 5, r.y + 3, 2, 2);
     }
   });
+
+  // Scroll the pitches (not for the three drums).
+  if (!beat) {
+    drawButton(ctx, layout.pitchUp, "UP");
+    drawButton(ctx, layout.pitchDown, "DN");
+  }
 
   // The buttons.
   drawButton(ctx, layout.play, v.playing ? TOUCH_TEXT.stop : TOUCH_TEXT.play, { color: v.playing ? COLOR.leaf : COLOR.paper });

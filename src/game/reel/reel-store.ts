@@ -2,14 +2,14 @@
 // Device only: nothing here is read by the save or sync code. A record is only
 // pixel data: no file name, date, place or caption ever exists in it.
 
+import { DEFAULT_LOOK_ID, isLookId, lookSizes } from "./looks";
+
 export const REEL_DB_NAME = "life.reel.v1";
 export const REEL_STORE_NAME = "pics";
 export const REEL_CAP = 60;
-// Stored sizes: landscape 48 x 36 or portrait 36 x 48, one byte per pixel.
-export const REEL_SIZES: readonly { w: number; h: number }[] = [
-  { w: 48, h: 36 },
-  { w: 36, h: 48 },
-];
+// Stored sizes: derived from the look presets (each landscape size and its
+// portrait twin), one byte per pixel. See looks.ts.
+export const REEL_SIZES: readonly { w: number; h: number }[] = lookSizes();
 // Palette indices run 0..21 (22 colours).
 export const REEL_MAX_INDEX = 21;
 
@@ -18,6 +18,8 @@ export interface ReelPicInput {
   w: number;
   h: number;
   px: Uint8Array;
+  // A look preset id. Absent reads as "soft" (every picture from before looks existed, and the default look is stored as absent).
+  look?: string;
 }
 
 export interface ReelPic extends ReelPicInput {
@@ -100,6 +102,9 @@ export function createReelStore(backend: PicBackend, cap: number = REEL_CAP): Re
           }
           // Copy the pixels so later changes to the caller's array cannot reach the store.
           const copy: ReelPicInput = { w: pic.w, h: pic.h, px: new Uint8Array(pic.px) };
+          // An unknown look id is dropped, never an error. The default look is kept as
+          // absent (absent reads as soft), so a default picture is exactly a 113 record.
+          if (isLookId(pic.look) && pic.look !== DEFAULT_LOOK_ID) copy.look = pic.look;
           const id = await backend.put(copy);
           stored.push({ ...copy, id, palette: 1 });
           result.added++;
@@ -109,6 +114,11 @@ export function createReelStore(backend: PicBackend, cap: number = REEL_CAP): Re
     remove: (id) => queue(() => backend.delete(id)),
     clear: () => queue(() => backend.clear()),
   };
+}
+
+// w, h and (when it is a known, non-default preset) look: the fields a stored record keeps besides px.
+function withLook(p: { w: number; h: number; look?: string }): { w: number; h: number; look?: string } {
+  return isLookId(p.look) && p.look !== DEFAULT_LOOK_ID ? { w: p.w, h: p.h, look: p.look } : { w: p.w, h: p.h };
 }
 
 export function createMemoryBackend(): PicBackend {
@@ -122,7 +132,7 @@ export function createMemoryBackend(): PicBackend {
     },
     async put(pic) {
       const id = nextId++;
-      map.set(id, { id, w: pic.w, h: pic.h, px: new Uint8Array(pic.px), palette: 1 });
+      map.set(id, { id, ...withLook(pic), px: new Uint8Array(pic.px), palette: 1 });
       return id;
     },
     async delete(id) {
@@ -179,14 +189,14 @@ export function createIndexedDbBackend(factory: IDBFactory): PicBackend {
         db.transaction(REEL_STORE_NAME, "readonly").objectStore(REEL_STORE_NAME).getAll(),
       )) as ReelPic[];
       return rows
-        .map((r) => ({ id: r.id, w: r.w, h: r.h, px: new Uint8Array(r.px), palette: 1 as const }))
+        .map((r) => ({ id: r.id, ...withLook(r), px: new Uint8Array(r.px), palette: 1 as const }))
         .sort((a, b) => a.id - b.id);
     },
     async put(pic) {
       const db = await open();
       const tx = db.transaction(REEL_STORE_NAME, "readwrite");
       const key = request(
-        tx.objectStore(REEL_STORE_NAME).add({ w: pic.w, h: pic.h, px: pic.px, palette: 1 }),
+        tx.objectStore(REEL_STORE_NAME).add({ ...withLook(pic), px: pic.px, palette: 1 }),
       );
       await done(tx);
       return (await key) as number;

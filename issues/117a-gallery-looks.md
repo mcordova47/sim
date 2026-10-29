@@ -1,7 +1,7 @@
 ---
 id: 117a
 title: Photo gallery 1: looks and the store
-status: todo
+status: review
 owner: claude
 depends_on: [113c]
 ---
@@ -16,3 +16,8 @@ Design and Marc's answers (2026-10-29): `docs/photo-gallery-design.md` (shared 3
 
 ## Progress log
 
+
+- 2026-10-29: Starting. Plan: looks.ts (presets, sizes derived), reel-store sizes derived + optional look, pixelate opts.size, addPhotos look arg, look-settings.ts (own localStorage key). Golden test pins default-look pixelate output (sha256 recorded from main's unchanged code on a synthetic picture) and the addPhotos default path.
+- 2026-10-29: Built. New: `src/game/reel/looks.ts` (Crisp 64x48/10, Soft 48x36/20 default, Chunky 32x24/30; `lookSizes`, `lookById`, `isLookId`), `look-settings.ts` (key `life.reel.look.v1`, tolerant load, save returns false on failure), `looks.test.ts`. Changed: `reel-store.ts` (REEL_SIZES derived from presets = 6 sizes; optional `look` on input/record; unknown id dropped; the default look is stored as absent so a default picture is exactly a 113 record; no IndexedDB version bump), `pixelate.ts` (`opts.size`, default unchanged), `photo-add.ts` (`addPhotos(..., onProgress, lookId = default)`), `photos-page.test.ts` (look outside sync doc/save/reset test). Golden: pixelate default output on three synthetic pictures (landscape, portrait, square) pinned by hash recorded from main's unchanged code, same via the Soft preset, and via addPhotos default.
+- Checks: `npm test` 3192 pass (one flashcards test failed once under load, passes alone and on rerun; unrelated), `npx tsc --noEmit`, `npm run build`, `npm run check:dist` pass. Nothing in the UI changed; no caller passes a look yet.
+- Not done / unverified: the dither values and sizes were not eyeballed in `art/tools/pixel-looks.html` (design says to before closing; no previewable UI exists yet; they are data in looks.ts). No real photos used.

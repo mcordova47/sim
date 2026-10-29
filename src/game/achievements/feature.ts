@@ -16,6 +16,7 @@ import { canon, mergeSaves, normaliseDoc, normaliseProgress, type SyncDoc, type 
 import { AutoSync } from "../sync/auto";
 import { STATUS_TEXT, SyncService } from "../sync/service";
 import type { TapTarget } from "../../input/tap";
+import { drawThings, moveThingsCursor, thingsButtons, thingsCells, thingsPage, thingsPages, thingsGrid, type ThingsView } from "./inventory-draw";
 import { drawList, drawSync, drawToasts, drawTransfer, listRows, pageButton, pauseButtons, syncButtons, touchPageSize, transferButtons, type ListView, type SyncView, type TransferView } from "./draw";
 import { ProgressStore, parseWorld, type KeyValueStorage, type WorldSave } from "./progress";
 import { Stats } from "./stats";
@@ -95,7 +96,8 @@ export class AchievementsFeature implements Layer {
   readonly sync: SyncLocal;
   private readonly demos: DemoStore;
   private readonly io: TransferIO;
-  private page: "list" | "transfer" | "sync" = "list";
+  private page: "list" | "transfer" | "sync" | "things" = "list";
+  private thingsCursor = 0;
   readonly syncService: SyncService;
   private readonly auto: AutoSync;
   private readonly origin: string;
@@ -453,9 +455,11 @@ export class AchievementsFeature implements Layer {
     if (!this.listOpen) return;
     if (this.page === "transfer") return this.transferKey(e);
     if (this.page === "sync") return this.syncKeyPress(e);
+    if (this.page === "things") return this.thingsKey(e);
     if (e.code === "Escape") return this.closeList();
     if (e.code === UI.transferKey && !e.shiftKey) return this.openTransfer();
     if (e.code === UI.syncKey && !e.shiftKey) return this.openSync();
+    if (e.code === UI.thingsKey && !e.shiftKey) return this.openThings();
     if (e.code === UI.dialogVoiceKey && !e.shiftKey) return this.toggleVoice();
     if (e.code === UI.adBlockerKey && !e.shiftKey) return this.toggleAdBlocker();
     // The arrows, and W and S (the touch layer's pad sends those).
@@ -470,6 +474,46 @@ export class AchievementsFeature implements Layer {
   }
 
   // -- The transfer page ----------------------------------------------------------------------
+
+  // -- The THINGS page (issue 109b): read-only, so it changes nothing and saves nothing ------------
+
+  private openThings(): void {
+    this.page = "things";
+    this.thingsCursor = 0;
+    this.confirmReset = false;
+    this.flash = null;
+    this.flashFor = 0;
+  }
+
+  private thingsKey(e: KeyEventLike): void {
+    if (e.ctrlKey || e.metaKey) return;
+    if (e.code === "Escape" || (e.code === UI.thingsKey && !e.shiftKey)) {
+      this.page = "list";
+      return;
+    }
+    const dir = ({ ArrowLeft: "left", KeyA: "left", ArrowRight: "right", KeyD: "right", ArrowUp: "up", KeyW: "up", ArrowDown: "down", KeyS: "down" } as const)[e.code as "ArrowLeft"];
+    if (!dir) return;
+    e.preventDefault?.();
+    this.thingsCursor = moveThingsCursor(this.thingsCursor, this.game.decor.entries().length, dir);
+  }
+
+  private thingsView(): ThingsView {
+    const entries = this.game.decor.entries();
+    return { entries, cursor: Math.min(this.thingsCursor, Math.max(0, entries.length - 1)), touch: touchHints(), sprites: this.game.sprites };
+  }
+
+  private thingsTargets(): TapTarget[] {
+    const view = this.thingsView();
+    const targets: TapTarget[] = [];
+    for (const { index, rect } of thingsCells(view)) targets.push({ ...rect, run: () => void (this.thingsCursor = index) });
+    const actions = {
+      back: () => void (this.page = "list"),
+      // The first entry of the next page, back to the first page after the last.
+      page: () => void (this.thingsCursor = ((thingsPage(view) + 1) % thingsPages(view.entries.length)) * thingsGrid().perPage),
+    };
+    for (const b of thingsButtons(view)) targets.push({ ...b.rect, run: actions[b.id] });
+    return targets;
+  }
 
   // -- The sync page (issue 103) --------------------------------------------------------------
 
@@ -732,12 +776,14 @@ export class AchievementsFeature implements Layer {
     if (!this.listOpen || !touchHints()) return [];
     if (this.page === "transfer") return this.transferTargets();
     if (this.page === "sync") return this.syncTargets();
+    if (this.page === "things") return this.thingsTargets();
     const view = this.view();
     const actions: Record<string, () => void> = {
       adBlocker: () => this.toggleAdBlocker(),
       voice: () => this.toggleVoice(),
       transfer: () => this.openTransfer(),
       sync: () => this.openSync(),
+      things: () => this.openThings(),
       reset: () => {
         this.confirmReset = true;
       },
@@ -810,6 +856,7 @@ export class AchievementsFeature implements Layer {
     if (this.listOpen) {
       if (this.page === "transfer") drawTransfer(ctx, this.transferView());
       else if (this.page === "sync") drawSync(ctx, this.syncView());
+      else if (this.page === "things") drawThings(ctx, this.thingsView());
       else drawList(ctx, this.view());
     }
   }

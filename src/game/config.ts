@@ -496,6 +496,8 @@ export const ACHIEVEMENTS_UI = {
   transferKey: "KeyT",
   // Opens the sync page (issue 103).
   syncKey: "KeyP",
+  // Opens the THINGS page (issue 109b), the browsable inventory.
+  thingsKey: "KeyI",
   // How long "AD BLOCKER: ON" shows after the key is pressed, in seconds.
   flashSeconds: 1.5,
   // Progress is saved this often as well as when a task finishes, an achievement

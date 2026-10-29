@@ -150,7 +150,7 @@ Docs: update `docs/make-tracks.md` (a "On phones" section) and `docs/mobile.md` 
    - A (recommended): tap clears (like E), Undo catches mistakes.
    - B: first tap selects, a second tap clears, and Length acts on the selected note (safer, one more tap).
    - C: tap places only; clearing is the `Erase` mode button.
-4. **Share how?**
+4. **Share how? ANSWERED by Marc 2026-10-28: (a) share sheet, falling back to Copy.**
    - A (recommended): the system share sheet with the text, falling back to Copy.
    - B: Copy only.
    - C: also a `.track` file download (more code, and iOS handles downloads awkwardly).

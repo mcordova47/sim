@@ -148,6 +148,9 @@ export const DELIVERIES = {
 export const ENCOUNTERS = {
   // The tasks (ids) whose completion rolls. `work-sofa` and `work-bed` do not.
   tasks: ["doomscroll", "work"] as readonly string[],
+  // The tasks that can be interrupted by an ad while they run (issue 117f): the sofa scene rolls once per
+  // session, a while into its close-up. They never roll on completion, and `tasks` never roll mid-task.
+  interrupts: ["scroll-photos"] as readonly string[],
   // The roll per eligible completion, and the roll right after a failed unsubscribe.
   chance: 0.22,
   afterFailChance: 0.5,
@@ -463,6 +466,8 @@ export const DIALOG = {
 // pools). The pools are plain lists for the text review (docs/text-review.md): drop or change a line here.
 export const REEL = {
   pass: 6,
+  // Seconds of close-up time before the scene's one ad roll (issue 117f). A player who leaves sooner gets none.
+  adAfter: 8,
   phoneLines: [
     "You scroll for a while, because why not.",
     "There is a lot of it, and it is all yours.",

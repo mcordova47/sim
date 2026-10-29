@@ -92,6 +92,10 @@ export interface ActivityHost {
   recordChosen?(id: string | null, paid: boolean): void;
   // The pictures the photo reel holds right now (issue 113d). Missing in tests that have none.
   reelPictures?(): readonly ReelPic[];
+  // For an activity that an ad may interrupt (the sofa scene, issue 117f): rolls once through the usual
+  // gates and, on a hit, returns the encounter ready to `start()`, or null. The activity runs it as its
+  // child. Missing in tests that have none.
+  interruptWithAd?(): Activity | null;
   // Game minutes played so far (the clock held still by an activity does not count).
   gameMinutes?(): number;
 }

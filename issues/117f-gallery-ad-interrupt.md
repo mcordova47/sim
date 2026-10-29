@@ -1,7 +1,7 @@
 ---
 id: 117f
 title: Photo gallery 6: an ad can interrupt the close-up
-status: todo
+status: review
 owner: claude
 depends_on: [117e]
 ---
@@ -16,3 +16,6 @@ Design and Marc's answers (2026-10-29): `docs/photo-gallery-design.md` (shared 3
 
 ## Progress log
 
+
+- 2026-10-29 (claude): started. Plan: `ENCOUNTERS.interrupts` + `REEL.adAfter` (8 s) in config; `EncounterEnv.interrupt` so each list answers only its own kind of roll; `buildEncounter` split out of `startEncounter`; `ActivityHost.interruptWithAd` (game rolls with `busy = dialog.open || inputLocked`); the scene runs the ad as a child (forwards update, draw, taps, encounterScene; `showsPicture`, `hidesStopHint`, `readsKeys` off while it runs); Escape cancels the child only.
+- 2026-10-29 (claude): built and verified. Files: `src/game/config.ts`, `encounters.ts`, `activity.ts`, `game.ts`, `activities/reel.ts`, `reel-ad.test.ts` (new, 17 tests on the real Game plus a unit pair for a broken ad), `docs/activities.md` (one Escape row). Full suite 3435 passed, `npm run build` and `check:dist` pass, golden frames unchanged. Criteria: without an interruption the scene is unchanged (reel tests untouched and green, a missing `interruptWithAd` or a miss changes nothing); doomscroll and work completion roll untouched (encounter tests green; `maybeEncounter` is unchanged, and `tasks` only answers non-interrupt rolls); a bug in the ad is caught and dropped inside the scene (`guarded`), so the gallery is untouched. The interrupted close-up draws nothing new (the existing ad card, then the same close-up), so no render was made. Not checked: feel in a browser, a phone's view flip when the ad arrives (needs a device; 117g).

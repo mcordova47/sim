@@ -253,6 +253,32 @@ export function gridToTrackText(input: DemoGrid): string {
 
 // -- From text (import, and reading a saved track back) -----------------------
 
+// Pasted text as it arrives by phone, made ready for `parseTrack` (issue 106d). Notes, Messages and mail
+// change plain text in small ways: \r\n line endings, non-breaking and other odd spaces, zero-width marks
+// and a byte order mark, curly quotes and dashes (in a title), a "> " quote mark on every line, a code
+// fence, and a signature at the end ("Sent from my phone", "Get Outlook for ...", or a "--" line and
+// everything after it). All of those are taken out or made plain. Text that is not a track is left for the
+// parser to refuse with its own message.
+export function cleanTrackText(text: string): string {
+  let lines = text
+    .replace(/[\uFEFF\u200B-\u200D\u2060\u00AD]/g, "")
+    .replace(/\r\n?|[\u2028\u2029\u0085]/g, "\n")
+    .replace(/[\u00A0\u2000-\u200A\u202F\u205F\u3000\t]/g, " ")
+    .replace(/[\u2018\u2019\u201B\u2032]/g, "'")
+    .replace(/[\u201C\u201D\u201F\u2033]/g, '"')
+    .replace(/[\u2010-\u2015\u2212]/g, "-")
+    .split("\n");
+  if (lines.some((l) => l.trim() !== "") && lines.every((l) => l.trim() === "" || /^\s*>/.test(l))) {
+    lines = lines.map((l) => l.replace(/^\s*>\s?/, ""));
+  }
+  lines = lines.filter((l) => !/^\s*(```|~~~)/.test(l));
+  const cut = lines.findIndex((l) => /^\s*[-_]{2,}\s*$/.test(l));
+  if (cut >= 0) lines = lines.slice(0, cut);
+  const signature = /^\s*(sent (from|via|with|using|by)|get outlook|shared from|shared via)\b/i;
+  while (lines.length > 0 && (lines.at(-1)!.trim() === "" || signature.test(lines.at(-1)!))) lines.pop();
+  return lines.map((l) => l.replace(/\s+$/, "")).join("\n").replace(/^\n+/, "") + "\n";
+}
+
 export type GridResult = { ok: true; grid: DemoGrid } | { ok: false; message: string };
 
 const fail = (message: string): GridResult => ({ ok: false, message });

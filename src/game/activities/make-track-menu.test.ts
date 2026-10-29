@@ -92,7 +92,7 @@ for (const screen of [NARROW_VIEW, DESKTOP_VIEW]) {
       const s = setup(screen);
       s.more();
       const labels = s.dialogLabels();
-      expect(labels).toEqual(["Rename", "Extend to 32 steps", "Undo", "Copy", "Paste", "Delete", "Back"]);
+      expect(labels).toEqual(["Rename", "Extend to 32 steps", "Undo", "Share", "Copy", "Paste", "Delete", "Back"]);
       for (const l of labels) expect(l).not.toMatch(/\b(ctrl|esc|enter|press)\b/i);
     });
 

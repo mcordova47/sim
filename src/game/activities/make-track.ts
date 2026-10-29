@@ -1,4 +1,4 @@
-import { browserClipboard, type ClipboardLike } from "../../input/clipboard";
+import { browserClipboard, browserShare, type ClipboardLike, type ShareLike } from "../../input/clipboard";
 import type { Controls } from "../../input/controls";
 import type { TapTarget } from "../../input/tap";
 import { normalizeText, unsupportedChars } from "../../render/font";
@@ -13,6 +13,7 @@ import type { DemoStore } from "../music/demo-store";
 import {
   CHANNELS,
   DRUM_LETTERS,
+  cleanTrackText,
   cloneGrid,
   countNotes,
   cycleNoteLength,
@@ -45,9 +46,15 @@ const START_DRAFT = "Continue your draft";
 const START_NEW = "New track";
 const START_CANCEL = "Cancel";
 
-// The fallback when the clipboard cannot be read. A phone has no Ctrl (hint rule of issue 093); the
-// hidden paste box of issue 106d is what a touch player will use, so until then it says it cannot.
-const PASTE_BY_HAND = () => (touchHints() ? "Could not read the clipboard." : "Press Ctrl+V to paste.");
+// The fallback when the clipboard cannot be read. A phone has no Ctrl (hint rule of issue 093): it gets
+// the paste box instead (issue 106d), so this is only the desktop's line.
+const PASTE_BY_HAND = () => "Press Ctrl+V to paste.";
+
+// Text in the paste box that is worth trying to read as a track before the player presses Go: it has
+// line breaks or a channel line, or is long. A few typed letters are just waited for.
+const worthReading = (text: string) => text.includes("\n") || /\[[^\]]+\]/.test(text) || text.length >= 20;
+// The most the paste box keeps (the importer refuses more than this anyway).
+const PASTE_CAP = M.maxTextBytes * 2;
 
 // Where the editor's sound blips sit: a drum hit has no pitch, so each gets one.
 const DRUM_BLIP = [220, 660, 1320];
@@ -84,15 +91,20 @@ export class MakeTrackActivity extends BaseActivity {
   }
   // Naming wants typing: on the touch layer that raises the phone's keyboard (issue 106c, as in 093).
   get wantsText(): boolean {
-    return !this.done && this.phase === "edit" && this.naming !== null;
+    return !this.done && this.phase === "edit" && (this.naming !== null || this.pasting !== null);
+  }
+  // The paste box is a visible, multi-line field (touch-ui shows it over the picture); a name is not.
+  get textBox(): boolean {
+    return this.wantsText && this.pasting !== null;
   }
   textValue(): string {
-    return this.naming ?? "";
+    return this.naming ?? this.pasting ?? "";
   }
   // The whole text from the touch layer's field. What a name cannot hold is dropped (a curly apostrophe
   // becomes a straight one first), and it is cut to the longest name; the field is then set to what is kept.
   setText(text: string): void {
     if (!this.wantsText) return;
+    if (this.naming === null) return this.setPasteText(text);
     const kept = [...normalizeText(text)].filter((ch) => M.nameChars.test(ch)).join("");
     this.naming = kept.slice(0, M.nameMax);
   }
@@ -108,6 +120,8 @@ export class MakeTrackActivity extends BaseActivity {
   pen = 1;
   // The name being typed, or null.
   naming: string | null = null;
+  // The text in the paste box (touch, when the clipboard cannot be read), or null when it is not open.
+  pasting: string | null = null;
   playing = false;
   message = "";
   phase: Phase = "start";
@@ -128,6 +142,7 @@ export class MakeTrackActivity extends BaseActivity {
     private readonly host: ActivityHost,
     private readonly store: DemoStore = demoStore(),
     private readonly clipboard: ClipboardLike = browserClipboard,
+    private readonly sharer: ShareLike = browserShare,
   ) {
     super();
     this.grid = emptyGrid(M.untitled);
@@ -176,6 +191,7 @@ export class MakeTrackActivity extends BaseActivity {
     this.step = 0;
     this.channel = "melody";
     this.naming = null;
+    this.pasting = null;
     this.undoGrid = null;
     this.viewPage = null;
     this.phase = "edit";
@@ -221,6 +237,7 @@ export class MakeTrackActivity extends BaseActivity {
       // The pad moves the cursor, and the window follows it.
       if (code.startsWith("Arrow")) this.viewPage = null;
       if (this.naming !== null) this.typeKey(code, shift);
+      else if (this.pasting !== null) this.pasteKey(code);
       else this.editKey(code);
     }
   }
@@ -455,35 +472,100 @@ export class MakeTrackActivity extends BaseActivity {
     if (!opened) this.flash("Not now.");
   }
 
-  private copy(): void {
+  // The text to copy or share, or null after saying why there is none.
+  private trackText(what: string): string | null {
     const problem = nameProblem(this.grid.title);
-    if (problem) return this.flash(problem);
-    if (countNotes(this.grid) === 0) return this.flash("Nothing to copy yet.");
-    const text = gridToTrackText({ ...this.grid, title: this.grid.title.trim() });
+    if (problem) {
+      this.flash(problem);
+      return null;
+    }
+    if (countNotes(this.grid) === 0) {
+      this.flash(`Nothing to ${what} yet.`);
+      return null;
+    }
+    return gridToTrackText({ ...this.grid, title: this.grid.title.trim() });
+  }
+
+  private copy(): void {
+    const text = this.trackText("copy");
+    if (text === null) return;
+    this.copyText(text);
+  }
+
+  private copyText(text: string): void {
     void this.clipboard.copy(text).then(
       (ok) => this.flash(ok ? "Copied." : touchHints() ? "Could not copy." : "Could not copy. The text is in the browser console."),
       () => this.flash("Could not copy."),
     );
   }
 
-  private paste(): void {
-    void this.clipboard.read().then(
-      (text) => (text === null ? this.flash(PASTE_BY_HAND()) : this.importText(text)),
-      () => this.flash(PASTE_BY_HAND()),
+  // Share (issue 106d): the phone's share sheet with the `.track` text. `share` is called right here, in the
+  // tap, which the browser needs. With no share sheet (or one that fails) it copies instead.
+  private share(): void {
+    const text = this.trackText("share");
+    if (text === null) return;
+    void this.sharer.share(this.grid.title.trim(), text).then(
+      (result) => {
+        if (result === "shared") this.flash("Shared.");
+        else if (result === "cancelled") this.flash("Not shared.");
+        else this.copyText(text);
+      },
+      () => this.copyText(text),
     );
   }
 
-  // A pasted track becomes the draft, and is only saved with S.
-  importText(text: string): void {
+  // Paste: the clipboard first. Where it cannot be read (or says nothing) a phone gets the paste box, a
+  // field the player pastes into by hand; a keyboard player is told to press Ctrl+V.
+  private paste(): void {
+    const fallback = () => (touchHints() ? this.openPasteBox() : this.flash(PASTE_BY_HAND()));
+    void this.clipboard.read().then(
+      (text) => (text === null || text.trim() === "" ? fallback() : void this.importText(text)),
+      fallback,
+    );
+  }
+
+  private openPasteBox(): void {
     if (this.done || this.phase !== "edit" || this.naming !== null) return;
-    const read = trackTextToGrid(text);
-    if (!read.ok) return this.flash(read.message);
+    this.pasting = "";
+  }
+
+  // The text the field holds in the paste box: read it once it looks like a track.
+  private setPasteText(text: string): void {
+    this.pasting = text.slice(0, PASTE_CAP);
+    if (this.pasting.trim() !== "" && worthReading(this.pasting)) this.readPasteBox();
+  }
+
+  // Go (Enter) in the paste box reads whatever is there.
+  private pasteKey(code: string): void {
+    if (code !== "Enter" && code !== "NumpadEnter") return;
+    if ((this.pasting ?? "").trim() === "") return this.flash("Paste a track into the box first.");
+    this.readPasteBox();
+  }
+
+  // Reads the box. A track is imported and the box closes; anything else says why and the box empties so
+  // the player can try again.
+  private readPasteBox(): void {
+    const text = this.pasting ?? "";
+    if (this.importText(text)) return;
+    if (this.pasting !== null) this.pasting = "";
+  }
+
+  // A pasted track becomes the draft, and is only saved with S. Returns whether it was taken.
+  importText(text: string): boolean {
+    if (this.done || this.phase !== "edit" || this.naming !== null) return false;
+    const read = trackTextToGrid(cleanTrackText(text));
+    if (!read.ok) {
+      this.flash(read.message);
+      return false;
+    }
     this.remember();
     this.grid = read.grid;
     this.editingId = null;
     this.step = 0;
+    this.pasting = null;
     this.changed();
     this.flash("Pasted. It is a draft until you save.");
+    return true;
   }
 
   // -- Drawing ---------------------------------------------------------------------
@@ -496,6 +578,7 @@ export class MakeTrackActivity extends BaseActivity {
       started: this.phase === "edit",
       title: this.naming ?? this.grid.title,
       naming: this.naming !== null,
+      pasting: this.pasting !== null,
       blink: Math.floor(this.clock * 2) % 2 === 0,
       tempo: g.tempo,
       steps: g.steps,
@@ -541,13 +624,14 @@ export class MakeTrackActivity extends BaseActivity {
 
   // The More menu (issue 106c). Every entry runs what its key runs on the keyboard: Rename is N, the steps
   // entry is `,` or `.`, Copy C, Paste V, Delete D; Undo is the one entry with no key (the grid is small, a
-  // fat finger costs more than a key press). Back closes it. Sharing joins it in issue 106d.
+  // fat finger costs more than a key press). Share (106d) opens the phone's share sheet, or copies. Back closes it.
   private openMore(): void {
     const cut = this.grid.steps > M.steps.short;
     const entries: [string, () => void][] = [
       ["Rename", () => (this.naming = this.grid.title)],
       [cut ? `Cut to ${M.steps.short} steps` : `Extend to ${M.steps.max} steps`, () => this.changeSteps(cut ? M.steps.short : M.steps.max)],
       ["Undo", () => this.undo()],
+      ["Share", () => this.share()],
       ["Copy", () => this.copy()],
       ["Paste", () => this.paste()],
       ["Delete", () => this.askDelete()],
@@ -563,7 +647,7 @@ export class MakeTrackActivity extends BaseActivity {
   // The buttons a tap can press on the touch look: the same rectangles `draw` paints (the layout of
   // render/track-editor-touch.ts). Each does what the keyboard's key for it does.
   tapTargets(screen: { width: number; height: number }): TapTarget[] {
-    if (this.done || !touchHints() || this.phase !== "edit" || this.naming !== null) return [];
+    if (this.done || !touchHints() || this.phase !== "edit" || this.naming !== null || this.pasting !== null) return [];
     const T = TOUCH_EDITOR;
     const keys = touchRowKeys(this.channel, this.rows[this.channel]);
     const layout = touchEditorLayout(screen, { steps: this.grid.steps, rows: keys.length });

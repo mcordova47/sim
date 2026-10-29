@@ -241,6 +241,7 @@ export const TOUCH_TEXT = {
   // The first time the editor opens in a session.
   firstTime: "Tap a square to add or remove a note",
   namingHelp: "Type a name. GO keeps it.",
+  pasteHelp: "Tap the box, hold, choose Paste",
   play: "PLAY",
   stop: "STOP",
   save: "SAVE",
@@ -265,9 +266,10 @@ export const fitTail = (text: string, width: number): string => {
 };
 
 // The top strip's text: the last message, or what is useful to know now.
-export function touchHintText(v: Pick<EditorView, "message" | "naming" | "firstTouch">): string {
+export function touchHintText(v: Pick<EditorView, "message" | "naming" | "pasting" | "firstTouch">): string {
   if (v.message) return v.message;
   if (v.naming) return TOUCH_TEXT.namingHelp;
+  if (v.pasting) return TOUCH_TEXT.pasteHelp;
   return v.firstTouch ? TOUCH_TEXT.firstTime : TOUCH_TEXT.reminder();
 }
 

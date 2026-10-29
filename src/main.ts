@@ -104,6 +104,7 @@ const touch = mountTouchUi({
   tapAt: (x, y) => game.tapAt(x, y),
   text: {
     wantsText: () => game.wantsText,
+    boxed: () => game.textBox,
     textValue: () => game.textValue(),
     setText: (text) => game.setText(text),
   },

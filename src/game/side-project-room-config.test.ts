@@ -48,8 +48,8 @@ describe("the shipped side-project-room.txt", () => {
     expect(at("sp-desk-front-figure").x).toBeLessThan(at("sp-table-front").x);
     const floor = room.filter((o) => o.layer === "floor");
     expect(floor.filter((o) => o.sprite === "sp-floor-big").length).toBeGreaterThan(20);
-    // Edge tiles that do not fill a 2 x 2 block keep the ordinary tile.
-    expect(floor.every((o) => o.sprite === "sp-floor-big" || o.sprite === "floor-wood")).toBe(true);
+    // Edge tiles that do not fill a 2 x 2 block use the small partner tile.
+    expect(floor.every((o) => o.sprite === "sp-floor-big" || o.sprite === "sp-floor-big-edge")).toBe(true);
   });
 });
 
@@ -87,6 +87,7 @@ describe("look floor", () => {
       expect(o.x % 32 === 0 && o.y % 32 === 0).toBe(true);
       for (const [dc, dr] of [[0, 0], [1, 0], [0, 1], [1, 1]]) expect(floor.has(`${o.x / 16 + dc},${o.y / 16 + dr}`)).toBe(true);
     }
+    for (const o of big.filter((o) => o.sprite !== "x")) expect(o.sprite).toBe("x-edge");
     for (const o of big.filter((o) => o.sprite !== "x")) expect(floor.has(`${o.x / 16},${o.y / 16}`)).toBe(true);
     expect(() => composeSideProject(APARTMENT.rooms.main, [{ kind: "look", id: "floor", sprite: "x" }], undefined, { hasSprite: () => false })).toThrow(ComposeError);
   });

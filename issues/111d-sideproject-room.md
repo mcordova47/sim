@@ -1,7 +1,7 @@
 ---
 id: 111d
 title: Side project config 4: the real config file and the figure
-status: done
+status: review
 owner: claude
 depends_on: [111a, 111b, 111c]
 ---
@@ -41,3 +41,4 @@ Marc's meaning of "perspective" (2026-10-29): not a geometric warp. Each piece o
   - Rendered the room from the ops and the built PNGs in headless Chrome at 4x and looked: no tan patch at the top-left corner or on the left wall above the kitchen gap; no holes inside the floor; the transition between big boards and ordinary tiles at the edges shows no visible seam or gap. Sofa from behind, flat bed, swapped desk and table with the figure on the desk still read as before.
   - The new tests are meaningful (big ops cover four floor tiles; ordinary ops are floor tiles). Round 1 optional note (one bad name drops all the drift) was knowingly left; fine.
   - UNVERIFIED: Marc's taste and the real-browser feel through `SideProjectView` (I did not run the dev server). The old `view-side-project` PNG stays as the fallback; delete only after Marc agrees. PLAN.md table needs updating by the planner.
+- 2026-10-29 (claude, round 3 after Marc's look at the sheet: "pop more, less detail, more contrast"): merged main in. Redrew all eight wrong-view sprites bolder (2 px ink outlines, flat fills with one highlight each, small clutter removed): `sp-sofa-back` (the tall flat back fills the sprite, low arms, short legs), `sp-bed-top` (strictly flat: frame, blanket, one big pillow, no front face), `sp-bookshelf-top` (plain lid), `sp-nightstand-side` (one orange block, one drawer line), `sp-desk-front` / `sp-desk-front-figure` (one laptop block; the figure is now 14 x 17, red top, blue trousers, outlined, so it reads at 1x), `sp-table-front` (a teal block and an orange block on a thick top), `sp-floor-big` (calm cream boards, tan seams, no knots). New `sp-floor-big-edge` (16x16, same boards): the composer uses `<floor sprite>-edge` for tiles that do not fill a 2 x 2 block, so the room edges no longer show the old busy floor tile (`EDGE_SUFFIX` in `side-project-room.ts`, the config check requires both sprites). The `cartoon` look: lift 22 to 26, scanlines 0.04 to 0.03, speckles 70 to 40 at 0.05. Contact sheets in the scratchpad: `contact-111d.png` (old picture and the previous 111d), `contact-111d-v2.png` and `contact-111d-v3.png` (old picture and new at 1x, 2x, and new at 4x). Two renders after the first redraw. Old PNG still kept as the fallback.

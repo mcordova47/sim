@@ -48,8 +48,10 @@ export interface ComposeOptions {
 // The sprite for the tiny person when the config does not name one.
 export const FIGURE_SPRITE = "side-project-figure";
 
-// `look floor <sprite>` is not a piece: it changes the floor tiles. The sprite is 32 x 32.
+// `look floor <sprite>` is not a piece: it changes the floor tiles. The sprite is 32 x 32, with a 16 x 16 partner named `<sprite>-edge`.
 export const FLOOR_ID = "floor";
+// Where a 2 x 2 block does not fit, a 16 x 16 tile named after the big sprite plus this.
+export const EDGE_SUFFIX = "-edge";
 
 export class ComposeError extends Error {}
 
@@ -164,6 +166,7 @@ export function composeSideProject(
       case "look":
         if (op.id === FLOOR_ID) {
           needSprite(op, op.sprite);
+          needSprite(op, `${op.sprite}${EDGE_SUFFIX}`);
           bigFloor = op.sprite;
           break;
         }
@@ -216,7 +219,7 @@ export function composeSideProject(
         done.add(`${col},${row}`);
         out.push({ sprite: bigFloor, x: col * TILE, y: row * TILE, layer: "floor" });
       } else {
-        out.push({ sprite: level.floor.sprite, x: t.col * TILE, y: t.row * TILE, layer: "floor" });
+        out.push({ sprite: `${bigFloor}${EDGE_SUFFIX}`, x: t.col * TILE, y: t.row * TILE, layer: "floor" });
       }
     }
   } else if (level.floor) {

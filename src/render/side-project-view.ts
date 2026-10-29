@@ -50,7 +50,7 @@ export const LOOKS = {
   // Pixels picked, not averaged: crisp and chunky.
   chunky: { backdrop: "night", dim: 0.14, lift: 14, smooth: false, snap: false, wobble: 0, scanline: 0.05, speckles: 90, speckle: 0.07 },
   // Softened, then snapped back to the palette, a bright flat look, with pieces a little off (Marc's pick).
-  cartoon: { backdrop: "slate", dim: 0.08, lift: 22, smooth: true, snap: true, wobble: 2, scanline: 0.04, speckles: 70, speckle: 0.06 },
+  cartoon: { backdrop: "slate", dim: 0.08, lift: 26, smooth: true, snap: true, wobble: 2, scanline: 0.03, speckles: 40, speckle: 0.05 },
 } satisfies Record<string, Look>;
 
 // The look in the game.

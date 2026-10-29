@@ -17,9 +17,11 @@ import { AutoSync } from "../sync/auto";
 import { STATUS_TEXT, SyncService } from "../sync/service";
 import type { TapTarget } from "../../input/tap";
 import { drawThings, moveThingsCursor, thingsButtons, thingsCells, thingsPage, thingsPages, thingsGrid, type ThingsView } from "./inventory-draw";
-import { drawPhotos, photosLayout, PHOTOS_DELETED, PHOTOS_NOT_DELETED, PHOTOS_REMOVED, type PhotosButtonId, type PhotosView } from "./photos-draw";
+import { drawPhotos, photosLayout, PHOTOS_DELETED, PHOTOS_LOOK_NOT_KEPT, PHOTOS_NOT_DELETED, PHOTOS_REMOVED, type PhotosButtonId, type PhotosView } from "./photos-draw";
 import { close as closeGallery, manageGallery, move as moveGallery, open as openGallery, others as otherPicture, pictureAt, tapCell, turnPage, withPics, type Dir, type Gallery } from "../reel/gallery";
 import { addPhotos, summaryLines } from "../reel/photo-add";
+import { DEFAULT_LOOK_ID, nextLookId } from "../reel/looks";
+import { loadLook, saveLook, type LookStorage } from "../reel/look-settings";
 import { browserPhotoIO, type PhotoIO } from "../reel/photo-io";
 import { type ReelPic, type ReelStore, type ReelStoreHandle } from "../reel/reel-store";
 import { drawList, drawSync, drawToasts, drawTransfer, listRows, pageButton, pauseButtons, syncButtons, touchPageSize, transferButtons, type ListView, type SyncView, type TransferView } from "./draw";
@@ -60,6 +62,8 @@ export interface AchievementOptions {
   // browser parts of adding pictures.
   reel?: ReelStoreHandle;
   photoIO?: PhotoIO;
+  // Where the chosen look for new pictures is kept (issue 117d). The default is the browser's localStorage, in its own key.
+  lookStorage?: LookStorage | null;
   // The sync server (issue 103). The default is the real one on this origin.
   backend?: SyncBackend;
   // The origin the pairing link is made on. The default is this page's.
@@ -112,6 +116,10 @@ export class AchievementsFeature implements Layer {
   private reelHandle: ReelStoreHandle | null;
   private readonly photoIO: PhotoIO;
   private photos: readonly ReelPic[] | null = null;
+  // The look new pictures are made in (issue 117d): read when the page opens, kept in its own storage key.
+  private readonly lookStorage: LookStorage | null | undefined;
+  private look = DEFAULT_LOOK_ID;
+  private lookRead = false;
   private photoProgress: { done: number; total: number } | null = null;
   private photoMessage: readonly string[] = [];
   private confirmRemove = false;
@@ -147,6 +155,7 @@ export class AchievementsFeature implements Layer {
     this.demos = options.demos ?? demoStore();
     this.io = options.io ?? browserIO;
     this.reelHandle = options.reel ?? null;
+    this.lookStorage = options.lookStorage;
     this.photoIO = options.photoIO ?? browserPhotoIO;
     this.origin = options.origin ?? (typeof location === "undefined" ? "" : location.origin);
     this.syncService = new SyncService(options.backend ?? new HttpBackend(), this.sync, {
@@ -557,6 +566,9 @@ export class AchievementsFeature implements Layer {
     this.gallery = null;
     this.photoMessage = [];
     this.photos = null;
+    // Read once; after that the session holds it (the browser may not have been able to keep it).
+    if (!this.lookRead) this.look = loadLook(this.lookStorage);
+    this.lookRead = true;
     this.flash = null;
     this.flashFor = 0;
     void this.refreshPhotos();
@@ -602,6 +614,7 @@ export class AchievementsFeature implements Layer {
       if (e.code === "KeyE" || e.code === "Enter") return void (this.gallery = openGallery(g));
     }
     if (e.code === "KeyA") return this.addPictures();
+    if (e.code === "KeyS") return this.switchLook();
     if (e.code === "KeyR" || (wasArmed && e.code === "KeyY")) return this.removePictures(wasArmed);
   }
 
@@ -650,6 +663,14 @@ export class AchievementsFeature implements Layer {
       .finally(() => (this.deleting = false));
   }
 
+  // Cycles Crisp, Soft, Chunky for the next pictures made. Pictures already kept are not touched.
+  private switchLook(): void {
+    if (this.photoProgress || !this.reel.persistent) return;
+    this.look = nextLookId(this.look);
+    const kept = saveLook(this.look, this.lookStorage);
+    this.photoMessage = kept ? [] : [PHOTOS_LOOK_NOT_KEPT];
+  }
+
   // Called straight from the tap or key press: the chooser has to open in this call (iOS).
   private addPictures(): void {
     if (this.photoProgress || !this.reel.persistent) return;
@@ -659,7 +680,7 @@ export class AchievementsFeature implements Layer {
       if (!files || files.length === 0 || this.photoProgress) return;
       this.photoProgress = { done: 0, total: files.length };
       try {
-        const summary = await addPhotos(files, this.photoIO, this.reel.store, (done, total) => (this.photoProgress = { done, total }));
+        const summary = await addPhotos(files, this.photoIO, this.reel.store, (done, total) => (this.photoProgress = { done, total }), this.look);
         this.photoMessage = summaryLines(summary);
       } catch {
         this.photoMessage = ["This browser could not keep them all."];
@@ -695,6 +716,7 @@ export class AchievementsFeature implements Layer {
       confirmRemove: this.confirmRemove,
       gallery: this.gallery,
       confirmDelete: this.confirmDelete,
+      look: this.look,
     };
   }
 
@@ -732,6 +754,10 @@ export class AchievementsFeature implements Layer {
       add: () => {
         this.confirmRemove = false;
         this.addPictures();
+      },
+      look: () => {
+        this.confirmRemove = false;
+        this.switchLook();
       },
       open: () => {
         this.confirmRemove = false;

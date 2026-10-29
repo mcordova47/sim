@@ -337,7 +337,7 @@ describe("thumbnail rule", () => {
   it("shows the whole picture at the largest whole scale that fits", () => {
     expect(thumbWindow(SIZES.soft, wideCell)).toEqual({ scale: 2, slice: false });
     expect(thumbWindow(SIZES.soft, narrowCell)).toEqual({ scale: 1, slice: false });
-    expect(thumbWindow(SIZES.crisp, wideCell)).toEqual({ scale: 1, slice: false });
+    expect(thumbWindow(SIZES.crisp, wideCell)).toEqual({ scale: 2, slice: true });
     expect(thumbWindow(SIZES.crisp, narrowCell)).toEqual({ scale: 1, slice: false });
     expect(thumbWindow(SIZES.chunky, wideCell)).toEqual({ scale: 3, slice: false });
     expect(thumbWindow(SIZES.chunky, narrowCell)).toEqual({ scale: 2, slice: false });
@@ -348,9 +348,15 @@ describe("thumbnail rule", () => {
     expect(thumbWindow(portrait(SIZES.soft), narrowCell)).toEqual({ scale: 1, slice: false });
   });
 
-  it("a portrait that fits at 2x or more is shown whole; one whose slice cannot fit stays whole at 1x", () => {
+  it("a portrait that fits at 2x or more is shown whole", () => {
     expect(thumbWindow(portrait(SIZES.chunky), wideCell)).toEqual({ scale: 2, slice: false });
-    expect(thumbWindow(portrait(SIZES.crisp), wideCell)).toEqual({ scale: 1, slice: false });
+  });
+
+  it("a Crisp picture, which would sit small in a big margin on the wide view, is enlarged to 2x and cut to the cell's middle (landscape and portrait); Soft and Chunky are unchanged", () => {
+    expect(thumbWindow(SIZES.crisp, wideCell)).toEqual({ scale: 2, slice: true });
+    expect(thumbWindow(portrait(SIZES.crisp), wideCell)).toEqual({ scale: 2, slice: true });
+    // The narrow cell: a Soft picture would keep under half in view at 2x, so it stays whole.
+    expect(thumbWindow(SIZES.soft, narrowCell)).toEqual({ scale: 1, slice: false });
   });
 
   it("a picture too big for the cell even at 1x (a Crisp portrait, narrow) is cut to its middle", () => {
@@ -366,8 +372,8 @@ describe("thumbnail rule", () => {
             expect(pic.w * t.scale).toBeLessThanOrEqual(cell.w);
             expect(pic.h * t.scale).toBeLessThanOrEqual(cell.h);
           } else {
-            // A slice is cut to the cell by the draw code; its width is never wider than the cell.
-            expect(pic.w * t.scale).toBeLessThanOrEqual(cell.w);
+            // A slice is cut to the cell by the draw code; it either is not wider than the cell or covers it.
+            expect(pic.w * t.scale <= cell.w || (pic.w * t.scale >= cell.w && pic.h * t.scale >= cell.h)).toBe(true);
           }
         }
       }

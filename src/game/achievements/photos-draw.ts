@@ -7,6 +7,7 @@ import { VIEW } from "../config";
 import { wrapText } from "../dialog";
 import type { ReelPic } from "../reel/reel-store";
 import { REEL_PALETTE } from "../reel/palette";
+import { DEFAULT_LOOK_ID, REEL_LOOKS, lookById } from "../reel/looks";
 import { PAUSE_TOUCH } from "./draw";
 import { PAGE_SIZE, cellsOnPage, closeupScale, gridLayout, manageGallery, pageCount, pageLabel, pictureAt, type CloseupLayout, type Gallery, type GridLayout } from "../reel/gallery";
 import { drawCloseup, drawGrid } from "./gallery-draw";
@@ -35,8 +36,17 @@ export const PHOTOS_NOT_DELETED = "This browser could not remove it.";
 export const PHOTOS_DELETE = "DELETE";
 export const PHOTOS_DELETE_SURE = "SURE? DELETE";
 
+// The LOOK switch (issue 117d): the line that says it is for new pictures only. The short one is for the
+// grid, where a row is one line; the long one is for the empty page, which wraps.
+export const PHOTOS_LOOK_NOTE = "New pictures only. The ones you have keep their look.";
+export const PHOTOS_LOOK_NOTE_SHORT = "New pictures only.";
+export const PHOTOS_LOOK_NOT_KEPT = "This browser will not remember the look.";
+export const lookLabel = (id: string): string => `LOOK: ${lookById(id).name.toUpperCase()}`;
+// Wide enough for every look's label, so the keys line and the buttons do not shift when it changes.
+const LOOK_LONGEST = REEL_LOOKS.map((l) => lookLabel(l.id)).reduce((a, b) => (b.length > a.length ? b : a));
+
 // "back" leaves the page from the grid and the close-up to the grid from the close-up.
-export type PhotosButtonId = "add" | "open" | "remove" | "back" | "delete" | "prev" | "next" | "pagePrev" | "pageNext";
+export type PhotosButtonId = "add" | "look" | "open" | "remove" | "back" | "delete" | "prev" | "next" | "pagePrev" | "pageNext";
 
 export interface PhotosView {
   touch: boolean;
@@ -54,6 +64,8 @@ export interface PhotosView {
   gallery?: Gallery<ReelPic> | null;
   // DELETE was pressed once in the close-up and SURE? DELETE is showing.
   confirmDelete?: boolean;
+  // The look new pictures are made in (a preset id). Left out, the default look.
+  look?: string;
 }
 
 export interface PhotosButton {
@@ -79,6 +91,8 @@ export interface PhotosLayout {
   back: Rect | null;
   // "PAGE 2 OF 10" in the title row (grid, more than one page).
   pageLabel: { text: string; x: number; y: number } | null;
+  // The "new pictures only" line, when there is a place for it (never in the close-up).
+  note: Array<{ text: string; x: number; y: number }>;
   // Close-up on the keyboard: the line along the foot.
   foot: { text: string; color: string } | null;
 }
@@ -97,6 +111,7 @@ function buttonList(view: PhotosView, grid = false): Array<{ id: PhotosButtonId;
   const out: Array<{ id: PhotosButtonId; label: string; key: string }> = [];
   const busy = !!view.progress;
   if (!busy && view.persistent) out.push({ id: "add", label: "ADD PHOTOS", key: "A" });
+  if (!busy && view.persistent) out.push({ id: "look", label: lookLabel(view.look ?? DEFAULT_LOOK_ID), key: "S" });
   if (!busy && grid) out.push({ id: "open", label: "OPEN", key: "E" });
   if (!busy && view.persistent && view.pics && view.pics.length > 0) out.push({ id: "remove", label: view.confirmRemove ? PHOTOS_REMOVE_SURE : PHOTOS_REMOVE, key: "R" });
   out.push({ id: "back", label: "BACK", key: "ESC" });
@@ -112,6 +127,9 @@ export function photosLayout(view: PhotosView): PhotosLayout {
 }
 
 const NO_GALLERY = { mode: "list", gallery: null, grid: null, closeup: null, back: null, pageLabel: null, foot: null } as const;
+
+// The look is only offered where pictures can be added.
+const showNote = (view: PhotosView): boolean => !view.progress && view.persistent;
 
 function listLayout(view: PhotosView): PhotosLayout {
   const width = VIEW.width - 2 * MARGIN;
@@ -136,6 +154,7 @@ function listLayout(view: PhotosView): PhotosLayout {
   };
   const status = flow(statusText(view));
   const message = view.message.flatMap(flow);
+  const noteLines = showNote(view) ? flow(PHOTOS_LOOK_NOTE) : [];
   const thumbsTop = y + 3;
   const cols = Math.max(1, Math.floor((VIEW.width - 2 * MARGIN + THUMB_GAP) / (THUMB_CELL + THUMB_GAP)));
   const rows = Math.max(0, Math.floor((VIEW.height - 12 - thumbsTop + THUMB_GAP) / (THUMB_CELL + THUMB_GAP)));
@@ -150,7 +169,8 @@ function listLayout(view: PhotosView): PhotosLayout {
       rect: { x: MARGIN + (i % cols) * (THUMB_CELL + THUMB_GAP), y: thumbsTop + Math.floor(i / cols) * (THUMB_CELL + THUMB_GAP), w: THUMB_CELL, h: THUMB_CELL },
     });
   }
-  return { intro, status, message, buttons, thumbs, ...NO_GALLERY };
+  const note = noteLines.map((l) => ({ text: l.text, x: MARGIN, y: l.y }));
+  return { intro, status, message, buttons, thumbs, ...NO_GALLERY, note };
 }
 
 const TOUCH_BUTTON_H = PAUSE_TOUCH.buttonH;
@@ -180,7 +200,10 @@ function gridPage(view: PhotosView, g: Gallery<ReelPic>): PhotosLayout {
     // One row of four, wide enough for the longest label each button ever shows.
     const longest: Record<string, string> = { add: "ADD PHOTOS", open: "OPEN", remove: PHOTOS_REMOVE_SURE, back: "BACK" };
     let x = MARGIN;
-    for (const b of list) {
+    // There is no room for LOOK in the row, so it sits in the title row beside the title.
+    const look = list.find((b) => b.id === "look");
+    if (look) buttons.push({ ...look, rect: { x: MARGIN + textWidth("PHOTOS") + 10, y: 0, w: textWidth(LOOK_LONGEST) + 12, h: TOUCH_BUTTON_H } });
+    for (const b of list.filter((b) => b.id !== "look")) {
       const w = textWidth(longest[b.id]) + 12;
       buttons.push({ ...b, rect: { x, y: VIEW.height - TOUCH_BUTTON_H - 1, w, h: TOUCH_BUTTON_H } });
       x += w + T.buttonGap;
@@ -196,7 +219,10 @@ function gridPage(view: PhotosView, g: Gallery<ReelPic>): PhotosLayout {
     // wide for one line the rest go on the line below, which then is not a message row.
     let x = MARGIN;
     let row = 0;
-    for (const b of list) {
+    // The keys line has no room for LOOK as well, so it sits in the title row beside the title.
+    const look = list.find((b) => b.id === "look");
+    if (look) buttons.push({ ...look, rect: { x: MARGIN + textWidth("PHOTOS") + 9, y: 4, w: textWidth(hintLine([{ key: look.key, text: LOOK_LONGEST }])) + 6, h: 9 } });
+    for (const b of list.filter((b) => b.id !== "look")) {
       const w = textWidth(hintLine([{ key: b.key, text: b.label }])) + 6;
       if (x > MARGIN && x + w - 3 > VIEW.width - MARGIN) {
         x = MARGIN;
@@ -208,19 +234,31 @@ function gridPage(view: PhotosView, g: Gallery<ReelPic>): PhotosLayout {
     rows = row ? [grid.bottom + 3] : [grid.bottom + 3, grid.bottom + 21];
   } else {
     const top = grid.bottom + 33;
-    list.forEach((b, i) => buttons.push({ ...b, rect: { x: MARGIN - 3, y: top + 10 * i - 1, w: textWidth(hintLine([{ key: b.key, text: b.label }])) + 6, h: 10 } }));
+    list.forEach((b, i) => buttons.push({ ...b, rect: { x: MARGIN - 3, y: top + 10 * i - 1, w: textWidth(hintLine([{ key: b.key, text: b.id === "look" ? LOOK_LONGEST : b.label }])) + 6, h: 10 } }));
     rows = [grid.bottom + 3, grid.bottom + 12, grid.bottom + 21];
   }
   const width = VIEW.width - 2 * MARGIN;
-  const flow = (text: string): Array<{ text: string; y: number }> => (text ? wrapText(text, width).slice(0, rows.length).map((t, i) => ({ text: t, y: rows[i] })) : []);
+  const flow = (text: string, n = rows.length): Array<{ text: string; y: number }> => (text ? wrapText(text, width).slice(0, n).map((t, i) => ({ text: t, y: rows[i] })) : []);
+  // A message keeps every row it had before the LOOK switch; the narrow view's note takes the last row only when there is no message.
   const message = flow(view.message.join(" "));
-  const status = message.length ? [] : flow(statusText(view));
+  const noteRow = !wide && !message.length ? rows[2] : null;
+  const status = message.length ? [] : flow(statusText(view), noteRow !== null ? 2 : rows.length);
+  // The wide view has one text row for both: the note sits at its right end when the text leaves room.
+  let note: PhotosLayout["note"] = [];
+  if (showNote(view)) {
+    if (noteRow !== null) note = [{ text: PHOTOS_LOOK_NOTE_SHORT, x: MARGIN, y: noteRow }];
+    else {
+      const x = VIEW.width - MARGIN - textWidth(PHOTOS_LOOK_NOTE_SHORT);
+      const used = Math.max(0, ...[...message, ...status].map((l) => MARGIN + textWidth(l.text)));
+      if (used + 8 <= x) note = [{ text: PHOTOS_LOOK_NOTE_SHORT, x, y: rows[0] }];
+    }
+  }
   const first = (g.page) * PAGE_SIZE;
   const thumbs: Array<{ index: number; rect: Rect }> = [];
   const n = view.pics?.length ?? g.pics.length;
   for (let i = 0; i < cellsOnPage(g.pics.length, g.page); i++) thumbs.push({ index: n - 1 - (first + i), rect: grid.cells[i] });
   return {
-    intro: [], status, message, buttons, thumbs, mode: "grid", gallery: g, grid, closeup: null, back: null, foot: null,
+    intro: [], status, message, buttons, thumbs, mode: "grid", gallery: g, grid, closeup: null, back: null, foot: null, note,
     pageLabel: pageText ? { text: pageText, x: labelRight, y: 5 } : null,
   };
 }
@@ -262,7 +300,7 @@ function closeupPage(view: PhotosView, g: Gallery<ReelPic>): PhotosLayout {
     ? `${hintLine([{ key: "DEL", text: PHOTOS_DELETE_SURE }, { key: "OTHER KEY", text: "CANCEL" }], "  ")}`
     : hintLine([{ key: "DEL", text: PHOTOS_DELETE }, { key: "< >", text: "OTHERS" }, { key: "ESC", text: "BACK" }], "  ");
   return {
-    intro: [], status: [], message: [], buttons, thumbs: [], mode: "closeup", gallery: g, grid: null, closeup, back: box, pageLabel: null,
+    intro: [], status: [], message: [], buttons, thumbs: [], mode: "closeup", gallery: g, grid: null, closeup, back: box, pageLabel: null, note: [],
     foot: view.touch ? null : { text: keys, color: armed ? COLOR.tangerine : COLOR.mist },
   };
 }
@@ -330,6 +368,7 @@ export function drawPhotos(ctx: CanvasRenderingContext2D, view: PhotosView): voi
   layout.intro.forEach((line, i) => drawText(ctx, line, MARGIN, TOP + LINE * i, { color: COLOR.paper, shadow: null }));
   for (const l of layout.status) drawText(ctx, l.text, MARGIN, l.y, { color: COLOR.butter, shadow: null });
   for (const l of layout.message) drawText(ctx, l.text, MARGIN, l.y, { color: COLOR.mist, shadow: null });
+  for (const l of layout.note) drawText(ctx, l.text, l.x, l.y, { color: COLOR.mist, shadow: null });
   for (const b of layout.buttons) {
     const color = b.id === "remove" && view.confirmRemove ? COLOR.tangerine : COLOR.paper;
     if (view.touch) drawButton(ctx, b.rect, b.label, { color });

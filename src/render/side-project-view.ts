@@ -1,7 +1,6 @@
 import PALETTE from "../../art/palette.json";
-import { TILE } from "../game/config";
 import { FULL_VIEW, type ViewRect } from "../game/view-zoom";
-import { APARTMENT } from "../game/apartment";
+import { configDim, sideProjectRoom } from "../game/side-project-room-config";
 import { COLOR } from "./colors";
 import { registerComposedView, type ComposedView } from "./composed-views";
 import type { SpriteDrawer } from "./sprites";
@@ -56,46 +55,6 @@ export const LOOKS = {
 
 // The look in the game.
 export const LOOK: Look = LOOKS.cartoon;
-
-// The pieces of the main room, as a small hard-coded list, until the composer (111b) and the
-// config (111a, 111d) feed the view. `h` is the footprint's bottom edge offset, for draw order.
-// Positions are the real room's (src/game/apartment.ts, MAIN_MAP).
-const PIECES: (DrawOp & { h: number })[] = [
-  { sprite: "painting", x: 32, y: 0, h: 16 },
-  { sprite: "painting-desk", x: 112, y: 0, h: 16 },
-  { sprite: "painting-wide", x: 224, y: 0, h: 16 },
-  { sprite: "table", x: 16, y: 16, h: 32 },
-  { sprite: "mic-stand", x: 80, y: 16, h: 32 },
-  { sprite: "desk-with-figure", x: 96, y: 16, h: 32 },
-  { sprite: "bookshelf", x: 160, y: 16, h: 64 },
-  { sprite: "plant-0", x: 160, y: 52, h: 16 },
-  { sprite: "nightstand", x: 224, y: 16, h: 16 },
-  { sprite: "radiator", x: 272, y: 16, h: 48 },
-  { sprite: "bed-made", x: 192, y: 32, h: 96 },
-  { sprite: "desk-chair", x: 128, y: 48, h: 16 },
-  { sprite: "window-blinds-open", x: 288, y: 48, h: 32 },
-  { sprite: "sofa-td", x: 32, y: 80, h: 32 },
-  { sprite: "guitar", x: 16, y: 96, h: 16 },
-  { sprite: "lamp-table", x: 128, y: 96, h: 16 },
-  { sprite: "window-blinds-open", x: 288, y: 96, h: 32 },
-  { sprite: "record-stand", x: 144, y: 112, h: 16 },
-  { sprite: "front-door", x: 160, y: 144, h: 16 },
-];
-
-// Floor and walls of the main room from its level data (a lazy read, so import order is free),
-// then the hard-coded pieces sorted by bottom edge (stable, as the real room sorts them).
-export function defaultRoomOps(): DrawOp[] {
-  const main = APARTMENT.rooms.main;
-  const ops: DrawOp[] = [];
-  for (const t of main.floor?.tiles ?? []) ops.push({ sprite: main.floor!.sprite, x: t.col * TILE, y: t.row * TILE, layer: "floor" });
-  for (const w of main.walls ?? []) {
-    ops.push({ sprite: w.sprite, x: w.col * TILE, y: w.row * TILE, layer: "wall" });
-    if (w.doorSprite) ops.push({ sprite: w.doorSprite, x: w.col * TILE, y: w.row * TILE, layer: "wall" });
-  }
-  const pieces = PIECES.map((p, i) => ({ p, i })).sort((a, b) => a.p.y + a.p.h - (b.p.y + b.p.h) || a.i - b.i);
-  for (const { p } of pieces) ops.push({ sprite: p.sprite, x: p.x, y: p.y, layer: "thing" });
-  return ops;
-}
 
 type Canvas = HTMLCanvasElement;
 
@@ -239,4 +198,8 @@ function snapToPalette(ctx: CanvasRenderingContext2D, x: number, y: number, w: n
   ctx.putImageData(image, x, y);
 }
 
-registerComposedView(SIDE_PROJECT_VIEW_NAME, new SideProjectView({ source: defaultRoomOps }));
+// The little room comes from the shipped config file (src/game/side-project-room.txt, issue 111d).
+registerComposedView(
+  SIDE_PROJECT_VIEW_NAME,
+  new SideProjectView({ source: () => sideProjectRoom(), look: { ...LOOK, dim: configDim() ?? LOOK.dim } }),
+);

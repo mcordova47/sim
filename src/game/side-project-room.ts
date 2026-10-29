@@ -48,6 +48,9 @@ export interface ComposeOptions {
 // The sprite for the tiny person when the config does not name one.
 export const FIGURE_SPRITE = "side-project-figure";
 
+// `look floor <sprite>` is not a piece: it changes the floor tiles. The sprite is 32 x 32.
+export const FLOOR_ID = "floor";
+
 export class ComposeError extends Error {}
 
 // "painting over the desk" -> "painting-over-the-desk".
@@ -142,6 +145,8 @@ export function composeSideProject(
   const need = (op: ConfigOp, id: string): void => {
     if (!known.has(id)) fail(op, `names "${id}", which is not in the real room`);
   };
+  // `look floor <sprite>`: the floor drawn in bigger tiles, one sprite per 2 x 2 tiles.
+  let bigFloor: string | null = null;
   let figure: { on: string; dx: number; dy: number; sprite: string } | null = null;
 
   for (const op of config) {
@@ -157,6 +162,11 @@ export function composeSideProject(
         }
         break;
       case "look":
+        if (op.id === FLOOR_ID) {
+          needSprite(op, op.sprite);
+          bigFloor = op.sprite;
+          break;
+        }
         need(op, op.id);
         needSprite(op, op.sprite);
         if (!things.has(op.id)) fail(op, `names "${op.id}", which has nothing drawn to change`);
@@ -192,7 +202,17 @@ export function composeSideProject(
   }
 
   const out: DrawOp[] = [];
-  if (level.floor) {
+  if (level.floor && bigFloor) {
+    // Each floor tile belongs to one 2 x 2 block; draw each block once (walls cover the spill).
+    const blocks = new Set<string>();
+    for (const t of level.floor.tiles) {
+      const col = t.col - (t.col % 2);
+      const row = t.row - (t.row % 2);
+      if (blocks.has(`${col},${row}`)) continue;
+      blocks.add(`${col},${row}`);
+      out.push({ sprite: bigFloor, x: col * TILE, y: row * TILE, layer: "floor" });
+    }
+  } else if (level.floor) {
     for (const t of level.floor.tiles) {
       out.push({ sprite: level.floor.sprite, x: t.col * TILE, y: t.row * TILE, layer: "floor" });
     }

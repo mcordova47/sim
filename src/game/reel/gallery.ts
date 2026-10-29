@@ -142,6 +142,10 @@ export function closeupScale(pic: PicSize, box: { w: number; h: number }): numbe
   return Math.max(1, Math.min(Math.floor(box.w / pic.w), Math.floor(box.h / pic.h)));
 }
 
+// Thumbnail fill rule: below this share of the cell the picture is enlarged and cut; it must keep this share in view.
+export const THUMB_FILL_BELOW = 0.7;
+export const THUMB_MIN_SEEN = 0.5;
+
 export interface ThumbWindow {
   scale: number;
   // True: a portrait picture too tall for its cell at a useful scale is drawn at 2x and cut to the cell,
@@ -149,7 +153,7 @@ export interface ThumbWindow {
   slice: boolean;
 }
 
-// A grid thumbnail: the whole picture at the largest whole scale that fits the cell, except a portrait
+// A grid thumbnail: the whole picture at the largest whole scale that fits the cell (two exceptions, below), except a portrait
 // that would only fit at 1x: where its middle square at 2x fits the cell (the wide view's 96 x 72) that is
 // shown instead, so it is not tiny. The close-up always shows the whole picture.
 export function thumbWindow(pic: PicSize, cell: { w: number; h: number }): ThumbWindow {
@@ -157,6 +161,16 @@ export function thumbWindow(pic: PicSize, cell: { w: number; h: number }): Thumb
   const fits = pic.w * scale <= cell.w && pic.h * scale <= cell.h;
   if (pic.h > pic.w && scale < 2 && 2 * pic.w <= cell.w && 2 * pic.w <= cell.h) return { scale: 2, slice: true };
   // Too big even at 1x (a Crisp portrait, 48 x 64, in the narrow 64 x 48 cell): its middle, cut to the cell.
+  // A picture that at its best whole scale leaves most of the cell empty (a Crisp 64 x 48 or 48 x 64 in the wide
+  // 96 x 72 cell: 44 percent) is drawn at the next whole scale and cut to the cell's middle, as the portrait rule
+  // above does, when that covers the cell and keeps at least half the picture in view. Pixels stay whole blocks
+  // (no half-pixel seam); the close-up always shows the whole picture.
+  if (fits && (pic.w * scale * pic.h * scale) / (cell.w * cell.h) < THUMB_FILL_BELOW) {
+    const next = scale + 1;
+    const covers = pic.w * next >= cell.w && pic.h * next >= cell.h;
+    const seen = (cell.w * cell.h) / (pic.w * next * pic.h * next);
+    if (covers && seen >= THUMB_MIN_SEEN) return { scale: next, slice: true };
+  }
   return { scale: fits ? scale : 1, slice: !fits };
 }
 

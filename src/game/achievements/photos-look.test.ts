@@ -10,6 +10,7 @@ import type { DecodedImage, PhotoIO } from "../reel/photo-io";
 import { createMemoryReelStore, type ReelStoreHandle } from "../reel/reel-store";
 import { LOOK_SETTINGS_KEY, loadLook, type LookStorage } from "../reel/look-settings";
 import { REEL_LOOKS, nextLookId } from "../reel/looks";
+import { cellSize, closeupScale, screenKind, thumbWindow } from "../reel/gallery";
 import { syntheticPic } from "../reel/synthetic-pic";
 import { AchievementsFeature, type KeyEventLike, type Listenable } from "./feature";
 import { FakeStorage } from "./fake-storage";
@@ -319,3 +320,51 @@ describe.each(VIEWS)("LOOK switch: layout, %s", (_name, view, touch) => {
   });
 });
 
+// How each look fills its slot (Marc, 2026-10-29): the grid cell and the close-up, both orientations, both views.
+describe.each(VIEWS)("looks fill their slots, %s", (_name, view, touch) => {
+  const cell = cellSize(screenKind({ width: view.width }));
+  for (const look of REEL_LOOKS) {
+    for (const portrait of [false, true]) {
+      const [w, h] = portrait ? [look.h, look.w] : [look.w, look.h];
+      it(`${look.name} ${w} x ${h}: thumbnail and close-up`, async () => {
+        setView(view);
+        setTouchHints(touch);
+        const pic = syntheticPic(w, h, 3);
+        // Thumbnail: whole pixels always (no half-pixel seam); the whole picture when shown whole, else cut to the
+        // cell's middle and covering the cell edge to edge.
+        const win = thumbWindow(pic, cell);
+        expect(Number.isInteger(win.scale)).toBe(true);
+        if (win.slice) {
+          expect(w * win.scale <= cell.w || (w * win.scale >= cell.w && h * win.scale >= cell.h)).toBe(true);
+        } else {
+          expect(w * win.scale).toBeLessThanOrEqual(cell.w);
+          expect(h * win.scale).toBeLessThanOrEqual(cell.h);
+          expect(w * (win.scale + 1) > cell.w || h * (win.scale + 1) > cell.h).toBe(true);
+        }
+        // On the wide cell Crisp and Soft fill it (at least 75 percent of it is picture); a Chunky portrait is as it
+        // was before this change (whole at 2x, 44 percent).
+        const shown = (Math.min(w * win.scale, cell.w) * Math.min(h * win.scale, cell.h)) / (cell.w * cell.h);
+        if (cell.w === 96) expect(shown).toBeGreaterThanOrEqual(look.id === "chunky" && portrait ? 0.44 : 0.75);
+        if (look.id === "crisp" && cell.w === 96) expect(win).toEqual({ scale: 2, slice: true });
+        if (look.id !== "crisp" && cell.w === 96 && !portrait) expect(win.slice).toBe(false);
+        // Close-up: the whole picture at the largest whole scale that fits above the foot, centred.
+        const s = make();
+        await s.reel.store.add([{ w, h, px: pic.px }]);
+        s.press("KeyL");
+        s.press("KeyO");
+        await tick();
+        s.press("KeyE");
+        const l = s.layout();
+        expect(l.mode).toBe("closeup");
+        const c = l.closeup!;
+        expect(c.pic.w).toBe(w * c.scale);
+        expect(c.pic.h).toBe(h * c.scale);
+        expect(c.pic.x + c.pic.w).toBeLessThanOrEqual(view.width);
+        expect(c.pic.y + c.pic.h).toBeLessThanOrEqual(c.box.h);
+        expect(c.scale).toBe(closeupScale({ w, h }, c.box));
+        expect((c.scale + 1) * w > c.box.w || (c.scale + 1) * h > c.box.h).toBe(true);
+        expect(Math.abs(c.pic.x - (c.box.w - c.pic.w) / 2)).toBeLessThanOrEqual(1);
+      });
+    }
+  }
+});

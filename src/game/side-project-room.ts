@@ -203,14 +203,21 @@ export function composeSideProject(
 
   const out: DrawOp[] = [];
   if (level.floor && bigFloor) {
-    // Each floor tile belongs to one 2 x 2 block; draw each block once (walls cover the spill).
-    const blocks = new Set<string>();
+    // A 2 x 2 block gets the big sprite only when all four tiles are floor; the rest keep
+    // the ordinary tile, so the big sprite never spills onto a tile that is not floor.
+    const has = new Set(level.floor.tiles.map((t) => `${t.col},${t.row}`));
+    const done = new Set<string>();
     for (const t of level.floor.tiles) {
       const col = t.col - (t.col % 2);
       const row = t.row - (t.row % 2);
-      if (blocks.has(`${col},${row}`)) continue;
-      blocks.add(`${col},${row}`);
-      out.push({ sprite: bigFloor, x: col * TILE, y: row * TILE, layer: "floor" });
+      const whole = [0, 1].every((dc) => [0, 1].every((dr) => has.has(`${col + dc},${row + dr}`)));
+      if (whole) {
+        if (done.has(`${col},${row}`)) continue;
+        done.add(`${col},${row}`);
+        out.push({ sprite: bigFloor, x: col * TILE, y: row * TILE, layer: "floor" });
+      } else {
+        out.push({ sprite: level.floor.sprite, x: t.col * TILE, y: t.row * TILE, layer: "floor" });
+      }
     }
   } else if (level.floor) {
     for (const t of level.floor.tiles) {

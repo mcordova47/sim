@@ -46,8 +46,10 @@ describe("the shipped side-project-room.txt", () => {
       expect(at(s), s).toBeDefined();
     }
     expect(at("sp-desk-front-figure").x).toBeLessThan(at("sp-table-front").x);
-    expect(room.some((o) => o.sprite === "floor-wood")).toBe(false);
-    expect(room.filter((o) => o.layer === "floor").every((o) => o.sprite === "sp-floor-big")).toBe(true);
+    const floor = room.filter((o) => o.layer === "floor");
+    expect(floor.filter((o) => o.sprite === "sp-floor-big").length).toBeGreaterThan(20);
+    // Edge tiles that do not fill a 2 x 2 block keep the ordinary tile.
+    expect(floor.every((o) => o.sprite === "sp-floor-big" || o.sprite === "floor-wood")).toBe(true);
   });
 });
 
@@ -80,7 +82,12 @@ describe("look floor", () => {
     const big = composeSideProject(APARTMENT.rooms.main, [{ kind: "look", id: "floor", sprite: "x" }]).filter((o) => o.layer === "floor");
     expect(big.length).toBeLessThan(plain.length / 2);
     expect(new Set(big.map((o) => `${o.x},${o.y}`)).size).toBe(big.length);
-    expect(big.every((o) => o.sprite === "x" && o.x % 32 === 0 && o.y % 32 === 0)).toBe(true);
+    const floor = new Set(APARTMENT.rooms.main.floor!.tiles.map((t) => `${t.col},${t.row}`));
+    for (const o of big.filter((o) => o.sprite === "x")) {
+      expect(o.x % 32 === 0 && o.y % 32 === 0).toBe(true);
+      for (const [dc, dr] of [[0, 0], [1, 0], [0, 1], [1, 1]]) expect(floor.has(`${o.x / 16 + dc},${o.y / 16 + dr}`)).toBe(true);
+    }
+    for (const o of big.filter((o) => o.sprite !== "x")) expect(floor.has(`${o.x / 16},${o.y / 16}`)).toBe(true);
     expect(() => composeSideProject(APARTMENT.rooms.main, [{ kind: "look", id: "floor", sprite: "x" }], undefined, { hasSprite: () => false })).toThrow(ComposeError);
   });
 });

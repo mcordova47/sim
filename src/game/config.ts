@@ -438,6 +438,25 @@ export const DIALOG = {
   textWidth: VIEW.width - 2 * 4 - 2 * 6,
 };
 
+// The photo reel's sofa task (issue 113d, docs/photo-reel-design.md section 6). A session shows up to
+// `pass` of the stored pictures, shuffled, `seconds` each, then ends. The caption is one line, chosen
+// from `captions` when the task starts and shown once, under the first picture. Marc's rule: no line
+// ever mentions resolution, size or pixels (a test checks the pool). Edit the pool here; the five are
+// the design note's, for the text review (docs/text-review.md).
+export const REEL = {
+  pass: 6,
+  seconds: 4,
+  // A stored picture is shown at this multiple, so every source pixel is a crisp block.
+  scale: 3,
+  captions: [
+    "You look at the pictures.",
+    "You were there for most of these.",
+    "You almost recognize the room.",
+    "Nice light.",
+    "You scroll for a while, because why not.",
+  ] as readonly string[],
+} as const;
+
 // Making your own tracks (issue 059, docs/make-tracks.md). Marc's picks: the
 // piano roll editor, 12 saved tracks, 24-letter names, up to 32 steps, a reward
 // of 90 points and +6 mood once per 6 game hours for a track with real notes.

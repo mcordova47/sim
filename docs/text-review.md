@@ -27,7 +27,8 @@ The pause-screen page where pictures are added and removed. The first five lines
 - No storage in this browser: This browser will not keep pictures.
 - Buttons: ADD PHOTOS, REMOVE ALL, SURE? REMOVE ALL, BACK. Pause screen: PHOTOS (touch button), O: PHOTOS (desktop hint).
 - After REMOVE ALL: The pictures are gone. The originals were never here.
-- Sofa-task captions (one chosen per session, for 113d, not wired yet): You look at the pictures. / You were there for most of these. / You almost recognize the room. / Nice light. / You scroll for a while, because why not.
+- Sofa task (issue 113d, wired): name and prompt "Scroll through photos"; unmet reason NO PICTURES (never shown to the player in practice: with no pictures the task is not listed). The task has no flavor line.
+- Sofa-task captions (issue 113d, wired in `REEL.captions` in `src/game/config.ts`; one is chosen per session and shown once, under the first picture; the pool is a plain list, so marking one "rewrite" or deleting it is a one-line change): You look at the pictures. - / You were there for most of these. - / You almost recognize the room. - / Nice light. - / You scroll for a while, because why not. -
 
 ## Tasks
 

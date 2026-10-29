@@ -19,6 +19,7 @@ import type { Ad } from "./encounter-ads";
 import { Encounters } from "./encounters";
 import { CLOCK, DEBUG, DIALOG, ENERGY, MOOD, TILE, VIEW } from "./config";
 import type { ActivityHost, RecordState } from "./activity";
+import { openReelStore, type ReelPic, type ReelStoreHandle } from "./reel/reel-store";
 import type { Interactable } from "./interactable";
 import { DialogRunner, say, type DialogNode, type DialogResult, type DialogView } from "./dialog";
 import { DELTA, DIRECTIONS, type Direction } from "./direction";
@@ -79,6 +80,8 @@ export interface GameOptions {
   // What is on the walls and shelves (issue 062); today's room by default (a
   // saved one can be passed in).
   decor?: Decor;
+  // The photo reel's store (issue 113d). The browser's IndexedDB by default; tests pass a memory one.
+  reel?: ReelStoreHandle;
   // A random number from 0 up to 1, for the mini-games. Math.random by default;
   // tests pass a seeded one.
   random?: () => number;
@@ -142,6 +145,10 @@ export class Game {
   // The other levels the level's doorways lead to, by id.
   private readonly rooms: Readonly<Record<string, Level>>;
   private readonly random: () => number;
+  // The photo reel (issue 113d): the store, and the pictures it held when last read. The sofa offers
+  // "Scroll through photos" only while this list is not empty; the PHOTOS page tells the game when it changes.
+  private reelHandle: ReelStoreHandle | null;
+  private reelPics: readonly ReelPic[] = [];
   private readonly reducedMotion: () => boolean;
   private readonly painter: RoomPainter;
   private readonly spriteDrawer: SpriteDrawer | undefined;
@@ -164,6 +171,8 @@ export class Game {
     this.level = level;
     this.rooms = options.rooms ?? {};
     this.random = options.random ?? Math.random;
+    this.reelHandle = options.reel ?? null;
+    void this.loadReel();
     this.reducedMotion = options.reducedMotion ?? (() => false);
     this.spriteDrawer = options.sprites;
     this.popups = new Popups(options.sprites);
@@ -330,6 +339,7 @@ export class Game {
       sprites: this.spriteDrawer,
       getState: (id) => this.state.get(id),
       random: () => this.random(),
+      reelPictures: () => this.reelPics,
     };
   }
 
@@ -389,6 +399,32 @@ export class Game {
   private syncParcel(): void {
     const parcel = this.deliveries.waiting ? 1 : 0;
     if (this.state.has("parcel") && this.state.get("parcel") !== parcel) this.state.applyEffects([{ var: "parcel", set: parcel }]);
+  }
+
+  // The store for the photo reel, made on first use.
+  get reel(): ReelStoreHandle {
+    return (this.reelHandle ??= openReelStore());
+  }
+
+  // Reads the pictures once at the start. A store that fails to read means no pictures, never a crash.
+  private async loadReel(): Promise<void> {
+    try {
+      this.photosChanged(await this.reel.store.list());
+    } catch {
+      this.reelPics = [];
+    }
+  }
+
+  // The reel changed (the PHOTOS page added or removed pictures): the sofa task follows at once.
+  photosChanged(pics: readonly ReelPic[]): void {
+    this.reelPics = pics;
+    this.syncPhotos();
+  }
+
+  // Derived like `parcel`: 1 while the reel holds a picture. It is what makes the sofa task appear.
+  private syncPhotos(): void {
+    const has = this.reelPics.length > 0 ? 1 : 0;
+    if (this.state.has("hasPhotos") && this.state.get("hasPhotos") !== has) this.state.applyEffects([{ var: "hasPhotos", set: has }]);
   }
 
   // The guitar is off its stand (issue 107) while the guitar task runs, so the piece shows the
@@ -618,6 +654,7 @@ export class Game {
     // After a load the saved box state may not match the queue (a save written as a package arrived).
     this.syncParcel();
     this.syncGuitar();
+    this.syncPhotos();
     // A swap preview lasts only while the swap list is open, whatever closed it.
     if (this.decor.previewing && !this.interaction.active) this.decor.clearPreview();
     // Escape backs out of the running action even while its text or menu is up
@@ -663,6 +700,7 @@ export class Game {
       this.interaction.update(dt, this.player, this.inputLocked ? NO_INPUT : controls);
     }
     this.syncGuitar();
+    this.syncPhotos();
     this.player.stepTimeScale = this.state.get("energy") < ENERGY.lowBelow ? ENERGY.tiredStepFactor : 1;
     // Free to walk unless a task is running or something else has the controls.
     // A running activity may walk the player by script (a cutscene).
@@ -693,6 +731,7 @@ export class Game {
     this.deliveries.advance((dt * CLOCK.minutesPerSecond) / 60);
     this.syncParcel();
     this.syncGuitar();
+    this.syncPhotos();
   }
 
   render(ctx: CanvasRenderingContext2D, alpha: number): void {

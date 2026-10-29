@@ -76,6 +76,10 @@ const CONTENT: Task[] = [
   // Sofa
   { id: 'doomscroll', name: 'Doomscroll', prompt: 'Doomscroll', duration: 10, points: 40,
     flavor: 'One more. Okay, one more. Where did forty minutes go.' },
+  // Only offered while the device holds pictures (requires hasPhotos; issue 113d). Pays a small fixed amount
+  // when a session runs to its end; no mood change, no streak, no count anywhere.
+  { id: 'scroll-photos', name: 'Scroll through photos', prompt: 'Scroll through photos', duration: 0, points: 5,
+    requires: [{ var: 'hasPhotos', min: 1, reason: 'NO PICTURES' }] },
   { id: 'work-sofa', name: 'Code from the couch', prompt: 'Work from the couch', duration: 8, points: 60,
     flavor: 'Your back files a complaint.' },
   { id: 'nap', name: 'Take a nap', prompt: 'Take a nap', duration: 5, points: 30, // duration = SLEEP.nap total
@@ -262,6 +266,7 @@ const STATE_RULES: Record<string, Partial<Task>> = {
   "make-track": { activity: { type: "make-track" } },
   // Pays per delivered card from inside the activity, so no points of its own.
   "study-spanish": { activity: { type: "flashcards" } },
+  "scroll-photos": { activity: { type: "reel" } },
   "record-play": {
     effects: [{ var: "mood", add: 5 }],
     activity: { type: "record-player" },
@@ -303,6 +308,7 @@ const MIRRORS: Task[] = [
 // `held` is what is drawn when there is no pose.
 const LOOKS: Record<string, Pick<Task, "pose" | "held">> = {
   doomscroll: { pose: "sit-sofa" },
+  "scroll-photos": { pose: "sit-sofa" },
   "work-sofa": { pose: "sit-sofa", held: "laptop" },
   nap: { pose: "sit-sofa" },
   "work-bed": { held: "laptop" },

@@ -12,6 +12,7 @@ import "./swap-decor";
 import "./collect-delivery";
 import "./flashcards";
 import "./record-player";
+import "./reel";
 
 export { WaitActivity } from "./wait";
 export { SleepActivity } from "./sleep";
@@ -22,3 +23,4 @@ export { NotesActivity, ARROW } from "./notes";
 export { MakeTrackActivity } from "./make-track";
 export { SwapDecorActivity } from "./swap-decor";
 export { FlashcardsActivity } from "./flashcards";
+export { ReelActivity } from "./reel";

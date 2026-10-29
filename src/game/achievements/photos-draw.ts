@@ -151,18 +151,22 @@ function picCanvas(pic: ReelPic): HTMLCanvasElement | null {
 }
 
 // One stored picture at its own size (1x), centred in `box`.
-export function drawPic(ctx: CanvasRenderingContext2D, pic: ReelPic, box: Rect): void {
-  const x = box.x + Math.floor((box.w - pic.w) / 2);
-  const y = box.y + Math.floor((box.h - pic.h) / 2);
+// `scale` is a whole multiple (the reel shows it at 3x), so every source pixel stays a crisp block.
+export function drawPic(ctx: CanvasRenderingContext2D, pic: ReelPic, box: Rect, scale = 1): void {
+  const x = box.x + Math.floor((box.w - pic.w * scale) / 2);
+  const y = box.y + Math.floor((box.h - pic.h * scale) / 2);
   const canvas = picCanvas(pic);
-  if (canvas) return void ctx.drawImage(canvas, x, y);
+  if (canvas) {
+    ctx.imageSmoothingEnabled = false;
+    return void ctx.drawImage(canvas, x, y, pic.w * scale, pic.h * scale);
+  }
   // No canvas to keep it in (a test, a software renderer): runs of one colour, row by row.
   for (let row = 0; row < pic.h; row++) {
     let start = 0;
     for (let col = 1; col <= pic.w; col++) {
       if (col < pic.w && pic.px[row * pic.w + col] === pic.px[row * pic.w + start]) continue;
       ctx.fillStyle = colours[pic.px[row * pic.w + start]] ?? colours[0];
-      ctx.fillRect(x + start, y + row, col - start, 1);
+      ctx.fillRect(x + start * scale, y + row * scale, (col - start) * scale, scale);
       start = col;
     }
   }

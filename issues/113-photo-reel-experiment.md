@@ -21,3 +21,6 @@ Marc (2026-10-28): try the photo reel first, as an experiment, to see how it fee
 
 ## Acceptance criteria
 - Agreed design; the experiment works on desktop and iPhone; photos stay on the device; the game is unchanged with no photos; Marc tries it and says whether the picker feels clunky.
+
+## Progress log
+- 2026-10-28: Design written: `docs/photo-reel-design.md` (summary, pixelate and look, storage, iPhone flow, pause page, in-world viewer, text, remove all, tests, stages 113a to 113e, 5 open questions). Status unchanged.

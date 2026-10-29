@@ -92,18 +92,18 @@ A to C can run in parallel with nothing else; they touch only new files plus `sp
    - A. Faithful copy plus overrides (my recommendation): the little room follows the real one except where the file says.
    - B. Frozen: the little room is a fixed scene listed in full, never following the real one.
    - C. Mostly frozen, but follows a short list of things (the plant, the lamp).
-2. **How should the little room look?**
+2. **How should the little room look? ANSWERED by Marc 2026-10-29: A, smoothed half scale with dim and light noise.**
    - A. Smoothed half scale with a dim and light noise (recommended): soft like a screen, the most "degraded copy".
    - B. Sharp pixel-picking at half scale, palette colors only: crisp but rough.
    - C. Dedicated half-size sprites: cleanest, but needs new art.
-3. **Should the file support `when` conditions (the little room follows state) in the first pass?**
+3. **Should the file support `when` conditions in the first pass? DECIDED by the planner 2026-10-29: A, later (stage E).**
    - A. Later, stage E (recommended): ship the plain overrides first.
    - B. Yes, from the start.
-4. **Should the tiny figure move?**
+4. **Should the tiny figure move? DECIDED by the planner 2026-10-29: A, a fixed glitch standing on the desk.**
    - A. No, a fixed glitch: standing on the desk (recommended).
    - B. It wanders on its own (needs the live render of 051's version 2).
    - C. It alternates between two spots every few visits.
-5. **What should the first real effect be?**
+5. **What should the first real effect be? DECIDED by the planner 2026-10-29: A, none yet, the picture only.**
    - A. None yet, the picture only (recommended until 111e is done).
    - B. A tiny cosmetic one: after enough sessions something from the little room appears in the real one.
    - C. A small mood or energy tweak depending on what the little room shows.

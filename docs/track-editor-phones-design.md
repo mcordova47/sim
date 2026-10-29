@@ -146,7 +146,7 @@ Docs: update `docs/make-tracks.md` (a "On phones" section) and `docs/mobile.md` 
    - A (recommended): Play, Save, Length, More.
    - B: Play, Save, Undo, More (Length in the menu, used less).
    - C: put tempo and name in the menu too, and give the screen a taller grid.
-3. **Should tapping a note clear it, or select it first?**
+3. **Should tapping a note clear it, or select it first? ANSWERED by Marc 2026-10-28: (a) tap clears.**
    - A (recommended): tap clears (like E), Undo catches mistakes.
    - B: first tap selects, a second tap clears, and Length acts on the selected note (safer, one more tap).
    - C: tap places only; clearing is the `Erase` mode button.

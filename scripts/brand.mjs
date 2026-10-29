@@ -40,12 +40,14 @@ function blit(dst, img, ox, oy, scale) {
     }
 }
 
+// The Simagotchi logo (art/src/logo-egg.sprite, 32x32): an egg with the player's face on its screen.
+// The icon is the sprite scaled by a whole number and centred on night: 1:1 at 32, 5x (160) at 180.
 function icon(size) {
   const img = canvas(size, size, hex("night"));
-  const scale = Math.floor(size / 20);
-  const player = load("player-casual-idle-down");
-  const o = Math.floor((size - 16 * scale) / 2);
-  blit(img, player, o, o, scale);
+  const logo = load("logo-egg");
+  const scale = Math.max(1, Math.floor((size - 2) / logo.width));
+  const o = Math.floor((size - logo.width * scale) / 2);
+  blit(img, logo, o, o, scale);
   return img;
 }
 
@@ -53,18 +55,17 @@ function social() {
   const S = 5; // 1200x630 is 240x126 game pixels at 5x
   const img = canvas(1200, 630, hex("night"));
   const floor = load("floor-wood");
-  const floorTop = 56;
+  const floorTop = 96;
   for (let y = floorTop; y < 126; y += 16)
     for (let x = 0; x < 240; x += 16) blit(img, floor, x * S, y * S, S);
   const put = (name, x, bottom) => {
     const s = load(name);
     blit(img, s, x * S, (bottom - s.height) * S, S);
   };
-  put("bookshelf", 12, 96);
-  put("desk", 34, 88);
-  put("sofa-td", 120, 100);
-  put("plant-1", 220, 100);
-  put("player-casual-idle-down", 100, 112);
+  put("bookshelf", 12, 112);
+  put("desk", 148, 112);
+  put("plant-1", 220, 112);
+  blit(img, load("logo-egg"), 376, 50, 14); // the egg at 14x (448px), centred
   return img;
 }
 

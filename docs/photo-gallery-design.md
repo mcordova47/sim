@@ -29,7 +29,7 @@ A `Gallery` is pure state plus a layout, with no drawing and no game: `{ pics, p
 | | Manage (pause menu, key O) | Scene (sofa task) |
 |---|---|---|
 | Chrome | none: the page's dark panel | a phone: bezel, a status strip, the fixed line |
-| Order | newest first (as the thumbnails are today) | the whole reel in a session-stable shuffled order |
+| Order | newest first (as the thumbnails are today), paged | **six pictures picked at random** for the session (Marc, 2026-10-29), no paging, no count |
 | Open a close-up | E, or tap a highlighted cell | E, or tap a highlighted cell |
 | Leave the close-up | Esc, back to the grid | E: leaves the scene and pays; Esc leaves and pays nothing |
 | Left or Right in a close-up | the previous or next picture | nothing (the player chose this one) |
@@ -234,7 +234,7 @@ Today an encounter cannot start while anything runs (`InteractionSystem.begin` r
 - **Alternative rejected:** a suspend-and-resume stack in `InteractionSystem` (push the scene, run the encounter, pop). More general, but it changes the one piece every task depends on, and the cooldown, award and `lastCompletion` paths all assume one active. Revisit if a second activity ever wants to be interrupted.
 
 ## 7. What replaces the 113d slideshow
-The scene replaces `ReelActivity` completely in one issue (117e); there is no flag and no two modes. Gone: the 4 second auto-advance, the shuffled pass of six, the first-picture caption, "Right goes on early", the payment at the end of a pass. Kept: the task `scroll-photos`, its prompt, 5 points, `requires hasPhotos`, the pose, `holdsClock`, `readsKeys`, `cancellable`, the dimmed world behind it, the use of `host.reelPictures()` and `host.random()`. `shuffledPass` becomes `sessionOrder(pics, random)`: the whole reel shuffled once at the start (the existing algorithm without the slice), so paging is stable within a session and fresh the next.
+The scene replaces `ReelActivity` completely in one issue (117e); there is no flag and no two modes. Gone: the 4 second auto-advance, the shuffled pass of six, the first-picture caption, "Right goes on early", the payment at the end of a pass. Kept: the task `scroll-photos`, its prompt, 5 points, `requires hasPhotos`, the pose, `holdsClock`, `readsKeys`, `cancellable`, the dimmed world behind it, the use of `host.reelPictures()` and `host.random()`. `shuffledPass` is kept: six pictures (`REEL.pass`) are picked at random when the scene starts and shown on the one phone-view screen (Marc, 2026-10-29: "fine to just pick six for the first screen and then zoom in on one"); there is no paging in scene mode. With fewer than six pictures it shows what there is.
 
 ## 8. Text proposals (candidates only: Marc reviews them; none may be about resolution, size or pixels)
 **The fixed phone-view line** (one chosen when the scene starts from `REEL.phoneLines`, shown for the whole session under the grid):
@@ -301,14 +301,14 @@ Each issue merges alone and leaves main no worse than today. "No worse" is check
 | F | 117f | Ad interruption in the close-up: `ENCOUNTERS.interrupts`, `buildEncounter`, `interruptWithAd`, the child in the scene, the Escape row (needs E) | Separable: without it the scene works as in E; the completion roll for doomscroll and work is untouched and its tests stay green; a bug here cannot touch the gallery |
 | G | 117g | Text review of the lines, an on-device pass (touch, both views, looks on real pictures), docs: `activities.md`, `tasks.md`, `photo-reel-design.md` pointer, PLAN.md | Docs and tuning only |
 
-Order: A and B in parallel, then C, then D and E (independent), then F, then G. Manage mode (A to D) can ship before the scene, which matches Marc's first want (delete one picture). Each is one agent session. Mark half-finished stages on a feature branch until safe to push, per the main-must-be-releasable rule: C needs B merged first, and D needs A and C, so nothing half-wired ever reaches main.
+Order: A and B in parallel, then C, then D and E (independent), then F, then G. Manage mode (A to D) can ship before the scene, which matches Marc's first want (delete one picture). Each is one agent session. Main stays no worse than today at every stage (see docs/deploy.md, the releasable-main rule, relaxed by Marc 2026-10-29): C needs B merged first, and D needs A and C, so nothing half-wired is reachable.
 
 ## 13. What I decided myself, and why
 - **One pure gallery, two skins**: the two entry points cannot disagree about paging, the highlight or the close-up scale, and nearly all of the logic is testable without a canvas.
 - **Close-up = largest whole-number scale that fits** (the planner decision, kept). A 192 px height gives 48 x 36 at 5x (240 x 180) and not the 4x (192 x 144) the issue first mentioned; 4x is what the narrow view gets. Whole scales only, so every source pixel stays a crisp block (no `fitFill` blur).
 - **Scene mode draws natively in both views**, and does not set `showsPicture`, so the phone gets a 224 x 208 layout with whole scales (not a 320 x 192 picture scaled to 3.5x). Only the ad card flips the view.
 - **Esc pays nothing, E pays** (the Escape table is a project rule); leaving at the phone view never pays (Marc/planner).
-- **Scene order: the whole reel shuffled once per session**, six a page, paged by the arrows with no count. The 113d pass of six random pictures is gone; a player can reach any picture, and the close-up is the player's pick (Marc's decision), not random.
+- **Scene order (Marc's answer replaced my first idea of paging the whole reel): six random pictures on the one phone-view screen**, the player picks which of the six to close up on. The manage mode still pages every picture, newest first.
 - **The highlight starts on a random cell in scene mode**, on the first cell in manage mode.
 - **No Left/Right flipping in the scene close-up** (Marc picked one picture; flipping would turn the scene into a gallery again); manage mode flips, so several pictures can be deleted without returning to the grid each time.
 - **After a delete, back to the grid** with the highlight on the same cell number: simplest and never leaves the close-up on a picture that no longer exists.
@@ -321,8 +321,8 @@ Order: A and B in parallel, then C, then D and E (independent), then F, then G. 
 - **Seven issues, with the ad interruption last** because it is the only stage that touches the encounter path.
 
 ## 14. Open questions for Marc (real ones only, most important first)
-1. **The three looks and their values.** Crisp (64 x 48, dither 10), Soft (48 x 36, dither 20, the default), Chunky (32 x 24, dither 30): are the names and numbers right? Recommend yes as proposed, then a look at real pictures in `art/tools/pixel-looks.html` before 117a closes.
-2. **Which pictures the phone view shows.** All of them, paged six at a time in a shuffled order, with no count. Recommend this over "a random six only", so you can pick any picture. (Or: newest first, like the PHOTOS page?)
-3. **After an ad, should the close-up come back as it was, or should the scene end?** Recommend it comes back (your planner decision), with no second ad this session.
-4. **Does E in the close-up pay while Esc does not?** Recommend yes (Esc is the project-wide "back out, no points" key). The alternative is that both pay, which breaks the Escape table.
-5. **The words.** Pick a few of the phone-view lines and close-up captions in section 8, or say none fit.
+1. **ANSWERED by Marc 2026-10-29: as recommended.** **The three looks and their values.** Crisp (64 x 48, dither 10), Soft (48 x 36, dither 20, the default), Chunky (32 x 24, dither 30): are the names and numbers right? Recommend yes as proposed, then a look at real pictures in `art/tools/pixel-looks.html` before 117a closes.
+2. **ANSWERED by Marc 2026-10-29: the sofa scene picks six pictures at random for the first screen and zooms in on one; no paging (manage mode still pages all).** (Original question: which pictures the phone view shows.) All of them, paged six at a time in a shuffled order, with no count. Recommend this over "a random six only", so you can pick any picture. (Or: newest first, like the PHOTOS page?)
+3. **ANSWERED by Marc 2026-10-29: as recommended.** **After an ad, should the close-up come back as it was, or should the scene end?** Recommend it comes back (your planner decision), with no second ad this session.
+4. **ANSWERED by Marc 2026-10-29: as recommended.** **Does E in the close-up pay while Esc does not?** Recommend yes (Esc is the project-wide "back out, no points" key). The alternative is that both pay, which breaks the Escape table.
+5. **ANSWERED by Marc 2026-10-29: as recommended.** **The words.** Pick a few of the phone-view lines and close-up captions in section 8, or say none fit.

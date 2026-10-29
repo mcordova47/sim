@@ -731,7 +731,7 @@ export class Game {
     this.drawActivity(ctx, cam);
     const dialogView = this.dialog.view;
     if (dialogView) drawDialog(ctx, dialogView);
-    if (this.interaction.active?.activity.cancellable && this.interaction.active.item.decorSlot === undefined && !this.interaction.active.item.encounter) this.hud.drawStopHint(ctx);
+    if (this.interaction.active?.activity.cancellable && this.interaction.active.item.decorSlot === undefined && !this.interaction.active.item.encounter && !(this.interaction.active.activity as { hidesStopHint?: boolean }).hidesStopHint) this.hud.drawStopHint(ctx);
     this.eachLayer((layer) => this.drawLayer(ctx, () => layer.drawHud?.(ctx), layer.drawHud));
   }
 

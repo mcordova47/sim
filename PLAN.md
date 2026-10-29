@@ -152,8 +152,8 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 111 | [The side project picture reacts to editable config (stretch)](issues/111-side-project-config.md) | marc + claude | todo | 101 |
 | 112 | [Real-world effects: what is feasible (research)](issues/112-real-world-effects-research.md) | marc + claude | done | |
 | 113 | [Photo reel: pixelated pictures from your own device (experiment)](issues/113-photo-reel-experiment.md) | marc + claude | todo (design first) | 112 |
-| 113a | [Photo reel 1: pixelate](issues/113a-reel-pixelate.md) | claude | todo | 113 |
-| 113b | [Photo reel 2: the store](issues/113b-reel-store.md) | claude | todo | 113 |
+| 113a | [Photo reel 1: pixelate](issues/113a-reel-pixelate.md) | claude | done | 113 |
+| 113b | [Photo reel 2: the store](issues/113b-reel-store.md) | claude | done | 113 |
 | 113c | [Photo reel 3: PHOTOS page](issues/113c-reel-photos-page.md) | claude | todo | 113a, 113b |
 | 113d | [Photo reel 4: the reel and sofa task](issues/113d-reel-activity.md) | claude | todo | 113c |
 | 113e | [Photo reel 5: on-device pass](issues/113e-reel-phone-pass.md) | claude | todo | 113d |

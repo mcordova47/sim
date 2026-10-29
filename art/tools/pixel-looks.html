@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pixel looks</title>
+<style>
+body{font:15px/1.45 system-ui,sans-serif;margin:0;padding:16px;background:#1a1a2e;color:#edf2f4;max-width:1560px}
+h1{font-size:20px;margin:0 0 8px}
+.ctl{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:10px 0 16px}
+.grid{display:flex;flex-wrap:wrap;gap:20px}
+figure{margin:0;max-width:100%}
+canvas{max-width:100%;height:auto;image-rendering:pixelated;background:#000;display:block;border:2px solid #3b3e5c}
+figcaption{max-width:260px;min-width:200px;margin-top:6px;color:#cdc7b9}
+b{color:#f7d154}
+.sw{display:flex;flex-wrap:wrap;gap:2px;margin-top:4px;max-width:260px}.sw i{width:14px;height:14px;border:1px solid #0006}
+.note{color:#a9adc9;font-size:13px}
+</style></head><body>
+<h1>Photo reel: three pixel looks</h1>
+<p class="note">Everything runs in your browser. Nothing is uploaded. Stored size is 64x48 (portrait 48x64), shown at 2x like in the game (128x96). Pipeline copied from the photo-reel design: centre crop, box-average shrink, auto-levels (2nd to 98th percentile), Bayer 4x4 dither, nearest colour by redmean distance.</p>
+<div class="ctl">
+<label>Choose a photo: <input type="file" id="f" accept="image/*"></label>
+<button id="s">Use sample</button>
+<label>Shape: <select id="o"><option value="auto">auto (from photo)</option><option value="land">landscape 64x48</option><option value="port">portrait 48x64</option></select></label>
+<label>Size: <select id="n"><option value="0">64x48 (2x)</option><option value="1" selected>48x36 (3x)</option><option value="2">40x30 (3x)</option><option value="3">32x24 (4x)</option></select> <span id="sz" class="note"></span></label>
+<label>Palette: <select id="pl"><option value="22">full 22</option><option value="16">16</option><option value="12">12</option><option value="8">8</option></select></label>
+<label><input type="checkbox" id="z"> magnified view (double scale)</label>
+<label>Dither strength (a): <input type="range" id="k" min="0" max="100" value="20"> <span id="kv">20</span></label>
+</div>
+<div class="grid">
+<figure><canvas id="a"></canvas><div class="sw" id="swa"></div><figcaption><b>(a) chosen palette + light dither.</b> Dither mixes two nearby palette colours in a fine checker pattern, so smooth gradients like sky look smooth instead of banded.</figcaption></figure>
+<figure><canvas id="b"></canvas><div class="sw" id="swb"></div><figcaption><b>(b) chosen palette, flat.</b> With a reduced palette, colours are picked from the 22 that best cover this picture (no new colours). Each pixel just snaps to its closest palette colour. No dither, so gradients break into hard bands, but edges stay clean.</figcaption></figure>
+<figure><canvas id="c"></canvas><figcaption><b>(c) 4-tone green ramp.</b> Game Boy style: only four shades of one hue (the game's ink, fern, leaf, plus a pale green). Auto-levels still apply, no dither, so expect strong banding.</figcaption></figure>
+</div>
+<script>
+let W=64,H=48,zoom=2;
+const hex=["1a1a2e","2b2d42","3b3e5c","6b6f94","a9adc9","edf2f4","4a2c2a","7a4a35","b5835a","e8c9a0","d64550","f08a4b","f7d154","2f6b4f","5fae6b","3a9ca6","4a78c2","9fd3f0","7b5ea7","f2a7c0","cdc7b9","a29b8c"];
+const rgb=h=>[0,2,4].map(i=>parseInt(h.substr(i,2),16));
+const PAL=hex.map(rgb);
+const RAMP=["1a1a2e","2f6b4f","5fae6b","d8efb0"].map(rgb);
+const BAYER=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
+let big=null,isSample=true; // big: canvas, long side <= 256
+const $=id=>document.getElementById(id);
+function sampleCanvas(port){
+  const bw=256,bh=192,b=document.createElement('canvas');b.width=bw;b.height=bh;const x=b.getContext('2d');
+  x.scale(bw/160,bh/120);
+  const g=x.createLinearGradient(0,0,0,84);g.addColorStop(0,'#3d78c8');g.addColorStop(1,'#bfe6f5');
+  x.fillStyle=g;x.fillRect(0,0,160,120);
+  x.fillStyle='#f7d154';x.beginPath();x.arc(125,24,12,0,7);x.fill();
+  x.fillStyle='rgba(255,255,255,.9)';[[30,28,14],[42,26,11],[20,30,9],[85,40,10],[96,38,8]].forEach(([a,c,r])=>{x.beginPath();x.arc(a,c,r,0,7);x.fill()});
+  x.fillStyle='#4f8a5a';x.beginPath();x.moveTo(0,84);x.quadraticCurveTo(50,60,100,84);x.quadraticCurveTo(140,98,160,76);x.lineTo(160,120);x.lineTo(0,120);x.fill();
+  x.fillStyle='#7aa84a';x.fillRect(0,92,160,28);
+  x.fillStyle='#b8452f';x.fillRect(18,70,34,26);
+  x.fillStyle='#6b3a2a';x.beginPath();x.moveTo(14,70);x.lineTo(35,52);x.lineTo(56,70);x.fill();
+  x.fillStyle='#f5e6a0';x.fillRect(26,78,9,9);
+  x.fillStyle='#4a78c2';x.fillRect(70,88,26,14);
+  const r=x.createRadialGradient(124,84,2,124,86,20);r.addColorStop(0,'#f0b98e');r.addColorStop(1,'#c98a63');
+  x.fillStyle=r;x.beginPath();x.ellipse(124,86,19,23,0.2,0,7);x.fill();
+  x.fillStyle='#3a2418';x.beginPath();x.arc(124,70,18,Math.PI,0);x.fill();
+  x.fillStyle='#2a1a14';x.fillRect(117,84,3,3);x.fillRect(128,84,3,3);
+  if(!port)return b;
+  const p=document.createElement('canvas');p.width=192;p.height=256;
+  p.getContext('2d').drawImage(b,0,0,bw,bh,-100,0,341,256);return p;
+}
+function shrinkTo256(img){
+  const iw=img.naturalWidth||img.width,ih=img.naturalHeight||img.height,s=Math.min(1,256/Math.max(iw,ih));
+  const c=document.createElement('canvas');c.width=Math.max(1,Math.round(iw*s));c.height=Math.max(1,Math.round(ih*s));
+  const x=c.getContext('2d');x.imageSmoothingQuality='high';x.drawImage(img,0,0,c.width,c.height);return c;
+}
+// Step 1 + 2: centre crop to 4:3 / 3:4, box average to W x H. Returns Float32 RGB.
+function pixelate(srcC,w,h){
+  const sw0=srcC.width,sh0=srcC.height,d=srcC.getContext('2d').getImageData(0,0,sw0,sh0).data;
+  const ar=w/h;let cw=sw0,ch=sw0/ar;
+  if(ch>sh0){ch=sh0;cw=sh0*ar}
+  const ox=(sw0-cw)/2,oy=(sh0-ch)/2,out=new Float32Array(w*h*3);
+  for(let y=0;y<h;y++){const y0=Math.floor(oy+y*ch/h),y1=Math.max(y0+1,Math.floor(oy+(y+1)*ch/h));
+    for(let x=0;x<w;x++){const x0=Math.floor(ox+x*cw/w),x1=Math.max(x0+1,Math.floor(ox+(x+1)*cw/w));
+      let r=0,g=0,b=0,n=0;
+      for(let yy=y0;yy<y1&&yy<sh0;yy++)for(let xx=x0;xx<x1&&xx<sw0;xx++){const i=(yy*sw0+xx)*4;r+=d[i];g+=d[i+1];b+=d[i+2];n++}
+      n=n||1;const o=(y*w+x)*3;out[o]=r/n;out[o+1]=g/n;out[o+2]=b/n}}
+  return out;
+}
+// Step 3: stretch 2nd..98th percentile of brightness to full range.
+function autoLevels(px){
+  const n=px.length/3,l=new Float32Array(n);
+  for(let i=0;i<n;i++)l[i]=px[i*3]*.299+px[i*3+1]*.587+px[i*3+2]*.114;
+  const s=Array.from(l).sort((a,b)=>a-b),lo=s[Math.floor(n*.02)],hi=s[Math.min(n-1,Math.floor(n*.98))];
+  if(hi-lo<8)return px;
+  const k=255/(hi-lo),o=new Float32Array(px.length);
+  for(let i=0;i<px.length;i++)o[i]=Math.min(255,Math.max(0,(px[i]-lo)*k));
+  return o;
+}
+function redmean(a,b){
+  const rm=(a[0]+b[0])/2,dr=a[0]-b[0],dg=a[1]-b[1],db=a[2]-b[2];
+  return (2+rm/256)*dr*dr+4*dg*dg+(2+(255-rm)/256)*db*db;
+}
+// Step 4: Bayer 4x4 + nearest by redmean.
+function toPalette(px,w,h,pal,strength){
+  const out=new ImageData(w,h),spread=strength*0.9,v=[0,0,0];
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const o=(y*w+x)*3,t=(BAYER[(y&3)*4+(x&3)]+0.5)/16-0.5;
+    for(let k=0;k<3;k++)v[k]=px[o+k]+t*spread;
+    let best=0,bd=1e12;
+    for(let p=0;p<pal.length;p++){const e=redmean(v,pal[p]);if(e<bd){bd=e;best=p}}
+    const q=pal[best],i=(y*w+x)*4;out.data[i]=q[0];out.data[i+1]=q[1];out.data[i+2]=q[2];out.data[i+3]=255;
+  }
+  return out;
+}
+// Greedy forward selection over the 22 game colours: each step adds the colour that
+// most lowers the total image error. Only real palette colours are ever used.
+function pickPalette(px,n){
+  if(n>=PAL.length)return PAL;
+  const m=px.length/3,D=PAL.map(q=>{const a=new Float32Array(m);for(let i=0;i<m;i++)a[i]=redmean([px[i*3],px[i*3+1],px[i*3+2]],q);return a});
+  const cur=new Float32Array(m).fill(1e12),chosen=[];
+  while(chosen.length<n){
+    let bc=-1,bs=Infinity;
+    for(let c=0;c<PAL.length;c++){if(chosen.includes(c))continue;
+      let t=0;for(let i=0;i<m;i++)t+=Math.min(cur[i],D[c][i]);if(t<bs){bs=t;bc=c}}
+    chosen.push(bc);for(let i=0;i<m;i++)cur[i]=Math.min(cur[i],D[bc][i]);
+  }
+  return chosen.sort((a,b)=>a-b).map(i=>PAL[i]);
+}
+function swatches(id,pal){$(id).innerHTML=pal.map(q=>'<i style="background:rgb('+q+')"></i>').join('')}
+function show(id,img){
+  const c=$(id);c.width=img.width;c.height=img.height;
+  c.style.width=img.width*zoom+'px';c.getContext('2d').putImageData(img,0,0);
+}
+function all(){
+  const o=$('o').value;let port;
+  if(o==='auto')port=isSample?false:big.height>big.width;else port=o==='port';
+  if(isSample)big=sampleCanvas(port);
+  const SZ=[[64,48,2],[48,36,3],[40,30,3],[32,24,4]][+$('n').value],lw=SZ[0],lh=SZ[1];
+  W=port?lh:lw;H=port?lw:lh;zoom=SZ[2]*($('z').checked?2:1);
+  $('sz').textContent=W+'x'+H+' at '+zoom+'x = '+W*zoom+'x'+H*zoom+' px on screen';
+  const lv=autoLevels(pixelate(big,W,H));
+  const sub=pickPalette(lv,+$('pl').value);
+  swatches('swa',sub);swatches('swb',sub);
+  show('a',toPalette(lv,W,H,sub,+$('k').value));
+  show('b',toPalette(lv,W,H,sub,0));
+  // (c): brightness picks one of 4 ramp tones, no dither
+  const c=new ImageData(W,H);
+  for(let i=0;i<W*H;i++){
+    const l=lv[i*3]*.299+lv[i*3+1]*.587+lv[i*3+2]*.114,q=RAMP[Math.min(3,Math.max(0,Math.round(l/255*3)))];
+    c.data[i*4]=q[0];c.data[i*4+1]=q[1];c.data[i*4+2]=q[2];c.data[i*4+3]=255}
+  show('c',c);
+}
+$('k').oninput=()=>{$('kv').textContent=$('k').value;all()};
+$('z').onchange=all;$('n').onchange=all;$('pl').onchange=all;$('o').onchange=all;
+$('s').onclick=()=>{isSample=true;all()};
+$('f').onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const u=URL.createObjectURL(f),im=new Image();
+  im.onload=()=>{big=shrinkTo256(im);isSample=false;URL.revokeObjectURL(u);all()};im.src=u;
+};
+all();
+</script></body></html>

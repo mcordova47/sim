@@ -12,7 +12,7 @@ export interface PlayOptions {
 }
 
 // Which bus a voice goes to. Music voices are not counted against the effect voice cap.
-export type Bus = "effects" | "music" | "sleep";
+export type Bus = "effects" | "music" | "sleep" | "encounter";
 
 const NOISE_SECONDS = 0.5;
 const FLOOR = 0.0001;
@@ -70,10 +70,10 @@ export class Synth {
     music.connect(this.master);
     this.buses = { effects, music };
     const rest = (to: number) => ({ from: to, to, t0: 0, t1: 0 });
-    this.ramps = { effects: rest(1), music: rest(SOUND.musicLevel), sleep: rest(0) };
+    this.ramps = { effects: rest(1), music: rest(SOUND.musicLevel), sleep: rest(0), encounter: rest(0) };
   }
 
-  // A bus's gain node. The lullaby's `sleep` bus (issue 078) is made the first
+  // A bus's gain node. The lullaby's `sleep` bus (issue 078) and the `encounter` bus (issue 091a) are made the first
   // time it is used, silent until it is ramped up, so a game that never sleeps
   // makes exactly the nodes it always did.
   private bus(bus: Bus): GainLike {

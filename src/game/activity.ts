@@ -8,6 +8,7 @@ import type { Track } from "./music/track";
 import type { Decor } from "./decor";
 import type { Effect } from "./state";
 import type { SleepScene } from "./sleep";
+import type { EncounterScene } from "./encounter-scene";
 import type { ReelPic } from "./reel/reel-store";
 
 // An activity is what a task is while the player is doing it. Today's timed
@@ -134,6 +135,8 @@ export interface Activity {
   // and the banner. Only the sleep activity has one (issue 078); null or missing
   // means everything is normal.
   readonly scene?: SleepScene | null;
+  // The ad encounter's phase and outcome this frame, read by its sound (issue 091a). Only the encounter has one.
+  readonly encounterScene?: EncounterScene | null;
   // Controls to give the player while it runs, for scripted movement; null
   // keeps the player where they are.
   readonly playerControls: Controls | null;

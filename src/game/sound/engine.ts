@@ -2,6 +2,8 @@ import { GUITAR_SKILL, SOUND } from "../config";
 import type { AudioContextLike, AudioFactory } from "./audio-types";
 import { GuitarGroove } from "./guitar-groove";
 import { MusicPlayer } from "./music-player";
+import { EncounterSound } from "./encounter-sound";
+import type { EncounterScene } from "../encounter-scene";
 import { SleepSound } from "./sleep-sound";
 import type { SleepScene } from "../sleep";
 import { Synth, type Bus, type PlayOptions } from "./synth";
@@ -15,6 +17,8 @@ export class SoundEngine {
   readonly groove = new GuitarGroove();
   // The sleep sequence's lullaby, snore and the record's ducking (issue 078).
   readonly sleep = new SleepSound();
+  // The ad encounter's battle loop and the record's ducking (issue 091a).
+  readonly encounter = new EncounterSound();
   private ctx: AudioContextLike | null = null;
   // Readable (a type-level change only, no change in the build) so the dev music lab can reach the synth.
   synth: Synth | null = null;
@@ -115,6 +119,15 @@ export class SoundEngine {
   updateSleep(scene: SleepScene | null): void {
     try {
       this.sleep.update(scene, this.synth, (name) => this.play(name));
+    } catch {
+      // Same: no sound is worth an error.
+    }
+  }
+
+  // Call every frame with the encounter scene (null when no ad is showing).
+  updateEncounter(scene: EncounterScene | null): void {
+    try {
+      this.encounter.update(scene, this.synth);
     } catch {
       // Same: no sound is worth an error.
     }

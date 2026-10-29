@@ -34,6 +34,7 @@ import { CARRIED, POSES, breathBand, heldSprite, type PoseDef } from "./poses";
 import { ApartmentState } from "./state";
 import { STATE_VARS } from "./state-vars";
 import type { SleepScene } from "./sleep";
+import type { EncounterScene } from "./encounter-scene";
 import { boundsOf, type Rect, type Solid } from "./world";
 
 // An extra thing the game updates and draws, added with `Game.addLayer`. Every
@@ -576,6 +577,11 @@ export class Game {
   // goes back to normal by itself).
   get sleepScene(): SleepScene | null {
     return this.interaction.active?.activity.scene ?? null;
+  }
+
+  // The ad encounter's phase this frame (what its sound follows), or null when none is showing.
+  get encounterScene(): EncounterScene | null {
+    return this.interaction.active?.activity.encounterScene ?? null;
   }
 
   get dialogOpen(): boolean {

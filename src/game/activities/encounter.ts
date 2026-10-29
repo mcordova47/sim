@@ -4,6 +4,7 @@ import { BaseActivity, type ActivityHost } from "../activity";
 import { ENCOUNTERS } from "../config";
 import { choice, menu, say } from "../dialog";
 import { CARD_WORDS, ENCOUNTER_WORDS, type Ad } from "../encounter-ads";
+import type { EncounterOutcome, EncounterPhase, EncounterScene } from "../encounter-scene";
 import { drawTransition, entranceFrames, exitFrames, transitionFrame } from "../encounter-transition";
 import { arrivesWord, impulseChance, unsubscribeChance } from "../encounters";
 
@@ -36,6 +37,8 @@ export interface EncounterDeps {
   product: { sprite: string; w: number; h: number };
 }
 
+let encounterIds = 0;
+
 export class EncounterActivity extends BaseActivity {
   cancellable = true;
   // No time pressure while it is open.
@@ -45,9 +48,11 @@ export class EncounterActivity extends BaseActivity {
   // The second page of the card (Look closer) is showing.
   details = false;
   private looked = false;
-  // entering: the entrance plays; open: the card and its dialogs; leaving: the exit wipe.
-  private phase: "entering" | "open" | "leaving" = "entering";
+  // entering: the entrance plays; open: the card and its dialogs; result: the closing line; leaving: the exit wipe.
+  private phase: EncounterPhase = "entering";
   private frame = 0;
+  private outcome: EncounterOutcome | null = null;
+  private readonly id = ++encounterIds;
   private reduced = false;
   private firstDialogOpened = false;
 
@@ -57,6 +62,12 @@ export class EncounterActivity extends BaseActivity {
     private readonly deps: EncounterDeps,
   ) {
     super();
+  }
+
+  // What the sound follows (issue 091a); null once it is over, for any reason.
+  get encounterScene(): EncounterScene | null {
+    if (this.done) return null;
+    return { id: this.id, phase: this.phase, frame: this.frame, outcome: this.outcome, reduced: this.reduced };
   }
 
   start(): void {
@@ -92,13 +103,14 @@ export class EncounterActivity extends BaseActivity {
   // The entrance is over (or skipped): the first line or the menu.
   private open(): void {
     this.phase = "open";
+    this.frame = 0;
     this.openFirst();
     this.firstDialogOpened = true;
   }
 
   private openFirst(): void {
     const refusal = this.refusal();
-    if (refusal !== null) return this.speak(refusal);
+    if (refusal !== null) return this.speak(refusal, "refused");
     const mood = this.deps.mood();
     const tone = mood < ENCOUNTERS.toneLow ? ENCOUNTER_WORDS.toneLow : mood >= ENCOUNTERS.toneHigh ? ENCOUNTER_WORDS.toneHigh : null;
     this.openMenu([this.ad.narrator ?? CARD_WORDS[this.ad.card].appeared, ...(tone ? [tone] : [])].join("\n"));
@@ -153,14 +165,14 @@ export class EncounterActivity extends BaseActivity {
         // An Ignore at a low mood may turn into a purchase.
         if (this.deps.random() < impulseChance(mood, this.looked)) return this.buy(true);
         this.deps.addMood(ENCOUNTERS.mood.ignore);
-        return this.speak(words.ignore);
+        return this.speak(words.ignore, "ignore");
       case words.unsubscribe:
         if (this.deps.random() < unsubscribeChance(mood, this.ad.persistence)) {
           this.deps.addMood(ENCOUNTERS.mood.unsubscribe);
-          return this.speak(words.unsubscribed);
+          return this.speak(words.unsubscribed, "unsubscribed");
         }
         this.deps.failedUnsubscribe();
-        return this.speak(words.unsubscribeFailed);
+        return this.speak(words.unsubscribeFailed, "unsubscribeFailed");
       case ENCOUNTER_WORDS.closer:
         this.details = true;
         this.looked = true;
@@ -176,22 +188,25 @@ export class EncounterActivity extends BaseActivity {
   private buy(impulse: boolean): void {
     if (!this.deps.deliver(this.ad.item, this.ad.delayHours)) {
       const why = this.refusal() ?? ENCOUNTER_WORDS.cartFull;
-      return this.speak(why);
+      return this.speak(why, "refused");
     }
     this.deps.addMood(ENCOUNTERS.mood.cart);
     const when = ENCOUNTER_WORDS[arrivesWord(this.ad.delayHours)];
     const confirmed = `${ENCOUNTER_WORDS.ordered} ${when}`;
-    this.speak(impulse ? `${ENCOUNTER_WORDS.impulse}\n${confirmed}` : confirmed);
+    this.speak(impulse ? `${ENCOUNTER_WORDS.impulse}\n${confirmed}` : confirmed, "cart");
   }
 
-  // One narrator line, then it is over.
-  private speak(text: string): void {
+  // One narrator line, then it is over. The scene is in its `result` phase while the line is up.
+  private speak(text: string, outcome: EncounterOutcome): void {
+    this.phase = "result";
+    this.frame = 0;
+    this.outcome = outcome;
     if (!this.host.openDialog(say(text), (result) => (result.cancelled ? this.quit() : this.leave()))) this.quit();
   }
 
   draw(ctx: CanvasRenderingContext2D, screen: { width: number; height: number }): void {
     if (this.done) return;
-    const t = this.phase === "open" ? null : transitionFrame(this.phase === "entering" ? "enter" : "exit", this.frame, this.reduced);
+    const t = this.phase === "open" || this.phase === "result" ? null : transitionFrame(this.phase === "entering" ? "enter" : "exit", this.frame, this.reduced);
     if (!t || t.card) {
       if (t && t.cardAlpha < 1) ctx.globalAlpha = t.cardAlpha;
       drawCard(ctx, { ad: this.ad, details: this.details, product: this.deps.product, sprites: this.host.sprites });

@@ -120,7 +120,7 @@ describe("the sleep bus and rampBus (Synth)", () => {
 
 describe("the lullaby is a system track", () => {
   it("is in system/, parses, and is exactly ten seconds: four bars of three beats at 72 bpm", () => {
-    expect(Object.keys(SYSTEM_TRACK_FILES)).toEqual(["./system/sleep-lullaby.track"]);
+    expect(Object.keys(SYSTEM_TRACK_FILES)).toContain("./system/sleep-lullaby.track");
     const t = SLEEP_LULLABY!;
     expect(t.id).toBe("sleep-lullaby");
     expect(t.tempo).toBe(72);

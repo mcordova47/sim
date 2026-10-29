@@ -806,6 +806,101 @@ describe("the entrance and the exit", () => {
     expect(t.game.inputLocked).toBe(false);
   });
 
+  // Issue 091b (Marc 2026-10-29): a jingle only when the action succeeds; every other ending keeps the soft echo.
+  describe("result jingles", () => {
+    const jingleCues = Object.values(ENCOUNTERS.music.jingles);
+    // Plays one encounter to its end, with `act` choosing; returns the cues heard from the choice on.
+    function run(act: (s: ReturnType<typeof fresh>) => void, reduced = false) {
+      const s = fresh(reduced);
+      frames(s.game, reduced ? 12 : ENTRANCE);
+      const before = s.heard.length;
+      act(s);
+      readAll(s.game);
+      frames(s.game, 20);
+      expect(encounterUp(s.game)).toBe(false);
+      return s.heard.slice(before).map((h) => h.name);
+    }
+    const unsub = CARD_WORDS[candle().card].unsubscribe;
+
+    it("a successful unsubscribe plays its jingle once and never the exit echo", () => {
+      expect(run((s) => (s.rnd.next(0), pick(s.game, unsub)))).toEqual(["encounter-unsubscribed"]);
+    });
+
+    it("Add to cart plays its jingle once and never the exit echo, impulse or not", () => {
+      expect(run((s) => pick(s.game, "ADD TO CART"))).toEqual(["encounter-cart"]);
+      // An impulse buy from Ignore at a low roll is a cart outcome too.
+      expect(run((s) => (s.game.state.applyEffects([{ var: "mood", set: 0 }]), s.rnd.next(0), pick(s.game, "IGNORE")))).toEqual(["encounter-cart"]);
+    });
+
+    it("the jingle comes when the closing line opens, before the line is read", () => {
+      const s = fresh();
+      frames(s.game, ENTRANCE);
+      const before = s.heard.length;
+      s.rnd.next(0);
+      pick(s.game, unsub);
+      expect(s.heard.slice(before).map((h) => h.name)).toEqual(["encounter-unsubscribed"]);
+      expect(view(s.game)?.kind).toBe("say");
+    });
+
+    it("a failed unsubscribe, Ignore and both refusals play no jingle and keep the exit echo", () => {
+      expect(run((s) => (s.rnd.next(0.99), pick(s.game, unsub)))).toEqual(["encounter-exit"]);
+      expect(run((s) => (rndIgnore(s), pick(s.game, "IGNORE")))).toEqual(["encounter-exit"]);
+      expect(
+        run((s) => {
+          s.game.decor.own(candle().item);
+          pick(s.game, "ADD TO CART");
+        }),
+      ).toEqual(["encounter-exit"]);
+      const full = fresh();
+      frames(full.game, ENTRANCE);
+      const others = DECOR_DATA.items.filter((i) => !full.game.decor.owns(i.id) && i.id !== candle().item);
+      const was = DELIVERIES.maxQueued;
+      DELIVERIES.maxQueued = others.length;
+      try {
+        for (const item of others) full.game.deliveries.deliver(item.id, 100);
+        const before = full.heard.length;
+        pick(full.game, "ADD TO CART");
+        readAll(full.game);
+        frames(full.game, 20);
+        expect(full.heard.slice(before).map((h) => h.name)).toEqual(["encounter-exit"]);
+      } finally {
+        DELIVERIES.maxQueued = was;
+      }
+    });
+
+    it("leaving with no line (the menu's cancel-free exit) and Escape play no jingle", () => {
+      const s = fresh();
+      frames(s.game, ENTRANCE);
+      const before = s.heard.length;
+      s.game.update(dt, esc);
+      frames(s.game, 20);
+      expect(s.heard.slice(before)).toEqual([]);
+      // Escape on the closing line of a success: its jingle was already played, once, and no echo follows.
+      const t = fresh();
+      frames(t.game, ENTRANCE);
+      t.rnd.next(0);
+      pick(t.game, unsub);
+      t.game.update(dt, esc);
+      frames(t.game, 20);
+      expect(t.heard.filter((h) => jingleCues.includes(h.name))).toHaveLength(1);
+      expect(t.heard.some((h) => h.name === "encounter-exit")).toBe(false);
+    });
+
+    it("with reduced motion a success still has its jingle and nothing else new; a failure stays silent", () => {
+      expect(run((s) => (s.rnd.next(0), pick(s.game, unsub)), true)).toEqual(["encounter-unsubscribed"]);
+      expect(run((s) => (s.rnd.next(0.99), pick(s.game, unsub)), true)).toEqual([]);
+    });
+
+    it("every jingle has a cue, an effect and is under a second", () => {
+      for (const cue of jingleCues) {
+        const effect = SOUND.effects[SOUND.cues[cue]];
+        expect(effect, cue).toBeDefined();
+        expect(Math.max(...effect.voices.map((v) => (v.delay ?? 0) + v.length)), cue).toBeLessThan(1);
+      }
+      expect(Object.keys(ENCOUNTERS.music.jingles).sort()).toEqual(["cart", "unsubscribed"]);
+    });
+  });
+
   it("with reduced motion the only sound is one soft note: no buzz, run, hit or echo", () => {
     const { game, heard } = fresh(true);
     frames(game, 40);

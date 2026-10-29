@@ -1,7 +1,7 @@
 ---
 id: 111b
 title: Side project config 2: compose the little room from the real one
-status: review
+status: done
 owner: claude
 depends_on: [111]
 ---
@@ -25,3 +25,10 @@ Design and Marc's answers (2026-10-29): `docs/side-project-config-design.md` (th
   - Op types to line up with 111a's parser output: `{kind:"move",id,dx,dy}`, `{kind:"look",id,sprite}`, `{kind:"hide",id}`, `{kind:"add",id,sprite,x,y}`, `{kind:"figure",on,dx,dy,sprite?}`, `{kind:"dim",value}`. If 111a names differ, one mapping at the integration point.
   - Checked: `npx tsc --noEmit`, `npm run build`, `npm test` all pass.
   - Not checked: the figure sprite `side-project-figure` does not exist yet (stage D); nothing is drawn (stage C).
+- 2026-10-29: Review (independent). Verdict: approve.
+  - Faithful copy test passes (no ops gives the real room's pieces): pass. Test file ran green, and the test that renders the real game and compares sprites and order is a real check, not a restatement.
+  - The checks pass: pass. `npx tsc --noEmit` clean, `npm run build` ok, `npm test` 152 files, 3376 passed, 1 skipped.
+  - Independent edge checks (throwaway vitest kept outside the repo): hide then move errors; hide twice errors; add with a piece id or a prop id errors; hide then add of the same id works; figure follows a move of its piece and stays put when the piece is hidden; second figure errors; move accumulates and re-sorts to the front; look on a piece with no sprite errors; unknown id errors; `dim` is ignored; sprite checks fire only with `hasSprite`. All as the log describes.
+  - No game change: only 3 files changed (module, test, this issue); nothing imports the new module. Scope clean, PLAN.md untouched. No private details or real names in the diff.
+  - Unverified (not passing): nothing is drawn yet (stage C); the figure sprite `side-project-figure` does not exist yet (stage D); whether the op type names line up with 111a's parser (111a not available). Note the design's `add` example reads `add plant-2 at 96 72` (an `at` word), so 111a's parser must drop it when mapping to `{kind:"add",x,y}`.
+  - Minor, not blocking: a piece with no sprite (`package-by-the-door`) accepts move/hide silently, as a no-op for itself.

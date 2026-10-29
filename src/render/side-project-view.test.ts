@@ -3,7 +3,7 @@ import { FULL_VIEW } from "../game/view-zoom";
 import { composedView, composedViewSprites } from "./composed-views";
 import { spriteNames } from "./sprite-names";
 import { APARTMENT } from "../game/apartment";
-import { defaultRoomOps, FRAME_SPRITE, SIDE_PROJECT_VIEW_NAME, SideProjectView, type DrawOp } from "./side-project-view";
+import { defaultRoomOps, FRAME_SPRITE, LOOK, LOOKS, SIDE_PROJECT_VIEW_NAME, SideProjectView, type DrawOp } from "./side-project-view";
 import type { SpriteDrawer } from "./sprites";
 import { Sprites } from "./sprites";
 
@@ -117,6 +117,42 @@ describe("the registered side project view", () => {
     const firstPiece = list.findIndex((o) => o.sprite === "painting");
     expect(firstPiece).toBeGreaterThan(100);
     expect(list.at(-1)?.sprite).toBe("front-door");
+  });
+});
+
+describe("the looks", () => {
+  it("stay inside the design's limits, and the game's look is one of them", () => {
+    expect(Object.values(LOOKS)).toContain(LOOK);
+    for (const l of Object.values(LOOKS)) {
+      expect(l.dim).toBeGreaterThanOrEqual(0);
+      expect(l.dim).toBeLessThanOrEqual(0.6);
+      expect(l.lift).toBeGreaterThanOrEqual(0);
+      expect(l.lift).toBeLessThanOrEqual(60);
+      expect(l.wobble).toBeGreaterThanOrEqual(0);
+    }
+  });
+
+  it("wobble nudges pieces the same way every time and never the floor or walls", () => {
+    const where = () => {
+      const drawn: string[] = [];
+      const s: SpriteDrawer = { has: () => true, draw: (_c, name, x, y) => void drawn.push(`${name}@${x},${y}`) };
+      const list: DrawOp[] = [{ sprite: "floor-wood", x: 16, y: 16, layer: "floor" }, { sprite: "desk", x: 96, y: 16, layer: "thing" }, { sprite: "sofa-td", x: 32, y: 80, layer: "thing" }];
+      const w = new SideProjectView({ source: () => list, look: { ...LOOKS.dark, wobble: 2 }, makeCanvas: (a, b) => fakeCanvas(a, b) as never });
+      w.draw(ctx(), s, FULL_VIEW);
+      return drawn;
+    };
+    const a = where();
+    expect(a).toEqual(where());
+    expect(a[0]).toBe("floor-wood@16,16");
+    expect(a[2]).not.toBe("sofa-td@32,80");
+    const [x, y] = a[2].split("@")[1].split(",").map(Number);
+    expect(Math.abs(x - 32)).toBeLessThanOrEqual(2);
+    expect(Math.abs(y - 80)).toBeLessThanOrEqual(2);
+  });
+
+  it("the little room's desk is the desk with the tiny person on it, the same size as the desk", () => {
+    expect(defaultRoomOps().some((o) => o.sprite === "desk-with-figure")).toBe(true);
+    expect(defaultRoomOps().some((o) => o.sprite === "desk")).toBe(false);
   });
 });
 

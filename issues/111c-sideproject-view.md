@@ -1,7 +1,7 @@
 ---
 id: 111c
 title: Side project config 3: the view and the painter
-status: done
+status: review
 owner: claude
 depends_on: [111]
 ---
@@ -33,3 +33,4 @@ Design and Marc's answers (2026-10-29): `docs/side-project-config-design.md` (th
   - Scope: `main.ts` (1 import) and `sprite-names.ts` (3 lines) are touched beyond the issue's list. Both justified and harmless (registration cannot live in `cutscene.ts` because of the cycle; the loader must load the frame and pieces). `drawScaled` is added but unused (the author explains why); optional on the interface, harmless. No other issues, PLAN.md or docs changed. Golden frames unchanged (all tests pass).
   - **Unverified (not passed):** how it feels in the real browser game end to end on a phone; Marc's taste on the dim level (0.3) and the look (grey real bed, top-down view). That is the "Marc looks at it beside the old one on both views" part of the criterion, so his own look is still needed.
   - Minor, no action: after a failure the view re-runs `source()` and the sprite check every frame (cheap, warns once). Planner: update the `PLAN.md` table for 111c.
+- 2026-10-29 (claude, round 2 after Marc looked): merged main (111a, 111b, 091a). (1) `Look` config in `side-project-view.ts` (`backdrop`, `dim`, `lift`, `smooth`, `snap`, `wobble`, `scanline`, `speckles`, `speckle`) with four named looks in `LOOKS`: `dark` (the first version), `bright` (dim 0.12, lift 16, soft), `chunky` (pixels picked, not averaged), `cartoon` (soft, snapped to the palette, bright, pieces nudged up to 2 px). Default `LOOK = LOOKS.bright`; Marc picks. Contact sheets (old, dark, bright, chunky, cartoon, labelled) at 1x and 2x on 320 x 192: `<scratchpad>/looks-1x.png`, `looks-2x.png`, plus `figure-zoom.png`. (2) New sprite `art/src/desk-with-figure.sprite` (64x32, same as `desk`, the tiny person standing on its right end, house palette, no text), used in the hard-coded list in place of `desk`; 111d selects it with `look standing-desk desk-with-figure`. The separate `figure` op of 111b is then unnecessary for the picture (optional). `DrawOp` here got an optional `layer` (floor, wall, thing, figure) matching 111b's names so the wobble can skip floor and walls; the full op types are aligned in 111d. build, tests (155 files), check:dist pass; golden unchanged.

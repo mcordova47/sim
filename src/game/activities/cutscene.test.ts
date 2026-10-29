@@ -1,3 +1,4 @@
+import { registerComposedView } from "../../render/composed-views";
 import { describe, expect, it } from "vitest";
 import { NO_INPUT } from "../../input/controls";
 import { createActivity, validateActivity } from "../activity";
@@ -298,6 +299,21 @@ describe("goto and back", () => {
       drawn.length = 0;
       a.draw(ctx, screen);
       expect(drawn).toEqual([]);
+    });
+
+    it("asks a composed painter first (issue 111c), and falls back to the sprite when it cannot draw", () => {
+      let paints = true;
+      const windows: unknown[] = [];
+      registerComposedView("view-composed-test", { sprites: () => [], draw: (_c, _s, from) => (windows.push(from), paints) });
+      const { f, a, tick } = scene([{ view: "view-composed-test" }, { say: "Look." }]);
+      const drawn = viewHost(f);
+      tick();
+      a.draw(ctx, screen);
+      expect(drawn).toEqual([]);
+      expect(windows).toEqual([{ x: 0, y: 0, w: 320, h: 192 }]);
+      paints = false;
+      a.draw(ctx, screen);
+      expect(drawn).toEqual(["view-composed-test"]);
     });
 
     it("stops showing it when skipped with Escape, and when it ends", () => {

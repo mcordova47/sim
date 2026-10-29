@@ -23,6 +23,16 @@ export interface SpriteDrawer {
     size?: SpriteSize,
     flip?: boolean,
   ): void;
+  // Draws a sprite at `scale` (for example 0.5) with its top-left at (x, y). `smooth` averages
+  // neighbouring pixels (a softer, degraded look); off keeps them as crisp squares. Optional.
+  drawScaled?(
+    ctx: CanvasRenderingContext2D,
+    name: string,
+    x: number,
+    y: number,
+    scale: number,
+    smooth: boolean,
+  ): void;
   // Draws one window of a picture, scaled to fill `into` (a whole-number scale, so
   // the pixels stay sharp). Optional; without it a zoom shows the whole picture.
   drawRegion?(
@@ -57,6 +67,23 @@ export class Sprites implements SpriteDrawer {
     ctx.save();
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(image, from.x, from.y, from.w, from.h, 0, 0, into.width, into.height);
+    ctx.restore();
+  }
+
+  drawScaled(
+    ctx: CanvasRenderingContext2D,
+    name: string,
+    x: number,
+    y: number,
+    scale: number,
+    smooth: boolean,
+  ): void {
+    const image = this.images.get(name);
+    if (!image) return;
+    ctx.save();
+    ctx.imageSmoothingEnabled = smooth;
+    if (smooth) ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(image, x, y, image.width * scale, image.height * scale);
     ctx.restore();
   }
 

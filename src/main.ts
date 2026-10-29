@@ -11,6 +11,7 @@ import { Keyboard } from "./input/keyboard";
 import { mountTouchUi } from "./input/touch-ui";
 import { createScreen } from "./render/canvas";
 import { setTouchHints } from "./render/hints";
+import "./render/side-project-view"; // registers the composed side project picture (issue 111c)
 import { spriteNames } from "./render/sprite-names";
 import { Sprites } from "./render/sprites";
 

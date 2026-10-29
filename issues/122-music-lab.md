@@ -1,7 +1,7 @@
 ---
 id: 122
 title: A dev-only music lab (live .track editing with the real synth, intro tuning)
-status: review
+status: done
 owner: claude
 depends_on: []
 ---
@@ -34,3 +34,4 @@ Marc's requirements: edit a track as `.track` text (the make-track editor's form
   - UNVERIFIED (an agent cannot hear or use a real browser): how anything sounds, that browsers let audio start, glitches on live edits, encounter timing and ducking by ear, manual use of the page. Marc's audition steps in the log above stand; step (7) also checks the ducking returns after closing the card.
   - PLAN.md table needs updating by the planner (122 to done once Marc has listened, or as the planner decides).
 - 2026-10-29: fix for a bug Marc found: after "Write slider values into the text" the sliders snapped back to the old values, because they were redrawn from the previous parse. Now `bake()` (pure, in `lab-text.ts`) returns the new text, its parse and the remaining tweaks, and the page draws the sliders from that parse (tempo, each channel's gain in intro and loop; master stays as set). Test added in `lab-text.test.ts`. Status back to review for a re-check of this diff.
+- 2026-10-29: RE-CHECK of 6266860 (independent). Verdict: **approve**. The bake handler sets the text, `lab` and tweaks from `bake()` before `renderLevels`/`renderChannels`, so tempo, each intro/loop channel gain show the written values; master and encounter level stay as set; mutes stay checked (muted list kept, channel keys unchanged); `changed()` re-parses to the same lab. My own edge tests (outside the repo, scratchpad `zz-recheck.test.ts`, run once and removed): plain .track, missing tempo line, gain 0, CRLF text, volume-less channel, sample: values round-trip, mutes and master kept, bake is idempotent. `npx tsc --noEmit` and `npx vitest run src/lab` pass. Not done: a real-browser click on #bake (read only).

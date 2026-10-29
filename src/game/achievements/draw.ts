@@ -71,13 +71,14 @@ export const PAUSE_TOUCH = {
   buttonGap: 2,
   buttonsTop: 17,
   // The achievements: a header line with the page button, then rows. Four rows of buttons fit above
-  // them (the ad blocker, the voice, TRANSFER SAVE, SYNC, THINGS, RESET and CLOSE).
+  // them (the ad blocker, the voice, TRANSFER SAVE, SYNC, THINGS, PHOTOS, RESET and CLOSE: eight, which
+  // is the four rows there is room for).
   pageTop: 89,
   rowsTop: 102,
   rowHeight: 10,
 };
 
-export type PauseButtonId = "adBlocker" | "voice" | "transfer" | "sync" | "things" | "reset" | "close" | "yes" | "no";
+export type PauseButtonId = "adBlocker" | "voice" | "transfer" | "sync" | "things" | "photos" | "reset" | "close" | "yes" | "no";
 
 export interface PauseButton {
   id: PauseButtonId;
@@ -107,7 +108,7 @@ export function pauseButtons(view: ListView): PauseButton[] {
   const list: Array<{ id: PauseButtonId; label: string }> = [];
   if (typeof view.adBlocker === "boolean") list.push({ id: "adBlocker", label: `AD BLOCKER: ${view.adBlocker ? "ON" : "OFF"}` });
   if (view.voice) list.push({ id: "voice", label: view.voice });
-  list.push({ id: "transfer", label: "TRANSFER SAVE" }, { id: "sync", label: "SYNC" }, { id: "things", label: "THINGS" }, { id: "reset", label: "RESET PROGRESS" }, { id: "close", label: "CLOSE" });
+  list.push({ id: "transfer", label: "TRANSFER SAVE" }, { id: "sync", label: "SYNC" }, { id: "things", label: "THINGS" }, { id: "photos", label: "PHOTOS" }, { id: "reset", label: "RESET PROGRESS" }, { id: "close", label: "CLOSE" });
   return list.map((b, i) => ({ ...b, rect: at(i, T.buttonsTop) }));
 }
 
@@ -181,6 +182,7 @@ export function touchListHint(): string {
 export const TRANSFER_HINT = "T: TRANSFER SAVE";
 export const SYNC_HINT = "P: SYNC";
 export const THINGS_HINT = "I: THINGS";
+export const PHOTOS_HINT = "O: PHOTOS";
 
 export const LEGEND_TEXT = "GOOD HOUR: 1.5X POINTS";
 
@@ -219,9 +221,14 @@ export function drawList(ctx: CanvasRenderingContext2D, view: ListView): void {
   // The desktop's way into the transfer page, in the free line above the footer when the list leaves it free.
   const rowsBottom = LIST_LAYOUT.top + Math.ceil(view.achievements.length / LIST_LAYOUT.columns) * LIST_LAYOUT.rowHeight;
   if (!view.touch && rowsBottom <= LIST_LAYOUT.footerTop - 9) {
-    drawText(ctx, TRANSFER_HINT, VIEW.width - 6, LIST_LAYOUT.footerTop - 9, { color: COLOR.mist, shadow: null, align: "right" });
-    drawText(ctx, SYNC_HINT, 6, LIST_LAYOUT.footerTop - 9, { color: COLOR.mist, shadow: null });
-    drawText(ctx, THINGS_HINT, VIEW.width / 2, LIST_LAYOUT.footerTop - 9, { color: COLOR.mist, shadow: null, align: "center" });
+    // Four hints spread across the line, the first at the left edge and the last at the right.
+    const hints = [SYNC_HINT, THINGS_HINT, PHOTOS_HINT, TRANSFER_HINT];
+    const gap = (VIEW.width - 12 - hints.reduce((sum, h) => sum + textWidth(h), 0)) / (hints.length - 1);
+    let x = 6;
+    for (const h of hints) {
+      drawText(ctx, h, Math.round(x), LIST_LAYOUT.footerTop - 9, { color: COLOR.mist, shadow: null });
+      x += textWidth(h) + gap;
+    }
   }
 
   const picked = view.achievements[view.cursor];

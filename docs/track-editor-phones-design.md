@@ -142,7 +142,7 @@ Docs: update `docs/make-tracks.md` (a "On phones" section) and `docs/mobile.md` 
    - A (recommended): 6 rows, try it on the phone, drop to 5 only if you miss.
    - B: 5 rows from the start.
    - C: 4 rows of 26 (43 CSS px), the full tap-size rule, but a lot of scrolling.
-2. **Which commands deserve a top-level button?** I put Play, Save, Length and More; the rest are in the menu.
+2. **Which commands deserve a top-level button? ANSWERED by Marc 2026-10-28: (a) Play, Save, Length, More.** I put Play, Save, Length and More; the rest are in the menu.
    - A (recommended): Play, Save, Length, More.
    - B: Play, Save, Undo, More (Length in the menu, used less).
    - C: put tempo and name in the menu too, and give the screen a taller grid.

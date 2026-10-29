@@ -372,3 +372,13 @@ The entry also shows the where-now line (the slot's "where" text, or IN THE INVE
 - STARRY NIGHT: A NIGHT SKY. IT IS QUITE BUSY UP THERE.
 - WATER LILIES: LILIES ON WATER. VERY RESTFUL.
 - SUNFLOWERS: SUNFLOWERS IN A VASE. THEY ARE HOLDING UP.
+
+## PHOTOS page: gallery and delete one (issue 117c)
+New lines on the PHOTOS page's grid and close-up. None mentions resolution, size or pixels. Wired in `src/game/achievements/photos-draw.ts` and `feature.ts`. Marc to mark: keep / soften / rewrite.
+- After a delete: Picture deleted. The original was never here.
+- A delete that failed: This browser could not remove it.
+- Page number (top right, only with more than one page): PAGE 2 OF 10
+- Grid buttons: OPEN (new, beside ADD PHOTOS, REMOVE ALL, BACK)
+- Close-up buttons (touch): DELETE / SURE? DELETE (turns orange after the first tap) / BACK, and < > for the other pictures
+- Close-up keys line (keyboard): DEL: DELETE  < >: OTHERS  ESC: BACK
+- Close-up question (keyboard): DEL: SURE? DELETE  OTHER KEY: CANCEL

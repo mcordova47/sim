@@ -5,26 +5,26 @@ Status: design only, nothing is built. Read first: `docs/real-world.md` section 
 ## 1. Summary
 Pictures from Marc's device are chosen **once**, on a **PHOTOS page of the pause screen**, made tiny and palette-only the moment they are chosen, and kept in IndexedDB. The big originals are never stored, nothing is uploaded, nothing is in the repo, the bundle or the sync blob. In the world, a new sofa task **"Scroll through photos"** (only present once there are pictures) shows them as a slow slideshow on a phone-screen panel, with now and then a deadpan line. No photos means no change to the game at all.
 
-**Recommendation in two lines:** pixelate to at most 64 x 48 (or 48 x 64) with the game's own 22 colours and a light ordered dither, add them on a pause-screen page (the picker clunk happens once, in the "device stuff" corner), and show them through a sofa task, not a new object. Build in five small stages, the first two with no UI at all.
+**Recommendation in two lines:** pixelate to 48 x 36 (or 36 x 48) with the game's own 22 colours and a light ordered dither, add them on a pause-screen page (the picker clunk happens once, in the "device stuff" corner), and show them through a sofa task, not a new object. Build in five small stages, the first two with no UI at all.
 
 ## 2. Pixelate: the look at game scale
-The view is 320 x 192 (desktop) or 224 x 208 (phone), one tile 16 px. A stored picture of **64 x 48** shown at **2x** is 128 x 96 on screen: four tiles by three, a good "phone screen" size on both views, and every source pixel stays a crisp 2 x 2 block. (Portrait pictures are 48 x 64, shown 96 x 128, which fits the 192 and 208 heights.)
+The view is 320 x 192 (desktop) or 224 x 208 (phone), one tile 16 px. A stored picture of **48 x 36** (Marc's pick, 2026-10-28, after trying `art/tools/pixel-looks.html`) shown at **3x** is 144 x 108 on screen, and every source pixel stays a crisp 3 x 3 block. (Portrait pictures are 36 x 48, shown 108 x 144, which fits the 192 and 208 heights.) The earlier 64 x 48 at 2x proposal is superseded; the look is the full 22 colours with a Bayer 4x4 dither at strength 20 (the tool's slider, 0 to 100).
 
 `pixelate(rgba, width, height, opts) -> { w, h, px }` is a **pure function** in `src/game/reel/pixelate.ts` (no canvas, no DOM; it takes `Uint8ClampedArray` pixels, so tests run in plain node). Steps:
 1. **Crop** the centre to 4:3 if the source is landscape or square-ish, 3:4 if portrait (decided: a fixed pair of shapes keeps the slideshow layout simple; no letterbox bars). Crop is centred, and faces are not detected (no ML, no library).
-2. **Shrink by box average** to 64 x 48 (the mean of every source pixel that lands in a cell). Box averaging, not the canvas's smoothing, so the result is the same in every browser and testable.
+2. **Shrink by box average** to 48 x 36 (the mean of every source pixel that lands in a cell). Box averaging, not the canvas's smoothing, so the result is the same in every browser and testable.
 3. **Auto-levels**: stretch the 2nd to 98th percentile of brightness to the full range (a phone photo is rarely contrasty enough for 22 colours; this is what makes it read as a picture rather than mud).
 4. **Map to the palette** with a 4 x 4 **Bayer ordered dither** at low strength, nearest colour by a weighted RGB distance ("redmean", cheap and close enough to look right). Output is **one palette index per pixel** (`Uint8Array`, 0 to 21), not colours.
 5. Colours come from `art/palette.json` through a tiny accessor next to `colors.ts`, so a palette change changes the look and the stored indices stay valid as long as the order of the file is kept (a reorder or a removed colour is a stored-data break: `px` is stored with a `palette` version number, and a mismatch just re-renders as best it can, or the page offers REMOVE ALL; it is a stated limit).
 
 **Why the full 22 colours, not a 4-tone ramp:** it is the game's own look and costs nothing. **Known weakness:** the palette is warm-brown heavy with few skin tones (`tan`, `cream`, `blush`), so skin may go orange-grey; Stage 5 is a tuning pass on a real device (dither strength, a possible `contrast` step) before anything is called done. Flat (no dither) is the fallback look if the dither is noisy; see question 2.
 
-**Size on disk:** 64 x 48 = 3,072 bytes per picture as one byte per pixel (a 5-bit pack would be 1.9 KB; not worth the code). A hundred pictures is about 300 KB.
+**Size on disk:** 48 x 36 = 1,728 bytes per picture as one byte per pixel (not worth packing). Sixty pictures is about 104 KB.
 
 ## 3. Storage and limits
 - **IndexedDB** database `life.reel.v1`, one store `pics` (key: auto id), record `{ id, w, h, px, palette: 1 }`. No timestamp, no file name, no EXIF (all dropped at decode, so no date, place or camera ever exists in the record).
 - `ReelStore` is a small **interface** (`list`, `add`, `remove`, `clear`) with two implementations: IndexedDB (browser) and in-memory (tests and when IndexedDB is missing). Tests never need a fake-IndexedDB package (no new dependency).
-- **Cap: 60 pictures** (decided: enough for a quiet slideshow, under 200 KB, and a number a person can curate). Choosing more than room allows adds the first that fit, and the page says so in one line.
+- **Cap: 60 pictures** (decided: enough for a quiet slideshow, about 104 KB, and a number a person can curate). Choosing more than room allows adds the first that fit, and the page says so in one line.
 - **Duplicates:** a picture whose `px` equals one already stored is skipped (cheap hash), so choosing the same batch twice does nothing.
 - **Not synced, by design:** the sync document (`docs/sync.md` section 2) is built from `life.progress.v1` and `life.tracks.v1` only; `life.reel.v1` is never read by it. A test asserts the sync document has no reel field. Safari clearing site data (about seven days away, `docs/mobile.md` section 5) removes the pictures; the world then simply has none, and the PHOTOS page is where they are added again. `navigator.storage.persist()` is requested best effort after the first add (whether Safari grants it is **unverified**).
 - **No IndexedDB** (private window, blocked data): the page says "This browser will not keep pictures." and the task never appears.
@@ -47,7 +47,7 @@ The pause screen (key L, or the touch menu button) already has SYNC. **PHOTOS** 
 
 ## 6. In the room: where, and what triggers it
 **Decided: no new object.** A new sofa task, **"Scroll through photos"**, next to Doomscroll (`tasks.ts` line 77; Doomscroll already sits on the sofa and uses the phone). It is **present only while the store has at least one picture** (with none, the task list is exactly today's, so the game is unchanged; the room golden test must still pass).
-- It is a free-form activity, `ReelActivity` in `src/game/activities/reel.ts`, modelled on `make-track.ts`: `cancellable`, `readsKeys`, no time pressure. It shows a phone-screen panel (a `paper` bezel, the picture at 2x, one caption row) over the room, advances itself every **4 seconds**, and **Right / tap** goes to the next one early. Escape (or tap outside) leaves. It finishes by itself after the pictures run out of one pass of up to 6 (decided: a session is short and ends).
+- It is a free-form activity, `ReelActivity` in `src/game/activities/reel.ts`, modelled on `make-track.ts`: `cancellable`, `readsKeys`, no time pressure. It shows a phone-screen panel (a `paper` bezel, the picture at 3x, one caption row) over the room, advances itself every **4 seconds**, and **Right / tap** goes to the next one early. Escape (or tap outside) leaves. It finishes by itself after the pictures run out of one pass of up to 6 (decided: a session is short and ends).
 - **Order:** shuffled, no repeats within a pass, using the game's existing random source so tests can fix it.
 - **Pays:** a small fixed number of points (5), no mood change, no cooldown beyond the usual (decided: it is a quiet extra; nothing to collect, no streak, no count). It is not an achievement source.
 - **Open item for Stage 4 to confirm in code:** how a task is made conditional on state. I did not read that mechanism closely (`tasks.ts` has conditions such as the sofa-only rule at line 302 and state-variable availability); if there is no clean hook, the one-line fallback is a derived state variable `hasPhotos` set at load from the store, which is how `guitarOut` already works.
@@ -56,22 +56,15 @@ The pause screen (key L, or the touch menu button) already has SYNC. **PHOTOS** 
 ## 7. The deadpan text
 Rules: short, no pressure, no mention of Marc's actual pictures (the game never knows what is in them). Texts go through the usual text review. Proposed:
 - **On the sofa task prompt:** "Scroll through photos".
-- **Caption pool** (one shown now and then, never on every picture; the pool is generic and fixed):
-  - "You look at the pictures. They are low resolution, which seems fair."
-  - "The photo looks the way you remember it, but squarer."
-  - "You were there. Now it is a small grid."
-  - "You zoom in. There is nothing more in there."
-  - "You almost recognize the room."
-  - "A person is in this one. About eleven pixels."
-  - "Nice light, as far as you can tell."
-- **PHOTOS page:** "Pick some pictures. They will be made small and kept on this device. The big ones are not kept." / "Nothing leaves this device." / progress "Making picture 3 of 12" / done "12 pictures added. They look about right." / skipped "2 could not be read." / over the cap "Room for 60. The rest stayed where they were." / none stored "No pictures yet. The sofa has nothing to scroll."
-- **Remove all:** button "REMOVE ALL", confirm "SURE? REMOVE ALL", result "The pictures are gone. The big ones were never here."
+- **Caption (Marc: one fixed line per session; never about resolution, size or pixels):** one line is chosen when the sofa task starts and stays the same for that session, shown once under the first picture. Candidates, for the text review (pick a few for the pool): "You look at the pictures." / "You were there for most of these." / "You almost recognize the room." / "Nice light." / "You scroll for a while, because why not."
+- **PHOTOS page:** "Pick some pictures. They will be kept on this device. The originals are not kept." / "Nothing leaves this device." / progress "Making picture 3 of 12" / done "12 pictures added." / skipped "2 could not be read." / over the cap "Room for 60. The rest stayed where they were." / none stored "No pictures yet. The sofa has nothing to scroll."
+- **Remove all:** button "REMOVE ALL", confirm "SURE? REMOVE ALL", result "The pictures are gone. The originals were never here."
 
 ## 8. Remove all
 `ReelStore.clear()` deletes every record (and the database is dropped if possible). It runs only from the confirmed second tap, shows the result line, and the sofa task disappears at once (the task list re-reads the store). A test checks the store is empty afterwards and the task is gone. There is no undo (decided: it is the point; the originals are on the phone anyway).
 
 ## 9. Tests
-- `pixelate.test.ts` (pure, node): output size is 64 x 48 landscape and 48 x 64 portrait; square input is landscape; a flat colour gives one index everywhere; every index is in 0..21 and maps to a palette colour; same input gives the same output (deterministic); a black-and-white gradient is monotonic left to right; the dither does not turn a flat mid-grey into noise worse than two adjacent colours; auto-levels leaves a full-range image alone; a source smaller than the target is handled (no crash, no divide by zero); crop is centred (a marker in the centre survives, one at the edge is cut).
+- `pixelate.test.ts` (pure, node): output size is 48 x 36 landscape and 36 x 48 portrait; square input is landscape; a flat colour gives one index everywhere; every index is in 0..21 and maps to a palette colour; same input gives the same output (deterministic); a black-and-white gradient is monotonic left to right; the dither does not turn a flat mid-grey into noise worse than two adjacent colours; auto-levels leaves a full-range image alone; a source smaller than the target is handled (no crash, no divide by zero); crop is centred (a marker in the centre survives, one at the edge is cut).
 - `reel-store.test.ts`: add, list order, remove, clear, cap of 60 with the "first that fit" rule, duplicate skipped; the IndexedDB implementation is tested against the same cases through a thin adapter fake (no dependency).
 - `photo-add.test.ts`: the add flow with a fake `PhotoIO` and a fake decoder: many files, one undecodable (skipped and counted), over the cap, cancel (null), and **nothing but pixelated indices ever reaches the store** (the fake decoder's raw bytes are not found in any stored record).
 - `photos-page.test.ts` / `photos-draw.test.ts`: the buttons drawn are the buttons tapped; the two-tap REMOVE ALL (first tap arms, Escape disarms, second tap clears); the page is unreachable during a task.
@@ -92,7 +85,7 @@ A and B are independent; C needs both; D needs B (and A through C's content). Ea
 
 ## 11. Risks
 - **The picker still feels clunky on iPhone** (the issue's worry). Mitigation: it happens once, in a pause page; if it still annoys, the fallback is nothing worse than "not worth it", and the code is easy to delete (one feature folder).
-- **Faces look bad at 64 x 48 in 22 colours.** Mitigation: Stage 5 tuning and the flat fallback; the stored `px` cannot be re-rendered with a different look (originals are not kept), so a look change means re-adding. Stated limit, and the price of "originals are never stored".
+- **Faces look bad at 48 x 36 in 22 colours.** Mitigation: Stage 5 tuning and the flat fallback; the stored `px` cannot be re-rendered with a different look (originals are not kept), so a look change means re-adding. Stated limit, and the price of "originals are never stored".
 - **Pictures vanish when Safari clears storage.** Accepted; re-adding is one page.
 - **Memory and time on big batches** on an old phone. Mitigation: one file at a time, small decode via `resizeWidth`, progress line.
 - **HEIC, EXIF rotation and multi-select behaviour on iOS are unverified** from here. Mitigation: skipped-and-counted, and the Stage 5 hand check.
@@ -100,7 +93,7 @@ A and B are independent; C needs both; D needs B (and A through C's content). Ea
 - **Task availability hook** (section 6) may need a derived variable. Small.
 
 ## 12. What I decided myself, and why
-- 64 x 48 / 48 x 64, shown at 2x, centre-cropped: the phone-screen size that fits both views.
+- 48 x 36 / 36 x 48, shown at 3x, centre-cropped (Marc's pick, replacing 64 x 48).
 - Box-average shrink, auto-levels, Bayer dither, nearest-palette in redmean: deterministic, pure, no library.
 - Stored as palette indices, no metadata: tiny, and nothing personal can be in a record.
 - Cap 60; dedupe by pixels; reset does not remove photos; photos never sync.
@@ -115,4 +108,4 @@ A and B are independent; C needs both; D needs B (and A through C's content). Ea
 2. **What look? ANSWERED by Marc 2026-10-28: full 22 colours, light dither (strength 20), stored size 48 x 36 (portrait 36 x 48) instead of 64 x 48, after trying art/tools/pixel-looks.html.** Recommend **the full 22 colours with a light dither**. Options: (a) that [recommended]; (b) 22 colours, flat (no dither), cleaner and more "pixel art"; (c) a 4-tone single-hue ramp (very Game Boy, loses all colour). Stage 5 can still tune either of the first two on his phone.
 3. **How many pictures? ANSWERED by Marc 2026-10-28: (a) 60.** Recommend **a cap of 60**. Options: (a) 60 [recommended]; (b) 24, a very curated reel; (c) 150, about 450 KB.
 4. **Does a reset take the photos with it? ANSWERED by Marc 2026-10-28: (a) no, REMOVE ALL is separate.** Recommend **no**, REMOVE ALL is separate. Options: (a) no [recommended]; (b) yes, RESET PROGRESS wipes everything on this device.
-5. **Captions?** Recommend **a generic pool shown now and then** (section 7). Options: (a) that [recommended]; (b) none, just the pictures; (c) one fixed line per session.
+5. **Captions? ANSWERED by Marc 2026-10-28: (c) one fixed line per session, and no line may mention the pictures being low resolution, small or pixelated.** Recommend **a generic pool shown now and then** (section 7). Options: (a) that [recommended]; (b) none, just the pictures; (c) one fixed line per session.

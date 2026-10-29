@@ -111,7 +111,7 @@ A and B are independent; C needs both; D needs B (and A through C's content). Ea
 - No HEIC library: rely on the browser's conversion; skip what cannot be read.
 
 ## 13. Open questions for Marc (most important first)
-1. **Where does the reel play?** Recommend **the sofa task "Scroll through photos"** (no art, nothing present without photos). Options: (a) sofa task [recommended]; (b) the laptop at the desk (but that is the track editor's place); (c) a framed picture on a wall that cycles (needs a sprite and a slot, and reads as decor you can see without acting).
+1. **Where does the reel play? ANSWERED by Marc 2026-10-28: (a) the sofa task.** Recommend **the sofa task "Scroll through photos"** (no art, nothing present without photos). Options: (a) sofa task [recommended]; (b) the laptop at the desk (but that is the track editor's place); (c) a framed picture on a wall that cycles (needs a sprite and a slot, and reads as decor you can see without acting).
 2. **What look?** Recommend **the full 22 colours with a light dither**. Options: (a) that [recommended]; (b) 22 colours, flat (no dither), cleaner and more "pixel art"; (c) a 4-tone single-hue ramp (very Game Boy, loses all colour). Stage 5 can still tune either of the first two on his phone.
 3. **How many pictures?** Recommend **a cap of 60**. Options: (a) 60 [recommended]; (b) 24, a very curated reel; (c) 150, about 450 KB.
 4. **Does a reset take the photos with it?** Recommend **no**, REMOVE ALL is separate. Options: (a) no [recommended]; (b) yes, RESET PROGRESS wipes everything on this device.

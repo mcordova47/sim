@@ -1,7 +1,7 @@
 ---
 id: 113
 title: Photo reel: pixelated pictures from your own device (experiment)
-status: todo
+status: done
 owner: marc + claude
 depends_on: [112]
 ---
@@ -24,3 +24,4 @@ Marc (2026-10-28): try the photo reel first, as an experiment, to see how it fee
 
 ## Progress log
 - 2026-10-28: Design written: `docs/photo-reel-design.md` (summary, pixelate and look, storage, iPhone flow, pause page, in-world viewer, text, remove all, tests, stages 113a to 113e, 5 open questions). Status unchanged.
+- 2026-10-28 (planner): Marc answered all five questions; build issues 113a to 113e filed.

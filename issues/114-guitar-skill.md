@@ -22,6 +22,8 @@ Marc (2026-10-28): layer in progression after the timbre (108). A new **"guitar 
 ## Acceptance criteria
 - A short design agreed with Marc, then small build issues filed.
 
+- **Timing game, guitar-hero or DDR style** (Marc, 2026-10-28, for a future issue): the melody note must be pressed at the right moment. Needs no scrolling lane if that is hard; it only has to tell the player (a) which key they will press and (b) when. The level 6 groove already has fixed rest slots (about every 0.52 s), so the "when" is known in advance; cues could be a quiet flash or tick on the approaching slot and the arrow icon shown early, and the snap window (0.12 s) is the natural hit window. Open questions for the design: does a miss sound messed up (see the wrong-key idea), does it cost anything (zen-garden rule says no pressure), and is it a separate mode or what level 6 becomes.
+
 ## Progress log
 - 2026-10-28: design written in `docs/guitar-skill-design.md` (branch `issue/114-design`): skill derived from `stats.taskCounts.guitar` (no new save field, sync merge already max), four levels as data, pure `key -> timed notes` functions, a groove scheduler on the music bus, staged plan 114a to 114g, 5 open questions for Marc. Status unchanged (todo).
 

@@ -1,7 +1,7 @@
 ---
 id: 117d
 title: Photo gallery 4: the LOOK switch
-status: review
+status: done
 owner: claude
 depends_on: [117a, 117c]
 ---
@@ -36,3 +36,12 @@ Design and Marc's answers (2026-10-29): `docs/photo-gallery-design.md` (shared 3
     - [ ] Narrow views: do not take a message row for the note when a message is showing (for example drop the note while a message is up, as the wide views do), so the 3-row message capacity of main is kept.
     - [ ] Add a test that fails on this: the number of message lines shown for the 3-line example is at least what main shows, in all four view/input cases.
 - 2026-10-29 (claude): Round 2, review checklist done. (x) Wide keyboard: LOOK moved to the title row beside PHOTOS (as on wide touch), so the keys line is as on main and messages have their 2 rows again. (x) Narrow views: the note is dropped while a message shows, so messages have 3 rows again; with no message the status has 2 rows and the note the third. (x) New test: a 5-line message shows 2 rows (wide keyboard), 1 (wide touch), 3 (narrow), and never overlaps the note, in all four view/input cases. `npm test` 3487 pass, `npx tsc --noEmit`, `npm run build`, `npm run check:dist` pass; re-rendered the wide keyboard and narrow views at 1x with a message and looked. Still unchecked: real browser or phone, real storage, presets on real pictures, wording.
+- 2026-10-29 (claude, independent review, round 2, fresh reviewer): Verdict: APPROVE.
+  - Ran `npm test` (155 files, 3487 pass), `npx tsc --noEmit`, `npm run build`, `npm run check:dist`: all clean. Scope: issue file, `feature.ts`, `photos-draw.ts`, `looks.ts`, the new test, `docs/text-review.md` only; no PLAN.md, no other issues, nothing from reference-photos, no photo content in the diff.
+  - Round 1 fixes verified by my own checks (outside the repo, synthetic pictures): a capacity comparison against main's own `photosLayout` (main checkout loaded side by side) over 4 view/input cases x 1/7/13 pictures x 1 to 6 message lines x armed x progress: the branch never shows fewer status/message lines than main, and the message and status text is identical to main's in every case (0 differences). So the 3-line add summary is cut off exactly as on main, not worse (wide keyboard 2 rows, wide touch 1, narrow 3). A 1441-case sweep (4 cases x 0/1/6/7/13/60 pictures x 5 message sets x armed x 3 looks x progress): every button, cell, text line, note, title and page label is inside the view with no overlaps; LOOK present whenever not busy; LOOK is 16 px high on touch (093 size kept), also in the wide title row beside the page label and the page arrows.
+  - Rendered all four view/input cases at 1x (grid, message, armed, empty) and looked: wide keyboard (LOOK in the title row, keys line as on main), wide touch (LOOK in the title row, note at the right of the status row), narrow touch (buttons 2 x 3, note under status when no message) and narrow keyboard (note above the key list) all read cleanly.
+  - Key and tap routing, persistence in a new session, junk in the key, blocked storage (message, held for the session), reset/REMOVE ALL/save/sync document untouched, portrait twin sizes, kept pictures untouched, S cancelling a REMOVE ALL question, close-up/busy/no-storage ignoring S: read in the author's tests and found sound; existing PHOTOS tests (manage, page) still pass.
+  - Criteria: Defaults to Soft: pass. Chosen look kept across reloads: pass (in-memory storage; real localStorage can't verify). Untouched by reset: pass. New uploads use it, old keep theirs: pass. The checks above pass: pass. Independent review: this entry and round 1.
+  - Minor, not blocking: the "New pictures only." note is dropped while a message shows (design choice, keeps main's message capacity).
+  - Unverified: feel in a real browser or on a phone, real localStorage and IndexedDB behaviour, how each preset looks on real pictures (117g), the wording of the new lines (placeholders in `docs/text-review.md`).
+  - PLAN.md table needs updating by the planner (117d done).

@@ -127,7 +127,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 089 | [Flashcards guest mode: study without a sync key (build)](issues/089-flashcards-guest-mode-build.md) | claude | done | 083, 082 |
 | 090 | [Mobile: a taller, squarer picture that scrolls (assess, then prototype)](issues/090-mobile-narrow-view.md) | claude | done | 087 |
 | 091 | [Encounter music: a short battle-style track during an ad, and a result jingle](issues/091-encounter-music.md) | marc + claude | design done, build issues filed | 080 |
-| 091a | [Encounter music 1: bus, scene, placeholder track](issues/091a-encounter-bus-scene.md) | claude | todo | 091 |
+| 091a | [Encounter music 1: bus, scene, placeholder track](issues/091a-encounter-bus-scene.md) | claude | done | 091 |
 | 091b | [Encounter music 2: result jingles (success only)](issues/091b-encounter-jingles.md) | claude | todo | 091a |
 | 091c | [Encounter music 3: docs and tuning](issues/091c-encounter-docs.md) | claude | todo | 091b |
 | 091d | [Encounter music 4: Marc writes the real track](issues/091d-encounter-real-track.md) | marc | todo | 091a |
@@ -159,8 +159,8 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 109c | [Inventory 3: seen silhouettes](issues/109c-inventory-silhouettes.md) | claude | todo | 109b |
 | 110 | [A manual deploy button on GitHub](issues/110-manual-deploy-action.md) | claude | review | |
 | 111 | [The side project picture reacts to editable config (stretch)](issues/111-side-project-config.md) | marc + claude | done | 101 |
-| 111a | [Side project config 1: the parser and command set](issues/111a-sideproject-parser.md) | claude | todo | 111 |
-| 111b | [Side project config 2: compose the little room from the real one](issues/111b-sideproject-compose.md) | claude | todo | 111 |
+| 111a | [Side project config 1: the parser and command set](issues/111a-sideproject-parser.md) | claude | done | 111 |
+| 111b | [Side project config 2: compose the little room from the real one](issues/111b-sideproject-compose.md) | claude | done | 111 |
 | 111c | [Side project config 3: the view and the painter](issues/111c-sideproject-view.md) | claude | todo | 111 |
 | 111d | [Side project config 4: the real config file and the figure](issues/111d-sideproject-room.md) | claude | todo | 111a, 111b, 111c |
 | 111e | [Side project config 5: `when` conditions](issues/111e-sideproject-when.md) | claude | todo | 111d |

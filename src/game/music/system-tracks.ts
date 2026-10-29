@@ -26,3 +26,6 @@ export const SYSTEM_TRACKS: Record<string, Track> = loadSystemTracks(FILES, (e) 
 
 // The sleep sequence's lullaby (null if its file is missing or broken: the sequence is silent then).
 export const SLEEP_LULLABY: Track | null = SYSTEM_TRACKS["sleep-lullaby"] ?? null;
+
+// The ad encounter's battle loop (issue 091a; null if its file is missing or broken: the encounter is silent then).
+export const ENCOUNTER_BATTLE: Track | null = SYSTEM_TRACKS["encounter-battle"] ?? null;

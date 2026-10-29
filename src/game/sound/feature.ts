@@ -428,6 +428,7 @@ export class SoundFeature implements Layer {
     if (this.grooving && !this.auditioning && (this.game.interaction.active?.item.activity?.type !== "notes" || this.game.paused)) this.stopGroove();
     this.engine.update();
     this.engine.updateSleep(this.game.sleepScene);
+    this.engine.updateEncounter(this.game.encounterScene);
     if (this.demos.version !== this.demoVersion) this.syncDemos();
     this.blips();
     this.liftMood(dt);

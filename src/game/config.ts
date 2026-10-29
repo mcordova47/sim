@@ -907,8 +907,8 @@ export const GUITAR_SKILL = {
   ] as { id: "notes" | "chords" | "sevenths" | "open" | "jazz" | "groove"; from: number; name: string; chords?: GuitarChordSet }[],
   // The plain chords by name (for the groove's progression, issue 114b, and the pattern strums).
   chords: Object.fromEntries(Object.values(SIMPLE).map((c) => [c.name, { root: c.root, voicing: c.voicing }])) as Record<string, { root: number; voicing: number[] }>,
-  tempo: 92, // beats per minute; a slot of a strum is an eighth
-  swing: 0.1, // the off-eighths come this fraction of an eighth late (0 is straight)
+  tempo: 116, // beats per minute (only the dropped pattern strums use it; the groove has `pluckBpm`)
+  swing: 0.04, // (only the dropped pattern strums use it; the groove has its own `swing`)
   humanise: { time: 0.008, gain: 0.08 }, // up to this many seconds and this fraction, seeded
   // One press is one stroke, and nothing plays after it (rhythm is the player's). Strokes
   // alternate down and up from level 2. Seconds between strings (the pick hitting each in turn),
@@ -933,6 +933,56 @@ export const GUITAR_SKILL = {
   up: { strings: 3, gain: 0.75, spacing: 0.018 },
   down: { spacing: 0.03 },
   chopGain: 1,
+  // The groove (level 6, issue 114b): a Travis-style fingerpicking loop on the music bus, under the
+  // arrows' melody. Every pluck is one beat (`pluckBpm`, plucks a minute). The loop is a cycle of four
+  // plucks: three background plucks and one that is a rest, where the player's arrow plays the melody
+  // note instead (nothing plays there if no key is pressed). `cycle` lists the cycles' shapes, one
+  // character a pluck, repeating one after another; `cyclesPerBar` cycles make a bar, one chord per
+  // bar. The characters are string roles, as a fingerstyle player thinks of them (never a run
+  // straight up the strings): "r" the thumb on the chord's bass-root string, "a" the thumb on its
+  // alternate bass string (the fifth), "m" a finger on a mid string, "i" a finger on a high string,
+  // "h" the rest left for the melody. Which string each role is, per chord, is in `voicings`
+  // (strings numbered 6 low E to 1 high E, semitones from A4, as in an open-position chord; a role
+  // whose string a chord lacks takes the nearest string it has). Swing and humanise are small. The
+  // melody is never delayed except by the optional `snap`: an arrow pressed within `snap.window`
+  // seconds before an "h" slot is played on that slot instead, so it lands in the pattern (the slot
+  // differs by cycle shape). The melody plays an arrow's interval above the chord's root
+  // (`melody[chord]`, in the order left, right, up, down: root, third, fifth, a sixth or seventh), so
+  // it is always a note of the chord sounding now and in A major.
+  groove: {
+    progression: ["A", "E", "F#m", "D"],
+    pluckBpm: 460,
+    // Cycle A (classic): thumb root, a mid string, thumb alternate, then the melody. Cycle B (inverted):
+    // thumb root, the melody on the second pluck, thumb alternate, a mid string. By string (low 6): 5 3 4 [h], then 5 [h] 4 3.
+    cycle: ["rmah", "rham"],
+    // The strings of the open chords (6 low E ... 1 high E; semitones from A4). `root` and `alt` are the
+    // bass strings (the lowest three: 6, 5, 4); `mid` and `high` the strings the "m" and "i" roles take.
+    voicings: {
+      A: { strings: { 5: -24, 4: -17, 3: -12, 2: -8, 1: -5 }, root: 5, alt: 4, mid: 3, high: 2 }, // x02220
+      E: { strings: { 6: -29, 5: -22, 4: -17, 3: -13, 2: -10, 1: -5 }, root: 6, alt: 5, mid: 3, high: 2 }, // 022100
+      "F#m": { strings: { 6: -27, 5: -20, 4: -15, 3: -12, 2: -8, 1: -3 }, root: 6, alt: 5, mid: 3, high: 2 }, // 244222 (barre)
+      D: { strings: { 5: -24, 4: -19, 3: -12, 2: -7, 1: -3 }, root: 4, alt: 5, mid: 3, high: 2 }, // xx0232 (no 6th string; the alternate bass is the open A under it)
+    } as Record<string, { strings: Record<number, number>; root: number; alt: number; mid: number; high: number }>,
+    cyclesPerBar: 4,
+    swing: 0.01, // the odd plucks come this fraction of a pluck late
+    bassGain: 1,
+    harmonyGain: 0.7,
+    accent: 1.15, // the first slot of a bar
+    melodyGain: 0.6, // the arrows' notes next to the pattern, before the tilt (1, then 0.7, before Marc found it high)
+    // Higher notes sound louder at the same level, so the loop's mid notes and the melody are turned down
+    // by `dbPerOctave` for each octave above `reference` (semitones from A4; -24 is the low A, the bass
+    // range). The bass strings sit at or near it and are barely touched. 0 turns the tilt off (`?guitartilt=0`
+    // in the dev server tries other values).
+    pitchTilt: { dbPerOctave: 5, reference: -24 },
+    snap: { enabled: true, window: 0.12 },
+    gain: 0.55, // all of it, next to the melody
+    leadIn: 0.05, // seconds from the first press to the first slot
+    melodyOctave: 24, // semitones above the chord's root
+    melody: { A: [0, 4, 7, 9], D: [0, 4, 7, 9], E: [0, 4, 7, 9], "F#m": [0, 3, 7, 10] } as Record<string, number[]>,
+    // The record is turned down to this fraction while the groove plays, over `duckFade` seconds.
+    duck: 1 / 3,
+    duckFade: 0.5,
+  },
 };
 
 export const SOUND = {

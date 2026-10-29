@@ -1,4 +1,4 @@
-import { MUSIC } from "../config";
+import { GUITAR_SKILL, MUSIC } from "../config";
 import type { Track, TrackNote } from "../music/track";
 import type { Bus, Synth } from "./synth";
 
@@ -31,6 +31,11 @@ export class MusicPlayer {
   private origin: number | null = null;
   // A track waiting for the end of the loop that is playing (see `swap`).
   private pending: Track | null = null;
+  // The record's level while a guitar groove plays (1 is as written): `duck` is where it is going
+  // and `level` where it is now, moving by `duckFade` seconds for the whole way (issue 114b).
+  duck = 1;
+  private level = 1;
+  private levelAt: number | null = null;
 
   // `bus` is where the notes go: the record player's is "music"; the sleep
   // lullaby's player uses "sleep".
@@ -62,6 +67,7 @@ export class MusicPlayer {
   }
 
   update(synth: Synth | null): void {
+    if (synth) this.fade(synth.now);
     const track = this.current;
     if (!track || !synth || this.events.length === 0) return;
     const now = synth.now;
@@ -99,8 +105,20 @@ export class MusicPlayer {
     }
   }
 
+  // How far the record is turned down now (1 is not at all).
+  get ducked(): number {
+    return this.level;
+  }
+
+  private fade(now: number): void {
+    const dt = this.levelAt === null ? 0 : Math.max(0, now - this.levelAt);
+    this.levelAt = now;
+    const step = dt / Math.max(0.001, GUITAR_SKILL.groove.duckFade);
+    this.level = this.level < this.duck ? Math.min(this.duck, this.level + step) : Math.max(this.duck, this.level - step);
+  }
+
   private sound(synth: Synth, e: Event, time: number, seconds: number): void {
-    const gain = MUSIC.noteGain * e.volume;
+    const gain = MUSIC.noteGain * e.volume * this.level;
     if (e.note.drum) {
       for (const voice of MUSIC.drums[e.note.drum] ?? []) synth.voice(voice, time, { gain: gain * 0.6 }, this.bus);
       return;

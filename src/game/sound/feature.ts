@@ -12,7 +12,7 @@ import type { Track } from "../music/track";
 import { browserAudio, type AudioFactory } from "./audio-types";
 import { MoodLift, comboPitch, floorOf, guitarEffect, noteKeyDir, stepEffect, stepGain, stepPitch } from "./decisions";
 import { SoundEngine } from "./engine";
-import { playKey, skillLevel, strokeEvents, type Dir, type Level, type Stroke } from "./guitar-skill";
+import { melodyNote, playKey, tiltGain, skillLevel, strokeEvents, type Dir, type Level, type Stroke } from "./guitar-skill";
 import { mumbleNotes } from "../flashcards/mumble";
 import { DEFAULT_SETTINGS, SettingsStore, type DialogVoice } from "./settings";
 
@@ -50,10 +50,14 @@ export interface SoundOptions {
   // How many guitar sessions have been finished (issue 114a); the skill level follows it.
   // Without it the guitar stays at level 1, the single note.
   guitarSessions?: () => number;
-  // Forces a skill level, 1 to 4, for the visit (the dev URL `?guitarskill=`).
+  // Forces a skill level, 1 to 6, for the visit (the dev URL `?guitarskill=`).
   guitarSkill?: Level;
   // Turns the pick's tick off for the visit (the dev URL `?guitarpick=off`), to compare.
   guitarPick?: boolean;
+  // Turns the groove's snap of an arrow to the pattern's high-note slot off for the visit (the dev URL `?guitarsnap=off`).
+  guitarSnap?: boolean;
+  // The groove's pitch tilt in dB an octave for the visit (the dev URL `?guitartilt=`; 0 is off).
+  guitarTilt?: number;
 }
 
 function browserStorage(): KeyValueStorage | null {
@@ -101,6 +105,12 @@ export class SoundFeature implements Layer {
   private skill: Level = "notes";
   private stroke: Stroke = "down";
   private pick = { ...GUITAR_SKILL.pick };
+  // The groove is on for a session or a dev audition (which the activity check leaves alone).
+  private snap = true;
+  private tilt = GUITAR_SKILL.groove.pitchTilt.dbPerOctave;
+  private grooving = false;
+  private auditioning = false;
+  private sessionSeed = 0;
 
   constructor(private readonly game: Game, options: SoundOptions = {}) {
     this.random = options.random ?? Math.random;
@@ -108,6 +118,8 @@ export class SoundFeature implements Layer {
     this.guitarSessions = options.guitarSessions ?? (() => 0);
     this.guitarSkill = options.guitarSkill;
     if (options.guitarPick !== undefined) this.pick.enabled = options.guitarPick;
+    if (options.guitarSnap !== undefined) this.snap = options.guitarSnap;
+    if (options.guitarTilt !== undefined) this.tilt = options.guitarTilt;
     this.tracks = options.tracks ?? TRACKS;
     this.demos = options.demos ?? demoStore();
     this.demoVersion = this.demos.version;
@@ -147,6 +159,7 @@ export class SoundFeature implements Layer {
       if (item.activity?.type === "notes") this.startGuitarSession();
     });
     events.on("taskComplete", ({ award }) => {
+      this.stopGroove();
       this.engine.play("taskComplete");
       if (award.chain > 1) this.engine.play("combo", { pitch: comboPitch(award.chain) });
       if (award.timeFactor > 1) this.engine.play("goodHour");
@@ -154,6 +167,7 @@ export class SoundFeature implements Layer {
       if (!game.interaction.active) this.endPreview();
     });
     events.on("taskCancelled", () => {
+      this.stopGroove();
       if (!game.interaction.active) this.endPreview();
       this.engine.play("taskCancelled");
     });
@@ -205,14 +219,49 @@ export class SoundFeature implements Layer {
   // one (the session that earns a level still sounds like the one before).
   private startGuitarSession(): void {
     this.skill = this.guitarSkill ?? skillLevel(this.guitarSessions());
+    this.sessionSeed = Math.floor(this.random() * 1e6);
     this.stroke = "down";
+    this.stopGroove();
+    this.grooving = this.skill === "groove";
+  }
+
+  // The string tone the groove and the melody use: the instrument's voice.
+  private voiceName(): string {
+    return this.guitarVoice !== undefined && this.guitarVoice in SOUND.guitarVoices ? this.guitarVoice : (SOUND.instruments[this.instrument]?.voice ?? "steel");
+  }
+
+  private stopGroove(): void {
+    this.engine.groove.stop();
+    this.grooving = false;
+  }
+
+  // The groove level (issue 114b): the first arrow starts the loop; every arrow is a single
+  // note (the instrument's own voice, on the effects bus) of the chord sounding right now, played
+  // at once, never waiting for the loop's grid.
+  private playGroove(dir: Dir): void {
+    if (!this.engine.groove.running) {
+      this.grooving = true;
+      this.engine.groove.start((SOUND.guitarStrings[this.voiceName()] ?? SOUND.guitarStrings.steel).string, this.sessionSeed, this.tilt);
+    }
+    const { snap, melodyGain } = GUITAR_SKILL.groove;
+    const now = this.engine.now;
+    // An arrow just before a high-note slot of the pattern is played on it (a few milliseconds
+    // later at most), so it lands in the pattern; otherwise at once, as always.
+    const near = this.snap && snap.enabled ? this.engine.groove.highSlotNear(now, snap.window) : null;
+    const when = near && near.time > now ? near.time - now : 0;
+    const semis = melodyNote(near?.chord ?? this.engine.groove.chordAt(now), dir);
+    this.engine.playAt(this.noteEffect(), { pitch: 2 ** (semis / 12), gain: melodyGain * tiltGain(semis, this.tilt) }, when);
   }
 
   // What an arrow sounds like now (issue 114a). Level 1 is the plain single note (as in 108).
   // A higher level is one stroke over a chord, handed to the audio clock at once (it is over
   // within about 0.2 s), and nothing plays after it.
   private playArrow(dir: Dir, level: Level = this.skill): void {
-    const voice = this.guitarVoice !== undefined && this.guitarVoice in SOUND.guitarVoices ? this.guitarVoice : (SOUND.instruments[this.instrument]?.voice ?? "steel");
+    const voice = this.voiceName();
+    if (level === "groove") {
+      this.playGroove(dir);
+      return;
+    }
     if (level === "notes") {
       this.engine.play(this.noteEffect(), { pitch: (SOUND.noteKeys[dir] ?? 440) / 440 });
       return;
@@ -236,6 +285,33 @@ export class SoundFeature implements Layer {
         this.playArrow(dir, id);
       }, i * 1400),
     );
+  }
+
+  // Dev audition (issue 114b): the groove loop alone for `bars` bars, or with the arrows as
+  // melody over it (a note every beat or so, walking the four arrows). `auditionGuitarGroove(4)`,
+  // `auditionGuitarGroove(8, true)`, `auditionGuitarGroove(0)` stops it.
+  auditionGroove(bars = 4, melody = false, voice?: string): void {
+    this.engine.unlock();
+    this.stopGroove();
+    if (bars <= 0) {
+      this.auditioning = false;
+      return;
+    }
+    if (voice) this.guitarVoice = voice;
+    this.auditioning = true;
+    this.grooving = true;
+    this.engine.groove.start((SOUND.guitarStrings[this.voiceName()] ?? SOUND.guitarStrings.steel).string, 1, this.tilt);
+    const cycle = (4 * 60000) / GUITAR_SKILL.groove.pluckBpm; // four plucks
+    const total = bars * GUITAR_SKILL.groove.cyclesPerBar * cycle;
+    if (melody) {
+      const dirs: Dir[] = ["left", "up", "right", "up", "down", "right", "left", "left"];
+      for (let i = 0; i * cycle * 2 < total - cycle; i++) setTimeout(() => this.auditioning && this.playGroove(dirs[i % dirs.length]), 400 + i * cycle * 2);
+    }
+    setTimeout(() => {
+      if (!this.auditioning) return;
+      this.auditioning = false;
+      this.stopGroove();
+    }, total + 400);
   }
 
   get track(): Track | null {
@@ -341,13 +417,15 @@ export class SoundFeature implements Layer {
       this.engine.play("key", { pitch: 0.9 + this.random() * 0.2 });
     } else if (activity === "notes") {
       const dir = noteKeyDir(e.code);
-      if (dir !== null) this.playArrow(dir);
+      if (dir !== null && !this.game.paused) this.playArrow(dir);
     }
   }
 
   update(dt: number): void {
     this.nowPlayingFor = Math.max(0, this.nowPlayingFor - dt);
     this.indicatorFor = Math.max(0, this.indicatorFor - dt);
+    // The groove stops when the notes game is no longer running (or the game is paused).
+    if (this.grooving && !this.auditioning && (this.game.interaction.active?.item.activity?.type !== "notes" || this.game.paused)) this.stopGroove();
     this.engine.update();
     this.engine.updateSleep(this.game.sleepScene);
     if (this.demos.version !== this.demoVersion) this.syncDemos();
@@ -453,6 +531,8 @@ export function attachSound(game: Game, options?: SoundOptions): SoundFeature {
     guitarVoice: devGuitarVoice(),
     guitarSkill: devGuitarSkill(),
     guitarPick: devGuitarPick(),
+    guitarSnap: devGuitarSnap(),
+    guitarTilt: devGuitarTilt(),
     ...options,
   });
   // Dev only: `auditionGuitar("steel")` in the console (press a key on the page first).
@@ -460,6 +540,8 @@ export function attachSound(game: Game, options?: SoundOptions): SoundFeature {
     (globalThis as Record<string, unknown>).auditionGuitar = (voice: string) => feature.audition(voice);
     // `auditionGuitarSkill(3)` (or `(3, "nylon")`): a run of arrows at skill level 1 to 4.
     (globalThis as Record<string, unknown>).auditionGuitarSkill = (level: number, voice?: string) => feature.auditionSkill(level, voice);
+    // `auditionGuitarGroove(4)` the loop alone for 4 bars; `(8, true)` with the arrows' melody over it; `(0)` stops.
+    (globalThis as Record<string, unknown>).auditionGuitarGroove = (bars?: number, melody?: boolean, voice?: string) => feature.auditionGroove(bars, melody, voice);
   }
   return feature;
 }
@@ -486,6 +568,22 @@ export function devGuitarSkill(search = typeof location === "undefined" ? "" : l
 export function devGuitarPick(search = typeof location === "undefined" ? "" : location.search, dev = import.meta.env?.DEV): boolean | undefined {
   if (!dev) return undefined;
   return new URLSearchParams(search).get("guitarpick") === "off" ? false : undefined;
+}
+
+// Dev only (issue 114b): `?guitarsnap=off` plays the groove's melody exactly when pressed, with
+// no snapping to the pattern's high-note slots, for the visit. A built game ignores it.
+export function devGuitarSnap(search = typeof location === "undefined" ? "" : location.search, dev = import.meta.env?.DEV): boolean | undefined {
+  if (!dev) return undefined;
+  return new URLSearchParams(search).get("guitarsnap") === "off" ? false : undefined;
+}
+
+// Dev only (issue 114b): `?guitartilt=0` (or 1.5, 4 ...) sets the groove's pitch tilt, in dB an
+// octave, for the visit. A built game ignores it.
+export function devGuitarTilt(search = typeof location === "undefined" ? "" : location.search, dev = import.meta.env?.DEV): number | undefined {
+  if (!dev) return undefined;
+  const asked = new URLSearchParams(search).get("guitartilt");
+  const n = asked === null || asked.trim() === "" ? NaN : Number(asked);
+  return Number.isFinite(n) && n >= 0 && n <= 12 ? n : undefined;
 }
 
 // Dev only (issue 075): `?dialogvoice=letters` tries the letters voice for the

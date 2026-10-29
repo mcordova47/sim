@@ -144,3 +144,81 @@ export function playKey(level: Level, dir: Dir, noteSemis: number, stroke: Strok
   if (!chords) return [{ semis: noteSemis, at: 0, gain: 1, kind: "first" }];
   return strokeNotes(chords[dir], stroke);
 }
+
+// The groove (issue 114b). One bar of it, for the bar at `bar` (counted from the first one, so
+// the chord is `progression[bar % 4]`): notes with `slot` (the pluck in the bar, 0 up) and their pitch, gain and a
+// small seeded wobble in time (the scheduler adds the swing). Pure, so it can be tested without audio.
+export interface GrooveNote {
+  slot: number;
+  semis: number;
+  gain: number;
+  role: "bass" | "harmony";
+  string: number; // 6 (low E) to 1 (high E)
+  wobble: number; // seconds
+}
+
+export function grooveChord(bar: number): string {
+  const { progression } = GUITAR_SKILL.groove;
+  return progression[((Math.floor(bar) % progression.length) + progression.length) % progression.length];
+}
+
+// The string a role plays on a chord: its own, or the nearest the chord has.
+function stringFor(chord: string, want: number): { string: number; semis: number } {
+  const v = GUITAR_SKILL.groove.voicings[chord];
+  const have = Object.keys(v.strings).map(Number);
+  const string = have.includes(want) ? want : have.reduce((best, n) => (Math.abs(n - want) < Math.abs(best - want) ? n : best));
+  return { string, semis: v.strings[string] };
+}
+
+// The gain multiplier for a note at `semis` (from A4): 1 up to the reference note, then `dbPerOctave`
+// dB less for every octave above it. The groove's mid notes and the melody use it (the chord levels'
+// per-string normalising in `strokeEvents` is separate and does not apply to single notes).
+export function tiltGain(semis: number, dbPerOctave = GUITAR_SKILL.groove.pitchTilt.dbPerOctave, reference = GUITAR_SKILL.groove.pitchTilt.reference): number {
+  const octaves = Math.max(0, (semis - reference) / 12);
+  return 10 ** (-(dbPerOctave * octaves) / 20);
+}
+
+export function grooveBar(bar: number, seed = 0, tilt = GUITAR_SKILL.groove.pitchTilt.dbPerOctave): GrooveNote[] {
+  const g = GUITAR_SKILL.groove;
+  const name = grooveChord(bar);
+  const v = g.voicings[name];
+  const rand = seeded(seed * 7919 + Math.floor(bar) * 104729 + 1);
+  const out: GrooveNote[] = [];
+  [...groovePattern()].forEach((ch, slot) => {
+    const wobble = (rand() * 2 - 1) * GUITAR_SKILL.humanise.time;
+    const wobbleG = 1 + (rand() * 2 - 1) * GUITAR_SKILL.humanise.gain;
+    const accent = slot === 0 ? g.accent : 1;
+    const want = ch === "r" ? v.root : ch === "a" ? v.alt : ch === "m" ? v.mid : ch === "i" ? v.high : 0;
+    if (want === 0) return; // "h" (the rest left for the melody) or "."
+    const { string, semis } = stringFor(name, want);
+    const bass = ch === "r" || ch === "a";
+    out.push({ slot, semis, string, gain: (bass ? g.bassGain * (ch === "a" ? 0.9 : 1) * accent : g.harmonyGain * tiltGain(semis, tilt)) * wobbleG, role: bass ? "bass" : "harmony", wobble });
+  });
+  return out;
+}
+
+// The bar as one character a pluck: the cycle shapes repeated `cyclesPerBar` times ("h" is the rest left for the melody).
+export function groovePattern(): string {
+  const g = GUITAR_SKILL.groove;
+  let out = "";
+  for (let c = 0; c < g.cyclesPerBar; c++) out += g.cycle[c % g.cycle.length];
+  return out;
+}
+
+// Plucks in a bar, and the seconds of one pluck and of a bar.
+export const grooveSlots = (): number => groovePattern().length;
+export const slotLength = (pluckBpm = GUITAR_SKILL.groove.pluckBpm): number => 60 / pluckBpm;
+export const barLength = (pluckBpm = GUITAR_SKILL.groove.pluckBpm): number => grooveSlots() * slotLength(pluckBpm);
+
+// The seconds, from the groove's origin, at which pluck number `k` (counted from 0 across all bars) falls: the odd ones late by the swing.
+export function grooveSlotTime(k: number, pluckBpm = GUITAR_SKILL.groove.pluckBpm, swing = GUITAR_SKILL.groove.swing): number {
+  return k * slotLength(pluckBpm) + (k % 2 === 1 ? swing * slotLength(pluckBpm) : 0);
+}
+
+// The semitone (from A4) an arrow plays over a chord of the groove: a chord tone, or the chord's sixth or seventh.
+export function melodyNote(chord: string, dir: Dir): number {
+  const g = GUITAR_SKILL.groove;
+  const order: Dir[] = ["left", "right", "up", "down"];
+  const interval = (g.melody[chord] ?? g.melody.A)[order.indexOf(dir)];
+  return GUITAR_SKILL.chords[chord].root + g.melodyOctave + interval;
+}

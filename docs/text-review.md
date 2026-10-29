@@ -4,6 +4,8 @@ Every player-visible string in the game as of 2026-10-23, for Marc to mark. Issu
 
 **How to mark:** write `keep`, `soften` or `rewrite` (and a note or a replacement if you have one) in the "mark" column of the task table, or after a dash on the list lines below ("- text - soften"). Nothing is changed until it is marked. Task names and prompts also lose their "the" (Marc's rule: "Write in journal", "Water plant"); that part needs no mark.
 
+> **No rush (Marc, 2026-10-29):** new lines pile up in the sections below over time. There is no deadline and nothing waits on them; mark them whenever you feel like it, a few at a time, or never. An occasional friendly reminder is fine.
+
 Strings added later (mood in 038, the mirror in 041, the gallery view in 040) are not in this list yet.
 
 ## Pause screen title (issue 116)

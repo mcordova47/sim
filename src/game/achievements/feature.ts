@@ -20,7 +20,7 @@ import { drawThings, moveThingsCursor, thingsButtons, thingsCells, thingsPage, t
 import { drawPhotos, photosLayout, PHOTOS_REMOVED, type PhotosView } from "./photos-draw";
 import { addPhotos, summaryLines } from "../reel/photo-add";
 import { browserPhotoIO, type PhotoIO } from "../reel/photo-io";
-import { openReelStore, type ReelPic, type ReelStore, type ReelStoreHandle } from "../reel/reel-store";
+import { type ReelPic, type ReelStore, type ReelStoreHandle } from "../reel/reel-store";
 import { drawList, drawSync, drawToasts, drawTransfer, listRows, pageButton, pauseButtons, syncButtons, touchPageSize, transferButtons, type ListView, type SyncView, type TransferView } from "./draw";
 import { ProgressStore, parseWorld, type KeyValueStorage, type WorldSave } from "./progress";
 import { Stats } from "./stats";
@@ -132,8 +132,8 @@ export class AchievementsFeature implements Layer {
     this.storage = options.storage === undefined ? browserStorage() : options.storage;
     this.store = new ProgressStore(this.storage, UI.storageKey);
     const ids = new Set<string>();
-    // Changing the decor ends quietly and is never a completion, so it is not part of "every task".
-    for (const level of Object.values(this.rooms)) for (const item of level.interactables) if (item.decorSlot === undefined && !item.delivery) ids.add(item.id);
+    // Changing the decor ends quietly and is never a completion, so it is not part of "every task". Nor is the photo task: it only exists for someone who added pictures.
+    for (const level of Object.values(this.rooms)) for (const item of level.interactables) if (item.decorSlot === undefined && !item.delivery && item.id !== "scroll-photos") ids.add(item.id);
     this.ctx = { allTaskIds: [...ids] };
     this.room = options.start ?? APARTMENT.start;
     this.now = options.now ?? Date.now;
@@ -371,7 +371,8 @@ export class AchievementsFeature implements Layer {
   // The state to save: the apartment's variables and where the player is.
   private snapshot(): WorldSave {
     const vars: Record<string, number> = {};
-    for (const v of STATE_VARS) if (this.game.state.has(v.id)) vars[v.id] = this.game.state.get(v.id);
+    // `hasPhotos` is derived from the device's pictures and is never saved or synced (issue 113d).
+    for (const v of STATE_VARS) if (v.id !== "hasPhotos" && this.game.state.has(v.id)) vars[v.id] = this.game.state.get(v.id);
     const { col, row, facing } = this.game.player;
     return { vars, room: this.room, col, row, facing };
   }
@@ -539,7 +540,7 @@ export class AchievementsFeature implements Layer {
 
   // The store for the reel, made on first use.
   get reel(): ReelStoreHandle {
-    return (this.reelHandle ??= openReelStore());
+    return (this.reelHandle ??= this.game.reel);
   }
 
   private openPhotos(): void {
@@ -557,6 +558,7 @@ export class AchievementsFeature implements Layer {
   private async refreshPhotos(): Promise<void> {
     try {
       this.photos = await this.reel.store.list();
+      this.game.photosChanged(this.photos);
     } catch {
       this.photos = [];
       this.photoMessage = ["This browser could not read the pictures."];

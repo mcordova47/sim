@@ -8,6 +8,7 @@ import type { Track } from "./music/track";
 import type { Decor } from "./decor";
 import type { Effect } from "./state";
 import type { SleepScene } from "./sleep";
+import type { ReelPic } from "./reel/reel-store";
 
 // An activity is what a task is while the player is doing it. Today's timed
 // wait is one; a cutscene and the mini-games are others. The interaction
@@ -88,6 +89,8 @@ export interface ActivityHost {
   // Tells the sound feature the choice made at the record player (`id` null for
   // silence) and whether it pays. Missing in tests.
   recordChosen?(id: string | null, paid: boolean): void;
+  // The pictures the photo reel holds right now (issue 113d). Missing in tests that have none.
+  reelPictures?(): readonly ReelPic[];
   // Game minutes played so far (the clock held still by an activity does not count).
   gameMinutes?(): number;
 }

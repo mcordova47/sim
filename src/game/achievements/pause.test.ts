@@ -211,12 +211,11 @@ describe("the pause screen's text", () => {
     return vi.mocked(drawText).mock.calls.map((c) => c[1]);
   };
 
-  it("is titled PAUSE on the desktop and on touch, with the achievements as a section", () => {
+  it("is titled with the product name on the desktop and on touch, with the achievement count beside it", () => {
     for (const touch of [false, true]) {
       const texts = draw({ touch });
-      expect(texts).toContain("PAUSE");
-      expect(texts.some((t) => t.startsWith("ACHIEVEMENTS 0/"))).toBe(true);
-      expect(texts.some((t) => t.startsWith("ACHIEVEMENTS 0/") && t.includes("PAUSE"))).toBe(false);
+      expect(texts).toContain("SIMAGOTCHI");
+      expect(texts.some((t) => /^0\/\d+$/.test(String(t)))).toBe(true);
     }
   });
 

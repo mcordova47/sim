@@ -6,6 +6,11 @@ Every player-visible string in the game as of 2026-10-23, for Marc to mark. Issu
 
 Strings added later (mood in 038, the mirror in 041, the gallery view in 040) are not in this list yet.
 
+## Pause screen title (issue 116)
+The product name is Simagotchi (Marc, 2026-10-29). The pause screen's header used to read "PAUSE  ACHIEVEMENTS 3/26"; it now reads "SIMAGOTCHI  3/26" (title in butter, count in mist). The full old line plus the name would run into the good-hour legend at the right, so the word ACHIEVEMENTS and the word PAUSE are gone from the header; the list below is the achievements and the PAUSE pill/hints still name the screen. Wired in `src/game/achievements/draw.ts`. Marc to mark: keep / rewrite (e.g. "SIMAGOTCHI  ACHIEVEMENTS 3/26" if the legend is moved). Not added: any in-game title such as "Siminal Crossing" (undecided).
+- SIMAGOTCHI
+- 3/26
+
 ## Side-project picture (issue 101)
 "Work on the side project" view, the four lines (Marc rewrote the last three on 2026-10-28; the glitch line calls out the deliberate picture glitch: the tiny figure stands on the desk, facing out). Wired in `src/game/side-projects.ts`. Marc to mark: keep / soften / rewrite.
 - A small version of this room, on a small screen. Someone is at the desk.

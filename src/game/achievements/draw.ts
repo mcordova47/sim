@@ -184,6 +184,8 @@ export const SYNC_HINT = "P: SYNC";
 export const THINGS_HINT = "I: THINGS";
 export const PHOTOS_HINT = "O: PHOTOS";
 
+export const PRODUCT_NAME = "SIMAGOTCHI";
+
 export const LEGEND_TEXT = "GOOD HOUR: 1.5X POINTS";
 
 // The list of achievements: a full-screen panel, locked ones as "???".
@@ -191,8 +193,9 @@ export function drawList(ctx: CanvasRenderingContext2D, view: ListView): void {
   ctx.fillStyle = PANEL;
   ctx.fillRect(0, 0, VIEW.width, VIEW.height);
   const done = view.achievements.filter((a) => view.unlocked(a.id)).length;
-  drawText(ctx, "PAUSE", 6, 5, { color: COLOR.butter });
-  drawText(ctx, `ACHIEVEMENTS ${done}/${view.achievements.length}`, 6 + textWidth("PAUSE") + 12, 5, { color: COLOR.mist, shadow: null });
+  // The product name is the title (issue 116); the full "SIMAGOTCHI ... ACHIEVEMENTS n/m" line would run into the legend.
+  drawText(ctx, PRODUCT_NAME, 6, 5, { color: COLOR.butter });
+  drawText(ctx, `${done}/${view.achievements.length}`, 6 + textWidth(PRODUCT_NAME) + 8, 5, { color: COLOR.mist, shadow: null });
 
   // Legend for the clock icon the prompt and the award popup use.
   if (view.sprites?.has(GOOD_HOUR_ICON)) {

@@ -82,6 +82,20 @@ export class MakeTrackActivity extends BaseActivity {
   get readsLetters(): boolean {
     return this.naming !== null;
   }
+  // Naming wants typing: on the touch layer that raises the phone's keyboard (issue 106c, as in 093).
+  get wantsText(): boolean {
+    return !this.done && this.phase === "edit" && this.naming !== null;
+  }
+  textValue(): string {
+    return this.naming ?? "";
+  }
+  // The whole text from the touch layer's field. What a name cannot hold is dropped (a curly apostrophe
+  // becomes a straight one first), and it is cut to the longest name; the field is then set to what is kept.
+  setText(text: string): void {
+    if (!this.wantsText) return;
+    const kept = [...normalizeText(text)].filter((ch) => M.nameChars.test(ch)).join("");
+    this.naming = kept.slice(0, M.nameMax);
+  }
 
   grid: DemoGrid;
   // The saved track being edited, or null for a new one.
@@ -102,6 +116,8 @@ export class MakeTrackActivity extends BaseActivity {
   // While playing, the page follows the play position unless one was chosen in the last few seconds.
   private viewPage: number | null = null;
   private pageChosenAt = -Infinity;
+  // The grid as it was before the last edit (one level of Undo, issue 106c), or null.
+  private undoGrid: DemoGrid | null = null;
   private messageLeft = 0;
   private playTime = 0;
   private clock = 0;
@@ -160,6 +176,8 @@ export class MakeTrackActivity extends BaseActivity {
     this.step = 0;
     this.channel = "melody";
     this.naming = null;
+    this.undoGrid = null;
+    this.viewPage = null;
     this.phase = "edit";
     this.refreshPreview();
   }
@@ -223,6 +241,7 @@ export class MakeTrackActivity extends BaseActivity {
       this.naming = null;
       if (name === "") return this.flash("The name is unchanged.");
       if (name !== this.grid.title) {
+        this.remember();
         this.grid.title = name;
         this.changed();
       }
@@ -296,10 +315,13 @@ export class MakeTrackActivity extends BaseActivity {
   private placeOrClear(): void {
     const key = this.rows[this.channel];
     const covering = noteAt(this.grid, this.channel, this.step);
+    const before = cloneGrid(this.grid);
     // The same row clears the note; another row puts a new note in its place.
     if (covering && covering.key === key) {
       removeNote(this.grid, this.channel, this.step);
+      this.undoGrid = before;
     } else if (placeNote(this.grid, this.channel, this.step, key, this.pen)) {
+      this.undoGrid = before;
       this.host.blip?.(this.channel === "beat" ? DRUM_BLIP[key] : midiFreq(key));
     } else {
       return this.flash("No room for a note here.");
@@ -312,6 +334,7 @@ export class MakeTrackActivity extends BaseActivity {
     if (this.channel === "beat") return this.flash("Drum hits are one step.");
     const covering = noteAt(this.grid, this.channel, this.step);
     if (covering) {
+      this.remember();
       this.pen = cycleNoteLength(this.grid, this.channel, this.step) ?? this.pen;
       this.changed();
     } else {
@@ -323,16 +346,34 @@ export class MakeTrackActivity extends BaseActivity {
   private changeTempo(by: number): void {
     const tempo = Math.min(M.tempo.max, Math.max(M.tempo.min, this.grid.tempo + by));
     if (tempo === this.grid.tempo) return;
+    this.remember();
     this.grid.tempo = tempo;
     this.changed();
   }
 
   private changeSteps(steps: number): void {
     if (steps === this.grid.steps) return;
+    this.remember();
     this.grid.steps = steps;
     this.step = Math.min(this.step, steps - 1);
     if (this.viewPage !== null && this.viewPage * TOUCH_EDITOR.pageSteps >= steps) this.viewPage = null;
     this.changed();
+  }
+
+  // Keeps the grid as it is now, just before an edit, for Undo.
+  private remember(): void {
+    this.undoGrid = cloneGrid(this.grid);
+  }
+
+  // Undo (the touch look's button and More entry): the grid as it was before the last edit. One level.
+  private undo(): void {
+    if (this.undoGrid === null) return this.flash("Nothing to undo.");
+    this.grid = this.undoGrid;
+    this.undoGrid = null;
+    this.step = Math.min(this.step, this.grid.steps - 1);
+    this.viewPage = null;
+    this.changed();
+    this.flash("Undone.");
   }
 
   // After an edit: keep the draft, and let a playing preview follow.
@@ -383,7 +424,8 @@ export class MakeTrackActivity extends BaseActivity {
   private save(): void {
     const title = this.grid.title.trim();
     const out = this.store.save(this.editingId, { ...this.grid, title });
-    if (!out.ok) return this.flash(out.reason);
+    // At the limit a phone has no key for Delete: it says where the button is.
+    if (!out.ok) return this.flash(out.code === "full" && touchHints() ? `${M.maxTracks} saved. Open one, More, Delete.` : out.reason);
     this.grid.title = title;
     this.editingId = out.id;
     this.draftFailed = false;
@@ -436,6 +478,7 @@ export class MakeTrackActivity extends BaseActivity {
     if (this.done || this.phase !== "edit" || this.naming !== null) return;
     const read = trackTextToGrid(text);
     if (!read.ok) return this.flash(read.message);
+    this.remember();
     this.grid = read.grid;
     this.editingId = null;
     this.step = 0;
@@ -496,9 +539,29 @@ export class MakeTrackActivity extends BaseActivity {
     this.rows[this.channel] = Math.min(high, Math.max(low, this.rows[this.channel] + by * TOUCH_EDITOR.pitchRows));
   }
 
+  // The More menu (issue 106c). Every entry runs what its key runs on the keyboard: Rename is N, the steps
+  // entry is `,` or `.`, Copy C, Paste V, Delete D; Undo is the one entry with no key (the grid is small, a
+  // fat finger costs more than a key press). Back closes it. Sharing joins it in issue 106d.
+  private openMore(): void {
+    const cut = this.grid.steps > M.steps.short;
+    const entries: [string, () => void][] = [
+      ["Rename", () => (this.naming = this.grid.title)],
+      [cut ? `Cut to ${M.steps.short} steps` : `Extend to ${M.steps.max} steps`, () => this.changeSteps(cut ? M.steps.short : M.steps.max)],
+      ["Undo", () => this.undo()],
+      ["Copy", () => this.copy()],
+      ["Paste", () => this.paste()],
+      ["Delete", () => this.askDelete()],
+      ["Back", () => {}],
+    ];
+    const opened = this.host.openDialog(menu("More", entries.map(([label]) => choice(label))), (result) => {
+      if (this.done || result.cancelled) return;
+      entries.find(([label]) => label === result.path.at(-1))?.[1]();
+    });
+    if (!opened) this.flash("Not now.");
+  }
+
   // The buttons a tap can press on the touch look: the same rectangles `draw` paints (the layout of
-  // render/track-editor-touch.ts). Each does what the keyboard's key for it does. The name, More and Undo
-  // buttons are drawn but wait for issue 106c.
+  // render/track-editor-touch.ts). Each does what the keyboard's key for it does.
   tapTargets(screen: { width: number; height: number }): TapTarget[] {
     if (this.done || !touchHints() || this.phase !== "edit" || this.naming !== null) return [];
     const T = TOUCH_EDITOR;
@@ -507,7 +570,6 @@ export class MakeTrackActivity extends BaseActivity {
     const beat = this.channel === "beat";
     const out: TapTarget[] = [];
     const add = (rect: { x: number; y: number; w: number; h: number }, run: () => void) => out.push({ ...rect, run });
-    const later = () => this.flash("Not on the phone yet.");
 
     // The grid first: a tap moves the cursor to the cell and places or clears there, as E does. The
     // cell's page is the one shown now, so the step is right on any page.
@@ -541,9 +603,9 @@ export class MakeTrackActivity extends BaseActivity {
     add(layout.play, () => this.togglePlay());
     add(layout.save, () => this.save());
     add(layout.length, () => this.changeLength());
-    add(layout.name, later);
-    add(layout.more, later);
-    if (layout.undo) add(layout.undo, later);
+    add(layout.name, () => (this.naming = this.grid.title));
+    add(layout.more, () => this.openMore());
+    if (layout.undo) add(layout.undo, () => this.undo());
     if (layout.nextPage) add(layout.nextPage, () => this.choosePage((shown + 1) % layout.pages.length));
     return out;
   }

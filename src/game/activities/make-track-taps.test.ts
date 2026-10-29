@@ -212,11 +212,14 @@ for (const screen of [NARROW_VIEW, DESKTOP_VIEW]) {
       expect(s.store.draft()?.grid.channels.melody).toHaveLength(1);
     });
 
-    it("answers the drawn-but-unbuilt buttons (name, More) politely", () => {
+    it("opens the name box from the name button and the More menu from More (issue 106c)", () => {
       const s = setup(screen);
       s.tapRect(s.layout().more);
-      expect(s.act.message).toBe("Not on the phone yet.");
+      expect(s.fake.dialogs).toHaveLength(1);
       expect(s.act.naming).toBeNull();
+      s.fake.closeDialog({ path: [], cancelled: true });
+      s.tapRect(s.layout().name);
+      expect(s.act.naming).toBe(s.act.grid.title);
     });
 
     it("lets a page chosen by a tap stay while playing, then follows the playhead", () => {

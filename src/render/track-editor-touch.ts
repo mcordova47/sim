@@ -257,6 +257,13 @@ const fitText = (text: string, width: number): string => {
   return out;
 };
 
+// The end of a text that fits `width` (the name box while typing: the caret and the last letters stay visible).
+export const fitTail = (text: string, width: number): string => {
+  let out = text;
+  while (out.length > 0 && textWidth(out) > width) out = out.slice(1);
+  return out;
+};
+
 // The top strip's text: the last message, or what is useful to know now.
 export function touchHintText(v: Pick<EditorView, "message" | "naming" | "firstTouch">): string {
   if (v.message) return v.message;
@@ -285,7 +292,9 @@ export function drawTrackEditorTouch(ctx: CanvasRenderingContext2D, v: EditorVie
   // The name (with a caret while it is typed) and the tempo.
   const { name } = layout;
   drawButton(ctx, name, "", { border: v.naming ? COLOR.butter : undefined });
-  const shown = fitText(v.title, name.w - 8 - (v.naming ? 6 : 0));
+  // While typing, the end of the name is what matters (the caret is there), so a long name scrolls
+  // to show its last letters; otherwise the start is shown.
+  const shown = v.naming ? fitTail(v.title, name.w - 8 - 6) : fitText(v.title, name.w - 8);
   const textY = name.y + Math.floor((name.h - GLYPH_H) / 2);
   drawText(ctx, shown, name.x + 4, textY, { color: v.naming ? COLOR.butter : COLOR.paper, shadow: null });
   if (v.naming && v.blink) drawText(ctx, "_", name.x + 4 + textWidth(shown) + 1, textY, { color: COLOR.butter, shadow: null });

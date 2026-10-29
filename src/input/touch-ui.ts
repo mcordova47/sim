@@ -202,7 +202,13 @@ export function mountTouchUi(options: TouchUiOptions): TouchUi {
     const rect = options.canvas!.getBoundingClientRect();
     const at = pointToGame(e.clientX, e.clientY, rect, options.viewSize?.() ?? { width: rect.width, height: rect.height });
     if (!at) return;
-    if (options.tapAt?.(at.x, at.y)) return;
+    // A button that starts typing (the editor's name box, a menu's Rename) raises the keyboard in this same
+    // pointer-up, which iOS needs; a button on a screen that was already typing does not.
+    const wasTyping = !!entry?.wanted;
+    if (options.tapAt?.(at.x, at.y)) {
+      if (!wasTyping && entry?.wanted) field.focus();
+      return;
+    }
     if (textOn) field.focus();
   });
 

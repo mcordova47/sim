@@ -63,9 +63,9 @@ function social() {
     blit(img, s, x * S, (bottom - s.height) * S, S);
   };
   put("bookshelf", 12, 112);
-  put("desk", 148, 112);
-  put("plant-1", 220, 112);
-  blit(img, load("logo-egg"), 376, 50, 14); // the egg at 14x (448px), centred
+  put("desk", 160, 112);
+  put("plant-1", 224, 112);
+  blit(img, load("logo-egg"), 362, 50, 14); // the egg at 14x (448px), centred
   return img;
 }
 

@@ -17,4 +17,4 @@ Show Marc two or three variants first (egg shapes, face expressions, colours) at
 
 ## Progress log
 
-- 2026-10-29: Marc picked the sleepy variant (closed eyes, flat mouth), tangerine egg. Kept as `art/src/logo-egg.sprite` (32x32); other two deleted. `scripts/brand.mjs` now builds the favicon (1:1), touch icon (5x centred on night) and link preview (egg at 14x over a floor strip, bookshelf, desk, plant) from it; public images regenerated. Not added to the pause screen. tsc, build, npm test (3443), check:dist, brand --check pass. Awaiting independent review.
+- 2026-10-29: Marc picked the sleepy variant (closed eyes, flat mouth), tangerine egg. Kept as `art/src/logo-egg.sprite` (32x32); other two deleted. `scripts/brand.mjs` now builds the favicon (1:1), touch icon (5x centred on night) and link preview (egg at 14x over a floor strip, bookshelf, desk, plant) from it; public images regenerated. Not added to the pause screen. tsc, build, npm test (3443), check:dist, brand --check pass. Independent review: one overlap (egg over desk in the link preview) fixed; approved otherwise.

@@ -1,7 +1,7 @@
 ---
 id: 111d
 title: Side project config 4: the real config file and the figure
-status: review
+status: done
 owner: claude
 depends_on: [111a, 111b, 111c]
 ---
@@ -35,3 +35,9 @@ Marc's meaning of "perspective" (2026-10-29): not a geometric warp. Each piece o
   - UNVERIFIED (not passing): Marc's taste (how wrong, which pieces, the figure's size, that the swapped desk/table read as intended), and the feel in the real browser game end to end through `SideProjectView` (I did not run the dev server). Marc must agree before the old PNG is deleted.
   - Checklist for the author: [ ] big floor blocks must not draw over non-floor tiles (0,0) and (0,7); [ ] a test for it. Optional: decide whether a bad name should drop only that line.
 - 2026-10-29 (claude, round 2 after review): fixed the floor spill. `look floor` draws a 32x32 block only when all four of its tiles are floor; the odd edge tiles keep the ordinary 16x16 tile, so the big sprite never covers a tile that is neither floor nor wall (the top-left corner and left wall patches). Test added (every big block covers four floor tiles). Not changed: the reviewer's note that one bad name drops the whole drift to the plain copy (the composer refuses by design from 111b; logged for a later issue). Status back to review.
+- 2026-10-29 (independent review round 2, claude, a fresh reviewer): verdict APPROVE (status set to `done`). Checked the round 1 fix in 6bc5aa7 myself.
+  - `npm run build` ok, `npx tsc --noEmit` clean, `npm test` 158 files / 3565 passed (3 skipped), `check:dist` ok.
+  - Own check (vite-node script outside the repo, run on the real `sideProjectRoom()` output): 120 floor tiles, 21 big blocks + 36 ordinary tiles. Every tile covered by a floor draw op is a real floor tile (0 outside, so (0,0) and (0,7) are clean); 0 floor tiles uncovered (no gaps); 0 tiles covered twice (no overlaps). Big blocks only where all four tiles are floor; edge tiles use `floor-wood`.
+  - Rendered the room from the ops and the built PNGs in headless Chrome at 4x and looked: no tan patch at the top-left corner or on the left wall above the kitchen gap; no holes inside the floor; the transition between big boards and ordinary tiles at the edges shows no visible seam or gap. Sofa from behind, flat bed, swapped desk and table with the figure on the desk still read as before.
+  - The new tests are meaningful (big ops cover four floor tiles; ordinary ops are floor tiles). Round 1 optional note (one bad name drops all the drift) was knowingly left; fine.
+  - UNVERIFIED: Marc's taste and the real-browser feel through `SideProjectView` (I did not run the dev server). The old `view-side-project` PNG stays as the fallback; delete only after Marc agrees. PLAN.md table needs updating by the planner.

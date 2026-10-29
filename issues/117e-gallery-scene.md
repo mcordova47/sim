@@ -1,7 +1,7 @@
 ---
 id: 117e
 title: Photo gallery 5: the sofa scene replaces the slideshow
-status: todo
+status: review
 owner: claude
 depends_on: [117b]
 ---
@@ -16,3 +16,6 @@ Design and Marc's answers (2026-10-29): `docs/photo-gallery-design.md` (shared 3
 
 ## Progress log
 
+
+- 2026-10-29 (claude): started. Plan: rewrite `activities/reel.ts` as the scene on top of `reel/gallery.ts` and `achievements/gallery-draw.ts`; REEL config becomes `pass`, `phoneLines`, `closeupLines`; slideshow code (auto-advance, `shuffledPass`, `reelLayout`, first-picture caption, `REEL.seconds/scale/captions`) removed.
+- 2026-10-29 (claude): done, in review. Task id `scroll-photos`, prompt, `requires hasPhotos`, 5 points, pose all unchanged (tasks.ts untouched). Scene: phone view of six random pictures (one screen, no paging), highlight by arrows/WASD (no wrap, never on an empty cell), E or a tap on the highlighted cell or CONTINUE opens the close-up with a caption picked at open; E (or any tap) in the close-up completes and pays 5; Esc anywhere, LEAVE, or a tap outside the phone cancels quietly (no points, no cooldown). No ad interruption (117f). No pictures: ends quietly at start (and the task is not offered). Taps come from the same `gridLayout` as the drawing (093). Files: `src/game/activities/reel.ts`, `reel.test.ts` (rewritten), `src/game/reel-game.test.ts`, `src/game/config.ts`, `docs/text-review.md`. Checks: `npm run build`-equivalent `tsc --noEmit` clean, full vitest 3315 pass, golden room frame unchanged. Rendered both views at 1x with synthetic pictures (phone view and a landscape close-up, mixed portrait/landscape set) and looked: highlight visible, line centred, narrow buttons inside the panel, caption and E: DONE in the band. Not looked at: a portrait close-up of the scene on screen (layout covered by 117b's tests), the view flip, feel on a phone (117g).

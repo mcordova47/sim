@@ -6,11 +6,11 @@ import { TASKS } from "./tasks";
 import { parseTileMap } from "./tilemap";
 import { createMemoryReelStore } from "./reel/reel-store";
 import type { ReelPic } from "./reel/reel-store";
-import { REEL } from "./config";
 
 const dt = 1 / 60;
 const press: Controls = { ...NO_INPUT, interactPressed: true };
 const esc: Controls = { ...NO_INPUT, keys: ["Escape"], cancelPressed: true };
+const key = (code: string): Controls => ({ ...NO_INPUT, keys: [code] });
 const task = () => TASKS.find((t) => t.id === "scroll-photos")!;
 const level = () => ({
   ...parseTileMap(["#########", "#.......#", "#..@X...#", "#.......#", "#########"], { X: { tasks: [task()] } }),
@@ -53,7 +53,15 @@ describe("the sofa task Scroll through photos", () => {
     g.events.on("stateChanged", ({ id }) => id === "mood" && moods.push(1));
     g.update(dt, press);
     expect(g.interaction.active?.item.id).toBe("scroll-photos");
-    frames(g, Math.ceil(60 * (REEL.seconds * 2 + 1)));
+    // Browsing alone never pays and never ends the scene; E opens a close-up and E again leaves, paying 5.
+    frames(g, 60 * 30);
+    expect(g.interaction.active).not.toBeNull();
+    expect(awards).toEqual([]);
+    g.update(dt, key("KeyE"));
+    expect(g.interaction.active).not.toBeNull();
+    expect(awards).toEqual([]);
+    g.update(dt, key("KeyE"));
+    frames(g, 3);
     expect(g.interaction.active).toBeNull();
     expect(awards).toEqual([5]);
     expect(moods).toEqual([]);
@@ -70,6 +78,25 @@ describe("the sofa task Scroll through photos", () => {
     g.update(dt, esc);
     frames(g, 3);
     expect(g.interaction.active).toBeNull();
+  });
+
+  it("Escape from the close-up pays nothing and starts no cooldown", async () => {
+    const reel = handle();
+    await reel.store.add([pic(1), pic(2)]);
+    const g = new Game(level(), { reel, random: () => 0.5 });
+    await new Promise((r) => setTimeout(r, 0));
+    frames(g, 12);
+    const awards: number[] = [];
+    g.events.on("taskComplete", ({ award }) => awards.push(award.points));
+    g.update(dt, press);
+    g.update(dt, key("KeyE"));
+    g.update(dt, esc);
+    frames(g, 3);
+    expect(g.interaction.active).toBeNull();
+    expect(awards).toEqual([]);
+    // No cooldown: it can start again at once.
+    g.update(dt, press);
+    expect(g.interaction.active?.item.id).toBe("scroll-photos");
   });
 
   it("follows the store: the PHOTOS page telling the game of no pictures takes the task away at once", async () => {

@@ -12,3 +12,4 @@ Marc (2026-10-28), a stretch goal: the side project could actually have an effec
 ## What to do (design first)
 - Ask Marc one question at a time: what is editable (positions, variants, the glitch), where the config lives (a text file in the repo, or in the pause screen), and whether the picture is drawn live from the config (compose the 320x192 view from sprites and the config) rather than a static PNG.
 - Then plan small issues. The 101 drawing is the starting look.
+- 2026-10-29 (Marc): the side project, as a game inside the game, could have its own title, something like "Siminal Crossing" (the game's name is Simagotchi). Text for `docs/text-review.md` when picked; fits the side-project lines in `src/game/side-projects.ts`.

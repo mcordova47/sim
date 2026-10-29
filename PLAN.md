@@ -170,6 +170,8 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 116 | [Name the game Simagotchi](issues/116-simagotchi-name.md) | claude | todo | |
 | 117 | [Photos like a phone gallery: browse, delete one, close-up scene](issues/117-photo-gallery.md) | marc + claude | todo | 113 |
 | 118 | [Ads for framing a photo, then hang or shelve it](issues/118-framed-photos.md) | marc + claude | todo | 117 |
+| 119 | [A Simagotchi logo and favicon](issues/119-simagotchi-logo.md) | claude | todo | 116 |
+| 120 | [Pause legend overlap on the narrow view](issues/120-pause-legend-narrow.md) | claude | todo | 116 |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

@@ -1,7 +1,7 @@
 ---
 id: 117d
 title: Photo gallery 4: the LOOK switch
-status: in-progress
+status: review
 owner: claude
 depends_on: [117a, 117c]
 ---
@@ -35,3 +35,4 @@ Design and Marc's answers (2026-10-29): `docs/photo-gallery-design.md` (shared 3
     - [ ] Wide keyboard: give messages back the second row (for example put LOOK on the first keys row without wrapping BACK, or shorten the keys line) so the 3-line example above is not cut off any worse than on main.
     - [ ] Narrow views: do not take a message row for the note when a message is showing (for example drop the note while a message is up, as the wide views do), so the 3-row message capacity of main is kept.
     - [ ] Add a test that fails on this: the number of message lines shown for the 3-line example is at least what main shows, in all four view/input cases.
+- 2026-10-29 (claude): Round 2, review checklist done. (x) Wide keyboard: LOOK moved to the title row beside PHOTOS (as on wide touch), so the keys line is as on main and messages have their 2 rows again. (x) Narrow views: the note is dropped while a message shows, so messages have 3 rows again; with no message the status has 2 rows and the note the third. (x) New test: a 5-line message shows 2 rows (wide keyboard), 1 (wide touch), 3 (narrow), and never overlaps the note, in all four view/input cases. `npm test` 3487 pass, `npx tsc --noEmit`, `npm run build`, `npm run check:dist` pass; re-rendered the wide keyboard and narrow views at 1x with a message and looked. Still unchecked: real browser or phone, real storage, presets on real pictures, wording.

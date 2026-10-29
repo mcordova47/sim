@@ -1,0 +1,23 @@
+# The side project's little room (issue 111d): the real room, drawn wrong.
+# Every piece is seen from a different, wrong viewpoint, about ten times more wrong
+# than the game is about the real room. Commands: move, look, hide, add, dim.
+# See docs/side-project-config-design.md. Numbers are real-room pixels.
+
+# Bigger floor boards.
+look floor sp-floor-big
+
+# Wrong viewpoints.
+look sofa sp-sofa-back
+look queen-bed sp-bed-top
+look cube-bookshelf sp-bookshelf-top
+look nightstand sp-nightstand-side
+
+# The desk and the table trade places, both drawn straight on from the front.
+# The tiny person stands on the desk (the figure is part of that sprite).
+move standing-desk -80 0
+move dining-table 80 0
+move desk-chair -80 0
+look standing-desk sp-desk-front-figure
+look dining-table sp-table-front
+
+dim 0.08

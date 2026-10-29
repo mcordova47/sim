@@ -3,7 +3,8 @@ import { FULL_VIEW } from "../game/view-zoom";
 import { composedView, composedViewSprites } from "./composed-views";
 import { spriteNames } from "./sprite-names";
 import { APARTMENT } from "../game/apartment";
-import { defaultRoomOps, FRAME_SPRITE, LOOK, LOOKS, SIDE_PROJECT_VIEW_NAME, SideProjectView, type DrawOp } from "./side-project-view";
+import { sideProjectRoom } from "../game/side-project-room-config";
+import { FRAME_SPRITE, LOOK, LOOKS, SIDE_PROJECT_VIEW_NAME, SideProjectView, type DrawOp } from "./side-project-view";
 import type { SpriteDrawer } from "./sprites";
 import { Sprites } from "./sprites";
 
@@ -107,16 +108,17 @@ describe("the registered side project view", () => {
   });
 
   it("only uses sprites that have files, and the frame is the same size as the old picture", () => {
-    for (const name of [FRAME_SPRITE, SIDE_PROJECT_VIEW_NAME, ...defaultRoomOps().map((o) => o.sprite)]) {
+    for (const name of [FRAME_SPRITE, SIDE_PROJECT_VIEW_NAME, ...sideProjectRoom().map((o) => o.sprite)]) {
       expect(`/public/sprites/${name}.png` in spriteFiles, name).toBe(true);
     }
   });
 
   it("starts with the floor and walls, and lists every piece after them in bottom-edge order", () => {
-    const list = defaultRoomOps();
-    const firstPiece = list.findIndex((o) => o.sprite === "painting");
-    expect(firstPiece).toBeGreaterThan(100);
+    const list = sideProjectRoom();
+    const firstPiece = list.findIndex((o) => o.layer === "thing");
+    expect(firstPiece).toBeGreaterThan(20);
     expect(list.at(-1)?.sprite).toBe("front-door");
+    expect(list.slice(0, 5).every((o) => o.layer === "floor")).toBe(true);
   });
 });
 
@@ -150,9 +152,9 @@ describe("the looks", () => {
     expect(Math.abs(y - 80)).toBeLessThanOrEqual(2);
   });
 
-  it("the little room's desk is the desk with the tiny person on it, the same size as the desk", () => {
-    expect(defaultRoomOps().some((o) => o.sprite === "desk-with-figure")).toBe(true);
-    expect(defaultRoomOps().some((o) => o.sprite === "desk")).toBe(false);
+  it("the little room's desk is the front-on desk with the tiny person on it", () => {
+    expect(sideProjectRoom().some((o) => o.sprite === "sp-desk-front-figure")).toBe(true);
+    expect(sideProjectRoom().some((o) => o.sprite === "desk")).toBe(false);
   });
 });
 

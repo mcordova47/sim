@@ -149,7 +149,7 @@ Bad:
 interface DecorSave {
   owned: string[];                  // item ids you have
   placed: Record<string, string>;   // slot id -> item id (only slots that differ from the default are needed)
-  seen?: string[];                  // optional, items you have looked at (for a quiet "new" mark later)
+  seen?: string[];                  // optional (issue 109c): items an ad showed you and you did not take; never an owned id; capped; shown as a silhouette on the THINGS page. Sync: union of both sides minus anything owned.
 }
 ```
 A small `Decor` class (like `ApartmentState`) holds it: `itemIn(slot)`, `place(slot, item)`, `own(item)`, `owns(item)`, `choices(slot)` (owned items that fit; see the inventory section for what is shown elsewhere), and an `onChange` the renderer listens to.

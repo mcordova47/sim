@@ -378,6 +378,11 @@ The entry also shows the where-now line (the slot's "where" text, or IN THE INVE
 - WATER LILIES: LILIES ON WATER. VERY RESTFUL.
 - SUNFLOWERS: SUNFLOWERS IN A VASE. THEY ARE HOLDING UP.
 
+## THINGS page: the silhouette (issue 109c)
+Capitals only. Shown for something an ad put in front of you that you did not take (ignored, hidden, or closed). The page draws a flat dark shape of it, and nothing else about it: no name, no source, no place, no hint how to get one, no count. If it later arrives, the shape simply becomes the item. Marc marks each: keep, change or cut.
+- Name line: ???
+- Line under it: YOU HAVE SEEN ONE OF THESE.
+
 ## PHOTOS page: gallery and delete one (issue 117c)
 New lines on the PHOTOS page's grid and close-up. None mentions resolution, size or pixels. Wired in `src/game/achievements/photos-draw.ts` and `feature.ts`. Marc to mark: keep / soften / rewrite.
 - After a delete: Picture deleted. The original was never here.

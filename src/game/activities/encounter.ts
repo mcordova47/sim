@@ -24,6 +24,9 @@ export interface EncounterDeps {
   queued(itemId: string): boolean;
   // Queues the delivery; false if refused (owned, queued, full).
   deliver(itemId: string, delayHours: number): boolean;
+  // The ad showed this item and it was not added (issue 109c): the THINGS page keeps a silhouette.
+  // Optional so a test needs none.
+  markSeen?(itemId: string): void;
   mood(): number;
   addMood(amount: number): void;
   // An unsubscribe did not work.
@@ -55,6 +58,8 @@ export class EncounterActivity extends BaseActivity {
   private readonly id = ++encounterIds;
   private reduced = false;
   private firstDialogOpened = false;
+  // Something was added to the cart.
+  private bought = false;
 
   constructor(
     readonly ad: Ad,
@@ -125,6 +130,9 @@ export class EncounterActivity extends BaseActivity {
 
   // Over, with no wipe.
   private quit(): void {
+    // The ad was shown and nothing was added: you have seen one. Not for an item you own or have ordered, and
+    // not when you left before the card was up.
+    if (!this.done && this.firstDialogOpened && !this.bought && this.refusal() === null) this.deps.markSeen?.(this.ad.item);
     this.finish({ completed: false, quiet: true });
   }
 
@@ -191,6 +199,7 @@ export class EncounterActivity extends BaseActivity {
       const why = this.refusal() ?? ENCOUNTER_WORDS.cartFull;
       return this.speak(why, "refused");
     }
+    this.bought = true;
     this.deps.addMood(ENCOUNTERS.mood.cart);
     const when = ENCOUNTER_WORDS[arrivesWord(this.ad.delayHours)];
     const confirmed = `${ENCOUNTER_WORDS.ordered} ${when}`;

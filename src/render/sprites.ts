@@ -33,6 +33,17 @@ export interface SpriteDrawer {
     scale: number,
     smooth: boolean,
   ): void;
+  // Draws the sprite's shape as one flat colour (every pixel that is not clear becomes `color`), at a
+  // whole-number `scale`, cropped to its first `rows` rows. Optional; callers fall back to a flat box.
+  drawFlat?(
+    ctx: CanvasRenderingContext2D,
+    name: string,
+    x: number,
+    y: number,
+    scale: number,
+    color: string,
+    rows?: number,
+  ): void;
   // Draws one window of a picture, scaled to fill `into` (a whole-number scale, so
   // the pixels stay sharp). Optional; without it a zoom shows the whole picture.
   drawRegion?(
@@ -46,6 +57,7 @@ export interface SpriteDrawer {
 export class Sprites implements SpriteDrawer {
   private images = new Map<string, HTMLImageElement | null>();
   private placeholders = new Map<string, HTMLCanvasElement>();
+  private flats = new Map<string, HTMLCanvasElement>();
 
   // Resolves once every named sprite has either loaded or failed.
   load(names: string[]): Promise<void> {
@@ -67,6 +79,30 @@ export class Sprites implements SpriteDrawer {
     ctx.save();
     ctx.imageSmoothingEnabled = false;
     ctx.drawImage(image, from.x, from.y, from.w, from.h, 0, 0, into.width, into.height);
+    ctx.restore();
+  }
+
+  drawFlat(ctx: CanvasRenderingContext2D, name: string, x: number, y: number, scale: number, color: string, rows?: number): void {
+    const image = this.images.get(name);
+    if (!image) return;
+    const key = `${name}|${color}`;
+    let flat = this.flats.get(key);
+    if (!flat) {
+      flat = document.createElement("canvas");
+      flat.width = image.width;
+      flat.height = image.height;
+      const f = flat.getContext("2d");
+      if (!f) return;
+      f.drawImage(image, 0, 0);
+      f.globalCompositeOperation = "source-in";
+      f.fillStyle = color;
+      f.fillRect(0, 0, flat.width, flat.height);
+      this.flats.set(key, flat);
+    }
+    const h = Math.min(rows ?? flat.height, flat.height);
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(flat, 0, 0, flat.width, h, Math.round(x), Math.round(y), flat.width * scale, h * scale);
     ctx.restore();
   }
 

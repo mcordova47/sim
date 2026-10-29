@@ -128,6 +128,8 @@ export const DECOR = {
   maxIdLength: 64,
   // Most slot entries read from the saved placements.
   maxPlaced: 200,
+  // Most ids kept in the seen list (things shown in an ad and not taken, issue 109c).
+  maxSeen: 100,
 };
 
 // Deliveries (issue 062 stage 3a, docs/decor.md). Times are game hours.

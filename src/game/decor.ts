@@ -16,6 +16,9 @@ export interface DecorSave {
   owned: string[];
   // Slot id to item id, only for slots that differ from their default.
   placed: Record<string, string>;
+  // Item ids an ad showed you and you did not take (issue 109c). Optional: left out when empty, so
+  // older saves read the same. Never lists an owned item.
+  seen?: string[];
 }
 
 // What to draw for a slot right now.
@@ -43,6 +46,9 @@ export interface InventoryEntry {
   // The object in the room that changes it, a full line ("CHANGE IT AT THE DINING TABLE"),
   // or none when nothing there can.
   changeAt?: string;
+  // Something the game showed you in an ad and you did not take: drawn as a flat dark shape with `???`.
+  // `from`, `where` and `changeAt` are empty for it, and the item's name and note are never shown.
+  silhouette?: boolean;
 }
 
 const FROM_BY_HOW: Record<NonNullable<DecorItem["how"]>, string> = {
@@ -104,6 +110,8 @@ export class Decor {
   private readonly slots = new Map<string, DecorSlot>();
   private readonly items = new Map<string, DecorItem>();
   private owned = new Set<string>();
+  // Shown in an ad and not taken, in the order seen. Never holds an owned item.
+  private seen = new Set<string>();
   // Slot to item, only for slots that differ from their default. At most one slot shows an item.
   private placed = new Map<string, string>();
   // What the room shows while you look at the swap list (never saved): the slot
@@ -120,6 +128,7 @@ export class Decor {
   // Back to today's room, nothing extra owned.
   reset(announce = true): void {
     this.owned = new Set(this.starting());
+    this.seen = new Set();
     this.placed = new Map();
     this.previewed = null;
     if (announce) this.onChange?.();
@@ -207,7 +216,27 @@ export class Decor {
         changeAt: objects.length ? `CHANGE IT AT ${objects.map((o) => `THE ${o.toUpperCase()}`).join(" OR ")}` : undefined,
       });
     }
+    // Then what an ad showed you and you did not take, in the order you saw it: no name, no hint.
+    for (const id of this.seen) {
+      const item = this.items.get(id);
+      if (!item || isTestItem(item) || this.owned.has(id)) continue;
+      out.push({ item, from: "", where: "", silhouette: true });
+    }
     return out;
+  }
+
+  // An ad showed you this item and you did not take it. False (and nothing saved) if it is unknown,
+  // owned, a TEST item or already seen.
+  markSeen(itemId: string): boolean {
+    const item = this.items.get(itemId);
+    if (!item || isTestItem(item) || this.owned.has(itemId) || this.seen.has(itemId) || this.seen.size >= DECOR.maxSeen) return false;
+    this.seen.add(itemId);
+    this.onChange?.();
+    return true;
+  }
+
+  hasSeen(itemId: string): boolean {
+    return this.seen.has(itemId);
   }
 
   get previewing(): boolean {
@@ -254,6 +283,8 @@ export class Decor {
   own(itemId: string): boolean {
     if (!this.items.has(itemId) || this.owned.has(itemId) || this.owned.size >= DECOR.maxOwned) return false;
     this.owned.add(itemId);
+    // If it was a silhouette, it simply becomes the item.
+    this.seen.delete(itemId);
     this.onChange?.();
     return true;
   }
@@ -366,13 +397,16 @@ export class Decor {
   load(raw: unknown): void {
     const parsed = parseDecor(raw, this.data);
     this.owned = new Set(parsed.owned);
+    this.seen = new Set(parsed.seen ?? []);
     this.placed = new Map(Object.entries(parsed.placed));
     this.previewed = null;
     this.onChange?.();
   }
 
   toJSON(): DecorSave {
-    return { owned: [...this.owned], placed: Object.fromEntries(this.placed) };
+    const save: DecorSave = { owned: [...this.owned], placed: Object.fromEntries(this.placed) };
+    if (this.seen.size > 0) save.seen = [...this.seen];
+    return save;
   }
 }
 
@@ -417,5 +451,14 @@ export function parseDecor(raw: unknown, data: DecorData = DECOR_DATA): DecorSav
   }
   const placed: Record<string, string> = {};
   if (complete) for (const slot of data.slots) if (shows.get(slot.id) !== slot.default) placed[slot.id] = shows.get(slot.id)!;
-  return { owned: [...owned], placed };
+  // Seen: short strings, no repeats, at most DECOR.maxSeen, never an owned id (read last, so it is
+  // judged against the owned list as repaired above).
+  const seen: string[] = [];
+  if (isRecord(raw) && Array.isArray(raw.seen)) {
+    for (const id of raw.seen.slice(0, DECOR.maxSeen * 2)) {
+      if (seen.length >= DECOR.maxSeen) break;
+      if (typeof id === "string" && id.length > 0 && id.length <= DECOR.maxIdLength && !owned.has(id) && !seen.includes(id)) seen.push(id);
+    }
+  }
+  return seen.length > 0 ? { owned: [...owned], placed, seen } : { owned: [...owned], placed };
 }

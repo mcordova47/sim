@@ -145,7 +145,7 @@ export function normaliseProgress(raw: unknown, env: SyncEnv = {}): SyncProgress
     unlocked,
     stats: normaliseStats(r.stats),
     world,
-    decor: { owned: capOwned(decorParsed.owned), placed: decorParsed.placed },
+    decor: { owned: capOwned(decorParsed.owned), placed: decorParsed.placed, ...seenField(decorParsed.seen ?? [], owned) },
     deliveries,
     encounters: parseEncounters(r.encounters, deliveries.hours),
   };
@@ -157,6 +157,14 @@ function capOwned(ids: Iterable<string>): string[] {
     .sort((x, y) => Number(knownItems.has(y)) - Number(knownItems.has(x)) || byText(x, y))
     .slice(0, DECOR.maxOwned)
     .sort(byText);
+}
+
+// What an ad showed you and you did not take only grows, like what you own: the union of both sides, minus
+// anything owned by either (an item that arrived is no longer a silhouette). Left out when empty, so a
+// save with nothing seen is the same text as before. Sorted, like the other sets; the first `maxSeen` of it.
+function seenField(ids: Iterable<string>, owned: ReadonlySet<string>): { seen?: string[] } {
+  const seen = sortedUnique([...ids].filter((id) => !owned.has(id))).slice(0, DECOR.maxSeen);
+  return seen.length > 0 ? { seen } : {};
 }
 
 export type SyncError = "notASave" | "newer" | "damaged";
@@ -227,7 +235,7 @@ export function mergeSaves(a: SyncDoc, b: SyncDoc, now: number): SyncDoc {
       unlocked: sortedUnique([...a.progress.unlocked, ...b.progress.unlocked]),
       stats: maxStats(a.progress.stats, b.progress.stats),
       world: w.world,
-      decor: { owned, placed: { ...w.decor.placed } },
+      decor: { owned, placed: { ...w.decor.placed }, ...seenField([...(a.progress.decor.seen ?? []), ...(b.progress.decor.seen ?? [])], has) },
       deliveries: {
         hours: w.deliveries.hours,
         pending: w.deliveries.pending.filter((p) => !has.has(p.id)),

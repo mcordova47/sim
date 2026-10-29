@@ -49,7 +49,7 @@ Three ways, one rule: the bus ramps to 0 and the player stops once the ramp has 
 
 ### Mute and calm
 - Muted: master gain 0, so everything runs silent and in time; unmuting part way is on the right beat. The scene module never touches mute or saved settings.
-- Calm: 120 bpm at most, no sawtooth, no sustained high notes, gain below the record, a fade on every leave, a bounded loop, and nothing begins before the hit.
+- Calm (placeholder track only; Marc's real track, issue 091d, is faster at 135 bpm with sawtooth harmonies and he dropped the tempo and wave guard on purpose, 2026-10-29): a fade on every leave, a bounded loop, and nothing begins before the hit still hold.
 
 ## 3. Code shape
 ```

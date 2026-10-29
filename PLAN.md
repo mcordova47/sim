@@ -130,7 +130,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 091a | [Encounter music 1: bus, scene, placeholder track](issues/091a-encounter-bus-scene.md) | claude | done | 091 |
 | 091b | [Encounter music 2: result jingles (success only)](issues/091b-encounter-jingles.md) | claude | done | 091a |
 | 091c | [Encounter music 3: docs and tuning](issues/091c-encounter-docs.md) | claude | todo | 091b |
-| 091d | [Encounter music 4: Marc writes the real track](issues/091d-encounter-real-track.md) | marc | todo | 091a |
+| 091d | [Encounter music 4: Marc writes the real track](issues/091d-encounter-real-track.md) | marc | done | 091a |
 | 092 | [Mobile landscape: the controls must not cover the picture](issues/092-mobile-landscape-controls.md) | claude | done | 087, 090 |
 | 093 | [Mobile stage 3: key entry, a tappable pause screen, and key hints that match the controls](issues/093-mobile-text-menus-and-hints.md) | claude | done | 087, 089 |
 | 094 | [Phone battery: drains a little, and looks like a phone battery indicator](issues/094-battery-drain-and-indicator.md) | claude | done | 088 |

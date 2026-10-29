@@ -299,6 +299,30 @@ describe.each([
   });
 });
 
+describe("the thumbnails' order", () => {
+  it("the newest picture is the first thumbnail, the store order and the count line are unchanged", async () => {
+    const s = setup();
+    for (const n of [1, 2, 3]) await s.reel.store.add([pic(n)]);
+    s.press("KeyL");
+    s.press("KeyO");
+    await s.tick();
+    const v = s.internals.photosView();
+    const stored = await s.reel.store.list();
+    expect(v.pics!.map((p) => p.id)).toEqual(stored.map((p) => p.id)); // oldest first, as stored
+    const order = photosLayout(v).thumbs.map((t) => v.pics![t.index].id);
+    expect(order).toEqual([...stored.map((p) => p.id)].reverse());
+    expect(order[0]).toBe(stored[2].id);
+    expect(statusText(v)).toBe("3 pictures on this device");
+  });
+
+  it("with more pictures than fit, the ones drawn are the newest", () => {
+    const pics = Array.from({ length: REEL_CAP }, (_, i) => ({ ...pic(i), id: i + 1, palette: 1 as const }));
+    const l = photosLayout({ touch: false, pics, persistent: true, progress: null, message: [], confirmRemove: false });
+    expect(l.thumbs.length).toBeGreaterThan(0);
+    expect(l.thumbs.map((t) => t.index)).toEqual(l.thumbs.map((_, i) => REEL_CAP - 1 - i));
+  });
+});
+
 describe("the page's words", () => {
   const lines = [PHOTOS_INTRO, PHOTOS_NONE, PHOTOS_NO_STORAGE, PHOTOS_REMOVED, "Making picture 3 of 12", "12 pictures on this device", "1 picture on this device"];
   it("use only letters the font has, and none speak of resolution, size or pixels, or of the game", () => {

@@ -108,9 +108,12 @@ export function photosLayout(view: PhotosView): PhotosLayout {
   const rows = Math.max(0, Math.floor((VIEW.height - 12 - thumbsTop + THUMB_GAP) / (THUMB_CELL + THUMB_GAP)));
   const thumbs: Array<{ index: number; rect: Rect }> = [];
   const n = Math.min(view.pics?.length ?? 0, cols * rows);
+  // Newest first (the store lists oldest first), so a picture just added is the first one shown. `index` is
+  // the picture's place in `view.pics`.
+  const last = (view.pics?.length ?? 0) - 1;
   for (let i = 0; i < n; i++) {
     thumbs.push({
-      index: i,
+      index: last - i,
       rect: { x: MARGIN + (i % cols) * (THUMB_CELL + THUMB_GAP), y: thumbsTop + Math.floor(i / cols) * (THUMB_CELL + THUMB_GAP), w: THUMB_CELL, h: THUMB_CELL },
     });
   }

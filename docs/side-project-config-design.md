@@ -88,7 +88,7 @@ A to C can run in parallel with nothing else; they touch only new files plus `sp
 - **No live moving figure** in this issue (see 051's version 2 notes).
 
 ## Open questions for Marc (most important first)
-1. **What does drift mean?**
+1. **What does drift mean? ANSWERED by Marc 2026-10-29: A, faithful copy plus overrides.**
    - A. Faithful copy plus overrides (my recommendation): the little room follows the real one except where the file says.
    - B. Frozen: the little room is a fixed scene listed in full, never following the real one.
    - C. Mostly frozen, but follows a short list of things (the plant, the lamp).

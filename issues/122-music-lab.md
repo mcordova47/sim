@@ -1,7 +1,7 @@
 ---
 id: 122
 title: A dev-only music lab (live .track editing with the real synth, intro tuning)
-status: done
+status: review
 owner: claude
 depends_on: []
 ---
@@ -33,3 +33,4 @@ Marc's requirements: edit a track as `.track` text (the make-track editor's form
   - No real artist or band names in the sample track or docs (grep). Scope: only `src/lab/`, `music-lab.html`, docs, `check-dist` and its test, and the small type-only visibility changes and the DEV-only lines the log lists; PLAN.md and other issues untouched.
   - UNVERIFIED (an agent cannot hear or use a real browser): how anything sounds, that browsers let audio start, glitches on live edits, encounter timing and ducking by ear, manual use of the page. Marc's audition steps in the log above stand; step (7) also checks the ducking returns after closing the card.
   - PLAN.md table needs updating by the planner (122 to done once Marc has listened, or as the planner decides).
+- 2026-10-29: fix for a bug Marc found: after "Write slider values into the text" the sliders snapped back to the old values, because they were redrawn from the previous parse. Now `bake()` (pure, in `lab-text.ts`) returns the new text, its parse and the remaining tweaks, and the page draws the sliders from that parse (tempo, each channel's gain in intro and loop; master stays as set). Test added in `lab-text.test.ts`. Status back to review for a re-check of this diff.

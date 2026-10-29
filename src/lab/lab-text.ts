@@ -189,6 +189,17 @@ export function copyBack(text: string, tweaks: Tweaks): string {
   return out.join("\n");
 }
 
+// "Write slider values into the text": the text with the tempo and volumes written in, and the tweaks that
+// remain once they are in the text (no tempo or gain overrides: the text now says them; mutes, master and the
+// encounter level stay, since the text cannot hold them). Null if the text does not parse.
+export function bake(text: string, tweaks: Tweaks): { text: string; tweaks: Tweaks; lab: LabTrack } | null {
+  if (!parseLab(text).ok) return null;
+  const baked = copyBack(text, tweaks);
+  const again = parseLab(baked);
+  if (!again.ok) return null;
+  return { text: baked, lab: again.lab, tweaks: { ...tweaks, gains: {}, tempo: undefined } };
+}
+
 // The values that live in config.ts rather than in the text, ready to copy over.
 export function configLines(tweaks: Tweaks): string {
   const lines: string[] = [];

@@ -9,7 +9,7 @@ import { LAB_ENCOUNTER } from "./lab-encounter";
 import { LabMusicPlayer, labAudio } from "./lab-audio";
 import { LabPlayer } from "./lab-player";
 import { loadLab, saveLab, type LabState } from "./lab-store";
-import { SAMPLE_TEXT, channelRows, configLines, copyBack, parseLab, playable, type LabTrack, type Mode, type Tweaks } from "./lab-text";
+import { SAMPLE_TEXT, bake, channelRows, configLines, copyBack, parseLab, playable, type LabTrack, type Mode, type Tweaks } from "./lab-text";
 
 const $ = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T;
 const storage = (() => {
@@ -156,9 +156,12 @@ $<HTMLSelectElement>("mode").addEventListener("change", (e) => {
   if (player.playing && state.live) play();
 });
 $("bake").addEventListener("click", () => {
-  if (!parseLab(text.value).ok) return;
-  text.value = copyBack(text.value, state.tweaks);
-  state.tweaks = { ...state.tweaks, gains: {}, tempo: undefined };
+  const baked = bake(text.value, state.tweaks);
+  if (!baked) return;
+  // The sliders are drawn from the new text (read first), so each keeps showing the value just written.
+  text.value = baked.text;
+  lab = baked.lab;
+  state.tweaks = baked.tweaks;
   renderLevels();
   renderChannels();
   changed();

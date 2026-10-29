@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { SAMPLE_TEXT, applyTweaks, channelRows, configLines, copyBack, parseLab, playable, selectSection, type Tweaks } from "./lab-text";
+import { SAMPLE_TEXT, applyTweaks, bake, channelRows, configLines, copyBack, parseLab, playable, selectSection, type Tweaks } from "./lab-text";
 
 const T = (over: Partial<Tweaks> = {}): Tweaks => ({ gains: {}, muted: [], ...over });
 const ok = (text: string) => {
@@ -150,5 +150,32 @@ describe("the sample", () => {
     for (const t of [lab.intro!, lab.loop]) {
       for (const c of t.channels) for (const n of c.notes) expect(n.start + n.length).toBeLessThanOrEqual(t.beats);
     }
+  });
+});
+
+describe("bake", () => {
+  it("keeps every value the sliders showed: what the new text says equals the old tweaked values", () => {
+    const tweaks = T({ tempo: 140, master: 0.5, muted: ["loop.beat"], gains: { "intro.melody": 0.3, "intro.bass": 0.4, "loop.melody": 0.25, "loop.bass": 0.15, "loop.beat": 0.9 } });
+    const before = playable(ok(SAMPLE_TEXT), "both", tweaks);
+    const baked = bake(SAMPLE_TEXT, tweaks)!;
+    // The sliders are drawn from baked.lab with the remaining tweaks: tempo and each channel's volume match.
+    expect(baked.lab.loop.tempo).toBe(140);
+    expect(baked.lab.intro?.tempo).toBe(140);
+    for (const row of channelRows(baked.lab)) {
+      const shown = baked.tweaks.gains[row.key] ?? row.volume;
+      const want = (row.section === "intro" ? before.intro : playable(ok(SAMPLE_TEXT), "both", T({ ...tweaks, muted: [] })).loop)!.channels.find((c) => c.name === row.name)!.volume;
+      expect(shown).toBe(want);
+    }
+    expect(baked.tweaks.tempo).toBeUndefined();
+    expect(baked.tweaks.gains).toEqual({});
+    expect(baked.tweaks.master).toBe(0.5);
+    expect(baked.tweaks.muted).toEqual(["loop.beat"]);
+    expect(baked.text).toBe(copyBack(SAMPLE_TEXT, tweaks));
+  });
+  it("is null for text that does not parse, and does not change the input tweaks", () => {
+    const tweaks = T({ tempo: 90, gains: { "loop.a": 0.2 } });
+    expect(bake("nonsense", tweaks)).toBeNull();
+    bake("title: T\n[a square]\nC4:1\n", tweaks);
+    expect(tweaks).toEqual({ gains: { "loop.a": 0.2 }, muted: [], tempo: 90 });
   });
 });

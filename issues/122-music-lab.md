@@ -3,7 +3,7 @@ id: 122
 title: A dev-only music lab (live .track editing with the real synth, intro tuning)
 status: todo
 owner: claude
-depends_on: [091]
+depends_on: []
 ---
 
 ## Goal

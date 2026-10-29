@@ -1,15 +1,18 @@
 # SYSTEM TRACK for the ad encounter (issue 091a). Not in the record player: it is
 # played on the encounter bus from the entrance's hit chord (frame 32) while the
-# card is open. A PLACEHOLDER first draft, only so the build can be tested; Marc
-# writes the real one (in the track editor or the music lab) and replaces this
-# file. Key of G (the entrance's pulse run), 120 bpm, 16 beats = 8 seconds a pass,
-# four passes then a fade. It starts on the downbeat the hit lands on.
+# card is open.
 title: Encounter Battle
 note: System track for ad encounters. Placeholder. Not in the record player.
-tempo: 120
+tempo: 135
 
-[melody square 0.4]
+[melody square 0.3]
 G4:.5 R:.5 Bb4:.5 R:.5 D5:1 R:1 | C5:.5 R:.5 Bb4:.5 R:.5 G4:1 R:1 | Eb5:.5 R:.5 D5:.5 R:.5 Bb4:1 R:1 | D5:.5 R:.5 C5:.5 R:.5 A4:1 R:1
+
+[harmony_h sawtooth 0.4]
+R:2 D4:1 C4:.5 D4:.5 | Eb4:2 D4:2 | R:1 Eb4:2 G4:1 | F#4:2 D4:2
+
+[harmony_l sawtooth 0.4]
+R:2 D3:1 C3:.5 D3:.5 | Eb3:2 D3:2 | R:4 | R:2 D3:.5 C3:.5 Bb2:.5 A2:.5
 
 [bass triangle 0.6]
 G2:.5 G2:.5 G3:.5 G2:.5 G2:.5 G2:.5 G3:.5 G2:.5 | G2:.5 G2:.5 G3:.5 G2:.5 G2:.5 G2:.5 G3:.5 G2:.5 | Eb2:.5 Eb2:.5 Eb3:.5 Eb2:.5 Eb2:.5 Eb2:.5 Eb3:.5 Eb2:.5 | D2:.5 D2:.5 D3:.5 D2:.5 D2:.5 D2:.5 D3:.5 D2:.5

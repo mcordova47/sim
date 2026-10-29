@@ -144,7 +144,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 106 | [The track editor (mixing tool) on phones](issues/106-track-editor-on-phones.md) | marc + claude | done | 093 |
 | 106a | [Track editor on phones 1: touch layout and drawing](issues/106a-editor-touch-layout.md) | claude | done | 093 |
 | 106b | [Track editor on phones 2: taps that edit](issues/106b-editor-touch-taps.md) | claude | done | 106a |
-| 106c | [Track editor on phones 3: name, More menu, delete](issues/106c-editor-touch-name-menu.md) | claude | todo | 106b |
+| 106c | [Track editor on phones 3: name, More menu, delete](issues/106c-editor-touch-name-menu.md) | claude | done | 106b |
 | 106d | [Track editor on phones 4: share and paste](issues/106d-editor-touch-share-paste.md) | claude | todo | 106c |
 | 106e | [Track editor on phones 5: long press, drag paint, polish (optional)](issues/106e-editor-touch-polish.md) | claude | todo | 106d |
 | 107 | [The guitar: flipped so it reads as standing on a stand](issues/107-guitar-on-a-stand.md) | claude | done | 100 |
@@ -169,8 +169,8 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 115 | [A gentle limiter on the master output (clipping safety)](issues/115-master-limiter.md) | claude | done | |
 | 116 | [Name the game Simagotchi](issues/116-simagotchi-name.md) | claude | done | |
 | 117 | [Photos like a phone gallery: browse, delete one, close-up scene](issues/117-photo-gallery.md) | marc + claude | done | 113 |
-| 117a | [Photo gallery 1: looks and the store](issues/117a-gallery-looks.md) | claude | todo | 113c |
-| 117b | [Photo gallery 2: the gallery core (not wired)](issues/117b-gallery-core.md) | claude | todo | 113c |
+| 117a | [Photo gallery 1: looks and the store](issues/117a-gallery-looks.md) | claude | done | 113c |
+| 117b | [Photo gallery 2: the gallery core (not wired)](issues/117b-gallery-core.md) | claude | done | 113c |
 | 117c | [Photo gallery 3: manage mode with delete one](issues/117c-gallery-manage.md) | claude | todo | 117b |
 | 117d | [Photo gallery 4: the LOOK switch](issues/117d-gallery-look-switch.md) | claude | todo | 117a, 117c |
 | 117e | [Photo gallery 5: the sofa scene replaces the slideshow](issues/117e-gallery-scene.md) | claude | todo | 117b |

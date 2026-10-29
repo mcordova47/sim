@@ -301,4 +301,21 @@ describe.each(VIEWS)("LOOK switch: layout, %s", (_name, view, touch) => {
     drawPhotos(c.getContext() as unknown as CanvasRenderingContext2D, s.view());
     expect(unsupportedChars([PHOTOS_LOOK_NOTE, PHOTOS_LOOK_NOTE_SHORT, PHOTOS_LOOK_NOT_KEPT, ...REEL_LOOKS.map((l) => lookLabel(l.id))].join(" "))).toEqual([]);
   });
+
+  it("a message keeps as many rows as it had before the LOOK switch (wide keyboard 2, wide touch 1, narrow 3)", async () => {
+    setView(view);
+    setTouchHints(touch);
+    const s = make();
+    await open(s, 7);
+    (s.feature as unknown as { photoMessage: string[] }).photoMessage = ["4 pictures added.", "2 were already here.", "1 could not be read.", "Another line.", "And one more."];
+    const l = s.layout();
+    const expected = view === NARROW_VIEW ? 3 : touch ? 1 : 2;
+    expect(l.message.length).toBe(expected);
+    // The note is dropped rather than overlapping a message.
+    for (const n of l.note) {
+      const nr = { x: n.x, y: n.y, w: textWidth(n.text), h: 7 };
+      for (const m of l.message) expect(overlap(nr, { x: 6, y: m.y, w: textWidth(m.text), h: 7 })).toBe(false);
+    }
+  });
 });
+

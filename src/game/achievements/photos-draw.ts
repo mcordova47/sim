@@ -219,8 +219,11 @@ function gridPage(view: PhotosView, g: Gallery<ReelPic>): PhotosLayout {
     // wide for one line the rest go on the line below, which then is not a message row.
     let x = MARGIN;
     let row = 0;
-    for (const b of list) {
-      const w = textWidth(hintLine([{ key: b.key, text: b.id === "look" ? LOOK_LONGEST : b.label }])) + 6;
+    // The keys line has no room for LOOK as well, so it sits in the title row beside the title.
+    const look = list.find((b) => b.id === "look");
+    if (look) buttons.push({ ...look, rect: { x: MARGIN + textWidth("PHOTOS") + 9, y: 4, w: textWidth(hintLine([{ key: look.key, text: LOOK_LONGEST }])) + 6, h: 9 } });
+    for (const b of list.filter((b) => b.id !== "look")) {
+      const w = textWidth(hintLine([{ key: b.key, text: b.label }])) + 6;
       if (x > MARGIN && x + w - 3 > VIEW.width - MARGIN) {
         x = MARGIN;
         row = 1;
@@ -234,13 +237,12 @@ function gridPage(view: PhotosView, g: Gallery<ReelPic>): PhotosLayout {
     list.forEach((b, i) => buttons.push({ ...b, rect: { x: MARGIN - 3, y: top + 10 * i - 1, w: textWidth(hintLine([{ key: b.key, text: b.id === "look" ? LOOK_LONGEST : b.label }])) + 6, h: 10 } }));
     rows = [grid.bottom + 3, grid.bottom + 12, grid.bottom + 21];
   }
-  // On the narrow view the last text row is the look note and a message gets the rows above it.
-  const noteRow = !wide ? rows[2] : null;
-  if (!wide) rows = rows.slice(0, 2);
   const width = VIEW.width - 2 * MARGIN;
-  const flow = (text: string): Array<{ text: string; y: number }> => (text ? wrapText(text, width).slice(0, rows.length).map((t, i) => ({ text: t, y: rows[i] })) : []);
+  const flow = (text: string, n = rows.length): Array<{ text: string; y: number }> => (text ? wrapText(text, width).slice(0, n).map((t, i) => ({ text: t, y: rows[i] })) : []);
+  // A message keeps every row it had before the LOOK switch; the narrow view's note takes the last row only when there is no message.
   const message = flow(view.message.join(" "));
-  const status = message.length ? [] : flow(statusText(view));
+  const noteRow = !wide && !message.length ? rows[2] : null;
+  const status = message.length ? [] : flow(statusText(view), noteRow !== null ? 2 : rows.length);
   // The wide view has one text row for both: the note sits at its right end when the text leaves room.
   let note: PhotosLayout["note"] = [];
   if (showNote(view)) {

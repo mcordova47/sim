@@ -155,17 +155,18 @@ describe("the balance of melody and loop (pitch tilt)", () => {
     for (const n of grooveBar(0, 0, 0)) if (n.role === "harmony") expect(n.gain / G.harmonyGain).toBeGreaterThan(1 - GUITAR_SKILL.humanise.gain - 1e-9);
     expect(grooveBar(0, 0, 0).filter((n) => n.role === "harmony").map((n) => n.gain)).not.toEqual(grooveBar(0, 0).filter((n) => n.role === "harmony").map((n) => n.gain));
   });
-  it("keeps the melody balanced with the loop: at most 2 dB over its loudest note and at most 7 dB under it (the high notes are turned down to sound level with the low ones), and over the loop's mid notes, in every voice and chord", () => {
+  it("keeps the melody balanced with the loop: at most 2 dB over its loudest note and at most 16 dB under it (tilt 5) (the high notes are turned down to sound level with the low ones), and its strongest note over the loop's mid notes, in every voice and chord", () => {
     for (const voice of voices) {
       const { loop, melody } = peaks(voice);
       const loudest = Math.max(...loop.map((n) => n.peak));
       const mid = Math.max(...loop.filter((n) => n.role === "harmony").map((n) => n.peak));
       for (const m of melody) {
         const over = db(m.peak / loudest);
-        expect(over, `${voice} ${m.chord} ${m.dir}: ${over.toFixed(1)} dB`).toBeGreaterThanOrEqual(-7);
+        expect(over, `${voice} ${m.chord} ${m.dir}: ${over.toFixed(1)} dB`).toBeGreaterThanOrEqual(-16);
         expect(over, `${voice} ${m.chord} ${m.dir}: ${over.toFixed(1)} dB`).toBeLessThanOrEqual(2);
-        expect(m.peak).toBeGreaterThan(mid);
       }
+      // the melody's strongest notes still stand out a little over the loop's mid notes
+      expect(Math.max(...melody.map((m) => m.peak))).toBeGreaterThan(mid);
     }
   });
   it("is quieter with the tilt than without for the high notes (it is what keeps them from standing out)", () => {

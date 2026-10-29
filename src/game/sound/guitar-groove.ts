@@ -9,7 +9,7 @@ import type { Synth } from "./synth";
 export class GuitarGroove {
   // Context time of the first slot; null while stopped or waiting for the first update.
   private origin: number | null = null;
-  private k = 0; // the next eighth to schedule
+  private k = 0; // the next pluck to schedule
   private on = false;
   private effect = SOUND.guitarStrings.steel.string;
   private seed = 0;

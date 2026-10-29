@@ -115,7 +115,7 @@ cycle B   r h a m     strings on the A chord: 5 [melody] 4 3
 
 The strings of each chord are data (`voicings`, strings 6 low E to 1 high E, open-position shapes): A x02220 (root string 5, alt 4), E 022100 (root 6, alt 5), F#m 244222 (root 6, alt 5), D xx0232 (root string 4; no 6th string, so its alternate bass is the open A string 5). Mid is string 3 and high string 2. A role whose string a chord lacks takes the nearest string the chord has. Bass strings are only 6, 5 and 4.
 
-Melody: nothing plays on an `h` pluck in the loop; the arrow is that note (rest slots are pluck 4 of cycle A and pluck 2 of cycle B, so 4 chances a bar, alternately 0.26 s and 0.78 s apart). With no key pressed it stays silent. The note is a note of the chord sounding (`melody[chord]`), gain 0.6 before a pitch tilt of 2.5 dB an octave above the low A (the loop 0.55; the tilt also turns the loop's mid notes down; `?guitartilt=` in dev).
+Melody: nothing plays on an `h` pluck in the loop; the arrow is that note (rest slots are pluck 4 of cycle A and pluck 2 of cycle B, so 4 chances a bar, alternately 0.26 s and 0.78 s apart). With no key pressed it stays silent. The note is a note of the chord sounding (`melody[chord]`), gain 0.6 before a pitch tilt of 5 dB an octave above the low A (the loop 0.55; the tilt also turns the loop's mid notes down; `?guitartilt=` in dev).
 
 Snap (`groove.snap`, on by default, `?guitarsnap=off`): an arrow pressed within `window` (0.12 s) before an `h` pluck is played on it (at most 120 ms late, never before the press) and uses that pluck's bar's chord; any other press plays at once.
 

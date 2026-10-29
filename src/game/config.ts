@@ -973,7 +973,7 @@ export const GUITAR_SKILL = {
     // by `dbPerOctave` for each octave above `reference` (semitones from A4; -24 is the low A, the bass
     // range). The bass strings sit at or near it and are barely touched. 0 turns the tilt off (`?guitartilt=0`
     // in the dev server tries other values).
-    pitchTilt: { dbPerOctave: 2.5, reference: -24 },
+    pitchTilt: { dbPerOctave: 5, reference: -24 },
     snap: { enabled: true, window: 0.12 },
     gain: 0.55, // all of it, next to the melody
     leadIn: 0.05, // seconds from the first press to the first slot

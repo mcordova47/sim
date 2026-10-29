@@ -1,7 +1,7 @@
 ---
 id: 111c
 title: Side project config 3: the view and the painter
-status: review
+status: done
 owner: claude
 depends_on: [111]
 ---

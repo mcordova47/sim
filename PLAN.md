@@ -161,7 +161,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 111 | [The side project picture reacts to editable config (stretch)](issues/111-side-project-config.md) | marc + claude | done | 101 |
 | 111a | [Side project config 1: the parser and command set](issues/111a-sideproject-parser.md) | claude | done | 111 |
 | 111b | [Side project config 2: compose the little room from the real one](issues/111b-sideproject-compose.md) | claude | done | 111 |
-| 111c | [Side project config 3: the view and the painter](issues/111c-sideproject-view.md) | claude | todo | 111 |
+| 111c | [Side project config 3: the view and the painter](issues/111c-sideproject-view.md) | claude | done | 111 |
 | 111d | [Side project config 4: the real config file and the figure](issues/111d-sideproject-room.md) | claude | todo | 111a, 111b, 111c |
 | 111e | [Side project config 5: `when` conditions](issues/111e-sideproject-when.md) | claude | todo | 111d |
 | 111f | [Side project config 6: one real effect (later)](issues/111f-sideproject-effects.md) | marc + claude | todo | 111e |

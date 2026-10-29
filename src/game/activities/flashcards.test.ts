@@ -52,7 +52,16 @@ function setup(open: (key: string) => Promise<OpenResult> | OpenResult, options:
       return () => pastes.splice(pastes.indexOf(l), 1);
     },
   };
-  const a = new FlashcardsActivity(f.host, backend, store, clipboard);
+  // Never the real guest backend, which fetches the flashcards core over the network (issue 121): a test
+  // that reaches the guest path by mistake fails loudly here instead of racing a real request.
+  const noGuest: StudyBackend = {
+    paysPoints: false,
+    usesKey: false,
+    open: async () => {
+      throw new Error("These tests inject no guest backend; set t.a.phase = \"key\" to type a key");
+    },
+  };
+  const a = new FlashcardsActivity(f.host, backend, store, clipboard, noGuest);
   const step = async (c: Controls = NO_INPUT) => {
     a.update(1 / 60, c);
     await flush();
@@ -141,6 +150,7 @@ describe("FlashcardsActivity: the key", () => {
   it("does not remember a key that was never accepted, and says so offline", async () => {
     const t = setup(() => "offline");
     t.a.start();
+    t.a.phase = "key"; // past the choice screen (tested below)
     t.a.typed = KEY;
     await t.step(keys("Enter"));
     await flush();
@@ -155,6 +165,7 @@ describe("FlashcardsActivity: the key", () => {
   it("treats a backend that throws as no connection", async () => {
     const t = setup(() => Promise.reject(new Error("boom")));
     t.a.start();
+    t.a.phase = "key"; // past the choice screen (tested below)
     t.a.typed = KEY;
     await t.step(keys("Enter"));
     await flush();

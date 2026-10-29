@@ -1,7 +1,7 @@
 ---
 id: 106
 title: The track editor (mixing tool) on phones
-status: todo
+status: done
 owner: marc + claude
 depends_on: [093]
 ---
@@ -18,3 +18,4 @@ Marc (2026-10-28): the track mixing tool (the make-track editor, `docs/make-trac
 
 ## Progress log
 - 2026-10-28: design note written: `docs/track-editor-phones-design.md` (touch layout in two shapes, tap and long-press gestures, hints, playback, share and paste, 5 build stages, 5 open questions).
+- 2026-10-28 (planner): Marc answered all five questions; build issues 106a to 106e filed.

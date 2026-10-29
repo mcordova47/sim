@@ -141,7 +141,12 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 103 | [Sync stage 2: the Netlify Function with Blobs and the pairing link](issues/103-sync-stage-2-server.md) | claude | done | 102 |
 | 104 | [Sync stage 3: automatic sync and the pause-screen control](issues/104-sync-stage-3-automatic.md) | claude | done | 103, 093 |
 | 105 | [Dried flowers should not offer to be watered](issues/105-dried-flowers-no-watering.md) | claude | done | |
-| 106 | [The track editor (mixing tool) on phones](issues/106-track-editor-on-phones.md) | marc + claude | todo | 093 |
+| 106 | [The track editor (mixing tool) on phones](issues/106-track-editor-on-phones.md) | marc + claude | done | 093 |
+| 106a | [Track editor on phones 1: touch layout and drawing](issues/106a-editor-touch-layout.md) | claude | todo | 093 |
+| 106b | [Track editor on phones 2: taps that edit](issues/106b-editor-touch-taps.md) | claude | todo | 106a |
+| 106c | [Track editor on phones 3: name, More menu, delete](issues/106c-editor-touch-name-menu.md) | claude | todo | 106b |
+| 106d | [Track editor on phones 4: share and paste](issues/106d-editor-touch-share-paste.md) | claude | todo | 106c |
+| 106e | [Track editor on phones 5: long press, drag paint, polish (optional)](issues/106e-editor-touch-polish.md) | claude | todo | 106d |
 | 107 | [The guitar: flipped so it reads as standing on a stand](issues/107-guitar-on-a-stand.md) | claude | done | 100 |
 | 108 | [The guitar's timbre follows the current instrument](issues/108-guitar-timbre.md) | claude | done | |
 | 109 | [A browsable inventory, like a pokedex](issues/109-browsable-inventory.md) | marc + claude | done | 073 |

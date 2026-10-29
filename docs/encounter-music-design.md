@@ -100,7 +100,7 @@ Existing tests: the golden main-room frames and the golden voice files should be
 1. **Who writes the real track? ANSWERED by Marc 2026-10-29: (a) Marc composes in the editor or the music lab (issue 122), agent writes a placeholder first.**
    Recommend: Marc, in the editor; the agent only a placeholder.
    (a) Marc composes in the editor, agent placeholder first. (b) Agent writes it by hand with sixteenth-note bass and Marc tunes it. (c) Agent only, and it stays as is.
-2. **What happens to the record during an encounter?**
+2. **What happens to the record during an encounter? ANSWERED by Marc 2026-10-29: (a) duck to silence.**
    Recommend: duck to silence (keeps its place, no clash).
    (a) Silence, continues unheard. (b) Quiet duck like sleep (12 percent). (c) Truly pause and resume where it stopped.
 3. **Which results get a jingle?**

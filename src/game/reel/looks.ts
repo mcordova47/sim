@@ -38,3 +38,9 @@ export function lookSizes(): { w: number; h: number }[] {
   }
   return out;
 }
+
+// The switch cycles in the order of the presets and wraps. An unknown id counts as the default.
+export function nextLookId(id: unknown): string {
+  const i = REEL_LOOKS.findIndex((l) => l.id === lookById(id).id);
+  return REEL_LOOKS[(i + 1) % REEL_LOOKS.length].id;
+}

@@ -4,7 +4,7 @@ For Marc. Written 2026-10-29, revised 2026-10-30 after review (issue 097). Twelv
 
 There are no deadlines and no order you must keep beyond "each module leans on the ones before it". Stop whenever. Skip what bores you. This is a zen garden, not a course.
 
-The tasks were checked against the code at `main` on 2026-10-29 (commit `79faee5`). Most were done in a scratch worktree and the failure messages quoted are real; where something was only read from the code, or not run, the text says so. A review found a few errors, which are fixed here and re-run. I could not look at the game in a browser or hear it.
+The tasks were checked against the code at `main` on 2026-10-29 (commit `79faee5`). Most were done in a scratch worktree and the failure messages quoted are real; where something was only read from the code, or not run, the text says so. A review found a few errors; the ones that were fixed are marked as re-run in the text where I did re-run them. I could not look at the game in a browser or hear it.
 
 The reference material (a TypeScript crib, a map of the repo, a glossary) is at the end, below the modules, so the first module starts on the first screen. Look things up there as you go.
 
@@ -177,7 +177,7 @@ Files you should not need to change for ordinary work: `loop.ts`, `main.ts`, `ga
 4. Before you run it, write on paper the exact list of events you expect for the whole run, including everything before `taskStart`.
 5. Run it. Then rewrite the test to assert the real list, and add one sentence of comment explaining why each `stateChanged` sits where it does.
 
-**Checks.** The test is green and asserts: `taskStart`, then the changes for `dishes`, `mug`, `energy`, `mood` in that order, then `taskComplete` last. (Both I and the reviewer saw the log also begin with three `stateChanged` events, `energy`, `mood`, `battery`, before `taskStart`: the apartment ticking while the player stood still. Whether your prediction included them is the lesson.) Coffee runs 6 seconds, about 360 updates.
+**Checks.** The test is green and asserts: `taskStart`, then the changes for `dishes`, `mug`, `energy`, `mood` in that order, then `taskComplete` last. (The log also begins with three `stateChanged` events, `energy`, `mood`, `battery`, before `taskStart`: the apartment ticking while the player stood still. Whether your prediction included them is the lesson.) Coffee runs 6 seconds, about 360 updates.
 
 **Hints.** Which comes first inside `finish`, the effects or the `onComplete`? Which events fire when time passes and nothing is happening, and how often (see the comment on `onChange` in `state.ts`)?
 
@@ -237,7 +237,7 @@ Files you should not need to change for ordinary work: `loop.ts`, `main.ts`, `ga
 **Task (invented, shippable if you like it): the bin fills up.** Add `trash` (0 or 1). Cooking sets it to 1; "Take out the trash" now needs it to be 1 (`BIN IS NOT FULL` otherwise) and sets it back to 0. The kitchen's bin shows a new `bin-full` sprite while it is 1.
 1. Branch `learn/full-bin` (from `main`).
 2. Add the variable (`state-vars.ts`), edit `cook` and `take-trash` in `STATE_RULES`, and give the `N` legend entry `variants` (full first, then the default `bin` with no `when`).
-3. A task that is gated by state has no time cooldown (issue 071, `docs/tasks.md`; the table is `STATE_GATED` in `tasks.ts` at line 146 and in `cooldowns.test.ts`). Put `cooldown: 0` on `take-trash` the way the other gated tasks do (`...STATE_GATED`), and run `npm test -- src/game/cooldowns.test.ts`. It goes red with `expected +0 to be 10`. (Gating by `requires` alone does not turn it red; the cooldown is a separate field.) Read that test's tables and make the decision on purpose: move `take-trash` from the `KEPT` table to the `STATE_GATED` list there.
+3. A task that is gated by state has no time cooldown (issue 071, `docs/tasks.md`; the table is `STATE_GATED` in `tasks.ts` at line 148 and in `cooldowns.test.ts`). Put `cooldown: 0` on `take-trash` the way the other gated tasks do (`...STATE_GATED`), and run `npm test -- src/game/cooldowns.test.ts`. It goes red with `expected +0 to be 10`. (Gating by `requires` alone does not turn it red; the cooldown is a separate field.) Read that test's tables and make the decision on purpose: move `take-trash` from the `KEPT` table to the `STATE_GATED` list there.
 4. `take-trash` has the flavor line `The bag was not full. You took it out anyway, out of spite.` That is now false. Rewrite it, and note the change in `docs/text-review.md`.
 5. Draw `art/src/bin-full.sprite`: copy `bin.sprite` and change the top rows so the bag bulges. Run `npm run sprites`. Commit the `.sprite` and the generated `.png`.
 6. The saving step. The new variable is saved with no code of yours: `AchievementsFeature` writes every variable into `world.vars` (`achievements/feature.ts` line 390), and the game's own loader keeps only names the game knows (`restoreWorld`, same file, `.filter(([id]) => this.game.state.has(id))`), so an old save without `trash` starts at `initial`. In a sync merge the whole world group comes from the device played most recently. Prove it: write `src/learn/sync-var.test.ts` that builds two documents through `normaliseDoc` (from `src/game/sync/merge.ts`; shape `{ app: "life", format: 1, device, activeAt, tracks: [], progress: { unlocked: [], stats: {}, world: { vars, room: "main", col: 1, row: 1, facing: "down" } } }`), one more recently played with `trash: 1`, and show `mergeSaves(a, b, now).progress.world.vars.trash` is 1 whichever argument order, and that an unknown variable name is dropped on the way in (that filtering is the sync path's `normaliseProgress`, not `parseWorld`).
@@ -251,7 +251,7 @@ Files you should not need to change for ordinary work: `loop.ts`, `main.ts`, `ga
 
 **Afterwards** you can add state, show it, and draw 16x16 art, and you know what saving does. The exception you will meet: `hasPhotos` is derived from the device's pictures and deliberately never saved or synced (`achievements/feature.ts` line 389), so a variable can opt out. A new top-level saved thing, such as a new localStorage key, is not synced at all unless it is added to the sync document with a merge rule, which is a design change (`docs/sync.md`, section 2).
 
-**Adding a decor item or a gift (a stretch; I ran it once, not a full task).** A new `DecorItem` is a line in `GIFT_ITEMS` in `src/game/decor-data.ts` plus a sprite. Adding one makes two groups of tests go red: `checkpoints-stage-a.test.ts` (it pins 13 gifts) and the THINGS page tests. Gifts are a design decision about what arrives when, so the project pins them; read why before you touch anything, and do not merge a stand-in.
+**Adding a decor item or a gift (a stretch; I ran it once, not a full task).** A new `DecorItem` is a line in `GIFT_ITEMS` in `src/game/decor-data.ts` plus a sprite. Adding one makes at least `checkpoints-stage-a.test.ts` ("real items have sprites and fit the right slots", which pins the 13 gifts) go red; where you insert the item decides whether the THINGS page tests react too (they did when I inserted mid-list, not for a reviewer who appended). Gifts are a design decision about what arrives when, so the project pins them; read why before you touch anything, and do not merge a stand-in.
 
 ---
 
@@ -273,7 +273,7 @@ Files you should not need to change for ordinary work: `loop.ts`, `main.ts`, `ga
 3. Find out *what* differs. Dump the log from the broken tree and from a clean one and diff them: `DUMP_DIR=$TMPDIR/after npm test -- src/game/main-room-frames.golden.test.ts`, then undo the edit and `DUMP_DIR=$TMPDIR/before npm test -- ...`. The files are named `<scenario>-<frame>.txt` (scenarios: `start`, `morning`, `night`, `dusk-blinds`, `blinds-closed-day`, `mug-carried`, `plate`, `plant-0` to `plant-3`, `plant-wilted`; frames 0 to 3). Run `ls $TMPDIR/before`, pick one, for example `morning-0.txt`, and `diff $TMPDIR/before/morning-0.txt $TMPDIR/after/morning-0.txt`.
 4. Re-record with `UPDATE_GOLDEN=1 npm test -- src/game/main-room-frames.golden.test.ts` (with your edit back in), look at `git diff src/game/golden`, then undo the edit and the re-record with `git checkout`.
 
-**Checks.** You can say in one sentence what the diff showed. When I did it it was `sprite phone-charger 243 16` against `242 16`, the x position of one sprite (a reviewer saw the same). You know the rule: re-record only when you meant to change the picture, and say so in the commit message.
+**Checks.** You can say in one sentence what the diff showed. When I did it it was `sprite phone-charger 243 16` against `242 16`, the x position of one sprite. You know the rule: re-record only when you meant to change the picture, and say so in the commit message.
 
 **Hints.** Adding a task at the sofa also changes the golden frames (the prompt shows `1/N` choices); when I added one, two lines of the golden changed, and re-recording was right. There is a second golden for the sleep scene and a third for the dialog beep.
 
@@ -298,17 +298,17 @@ Files you should not need to change for ordinary work: `loop.ts`, `main.ts`, `ga
 **The idea.** A sound effect is a record: a list of voices (`wave` or `noise`, frequency, length, gain, delay). There are no audio files. A cutscene step `{ cue: "name" }` emits a `cue` event; `SOUND.cues` maps the name to an effect; the sound feature plays it. So a task gets a sound with no code, only table entries.
 
 **Task (extends module 4).** Make "Wipe the counter" sound like wiping. It needs that task, so start from your module 4 branch: `git worktree add ../sim-worktrees/learn-wipe-sound -b learn/wipe-sound learn/wipe-counter`, then `cd` there and `npm install`.
-1. Add an effect `wipe` to `SOUND.effects` (a short filtered noise, length 0.3 s, gain around 0.1; start from `key`, the keystroke effect) and a cue `"wipe": "wipe"` in `SOUND.cues`.
-2. Give the task `activity: { type: "cutscene", steps: [{ cue: "wipe" }, { wait: 1 }, { cue: "wipe", pitch: 1.2 }, { wait: 1 }] }` in its `STATE_RULES` (the `duration` is then ignored).
-3. In `src/game/sound/feature.test.ts` add `"wipe"` to the list in the test "plays the toast sound for the achievement cue and the needle for the record cue".
+1. Add two effects to `SOUND.effects`, `wipe` and `wipe2` (a short filtered noise, length 0.3 s, gain around 0.1; start from `key`, the keystroke effect; make `wipe2` a little higher, for example a higher `freq`), and two cues in `SOUND.cues`: `"wipe": "wipe"` and `"wipe2": "wipe2"`. (A cutscene `cue` step takes only a name; it has no pitch.)
+2. Give the task `activity: { type: "cutscene", steps: [{ cue: "wipe" }, { wait: 1 }, { cue: "wipe2" }, { wait: 1 }] }` in its `STATE_RULES` (the `duration` is then ignored).
+3. In `src/game/sound/feature.test.ts` add `"wipe"` and `"wipe2"` to the list in the test "plays the toast sound for the achievement cue and the needle for the record cue".
 
-**Checks.** That test fails until the cue table has your entry (I removed the entry to confirm: red) and passes with it. `npm test -- src/game/sound` stays green. Audible: `npm run dev`, press a key to unlock audio, do the task: two wipes, the second a little higher. If it is too loud, lower `gain`; the master is `SOUND.master`.
+**Checks.** That test fails until the cue table has your entries (I removed the `wipe2` entry to confirm: red) and passes with them; I ran this whole task end to end, and a headless run of the task emits the cues `wipe` then `wipe2`. `npm test -- src/game/sound` stays green. Audible: `npm run dev`, press a key to unlock audio, do the task: two wipes, the second a little higher (your `wipe2`). If it is too loud, lower `gain`; the master is `SOUND.master`.
 
 **Hints.** Voices that play together are summed; `delay` staggers them. The `priority: "low"` effects are dropped first when many sounds play.
 
 **If you are stuck.** Look at `needle` and the `record-spin` cue, and `src/game/activities/record-player.ts`.
 
-**Aside: a record.** You know the `.track` format better than anything here. A record is a text file in `src/game/music/tracks/` named `NN-name.track`; the folder is read with `import.meta.glob` in `records.ts`, so nothing registers it, and `src/game/music/records.test.ts` fails, naming file and line, on a mistake (I changed one note to `B9` and got `line 6: "B9:1" is not a note (examples: C4, F#3, Bb2, R for a rest)`). Never rename a record that has shipped: the chosen record is saved in the player's browser by file name. Compose in `npm run lab`; `docs/contributing.md` has your own worked example (091d).
+**Aside: a record.** You know the `.track` format better than anything here. A record is a text file in `src/game/music/tracks/` named `NN-name.track`; the folder is read with `import.meta.glob` in `records.ts`, so nothing registers it, and `src/game/music/records.test.ts` fails, naming file and line, on a mistake (I changed one note to `B9` and got (with the file named) `line N: "B9:1" is not a note (examples: C4, F#3, Bb2, R for a rest)`, where N is the line you changed. Never rename a record that has shipped: the chosen record is saved in the player's browser by file name. Compose in `npm run lab`; `docs/contributing.md` has your own worked example (091d).
 
 **Afterwards** you can add or change a sound and tie it to a moment.
 

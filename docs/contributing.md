@@ -41,6 +41,7 @@ The encounter music's loop is a plain `.track` file, so replacing it is a good f
 - Commit, set `status: review` in `issues/091d-encounter-real-track.md`, then ask for the review.
 
 ## Useful places
+- `docs/learn/README.md`: a self-paced walkthrough of the codebase with small tasks (no deadlines, works without Claude).
 - `PLAN.md`: the issue table and the working rules.
 - `docs/music-lab.md`, `docs/make-tracks.md`, `docs/music.md`: music.
 - `docs/art-style.md`: sprites and the palette.

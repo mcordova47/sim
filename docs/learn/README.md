@@ -36,7 +36,7 @@ The reference material (a TypeScript crib, a map of the repo, a glossary) is on 
 
 ## Assumptions I made about you
 
-**Assumptions I made about you** (change them if wrong): you know Elm-style apps in PureScript well; you have read TypeScript but do not write it daily; you know the browser enough to open dev tools but have not written canvas or Web Audio code; you are comfortable with git and the terminal; you play music and read a `.track` file easily. **Confirmed by Marc, 2026-10-30:** the TypeScript and canvas assumptions are about right, and his Web Audio experience so far is the song-of-life project (PureScript), so the sound modules can lean on that; he is fine pushing his own `learn/*` branches and opening PRs, treating most tasks as practice that never merges. Module 1 is a calibration: it shows how much TypeScript crib you need.
+(Change them if wrong.) you know Elm-style apps in PureScript well; you have read TypeScript but do not write it daily; you know the browser enough to open dev tools but have not written canvas or Web Audio code; you are comfortable with git and the terminal; you play music and read a `.track` file easily. **Confirmed by Marc, 2026-10-30:** the TypeScript and canvas assumptions are about right, and his Web Audio experience so far is the song-of-life project (PureScript), so the sound modules can lean on that; he is fine pushing his own `learn/*` branches and opening PRs, treating most tasks as practice that never merges. Module 1 is a calibration: it shows how much TypeScript crib you need.
 
 ## Functional ideas you already have, and where they stop being true
 
@@ -61,7 +61,7 @@ Track A is the minimum core knowledge for working safely around the engine. Trac
 | # | Module | Track | Effort |
 |---|---|---|---|
 | 1 | [Calibrate: state, and the tools](01-calibrate.md) | A | 1 evening |
-| 2 | [Words, and the guard rails around them (first quick win)](02-words.md) | B1 | under 1 hour |
+| 2 | [Words, and the guard rails around them](02-words.md) | B1 | under 1 hour |
 | 3 | [Who calls your code](03-callers.md) | A | 1 evening |
 | 4 | [A task is data (and an achievement for it)](04-tasks-are-data.md) | B1 | 1 evening |
 | 5 | [A variable that changes a picture (and what gets saved)](05-state-and-sprites.md) | B1 | 1 to 2 evenings |

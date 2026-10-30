@@ -29,5 +29,8 @@ Controls: WASD or arrow keys to walk (a new direction turns you first, holding i
 - `issues/`: the issue files; one file per issue, tracked by `PLAN.md`
 - `.claude/skills/`: the `work-issue`, `review-issue` and `merge-issue` skills used to run the project
 
+## Learning the codebase
+[`docs/learn/`](docs/learn/README.md) is a self-paced, hands-on walkthrough (twelve short modules, no deadlines). [`docs/contributing.md`](docs/contributing.md) is how to make a change by hand.
+
 ## Tools
 `npm run tools` lists the project's tools and how to run them. The ones you will reach for: `npm run lab` (the music lab, a live `.track` editor on the game's own synth) and `npm run pixel` (the pixel looks page, to see a picture through the game's palette). Others (`sprites`, `brand`, `walk`, `room`, `check`, `worktrees`) run with `npm run tools -- <name>`.

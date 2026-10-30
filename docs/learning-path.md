@@ -308,7 +308,7 @@ Files you should not need to change for ordinary work: `loop.ts`, `main.ts`, `ga
 
 **If you are stuck.** Look at `needle` and the `record-spin` cue, and `src/game/activities/record-player.ts`.
 
-**Aside: a record.** You know the `.track` format better than anything here. A record is a text file in `src/game/music/tracks/` named `NN-name.track`; the folder is read with `import.meta.glob` in `records.ts`, so nothing registers it, and `src/game/music/records.test.ts` fails, naming file and line, on a mistake (I changed one note to `B9` and got (with the file named) `line N: "B9:1" is not a note (examples: C4, F#3, Bb2, R for a rest)`, where N is the line you changed. Never rename a record that has shipped: the chosen record is saved in the player's browser by file name. Compose in `npm run lab`; `docs/contributing.md` has your own worked example (091d).
+**Aside: a record.** You know the `.track` format better than anything here. A record is a text file in `src/game/music/tracks/` named `NN-name.track`; the folder is read with `import.meta.glob` in `records.ts`, so nothing registers it, and `src/game/music/records.test.ts` fails, naming file and line, on a mistake (I changed one note to `B9` and got, with the file named, `line N: "B9:1" is not a note (examples: C4, F#3, Bb2, R for a rest)`, where N is the line you changed. Never rename a record that has shipped: the chosen record is saved in the player's browser by file name. Compose in `npm run lab`; `docs/contributing.md` has your own worked example (091d).
 
 **Afterwards** you can add or change a sound and tie it to a moment.
 

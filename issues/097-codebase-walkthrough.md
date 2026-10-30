@@ -1,7 +1,7 @@
 ---
 id: 097
 title: A guided walkthrough of the codebase, with small hands-on tasks
-status: done
+status: in-progress
 owner: marc + claude
 depends_on: []
 ---

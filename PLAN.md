@@ -193,7 +193,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 122 | [A dev-only music lab](issues/122-music-lab.md) | claude | done | |
 | 123 | [Music lab: hear the encounter intro into the track](issues/123-lab-intro-preview.md) | claude | done | 122 |
 | 124 | [Side project config: a bad line skips only itself](issues/124-sideproject-skip-bad-line.md) | claude | todo | 111d |
-| 125 | [The side project picture on the phone: use the whole area](issues/125-sideproject-phone-view.md) | claude | todo | 111d |
+| 125 | [The side project picture on the phone: use the whole area](issues/125-sideproject-phone-view.md) | claude | done | 111d |
 | 126 | [Narrow view: cutscenes with a common aspect and chrome (idea)](issues/126-narrow-cutscene-chrome.md) | marc + claude | todo | |
 
 ## Order of work

@@ -2,7 +2,7 @@ import PALETTE from "../../art/palette.json";
 import { FULL_VIEW, type ViewRect } from "../game/view-zoom";
 import { configDim, sideProjectRoom } from "../game/side-project-room-config";
 import { COLOR } from "./colors";
-import { registerComposedView, type ComposedView } from "./composed-views";
+import { registerComposedView, type ComposedView, type PreferredView } from "./composed-views";
 import type { SpriteDrawer } from "./sprites";
 
 // The side project's picture (issues 101, 111): the little room on the character's screen,
@@ -20,13 +20,48 @@ export interface DrawOp {
 
 export const SIDE_PROJECT_VIEW_NAME = "view-side-project";
 export const FRAME_SPRITE = "view-side-project-frame";
+export const TALL_FRAME_SPRITE = "view-side-project-frame-tall";
 
-// The frame's room window, in picture pixels (the part of `view-side-project-frame` left clear).
-const WINDOW = { x: 79, y: 24, w: 162, h: 87 };
-// The real main room is 304 x 160; the little room is half that, centred in the window.
+// The real main room is 304 x 160; the little room is drawn smaller, centred in the monitor's window.
 const ROOM = { w: 304, h: 160 };
-const HALF = { w: ROOM.w / 2, h: ROOM.h / 2 };
-const AT = { x: WINDOW.x + Math.floor((WINDOW.w - HALF.w) / 2), y: WINDOW.y + Math.floor((WINDOW.h - HALF.h) / 2) };
+
+// How the picture is laid out for one picture size (issue 125). The wide layout is the desktop's
+// 320 x 192 (the little room at half size). The tall layout is for the phone's portrait view: the
+// same 320 width and up to 288 high, with the monitor filling the width and the little room at
+// 7/8 size, so it is 1.75 times larger than in the wide one.
+export interface Layout {
+  frame: string;
+  // The picture's size in picture pixels (the frame sprite's size).
+  width: number;
+  height: number;
+  // The frame's room window, in picture pixels (the part of the frame sprite left clear).
+  window: { x: number; y: number; w: number; h: number };
+  // The little room's size, centred in the window.
+  half: { w: number; h: number };
+}
+
+function layout(frame: string, width: number, height: number, window: Layout["window"], scale: number): Layout {
+  return { frame, width, height, window, half: { w: ROOM.w * scale, h: ROOM.h * scale } };
+}
+
+export const WIDE_LAYOUT = layout(FRAME_SPRITE, 320, 192, { x: 79, y: 24, w: 162, h: 87 }, 1 / 2);
+export const TALL_LAYOUT = layout(TALL_FRAME_SPRITE, 320, 288, { x: 23, y: 74, w: 274, h: 148 }, 7 / 8);
+
+// The tall picture is drawn for the bottom of its frame: a view shorter than the frame shows the
+// bottom of it (the wall above the monitor is cropped). It needs at least this much (the monitor is
+// then flush with the top, less a few pixels of wall) and the frame's own height at most.
+export const TALL_MIN_HEIGHT = 240;
+
+// What a view of this size gets: the tall layout only when the view is wider than 320 x 192's
+// shape allows for the wide one, that is, taller than 192 and at least TALL_MIN_HEIGHT.
+export function layoutFor(size?: { width: number; height: number }): Layout {
+  return size && size.width === TALL_LAYOUT.width && size.height >= TALL_MIN_HEIGHT ? TALL_LAYOUT : WIDE_LAYOUT;
+}
+
+const at = (l: Layout) => ({
+  x: l.window.x + Math.floor((l.window.w - l.half.w) / 2),
+  y: l.window.y + Math.floor((l.window.h - l.half.h) / 2),
+});
 
 // How the little room is degraded and tuned; every value Marc may want to change is here.
 export interface Look {
@@ -77,41 +112,52 @@ const defaultCanvas = (w: number, h: number): Canvas => {
 };
 
 export class SideProjectView implements ComposedView {
-  private cache: Canvas | null = null;
-  private cacheKey: string | null = null;
+  // One finished picture per layout, each with the key it was made for.
+  private readonly cache = new Map<Layout, { canvas: Canvas; key: string }>();
   private warned = false;
   renders = 0;
+
+  // A phone in portrait asks for a taller view for this picture (issue 125); the cutscene passes it
+  // on to the game. Same width as the desktop's, so the picture fills the phone's width.
+  readonly preferredView: PreferredView = { width: TALL_LAYOUT.width, minHeight: TALL_MIN_HEIGHT, maxHeight: TALL_LAYOUT.height };
 
   constructor(private readonly options: SideProjectViewOptions) {}
 
   sprites(): string[] {
-    return [FRAME_SPRITE, ...new Set(this.options.source().map((o) => o.sprite))];
+    return [FRAME_SPRITE, TALL_FRAME_SPRITE, ...new Set(this.options.source().map((o) => o.sprite))];
   }
 
-  draw(ctx: CanvasRenderingContext2D, sprites: SpriteDrawer, from: ViewRect): boolean {
-    const picture = this.picture(sprites);
+  draw(ctx: CanvasRenderingContext2D, sprites: SpriteDrawer, from: ViewRect, size?: { width: number; height: number }): boolean {
+    const l = layoutFor(size);
+    const picture = this.picture(sprites, l);
     if (!picture) return false;
     ctx.save();
     ctx.imageSmoothingEnabled = false;
-    if (from.w === FULL_VIEW.w && from.h === FULL_VIEW.h && from.x === 0 && from.y === 0) ctx.drawImage(picture, 0, 0);
+    if (l === TALL_LAYOUT) {
+      // The bottom of the picture, as much as the view is tall. (A zoom window is in 320 x 192 picture
+      // pixels, which the tall picture has no use for: no side project step zooms, so it is ignored.)
+      const h = Math.min(size!.height, l.height);
+      ctx.drawImage(picture, 0, l.height - h, l.width, h, 0, 0, l.width, h);
+    } else if (from.w === FULL_VIEW.w && from.h === FULL_VIEW.h && from.x === 0 && from.y === 0) ctx.drawImage(picture, 0, 0);
     else ctx.drawImage(picture, from.x, from.y, from.w, from.h, 0, 0, FULL_VIEW.w, FULL_VIEW.h);
     ctx.restore();
     return true;
   }
 
-  // The finished 320 x 192 picture, from the cache, or null if it cannot be made.
-  private picture(sprites: SpriteDrawer): Canvas | null {
+  // The finished picture for a layout, from the cache, or null if it cannot be made.
+  private picture(sprites: SpriteDrawer, l: Layout): Canvas | null {
     const key = this.options.key?.() ?? "";
-    if (this.cache && key === this.cacheKey) return this.cache;
+    const cached = this.cache.get(l);
+    if (cached && key === cached.key) return cached.canvas;
     try {
       const ops = this.options.source();
-      for (const name of [FRAME_SPRITE, ...ops.map((o) => o.sprite)]) {
+      for (const name of [l.frame, ...ops.map((o) => o.sprite)]) {
         if (!sprites.has(name)) throw new Error(`sprite "${name}" is not loaded`);
       }
-      this.cache = this.render(sprites, ops);
-      this.cacheKey = key;
+      const canvas = this.render(sprites, ops, l);
+      this.cache.set(l, { canvas, key });
       this.renders++;
-      return this.cache;
+      return canvas;
     } catch (error) {
       if (!this.warned) console.warn("Side project picture: drawing the old picture instead:", error);
       this.warned = true;
@@ -119,7 +165,9 @@ export class SideProjectView implements ComposedView {
     }
   }
 
-  private render(sprites: SpriteDrawer, ops: DrawOp[]): Canvas {
+  private render(sprites: SpriteDrawer, ops: DrawOp[], l: Layout): Canvas {
+    const { window: WINDOW, half: HALF } = l;
+    const AT = at(l);
     const make = this.options.makeCanvas ?? defaultCanvas;
     // The room at 1x, drawn the normal way.
     const room = make(ROOM.w, ROOM.h);
@@ -134,7 +182,7 @@ export class SideProjectView implements ComposedView {
       sprites.draw(rctx, op.sprite, op.x + dx, op.y + dy);
     });
 
-    const out = make(FULL_VIEW.w, FULL_VIEW.h);
+    const out = make(l.width, l.height);
     const ctx = out.getContext("2d")!;
     ctx.fillStyle = COLOR[look.backdrop];
     ctx.fillRect(WINDOW.x, WINDOW.y, WINDOW.w, WINDOW.h);
@@ -167,13 +215,15 @@ export class SideProjectView implements ComposedView {
       return seed / 4294967296;
     };
     ctx.globalAlpha = look.speckle;
-    for (let i = 0; i < look.speckles; i++) {
+    // More dots for a bigger window, so it is as grainy as the wide one.
+    const speckles = Math.round(look.speckles * ((WINDOW.w * WINDOW.h) / (WIDE_LAYOUT.window.w * WIDE_LAYOUT.window.h)));
+    for (let i = 0; i < speckles; i++) {
       ctx.fillStyle = i % 2 === 0 ? COLOR.paper : COLOR.ink;
       ctx.fillRect(WINDOW.x + Math.floor(next() * WINDOW.w), WINDOW.y + Math.floor(next() * WINDOW.h), 1, 1);
     }
     ctx.restore();
     // The monitor on top, so nothing spills past the screen.
-    sprites.draw(ctx, FRAME_SPRITE, 0, 0);
+    sprites.draw(ctx, l.frame, 0, 0);
     return out;
   }
 }

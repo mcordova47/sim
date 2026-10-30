@@ -9,6 +9,9 @@ export interface Screen {
   // Call once a frame, after the view size (`VIEW`) may have changed (a full-screen picture on the
   // phone's narrow view, issue 090): resizes the offscreen picture and refits the canvas.
   sync(): void;
+  // The height a picture that wants a taller view gets on the phone in portrait (`preferredHeight`
+  // for the picture area as last fitted), or null: landscape, the desktop, or no room for it.
+  tallHeight(want: { width: number; minHeight: number; maxHeight: number }): number | null;
   // True on the touch layer with the phone turned sideways (issue 092): the picture has room for the
   // full 320 x 192 view then, with the controls in columns at its sides.
   readonly landscape: boolean;
@@ -73,6 +76,28 @@ export function fitFill(width: number, height: number, dpr: number, view: { widt
     backingWidth: view.width * scaleDev,
     backingHeight: view.height * scaleDev,
   };
+}
+
+// The height, in game pixels, of the taller view a picture asked for (issue 125), for a portrait phone
+// whose picture area is `width` x `height` CSS pixels: as many rows as fit in the height gameplay
+// fills (never past it) under the width-filling
+// scale (`fitFill` for a 320-wide view at least `minHeight` high), never more than `maxHeight`. Null
+// when even then fewer than `minHeight` rows fit (the area is far too short), and the picture keeps
+// 320 x 192. A short area lowers the scale a little (down to what fits `minHeight` rows) rather than
+// give up the taller picture: its little room is still larger than the wide one's at the higher scale.
+export function preferredHeight(
+  width: number,
+  height: number,
+  dpr: number,
+  want: { width: number; minHeight: number; maxHeight: number },
+): number | null {
+  const d = dpr > 0 && Number.isFinite(dpr) ? dpr : 1;
+  // The picture may be no taller than what gameplay fills (the narrow view at its fit), so the
+  // controls below stay where they are when the picture changes (see `createScreen`'s reserve).
+  const avail = Math.min(height, fitScale(width, height, d, NARROW_VIEW).cssHeight);
+  const f = fitFill(width, avail, d, { width: want.width, height: want.minHeight });
+  const rows = Math.floor((avail * d) / f.scaleDev);
+  return rows >= want.minHeight ? Math.min(want.maxHeight, rows) : null;
 }
 
 // The room the controls need below the picture in portrait, in CSS pixels.
@@ -235,6 +260,10 @@ export function createScreen(canvas: HTMLCanvasElement): Screen {
 
   let touch = false;
   let landscape = false;
+  // The picture area (CSS pixels) and device pixel ratio the canvas was last fitted for.
+  let areaWidth = 0;
+  let areaHeight = 0;
+  let areaDpr = 1;
 
   const size = (width: number, height: number) => {
     if (canvas.width !== width) canvas.width = width;
@@ -255,6 +284,9 @@ export function createScreen(canvas: HTMLCanvasElement): Screen {
     const area = pictureArea(vv?.width ?? window.innerWidth, vv?.height ?? window.innerHeight, insets);
     const dpr = window.devicePixelRatio || 1;
     landscape = !area.portrait;
+    areaWidth = area.width;
+    areaHeight = area.height;
+    areaDpr = dpr;
     if (landscape) {
       // Landscape: the picture sits between the two control columns, whatever view is live.
       setLayoutVars(landscapeLayout(vv?.width ?? window.innerWidth, vv?.height ?? window.innerHeight, insets, dpr));
@@ -267,7 +299,10 @@ export function createScreen(canvas: HTMLCanvasElement): Screen {
     }
     // A full-screen piece on the narrow view fills the width (fractional scale) instead of staying at 1.0x.
     const filling = NARROW && VIEW.width === DESKTOP_VIEW.width;
-    const f = filling ? fitFill(area.width, area.height, dpr) : fitScale(area.width, area.height, dpr);
+    // A taller picture (issue 125) stays within the height gameplay fills, as `preferredHeight` counted it.
+    const tallPicture = filling && VIEW.height > DESKTOP_VIEW.height;
+    const fillHeight = tallPicture ? Math.min(area.height, fitScale(area.width, area.height, dpr, NARROW_VIEW).cssHeight) : area.height;
+    const f = filling ? fitFill(area.width, fillHeight, dpr) : fitScale(area.width, area.height, dpr);
     size(f.backingWidth, f.backingHeight);
     canvas.style.width = `${f.cssWidth}px`;
     canvas.style.height = `${f.cssHeight}px`;
@@ -293,6 +328,9 @@ export function createScreen(canvas: HTMLCanvasElement): Screen {
       if (!touch) return;
       main.imageSmoothingEnabled = false;
       main.drawImage(off, 0, 0, canvas.width, canvas.height);
+    },
+    tallHeight(want) {
+      return touch && !landscape ? preferredHeight(areaWidth, areaHeight, areaDpr, want) : null;
     },
     get landscape() {
       return touch && landscape;

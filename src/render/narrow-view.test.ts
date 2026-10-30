@@ -3,7 +3,7 @@ import { APARTMENT } from "../game/apartment";
 import { DESKTOP_VIEW, NARROW, NARROW_VIEW, narrowViewWanted, setView, TILE, VIEW } from "../game/config";
 import { FULL_VIEW as PICTURE_WINDOW, zoomProblem } from "../game/view-zoom";
 import { Camera } from "./camera";
-import { createScreen, fitFill, fitScale } from "./canvas";
+import { createScreen, fitFill, fitScale, preferredHeight } from "./canvas";
 import { STATUS_BOX } from "./layout";
 
 // Issue 090: the phone's narrower, taller picture. docs/mobile.md section 13.
@@ -176,5 +176,48 @@ describe("fitFill (a full-screen piece fills the width)", () => {
     expect(fitFill(NaN, 300, 3, DESKTOP_VIEW).scaleDev).toBeGreaterThanOrEqual(1);
     // a short area limits it by height
     expect(fitFill(390, 150, 3, DESKTOP_VIEW).cssHeight).toBeLessThanOrEqual(150);
+  });
+});
+
+describe("preferredHeight (a picture that asks for a taller view, issue 125)", () => {
+  const want = { width: 320, minHeight: 240, maxHeight: 288 };
+  it("is as many rows as fit under the width-filling scale, at most the maximum", () => {
+    // 390 x 844 at DPR 3: area 390 x 514 above the controls; gameplay fills 347 css of it; scale 3.5 -> 297 rows, capped at 288.
+    expect(preferredHeight(390, 844 - 330, 3, want)).toBe(288);
+    expect(preferredHeight(390, 270, 3, want)).toBe(249); // a short phone: 3.25x
+  });
+  it("never passes the height gameplay fills (so the controls do not move), whatever the area", () => {
+    // 363 x 270 at DPR 2: gameplay fills 208 css; 1.5x -> 277 rows, though the area is taller than 208 css.
+    expect(preferredHeight(363, 270, 2, want)).toBe(277);
+    expect(preferredHeight(363, 240, 2, want)).toBe(277);
+    expect(preferredHeight(320, 330, 3, want)).toBe(277); // whole 3x, 320 css wide
+  });
+  it("is null when not even 240 rows fit", () => {
+    expect(preferredHeight(363, 200, 2, want)).toBeNull();
+    expect(preferredHeight(363, 100, 1, want)).toBeNull();
+    expect(preferredHeight(0, 0, 0, want)).toBeNull();
+    expect(preferredHeight(NaN, NaN, 3, want)).toBeNull();
+  });
+  it("stays between the minimum and maximum and inside the area and the gameplay height", () => {
+    for (const [w, h, d] of [[390, 520, 3], [360, 310, 3], [375, 337, 2], [430, 600, 3], [320, 250, 2], [412, 560, 2.625]]) {
+      const rows = preferredHeight(w, h, d, want);
+      if (rows === null) continue;
+      expect(rows).toBeGreaterThanOrEqual(240);
+      expect(rows).toBeLessThanOrEqual(288);
+      const avail = Math.min(h, fitScale(w, h, d, NARROW_VIEW).cssHeight);
+      const f = fitFill(w, avail, d, { width: 320, height: rows });
+      expect(f.cssHeight).toBeLessThanOrEqual(avail + 1e-9);
+    }
+  });
+});
+
+describe("Game.preferredPictureView", () => {
+  it("is null in a room and for a full picture that asks for nothing (the L list)", async () => {
+    const { Game } = await import("../game/game");
+    const game = new Game(APARTMENT.rooms[APARTMENT.start], { rooms: APARTMENT.rooms });
+    expect(game.preferredPictureView).toBeNull();
+    game.fullPictureWhen.push(() => true);
+    expect(game.showsFullPicture).toBe(true);
+    expect(game.preferredPictureView).toBeNull();
   });
 });

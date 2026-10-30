@@ -135,8 +135,13 @@ sprites.load(spriteNames(Object.values(APARTMENT.rooms))).then(() => {
     render(alpha) {
       // The phone's narrow view shows full-screen pictures (ad cards, cutscene views) at 320 x 192,
       // and turned sideways it is not used at all: there is room across for the whole 320 x 192.
+      // A picture that lays itself out for a taller view (the side project, issue 125) gets the whole
+      // picture area in portrait, at the same width.
       if (NARROW) {
-        setView(game.showsFullPicture || screen.landscape ? DESKTOP_VIEW : NARROW_VIEW);
+        const want = game.preferredPictureView;
+        const tall = want && !screen.landscape ? screen.tallHeight(want) : null;
+        if (tall !== null) setView({ width: want!.width, height: tall });
+        else setView(game.showsFullPicture || screen.landscape ? DESKTOP_VIEW : NARROW_VIEW);
         screen.sync();
       }
       game.render(screen.ctx, alpha);

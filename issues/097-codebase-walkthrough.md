@@ -24,3 +24,4 @@ Marc (2026-10-27): he has been high level so far and wants to know the codebase 
 7. **Tests, goldens and the workflow:** how the tests are laid out, the golden frames and why they are re-recorded deliberately, the issue and review workflow, deploying. Task: write a test for something he added earlier.
 
 ## Progress log
+- 2026-10-29: the seven-stop outline above is replaced by a self-contained curriculum, `docs/learning-path.md` (15 short modules in two tracks: core knowledge for working around the engine, and the parts Marc works in, configuring and changing; each has a task with a test, build or visible check, so it works without Claude). Stop 1 is covered by module 2, which starts where the loop reading ended and drops the FPS panel and the config-number task. Tasks were done and verified in a scratch worktree. Branch `issue/097-curriculum`, awaiting review.

@@ -601,6 +601,14 @@ export class Game {
     return activity.showsPicture === true;
   }
 
+  // The taller view the full picture on screen asks for (issue 125), or null: a picture that says
+  // nothing keeps the usual 320 x 192. Only a portrait phone acts on it (`main.ts`).
+  get preferredPictureView(): { width: number; minHeight: number; maxHeight: number } | null {
+    if (!this.showsFullPicture) return null;
+    const activity = this.interaction.active?.activity as { preferredView?: { width: number; minHeight: number; maxHeight: number } | null } | undefined;
+    return activity?.preferredView ?? null;
+  }
+
   // The look of the sleep sequence this frame, or null when nobody is asleep
   // (finished, cancelled and an error all read as null: everything that reads it
   // goes back to normal by itself).

@@ -1,5 +1,5 @@
 import { COLOR } from "../../render/colors";
-import { composedView } from "../../render/composed-views";
+import { composedView, type PreferredView } from "../../render/composed-views";
 import type { Controls } from "../../input/controls";
 import { NO_INPUT } from "../../input/controls";
 import { BaseActivity, needHost, registerActivity, type ActivityHost, type ValidationContext } from "../activity";
@@ -100,6 +100,12 @@ export class CutsceneActivity extends BaseActivity {
     return this.viewSprite !== null && !this.done;
   }
 
+  // The taller view the shown picture asks for on a portrait phone, if it asks for one (issue 125).
+  get preferredView(): PreferredView | null {
+    if (!this.showsPicture || this.viewSprite === null) return null;
+    return composedView(this.viewSprite)?.preferredView ?? null;
+  }
+
   // The window of the picture on screen now (the whole picture when not zoomed).
   get shownView(): ViewRect {
     return this.viewRect;
@@ -117,7 +123,7 @@ export class CutsceneActivity extends BaseActivity {
     const sprites = this.host.sprites;
     // A composed picture (issue 111c) first; if it cannot draw, the sprite of the same name.
     const composed = composedView(this.viewSprite);
-    if (sprites && composed && composed.draw(ctx, sprites, this.viewRect)) return;
+    if (sprites && composed && composed.draw(ctx, sprites, this.viewRect, screen)) return;
     if (sprites?.has(this.viewSprite)) {
       const r = this.viewRect;
       if (r.w !== FULL_VIEW.w && sprites.drawRegion) sprites.drawRegion(ctx, this.viewSprite, r, screen);

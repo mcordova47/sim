@@ -4,9 +4,10 @@ import { composedView, composedViewSprites } from "./composed-views";
 import { spriteNames } from "./sprite-names";
 import { APARTMENT } from "../game/apartment";
 import { sideProjectRoom } from "../game/side-project-room-config";
-import { FRAME_SPRITE, LOOK, LOOKS, SIDE_PROJECT_VIEW_NAME, SideProjectView, type DrawOp } from "./side-project-view";
+import { FRAME_SPRITE, LOOK, LOOKS, SIDE_PROJECT_VIEW_NAME, SideProjectView, TALL_FRAME_SPRITE, TALL_LAYOUT, TALL_MIN_HEIGHT, WIDE_LAYOUT, layoutFor, type DrawOp } from "./side-project-view";
 import type { SpriteDrawer } from "./sprites";
 import { Sprites } from "./sprites";
+import tallFrameSource from "../../art/src/view-side-project-frame-tall.sprite?raw";
 
 const spriteFiles = import.meta.glob("/public/sprites/*.png", { query: "?url" });
 
@@ -164,5 +165,83 @@ describe("Sprites.drawScaled", () => {
     const c = { save: () => calls.push("save"), restore: () => calls.push("restore"), drawImage: () => calls.push("drawImage") } as unknown as CanvasRenderingContext2D;
     new Sprites().drawScaled(c, "nothing", 0, 0, 0.5, true);
     expect(calls).toEqual([]);
+  });
+});
+
+describe("the tall layout (issue 125)", () => {
+  it("is chosen only for a 320-wide view at least the minimum high; every other size keeps the wide one", () => {
+    expect(layoutFor()).toBe(WIDE_LAYOUT);
+    expect(layoutFor({ width: 320, height: 192 })).toBe(WIDE_LAYOUT);
+    expect(layoutFor({ width: 224, height: 208 })).toBe(WIDE_LAYOUT);
+    expect(layoutFor({ width: 320, height: TALL_MIN_HEIGHT - 1 })).toBe(WIDE_LAYOUT);
+    expect(layoutFor({ width: 320, height: TALL_MIN_HEIGHT })).toBe(TALL_LAYOUT);
+    expect(layoutFor({ width: 320, height: 288 })).toBe(TALL_LAYOUT);
+  });
+
+  it("asks for a 320-wide view between the minimum and the frame's height", () => {
+    const { v } = view();
+    expect(v.preferredView).toEqual({ width: 320, minHeight: TALL_MIN_HEIGHT, maxHeight: 288 });
+    expect(composedView(SIDE_PROJECT_VIEW_NAME)?.preferredView).toEqual(v.preferredView);
+    expect(v.sprites()).toContain(TALL_FRAME_SPRITE);
+  });
+
+  it("draws the room larger in a bigger window, the tall frame on top, and the bottom of the picture", () => {
+    const { v, made } = view();
+    const { s, drawn } = sprites();
+    const c = fakeCanvas(320, 270);
+    expect(v.draw(c.getContext("2d") as never, s, FULL_VIEW, { width: 320, height: 270 })).toBe(true);
+    expect(drawn.at(-1)).toBe(`${TALL_FRAME_SPRITE}@0,0`);
+    expect(drawn).not.toContain(`${FRAME_SPRITE}@0,0`);
+    expect([made[1].width, made[1].height]).toEqual([320, 288]);
+    // 7/8 size (266 x 140), centred in the 274 x 148 window.
+    expect(made[1].log.filter((l) => l.startsWith("drawImage"))).toEqual(["drawImage(canvas,0,0,304,160,27,78,266,140)"]);
+    // A 270-high view shows the bottom 270 rows of the 288-high picture.
+    expect(c.log.filter((l) => l.startsWith("drawImage"))).toEqual(["drawImage(canvas,0,18,320,270,0,0,320,270)"]);
+  });
+
+  it("the room is at least 1.5 times larger than the wide layout's, and fits its window", () => {
+    expect(TALL_LAYOUT.half.w / WIDE_LAYOUT.half.w).toBeGreaterThanOrEqual(1.5);
+    expect(TALL_LAYOUT.half.w).toBeLessThanOrEqual(TALL_LAYOUT.window.w);
+    expect(TALL_LAYOUT.half.h).toBeLessThanOrEqual(TALL_LAYOUT.window.h);
+  });
+
+  it("keeps a picture per layout: the wide one is not redrawn for the tall one, nor the reverse", () => {
+    const { v } = view();
+    const { s } = sprites();
+    v.draw(ctx(), s, FULL_VIEW);
+    v.draw(ctx(), s, FULL_VIEW, { width: 320, height: 288 });
+    v.draw(ctx(), s, FULL_VIEW);
+    v.draw(ctx(), s, FULL_VIEW, { width: 320, height: 288 });
+    expect(v.renders).toBe(2);
+  });
+
+  it("the wide picture is the same whether or not the size is passed (landscape and desktop do not change)", () => {
+    const a = view();
+    const b = view();
+    const sa = sprites();
+    const sb = sprites();
+    const ca = fakeCanvas(320, 192);
+    const cb = fakeCanvas(320, 192);
+    a.v.draw(ca.getContext("2d") as never, sa.s, FULL_VIEW);
+    b.v.draw(cb.getContext("2d") as never, sb.s, FULL_VIEW, { width: 320, height: 192 });
+    expect(cb.log).toEqual(ca.log);
+    expect(b.made[1].log).toEqual(a.made[1].log);
+    expect(sb.drawn).toEqual(sa.drawn);
+  });
+});
+
+describe("the frame sprites", () => {
+  it("the tall frame is 320 x 288 and its window is clear", () => {
+    const text = tallFrameSource.split("\n");
+    expect(text[0]).toBe("size: 320x288");
+    const rows: string[] = text.slice(1, 289);
+    expect(rows.every((r) => r.length === 320)).toBe(true);
+    const w = TALL_LAYOUT.window;
+    for (let y = w.y; y < w.y + w.h; y++) expect(rows[y].slice(w.x, w.x + w.w)).toBe(".".repeat(w.w));
+    // ... and walled in: the pixel just outside the window on each side is not clear.
+    expect(rows[w.y][w.x - 1]).not.toBe(".");
+    expect(rows[w.y][w.x + w.w]).not.toBe(".");
+    expect(rows[w.y - 1][w.x]).not.toBe(".");
+    expect(rows[w.y + w.h][w.x]).not.toBe(".");
   });
 });

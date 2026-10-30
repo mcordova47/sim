@@ -316,6 +316,26 @@ describe("goto and back", () => {
       expect(drawn).toEqual(["view-composed-test"]);
     });
 
+    it("passes the live view size to the painter, and reports the taller view a painter asks for (issue 125)", () => {
+      const sizes: unknown[] = [];
+      const want = { width: 320, minHeight: 240, maxHeight: 288 };
+      registerComposedView("view-tall-test", { sprites: () => [], preferredView: want, draw: (_c, _s, _from, size) => (sizes.push(size), true) });
+      const { f, a, tick } = scene([{ view: "view-tall-test" }, { say: "Look." }]);
+      viewHost(f);
+      expect(a.preferredView).toBeNull(); // nothing shown yet
+      tick();
+      a.draw(ctx, { width: 320, height: 270 });
+      expect(sizes).toEqual([{ width: 320, height: 270 }]);
+      expect(a.preferredView).toEqual(want);
+      a.cancel();
+      expect(a.preferredView).toBeNull();
+      // A picture that asks for nothing (a plain sprite, or a painter without a preference) stays null.
+      const plain = scene([{ view: "view-composed-test" }, { say: "Look." }]);
+      viewHost(plain.f);
+      plain.tick();
+      expect(plain.a.preferredView).toBeNull();
+    });
+
     it("stops showing it when skipped with Escape, and when it ends", () => {
       const { f, a, tick } = scene([{ view: "view-x" }, { say: "Look." }]);
       const drawn = viewHost(f);

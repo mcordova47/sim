@@ -13,6 +13,7 @@
     "check:dist": "node scripts/check-dist.mjs",
     "tools": "node scripts/tools.mjs",
     "lab": "node scripts/tools.mjs lab",
+    "learn": "mdbook serve docs/learn --open",
     "pixel": "node scripts/tools.mjs pixel"
   },
   "devDependencies": {

@@ -40,7 +40,11 @@ The encounter music's loop is a plain `.track` file, so replacing it is a good f
 - Listen in the real encounter: `npm run dev`, open `/?encounter=ad-candle&again=1`, press a key. Gain and fades are `ENCOUNTERS.music` in `config.ts`.
 - Commit, set `status: review` in `issues/091d-encounter-real-track.md`, then ask for the review.
 
+## Ideas
+Have a loose idea? Add a few lines to `docs/ideas.md` (no status, no owner, no deadline); it only becomes an issue when you decide to do it.
+
 ## Useful places
+- `docs/ideas.md`: parked ideas, a garden and not a backlog.
 - `docs/learn/README.md`: a self-paced walkthrough of the codebase with small tasks (no deadlines, works without Claude).
 - `PLAN.md`: the issue table and the working rules.
 - `docs/music-lab.md`, `docs/make-tracks.md`, `docs/music.md`: music.

@@ -23,6 +23,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 - **An agent edits only its own issue file** (status and progress log) plus the code it was assigned. Do not edit other issues or this file. Report back instead.
 - When an issue is done, set `status: done` and update the table below.
 - Keep commits small and one per issue where possible.
+- **Loose ideas are not issues.** An idea that is not yet planned goes in [docs/ideas.md](docs/ideas.md) (a few lines, no status, no owner, no deadline). It graduates to an issue (design first) only when Marc says to do it, and then it gets a row in the table below; an idea tied to an existing feature stays with that issue's "Later ideas".
 - **Every issue is worked in its own git worktree**, at `../sim-worktrees/NNN-slug` on branch `issue/NNN-slug`, including the planner's own issues. Nothing lands on `main` until it has been reviewed. Agents commit on their branch, start their own independent review when they finish (see `work-issue`), and never merge. The planner merges approved branches with `/merge-issue NNN` (see `.claude/skills/merge-issue/`), which checks the review record, builds and tests the merged result, and updates the table below. Status in an issue file is only current on its branch until merged.
 
 ## Milestones and issues
@@ -100,7 +101,6 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 061 | [Admire the art: zoom in and comment very seriously](issues/061-art-zoom-gag.md) | marc + claude | done | |
 | 062 | [Customizable decor (inventory, swap, buy) (explore)](issues/062-customizable-decor.md) | marc + claude | in-progress (stages 1, 2 and 3a done; 3b and 4 remain) | |
 | 063 | [Plants that grow in stages](issues/063-plant-growth.md) | marc + claude | done | |
-| 064 | [Plugins (VSTs) for the track editor (explore)](issues/064-track-editor-plugins.md) | marc + claude | todo | |
 | 065 | [Both windows' blinds; the dinner plate only when there is dinner](issues/065-blinds-and-plate.md) | claude | done | |
 | 066 | [Flattened boxes and collected packages are linked](issues/066-boxes-and-packages.md) | claude | done | |
 | 068 | [Record player: no cooldown, pay only for a real change](issues/068-record-player-rewards.md) | claude | done | |
@@ -186,7 +186,6 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 117e | [Photo gallery 5: the sofa scene replaces the slideshow](issues/117e-gallery-scene.md) | claude | done | 117b |
 | 117f | [Photo gallery 6: an ad can interrupt the close-up](issues/117f-gallery-ad-interrupt.md) | claude | done | 117e |
 | 117g | [Photo gallery 7: text review, phone pass, docs](issues/117g-gallery-pass.md) | claude | todo | 117f, 117d |
-| 118 | [Ads for framing a photo, then hang or shelve it](issues/118-framed-photos.md) | marc + claude | todo | 117 |
 | 119 | [A Simagotchi logo and favicon](issues/119-simagotchi-logo.md) | claude | done | 116 |
 | 120 | [Pause legend overlap on the narrow view](issues/120-pause-legend-narrow.md) | claude | todo | 116 |
 | 121 | [Fix the flaky flashcards activity test](issues/121-flaky-flashcards-test.md) | claude | done | |
@@ -194,7 +193,6 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 123 | [Music lab: hear the encounter intro into the track](issues/123-lab-intro-preview.md) | claude | done | 122 |
 | 124 | [Side project config: a bad line skips only itself](issues/124-sideproject-skip-bad-line.md) | claude | todo | 111d |
 | 125 | [The side project picture on the phone: use the whole area](issues/125-sideproject-phone-view.md) | claude | done | 111d |
-| 126 | [Narrow view: cutscenes with a common aspect and chrome (idea)](issues/126-narrow-cutscene-chrome.md) | marc + claude | todo | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

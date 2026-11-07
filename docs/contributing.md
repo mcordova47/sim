@@ -45,7 +45,7 @@ Have a loose idea? Add a few lines to `docs/ideas.md` (no status, no owner, no d
 
 ## Useful places
 - `docs/ideas.md`: parked ideas, a garden and not a backlog.
-- `docs/learn/README.md`: a self-paced walkthrough of the codebase with small tasks (no deadlines, works without Claude).
+- `docs/learn/src/README.md`: a self-paced walkthrough of the codebase with small tasks (no deadlines, works without Claude).
 - `PLAN.md`: the issue table and the working rules.
 - `docs/music-lab.md`, `docs/make-tracks.md`, `docs/music.md`: music.
 - `docs/art-style.md`: sprites and the palette.

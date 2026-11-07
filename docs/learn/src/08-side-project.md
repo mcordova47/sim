@@ -2,13 +2,13 @@
 
 **Goal.** Make a real change to a parser-plus-composer pipeline, driven by tests.
 
-**Effort.** An evening. Status in [`PLAN.md`](../../PLAN.md) on 2026-10-29: todo. Check that no `issue/124-*` branch exists first.
+**Effort.** An evening. Status in [`PLAN.md`](../../../PLAN.md) on 2026-10-29: todo. Check that no `issue/124-*` branch exists first.
 
 **Read.**
-- [`docs/side-project-config-design.md`](../side-project-config-design.md) first 30 lines; [`src/game/side-project-room.txt`](../../src/game/side-project-room.txt) (the whole file).
-- [`src/game/side-project-config.ts`](../../src/game/side-project-config.ts) lines 1 to 60 and 95 to 195 (the parser: a `switch` over commands; `fail(...)` collects problems and returns without throwing).
-- [`src/game/side-project-room.ts`](../../src/game/side-project-room.ts) lines 28 to 80 (types) and 125 to 215 (`composeSideProject`: `fail` throws a `ComposeError`).
-- [`src/game/side-project-room-config.ts`](../../src/game/side-project-room-config.ts) (the whole file, 42 lines) and [`issues/124-sideproject-skip-bad-line.md`](../../issues/124-sideproject-skip-bad-line.md).
+- [`docs/side-project-config-design.md`](../../side-project-config-design.md) first 30 lines; [`src/game/side-project-room.txt`](../../../src/game/side-project-room.txt) (the whole file).
+- [`src/game/side-project-config.ts`](../../../src/game/side-project-config.ts) lines 1 to 60 and 95 to 195 (the parser: a `switch` over commands; `fail(...)` collects problems and returns without throwing).
+- [`src/game/side-project-room.ts`](../../../src/game/side-project-room.ts) lines 28 to 80 (types) and 125 to 215 (`composeSideProject`: `fail` throws a `ComposeError`).
+- [`src/game/side-project-room-config.ts`](../../../src/game/side-project-room-config.ts) (the whole file, 42 lines) and [`issues/124-sideproject-skip-bad-line.md`](../../../issues/124-sideproject-skip-bad-line.md).
 
 **The idea.** The parser is the part you know: text in, `{ ops, problems }` out, never a throw. The composer is stricter: one bad name throws, so today one typo drops the whole picture back to a plain copy. The task is making the composer match the parser's manners. Think "validate each `op`, an `Either` per line".
 

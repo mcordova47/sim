@@ -5,8 +5,8 @@
 **Effort.** About an hour.
 
 **Read.**
-- [`src/game/main-room-frames.golden.test.ts`](../../src/game/main-room-frames.golden.test.ts) (the whole file, 35 lines) and the first 40 lines of [`src/game/main-room-frames.ts`](../../src/game/main-room-frames.ts).
-- [`docs/decor.md`](../decor.md) line 24 (why it exists). Glance at [`src/game/golden/main-room-frames.json`](../../src/game/golden/main-room-frames.json) (a list of `{ scenario, frame, calls, hash }`).
+- [`src/game/main-room-frames.golden.test.ts`](../../../src/game/main-room-frames.golden.test.ts) (the whole file, 35 lines) and the first 40 lines of [`src/game/main-room-frames.ts`](../../../src/game/main-room-frames.ts).
+- [`docs/decor.md`](../../decor.md) line 24 (why it exists). Glance at [`src/game/golden/main-room-frames.json`](../../../src/game/golden/main-room-frames.json) (a list of `{ scenario, frame, calls, hash }`).
 
 **The idea.** The test draws the real main room, headless, in twelve fixed scenarios (four frames each) and logs every canvas call. It compares each frame's call count and a hash to the recorded file. It does not compare pixels; it compares *what the code asked to draw*. If a change alters any drawing call, the test goes red. It is a regression net for pictures.
 

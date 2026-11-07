@@ -4,7 +4,7 @@
 
 **Effort.** An evening. Practice, not for shipping.
 
-**Read.** [`src/game/features.ts`](../../src/game/features.ts) (the whole file, 28 lines); [`src/game/events.ts`](../../src/game/events.ts) lines 53 to 88 (`Emitter`: a listener that throws is logged and skipped); [`src/game/game.ts`](../../src/game/game.ts) lines 60 to 73 (`Layer`) and 520 to 530 (`addLayer`); [`src/game/time-of-day/feature.ts`](../../src/game/time-of-day/feature.ts) lines 1 to 60 (a small layer class); [`src/game/achievements/toasts.ts`](../../src/game/achievements/toasts.ts) (a timed on-screen thing).
+**Read.** [`src/game/features.ts`](../../../src/game/features.ts) (the whole file, 28 lines); [`src/game/events.ts`](../../../src/game/events.ts) lines 53 to 88 (`Emitter`: a listener that throws is logged and skipped); [`src/game/game.ts`](../../../src/game/game.ts) lines 60 to 73 (`Layer`) and 520 to 530 (`addLayer`); [`src/game/time-of-day/feature.ts`](../../../src/game/time-of-day/feature.ts) lines 1 to 60 (a small layer class); [`src/game/achievements/toasts.ts`](../../../src/game/achievements/toasts.ts) (a timed on-screen thing).
 
 **The idea.** A feature is a class that subscribes to events in its constructor and, if it draws, registers a layer. `features.ts` switches features on with one line each, so `game.ts` does not know them. It is the observer pattern; the event union in `events.ts` is your `Msg` type for subscriptions.
 
@@ -16,9 +16,9 @@
 
 **Checks.** The test is green. The whole suite stays green (my golden frames were unchanged because it draws nothing until noon). Visible: `npm run dev` with `/?hour=11` and wait: the game clock runs 30 seconds an hour, or step the clock with `]`.
 
-**Hints.** The state fires `stateChanged` for the clock once per game hour, with the exact value a frame past the hour ([`docs/state.md`](../state.md) "Events"). The test uses `set`, which fires at once.
+**Hints.** The state fires `stateChanged` for the clock once per game hour, with the exact value a frame past the hour ([`docs/state.md`](../../state.md) "Events"). The test uses `set`, which fires at once.
 
-**If you are stuck.** [`src/game/particles/feature.ts`](../../src/game/particles/feature.ts) is another small feature.
+**If you are stuck.** [`src/game/particles/feature.ts`](../../../src/game/particles/feature.ts) is another small feature.
 
 **Afterwards** you can add a feature in your own folder and be sure you did not need `game.ts`.
 

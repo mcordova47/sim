@@ -5,11 +5,11 @@
 **Effort.** An evening. You said you understand the loop at a high level, so this module starts where that stops.
 
 **Read.**
-- [`src/main.ts`](../../src/main.ts) lines 128 to 146 (the loop starts; `update` reads the keyboard into `Controls`, `render` draws). That is the only place the loop meets the game.
-- [`src/game/game.ts`](../../src/game/game.ts) lines 696 to 768 (`update`) and 780 to 820 (`render`); lines 197 to 254 (the constructor wires `InteractionSystem` callbacks to `events.emit`).
-- [`src/game/interaction.ts`](../../src/game/interaction.ts) lines 141 to 262 (`update`: find what you face, start a task) and 302 to 348 (`finish`).
-- [`src/game/activity.ts`](../../src/game/activity.ts) lines 112 to 176 (the `Activity` interface) and 178 to 197 (`BaseActivity`).
-- [`src/game/events.ts`](../../src/game/events.ts) lines 9 to 51.
+- [`src/main.ts`](../../../src/main.ts) lines 128 to 146 (the loop starts; `update` reads the keyboard into `Controls`, `render` draws). That is the only place the loop meets the game.
+- [`src/game/game.ts`](../../../src/game/game.ts) lines 696 to 768 (`update`) and 780 to 820 (`render`); lines 197 to 254 (the constructor wires `InteractionSystem` callbacks to `events.emit`).
+- [`src/game/interaction.ts`](../../../src/game/interaction.ts) lines 141 to 262 (`update`: find what you face, start a task) and 302 to 348 (`finish`).
+- [`src/game/activity.ts`](../../../src/game/activity.ts) lines 112 to 176 (the `Activity` interface) and 178 to 197 (`BaseActivity`).
+- [`src/game/events.ts`](../../../src/game/events.ts) lines 9 to 51.
 
 **The idea first.** One frame is: the loop calls `game.update(1/60, controls)` zero or more times, then `game.render(ctx, alpha)` once. `update` is the only place the simulation changes; `render` only reads. Inside `update`, one of three things has the controls: an open dialog, the pause screen (the clock stands still), or the interaction system. The interaction system either finds the task you face and starts its activity, or ticks the running one. When an activity is `done`, `finish` runs: the task's `effects` are applied (that is where `stateChanged` events come from), then the score is paid, then `taskComplete` is emitted, and features such as sound, particles and achievements react without `Game` knowing they exist.
 
@@ -30,7 +30,7 @@ Files you should not need to change for ordinary work: `loop.ts`, `main.ts`, `ga
 **Task: trace one task.**
 1. Branch `learn/trace`. Create `src/learn/trace.test.ts`.
 2. Build a real game: `new Game(APARTMENT.rooms.main, { rooms: APARTMENT.rooms, random: () => 0.5 })`. Subscribe to `taskStart`, `stateChanged` and `taskComplete` on `game.events` and push a short string for each into an array.
-3. Put the player at the coffee spot and press E. Use the helper pattern from [`src/game/battery.test.ts`](../../src/game/battery.test.ts) lines 17 to 26: `taskSpots(rooms.main).find((s) => s.id === "coffee")` from [`src/game/plan-checks.ts:28`](../../src/game/plan-checks.ts), then `game.player.placeAt(col, row, face)`, one `game.update(1/60, NO_INPUT)`, then one update with `{ ...NO_INPUT, interactPressed: true }`, then update until `game.interaction.busy` is false.
+3. Put the player at the coffee spot and press E. Use the helper pattern from [`src/game/battery.test.ts`](../../../src/game/battery.test.ts) lines 17 to 26: `taskSpots(rooms.main).find((s) => s.id === "coffee")` from [`src/game/plan-checks.ts:28`](../../../src/game/plan-checks.ts), then `game.player.placeAt(col, row, face)`, one `game.update(1/60, NO_INPUT)`, then one update with `{ ...NO_INPUT, interactPressed: true }`, then update until `game.interaction.busy` is false.
 4. Before you run it, write on paper the exact list of events you expect for the whole run, including everything before `taskStart`.
 5. Run it. Then rewrite the test to assert the real list, and add one sentence of comment explaining why each `stateChanged` sits where it does.
 

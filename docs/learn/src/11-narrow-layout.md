@@ -2,9 +2,9 @@
 
 **Goal.** Fix a layout bug test-first, in a view that is not the one you usually look at.
 
-**Effort.** An evening. Status in [`PLAN.md`](../../PLAN.md): todo (check for an `issue/120-*` branch).
+**Effort.** An evening. Status in [`PLAN.md`](../../../PLAN.md): todo (check for an `issue/120-*` branch).
 
-**Read.** [`issues/120-pause-legend-narrow.md`](../../issues/120-pause-legend-narrow.md); [`src/game/achievements/draw.ts`](../../src/game/achievements/draw.ts) lines 187 to 215 (`drawList`, the header and legend); [`src/game/config.ts`](../../src/game/config.ts) lines 6 to 12 (`DESKTOP_VIEW` 320x192, `NARROW_VIEW` 224x208, `VIEW`, `setView`); [`src/game/achievements/pause.test.ts`](../../src/game/achievements/pause.test.ts) line 14 (the `vi.mock` that makes `drawText` readable) and lines 206 to 218 (how the drawn texts are read back); [`docs/mobile.md`](../mobile.md) section 13 first paragraph.
+**Read.** [`issues/120-pause-legend-narrow.md`](../../../issues/120-pause-legend-narrow.md); [`src/game/achievements/draw.ts`](../../../src/game/achievements/draw.ts) lines 187 to 215 (`drawList`, the header and legend); [`src/game/config.ts`](../../../src/game/config.ts) lines 6 to 12 (`DESKTOP_VIEW` 320x192, `NARROW_VIEW` 224x208, `VIEW`, `setView`); [`src/game/achievements/pause.test.ts`](../../../src/game/achievements/pause.test.ts) line 14 (the `vi.mock` that makes `drawText` readable) and lines 206 to 218 (how the drawn texts are read back); [`docs/mobile.md`](../../mobile.md) section 13 first paragraph.
 
 **The idea.** The game draws at a fixed pixel size, and on a phone it is 224 wide. `VIEW` is a mutable object and `setView` switches it, so layout code that reads `VIEW.width` follows the view. "Does it overlap" is a question about text widths: `textWidth(...)` from the font module. No browser is needed: a test can mock `drawText`, call `drawList`, and read where each string was placed.
 
@@ -18,7 +18,7 @@
 
 **Hints.** The count text is drawn at `6 + textWidth(PRODUCT_NAME) + 8`. If you drop the legend, ask whether anything else explains the good-hour icon to the player.
 
-**If you are stuck.** [`src/game/achievements/gallery-draw.test.ts`](../../src/game/achievements/gallery-draw.test.ts) lines 3 to 20 loops over wide and narrow views.
+**If you are stuck.** [`src/game/achievements/gallery-draw.test.ts`](../../../src/game/achievements/gallery-draw.test.ts) lines 3 to 20 loops over wide and narrow views.
 
 **Afterwards** you can do layout work for the phone and prove it without a phone.
 

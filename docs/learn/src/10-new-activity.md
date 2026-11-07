@@ -4,7 +4,7 @@
 
 **Effort.** One or two evenings. Practice (a stand-in task), though the pattern is how every mini-game here was made.
 
-**Read.** [`src/game/activities/wait.ts`](../../src/game/activities/wait.ts) (34 lines), `notes.ts` lines 1 to 125 (a complete small mini-game with a validator), [`src/game/activities/index.ts`](../../src/game/activities/index.ts), [`docs/activities.md`](../activities.md) "Writing a new kind", [`src/game/activities/fake-host.ts`](../../src/game/activities/fake-host.ts), [`src/input/controls.ts`](../../src/input/controls.ts) lines 12 to 40.
+**Read.** [`src/game/activities/wait.ts`](../../../src/game/activities/wait.ts) (34 lines), `notes.ts` lines 1 to 125 (a complete small mini-game with a validator), [`src/game/activities/index.ts`](../../../src/game/activities/index.ts), [`docs/activities.md`](../../activities.md) "Writing a new kind", [`src/game/activities/fake-host.ts`](../../../src/game/activities/fake-host.ts), [`src/input/controls.ts`](../../../src/input/controls.ts) lines 12 to 40.
 
 **The idea.** An activity is a small state machine with `update(dt, controls)` and a `done`/`result`. `BaseActivity` supplies `finish`. The `quality` (0 to 1) scales the points between 0.5x and 1.5x. A validator runs at load so a typo in a task's settings fails then, not on the first press.
 
@@ -21,7 +21,7 @@
 
 **Hints.** `update` is not called on the frame of the opening press, so the first tap you see is the second press. Read `controls.interactPressed` once per frame; never count `keysDown`.
 
-**If you are stuck.** `notes.ts` has the same shape; its tests are [`src/game/activities/notes.test.ts`](../../src/game/activities/notes.test.ts).
+**If you are stuck.** `notes.ts` has the same shape; its tests are [`src/game/activities/notes.test.ts`](../../../src/game/activities/notes.test.ts).
 
 **Part 2, changing an existing activity** (optional, same evening). In `notes.ts` make three misses in a row end the game early and finish with the quality so far. Write the test first. Note which existing tests pin the behavior you are changing; that tells you what you are allowed to move.
 

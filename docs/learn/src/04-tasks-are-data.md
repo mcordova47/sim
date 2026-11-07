@@ -5,11 +5,11 @@
 **Effort.** An evening.
 
 **Read.**
-- [`src/game/interactable.ts`](../../src/game/interactable.ts) lines 9 to 72 (the whole record).
-- [`src/game/tasks.ts`](../../src/game/tasks.ts) lines 20 to 34 (the shape), 150 to 308 (`STATE_RULES`: tasks gain rules by merging; the helpers above it, `dirty`, `sortStep`, `working`, `STATE_GATED`, are at 120 to 148), 426 to 428 (the assembly), and [`docs/tasks.md`](../tasks.md) first 15 lines.
-- [`src/game/apartment.ts`](../../src/game/apartment.ts) lines 184 to 200 (the kitchen legend: `C` is the sink and counter, with `tasks` and `variants`).
-- [`docs/state.md`](../state.md) "Add a requirement" and "Add an effect".
-- For the last step: [`src/game/achievements/data.ts`](../../src/game/achievements/data.ts) (64 lines), `unlock.ts` lines 1 to 15 (`isMet`), `achievements/draw.ts` lines 31 to 43 (`LIST_LAYOUT`, `LIST_CAPACITY`).
+- [`src/game/interactable.ts`](../../../src/game/interactable.ts) lines 9 to 72 (the whole record).
+- [`src/game/tasks.ts`](../../../src/game/tasks.ts) lines 20 to 34 (the shape), 150 to 308 (`STATE_RULES`: tasks gain rules by merging; the helpers above it, `dirty`, `sortStep`, `working`, `STATE_GATED`, are at 120 to 148), 426 to 428 (the assembly), and [`docs/tasks.md`](../../tasks.md) first 15 lines.
+- [`src/game/apartment.ts`](../../../src/game/apartment.ts) lines 184 to 200 (the kitchen legend: `C` is the sink and counter, with `tasks` and `variants`).
+- [`docs/state.md`](../../state.md) "Add a requirement" and "Add an effect".
+- For the last step: [`src/game/achievements/data.ts`](../../../src/game/achievements/data.ts) (64 lines), `unlock.ts` lines 1 to 15 (`isMet`), `achievements/draw.ts` lines 31 to 43 (`LIST_LAYOUT`, `LIST_CAPACITY`).
 
 **The idea.** A task is a record, the apartment legend says which objects offer which task ids, and one interpreter runs them. An object offers the first of its tasks that can start right now; Tab or Q cycles when there are several. This is data plus an interpreter. `TASKS` is built by merging `CONTENT` with `STATE_RULES` by id, left to right. An achievement is data too: its `when` is a small sum type (a stat, a task count, a set of tasks) and `isMet` is a total function over it.
 
@@ -26,7 +26,7 @@
 
 **If you are stuck.** Compare with `charge-phone`: its row in `tasks.ts`, its entry in the `N` legend of the main room, and its tests in `battery.test.ts` ("the charge task"). For step 5: `draw.ts` lines 36 to 43 and the `rowsBottom <= LIST_LAYOUT.footerTop - 9` check in `drawList`.
 
-**Afterwards** you can add any simple task or achievement, and you know that new data can have layout consequences, so you run the whole suite after every data change. Add the task's words to [`docs/text-review.md`](../text-review.md) if you keep it. One thing I could not tell: the `kitchen-all` achievement leaves out `recycle-boxes`; deliberate or stale?
+**Afterwards** you can add any simple task or achievement, and you know that new data can have layout consequences, so you run the whole suite after every data change. Add the task's words to [`docs/text-review.md`](../../text-review.md) if you keep it. One thing I could not tell: the `kitchen-all` achievement leaves out `recycle-boxes`; deliberate or stale?
 
 ---
 

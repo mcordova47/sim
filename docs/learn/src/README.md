@@ -12,7 +12,7 @@ The reference material (a TypeScript crib, a map of the repo, a glossary) is on 
 
 **Each module has the same parts:** the goal; the effort; what to read (small ranges, never the whole codebase); the idea first and then the code; one task that makes you use the idea; how the machine checks you; hints that do not give the answer away; where the answer lives in the code if you are stuck; what you can do afterwards.
 
-**The flow for every task** (it is [`docs/contributing.md`](../contributing.md), with learning branches):
+**The flow for every task** (it is [`docs/contributing.md`](../../contributing.md), with learning branches):
 1. From the main checkout make a worktree on a learning branch, and install:
    ```
    git worktree add ../sim-worktrees/learn-NAME -b learn/NAME main
@@ -21,12 +21,12 @@ The reference material (a TypeScript crib, a map of the repo, a glossary) is on 
    ```
    Every worktree needs its own `npm install` (a few seconds). Never edit the main checkout. Never `cd ../sim` from a worktree. A few modules build on an earlier practice branch ([module 7](07-sound.md) uses the task from [module 4](04-tasks-are-data.md)); they say so and give the exact command, which swaps `main` at the end for the earlier branch name.
 2. Do the task. Run one test file with `npm test -- src/game/state.test.ts`, tests whose name contains a word with `npm test -- -t "clamps"`, everything with `npm test` (about 3,650 tests, 15 to 20 seconds). `npx vitest src/game/state.test.ts` (no `run`) watches and re-runs on save, which is the nicest way to work. Type-check with `npx tsc --noEmit`; the build (`npm run build`) runs it too and it also checks test files.
-3. See it: `npm run dev` and open the printed address. Dev-only shortcuts are in [`docs/deploy.md`](../deploy.md) ("Dev shortcuts"); the ones used here are `?set=name:value` (set state variables, for example `?set=dishes:0,mood:10`), `?hour=20` (the clock) and `?touch=1` (the phone layer). Three more are worth knowing: the `[` and `]` keys step the clock back and forward (`TIME_DEV` in `config.ts`, dev only), `?room=kitchen` starts in another room, and `?encounter=ad-candle&again=1` shows an ad card on your first key press ([`docs/contributing.md`](../contributing.md) uses it).
+3. See it: `npm run dev` and open the printed address. Dev-only shortcuts are in [`docs/deploy.md`](../../deploy.md) ("Dev shortcuts"); the ones used here are `?set=name:value` (set state variables, for example `?set=dishes:0,mood:10`), `?hour=20` (the clock) and `?touch=1` (the phone layer). Three more are worth knowing: the `[` and `]` keys step the clock back and forward (`TIME_DEV` in `config.ts`, dev only), `?room=kitchen` starts in another room, and `?encounter=ad-candle&again=1` shows an ad card on your first key press ([`docs/contributing.md`](../../contributing.md) uses it).
 4. Before you call it done: `npm test`, `npx tsc --noEmit`, `npm run build`, `npm run check:dist`. (`npm run tools -- check` runs the same set.)
-5. Commit on `learn/NAME`. To have it reviewed or seen, push the branch and open a pull request into `main`; Netlify makes a branch preview for the PR and GitHub's CI runs the type check, tests and build on it ([`docs/deploy.md`](../deploy.md)), so a red mark there is your first review. Nothing goes live until you merge, and `main` must stay releasable: a practice task is simply never merged, and that is fine.
-6. Any new player-visible words go into [`docs/text-review.md`](../text-review.md) so you can mark them later.
+5. Commit on `learn/NAME`. To have it reviewed or seen, push the branch and open a pull request into `main`; Netlify makes a branch preview for the PR and GitHub's CI runs the type check, tests and build on it ([`docs/deploy.md`](../../deploy.md)), so a red mark there is your first review. Nothing goes live until you merge, and `main` must stay releasable: a practice task is simply never merged, and that is fine.
+6. Any new player-visible words go into [`docs/text-review.md`](../../text-review.md) so you can mark them later.
 
-<a id="closing-a-real-issue-on-a-machine-without-claude"></a>**Closing a real issue on a machine without Claude.** The planner's merge step (`/merge-issue`, the [`PLAN.md`](../../PLAN.md) table) needs Claude, but you do not. Do the work on a branch, put a dated line in the issue file's progress log and set `status: review` ([`docs/contributing.md`](../contributing.md) step 4), push the branch and open the PR, and let CI go green. Review and merge can wait until you are next with Claude: say "review NNN". Nothing is lost by waiting.
+<a id="closing-a-real-issue-on-a-machine-without-claude"></a>**Closing a real issue on a machine without Claude.** The planner's merge step (`/merge-issue`, the [`PLAN.md`](../../../PLAN.md) table) needs Claude, but you do not. Do the work on a branch, put a dated line in the issue file's progress log and set `status: review` ([`docs/contributing.md`](../../contributing.md) step 4), push the branch and open the PR, and let CI go green. Review and merge can wait until you are next with Claude: say "review NNN". Nothing is lost by waiting.
 
 **How to check yourself with no one around.** Each task names its check. A red test that goes green is the main one. When the check is "look at it", the module says exactly what to do in the browser. When a test you did not write goes red, that is the project telling you a rule; read the failing test's name and the comment above it before changing anything. Several modules are built around exactly that.
 
@@ -50,7 +50,7 @@ This codebase is TypeScript with classes and mutation, not a pure Elm architectu
 | `foldl` over an update list | `ApartmentState.applyEffects(effects)`: `{ var, add }` or `{ var, set }` applied in order, then announced. |
 | `Either`/`Writer` parser | `parseConfig(text)` returns `{ ops, problems }`: values and complaints, never a throw. |
 | Subscriptions | `game.events.on("taskComplete", ...)`: a typed event emitter that features listen to. |
-| Property tests | [`src/game/sync/merge.test.ts`](../../src/game/sync/merge.test.ts) checks the merge is commutative, associative and idempotent on random documents. |
+| Property tests | [`src/game/sync/merge.test.ts`](../../../src/game/sync/merge.test.ts) checks the merge is commutative, associative and idempotent on random documents. |
 
 ---
 
@@ -73,7 +73,7 @@ Track A is the minimum core knowledge for working safely around the engine. Trac
 | 11 | [The narrow phone layout: the pause legend (issue 120)](11-narrow-layout.md) | B2 | 1 evening |
 | 12 | [Ship one, and where to go next](12-ship-one.md) | all | 1 evening |
 
-The tasks marked "invented" are stand-ins I made up to exercise an idea (a counter to wipe, a bin that fills). They are small and harmless but are not on the backlog; ship one only if you actually like it. Tasks from the backlog name their issue; check [`PLAN.md`](../../PLAN.md) first, because an agent may have taken it since this was written (`git branch --list 'issue/*'` shows live branches).
+The tasks marked "invented" are stand-ins I made up to exercise an idea (a counter to wipe, a bin that fills). They are small and harmless but are not on the backlog; ship one only if you actually like it. Tasks from the backlog name their issue; check [`PLAN.md`](../../../PLAN.md) first, because an agent may have taken it since this was written (`git branch --list 'issue/*'` shows live branches).
 
 ## Reference
 

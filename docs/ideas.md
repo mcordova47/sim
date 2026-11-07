@@ -23,7 +23,7 @@ Where other idea lists already live (not copied here): the decor wishlist in [de
 *2026-11-07.* You can acquire certain items that are intelligent, like a roomba or a dog. They do their own thing throughout the day. One challenge is how to make sure they're not in the way. An idea that comes to mind immediately is just an option to move them.
 
 ## Alternate settings
-Maybe not worth doing but I wanted to note it. Could either have entirely different games based on the same engine with different config or alternate scenes/levels where you're in a different location. Getting coffee or something like that. Part of the charm of the game is that it takes place entirely in on setting, but maybe if it were rare enough it wouldn't take aaway fromt he charm?
+*2026-11-07.* Maybe not worth doing but I wanted to note it. Could either have entirely different games based on the same engine with different config or alternate scenes/levels where you're in a different location. Getting coffee or something like that. Part of the charm of the game is that it takes place entirely in on setting, but maybe if it were rare enough it wouldn't take aaway fromt he charm?
 
 ## “Going out”
-Menu at the door to go out and do different things: meet a friend for lunch, go on a date, get coffee, go to a museum or a show. The scene doesn't switch, just the time changes and there are effects to certain stats and points or whatever.
+*2026-11-07.* Menu at the door to go out and do different things: meet a friend for lunch, go on a date, get coffee, go to a museum or a show. The scene doesn't switch, just the time changes and there are effects to certain stats and points or whatever.

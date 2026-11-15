@@ -1,7 +1,7 @@
 ---
 id: "130"
 title: "Issues as data 2: summaries, needs, threads and the generated pages"
-status: todo
+status: in-progress
 owner: claude
 depends_on: [129]
 short: "Issues as data 2: summaries, needs, threads and the pages"
@@ -19,3 +19,4 @@ Build the generator's second half as in sections 4 to 6 of the design: calm tone
 
 ## Progress log
 
+- 2026-11-15 (claude): Started in worktree `../sim-worktrees/130-issues-stage-2`. Plan: validator rules and derivations (thread status, pills, needs, unblocks, heading tree) in `scripts/issues.mjs`; a second module `scripts/issues-site.mjs` for `issues.json` and the static pages (home, thread, issue, needs) written to `dist-issues/` by `npm run issues:site`; tests; fill a few `summary`, `thread` and `needs` fields on real issues (no body edits); look at the pages at 390 px and desktop width in headless Chrome. Decisions log is stage 3 and is left out.

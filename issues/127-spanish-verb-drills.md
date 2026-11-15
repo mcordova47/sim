@@ -27,8 +27,11 @@ Write a short design (`docs/verb-drills-design.md`) and ask Marc about, most imp
 3. **`selfGraded` drills (paraphrases):** offer them (show `expected` and the `rubric`, the player judges) or skip them (they stay due, and a session then has fewer drills); the PR included them because sessions mix kinds.
 4. **Sync cadence:** GET then PUT per answer (as the cards do) or per session (the merge makes either safe); what the screen says when delivery fails (the cards' rule: nothing is paid and the answer is not kept).
 5. **Points and tone:** points per correct drill and the daily cap (shared with the cards or separate), nothing for a miss, no streaks, and the deadpan voice for verdict lines (new text goes to `docs/text-review.md`). Mumblespeak or the IPA voice for the Spanish sentence, or silence.
-6. **Loading and failure:** the core is bigger; load it lazily on opening Study Spanish (as now), and what happens if the deployed core predates the drill exports (feature-detect `drillSession` and offer cards only, never break the cards).
+6. **Loading and failure:** the core is bigger; load it lazily on opening Study Spanish (as now).
 Then split into small issues (a `Core` type and `checkCore` extension with optional drill functions and a fake core for tests; the drill backend over the real and guest storage; the screen; text and docs).
+
+## Sequencing (Marc, 2026-11-15)
+Wait for the app's deploy before shipping, do not design around an older core. Design and build can happen now: the game's tests use a fake core, and everything can merge to `main` ahead of the app's deploy (`main` is not production). **Do not push `main` to `production` for this feature until the deployed `core.v1.js` at palabras.mcord.dev has the drill exports**, and check once against the real core before releasing. The drill functions are added to the `Core` type as optional (like `ipa` and `overview`), so that if the app is ever rolled back the cards keep working and the drill choice simply is not offered; that is a three-line guard on the cards, not a supported "old core" mode.
 
 ## Constraints
 - The flashcards repo is read-only for this project: never modify it (a gap in the core is reported to Marc, who owns it).
@@ -39,5 +42,5 @@ Then split into small issues (a `Core` type and `checkCore` extension with optio
 - A design agreed with Marc, then build issues filed. (Each build issue has its own criteria; none touches the flashcards repo.)
 
 ## Progress log
-- 2026-11-15 (planner): filed from Marc's request, with the PR's contents summarised above. Not yet checked: whether the deployed `core.v1.js` at palabras.mcord.dev already has the drill exports (the PR merged today; the app may need a deploy).
+- 2026-11-15 (planner): filed from Marc's request, with the PR's contents summarised above. Not yet checked: whether the deployed `core.v1.js` at palabras.mcord.dev already has the drill exports (the PR merged today; the app may need a deploy). Marc: wait for the deploy before shipping (see Sequencing).
 

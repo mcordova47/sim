@@ -35,4 +35,4 @@ Marc (2026-11-15): the issues live in this repo, so we get to define what an iss
 - A design agreed with Marc (the design note answers items 1 to 7 and ends with a few real questions, each with a recommendation), then build issues filed. Nothing implemented in this issue.
 
 ## Progress log
-
+- 2026-11-15 (claude): research and design note written, `docs/issues-as-data-design.md` (prior art, schema, views, generator, workflow, migration, five stages, questions for Marc); nothing implemented. Not yet reviewed.

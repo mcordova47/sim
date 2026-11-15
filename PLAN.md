@@ -23,6 +23,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 - **An agent edits only its own issue file** (status and progress log) plus the code it was assigned. Do not edit other issues or this file. Report back instead.
 - When an issue is done, set `status: done` and update the table below.
 - Keep commits small and one per issue where possible.
+- **Record before asking.** Anything waiting on Marc (a question, a decision, something to try) is first written on `main` (an open `decisions` entry or a `needs` entry on the issue) and only then asked, so it can be forgotten and found again on the generated "What needs you" page. Details in `docs/contributing.md`.
 - **Loose ideas are not issues.** An idea that is not yet planned goes in [docs/ideas.md](docs/ideas.md) (a few lines, no status, no owner, no deadline). It graduates to an issue (design first) only when Marc says to do it, and then it gets a row in the table below; an idea tied to an existing feature stays with that issue's "Later ideas".
 - **Every issue is worked in its own git worktree**, at `../sim-worktrees/NNN-slug` on branch `issue/NNN-slug`, including the planner's own issues. Nothing lands on `main` until it has been reviewed. Agents commit on their branch, start their own independent review when they finish (see `work-issue`), and never merge. The planner merges approved branches with `/merge-issue NNN` (see `.claude/skills/merge-issue/`), which checks the review record, builds and tests the merged result, and updates the table below. Status in an issue file is only current on its branch until merged.
 
@@ -201,6 +202,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 131 | [Issues as data 3: decisions and the decisions log](issues/131-issues-stage-3.md) | claude | done | 130 |
 | 132 | [Issues as data 4: an agent backfill of summaries and threads](issues/132-issues-backfill.md) | claude | done | 130 |
 | 133 | [Issue pages: a theme of our own](issues/133-issue-pages-theme.md) | marc + claude | todo | 130 |
+| 134 | [Tidy stale statuses](issues/134-tidy-stale-statuses.md) | marc + claude | todo | |
 <!-- issues:table:end -->
 
 ## Order of work

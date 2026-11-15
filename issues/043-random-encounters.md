@@ -4,6 +4,7 @@ title: Random encounters (explore the idea)
 status: done
 owner: marc + claude
 depends_on: []
+summary: "Random encounters in a studio apartment, explored first and then built small, taking the form of in-game ads"
 ---
 
 ## Goal

@@ -4,6 +4,8 @@ title: A phone battery (a gag) and a charge-your-phone task
 status: done
 owner: claude
 depends_on: [086]
+summary: "The phone has a battery that drains slowly, and there is a task to charge it"
+thread: "048"
 ---
 
 ## Goal

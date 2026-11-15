@@ -5,6 +5,7 @@ status: blocked
 owner: marc + claude
 depends_on: [009a, 009b, 009c, 009d]
 short: "Polish (umbrella)"
+summary: "Sound, particles, achievements and time of day layered onto a game that has no goal"
 ---
 
 ## Goal

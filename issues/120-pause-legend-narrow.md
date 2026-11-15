@@ -5,6 +5,8 @@ status: todo
 owner: claude
 depends_on: [116]
 short: "Pause legend overlap on the narrow view"
+summary: "On the narrow pause screen, the good-hour legend icon sits on top of the header text"
+thread: "116"
 ---
 
 ## Goal

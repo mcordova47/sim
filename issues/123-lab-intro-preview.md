@@ -5,6 +5,8 @@ status: done
 owner: claude
 depends_on: [122]
 short: "Music lab: hear the encounter intro into the track"
+summary: "The music lab can play the encounter's entrance sounds leading into the track"
+thread: "122"
 ---
 
 ## Goal

@@ -5,6 +5,7 @@ status: done
 owner: marc + claude
 depends_on: [007a, 007b, 007c, 007d]
 short: "Furniture sprites (umbrella)"
+summary: "A sprite for every piece of furniture and fixture in the apartment, drawn after the real ones"
 ---
 
 ## Goal

@@ -8,6 +8,7 @@ unverified:
   - "The thread and issue filter dropdowns on the log were built but not clicked in a browser."
 owner: claude
 depends_on: [130]
+thread: "128"
 ---
 
 ## Goal

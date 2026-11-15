@@ -4,6 +4,8 @@ title: "Mobile: a taller, squarer picture that scrolls (assess, then prototype)"
 status: done
 owner: claude
 depends_on: [087]
+summary: "On mobile the picture is taller and squarer, shows a narrower slice of the room and scrolls"
+thread: "049"
 ---
 
 ## Goal

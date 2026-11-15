@@ -4,6 +4,8 @@ title: "HUD ribbon, stage 1: icons and small bars in the empty top band"
 status: done
 owner: claude
 depends_on: [048]
+summary: "A one-row ribbon of icons and small bars in the top band replaces the two corner status panels"
+thread: "048"
 ---
 
 ## Goal

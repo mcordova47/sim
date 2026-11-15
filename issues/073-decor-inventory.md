@@ -4,6 +4,8 @@ title: "Decor: an item is displayed in one place at a time (swap, inventory)"
 status: done
 owner: claude
 depends_on: []
+summary: "Each decor item hangs in one place at a time, and owned items not on show wait in an inventory to swap in"
+thread: "062"
 ---
 
 ## Goal

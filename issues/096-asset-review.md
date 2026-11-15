@@ -4,6 +4,7 @@ title: "Asset review: go over every sprite for perspective and consistency"
 status: done
 owner: marc + claude
 depends_on: []
+summary: "Every sprite is surveyed for perspective and consistency, with a verdict on each"
 ---
 
 ## Goal

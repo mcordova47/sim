@@ -4,6 +4,7 @@ title: "Side project config 5: `when` conditions"
 status: todo
 owner: claude
 depends_on: [111d]
+summary: "Config conditions meant to let the side project's drift follow the real room's state"
 ---
 
 ## Goal

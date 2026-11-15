@@ -4,6 +4,8 @@ title: "Mobile landscape: the controls must not cover the picture"
 status: done
 owner: claude
 depends_on: [087, 090]
+summary: "In landscape on a phone, the controls sit beside the picture instead of over it"
+thread: "049"
 ---
 
 ## Goal

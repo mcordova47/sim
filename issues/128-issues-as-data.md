@@ -5,6 +5,7 @@ status: done
 owner: marc + claude
 depends_on: []
 short: "Issues as data: a schema and progressive-disclosure views (design only)"
+summary: "A research and design note for keeping issues as structured data, read headlines first and then in detail"
 ---
 
 ## Goal

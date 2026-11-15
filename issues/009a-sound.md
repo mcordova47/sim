@@ -4,6 +4,7 @@ title: "Polish: sound effects"
 status: done
 owner: agent
 depends_on: []
+summary: "Small synthesized sound effects for what you do, with no audio files or licences involved"
 ---
 
 ## Goal

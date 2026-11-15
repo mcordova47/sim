@@ -4,6 +4,8 @@ title: "Boxes: flatten, take out the recycling, they disappear"
 status: done
 owner: claude
 depends_on: [066]
+summary: "A delivered stack of boxes can be flattened to look tidier, then taken out with the recycling so it disappears"
+thread: "066"
 ---
 
 ## Goal

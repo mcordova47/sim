@@ -4,6 +4,7 @@ title: "Track editor on phones 2: taps that edit"
 status: done
 owner: claude
 depends_on: [106a]
+summary: "Taps on the phone track editor place notes, switch pages and press Play, Save and Length"
 ---
 
 ## Goal

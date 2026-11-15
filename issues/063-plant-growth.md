@@ -4,6 +4,7 @@ title: Plants that grow in stages
 status: done
 owner: marc + claude
 depends_on: []
+summary: "Plants change visibly in stages as you water them over days, and droop if left dry"
 ---
 
 ## Goal

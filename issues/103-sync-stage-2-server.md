@@ -4,6 +4,8 @@ title: "Sync stage 2: the Netlify Function with Blobs and the pairing link"
 status: done
 owner: claude
 depends_on: [102]
+summary: "A small Netlify function stores saves under a pairing key so two devices can converge"
+thread: "095"
 ---
 
 ## Goal

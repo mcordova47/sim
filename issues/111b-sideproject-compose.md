@@ -4,6 +4,7 @@ title: "Side project config 2: compose the little room from the real one"
 status: done
 owner: claude
 depends_on: [111]
+summary: "A pure function builds the little room's pieces from the real room plus config overrides"
 ---
 
 ## Goal

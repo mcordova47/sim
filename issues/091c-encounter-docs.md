@@ -5,6 +5,7 @@ status: todo
 owner: claude
 depends_on: [091b]
 short: "Encounter music 3: docs and tuning"
+summary: "Encounter music gets documented, with every tunable number gathered in config"
 ---
 
 ## Goal

@@ -4,6 +4,7 @@ title: "Track editor on phones 1: touch layout and drawing"
 status: done
 owner: claude
 depends_on: [093]
+summary: "The track editor gets a touch layout and drawing for phone screens"
 ---
 
 ## Goal

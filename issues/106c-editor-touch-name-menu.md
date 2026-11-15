@@ -4,6 +4,7 @@ title: "Track editor on phones 3: name, More menu, delete"
 status: done
 owner: claude
 depends_on: [106b]
+summary: "The phone track editor gets naming through the keyboard, a More menu, undo and delete"
 ---
 
 ## Goal

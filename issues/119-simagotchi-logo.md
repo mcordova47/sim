@@ -5,6 +5,8 @@ status: done
 owner: claude
 depends_on: [116]
 short: "A Simagotchi logo and favicon"
+summary: "A logo and favicon drawn as an egg with the main character's sleepy face on its screen"
+thread: "116"
 ---
 
 ## Goal

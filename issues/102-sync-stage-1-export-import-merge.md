@@ -4,6 +4,8 @@ title: "Sync stage 1: export and import a save, and the pure mergeSaves"
 status: done
 owner: claude
 depends_on: [095]
+summary: "A save can be exported to a code or file and imported elsewhere, merging rather than replacing"
+thread: "095"
 ---
 
 ## Goal

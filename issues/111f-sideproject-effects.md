@@ -4,6 +4,7 @@ title: "Side project config 6: one real effect (later)"
 status: todo
 owner: marc + claude
 depends_on: [111e]
+summary: "A single real effect from the side project reaching the real room, once Marc picks which kind"
 ---
 
 ## Goal

@@ -4,6 +4,7 @@ title: "Photo gallery 2: the gallery core (not wired)"
 status: done
 owner: claude
 depends_on: [113c]
+summary: "The core of a phone-style photo gallery: paging, grid cells, close-up scaling and drawing"
 ---
 
 ## Goal

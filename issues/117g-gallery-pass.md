@@ -4,6 +4,7 @@ title: "Photo gallery 7: text review, phone pass, docs"
 status: todo
 owner: claude
 depends_on: [117f, 117d]
+summary: "The last gallery pass: Marc marks the new text lines and tries touch and looks on a real device"
 ---
 
 ## Goal

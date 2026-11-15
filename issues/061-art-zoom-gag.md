@@ -5,6 +5,8 @@ status: done
 owner: marc + claude
 depends_on: []
 short: "Admire the art: zoom in and comment very seriously"
+summary: "Zooming in on one piece of art while the narration comments on it with complete seriousness"
+thread: "040"
 ---
 
 ## Goal

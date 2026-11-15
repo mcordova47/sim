@@ -4,6 +4,8 @@ title: "Phone battery: drains a little, and looks like a phone battery indicator
 status: done
 owner: claude
 depends_on: [088]
+summary: "The phone battery indicator is drawn in segments like a real one, and its level falls a little over time"
+thread: "048"
 ---
 
 ## Goal

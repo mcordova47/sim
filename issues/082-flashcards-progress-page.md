@@ -5,6 +5,8 @@ status: done
 owner: claude
 depends_on: [026]
 short: "Flashcards: a progress page when no cards are left"
+summary: "Flashcards show a progress page with the real figures when no cards are left to review"
+thread: "026"
 ---
 
 ## Goal

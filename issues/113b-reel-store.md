@@ -5,6 +5,7 @@ status: done
 owner: claude
 depends_on: [113]
 short: "Photo reel 2: the store"
+summary: "A store for the pixelated pictures, in memory or IndexedDB, capped at 60 and without duplicates"
 ---
 
 ## Goal

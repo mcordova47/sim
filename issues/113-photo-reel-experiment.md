@@ -4,6 +4,7 @@ title: "Photo reel: pixelated pictures from your own device (experiment)"
 status: done
 owner: marc + claude
 depends_on: [112]
+summary: "An experiment in showing photos from the player's own device as pixel art, stored only on that device"
 ---
 
 ## Goal

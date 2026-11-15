@@ -5,6 +5,7 @@ status: done
 owner: agent
 depends_on: [005, 006]
 short: "Sprites: kitchen west"
+summary: "Entry step, bin, stove and counter drawn to match the real pieces in the west half of the kitchen"
 ---
 
 ## Goal

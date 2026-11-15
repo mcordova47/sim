@@ -6,6 +6,7 @@ owner: claude
 depends_on: [129]
 short: "Issues as data 2: summaries, needs, threads and the pages"
 summary: "The generated pages: home, threads, issues and what needs you."
+thread: "128"
 ---
 
 ## Goal

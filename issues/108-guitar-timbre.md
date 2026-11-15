@@ -4,6 +4,8 @@ title: The guitar's timbre follows the current instrument
 status: done
 owner: claude
 depends_on: []
+summary: "Guitar notes use a steel-string voice by default and a rounder nylon voice for the nylon guitar"
+thread: "114"
 ---
 
 ## Goal

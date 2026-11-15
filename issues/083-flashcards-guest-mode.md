@@ -5,6 +5,8 @@ status: done
 owner: marc + claude
 depends_on: [026]
 note: "design note and the build, issue 089"
+summary: "A design note for letting someone without a sync key use the flashcards, written before anything was built"
+thread: "026"
 ---
 
 ## Goal

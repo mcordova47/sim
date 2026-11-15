@@ -4,6 +4,8 @@ title: Make the per-letter voice the default for dialog text
 status: done
 owner: claude
 depends_on: []
+summary: "Dialog text is read in the per-letter voice by default, with the beep kept as the other option"
+thread: "075"
 ---
 
 ## Goal

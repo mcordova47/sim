@@ -20,6 +20,12 @@ export const OPTIONAL = [
   'summary', 'kind', 'thread', 'area', 'needs', 'decisions', 'unverified',
   'links', 'docs', 'superseded_by',
 ];
+// Closed sets (design sections 4.1 and 4.3). The pill on a card is exactly one of these words.
+export const KINDS = ['design', 'build', 'research', 'fix', 'umbrella', 'chore'];
+export const NEEDS_WHO = ['marc', 'planner', 'agent', 'other'];
+export const NEEDS_KIND = ['decide', 'do', 'try', 'review', 'wait'];
+export const SUMMARY_LIMIT = 120;
+const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const ID_PATTERN = /^\d{3}[a-z]?$/;
 const FILE_PATTERN = /^(\d{3}[a-z]?)-.+\.md$/;
 
@@ -47,6 +53,7 @@ export function parseIssue(name, text) {
     return issue;
   }
   const fmLines = lines.slice(1, end);
+  issue.body = lines.slice(end + 1).join('\n');
   issue.fmLines = fmLines;
   for (let i = 0; i < fmLines.length; i++) {
     const m = fmLines[i].match(/^([A-Za-z_][\w-]*):/);
@@ -144,9 +151,46 @@ function checkOne(issue) {
       }
     }
   }
-  for (const key of ['short', 'note', 'thread', 'superseded_by']) {
+  for (const key of ['short', 'note', 'thread', 'superseded_by', 'summary']) {
     if (key in fm && (!isString(fm[key]) || fm[key].trim() === '')) {
       err(key, `"${key}" must be a non-empty line of text.`);
+    }
+  }
+
+  if ('summary' in fm && isString(fm.summary) && fm.summary.trim() !== '' && fm.summary.length > SUMMARY_LIMIT) {
+    issue.warnings.push({
+      file: name, line: issue.lines.summary || 2,
+      message: `The summary is ${fm.summary.length} characters; about ${SUMMARY_LIMIT} reads best as a headline.`,
+    });
+  }
+  if ('kind' in fm && !KINDS.includes(fm.kind)) {
+    err('kind', `The kind "${fm.kind}" is not one of: ${KINDS.join(', ')}.`);
+  }
+  if ('unverified' in fm) {
+    const u = fm.unverified;
+    if (!Array.isArray(u) || !u.every((x) => isString(x) && x.trim() !== '')) {
+      err('unverified', 'unverified must be a list of one-line texts, like ["Safari behaviour"].');
+    }
+  }
+  if ('needs' in fm) {
+    const list = fm.needs;
+    const flow = 'Write each as one line: needs: [{who: marc, kind: try, why: "Run it once", since: 2026-11-15}].';
+    if (!Array.isArray(list) || !list.every((n) => n && typeof n === 'object' && !Array.isArray(n))) {
+      err('needs', `needs must be a list of entries with who, kind, why and since. ${flow}`);
+    } else {
+      list.forEach((n, i) => {
+        const at = list.length > 1 ? ` (entry ${i + 1})` : '';
+        for (const k of Object.keys(n)) {
+          if (!['who', 'kind', 'why', 'since', 'on'].includes(k)) {
+            issue.warnings.push({ file: name, line: issue.lines.needs || 2, message: `needs${at} has "${k}", which is not a field this tool knows.` });
+          }
+        }
+        if (!NEEDS_WHO.includes(n.who)) err('needs', `needs${at}: who "${n.who}" is not one of: ${NEEDS_WHO.join(', ')}.`);
+        if (!NEEDS_KIND.includes(n.kind)) err('needs', `needs${at}: kind "${n.kind}" is not one of: ${NEEDS_KIND.join(', ')}.`);
+        if (!isString(n.why) || n.why.trim() === '') err('needs', `needs${at}: why must be one plain line of text.`);
+        if (!isString(n.since) || !DATE_PATTERN.test(n.since)) err('needs', `needs${at}: since must be a date like 2026-11-15.`);
+        if (n.kind === 'wait' && (!isString(n.on) || n.on.trim() === '')) err('needs', `needs${at}: a wait entry says what it waits on, with on: "...".`);
+      });
     }
   }
 }
@@ -252,6 +296,17 @@ export function analyze(files) {
     }
   }
 
+  for (const issue of good) {
+    const { fm } = issue;
+    // Only for work being done now: the old backlog is filled in by the backfill (issue 132).
+    if (!isString(fm.summary) && ['in-progress', 'review'].includes(fm.status)) {
+      issue.warnings.push({ file: issue.name, line: 2, message: `${fm.id} has no summary yet; a one-line headline helps the pages.` });
+    }
+    if (fm.status === 'done' && Array.isArray(fm.needs) && fm.needs.length) {
+      issue.warnings.push({ file: issue.name, line: issue.lines.needs || 2, message: `${fm.id} is done but still lists needs; remove an entry when it is resolved (a post-merge check may be fine).` });
+    }
+  }
+
   for (const issue of issues) {
     errors.push(...issue.errors);
     warnings.push(...issue.warnings);
@@ -260,6 +315,222 @@ export function analyze(files) {
   errors.sort(order);
   warnings.sort(order);
   return { issues: good.filter((i) => !i.errors.length), errors, warnings };
+}
+
+// ---------------------------------------------------------------------------
+// Derivations for the pages (stage 2). Pure functions: no files, no git.
+// ---------------------------------------------------------------------------
+
+export const STATUS_WORDS = {
+  todo: 'not started', 'in-progress': 'in progress', review: 'in review', done: 'shipped', blocked: 'paused',
+};
+export const NEEDS_PILL = { decide: 'Decide', do: 'Do', try: 'Try', review: 'Review', wait: 'Wait' };
+const WORDS = ['none', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'];
+export const numberWord = (n) => (n >= 0 && n < WORDS.length ? WORDS[n] : String(n));
+
+// One short plain sentence from some Markdown: no markup, cut at the first
+// sentence end or at about `max` characters (on a word boundary).
+export function firstSentence(md, max = 140) {
+  let para = [];
+  let inFence = false;
+  for (const raw of String(md || '').split('\n')) {
+    if (/^\s*(```|~~~)/.test(raw)) { inFence = !inFence; continue; }
+    if (inFence) continue;
+    const line = raw.trim();
+    if (line === '') { if (para.length) break; continue; }
+    if (/^#{1,6}\s/.test(line) || /^\|/.test(line) || /^[-=]{3,}$/.test(line)) { if (para.length) break; continue; }
+    para.push(line.replace(/^([-*+]|\d+[.)])\s+/, ''));
+    if (para.length >= 3) break;
+  }
+  let t = para.join(' ')
+    .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/[`*_]+/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const m = t.match(/^(.+?[.!?])(\s|$)/);
+  if (m && m[1].length >= 12) t = m[1];
+  if (t.length > max) {
+    const cut = t.slice(0, max);
+    t = cut.slice(0, cut.lastIndexOf(' ') > 40 ? cut.lastIndexOf(' ') : max).replace(/[,;:(\s]+$/, '') + '\u2026';
+  }
+  return t;
+}
+
+// Body to a tree: { intro, sections: [{ level, title, text, children: [...] }] }.
+// `##` is a branch and `###` its child; text is the lines before the next heading.
+export function parseSections(body) {
+  const lines = String(body || '').split('\n');
+  const intro = [];
+  const sections = [];
+  let cur = null;
+  let top = null;
+  let inFence = false;
+  for (const line of lines) {
+    if (/^\s*(```|~~~)/.test(line)) inFence = !inFence;
+    const m = !inFence && line.match(/^(#{2,3}) +(.+?) *$/);
+    if (m) {
+      const sec = { level: m[1].length, title: m[2], lines: [], children: [] };
+      if (sec.level === 3 && top) top.children.push(sec);
+      else { sections.push(sec); top = sec; }
+      cur = sec;
+    } else if (cur) cur.lines.push(line);
+    else intro.push(line);
+  }
+  const fin = (sec) => {
+    sec.text = sec.lines.join('\n').trim();
+    delete sec.lines;
+    sec.children.forEach(fin);
+    return sec;
+  };
+  return { intro: intro.join('\n').trim(), sections: sections.map(fin) };
+}
+
+// The role of a heading, for icons and order (design 4.2). Unknown headings: null.
+export function headingRole(title) {
+  const t = title.trim();
+  if (/^goal\b/i.test(t)) return 'goal';
+  if (/^acceptance criteria/i.test(t)) return 'criteria';
+  if (/^(marc'?s\b|decision)/i.test(t)) return 'decisions';
+  if (/^notes?\b/i.test(t)) return 'notes';
+  if (/^(unverified|not verified)/i.test(t)) return 'unverified';
+  if (/^progress log/i.test(t)) return 'log';
+  return null;
+}
+const ROLE_RANK = { goal: 0, decisions: 1, criteria: 2, notes: 4, unverified: 5, log: 9 };
+export const orderSections = (sections) =>
+  sections
+    .map((s, i) => ({ s, i, r: ROLE_RANK[headingRole(s.title)] ?? 3 }))
+    .sort((a, b) => a.r - b.r || a.i - b.i)
+    .map((x) => x.s);
+
+// Progress-log text to leaves: each top-level bullet is one entry.
+export function logEntries(text) {
+  const entries = [];
+  let cur = null;
+  for (const line of String(text || '').split('\n')) {
+    if (/^[-*] /.test(line)) { cur = { lines: [line.replace(/^[-*] /, '')] }; entries.push(cur); }
+    else if (cur) cur.lines.push(line.replace(/^ {1,2}/, ''));
+  }
+  return entries.map((e) => {
+    const body = e.lines.join('\n').trim();
+    return { label: firstSentence(body, 140), body };
+  });
+}
+
+const cmpId = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
+
+// Threads, pills, needs, unblocks. `issues` are the valid parsed issues.
+export function buildModel(issues) {
+  const byId = new Map(issues.map((i) => [i.fm.id, i]));
+  const rootOf = (i) => {
+    const t = i.fm.thread || defaultThread(i.fm.id);
+    return t && byId.has(t) ? t : null;
+  };
+  const membersOf = new Map();
+  for (const i of issues) {
+    const r = rootOf(i);
+    if (r) {
+      if (!membersOf.has(r)) membersOf.set(r, []);
+      membersOf.get(r).push(i);
+    }
+  }
+  const unblocks = new Map();
+  for (const i of issues) {
+    for (const d of i.fm.depends_on) {
+      if (!unblocks.has(d)) unblocks.set(d, []);
+      unblocks.get(d).push(i.fm.id);
+    }
+  }
+  for (const v of unblocks.values()) v.sort(cmpId);
+
+  const threads = [];
+  for (const i of [...issues].sort((a, b) => cmpId(a.fm.id, b.fm.id))) {
+    if (rootOf(i)) continue;
+    const members = (membersOf.get(i.fm.id) || []).sort((a, b) => cmpId(a.fm.id, b.fm.id));
+    const active = members.filter((m) => !m.fm.superseded_by);
+    const judged = active.length ? active : [i];
+    const sts = judged.map((m) => m.fm.status);
+    let pill;
+    if (sts.every((s) => s === 'done')) pill = 'Shipped';
+    else if (sts.every((s) => s === 'todo')) pill = 'Planned';
+    else if (sts.every((s) => s === 'done' || s === 'blocked')) pill = 'Paused';
+    else pill = 'In progress';
+    const done = active.filter((m) => m.fm.status === 'done').length;
+    let progress = '';
+    if (active.length) {
+      if (pill === 'Planned') progress = 'not started';
+      else if (pill === 'Shipped') progress = `all ${numberWord(active.length)} shipped`;
+      else progress = `${numberWord(done)} of ${numberWord(active.length)} shipped`;
+    }
+    threads.push({
+      id: i.fm.id, root: i, members, active, pill, progress,
+      superseded: members.filter((m) => m.fm.superseded_by),
+      page: members.length > 0,
+    });
+  }
+  const threadOf = new Map();
+  for (const t of threads) {
+    threadOf.set(t.id, t);
+    for (const m of t.members) threadOf.set(m.fm.id, t);
+  }
+
+  // Everyone's needs, newest first (never oldest first: that reads as a backlog).
+  const needs = [];
+  for (const i of issues) {
+    if (i.fm.superseded_by || !Array.isArray(i.fm.needs)) continue;
+    for (const n of i.fm.needs) needs.push({ id: i.fm.id, issue: i, ...n });
+  }
+  needs.sort((a, b) => (a.since < b.since ? 1 : a.since > b.since ? -1 : cmpId(a.id, b.id)));
+  const forMarc = needs.filter((n) => n.who === 'marc' && n.kind !== 'wait');
+  const elsewhere = needs.filter((n) => !(n.who === 'marc' && n.kind !== 'wait'));
+  return { byId, threads, threadOf, unblocks, needs, forMarc, elsewhere };
+}
+
+export const headline = (i) => i.fm.summary || i.fm.title;
+export const label = (i) => i.fm.short || i.fm.title;
+
+// issues.json: stable, sorted, public-safe (relative paths only, no times).
+export function issuesJson(issues, model, extra = {}) {
+  const sorted = [...issues].sort((a, b) => cmpId(a.fm.id, b.fm.id));
+  const clean = (o) => Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined && v !== null));
+  return {
+    schema: 1,
+    snapshot: extra.snapshot || null,
+    issues: sorted.map((i) => {
+      const { fm } = i;
+      const t = model.threadOf.get(fm.id);
+      return clean({
+        id: fm.id,
+        title: fm.title,
+        short: fm.short,
+        summary: fm.summary,
+        status: fm.status,
+        status_word: STATUS_WORDS[fm.status],
+        owner: fm.owner,
+        kind: fm.kind,
+        thread: t ? t.id : fm.id,
+        depends_on: fm.depends_on,
+        unblocks: model.unblocks.get(fm.id) || [],
+        superseded_by: fm.superseded_by,
+        note: fm.note,
+        needs: Array.isArray(fm.needs)
+          ? fm.needs.map((n) => clean({ who: n.who, kind: n.kind, why: n.why, since: n.since, on: n.on }))
+          : [],
+        unverified: Array.isArray(fm.unverified) ? fm.unverified : [],
+        file: `issues/${i.name}`,
+      });
+    }),
+    threads: model.threads.map((t) => ({
+      id: t.id,
+      title: label(t.root),
+      summary: t.root.fm.summary || null,
+      pill: t.pill,
+      progress: t.progress || null,
+      members: t.members.map((m) => m.fm.id),
+    })),
+    needs: model.needs.map((n) => clean({ id: n.id, who: n.who, kind: n.kind, why: n.why, since: n.since, on: n.on })),
+    recently_shipped: extra.recentlyShipped || [],
+  };
 }
 
 export const formatProblem = (p) => `issues/${p.file}:${p.line}: ${p.message}`;

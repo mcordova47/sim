@@ -5,6 +5,8 @@ status: done
 owner: marc + claude
 depends_on: []
 note: "the note, and the builds 102 to 104; Marc still checks the server with netlify dev and two browsers"
+summary: "The game keeps your progress across devices."
+needs: [{who: marc, kind: try, why: "Check the server with netlify dev and two browsers", since: 2026-10-28}]
 ---
 
 ## Goal

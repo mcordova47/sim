@@ -5,6 +5,8 @@ status: review
 owner: claude
 depends_on: []
 short: "A manual deploy button on GitHub"
+summary: "A manual deploy button on GitHub, built and waiting for one real run."
+needs: [{who: marc, kind: try, why: "Run the workflow once to confirm it deploys", since: 2026-10-28}]
 ---
 
 ## Goal

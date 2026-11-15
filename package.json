@@ -16,6 +16,7 @@
     "learn": "mdbook serve docs/learn --open",
     "issues": "node scripts/issues.mjs",
     "issues:check": "node scripts/issues.mjs --check",
+    "issues:site": "node scripts/issues-site.mjs",
     "pixel": "node scripts/tools.mjs pixel"
   },
   "devDependencies": {

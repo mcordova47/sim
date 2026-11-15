@@ -4,6 +4,7 @@ title: The track editor (mixing tool) on phones
 status: done
 owner: marc + claude
 depends_on: [093]
+summary: "The track editor works on phones; a touch polish pass is left."
 ---
 
 ## Goal

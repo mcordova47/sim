@@ -4,6 +4,7 @@ title: Both windows' blinds; the dinner plate only when there is dinner
 status: review
 owner: claude
 depends_on: []
+summary: "Both windows have blinds, and the dinner plate shows only when there is dinner."
 ---
 
 ## Goal

@@ -5,6 +5,7 @@ status: in-progress
 owner: marc + claude
 depends_on: []
 note: "design note merged and answered, layout B; the build is its own issue"
+summary: "The status panel gets more room."
 ---
 
 ## Goal

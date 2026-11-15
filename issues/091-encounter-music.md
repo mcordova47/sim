@@ -5,6 +5,7 @@ status: todo
 owner: marc + claude
 depends_on: [080]
 note: "design done, build issues filed"
+summary: "A short battle-style track plays during an ad; the docs are what is left."
 ---
 
 ## Goal

@@ -6,6 +6,7 @@ owner: marc + claude
 depends_on: []
 short: "Customizable decor (inventory, swap, buy) (explore)"
 note: "stages 1, 2 and 3a done; 3b and 4 remain"
+summary: "Decor you can swap and buy, explored and built in stages."
 ---
 
 ## Goal

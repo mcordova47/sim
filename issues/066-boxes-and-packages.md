@@ -4,6 +4,7 @@ title: Flattened boxes and collected packages are linked
 status: review
 owner: claude
 depends_on: []
+summary: "Flattened boxes and collected packages are linked."
 ---
 
 ## Goal

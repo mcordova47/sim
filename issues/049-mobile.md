@@ -5,6 +5,7 @@ status: in-progress
 owner: marc + claude
 depends_on: []
 note: "design note merged and answered; stage 1 build issue to write"
+summary: "Mobile: the design is answered and the first stage is built."
 ---
 
 ## Goal

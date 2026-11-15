@@ -4,6 +4,7 @@ title: The side project picture reacts to editable config (stretch)
 status: done
 owner: marc + claude
 depends_on: [101]
+summary: "The side project picture reacts to editable config; the when and effects stages are left."
 ---
 
 ## Goal

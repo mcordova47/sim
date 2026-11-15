@@ -4,6 +4,8 @@ title: "Mobile, stage 1: a touch layer in a flat portrait shell"
 status: done
 owner: claude
 depends_on: [049]
+thread: "049"
+summary: "The first mobile stage: the game plays on a phone."
 ---
 
 ## Goal

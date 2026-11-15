@@ -7,11 +7,16 @@ owner: marc + claude
 depends_on: ["130"]
 summary: "The generated issue pages borrow the flashcards app's warm theme; give them a look that belongs to this project."
 kind: design
-needs:
-  - who: marc
-    kind: decide
-    why: "Which direction the look takes (the first design question)."
-    since: 2026-11-15
+decisions:
+  - id: d1
+    who: marc
+    q: "Which direction should the pages' look take?"
+    options:
+      - "a: the full game look, the game's palette and pixel font throughout"
+      - "b: the game's palette only, in a calm page with ordinary fonts"
+      - "c: a hybrid, the palette, the egg logo in the header, the pixel font for headings and labels only, a readable font for body text"
+    recommendation: "c: the hybrid, since the pages are mostly long text"
+    status: open
 ---
 
 ## Goal

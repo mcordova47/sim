@@ -4,6 +4,7 @@ title: A guided walkthrough of the codebase, with small hands-on tasks
 status: in-progress
 owner: marc + claude
 depends_on: []
+summary: "A guided walkthrough of the codebase with small hands-on tasks."
 ---
 
 ## Goal

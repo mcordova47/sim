@@ -5,6 +5,7 @@ status: done
 owner: marc + claude
 depends_on: [113]
 short: "Photos like a phone gallery: browse, delete one, close-up scene"
+summary: "Photos behave like a phone gallery: browse, delete one, a close-up, a sofa scene."
 ---
 
 ## Goal

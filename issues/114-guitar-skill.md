@@ -5,6 +5,7 @@ status: todo
 owner: marc + claude
 depends_on: [108]
 note: "design done, see docs/guitar-skill-design.md; build is 114a to 114c"
+summary: "Guitar skill from single notes to fingerstyle; the pause line is left."
 ---
 
 ## Goal

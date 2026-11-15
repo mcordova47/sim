@@ -4,6 +4,8 @@ title: "Text pass: drop \"the\", tone down the jokes"
 status: todo
 owner: marc + claude
 depends_on: []
+summary: "A text pass: fewer the, gentler jokes, after Marc marks the review file."
+needs: [{who: marc, kind: do, why: "Mark docs/text-review.md", since: 2026-10-23}]
 ---
 
 ## Goal

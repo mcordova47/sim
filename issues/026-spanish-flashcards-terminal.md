@@ -5,6 +5,7 @@ status: done
 owner: marc + claude
 depends_on: [021, 022, 023]
 note: "stages 1 to 3 shipped; stage 4, offline, abandoned by Marc 2026-10-27"
+summary: "Spanish flashcards live on the in-game computer; the verb drills are the next piece."
 ---
 
 ## Goal

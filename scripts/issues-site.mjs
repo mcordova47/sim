@@ -15,6 +15,9 @@ import {
   headingRole, logEntries, firstSentence, formatProblem, headline, label, STATUS_WORDS,
   NEEDS_PILL, numberWord, collectDecisions, whoWord,
 } from './issues.mjs';
+import { pixelFontDataUri } from './pixel-font.mjs';
+
+const FAVICON = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'public', 'favicon.png');
 
 export const esc = (s) =>
   String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -187,38 +190,71 @@ export const stampText = (g) => {
 // Pages
 // ---------------------------------------------------------------------------
 
-export const CSS = `
-/* Colours are the game's palette (docs/art-style.md): warm paper and cream, one accent (tangerine). */
+// The look (issue 133): the game's palette (art/palette.json, names from docs/art-style.md),
+// the game's pixel font for headings, pills and labels only, a readable system font for
+// text. Every colour below is a palette colour, or the paper colour lightened with white
+// for card surfaces. Contrast of the main pairs is checked in issues-site.test.mjs.
+export const CSS_TOKENS = `
+/* Light: paper and ink. Dark: ink and night, like the game. */
 :root {
   --ink: #1a1a2e; --night: #2b2d42; --slate: #3b3e5c; --dusk: #6b6f94; --mist: #a9adc9;
-  --paper: #edf2f4; --cream: #e8c9a0; --putty: #cdc7b9; --walnut: #4a2c2a; --tangerine: #f08a4b;
-  --bg: #f7f1e6; --surface: #fffaf1; --line: #e2d6c1; --text: #231f2b; --muted: #6a6068;
-  --accent: #b4531a; --accent-bg: #fbe6d3;
-  --serif: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  --paper: #edf2f4; --cream: #e8c9a0; --butter: #f7d154; --oak: #7a4a35; --walnut: #4a2c2a; --tangerine: #f08a4b;
+  --bg: var(--paper); --surface: color-mix(in srgb, var(--paper) 45%, white); --line: var(--mist);
+  --text: var(--ink); --muted: var(--slate); --accent: var(--oak);
+  --pill-line: var(--dusk); --need-bg: var(--cream); --need-text: var(--walnut); --need-line: var(--oak);
   --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --pixel: "Simagotchi Pixel", ui-monospace, "SF Mono", Menlo, monospace;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #1c1d2e; --surface: #25273b; --line: #3b3e5c; --text: #edf2f4; --muted: #a9adc9;
-    --accent: #f08a4b; --accent-bg: #3a2c2c; color-scheme: dark;
+    --bg: var(--ink); --surface: var(--night); --line: var(--slate); --text: var(--paper); --muted: var(--mist);
+    --accent: var(--tangerine); --pill-line: var(--dusk); --need-bg: var(--slate); --need-text: var(--butter); --need-line: var(--butter);
+    color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #1c1d2e; --surface: #25273b; --line: #3b3e5c; --text: #edf2f4; --muted: #a9adc9;
-  --accent: #f08a4b; --accent-bg: #3a2c2c; color-scheme: dark;
+  --bg: var(--ink); --surface: var(--night); --line: var(--slate); --text: var(--paper); --muted: var(--mist);
+  --accent: var(--tangerine); --pill-line: var(--dusk); --need-bg: var(--slate); --need-text: var(--butter); --need-line: var(--butter);
+  color-scheme: dark;
 }
+`;
+
+// Pixel-art pills and borders: a border made of four stepped box-shadows, so every corner
+// is notched like a sprite's. No border radius.
+export const CSS_PIXEL_EDGES = `
+:root { --edge: 0 -2px 0 0 var(--line), 0 2px 0 0 var(--line), -2px 0 0 0 var(--line), 2px 0 0 0 var(--line); --edge-accent: 0 -2px 0 0 var(--accent), 0 2px 0 0 var(--accent), -2px 0 0 0 var(--accent), 2px 0 0 0 var(--accent); }
+.pill { border: 0; border-radius: 0; margin: 2px; box-shadow: 0 -2px 0 0 var(--pill-line), 0 2px 0 0 var(--pill-line), -2px 0 0 0 var(--pill-line), 2px 0 0 0 var(--pill-line); }
+.pill.need { box-shadow: 0 -2px 0 0 var(--need-line), 0 2px 0 0 var(--need-line), -2px 0 0 0 var(--need-line), 2px 0 0 0 var(--need-line); }
+a.card, .card, details, .dec, button, select { border: 0; border-radius: 0; box-shadow: var(--edge); margin-left: 2px; margin-right: 2px; }
+details { margin-top: 10px; margin-bottom: 10px; }
+.cards { gap: 14px; }
+a.card:hover, a.card:focus-visible, button:hover { border: 0; box-shadow: var(--edge-accent); }
+details > summary:focus-visible { border-radius: 0; }
+pre { border-radius: 0; }
+.inner details { box-shadow: var(--edge); }
+`;
+
+// A quiet egg in the empty states (one of the options Marc is choosing between).
+export const CSS_EMPTY_EGG = `
+.calm { min-height: 28px; padding-left: 36px; background: url(favicon.png) no-repeat left center / 28px 28px; image-rendering: pixelated; }
+`;
+
+export const CSS_BASE = `
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.55 var(--sans); overflow-wrap: anywhere; }
 main, header.top, footer { max-width: 46rem; margin: 0 auto; padding: 0 16px; }
 header.top { padding-top: 18px; }
+header.top .mark { display: inline-block; line-height: 0; margin-bottom: 10px; }
+header.top .mark img { width: 48px; height: 48px; image-rendering: pixelated; }
 nav.site { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 0.9rem; margin-bottom: 14px; }
 a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
-h1, h2, h3 { font-family: var(--serif); font-weight: 600; line-height: 1.25; }
-h1 { font-size: 1.7rem; margin: 0.2em 0 0.3em; }
-h2 { font-size: 1.15rem; margin: 1.8em 0 0.5em; }
-h3 { font-size: 1rem; margin: 1.2em 0 0.4em; }
+/* The pixel font: headings, pills and labels only. 16px makes each game pixel 2px. */
+h1, h2, h3 { font-family: var(--pixel); font-weight: 400; line-height: 1.6; }
+h1 { font-size: 16px; margin: 0.4em 0 0.5em; }
+h2 { font-size: 16px; margin: 1.8em 0 0.5em; }
+h3 { font-size: 16px; margin: 1.2em 0 0.4em; }
 h4 { font-size: 0.95rem; margin: 1em 0 0.3em; }
 p { margin: 0.5em 0; }
 .lede { font-size: 1.05rem; margin: 0.2em 0 0.6em; }
@@ -227,8 +263,8 @@ p { margin: 0.5em 0; }
 .calm { color: var(--muted); font-style: italic; }
 ul.plain { list-style: none; padding: 0; margin: 0.3em 0; }
 ul.plain li { margin: 0.35em 0; }
-.pill { display: inline-block; font-size: 0.78rem; line-height: 1; padding: 4px 9px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); background: transparent; white-space: nowrap; vertical-align: 0.1em; }
-.pill.need { color: var(--accent); border-color: var(--accent); background: var(--accent-bg); }
+.pill { display: inline-block; font-family: var(--pixel); font-size: 12px; line-height: 1; padding: 5px 9px 4px; border: 1px solid var(--pill-line); border-radius: 999px; color: var(--muted); background: transparent; white-space: nowrap; vertical-align: 0.1em; }
+.pill.need { color: var(--need-text); border-color: var(--need-line); background: var(--need-bg); }
 .cards { display: grid; gap: 10px; }
 a.card, .card { display: block; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; color: var(--text); text-decoration: none; }
 a.card:hover, a.card:focus-visible { border-color: var(--accent); }
@@ -237,9 +273,9 @@ a.card:hover, a.card:focus-visible { border-color: var(--accent); }
 .card .head { color: var(--text); margin: 2px 0 6px; }
 .card .why { margin: 2px 0; }
 .card .meta { color: var(--muted); font-size: 0.85rem; margin-top: 4px; }
-.group { margin: 1.2em 0 0.4em; font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.group { margin: 1.2em 0 0.4em; font-size: 12px; color: var(--muted); }
 .band { margin-top: 1.6em; }
-.band > h2 { margin-top: 0; font-size: 0.82rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-family: var(--sans); font-weight: 600; }
+.band > h2 { margin-top: 0; font-size: 12px; color: var(--muted); }
 .short ul { margin: 0.3em 0; padding-left: 1.2em; }
 .row { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border-bottom: 1px solid var(--line); }
 .row .when { color: var(--muted); white-space: nowrap; font-size: 0.85rem; }
@@ -251,9 +287,10 @@ details > summary { list-style: none; cursor: pointer; padding: 10px 14px 10px 3
 details > summary::-webkit-details-marker { display: none; }
 details > summary::before { content: ""; position: absolute; left: 14px; top: 1.05em; width: 6px; height: 6px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(-45deg); transition: transform 0.12s; }
 details[open] > summary::before { transform: rotate(45deg); top: 0.95em; }
-details > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 10px; }
+details > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 summary .t { font-weight: 600; }
 summary .role { color: var(--accent); margin-right: 4px; }
+button { font-family: var(--sans); }
 summary .peek { display: block; color: var(--muted); font-size: 0.88rem; font-weight: 400; margin-top: 2px; }
 .inner { padding: 0 14px 12px 14px; }
 .inner details { background: transparent; }
@@ -274,7 +311,7 @@ footer { padding-top: 26px; padding-bottom: 40px; }
   body { font-size: 17px; }
   main, header.top, footer { padding: 0 24px; }
   .cards.wide { grid-template-columns: 1fr 1fr; }
-  h1 { font-size: 2rem; }
+  h1 { font-size: 24px; }
 }
 .decs { display: grid; gap: 10px; }
 .dec { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
@@ -290,6 +327,16 @@ select { font: inherit; font-size: 0.9rem; max-width: 100%; color: var(--text); 
 .js-only { display: none; }
 .js .js-only { display: inline-block; }
 `;
+
+// The stylesheet as written to dist-issues/. `look` picks the extras (issue 133 d3):
+// pixelEdges (default on) and emptyEgg (default off). The font is embedded, so the pages
+// make no outside request.
+export const LOOK = { pixelEdges: true, emptyEgg: false };
+export const buildCss = (look = LOOK) => {
+  const l = { ...LOOK, ...look };
+  const font = `@font-face { font-family: "Simagotchi Pixel"; src: url(${pixelFontDataUri()}) format("truetype"); font-display: block; }`;
+  return [font, CSS_TOKENS, CSS_BASE, l.pixelEdges ? CSS_PIXEL_EDGES : '', l.emptyEgg ? CSS_EMPTY_EGG : ''].join('\n').trim() + '\n';
+};
 
 export const SCRIPT = `(function () {
   document.documentElement.classList.add('js');
@@ -330,10 +377,12 @@ function layout({ title, stamp, body, headExtra = '' }) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>${esc(title)}</title>
+<link rel="icon" type="image/png" href="favicon.png">
 <link rel="stylesheet" href="style.css">
 ${headExtra}</head>
 <body>
 <header class="top">
+<a class="mark" href="index.html"><img src="favicon.png" width="48" height="48" alt="Simagotchi egg"></a>
 <nav class="site"><a href="index.html">Home</a> <a href="needs.html">What needs you</a> <a href="decisions.html">Decisions</a> <a href="threads.html">All threads</a></nav>
 </header>
 <main>
@@ -617,7 +666,7 @@ ${tree.intro ? markdown(tree.intro, known) : ''}
 // ---------------------------------------------------------------------------
 
 // Returns a map of file name -> contents (strings). No writing here, so tests can look.
-export function buildSite(issues, git, { overlay = [], decisions = [] } = {}) {
+export function buildSite(issues, git, { overlay = [], decisions = [], look = LOOK } = {}) {
   const model = buildModel(issues, decisions);
   const stamp = stampText(git);
   const shipped = recentlyShipped(git.merges || [], model.byId);
@@ -634,7 +683,8 @@ export function buildSite(issues, git, { overlay = [], decisions = [] } = {}) {
 
   const ctx = { model, git, stamp, inFlight, shipped };
   const files = {
-    'style.css': CSS.trim() + '\n',
+    'style.css': buildCss(look),
+    'favicon.png': fs.readFileSync(FAVICON),
     'site.js': SCRIPT,
     'index.html': homePage(ctx),
     'needs.html': needsPage(ctx),

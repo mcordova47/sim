@@ -38,6 +38,9 @@ decisions:
       - "the egg, pixel-art pills and borders, and a quiet sprite in the empty states"
     recommendation: "the egg plus pixel-art pills and card borders; no sprites in the empty states, to keep it calm"
     status: open
+unverified:
+  - "Not looked at in Safari or Firefox, only headless Chrome; the embedded pixel font and color-mix() surface colour are standard but unchecked there."
+  - "The pixel font draws only the game's capitals, digits and punctuation; other characters (an accent, a dash) fall back to the system font."
 ---
 
 ## Goal
@@ -60,3 +63,4 @@ Then build it as a small issue: only the generator's stylesheet and the page chr
 ## Progress log
 - 2026-11-15 (planner): filed from Marc's request to start a thread on the theme.
 - 2026-11-15 (planner): Marc picked direction c, the hybrid (the game's palette, the egg in the header, the pixel font for headings, pills and labels only, a readable font for body text). Questions d2 and d3 recorded before asking; an agent builds the hybrid with the recommended settings and renders the alternatives for comparison.
+- 2026-11-15 (agent): built the hybrid (d1 = c) with the recommended settings (d2: follow the system setting; d3: egg plus pixel pills and card borders, no sprites in empty states). Status stays `todo` until Marc answers d2 and d3. What changed, all in the generator: `scripts/issues-site.mjs` (stylesheet split into palette tokens, base, pixel edges and an optional empty-state egg; page chrome gets the egg as the header mark and `<link rel="icon">`; `buildSite` takes a `look` option; `favicon.png` is copied from `public/` into `dist-issues/`), new `scripts/pixel-font.mjs` (builds a TrueType font at build time from the game's own 5x7 glyph table in `src/render/font.ts`, embedded as a data URI, so no outside request; the glyphs are this project's own art, no third-party licence), new `scripts/issues-theme.test.mjs`. There was no Google Fonts link in the pages already (system font stacks); a grep of `dist-issues/` for outside URLs finds none, and a headless Chrome load with name resolution blocked made no request of its own. Page structure, content and data are unchanged. Checked with headless Chrome: no horizontal scroll at 390 and 1200 px, light and dark, on ten pages. Comparison screenshots are in the session scratchpad, not committed. Known failing test on main, not from this change: `scripts/issues-decisions.test.mjs` expects "Nothing is waiting on you." on the real decisions page, but 133's own open d2 and d3 make it false.

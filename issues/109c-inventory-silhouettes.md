@@ -5,7 +5,7 @@ status: done
 owner: claude
 depends_on: [109b]
 short: "Inventory 3: seen silhouettes"
-summary: "Ads you ignored leave a dark ??? cell in the inventory, with no hint and no count"
+summary: "Ads you ignored leave a dark ??? cell in the inventory, with one quiet line and no count"
 ---
 
 ## Goal

@@ -5,7 +5,7 @@ status: done
 owner: claude
 depends_on: [108]
 short: "Guitar skill 1: rule, chords, strumming (levels 1 to 3)"
-summary: "Guitar playing gains levels one to five from session count, adding chords and strumming"
+summary: "Guitar playing gains chord and strumming levels (two to five) from your session count"
 ---
 
 ## Goal

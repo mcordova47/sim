@@ -16,6 +16,27 @@ decisions:
       - "b: the game's palette only, in a calm page with ordinary fonts"
       - "c: a hybrid, the palette, the egg logo in the header, the pixel font for headings and labels only, a readable font for body text"
     recommendation: "c: the hybrid, since the pages are mostly long text"
+    status: answered
+    answer: "c: the hybrid"
+    by: marc
+    on: 2026-11-15
+  - id: d2
+    who: marc
+    q: "Light and dark: should the pages follow the system setting, or have one fixed theme?"
+    options:
+      - "follow the system setting, with both themes drawn from the game's palette"
+      - "dark only, like the game"
+      - "light only"
+    recommendation: "follow the system setting (both themes from one palette), so it reads well in daylight and at night"
+    status: open
+  - id: d3
+    who: marc
+    q: "Which extras from the game belong on the pages?"
+    options:
+      - "just the egg logo in the header and as the pages' favicon"
+      - "the egg, plus pixel-art pills and card borders"
+      - "the egg, pixel-art pills and borders, and a quiet sprite in the empty states"
+    recommendation: "the egg plus pixel-art pills and card borders; no sprites in the empty states, to keep it calm"
     status: open
 ---
 
@@ -38,3 +59,4 @@ Then build it as a small issue: only the generator's stylesheet and the page chr
 
 ## Progress log
 - 2026-11-15 (planner): filed from Marc's request to start a thread on the theme.
+- 2026-11-15 (planner): Marc picked direction c, the hybrid (the game's palette, the egg in the header, the pixel font for headings, pills and labels only, a readable font for body text). Questions d2 and d3 recorded before asking; an agent builds the hybrid with the recommended settings and renders the alternatives for comparison.

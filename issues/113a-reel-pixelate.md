@@ -1,6 +1,6 @@
 ---
 id: 113a
-title: Photo reel 1: the pixelate function
+title: "Photo reel 1: the pixelate function"
 status: done
 owner: claude
 depends_on: [113]

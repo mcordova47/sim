@@ -1,6 +1,6 @@
 ---
 id: 040
-title: Admire the art: a view of just the gallery wall
+title: "Admire the art: a view of just the gallery wall"
 status: done
 owner: claude
 depends_on: []

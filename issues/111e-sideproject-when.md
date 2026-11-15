@@ -1,6 +1,6 @@
 ---
 id: 111e
-title: Side project config 5: `when` conditions
+title: "Side project config 5: `when` conditions"
 status: todo
 owner: claude
 depends_on: [111d]

@@ -1,6 +1,6 @@
 ---
 id: 113c
-title: Photo reel 3: the PHOTOS page
+title: "Photo reel 3: the PHOTOS page"
 status: done
 owner: claude
 depends_on: [113a, 113b]

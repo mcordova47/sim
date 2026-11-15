@@ -1,6 +1,6 @@
 ---
 id: 113
-title: Photo reel: pixelated pictures from your own device (experiment)
+title: "Photo reel: pixelated pictures from your own device (experiment)"
 status: done
 owner: marc + claude
 depends_on: [112]

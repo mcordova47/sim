@@ -1,6 +1,6 @@
 ---
 id: 061
-title: Admire the art: zoom in on a piece and comment very seriously
+title: "Admire the art: zoom in on a piece and comment very seriously"
 status: done
 owner: marc + claude
 depends_on: []

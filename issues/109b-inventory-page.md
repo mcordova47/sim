@@ -1,6 +1,6 @@
 ---
 id: 109b
-title: Inventory stage 2: the THINGS page (read-only)
+title: "Inventory stage 2: the THINGS page (read-only)"
 status: done
 owner: claude
 depends_on: [109a]

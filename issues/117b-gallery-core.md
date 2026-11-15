@@ -1,6 +1,6 @@
 ---
 id: 117b
-title: Photo gallery 2: the gallery core (not wired)
+title: "Photo gallery 2: the gallery core (not wired)"
 status: done
 owner: claude
 depends_on: [113c]

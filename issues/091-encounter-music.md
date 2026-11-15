@@ -1,6 +1,6 @@
 ---
 id: 091
-title: Encounter music: a short battle-style track during an ad, and a result jingle
+title: "Encounter music: a short battle-style track during an ad, and a result jingle"
 status: todo
 owner: marc + claude
 depends_on: [080]

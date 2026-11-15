@@ -1,6 +1,6 @@
 ---
 id: 080
-title: Ad encounter entrance: a battle-style flash and bar wipe
+title: "Ad encounter entrance: a battle-style flash and bar wipe"
 status: done
 owner: claude
 depends_on: [043]

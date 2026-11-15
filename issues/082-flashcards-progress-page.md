@@ -1,6 +1,6 @@
 ---
 id: 082
-title: Flashcards: a progress page when no cards are left to review
+title: "Flashcards: a progress page when no cards are left to review"
 status: done
 owner: claude
 depends_on: [026]

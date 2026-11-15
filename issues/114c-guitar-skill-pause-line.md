@@ -1,6 +1,6 @@
 ---
 id: 114c
-title: Guitar skill, stage 3 (optional): the pause-screen line
+title: "Guitar skill, stage 3 (optional): the pause-screen line"
 status: todo
 owner: claude
 depends_on: [114a]

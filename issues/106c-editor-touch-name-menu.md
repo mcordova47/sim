@@ -1,6 +1,6 @@
 ---
 id: 106c
-title: Track editor on phones 3: name, More menu, delete
+title: "Track editor on phones 3: name, More menu, delete"
 status: done
 owner: claude
 depends_on: [106b]

@@ -1,6 +1,6 @@
 ---
 id: 091b
-title: Encounter music 2: result jingles (success only)
+title: "Encounter music 2: result jingles (success only)"
 status: done
 owner: claude
 depends_on: [091a]

@@ -1,6 +1,6 @@
 ---
 id: 028
-title: Top-down art: main room
+title: "Top-down art: main room"
 status: done
 owner: agent
 depends_on: [020, 025]

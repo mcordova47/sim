@@ -1,6 +1,6 @@
 ---
 id: 092
-title: Mobile landscape: the controls must not cover the picture
+title: "Mobile landscape: the controls must not cover the picture"
 status: done
 owner: claude
 depends_on: [087, 090]

@@ -1,6 +1,6 @@
 ---
 id: 117f
-title: Photo gallery 6: an ad can interrupt the close-up
+title: "Photo gallery 6: an ad can interrupt the close-up"
 status: done
 owner: claude
 depends_on: [117e]

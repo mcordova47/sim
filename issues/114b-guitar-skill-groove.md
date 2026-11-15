@@ -1,6 +1,6 @@
 ---
 id: 114b
-title: Guitar skill, stage 2: the groove and the melody over it (level 6)
+title: "Guitar skill, stage 2: the groove and the melody over it (level 6)"
 status: done
 owner: claude
 depends_on: [114a]

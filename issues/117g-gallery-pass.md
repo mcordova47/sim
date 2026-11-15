@@ -1,6 +1,6 @@
 ---
 id: 117g
-title: Photo gallery 7: text review, phone pass, docs
+title: "Photo gallery 7: text review, phone pass, docs"
 status: todo
 owner: claude
 depends_on: [117f, 117d]

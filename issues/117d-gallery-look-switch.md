@@ -1,6 +1,6 @@
 ---
 id: 117d
-title: Photo gallery 4: the LOOK switch
+title: "Photo gallery 4: the LOOK switch"
 status: done
 owner: claude
 depends_on: [117a, 117c]

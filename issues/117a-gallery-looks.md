@@ -1,6 +1,6 @@
 ---
 id: 117a
-title: Photo gallery 1: looks and the store
+title: "Photo gallery 1: looks and the store"
 status: done
 owner: claude
 depends_on: [113c]

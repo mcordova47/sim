@@ -1,6 +1,6 @@
 ---
 id: 090
-title: Mobile: a taller, squarer picture that scrolls (assess, then prototype)
+title: "Mobile: a taller, squarer picture that scrolls (assess, then prototype)"
 status: done
 owner: claude
 depends_on: [087]

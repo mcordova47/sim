@@ -1,6 +1,6 @@
 ---
 id: 113d
-title: Photo reel 4: the reel and the sofa task
+title: "Photo reel 4: the reel and the sofa task"
 status: done
 owner: claude
 depends_on: [113c]

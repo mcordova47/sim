@@ -1,6 +1,6 @@
 ---
 id: 117c
-title: Photo gallery 3: manage mode with delete one
+title: "Photo gallery 3: manage mode with delete one"
 status: done
 owner: claude
 depends_on: [117b]

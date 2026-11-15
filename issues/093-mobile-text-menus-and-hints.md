@@ -1,6 +1,6 @@
 ---
 id: 093
-title: Mobile stage 3: key entry, a tappable pause screen, and key hints that match the controls
+title: "Mobile stage 3: key entry, a tappable pause screen, and key hints that match the controls"
 status: done
 owner: claude
 depends_on: [087, 089]

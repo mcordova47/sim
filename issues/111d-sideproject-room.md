@@ -1,6 +1,6 @@
 ---
 id: 111d
-title: Side project config 4: the real config file and the figure
+title: "Side project config 4: the real config file and the figure"
 status: done
 owner: claude
 depends_on: [111a, 111b, 111c]

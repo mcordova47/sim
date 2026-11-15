@@ -1,6 +1,6 @@
 ---
 id: 111a
-title: Side project config 1: the parser and command set
+title: "Side project config 1: the parser and command set"
 status: done
 owner: claude
 depends_on: [111]

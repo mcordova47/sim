@@ -1,6 +1,6 @@
 ---
 id: 089
-title: Flashcards guest mode: study without a sync key (build)
+title: "Flashcards guest mode: study without a sync key (build)"
 status: done
 owner: claude
 depends_on: [083, 082]

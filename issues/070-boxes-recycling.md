@@ -1,6 +1,6 @@
 ---
 id: 070
-title: Boxes: flatten, take out the recycling, they disappear
+title: "Boxes: flatten, take out the recycling, they disappear"
 status: done
 owner: claude
 depends_on: [066]

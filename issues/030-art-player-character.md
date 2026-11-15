@@ -1,6 +1,6 @@
 ---
 id: 030
-title: Top-down art: player character
+title: "Top-down art: player character"
 status: done
 owner: agent
 depends_on: [025]

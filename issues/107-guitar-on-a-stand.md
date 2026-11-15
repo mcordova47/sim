@@ -1,6 +1,6 @@
 ---
 id: 107
-title: The guitar: flipped so it reads as standing on a stand
+title: "The guitar: flipped so it reads as standing on a stand"
 status: done
 owner: claude
 depends_on: [100]

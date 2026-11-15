@@ -1,6 +1,6 @@
 ---
 id: 114
-title: Guitar skill: from single notes to fingerstyle
+title: "Guitar skill: from single notes to fingerstyle"
 status: todo
 owner: marc + claude
 depends_on: [108]

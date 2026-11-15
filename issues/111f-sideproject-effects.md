@@ -1,6 +1,6 @@
 ---
 id: 111f
-title: Side project config 6: one real effect (later)
+title: "Side project config 6: one real effect (later)"
 status: todo
 owner: marc + claude
 depends_on: [111e]

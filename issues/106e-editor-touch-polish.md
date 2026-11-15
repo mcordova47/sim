@@ -1,6 +1,6 @@
 ---
 id: 106e
-title: Track editor on phones 5: long press, drag paint, polish (optional)
+title: "Track editor on phones 5: long press, drag paint, polish (optional)"
 status: todo
 owner: claude
 depends_on: [106d]

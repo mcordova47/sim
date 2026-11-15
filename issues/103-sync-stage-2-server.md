@@ -1,6 +1,6 @@
 ---
 id: 103
-title: Sync stage 2: the Netlify Function with Blobs and the pairing link
+title: "Sync stage 2: the Netlify Function with Blobs and the pairing link"
 status: done
 owner: claude
 depends_on: [102]

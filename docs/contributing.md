@@ -46,7 +46,7 @@ Have a loose idea? Add a few lines to `docs/ideas.md` (no status, no owner, no d
 ## Useful places
 - `docs/ideas.md`: parked ideas, a garden and not a backlog.
 - `docs/learn/src/README.md`: a self-paced walkthrough of the codebase with small tasks (no deadlines, works without Claude).
-- `PLAN.md`: the issue table and the working rules.
+- `PLAN.md`: the working rules and the issue table. The table is generated from the issue files (`npm run issues`); never edit it by hand. `npm run issues:check -- --validate` checks your issue file's front matter and says what is wrong in plain words.
 - `docs/music-lab.md`, `docs/make-tracks.md`, `docs/music.md`: music.
 - `docs/art-style.md`: sprites and the palette.
 - `docs/deploy.md`: CI, the production branch and the deploy button.

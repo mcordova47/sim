@@ -1,9 +1,10 @@
 ---
 id: 083
-title: Flashcards for someone who is not Marc: a mode with no sync key (design first)
+title: "Flashcards for someone who is not Marc: a mode with no sync key (design first)"
 status: done
 owner: marc + claude
 depends_on: [026]
+note: "design note and the build, issue 089"
 ---
 
 ## Goal

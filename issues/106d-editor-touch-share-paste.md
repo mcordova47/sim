@@ -1,6 +1,6 @@
 ---
 id: 106d
-title: Track editor on phones 4: share and paste
+title: "Track editor on phones 4: share and paste"
 status: done
 owner: claude
 depends_on: [106c]

@@ -4,6 +4,8 @@ title: Customizable decor (inventory, swap, buy new things) (explore)
 status: in-progress
 owner: marc + claude
 depends_on: []
+short: "Customizable decor (inventory, swap, buy) (explore)"
+note: "stages 1, 2 and 3a done; 3b and 4 remain"
 ---
 
 ## Goal

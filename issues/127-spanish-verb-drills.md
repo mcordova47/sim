@@ -1,9 +1,10 @@
 ---
 id: 127
-title: Study Spanish: the verb drills from the flashcards app's core
+title: "Study Spanish: the verb drills from the flashcards app's core"
 status: todo
 owner: marc + claude
 depends_on: [026]
+short: "Study Spanish: the verb drills from the flashcards core"
 ---
 
 ## Goal

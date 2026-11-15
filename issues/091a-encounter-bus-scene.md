@@ -1,9 +1,10 @@
 ---
 id: 091a
-title: Encounter music 1: the bus, the scene and the placeholder track
+title: "Encounter music 1: the bus, the scene and the placeholder track"
 status: done
 owner: claude
 depends_on: [091]
+short: "Encounter music 1: bus, scene, placeholder track"
 ---
 
 ## Goal

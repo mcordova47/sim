@@ -4,6 +4,7 @@ title: Place the new art on the map (robin, mic stand, stool, gallery wall, hang
 status: done
 owner: claude
 depends_on: [034, 047]
+short: "Place the new art on the map"
 ---
 
 ## Goal

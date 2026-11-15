@@ -1,6 +1,6 @@
 ---
 id: 094
-title: Phone battery: drains a little, and looks like a phone battery indicator
+title: "Phone battery: drains a little, and looks like a phone battery indicator"
 status: done
 owner: claude
 depends_on: [088]

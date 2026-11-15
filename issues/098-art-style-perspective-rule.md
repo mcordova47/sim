@@ -1,9 +1,10 @@
 ---
 id: 098
-title: Art style doc: the perspective rule (south wall near top-down, the rest diagonal)
+title: "Art style doc: the perspective rule (south wall near top-down, the rest diagonal)"
 status: done
 owner: claude
 depends_on: [096]
+short: "Art style doc: the perspective rule"
 ---
 
 ## Goal

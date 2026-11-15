@@ -1,6 +1,6 @@
 ---
 id: 117e
-title: Photo gallery 5: the sofa scene replaces the slideshow
+title: "Photo gallery 5: the sofa scene replaces the slideshow"
 status: done
 owner: claude
 depends_on: [117b]

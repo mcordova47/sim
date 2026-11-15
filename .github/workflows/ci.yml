@@ -21,6 +21,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx tsc --noEmit
+      - run: npm run issues:check -- --validate
+      # The PLAN.md table is generated on main only (branches never touch it).
+      - run: npm run issues:check -- --table
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
       - run: npm test
       - run: npm run build
       - run: npm run check:dist

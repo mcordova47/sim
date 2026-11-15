@@ -4,6 +4,7 @@ title: Make your own tracks in the game (mix-in mini-game)
 status: done
 owner: marc + claude
 depends_on: []
+short: "Make your own tracks in the game"
 ---
 
 ## Goal

@@ -1,6 +1,6 @@
 ---
 id: 104
-title: Sync stage 3: automatic sync and the pause-screen control
+title: "Sync stage 3: automatic sync and the pause-screen control"
 status: done
 owner: claude
 depends_on: [103, 093]

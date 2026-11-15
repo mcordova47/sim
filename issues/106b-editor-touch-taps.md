@@ -1,6 +1,6 @@
 ---
 id: 106b
-title: Track editor on phones 2: taps that edit
+title: "Track editor on phones 2: taps that edit"
 status: done
 owner: claude
 depends_on: [106a]

@@ -1,6 +1,6 @@
 ---
 id: 075
-title: Experiment: a per-letter voice for dialog text, behind a toggle
+title: "Experiment: a per-letter voice for dialog text, behind a toggle"
 status: done
 owner: claude
 depends_on: []

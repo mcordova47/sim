@@ -1,6 +1,6 @@
 ---
 id: 086
-title: HUD ribbon, stage 1: icons and small bars in the empty top band
+title: "HUD ribbon, stage 1: icons and small bars in the empty top band"
 status: done
 owner: claude
 depends_on: [048]

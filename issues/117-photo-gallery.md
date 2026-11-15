@@ -1,9 +1,10 @@
 ---
 id: 117
-title: Photos like a phone gallery: browse, delete one at a time, a close-up scene
+title: "Photos like a phone gallery: browse, delete one at a time, a close-up scene"
 status: done
 owner: marc + claude
 depends_on: [113]
+short: "Photos like a phone gallery: browse, delete one, close-up scene"
 ---
 
 ## Goal

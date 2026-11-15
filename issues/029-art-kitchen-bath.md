@@ -1,6 +1,6 @@
 ---
 id: 029
-title: Top-down art: kitchen and bath
+title: "Top-down art: kitchen and bath"
 status: done
 owner: agent
 depends_on: [020, 025]

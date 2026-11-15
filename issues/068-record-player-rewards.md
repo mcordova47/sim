@@ -1,6 +1,6 @@
 ---
 id: 068
-title: Record player: no cooldown, pay only for a real change
+title: "Record player: no cooldown, pay only for a real change"
 status: done
 owner: claude
 depends_on: []

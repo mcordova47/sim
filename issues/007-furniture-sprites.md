@@ -4,6 +4,7 @@ title: Furniture sprites
 status: done
 owner: marc + claude
 depends_on: [007a, 007b, 007c, 007d]
+short: "Furniture sprites (umbrella)"
 ---
 
 ## Goal

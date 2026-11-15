@@ -1,9 +1,10 @@
 ---
 id: 109a
-title: Inventory stage 1: entry data
+title: "Inventory stage 1: entry data"
 status: done
 owner: claude
 depends_on: [109]
+short: "Inventory 1: entry data"
 ---
 
 ## Goal

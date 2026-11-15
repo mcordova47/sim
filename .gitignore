@@ -12,3 +12,5 @@ art/walk-preview.png
 # Personal docs stay local, never tracked (a test guards this).
 docs/about-marc.md
 docs/tasks-v2.md
+# Generated issues pages (issue 129 reserves the name; nothing writes it yet).
+dist-issues/

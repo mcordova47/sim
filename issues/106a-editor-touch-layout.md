@@ -1,6 +1,6 @@
 ---
 id: 106a
-title: Track editor on phones 1: touch layout and drawing
+title: "Track editor on phones 1: touch layout and drawing"
 status: done
 owner: claude
 depends_on: [093]

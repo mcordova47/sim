@@ -1,6 +1,6 @@
 ---
 id: 112
-title: Real-world effects: what is feasible (research)
+title: "Real-world effects: what is feasible (research)"
 status: done
 owner: marc + claude
 depends_on: []

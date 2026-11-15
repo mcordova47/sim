@@ -1,9 +1,10 @@
 ---
 id: 113b
-title: Photo reel 2: the ReelStore
+title: "Photo reel 2: the ReelStore"
 status: done
 owner: claude
 depends_on: [113]
+short: "Photo reel 2: the store"
 ---
 
 ## Goal

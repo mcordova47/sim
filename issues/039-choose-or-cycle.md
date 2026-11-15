@@ -4,6 +4,7 @@ title: Choosing a task at an object (options, not only first-available)
 status: done
 owner: claude
 depends_on: []
+short: "Choosing a task at an object"
 ---
 
 ## Goal

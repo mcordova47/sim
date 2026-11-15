@@ -1,6 +1,6 @@
 ---
 id: 091d
-title: Encounter music 4: Marc writes the real track
+title: "Encounter music 4: Marc writes the real track"
 status: done
 owner: marc
 depends_on: [091a]

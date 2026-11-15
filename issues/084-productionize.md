@@ -4,6 +4,7 @@ title: Put the game on the internet (hosting, domain, repo name, privacy pass)
 status: done
 owner: marc + claude
 depends_on: []
+note: "live at https://sim.mcord.dev/ and the repo is on GitHub as mcordova47/sim"
 ---
 
 ## Staging (Marc, 2026-10-27: start the productionizing arc)

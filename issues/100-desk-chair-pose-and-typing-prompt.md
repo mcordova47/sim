@@ -4,6 +4,7 @@ title: Desk chair redrawn diagonal, the typing-at-the-desk pose, and the typing 
 status: done
 owner: claude
 depends_on: [099]
+short: "Desk chair diagonal, the desk pose, and the typing prompt placement"
 ---
 
 ## Goal

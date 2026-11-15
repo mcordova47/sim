@@ -1,6 +1,6 @@
 ---
 id: 037
-title: Text pass: drop "the", tone down the jokes
+title: "Text pass: drop \"the\", tone down the jokes"
 status: todo
 owner: marc + claude
 depends_on: []

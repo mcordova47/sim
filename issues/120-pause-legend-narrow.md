@@ -1,9 +1,10 @@
 ---
 id: 120
-title: Pause screen: the good-hour legend overlaps the header on the narrow view
+title: "Pause screen: the good-hour legend overlaps the header on the narrow view"
 status: todo
 owner: claude
 depends_on: [116]
+short: "Pause legend overlap on the narrow view"
 ---
 
 ## Goal

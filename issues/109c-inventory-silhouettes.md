@@ -1,9 +1,10 @@
 ---
 id: 109c
-title: Inventory stage 3: seen-but-not-taken silhouettes
+title: "Inventory stage 3: seen-but-not-taken silhouettes"
 status: done
 owner: claude
 depends_on: [109b]
+short: "Inventory 3: seen silhouettes"
 ---
 
 ## Goal

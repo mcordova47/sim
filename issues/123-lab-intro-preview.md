@@ -1,9 +1,10 @@
 ---
 id: 123
-title: Music lab: hear the encounter intro leading into the track
+title: "Music lab: hear the encounter intro leading into the track"
 status: done
 owner: claude
 depends_on: [122]
+short: "Music lab: hear the encounter intro into the track"
 ---
 
 ## Goal

@@ -4,6 +4,7 @@ title: "Issues as data 2: summaries, needs, threads and the generated pages"
 status: todo
 owner: claude
 depends_on: [129]
+short: "Issues as data 2: summaries, needs, threads and the pages"
 ---
 
 ## Goal

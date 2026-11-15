@@ -1,9 +1,10 @@
 ---
 id: 125
-title: The side project picture on the phone: use the whole screen area, change the aspect ratio
+title: "The side project picture on the phone: use the whole screen area, change the aspect ratio"
 status: done
 owner: claude
 depends_on: [111d]
+short: "The side project picture on the phone: use the whole area"
 ---
 
 ## Goal

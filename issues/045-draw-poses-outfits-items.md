@@ -4,6 +4,7 @@ title: Draw the doing poses, outfits and held items in the game
 status: done
 owner: claude
 depends_on: [034]
+short: "Draw the doing poses, outfits and held items"
 ---
 
 ## Goal

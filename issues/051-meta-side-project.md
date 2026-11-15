@@ -4,6 +4,7 @@ title: The meta side project (this game as a side project)
 status: done
 owner: marc + claude
 depends_on: []
+short: "The meta side project"
 ---
 
 ## Goal

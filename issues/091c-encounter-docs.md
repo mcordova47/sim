@@ -1,9 +1,10 @@
 ---
 id: 091c
-title: Encounter music 3: docs and tuning pass
+title: "Encounter music 3: docs and tuning pass"
 status: todo
 owner: claude
 depends_on: [091b]
+short: "Encounter music 3: docs and tuning"
 ---
 
 ## Goal

@@ -4,6 +4,7 @@ title: A manual "deploy to production" button on GitHub
 status: review
 owner: claude
 depends_on: []
+short: "A manual deploy button on GitHub"
 ---
 
 ## Goal

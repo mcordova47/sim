@@ -4,6 +4,7 @@ title: A Simagotchi logo and favicon (the egg with the main character inside)
 status: done
 owner: claude
 depends_on: [116]
+short: "A Simagotchi logo and favicon"
 ---
 
 ## Goal

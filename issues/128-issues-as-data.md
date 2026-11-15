@@ -1,9 +1,10 @@
 ---
 id: 128
-title: Issues as data: a schema and progressive-disclosure views (research and design only)
+title: "Issues as data: a schema and progressive-disclosure views (research and design only)"
 status: done
 owner: marc + claude
 depends_on: []
+short: "Issues as data: a schema and progressive-disclosure views (design only)"
 ---
 
 ## Goal

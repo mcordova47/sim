@@ -1,9 +1,10 @@
 ---
 id: 124
-title: Side project config: a bad piece or sprite name should skip only that line
+title: "Side project config: a bad piece or sprite name should skip only that line"
 status: todo
 owner: claude
 depends_on: [111d]
+short: "Side project config: a bad line skips only itself"
 ---
 
 ## Goal

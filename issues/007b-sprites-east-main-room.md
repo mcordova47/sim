@@ -4,6 +4,7 @@ title: "Furniture sprites: Main room, east: dining table, records and sofa"
 status: done
 owner: agent
 depends_on: [005, 006]
+short: "Sprites: east main room"
 ---
 
 ## Goal

@@ -1,6 +1,6 @@
 ---
 id: 073
-title: Decor: an item is displayed in one place at a time (swap, inventory)
+title: "Decor: an item is displayed in one place at a time (swap, inventory)"
 status: done
 owner: claude
 depends_on: []

@@ -1,9 +1,10 @@
 ---
 id: 061
-title: Admire the art: zoom in on a piece and comment very seriously
+title: "Admire the art: zoom in on a piece and comment very seriously"
 status: done
 owner: marc + claude
 depends_on: []
+short: "Admire the art: zoom in and comment very seriously"
 ---
 
 ## Goal

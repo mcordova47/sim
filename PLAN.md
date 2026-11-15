@@ -194,6 +194,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 124 | [Side project config: a bad line skips only itself](issues/124-sideproject-skip-bad-line.md) | claude | todo | 111d |
 | 125 | [The side project picture on the phone: use the whole area](issues/125-sideproject-phone-view.md) | claude | done | 111d |
 | 127 | [Study Spanish: the verb drills from the flashcards core](issues/127-spanish-verb-drills.md) | marc + claude | todo | 026 |
+| 128 | [Issues as data: a schema and progressive-disclosure views (design only)](issues/128-issues-as-data.md) | marc + claude | todo | |
 
 ## Order of work
 **Done, side view (001 to 017):** the playable prototype. Kept in the tag `side-view-prototype`.

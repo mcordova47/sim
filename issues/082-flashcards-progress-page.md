@@ -4,6 +4,7 @@ title: "Flashcards: a progress page when no cards are left to review"
 status: done
 owner: claude
 depends_on: [026]
+short: "Flashcards: a progress page when no cards are left"
 ---
 
 ## Goal

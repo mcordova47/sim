@@ -4,6 +4,7 @@ title: "Art: more accurate paintings, the gallery wall, blinds states"
 status: done
 owner: agent
 depends_on: []
+short: "Art: more accurate paintings, gallery wall, blinds states"
 ---
 
 ## Goal

@@ -4,6 +4,7 @@ title: "Encounter music: a short battle-style track during an ad, and a result j
 status: todo
 owner: marc + claude
 depends_on: [080]
+note: "design done, build issues filed"
 ---
 
 ## Goal

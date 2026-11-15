@@ -4,6 +4,7 @@ title: "Guitar skill, stage 1: the rule and the chord levels (levels 1 to 5)"
 status: done
 owner: claude
 depends_on: [108]
+short: "Guitar skill 1: rule, chords, strumming (levels 1 to 3)"
 ---
 
 ## Goal

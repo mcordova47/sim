@@ -4,6 +4,7 @@ title: "Issues as data: a schema and progressive-disclosure views (research and 
 status: done
 owner: marc + claude
 depends_on: []
+short: "Issues as data: a schema and progressive-disclosure views (design only)"
 ---
 
 ## Goal

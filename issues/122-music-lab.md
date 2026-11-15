@@ -4,6 +4,7 @@ title: A dev-only music lab (live .track editing with the real synth, intro tuni
 status: done
 owner: claude
 depends_on: []
+short: "A dev-only music lab"
 ---
 
 ## Goal

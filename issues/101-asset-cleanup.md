@@ -4,6 +4,7 @@ title: "Asset cleanup: plant pots, the side-project picture, unused sprites"
 status: done
 owner: claude
 depends_on: [100]
+short: "Asset cleanup: plant pots, side-project picture, unused sprites"
 ---
 
 ## Goal

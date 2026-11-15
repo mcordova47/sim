@@ -4,6 +4,7 @@ title: "Furniture sprites: Kitchen, east half, and the bathroom"
 status: done
 owner: agent
 depends_on: [005, 006]
+short: "Sprites: kitchen east and bath"
 ---
 
 ## Goal

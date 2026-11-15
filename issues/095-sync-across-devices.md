@@ -4,6 +4,7 @@ title: Sync the game's progress across devices (design first)
 status: done
 owner: marc + claude
 depends_on: []
+note: "the note, and the builds 102 to 104; Marc still checks the server with netlify dev and two browsers"
 ---
 
 ## Goal

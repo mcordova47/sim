@@ -4,6 +4,7 @@ title: Name the game Simagotchi (title, link preview, README, pause screen)
 status: done
 owner: claude
 depends_on: []
+short: "Name the game Simagotchi"
 ---
 
 ## Goal

@@ -4,6 +4,7 @@ title: Task variety from Marc's first playtest
 status: done
 owner: claude
 depends_on: []
+short: "Task variety from the first playtest"
 ---
 
 ## Goal

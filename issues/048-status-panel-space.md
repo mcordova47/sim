@@ -4,6 +4,7 @@ title: Status panel space (and a phone battery?)
 status: in-progress
 owner: marc + claude
 depends_on: []
+note: "design note merged and answered, layout B; the build is its own issue"
 ---
 
 ## Goal

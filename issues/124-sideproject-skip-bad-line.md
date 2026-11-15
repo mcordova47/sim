@@ -4,6 +4,7 @@ title: "Side project config: a bad piece or sprite name should skip only that li
 status: todo
 owner: claude
 depends_on: [111d]
+short: "Side project config: a bad line skips only itself"
 ---
 
 ## Goal

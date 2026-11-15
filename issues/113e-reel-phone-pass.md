@@ -4,6 +4,7 @@ title: "Photo reel 5: on-device pass"
 status: todo
 owner: claude
 depends_on: [113d]
+note: "superseded by 117g"
 ---
 
 ## Goal

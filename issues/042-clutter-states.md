@@ -4,6 +4,7 @@ title: Clutter that moves (desk, dirty clothes, mail)
 status: todo
 owner: claude
 depends_on: []
+short: "Clutter that moves (desk, clothes, mail)"
 ---
 
 ## Goal

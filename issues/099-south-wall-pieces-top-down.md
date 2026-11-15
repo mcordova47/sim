@@ -4,6 +4,7 @@ title: Redraw the south-wall pieces near top-down (lamps, fridge, delivery box, 
 status: done
 owner: claude
 depends_on: [096]
+short: "Redraw the south-wall pieces near top-down"
 ---
 
 ## Goal

@@ -4,6 +4,7 @@ title: Remove or decide on personal info before the repo goes on GitHub
 status: done
 owner: marc + claude
 depends_on: []
+note: "audit, decisions and the history rewrite; the clean repo is sim"
 ---
 
 ## Goal

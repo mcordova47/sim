@@ -4,6 +4,7 @@ title: Opening the box with several gifts is illegible; show them one at a time
 status: done
 owner: claude
 depends_on: [043]
+short: "Open the box one gift at a time"
 ---
 
 ## Goal

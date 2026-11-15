@@ -42,13 +42,14 @@ In the main checkout, with the merge staged:
 2. `npm run build` must pass.
 3. `npm test` must pass. Compare the number of passing tests with before; it should only have gone up.
 4. If sprites or `art/` changed: `npm run sprites` must pass and leave `git status` unchanged (the PNGs match their sources).
+5. `npm run issues:check -- --validate` must pass (the issue files are valid; warnings are printed, not blocking: read them, since a new one usually means a status or a link needs attention).
 If anything fails, run `git merge --abort`, report the failure with the output, and stop. The author or a new issue fixes it; you don't patch another agent's work inside the merge.
 
 ## 6. Commit the merge
 ```
 git commit -m "Merge <NNN>: <short title>" -m "<one line on conflict resolutions, if any>" -m "Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>"
 ```
-(use separate `-m` flags; `-F -` doesn't work here). Then update the issue's row in `PLAN.md` to `done`, make sure the issue file on `main` says `status: done`, and commit that as `Mark <NNN> done` with the same trailer.
+(use separate `-m` flags; `-F -` doesn't work here). Then make sure the issue file on `main` says `status: done`, run `npm run issues` (it regenerates the table in `PLAN.md` between its markers from the issue files; never edit a table row by hand), check `npm run issues:check -- --table` passes, and commit the issue file and `PLAN.md` together as `Mark <NNN> done` with the same trailer. A merge made on GitHub instead of here lands without this step, so the main-only table check fails until you run `npm run issues` and commit.
 
 ## 7. Clean up
 - `git worktree remove ../sim-worktrees/<NNN>-slug`. If it refuses because of leftovers, look at them first: if they are only editor files (`.vscode/`) or ignored build output, use `--force`; otherwise stop and report. Never use `--force` on work you haven't looked at.

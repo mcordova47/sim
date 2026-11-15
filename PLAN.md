@@ -196,7 +196,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 125 | [The side project picture on the phone: use the whole area](issues/125-sideproject-phone-view.md) | claude | done | 111d |
 | 127 | [Study Spanish: the verb drills from the flashcards core](issues/127-spanish-verb-drills.md) | marc + claude | todo | 026 |
 | 128 | [Issues as data: a schema and progressive-disclosure views (design only)](issues/128-issues-as-data.md) | marc + claude | done | |
-| 129 | [Issues as data 1: validator and a generated PLAN.md table](issues/129-issues-stage-1.md) | claude | review | 128 |
+| 129 | [Issues as data 1: validator and a generated PLAN.md table](issues/129-issues-stage-1.md) | claude | done | 128 |
 | 130 | [Issues as data 2: summaries, needs, threads and the pages](issues/130-issues-stage-2.md) | claude | todo | 129 |
 | 131 | [Issues as data 3: decisions and the decisions log](issues/131-issues-stage-3.md) | claude | todo | 130 |
 | 132 | [Issues as data 4: an agent backfill of summaries and threads](issues/132-issues-backfill.md) | claude | todo | 130 |

@@ -43,6 +43,12 @@ describe('new field validation', () => {
     expect(msgs(run(file('001', { needs: '[{who: other, kind: wait, why: "x", since: 2026-11-01}]' })))).toMatch(/waits on/);
     expect(NEEDS_KIND).toEqual(['decide', 'do', 'try', 'review', 'wait']);
   });
+  it('rejects a thread that names a member, a chain and a cycle, and a calendar-impossible date', () => {
+    expect(msgs(run(file('001'), file('002', { thread: '"001"' }), file('003', { thread: '"002"' })))).toMatch(/part of thread 001/);
+    expect(msgs(run(file('001', { thread: '"002"' }), file('002', { thread: '"001"' })))).toMatch(/part of thread/);
+    expect(msgs(run(file('001'), file('001a'), file('002', { thread: '"001a"' })))).toMatch(/part of thread 001/);
+    expect(msgs(run(file('001', { needs: '[{who: marc, kind: try, why: "x", since: 2026-13-45}]' })))).toMatch(/since must be a date/);
+  });
   it('rejects unverified that is not a list of text', () => {
     expect(msgs(run(file('001', { unverified: 'Safari' })))).toMatch(/unverified must be a list/);
   });

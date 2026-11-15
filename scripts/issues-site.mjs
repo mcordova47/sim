@@ -361,7 +361,7 @@ function homePage(ctx) {
     ? `Live threads: ${live.slice(0, 3).map((t) => esc(label(t.root))).join(', ')}${live.length > 3 ? ' and more' : ''}.`
     : 'No thread is in progress right now.');
   bullets.push(forMarc.length ? 'Something is waiting on you; it is listed below, none of it urgent.' : 'Nothing is waiting on you.');
-  bullets.push(inFlight.length ? `In flight: ${inFlight.slice(0, 3).map((x) => esc(x.title)).join(', ')}.` : 'Nothing is in flight.');
+  if (g.branches) bullets.push(inFlight.length ? `In flight: ${inFlight.slice(0, 3).map((x) => esc(x.title)).join(', ')}.` : 'Nothing is in flight on a local branch.');
 
   const needCards = forMarc.slice(0, 5).map((n) => needCard(n)).join('\n');
   const more = forMarc.length > 5 ? `<p><a href="needs.html">See everything that is waiting</a></p>` : '';
@@ -370,7 +370,7 @@ function homePage(ctx) {
     : '';
   const flightHtml = `<section class="band"><h2>In flight</h2>${inFlight.length
     ? `<ul class="plain">${inFlight.map((x) => `<li>${x.href ? `<a href="${x.href}">${esc(x.title)}</a>` : esc(x.title)} (${esc(x.id)}): ${esc(x.note)}</li>`).join('')}</ul>`
-    : '<p class="calm">Nothing is in flight.</p>'}</section>`;
+    : (g.branches ? '<p class="calm">Nothing is in flight on a local branch.</p>' : '<p class="calm">Local branches are not included in this view. Build with --branches to see them.</p>')}</section>`;
   const shippedHtml = shipped.length
     ? `<section class="band"><h2>Recently shipped</h2>${shipped.map((s) => {
       const i = byId.get(s.id);

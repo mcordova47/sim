@@ -188,7 +188,7 @@ function checkOne(issue) {
         if (!NEEDS_WHO.includes(n.who)) err('needs', `needs${at}: who "${n.who}" is not one of: ${NEEDS_WHO.join(', ')}.`);
         if (!NEEDS_KIND.includes(n.kind)) err('needs', `needs${at}: kind "${n.kind}" is not one of: ${NEEDS_KIND.join(', ')}.`);
         if (!isString(n.why) || n.why.trim() === '') err('needs', `needs${at}: why must be one plain line of text.`);
-        if (!isString(n.since) || !DATE_PATTERN.test(n.since)) err('needs', `needs${at}: since must be a date like 2026-11-15.`);
+        if (!isString(n.since) || !DATE_PATTERN.test(n.since) || Number.isNaN(Date.parse(n.since))) err('needs', `needs${at}: since must be a date like 2026-11-15.`);
         if (n.kind === 'wait' && (!isString(n.on) || n.on.trim() === '')) err('needs', `needs${at}: a wait entry says what it waits on, with on: "...".`);
       });
     }
@@ -234,6 +234,12 @@ export function analyze(files) {
           issue.errors.push({ ...at(key), message: `${key} names ${fm[key]}, which does not exist.` });
         } else if (fm[key] === fm.id) {
           issue.errors.push({ ...at(key), message: `${key} cannot name the issue itself.` });
+        } else if (key === 'thread') {
+          const t = byId.get(fm.thread);
+          const up = t.fm.thread || (defaultThread(t.fm.id) && byId.has(defaultThread(t.fm.id)) ? defaultThread(t.fm.id) : null);
+          if (up) {
+            issue.errors.push({ ...at(key), message: `thread names ${fm.thread}, which is itself part of thread ${up}; name the root of the thread (${up}).` });
+          }
         }
       }
     }

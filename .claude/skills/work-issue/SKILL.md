@@ -28,6 +28,7 @@ Never merge, push, rebase onto other branches or remove the worktree. Merging is
 
 ## 3. Start
 - Set the issue's `status` to `in-progress` and add a dated first entry to its progress log saying what you plan to do.
+- If the issue has no `summary` in its front matter, add one: a single plain sentence (about 140 characters at most) that works as a headline on its own, without the issue number. It is what the generated pages show (`docs/issues-as-data-design.md`).
 - If something you need is missing and you can't find it in the repo, ask the user one question at a time. Do not guess at facts about the real apartment (dimensions, furniture, colors); ask for them or point to the photos.
 
 ## 4. Do the work
@@ -45,6 +46,7 @@ Never merge, push, rebase onto other branches or remove the worktree. Merging is
 
 ## 6. Finish
 - Set `status: review` (not `done`; only the reviewer closes it) and write a progress-log entry: what changed, files touched, anything left over, and what you could not check (for example, how something feels in a browser).
+- Record the same two things as data in the front matter: each thing you could not check as a line in `unverified:` (one plain sentence each), and, if Marc should look at or decide something, one `needs:` entry (`who: marc`, a `kind` of `decide`, `do`, `try`, `review` or `wait`, one plain `why`, and `since:`). Leave `needs` out when nothing is waiting on anyone; an empty list is the calm state. Run `npm run issues:check -- --validate` before you commit.
 - Commit your work on the issue branch (including the issue file) so it can be merged. Use messages starting `NNN:`. If the user had you work in the main checkout instead, don't commit unless they ask.
 
 ## 7. Get an independent review

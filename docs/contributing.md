@@ -40,6 +40,9 @@ The encounter music's loop is a plain `.track` file, so replacing it is a good f
 - Listen in the real encounter: `npm run dev`, open `/?encounter=ad-candle&again=1`, press a key. Gain and fades are `ENCOUNTERS.music` in `config.ts`.
 - Commit, set `status: review` in `issues/091d-encounter-real-track.md`, then ask for the review.
 
+## The issue files are data
+Each issue is a Markdown file with front matter (`id`, `title`, `status`, `owner`, `depends_on`, always strings in quotes where needed). To file one, copy an old issue. Optional fields are `summary` (a one-line headline), `short` and `note` (used by the `PLAN.md` table), `thread` and `kind`, `needs` (what is waiting on someone: `who`, a `kind` of `decide`, `do`, `try`, `review` or `wait`, a plain `why`, and `since`; delete the entry when it is resolved, since an empty list is the calm state), `unverified` (things nobody has checked) and `superseded_by`. `npm run issues:check -- --validate` checks them with plain messages; `npm run issues` regenerates the table in `PLAN.md` (never edit that block by hand); `npm run issues:site` builds the pages into `dist-issues/` (open `dist-issues/index.html`; not committed). The design is in `docs/issues-as-data-design.md`.
+
 ## Ideas
 Have a loose idea? Add a few lines to `docs/ideas.md` (no status, no owner, no deadline); it only becomes an issue when you decide to do it.
 

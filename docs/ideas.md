@@ -30,3 +30,6 @@ Where other idea lists already live (not copied here): the decor wishlist in [de
 
 ## The game reads the issues (a meta joke for the side project)
 *Marc, 2026-11-15.* Once the issue data exists (`issues.json` from issue 128's design), the game could read it at some point as a dumb meta joke for the side project: the little game inside the game reading the repo's own issues. Needs a stable, public-safe, generated file and a deadpan line or two; nothing in the issue system depends on it.
+
+## Make the issue pages look like ours
+*Marc, 2026-11-15.* The generated issue pages (`npm run issues:site`) borrow their warm theme from the flashcards app's briefing. At some point give them this project's own look (the game's palette and type), as a small change to `scripts/issues-site.mjs` and its stylesheet.

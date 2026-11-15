@@ -30,7 +30,7 @@ For every criterion, independently check it and record: **pass**, **fail** or **
 
 ## 4. Report
 Do not edit code. Do not fix problems yourself. Only reviewing is your job. The one file you edit is the issue file. Never merge, push or remove a worktree.
-- Append a dated **Review** entry to the issue's progress log with the per-criterion results and a verdict. If the work is on a branch, commit that issue-file change on the branch with a message starting `NNN: review`.
+- Append a dated **Review** entry to the issue's progress log with the per-criterion results and a verdict. Add anything you could not check yourself to the front matter's `unverified:` list, remove a `needs:` entry of kind `review` that this review resolves, and run `npm run issues:check -- --validate` before you commit. If the work is on a branch, commit that issue-file change on the branch with a message starting `NNN: review`.
 - Verdict **approve**: set `status: done`. Tell the user the table in `PLAN.md` needs updating (only the planner edits it).
 - Verdict **changes needed**: set `status: in-progress`, and list the specific failures as a checklist the author can work through.
 - Your report back to the user should be short: verdict, criteria that failed or couldn't be verified, any out-of-scope findings, and the branch to merge if the verdict is approve.

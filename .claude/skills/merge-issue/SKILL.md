@@ -60,4 +60,5 @@ Keep it short:
 - the merge and table commit hashes, build and test results with counts, and any conflicts and how they were resolved;
 - what the review verified and what nobody has verified yet (browser feel, in-game look, anything the reviewer marked "can't verify"), so Marc knows what to look at;
 - non-blocking findings from the review, with an offer to file them as a follow-up issue (offer; don't create them unasked);
-- what is now unblocked: read the `PLAN.md` table and list issues whose dependencies are all done and that aren't started, plus the worktrees still running.
+- what is now unblocked: read the `PLAN.md` table and list issues whose dependencies are all done and that aren't started (or build the pages with `npm run issues:site` and read `dist-issues/issues.json`, where `unblocks` is already derived), plus the worktrees still running;
+- anything the merged issue left in its `needs:` (a `try` that is still pending after the merge stays on the issue; say so), and remember that a `needs: try` or `status: review` exists only on the branch until it is merged, so the pages on `main` show them only afterwards. Report them in this message instead.

@@ -1,7 +1,7 @@
 ---
 id: "129"
 title: "Issues as data 1: validator and a generated PLAN.md table"
-status: review
+status: done
 owner: claude
 depends_on: [128]
 ---
@@ -48,3 +48,12 @@ Design and Marc's answers (2026-11-15): `docs/issues-as-data-design.md` (issues 
   - 129 (this issue): `todo` becomes `review`.
   - Not changed: the 11 existing notes (026, 048, 049, 062, 083, 084, 085, 095, 113e plus 091 and 114 above), all other rows, order. The 5 status drifts the design counted (009, 065, 066, 072, 113) are all among these; the extra depends drifts (026, 031, 044, 053, 007, 009) were found by this comparison and are not in the design's count.
 - 2026-11-15 (claude): Not verified: the CI workflow itself (not run on GitHub; only the commands were run locally); behaviour of the main-only table check across a merge commit followed by a separate regeneration commit (the check runs on the pushed tip, so it only fails if the two commits are pushed separately and the first is checked). The planner should run `npm run issues` after each merge and push both together.
+- 2026-11-15 (independent reviewer, claude): Review. Verdict: APPROVE.
+  - Re-ran: `issues:check -- --validate` (169 files valid, 4 expected warnings: 106, 111, 113, 117), `-- --table` (current), `npm test` (3684 passed), `npx tsc --noEmit`, `npm run build`, `npm run check:dist`: all pass.
+  - Strict YAML (Ruby Psych, safe_load): branch 169 of 169 parse; main 72 of 169 fail (the 72 unquoted titles). First commit `6115145` changes 72 files, only `title:` lines (72 added, 72 removed), and each parsed title equals the old raw text (0 mismatches).
+  - PLAN.md: diff against main is exactly the two markers plus 13 changed rows (007, 009, 026, 031, 044, 053, 065, 066, 072, 091, 113, 114, 129), every one explained in the log; no other line changed. An independent Ruby check of all 169 table rows against front matter (id, short or title, owner, status plus note, depends_on) found 0 differences, rows sorted.
+  - Edge cases run outside the repo against the exported functions: numeric id, bare 010 and 007, quoted ids, id/file mismatch, duplicate ids, 3-cycle, self-dependency, missing dependency, numeric dependency, empty `depends_on:`, scalar `depends_on`, titles with quotes, pipes and colons, CRLF, no closing line, no opening line, empty file, bad file name, missing keys, unknown key, duplicate key, bad indentation, missing thread, superseded loop, orphan part, missing or doubled or reversed markers. All behave correctly; messages are plain with `issues/<file>:<line>`. `npm run issues` is idempotent; a hand-edited table makes `--table` exit 1 with the planner message (PLAN.md restored, tree clean).
+  - CI: validate on every push and PR, table only on push to `main`. `dist-issues/` ignored. Nothing under `.claude/skills/` or `reference-photos/` touched. `docs/contributing.md`: one line reworded. Issue bodies: identical to main in all files except this one's log. No private details in the diff (the sim.mcord.dev note was already public in main's PLAN.md).
+  - Partly or not implemented (acceptable for stage 1): no `summary` warnings, no `needs`, `decisions`, `area`, date or `links` checks (fields do not exist yet); no thread-cycle check (a thread is one level); YAML aliases are accepted silently; no derived thread status (the author said so).
+  - Unverified: the workflow was not run on GitHub; the main-only table check across a merge commit and a separate regeneration commit is untested (as the author noted). Note: the acceptance text says 165 issue files; there are 169; not a defect.
+  - Planner: PLAN.md row for 129 needs `done` (run `npm run issues` after merge and push the merge and the regeneration together).

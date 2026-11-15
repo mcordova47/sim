@@ -589,9 +589,13 @@ These are requirements for stage 2, not preferences:
 
 Each one line, most important first, with my recommendation. (The dependency graph, the timeline and a glossary page are not questions: I recommend skipping all three, and will only revisit one if Marc says he misses it.)
 
-1. **Where will you read it: only on your Mac (a local file and a CI artifact), or hosted somewhere your phone opens?** Recommend local plus the CI artifact first; add hosting only if you find yourself wanting the phone.
-2. **Build stage 1 now: quote the 72 titles in one mechanical commit, add the small `yaml` devDependency, a validator and a generated `PLAN.md` table, with no new fields?** Recommend yes; it is useful even if you never want the rest.
-3. **PLAN.md's titles: keep today's hand-shortened wording through a `short:` line in each of the roughly 50 issues that have one, or accept the issue files' full titles in the table?** Recommend `short`, so the table does not change on day one.
-4. **Is `needs` (who, what kind, one plain line, no priority, no counts, newest first) the right way to say "waiting on Marc", knowing a pre-merge trial of a branch is invisible on `main` and stays a planner message?** Recommend yes.
-5. **Decisions: parse the six docs that already use the "ANSWERED by Marc" line, add `decisions` to front matter only for new questions, and do not backfill old ones?** Recommend yes.
-6. **Keep the agent-written briefing as an on-demand ask (reading `issues.json`) rather than trying to generate its "short version" and caveats?** Recommend yes.
+1. **ANSWERED by Marc 2026-11-15: locally (a generated local page and a CI artifact); hosting later if wanted.** Where will you read it: only on your Mac (a local file and a CI artifact), or hosted somewhere your phone opens?** Recommend local plus the CI artifact first; add hosting only if you find yourself wanting the phone.
+2. **ANSWERED by Marc 2026-11-15: "let's start it" (stage 1 is being built).** Build stage 1 now: quote the 72 titles in one mechanical commit, add the small `yaml` devDependency, a validator and a generated `PLAN.md` table, with no new fields?** Recommend yes; it is useful even if you never want the rest.
+3. **DECIDED by the planner 2026-11-15 (Marc: start it; the recommendation is taken, and any of these can change later).** PLAN.md's titles: keep today's hand-shortened wording through a `short:` line in each of the roughly 50 issues that have one, or accept the issue files' full titles in the table?** Recommend `short`, so the table does not change on day one.
+4. **DECIDED by the planner 2026-11-15 (Marc: start it; the recommendation is taken, and any of these can change later).** Is `needs` (who, what kind, one plain line, no priority, no counts, newest first) the right way to say "waiting on Marc", knowing a pre-merge trial of a branch is invisible on `main` and stays a planner message?** Recommend yes.
+5. **DECIDED by the planner 2026-11-15 (Marc: start it; the recommendation is taken, and any of these can change later).** Decisions: parse the six docs that already use the "ANSWERED by Marc" line, add `decisions` to front matter only for new questions, and do not backfill old ones?** Recommend yes.
+6. **DECIDED by the planner 2026-11-15 (Marc: start it; the recommendation is taken, and any of these can change later).** Keep the agent-written briefing as an on-demand ask (reading `issues.json`) rather than trying to generate its "short version" and caveats?** Recommend yes.
+
+
+## Added idea (Marc, 2026-11-15)
+The game could read the generated `issues.json` one day, as a dumb meta joke for the side project (the little game inside the game reading the repo's own issues). Parked in `docs/ideas.md`; nothing in this design depends on it, but `issues.json` being a stable, public-safe file is what would make it possible.

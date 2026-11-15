@@ -27,3 +27,6 @@ Where other idea lists already live (not copied here): the decor wishlist in [de
 
 ## “Going out”
 *2026-11-07.* Menu at the door to go out and do different things: meet a friend for lunch, go on a date, get coffee, go to a museum or a show. The scene doesn't switch, just the time changes and there are effects to certain stats and points or whatever.
+
+## The game reads the issues (a meta joke for the side project)
+*Marc, 2026-11-15.* Once the issue data exists (`issues.json` from issue 128's design), the game could read it at some point as a dumb meta joke for the side project: the little game inside the game reading the repo's own issues. Needs a stable, public-safe, generated file and a deadpan line or two; nothing in the issue system depends on it.

@@ -1,7 +1,7 @@
 ---
 id: 128
 title: Issues as data: a schema and progressive-disclosure views (research and design only)
-status: todo
+status: done
 owner: marc + claude
 depends_on: []
 ---
@@ -68,3 +68,4 @@ Marc (2026-11-15): the issues live in this repo, so we get to define what an iss
   - **Drift-check ordering (the designer did not test it).** Read `merge-issue`: step 6 commits the merge, then commits the PLAN.md row as "Mark NNN done"; agents never push (Marc does). With the regeneration replacing the row edit, the two commits land on `main` together and a push workflow runs on the tip only, so the `--table` check sees the regenerated block and passes. The ordering holds. The doc's fallback (run it after the second commit) is also correct.
   - **Privacy.** The revised doc has no claude.ai or artifact link, no reference-photos mention beyond rules, no employer name, no email; the only URLs are the 12 prior-art ones already verified.
   - **Non-blocking notes.** (a) A merge made on GitHub (091d was PR #1; `learn/*` contributors use PRs) lands one merge commit with no regeneration, so the `main` table check would fail until the planner regenerates; say that the fix is simply running `npm run issues` and committing, and that the check's message should say so. (b) The 5.1 mockup's thread card for 128 shows both In flight and `Planned (main's file says todo)`; the note explains it, but a reader may find it odd. (c) "Learn book (097)" appears under Recently shipped while 097 is still In progress below; true to the data (a merge closed a stage, not the issue) but worth one line in the note.
+- 2026-11-15 (planner): design merged (docs/issues-as-data-design.md, two independent reviews); Marc: read it locally, start stage 1; planner takes the recommendations on questions 3 to 6. Build issues 129 to 132 filed.

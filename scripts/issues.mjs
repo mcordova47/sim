@@ -24,6 +24,7 @@ export const OPTIONAL = [
 export const KINDS = ['design', 'build', 'research', 'fix', 'umbrella', 'chore'];
 export const NEEDS_WHO = ['marc', 'planner', 'agent', 'other'];
 export const NEEDS_KIND = ['decide', 'do', 'try', 'review', 'wait'];
+export const DECISION_STATUS = ['open', 'answered', 'defaulted', 'dropped'];
 export const SUMMARY_LIMIT = 120;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const ID_PATTERN = /^\d{3}[a-z]?$/;
@@ -94,6 +95,57 @@ export function parseIssue(name, text) {
 }
 
 const isString = (v) => typeof v === 'string';
+
+// A repo-relative path to a Markdown file (an optional #anchor is allowed where `anchor` is true).
+export const isDocPath = (x, anchor = false) => {
+  const [p, ...rest] = String(x).split('#');
+  if (rest.length && !anchor) return false;
+  if (rest.length > 1 || (rest.length && !/^[\w.-]+$/.test(rest[0]))) return false;
+  return /^[\w][\w./-]*\.md$/.test(p) && !p.includes('..') && !p.includes('//');
+};
+const validDate = (v) => isString(v) && DATE_PATTERN.test(v) && !Number.isNaN(Date.parse(v));
+
+// Parsed doc questions are named q1, q2 ...; hand-written ones must not use that shape.
+const DECISION_ID = /^[a-z][a-z0-9-]*$/;
+const PARSED_ID = /^q\d+$/;
+
+function checkDecisions(issue, err) {
+  const list = issue.fm.decisions;
+  const flow = 'Each decision has an id like d1, a q (the question) and a status.';
+  if (!Array.isArray(list) || !list.every((n) => n && typeof n === 'object' && !Array.isArray(n))) {
+    err('decisions', `decisions must be a list of entries. ${flow}`);
+    return;
+  }
+  const seen = new Set();
+  const known = ['id', 'q', 'options', 'recommendation', 'status', 'answer', 'by', 'who', 'on', 'doc'];
+  list.forEach((d, i) => {
+    const at = list.length > 1 ? ` (entry ${i + 1}${isString(d.id) ? `, ${d.id}` : ''})` : '';
+    const bad = (m) => err('decisions', `decisions${at}: ${m}`);
+    for (const k of Object.keys(d)) {
+      if (!known.includes(k)) issue.warnings.push({ file: issue.name, line: issue.lines.decisions || 2, message: `decisions${at} has "${k}", which is not a field this tool knows.` });
+    }
+    if (!isString(d.id) || !DECISION_ID.test(d.id)) bad('id must be a short lowercase name like d1.');
+    else if (PARSED_ID.test(d.id)) bad(`id ${d.id} is reserved for questions read from design docs; use d1, d2 ...`);
+    else if (seen.has(d.id)) bad(`id ${d.id} is used twice in this issue.`);
+    else seen.add(d.id);
+    if (!isString(d.q) || d.q.trim() === '') bad('q must be the question, as one plain line.');
+    if (!DECISION_STATUS.includes(d.status)) bad(`status "${d.status}" is not one of: ${DECISION_STATUS.join(', ')}.`);
+    if ('who' in d && !NEEDS_WHO.includes(d.who)) bad(`who "${d.who}" is not one of: ${NEEDS_WHO.join(', ')}.`);
+    if ('by' in d && !NEEDS_WHO.includes(d.by)) bad(`by "${d.by}" is not one of: ${NEEDS_WHO.join(', ')}.`);
+    if ('on' in d && !validDate(d.on)) bad('on must be a date like 2026-11-15.');
+    if ('options' in d && (!Array.isArray(d.options) || !d.options.every((o) => isString(o) && o.trim() !== ''))) bad('options must be a list of short labels, like ["Crisp", "Soft"].');
+    for (const k of ['recommendation', 'answer']) {
+      if (k in d && (!isString(d[k]) || d[k].trim() === '')) bad(`${k} must be one plain line of text.`);
+    }
+    if ('doc' in d && (!isString(d.doc) || !isDocPath(d.doc, true))) bad('doc must be a repo path to a Markdown file, with an optional #section, like docs/x-design.md#14-questions.');
+    if (d.status === 'answered' || d.status === 'defaulted') {
+      for (const k of ['answer', 'by', 'on']) if (!(k in d)) bad(`a ${d.status} decision needs ${k}.`);
+    }
+    if (d.status === 'open' && ('answer' in d || 'by' in d)) {
+      issue.warnings.push({ file: issue.name, line: issue.lines.decisions || 2, message: `decisions${at} is open but has an answer; set its status to answered.` });
+    }
+  });
+}
 
 // Check one parsed issue by itself (no other files needed).
 function checkOne(issue) {
@@ -172,6 +224,13 @@ function checkOne(issue) {
       err('unverified', 'unverified must be a list of one-line texts, like ["Safari behaviour"].');
     }
   }
+  if ('docs' in fm) {
+    const d = fm.docs;
+    if (!Array.isArray(d) || !d.every((x) => isString(x) && isDocPath(x))) {
+      err('docs', 'docs must be a list of repo paths to Markdown files, like [docs/photo-gallery-design.md]. No web addresses.');
+    }
+  }
+  if ('decisions' in fm) checkDecisions(issue, err);
   if ('needs' in fm) {
     const list = fm.needs;
     const flow = 'Write each as one line: needs: [{who: marc, kind: try, why: "Run it once", since: 2026-11-15}].';
@@ -199,7 +258,7 @@ function checkOne(issue) {
 export const defaultThread = (id) => (/^\d{3}[a-z]$/.test(id) ? id.slice(0, 3) : null);
 
 // Parse and validate a set of files [{name, text}]. Returns { issues, errors, warnings }.
-export function analyze(files) {
+export function analyze(files, { docExists = null } = {}) {
   const issues = files.map((f) => parseIssue(f.name, f.text));
   for (const issue of issues) {
     if (!issue.errors.length) checkOne(issue);
@@ -240,6 +299,14 @@ export function analyze(files) {
           if (up) {
             issue.errors.push({ ...at(key), message: `thread names ${fm.thread}, which is itself part of thread ${up}; name the root of the thread (${up}).` });
           }
+        }
+      }
+    }
+    if (docExists) {
+      const paths = [...(Array.isArray(fm.docs) ? fm.docs : []), ...(Array.isArray(fm.decisions) ? fm.decisions.map((d) => d && isString(d.doc) ? d.doc.split('#')[0] : null) : [])];
+      for (const p of paths) {
+        if (isString(p) && isDocPath(p) && !docExists(p)) {
+          issue.errors.push({ ...at('docs' in fm ? 'docs' : 'decisions'), message: `${p} is named here but does not exist.` });
         }
       }
     }
@@ -423,10 +490,174 @@ export function logEntries(text) {
   });
 }
 
+// ---------------------------------------------------------------------------
+// Decisions (stage 3). Two sources: `decisions` in an issue's front matter (new
+// questions), and, read-only, the numbered questions in the design docs that already
+// carry a line like "**Question? ANSWERED by Marc 2026-10-29: the answer.**" or
+// "**Question? DECIDED by the planner 2026-10-29: the answer.**". Old decisions are
+// never backfilled into the issue files.
+// ---------------------------------------------------------------------------
+
+// The design docs whose answered questions are read, and the issue (the root of its
+// thread) each belongs to. A doc listed in an issue's `docs:` is read too.
+export const DOC_ISSUES = {
+  'docs/encounter-music-design.md': '091',
+  'docs/inventory-design.md': '109',
+  'docs/photo-gallery-design.md': '117',
+  'docs/photo-reel-design.md': '113',
+  'docs/side-project-config-design.md': '111',
+  'docs/track-editor-phones-design.md': '106',
+};
+
+export const WHO_WORDS = { marc: 'Marc', planner: 'the planner', agent: 'an agent', other: 'someone outside the project' };
+export const whoWord = (w) => WHO_WORDS[w] || w;
+
+const plain = (t) => String(t).replace(/\*\*/g, '').replace(/`/g, '').replace(/\s+/g, ' ').trim();
+const upFirst = (t) => (t ? t[0].toUpperCase() + t.slice(1) : t);
+const RECOMMENDED = /\s*(?:\((?:my )?recommend[^)]*\)|\[recommended\]|\*\*Recommended:\*\*|\bRecommended:)\s*/i;
+
+// A short label for an option: its first sentence, cut before a bracket or colon if long.
+export function optionLabel(text) {
+  let t = upFirst(plain(text).replace(/\s+([:;,.])/g, '$1').replace(/^[:\s]+/, '').replace(/[.;\s]+$/, ''));
+  if (t.length > 90) {
+    const first = t.match(/^(.+?)\.\s/);
+    if (first && first[1].length >= 12 && first[1].length <= 90) t = first[1];
+  }
+  if (t.length > 90) {
+    for (const re of [/^(.+?)\s\(/, /^(.+?):\s/, /^(.+?),\s/]) {
+      const m = t.match(re);
+      if (m && m[1].length >= 12 && m[1].length <= 90) { t = m[1]; break; }
+    }
+  }
+  if (t.length > 90) t = t.slice(0, t.lastIndexOf(' ', 88) > 20 ? t.lastIndexOf(' ', 88) : 88).replace(/[,;:(\s]+$/, '') + '…';
+  return t;
+}
+
+// GitHub's heading anchor, so a decision can point at the section that holds its options.
+export const headingSlug = (text) =>
+  text.replace(/`/g, '').toLowerCase().replace(/[^\w\s-]/g, '').trim().replace(/\s/g, '-');
+
+const MARKER = /^(.*?)\s*(ANSWERED|DECIDED) by (?:the )?(Marc|planner) (\d{4}-\d{2}-\d{2})(?:\s*\(([^)]*)\))?\s*:\s*(.*)$/s;
+
+// Read the questions of one doc. Returns { decisions, problems }; never throws.
+export function parseDocDecisions(docPath, text, issueId) {
+  const lines = String(text).replace(/\r\n/g, '\n').split('\n');
+  const decisions = [];
+  const problems = [];
+  let heading = null;
+  let inFence = false;
+  for (let i = 0; i < lines.length; i++) {
+    if (/^\s*(```|~~~)/.test(lines[i])) inFence = !inFence;
+    if (inFence) continue;
+    const h = lines[i].match(/^#{2,6}\s+(.+?)\s*$/);
+    if (h) { heading = h[1]; continue; }
+    const head = lines[i].match(/^(\d+)\.\s+(.*)$/);
+    if (!head || !/(ANSWERED|DECIDED) by /.test(head[2])) continue;
+    const n = head[1];
+    const block = [head[2]];
+    while (i + 1 < lines.length && lines[i + 1].trim() !== '' && !/^\d+\.\s/.test(lines[i + 1]) && !/^#{1,6}\s/.test(lines[i + 1])) block.push(lines[++i]);
+    const bolds = [...head[2].matchAll(/\*\*(.+?)\*\*/g)];
+    const marked = bolds.find((b) => /(ANSWERED|DECIDED) by /.test(b[1]));
+    const m = marked && marked[1].match(MARKER);
+    if (!m) { problems.push({ doc: docPath, line: i + 1, message: `Question ${n}: the ANSWERED/DECIDED line does not look like "**Question? ANSWERED by Marc 2026-10-29: answer.**".` }); continue; }
+
+    // The question: before the marker, or (answer first) the next bold span, or "Original question: ...".
+    let q = m[1];
+    const after = head[2].slice(marked.index + marked[0].length);
+    if (!q) {
+      const nextBold = after.match(/\*\*(.+?)\*\*/);
+      const orig = after.match(/\(Original question:\s*(.+?)\.?\)/);
+      q = nextBold ? nextBold[1] : orig ? orig[1] : '';
+    }
+    q = upFirst(plain(q).replace(/[.\s]+$/, ''));
+    if (!q) { problems.push({ doc: docPath, line: i + 1, message: `Question ${n}: no question text found.` }); continue; }
+
+    // Options and the recommendation: bullets under the item, or "(a) ... (b) ..." inline.
+    const rest = [after, ...block.slice(1)].join('\n');
+    const bullets = [];
+    const prose = [];
+    for (const l of rest.split('\n')) {
+      const b = l.match(/^\s*-\s*\(?([A-Ea-e])(?:[.:)]|(?=\s*\())\s*(.*)$/);
+      if (b) bullets.push(b[2]); else prose.push(l);
+    }
+    let proseText = prose.join(' ');
+    const rawOptions = bullets.slice();
+    if (!rawOptions.length) {
+      const cut = proseText.search(/(?:^|\s)\(a\)\s|\bOptions:/);
+      if (cut !== -1) {
+        const optText = proseText.slice(cut).replace(/^\s*Options:\s*/, '').replace(/^\s*/, '');
+        proseText = proseText.slice(0, cut);
+        rawOptions.push(...optText.split(/(?:^|\s)\([b-e]\)\s/).map((x) => x.replace(/^\(a\)\s*/, '')));
+      }
+    }
+    const options = [];
+    let flagged = null;
+    for (const o of rawOptions) {
+      const label = optionLabel(o.replace(RECOMMENDED, ' '));
+      if (!label) continue;
+      options.push(label);
+      if (RECOMMENDED.test(o) && flagged === null) flagged = label;
+    }
+    let recommendation = null;
+    const rec = plain(proseText).match(/\bRecommend(?:ed)?:?\s+(.+?)(?:\.(?:\s|$)|$)/);
+    if (rec && !/^this over\b/i.test(rec[1])) recommendation = upFirst(rec[1].replace(/[\s.]+$/, ''));
+    else if (flagged) recommendation = upFirst(flagged);
+
+    // The answer, tidied. A bare option letter becomes "(b) the option".
+    // An option that only says "that" means the recommendation.
+    if (recommendation) for (let k = 0; k < options.length; k++) if (/^that$/i.test(options[k])) options[k] = recommendation;
+    let answer = upFirst(plain(m[6]).replace(/[.\s]+$/, ''));
+    const letter = answer.match(/^\(?([a-eA-E])\)?$/);
+    if (letter && options[letter[1].toLowerCase().charCodeAt(0) - 97]) {
+      answer = `(${letter[1].toLowerCase()}) ${options[letter[1].toLowerCase().charCodeAt(0) - 97]}`;
+    }
+
+    const planner = m[2] === 'DECIDED';
+    const by = m[3] === 'Marc' ? 'marc' : 'planner';
+    const out = {
+      issue: issueId, id: `q${n}`, source: 'doc',
+      q, status: planner ? 'defaulted' : 'answered', answer, by, who: 'marc', on: m[4],
+      doc: `${docPath}#${headingSlug(heading || '')}`,
+      docTitle: heading ? plain(heading).replace(/^\d+\.\s*/, '') : null,
+    };
+    if (options.length) out.options = options;
+    if (recommendation) out.recommendation = recommendation;
+    if (m[5]) out.note = plain(m[5]);
+    decisions.push(out);
+  }
+  return { decisions, problems };
+}
+
+// Every decision in the repo: the docs (read-only) and the front matter. `readDoc(path)`
+// returns the text or null. Returns { decisions, problems }.
+export function collectDecisions(issues, readDoc) {
+  const sources = new Map(Object.entries(DOC_ISSUES));
+  for (const i of issues) {
+    for (const d of Array.isArray(i.fm.docs) ? i.fm.docs : []) if (!sources.has(d)) sources.set(d, i.fm.id);
+  }
+  const decisions = [];
+  const problems = [];
+  for (const [docPath, issueId] of sources) {
+    const text = readDoc(docPath);
+    if (text === null || text === undefined) { problems.push({ doc: docPath, line: 1, message: 'The design doc could not be read.' }); continue; }
+    const r = parseDocDecisions(docPath, text, issueId);
+    decisions.push(...r.decisions);
+    problems.push(...r.problems);
+  }
+  for (const i of issues) {
+    if (!Array.isArray(i.fm.decisions)) continue;
+    for (const d of i.fm.decisions) {
+      decisions.push({ ...d, issue: i.fm.id, who: d.who || 'marc', source: 'issue', docTitle: null });
+    }
+  }
+  return { decisions, problems };
+}
+
 const cmpId = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
+const cmpNum = (a, b) => (Number(String(a).replace(/\D/g, '')) - Number(String(b).replace(/\D/g, ''))) || cmpId(a, b);
 
 // Threads, pills, needs, unblocks. `issues` are the valid parsed issues.
-export function buildModel(issues) {
+export function buildModel(issues, decisionList = []) {
   const byId = new Map(issues.map((i) => [i.fm.id, i]));
   const rootOf = (i) => {
     const t = i.fm.thread || defaultThread(i.fm.id);
@@ -487,9 +718,26 @@ export function buildModel(issues) {
     for (const n of i.fm.needs) needs.push({ id: i.fm.id, issue: i, ...n });
   }
   needs.sort((a, b) => (a.since < b.since ? 1 : a.since > b.since ? -1 : cmpId(a.id, b.id)));
+  // Decisions: an open one for Marc shows up with the needs, so nobody writes it twice.
+  const decisions = decisionList
+    .filter((d) => byId.has(d.issue))
+    .map((d) => ({ ...d, key: `${d.issue}:${d.id}`, thread: (threadOf.get(d.issue) || { id: d.issue }).id }));
+  for (const d of decisions) {
+    const i = byId.get(d.issue);
+    if (d.status !== 'open' || d.who !== 'marc' || i.fm.superseded_by) continue;
+    needs.push({
+      id: d.issue, issue: i, who: 'marc', kind: 'decide',
+      why: d.recommendation ? `${d.q} (recommended: ${d.recommendation})` : d.q,
+      since: d.on || '', decision: d.id,
+    });
+  }
+  needs.sort((a, b) => (a.since < b.since ? 1 : a.since > b.since ? -1 : cmpId(a.id, b.id)));
+  const decided = decisions.filter((d) => d.status === 'answered' || d.status === 'defaulted' || d.status === 'dropped')
+    .sort((a, b) => ((a.on || '') < (b.on || '') ? 1 : (a.on || '') > (b.on || '') ? -1 : cmpId(a.issue, b.issue) || cmpNum(a.id, b.id)));
+  const decisionsOpen = decisions.filter((d) => d.status === 'open' && d.who === 'marc');
   const forMarc = needs.filter((n) => n.who === 'marc' && n.kind !== 'wait');
   const elsewhere = needs.filter((n) => !(n.who === 'marc' && n.kind !== 'wait'));
-  return { byId, threads, threadOf, unblocks, needs, forMarc, elsewhere };
+  return { byId, threads, threadOf, unblocks, needs, forMarc, elsewhere, decisions, decided, decisionsOpen };
 }
 
 export const headline = (i) => i.fm.summary || i.fm.title;
@@ -534,7 +782,11 @@ export function issuesJson(issues, model, extra = {}) {
       progress: t.progress || null,
       members: t.members.map((m) => m.fm.id),
     })),
-    needs: model.needs.map((n) => clean({ id: n.id, who: n.who, kind: n.kind, why: n.why, since: n.since, on: n.on })),
+    needs: model.needs.map((n) => clean({ id: n.id, who: n.who, kind: n.kind, why: n.why, since: n.since || undefined, on: n.on, decision: n.decision })),
+    decisions: [...model.decided, ...model.decisions.filter((d) => d.status === 'open')].map((d) => clean({
+      issue: d.issue, id: d.id, thread: d.thread, q: d.q, options: d.options, recommendation: d.recommendation,
+      status: d.status, answer: d.answer, by: d.by, who: d.who, on: d.on, doc: d.doc, source: d.source,
+    })),
     recently_shipped: extra.recentlyShipped || [],
   };
 }
@@ -588,10 +840,14 @@ function main(argv) {
   const planPath = path.join(root, 'PLAN.md');
   const check = argv.includes('--check');
   const wantTable = argv.includes('--table');
-  const { issues, errors, warnings } = analyze(loadFiles(path.join(root, 'issues')));
+  const { issues, errors, warnings } = analyze(loadFiles(path.join(root, 'issues')), { docExists: (p) => fs.existsSync(path.join(root, p)) });
 
   for (const w of warnings) console.log(`warning: ${formatProblem(w)}`);
   for (const e of errors) console.error(`error: ${formatProblem(e)}`);
+  if (!errors.length) {
+    const read = (p) => (fs.existsSync(path.join(root, p)) ? fs.readFileSync(path.join(root, p), 'utf8') : null);
+    for (const pr of collectDecisions(issues, read).problems) console.log(`warning: ${pr.doc}:${pr.line}: ${pr.message}`);
+  }
   if (errors.length) {
     console.error(`\n${errors.length} problem${errors.length === 1 ? '' : 's'} in the issue files; fix them and run this again.`);
     return 1;

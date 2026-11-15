@@ -13,7 +13,7 @@ import { fileURLToPath } from 'node:url';
 import {
   analyze, loadFiles, parseIssue, buildModel, issuesJson, parseSections, orderSections,
   headingRole, logEntries, firstSentence, formatProblem, headline, label, STATUS_WORDS,
-  NEEDS_PILL, numberWord,
+  NEEDS_PILL, numberWord, collectDecisions, whoWord,
 } from './issues.mjs';
 
 export const esc = (s) =>
@@ -276,6 +276,17 @@ footer { padding-top: 26px; padding-bottom: 40px; }
   .cards.wide { grid-template-columns: 1fr 1fr; }
   h1 { font-size: 2rem; }
 }
+.decs { display: grid; gap: 10px; }
+.dec { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 14px; }
+.dec p { margin: 3px 0; }
+.dec .q { font-weight: 600; }
+.dec .meta { color: var(--muted); font-size: 0.85rem; }
+.dec details.leaf { margin: 4px 0; }
+ul.opts li { margin: 2px 0; }
+.filters label { font-size: 0.9rem; color: var(--muted); flex: 1 1 14rem; min-width: 0; }
+.filters select { display: block; width: 100%; margin-top: 2px; }
+.js .filters label { display: block; }
+select { font: inherit; font-size: 0.9rem; max-width: 100%; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; }
 .js-only { display: none; }
 .js .js-only { display: inline-block; }
 `;
@@ -283,6 +294,16 @@ footer { padding-top: 26px; padding-bottom: 40px; }
 export const SCRIPT = `(function () {
   document.documentElement.classList.add('js');
   function names(root) { return Array.prototype.slice.call(root.querySelectorAll('details[name], details[data-name]')); }
+  var filters = document.querySelectorAll('select[data-filter]');
+  function applyFilters() {
+    var want = {};
+    filters.forEach(function (s) { want[s.getAttribute('data-filter')] = s.value; });
+    document.querySelectorAll('.decs .dec').forEach(function (d) {
+      var ok = (!want.thread || d.getAttribute('data-thread') === want.thread) && (!want.who || d.getAttribute('data-who') === want.who);
+      d.style.display = ok ? '' : 'none';
+    });
+  }
+  filters.forEach(function (s) { s.addEventListener('change', applyFilters); });
   document.querySelectorAll('[data-open-all]').forEach(function (btn) {
     var all = false;
     btn.addEventListener('click', function () {
@@ -313,7 +334,7 @@ function layout({ title, stamp, body, headExtra = '' }) {
 ${headExtra}</head>
 <body>
 <header class="top">
-<nav class="site"><a href="index.html">Home</a> <a href="needs.html">What needs you</a> <a href="threads.html">All threads</a></nav>
+<nav class="site"><a href="index.html">Home</a> <a href="needs.html">What needs you</a> <a href="decisions.html">Decisions</a> <a href="threads.html">All threads</a></nav>
 </header>
 <main>
 ${body}
@@ -330,10 +351,10 @@ const needsLine = (n) => `${n.why}${n.on ? ` (waiting on ${n.on})` : ''}`;
 
 function needCard(n, { issueTitle = true } = {}) {
   const i = n.issue;
-  return `<a class="card" href="issue-${esc(i.fm.id)}.html#needs">
+  return `<a class="card" href="issue-${esc(i.fm.id)}.html#${n.decision ? 'decisions' : 'needs'}">
 <div>${needPill(n.kind)} <span class="name">${esc(label(i))}</span> <span class="id">(${esc(i.fm.id)})</span></div>
 <p class="why">${esc(needsLine(n))}</p>
-<div class="meta">asked ${esc(n.since)}</div>
+${n.since ? `<div class="meta">asked ${esc(n.since)}</div>` : ''}
 </a>`;
 }
 
@@ -400,7 +421,7 @@ function needsPage(ctx) {
     groups += `<h3 class="group">${esc(NEEDS_PILL[k])}</h3><div class="cards">${list.map((n) => needCard(n)).join('')}</div>`;
   }
   const waiting = model.elsewhere.length
-    ? `<h2>Waiting on something else</h2><ul class="plain">${model.elsewhere.map((n) => `<li>${needPill(n.kind)} ${issueLink(n.issue)} (${esc(n.id)}): ${esc(needsLine(n))} <span class="muted">asked ${esc(n.since)}</span></li>`).join('')}</ul>`
+    ? `<h2>Waiting on something else</h2><ul class="plain">${model.elsewhere.map((n) => `<li>${needPill(n.kind)} ${issueLink(n.issue)} (${esc(n.id)}): ${esc(needsLine(n))} ${n.since ? `<span class="muted">asked ${esc(n.since)}</span>` : ''}</li>`).join('')}</ul>`
     : '';
   const body = `<h1>What needs you</h1>
 <p class="lede">Nothing here is urgent. Newest first.</p>
@@ -424,6 +445,63 @@ function threadsPage(ctx) {
   }
   return layout({ title: 'All threads', stamp, body });
 }
+
+// ---------------------------------------------------------------------------
+// Decisions: one record per decision, shared by the log, thread pages and issue pages.
+// ---------------------------------------------------------------------------
+
+const decisionWhen = (d) => {
+  if (d.status === 'open') return d.on ? `asked ${d.on}` : 'waiting for an answer';
+  if (d.status === 'dropped') return d.on ? `dropped ${d.on}` : 'dropped';
+  return `${d.status === 'defaulted' ? 'Decided by' : 'Answered by'} ${whoWord(d.by)}, ${d.on}`;
+};
+
+function decisionBlock(d, ctx, { showThread = false } = {}) {
+  const { model } = ctx;
+  const t = model.threadOf.get(d.issue);
+  const i = model.byId.get(d.issue);
+  const opts = Array.isArray(d.options) && d.options.length
+    ? `<details class="leaf"><summary>The options</summary><div class="inner"><ul class="plain opts">${d.options.map((o, k) => `<li><span class="muted">(${String.fromCharCode(97 + k)})</span> ${esc(o)}</li>`).join('')}</ul></div></details>`
+    : '';
+  return `<article class="dec${d.status === 'dropped' ? ' faint' : ''}" id="${esc(`${d.issue}-${d.id}`)}" data-who="${esc(d.by || d.who)}" data-thread="${esc(d.thread)}">
+<div class="meta">${esc(decisionWhen(d))}</div>
+<p class="q">${esc(d.q)}</p>
+${d.answer ? `<p class="a"><span class="muted">Chose:</span> ${esc(d.answer)}</p>` : ''}
+${d.recommendation ? `<p class="rec"><span class="muted">Recommended:</span> ${esc(d.recommendation)}</p>` : ''}
+${opts}
+<div class="meta">${showThread && i ? `<a href="${t && t.page ? `thread-${esc(t.id)}.html` : `issue-${esc(i.fm.id)}.html`}">${esc(label(t ? t.root : i))}</a> (${esc(d.issue)})` : ''}${d.doc ? `${showThread ? ' &middot; ' : ''}<code>${esc(d.doc.replace(/#.*$/, ''))}</code>${d.docTitle ? `, ${esc(d.docTitle)}` : ''}` : ''}</div>
+</article>`;
+}
+
+function decisionsPage(ctx) {
+  const { model, stamp } = ctx;
+  const open = model.decisionsOpen;
+  const waiting = open.length
+    ? `<section class="band"><h2>Waiting on you</h2><p class="calm">None of these is urgent.</p>${open.map((d) => decisionBlock(d, ctx, { showThread: true })).join('\n')}</section>`
+    : '<section class="band"><h2>Waiting on you</h2><p class="calm">Nothing is waiting on you.</p></section>';
+  const threadIds = [...new Set(model.decided.map((d) => d.thread))];
+  const whos = [...new Set(model.decided.map((d) => d.by))];
+  const sel = (name, labelText, opts) => `<label class="js-only">${esc(labelText)} <select data-filter="${name}"><option value="">all</option>${opts.map(([v, t]) => `<option value="${esc(v)}">${esc(t)}</option>`).join('')}</select></label>`;
+  const filters = `<div class="tools filters">${sel('thread', 'Thread', threadIds.map((id) => [id, label((model.byId.get(id) || { fm: { title: id } })).toString()]))}${sel('who', 'Decided by', whos.map((w) => [w, whoWord(w)]))}</div>`;
+  const rows = model.decided.map((d) => decisionBlock(d, ctx, { showThread: true })).join('\n');
+  const body = `<h1>Decisions</h1>
+<p class="lede">What was decided, by whom, when, and what was recommended. Newest first.</p>
+${waiting}
+<section class="band"><h2>Decided</h2>${model.decided.length ? filters + `<div class="decs">${rows}</div>` : '<p class="calm">No decisions recorded yet.</p>'}</section>`;
+  return layout({ title: 'Decisions', stamp, body });
+}
+
+const decisionsPeek = (list) => {
+  const done = list.filter((d) => d.status !== 'open' && d.status !== 'dropped');
+  const open = list.filter((d) => d.status === 'open');
+  const bys = [...new Set(done.map((d) => whoWord(d.by)))];
+  const latest = done.map((d) => d.on).sort().pop();
+  let peek = done.length ? `${upFirstWord(numberWord(done.length))} decided${bys.length === 1 ? ` by ${bys[0]}` : ''}${latest ? `, latest ${latest}` : ''}.` : '';
+  if (open.length) peek += `${peek ? ' ' : ''}${open.length === 1 ? 'One is' : 'Some are'} still open.`;
+  return peek || 'Nothing decided yet.';
+};
+const upFirstWord = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+
 
 function threadPage(t, ctx) {
   const { model, stamp } = ctx;
@@ -450,6 +528,12 @@ function threadPage(t, ctx) {
     shipped.length ? `<ul class="plain">${shipped.map(item).join('')}</ul>` : '<p class="calm">Nothing yet.</p>'));
   parts.push(branch('Still open', still.length ? esc(still.map((m) => `${m.fm.id} (${STATUS_WORDS[m.fm.status]})`).join(', ')) : 'Nothing.',
     still.length ? `<ul class="plain">${still.map((m) => `<li>${issueLink(m, `${esc(m.fm.id)} ${esc(label(m))}`)} <span class="muted">${esc(STATUS_WORDS[m.fm.status])}</span>${m.fm.summary ? `<br><span class="muted">${esc(m.fm.summary)}</span>` : ''}</li>`).join('')}</ul>` : '<p class="calm">Nothing left open.</p>'));
+  const tDecisions = ctx.model.decisions.filter((d) => d.thread === t.id)
+    .sort((a, b) => ((a.on || '') < (b.on || '') ? 1 : (a.on || '') > (b.on || '') ? -1 : 0));
+  if (tDecisions.length) {
+    parts.push(branch('Decisions you made, and why', esc(decisionsPeek(tDecisions)),
+      `<div class="decs">${tDecisions.map((d) => decisionBlock(d, ctx)).join('\n')}</div><p><a href="decisions.html">All decisions</a></p>`));
+  }
   if (needsHere.length) {
     parts.push(branch('Waiting on', esc(needsHere.map((n) => NEEDS_PILL[n.kind]).join(', ')),
       `<ul class="plain">${needsHere.map((n) => `<li>${needPill(n.kind)} ${issueLink(n.issue, esc(n.id))}: ${esc(needsLine(n))} <span class="muted">asked ${esc(n.since)}</span></li>`).join('')}</ul>`));
@@ -513,6 +597,7 @@ function issuePage(i, ctx) {
   const needs = Array.isArray(fm.needs) ? fm.needs : [];
   const unver = Array.isArray(fm.unverified) ? fm.unverified : [];
   const sup = fm.superseded_by && model.byId.get(fm.superseded_by);
+  const iDecisions = model.decisions.filter((d) => d.issue === fm.id);
 
   const body = `<p>${t && t.page ? `<a href="thread-${t.id}.html">&lsaquo; ${esc(label(t.root))} (${esc(t.id)})</a>` : '<a href="index.html">&lsaquo; Home</a>'}</p>
 <h1>${esc(fm.title)} <span class="muted">(${esc(fm.id)})</span></h1>
@@ -520,6 +605,7 @@ ${fm.summary ? `<p class="lede">${esc(fm.summary)}</p>` : ''}
 <div class="tools">${pill(STATUS_WORDS[fm.status])}${fm.kind ? pill(fm.kind) : ''}<span class="muted">${esc(fm.owner)}</span><button type="button" class="js-only" data-open-all>Open everything</button></div>
 <div class="facts">${deps.length ? `<span>after ${deps.join(', ')}</span>` : ''}${unblocks.length ? `<span>unblocks ${unblocks.join(', ')}</span>` : ''}${fm.note ? `<span>${esc(fm.note)}</span>` : ''}${sup ? `<span>replaced by <a href="issue-${sup.fm.id}.html">${esc(sup.fm.id)}</a></span>` : ''}</div>
 ${needs.length ? `<section id="needs" class="band"><h2>What this needs</h2><ul class="plain">${needs.map((n) => `<li>${needPill(n.kind)} ${esc(needsLine(n))} <span class="muted">asked ${esc(n.since)}</span></li>`).join('')}</ul></section>` : '<span id="needs"></span>'}
+${iDecisions.length ? `<section id="decisions" class="band"><h2>Decisions</h2><p class="muted">${esc(decisionsPeek(iDecisions))}</p><div class="decs">${iDecisions.map((d) => decisionBlock(d, ctx)).join('\n')}</div></section>` : '<span id="decisions"></span>'}
 ${unver.length ? `<section class="band"><h2>Not verified</h2><ul>${unver.map((u) => `<li>${esc(u)}</li>`).join('')}</ul></section>` : ''}
 ${tree.intro ? markdown(tree.intro, known) : ''}
 <section class="band">${orderSections(tree.sections).map((s) => sectionHtml(s, 'top', 0)).join('\n')}</section>`;
@@ -531,8 +617,8 @@ ${tree.intro ? markdown(tree.intro, known) : ''}
 // ---------------------------------------------------------------------------
 
 // Returns a map of file name -> contents (strings). No writing here, so tests can look.
-export function buildSite(issues, git, { overlay = [] } = {}) {
-  const model = buildModel(issues);
+export function buildSite(issues, git, { overlay = [], decisions = [] } = {}) {
+  const model = buildModel(issues, decisions);
   const stamp = stampText(git);
   const shipped = recentlyShipped(git.merges || [], model.byId);
 
@@ -552,6 +638,7 @@ export function buildSite(issues, git, { overlay = [] } = {}) {
     'site.js': SCRIPT,
     'index.html': homePage(ctx),
     'needs.html': needsPage(ctx),
+    'decisions.html': decisionsPage(ctx),
     'threads.html': threadsPage(ctx),
   };
   for (const t of model.threads) if (t.page) files[`thread-${t.id}.html`] = threadPage(t, ctx);
@@ -567,7 +654,7 @@ export function buildSite(issues, git, { overlay = [] } = {}) {
 function main(argv) {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
   const withBranches = argv.includes('--branches');
-  const { issues, errors, warnings } = analyze(loadFiles(path.join(root, 'issues')));
+  const { issues, errors, warnings } = analyze(loadFiles(path.join(root, 'issues')), { docExists: (p) => fs.existsSync(path.join(root, p)) });
   for (const w of warnings) console.log(`warning: ${formatProblem(w)}`);
   if (errors.length) {
     for (const e of errors) console.error(`error: ${formatProblem(e)}`);
@@ -577,7 +664,10 @@ function main(argv) {
   const g = gitFacts(root, { branches: withBranches });
   const byId = new Map(issues.map((i) => [i.fm.id, i]));
   const overlay = withBranches ? branchOverlay(root, byId) : [];
-  const files = buildSite(issues, g, { overlay });
+  const read = (p) => (fs.existsSync(path.join(root, p)) ? fs.readFileSync(path.join(root, p), 'utf8') : null);
+  const found = collectDecisions(issues, read);
+  for (const pr of found.problems) console.log(`warning: ${pr.doc}:${pr.line}: ${pr.message}`);
+  const files = buildSite(issues, g, { overlay, decisions: found.decisions });
   const out = path.join(root, 'dist-issues');
   fs.rmSync(out, { recursive: true, force: true });
   fs.mkdirSync(out, { recursive: true });

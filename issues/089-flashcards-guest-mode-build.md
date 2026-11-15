@@ -4,6 +4,8 @@ title: "Flashcards guest mode: study without a sync key (build)"
 status: done
 owner: claude
 depends_on: [083, 082]
+summary: "Someone with no sync key can study the Spanish flashcard deck, with progress kept only in their own browser"
+thread: "026"
 ---
 
 ## Goal

@@ -5,6 +5,7 @@ status: done
 owner: claude
 depends_on: [113a, 113b]
 short: "Photo reel 3: PHOTOS page"
+summary: "A PHOTOS page on the pause screen for adding pictures and removing them all"
 ---
 
 ## Goal

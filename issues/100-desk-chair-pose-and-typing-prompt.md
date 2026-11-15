@@ -5,6 +5,8 @@ status: done
 owner: claude
 depends_on: [099]
 short: "Desk chair diagonal, the desk pose, and the typing prompt placement"
+summary: "The desk chair is redrawn diagonal, and the typing prompt stops covering the seated player"
+thread: "096"
 ---
 
 ## Goal

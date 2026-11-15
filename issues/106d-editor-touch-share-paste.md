@@ -4,6 +4,7 @@ title: "Track editor on phones 4: share and paste"
 status: done
 owner: claude
 depends_on: [106c]
+summary: "Tracks can be shared, copied and pasted from the phone editor, including mangled pasted text"
 ---
 
 ## Goal

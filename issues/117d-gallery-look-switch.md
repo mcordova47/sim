@@ -4,6 +4,7 @@ title: "Photo gallery 4: the LOOK switch"
 status: done
 owner: claude
 depends_on: [117a, 117c]
+summary: "A LOOK switch on the PHOTOS page cycles the presets for newly added pictures only"
 ---
 
 ## Goal

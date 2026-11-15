@@ -4,6 +4,8 @@ title: "Sync stage 3: automatic sync and the pause-screen control"
 status: done
 owner: claude
 depends_on: [103, 093]
+summary: "Saves sync on their own in the background, with a plain pause-screen control for pairing and status"
+thread: "095"
 ---
 
 ## Goal

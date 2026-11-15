@@ -4,6 +4,7 @@ title: "Polish: time of day"
 status: done
 owner: agent
 depends_on: []
+summary: "The apartment has a clock and lighting that changes through the day, and tasks pay better at the right hour"
 ---
 
 ## Goal

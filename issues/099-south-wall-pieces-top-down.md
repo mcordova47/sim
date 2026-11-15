@@ -5,6 +5,8 @@ status: done
 owner: claude
 depends_on: [096]
 short: "Redraw the south-wall pieces near top-down"
+summary: "The lamps, fridge, delivery box and record stand are redrawn to read near top-down"
+thread: "096"
 ---
 
 ## Goal

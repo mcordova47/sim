@@ -5,6 +5,7 @@ status: done
 owner: claude
 depends_on: [091]
 short: "Encounter music 1: bus, scene, placeholder track"
+summary: "The encounter music gets its own bus, scene and placeholder track, with E to skip it"
 ---
 
 ## Goal

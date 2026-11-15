@@ -5,6 +5,7 @@ status: todo
 owner: claude
 depends_on: [114a]
 short: "Guitar skill 3 (optional): the pause-screen line"
+summary: "A proposed deadpan pause-screen line, with no bar or number, that would show guitar skill"
 ---
 
 ## Goal

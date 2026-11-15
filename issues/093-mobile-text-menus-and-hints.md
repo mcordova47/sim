@@ -4,6 +4,8 @@ title: "Mobile stage 3: key entry, a tappable pause screen, and key hints that m
 status: done
 owner: claude
 depends_on: [087, 089]
+summary: "Touch players can type a key, tap every pause-screen action and see hints that match their controls"
+thread: "049"
 ---
 
 ## Goal

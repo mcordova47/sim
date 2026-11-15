@@ -4,6 +4,7 @@ title: "Photo gallery 3: manage mode with delete one"
 status: done
 owner: claude
 depends_on: [117b]
+summary: "The PHOTOS page shows a paged grid with a close-up view and a two-step delete for single pictures"
 ---
 
 ## Goal

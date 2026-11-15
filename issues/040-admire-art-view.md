@@ -4,6 +4,7 @@ title: "Admire the art: a view of just the gallery wall"
 status: done
 owner: claude
 depends_on: []
+summary: "Admiring the art switches to a static view of only the south gallery wall instead of the whole map"
 ---
 
 ## Goal

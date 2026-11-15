@@ -4,6 +4,7 @@ title: A browsable inventory, like a pokedex
 status: done
 owner: marc + claude
 depends_on: [073]
+summary: "A browsable inventory in the pause screen shows what you own, without counts or pressure"
 ---
 
 ## Goal

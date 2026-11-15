@@ -4,6 +4,7 @@ title: "Photo gallery 6: an ad can interrupt the close-up"
 status: done
 owner: claude
 depends_on: [117e]
+summary: "An ad may cut into the gallery close-up eight seconds in, and Esc brings back the same picture"
 ---
 
 ## Goal

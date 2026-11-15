@@ -4,6 +4,8 @@ title: Fix the flaky flashcards activity test
 status: done
 owner: claude
 depends_on: []
+summary: "An intermittent failure in the flashcards activity test, traced and fixed without weakening the checks"
+thread: "026"
 ---
 
 ## Goal

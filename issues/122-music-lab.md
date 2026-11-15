@@ -5,6 +5,7 @@ status: done
 owner: claude
 depends_on: []
 short: "A dev-only music lab"
+summary: "A dev-only page for editing a track as text and hearing it with the game's own sound engine"
 ---
 
 ## Goal

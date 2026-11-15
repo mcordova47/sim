@@ -4,6 +4,7 @@ title: "Encounter music 2: result jingles (success only)"
 status: done
 owner: claude
 depends_on: [091a]
+summary: "Successful unsubscribes and cart adds end with a short jingle; failures and refusals stay quiet"
 ---
 
 ## Goal

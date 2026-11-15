@@ -5,6 +5,7 @@ status: done
 owner: agent
 depends_on: [005, 006]
 short: "Sprites: west main room"
+summary: "Bed, bookshelf, desk and their decor drawn to match the real pieces in the west half of the main room"
 ---
 
 ## Goal

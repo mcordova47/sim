@@ -5,6 +5,8 @@ status: done
 owner: claude
 depends_on: [111d]
 short: "The side project picture on the phone: use the whole area"
+summary: "The side-project picture fills the phone's free screen area by asking for a taller view"
+thread: "111"
 ---
 
 ## Goal

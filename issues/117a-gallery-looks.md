@@ -4,6 +4,7 @@ title: "Photo gallery 1: looks and the store"
 status: done
 owner: claude
 depends_on: [113c]
+summary: "Photos get selectable looks (size and dither presets) stored per picture, with a pixelate size option"
 ---
 
 ## Goal

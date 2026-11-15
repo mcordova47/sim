@@ -5,6 +5,7 @@ status: done
 owner: claude
 depends_on: [114a]
 short: "Guitar skill 2: the groove and melody (level 4)"
+summary: "The top guitar level adds a looping groove, with arrow-key melody notes played over it"
 ---
 
 ## Goal

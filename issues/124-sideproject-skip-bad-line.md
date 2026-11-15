@@ -5,6 +5,8 @@ status: todo
 owner: claude
 depends_on: [111d]
 short: "Side project config: a bad line skips only itself"
+summary: "A wrongly named piece or sprite in the side-project config should cost only its own line, not the whole room"
+thread: "111"
 ---
 
 ## Goal

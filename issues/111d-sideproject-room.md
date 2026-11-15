@@ -4,6 +4,7 @@ title: "Side project config 4: the real config file and the figure"
 status: done
 owner: claude
 depends_on: [111a, 111b, 111c]
+summary: "The real side-project config file adds a tiny figure on the desk and a few drifts in the little room"
 ---
 
 ## Goal

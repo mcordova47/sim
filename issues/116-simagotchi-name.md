@@ -5,6 +5,7 @@ status: done
 owner: claude
 depends_on: []
 short: "Name the game Simagotchi"
+summary: "The game's product name appears in the page title, link preview, README and pause screen"
 ---
 
 ## Goal

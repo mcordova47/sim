@@ -6,6 +6,7 @@ owner: claude
 depends_on: [113d]
 superseded_by: "117g"
 note: "superseded by 117g"
+summary: "Trying the photo reel on a real iPhone, then tuning dither, contrast and caption wording"
 ---
 
 ## Goal

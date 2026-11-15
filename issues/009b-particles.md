@@ -4,6 +4,7 @@ title: "Polish: particles"
 status: done
 owner: agent
 depends_on: []
+summary: "Tiny, restrained particle effects for walking, tasks and the room's moods"
 ---
 
 ## Goal

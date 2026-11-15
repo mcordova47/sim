@@ -4,6 +4,8 @@ title: Draw the gallery wall view
 status: done
 owner: agent
 depends_on: []
+summary: "A full-screen picture of the south gallery wall, drawn from close-ups of the real frames"
+thread: "040"
 ---
 
 ## Goal

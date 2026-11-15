@@ -4,6 +4,7 @@ title: "Encounter music 4: Marc writes the real track"
 status: done
 owner: marc
 depends_on: [091a]
+summary: "The encounter track is composed by hand in the music lab, replacing the placeholder loop"
 ---
 
 ## Goal

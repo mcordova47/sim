@@ -4,6 +4,7 @@ title: "Photo gallery 5: the sofa scene replaces the slideshow"
 status: done
 owner: claude
 depends_on: [117b]
+summary: "The sofa task shows a phone with six random pictures and a close-up, in place of the old slideshow"
 ---
 
 ## Goal

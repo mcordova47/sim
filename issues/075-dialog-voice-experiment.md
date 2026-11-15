@@ -4,6 +4,7 @@ title: "Experiment: a per-letter voice for dialog text, behind a toggle"
 status: done
 owner: claude
 depends_on: []
+summary: "An optional per-letter blip voice for dialog text, switchable so it can be compared by ear with the beep"
 ---
 
 ## Goal

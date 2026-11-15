@@ -5,6 +5,7 @@ status: todo
 owner: claude
 depends_on: []
 short: "Clutter that moves (desk, clothes, mail)"
+summary: "Cleaning the desk, clothes or mail would step the clutter through a few visible states, as a gag"
 ---
 
 ## Goal

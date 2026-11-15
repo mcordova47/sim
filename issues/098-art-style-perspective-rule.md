@@ -5,6 +5,8 @@ status: done
 owner: claude
 depends_on: [096]
 short: "Art style doc: the perspective rule"
+summary: "The art style doc states which pieces are drawn top-down, diagonal, face-on or flat"
+thread: "096"
 ---
 
 ## Goal

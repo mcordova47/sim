@@ -5,6 +5,7 @@ status: done
 owner: claude
 depends_on: [109]
 short: "Inventory 1: entry data"
+summary: "Each owned item gets a short deadpan line, a source and a current location"
 ---
 
 ## Goal

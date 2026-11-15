@@ -4,6 +4,7 @@ title: "Side project config 1: the parser and command set"
 status: done
 owner: claude
 depends_on: [111]
+summary: "A pure parser reads the side-project config text file into a checked list of commands"
 ---
 
 ## Goal

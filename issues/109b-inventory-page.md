@@ -5,6 +5,7 @@ status: done
 owner: claude
 depends_on: [109a]
 short: "Inventory 2: the THINGS page"
+summary: "A read-only THINGS page on the pause screen shows owned items in a grid with an entry box"
 ---
 
 ## Goal

@@ -5,6 +5,8 @@ status: done
 owner: claude
 depends_on: [043]
 short: "Ad encounter entrance: flash and bar wipe"
+summary: "Ad encounters open with a battle-style flash and bar wipe, played completely straight"
+thread: "043"
 ---
 
 ## Goal

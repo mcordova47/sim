@@ -5,6 +5,7 @@ status: done
 owner: claude
 depends_on: [113]
 short: "Photo reel 1: pixelate"
+summary: "A pure function that turns a photo into a small dithered picture in the game's 22 colours"
 ---
 
 ## Goal

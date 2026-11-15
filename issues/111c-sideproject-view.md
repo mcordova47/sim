@@ -4,6 +4,7 @@ title: "Side project config 3: the view and the painter"
 status: done
 owner: claude
 depends_on: [111]
+summary: "The little room is drawn as a smoothed, dimmed half-scale copy with a fallback to the old picture"
 ---
 
 ## Goal

@@ -5,6 +5,7 @@ status: done
 owner: agent
 depends_on: [005, 006]
 short: "Sprites: kitchen east and bath"
+summary: "Boxes, fridge, spice rack and the bathroom fixtures drawn to match the real ones"
 ---
 
 ## Goal

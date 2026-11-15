@@ -5,6 +5,7 @@ status: done
 owner: claude
 depends_on: [113c]
 short: "Photo reel 4: the reel and sofa task"
+summary: "A sofa task that scrolls through the player's pictures, offered only when there are any"
 ---
 
 ## Goal

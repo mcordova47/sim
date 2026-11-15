@@ -4,6 +4,7 @@ title: "Track editor on phones 5: long press, drag paint, polish (optional)"
 status: todo
 owner: claude
 depends_on: [106d]
+summary: "Long press and drag-painting on the phone track editor, an optional polish stage"
 ---
 
 ## Goal

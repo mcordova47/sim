@@ -5,6 +5,8 @@ status: done
 owner: claude
 depends_on: [043]
 short: "Open the box one gift at a time"
+summary: "Opening a box of gifts shows the items one at a time, and the full set can be viewed again later"
+thread: "043"
 ---
 
 ## Goal

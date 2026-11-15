@@ -5,6 +5,8 @@ status: done
 owner: claude
 depends_on: [100]
 short: "Asset cleanup: plant pots, side-project picture, unused sprites"
+summary: "Plant pots and the side-project picture are redrawn, and unused sprites are deleted"
+thread: "096"
 ---
 
 ## Goal

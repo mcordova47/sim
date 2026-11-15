@@ -4,6 +4,7 @@ title: "Polish: achievements and saved progress"
 status: done
 owner: agent
 depends_on: []
+summary: "Small funny achievements shown as toasts, with progress remembered between visits"
 ---
 
 ## Goal

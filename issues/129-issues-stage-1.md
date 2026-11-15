@@ -4,6 +4,8 @@ title: "Issues as data 1: validator and a generated PLAN.md table"
 status: done
 owner: claude
 depends_on: [128]
+summary: "A validator for issue files and a PLAN.md table generated from them instead of edited by hand"
+thread: "128"
 ---
 
 ## Goal

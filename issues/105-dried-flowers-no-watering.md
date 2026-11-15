@@ -4,6 +4,8 @@ title: Dried flowers should not offer to be watered
 status: done
 owner: claude
 depends_on: []
+summary: "Dried flowers in the plant slot offer no watering, while the live plant keeps its state"
+thread: "063"
 ---
 
 ## Goal

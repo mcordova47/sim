@@ -388,7 +388,7 @@ New lines on the PHOTOS page's grid and close-up. None mentions resolution, size
 - After a delete: Picture deleted. The original was never here. - rewrite: After a delete: Picture deleted. Like it never happened.
 - A delete that failed: This browser could not remove it. - keep
 - Page number (top right, only with more than one page): PAGE 2 OF 10 - keep
-- Grid buttons: OPEN (new, beside ADD PHOTOS, REMOVE ALL, BACK)
+- Grid buttons: OPEN (new, beside ADD PHOTOS, REMOVE ALL, BACK) - keep
 - Close-up buttons (touch): DELETE / SURE? DELETE (turns orange after the first tap) / BACK, and < > for the other pictures
 - Close-up keys line (keyboard): DEL: DELETE  < >: OTHERS  ESC: BACK
 - Close-up question (keyboard): DEL: SURE? DELETE  OTHER KEY: CANCEL

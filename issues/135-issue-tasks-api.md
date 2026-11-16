@@ -7,11 +7,6 @@ owner: marc + claude
 depends_on: ["131"]
 summary: "A small command, and later a local button on the pages, that edits the issue files correctly when you answer a decision."
 kind: design
-needs:
-  - who: marc
-    kind: review
-    why: "136 (the edit functions and the command) is approved on branch issue/136-issues-api-command: say merge, or what is off; after merging, try the command once on the real checkout."
-    since: 2026-11-15
 decisions:
   - id: d1
     who: marc

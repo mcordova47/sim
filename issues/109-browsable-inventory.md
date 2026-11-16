@@ -13,7 +13,10 @@ decisions:
       - "keep three rows; no note is shortened"
       - "go back to four rows, and shorten the notes that overflow"
     recommendation: "keep three rows: nothing of yours is shortened, and it only costs one more page"
-    status: open
+    status: answered
+    answer: "keep three rows; no note is shortened"
+    by: marc
+    on: 2026-11-16
 ---
 
 ## Goal

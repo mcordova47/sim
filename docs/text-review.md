@@ -207,7 +207,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Header: FACEBOOK MARKETPLACE / OAKLINE HOME GOODS - keep
 - Subject or caption: Table lamp, warm shade - $18 - keep
 - Body: Like new. Works great. Pickup or delivery. - keep
-- Body: Listed 3 days ago. Is this still available? -
+- Body: Listed 3 days ago. Is this still available? - keep
 - Button: MESSAGE SELLER -
 - Look closer: Linen shade, brass base. Bulb included. -
 - Look closer: Delivery is $6 within 10 miles. -

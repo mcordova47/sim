@@ -231,7 +231,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Body: Msg & data rates may apply. STOP to opt out. - keep
 - Button: SHOP NOW - keep
 - Look closer: Stool lamp, oak, with shade. - keep
-- Look closer: $39. Ships in 2 days. -
+- Look closer: $39. Ships in 2 days. - keep
 
 **6. Hollis Candle Co.** (email, Gmail; sells `lamp-candle`; unsubscribe difficulty 1 of 2; arrives 8 game hours after the order)
 - Header: GMAIL / PROMOTIONS - keep

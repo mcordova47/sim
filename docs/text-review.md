@@ -385,7 +385,7 @@ Capitals only. Shown for something an ad put in front of you that you did not ta
 
 ## PHOTOS page: gallery and delete one (issue 117c)
 New lines on the PHOTOS page's grid and close-up. None mentions resolution, size or pixels. Wired in `src/game/achievements/photos-draw.ts` and `feature.ts`. Marc to mark: keep / soften / rewrite.
-- After a delete: Picture deleted. The original was never here.
+- After a delete: Picture deleted. The original was never here. - rewrite: After a delete: Picture deleted. Like it never happened.
 - A delete that failed: This browser could not remove it.
 - Page number (top right, only with more than one page): PAGE 2 OF 10
 - Grid buttons: OPEN (new, beside ADD PHOTOS, REMOVE ALL, BACK)

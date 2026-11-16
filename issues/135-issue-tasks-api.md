@@ -2,7 +2,7 @@
 id: "135"
 title: "An API for common issue tasks: answering a decision, and answering from the pages"
 short: "Issue tasks API (answer from the pages)"
-status: todo
+status: done
 owner: marc + claude
 depends_on: ["131"]
 summary: "A small command, and later a local button on the pages, that edits the issue files correctly when you answer a decision."
@@ -16,7 +16,10 @@ decisions:
       - "the command, then a local page server with Answer buttons (the same code behind both)"
       - "both at once"
     recommendation: "the command first, then the local server as a second stage once the command has proved itself"
-    status: open
+    status: answered
+    answer: "as recommended"
+    by: marc
+    on: 2026-11-15
   - id: d2
     who: marc
     q: "When you answer, should it also make the git commit on main?"
@@ -25,7 +28,10 @@ decisions:
       - "edit the file and commit it on main with your git identity, when the main checkout is clean and on main"
       - "edit and commit, and refuse if any agent has a branch touching that issue"
     recommendation: "edit the file and commit on main when the checkout is clean and on main; otherwise edit only and say why"
-    status: open
+    status: answered
+    answer: "as recommended"
+    by: marc
+    on: 2026-11-15
   - id: d3
     who: marc
     q: "Which tasks does the API cover first?"
@@ -34,7 +40,10 @@ decisions:
       - "decisions, plus resolving or adding a `needs` entry"
       - "decisions, needs, and changing an issue's status"
     recommendation: "decisions, plus resolving or adding a `needs` entry; leave status changes (and everything else) to editing by hand for now"
-    status: open
+    status: answered
+    answer: "as recommended"
+    by: marc
+    on: 2026-11-15
 ---
 
 ## Goal
@@ -56,3 +65,4 @@ Marc (2026-11-15): wdyt about an API for common issue tasks, such as making deci
 
 ## Progress log
 - 2026-11-15 (planner): filed from Marc's question; the three design questions are recorded as open decisions before asking, per Marc's rule.
+- 2026-11-15 (planner): Marc took the recommendations on d1 (command first, then the local server), d2 (edit and commit on main when the checkout is clean and on main, otherwise edit only and say why) and d3 (decisions plus resolving or adding a `needs` entry). Build issues 136 and 137 filed.

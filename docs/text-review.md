@@ -313,7 +313,7 @@ The pixel font is capitals only, so these draw in capitals. On the touch layer a
 - Pause screen title: PAUSE, with the section line ACHIEVEMENTS n/N beside it (the pill that opens it is PAUSE, not LIST). - keep
 - Pause screen buttons (touch): AD BLOCKER: ON / OFF, DIALOG VOICE: <setting>, RESET PROGRESS, CLOSE, PAGE 1/2 - keep
 - Reset question (touch): RESET ALL PROGRESS? with the buttons YES, RESET and NO - keep
-- Pause screen hint (touch): PAD: LOOK   PAUSE: CLOSE
+- Pause screen hint (touch): PAD: LOOK   PAUSE: CLOSE - keep
 - Stop hint (touch): B TO STOP
 - Decor list footer (touch): PAD: LOOK   A: PUT UP   B: BACK
 - In-world prompt key cap (touch): A

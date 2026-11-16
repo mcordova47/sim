@@ -18,7 +18,7 @@ The product name is Simagotchi (Marc, 2026-10-29). The pause screen's header use
 - A small version of this room, on a small screen. Someone is at the desk. - keep
 - It looks like the tiny person is... standing on top of the desk? Gotta remember to fix that. - keep
 - Their screen shows another little room with another little guy. - keep
-- You wonder if you're just a little guy on someone else's screen, and the silly notion gives you a good chuckle. -
+- You wonder if you're just a little guy on someone else's screen, and the silly notion gives you a good chuckle. - keep
 
 ## PHOTOS page (issue 113c)
 The pause-screen page where pictures are added and removed. The first five lines are the design note's (`docs/photo-reel-design.md` section 7); the rest were written with the build. No line mentions resolution, size or pixels (Marc's rule). Wired in `src/game/achievements/photos-draw.ts` and `src/game/reel/photo-add.ts`. Marc to mark: keep / soften / rewrite.

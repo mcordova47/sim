@@ -332,7 +332,7 @@ The pixel font is capitals only, so these draw in capitals. Opened from the paus
 - Buttons (touch) and keys (desktop): COPY CODE (C), PASTE CODE (V, or Ctrl+V), SAVE FILE (F), OPEN FILE (O), RESTORE BEFORE IMPORT (Shift+R), BACK (Esc) - keep
 - Restore question: GO BACK TO BEFORE THE LAST IMPORT? with the buttons YES, GO BACK and NO (desktop: the same line then Y: YES) - keep
 - Copy: CODE COPIED / COULD NOT COPY. THE CODE IS IN THE CONSOLE. / COULD NOT MAKE A CODE - keep
-- File: FILE SAVED / COULD NOT SAVE A FILE / COULD NOT READ THAT FILE
+- File: FILE SAVED / COULD NOT SAVE A FILE / COULD NOT READ THAT FILE - keep
 - Paste, when the browser will not give the clipboard: PRESS CTRL+V TO PASTE (touch: COULD NOT READ THE CLIPBOARD. TRY OPEN FILE.)
 - Import result: SAVE MERGED / SAVE MERGED. THE TRACK LIST IS FULL. / NOTHING NEW IN THAT SAVE
 - Import refused: NOT A SAVE FROM THIS GAME / THAT SAVE IS FROM A NEWER GAME / THAT SAVE COULD NOT BE READ / THAT SAVE IS TOO BIG

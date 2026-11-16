@@ -5,7 +5,7 @@
 **Effort.** An evening, much of it setup. Note what felt slow.
 
 **Read.** (New to TypeScript syntax? Keep the [TypeScript crib](reference-typescript-crib.md) open beside you; the [repo map](reference-repo-map.md) and [glossary](reference-glossary.md) are there too.)
-- [`docs/contributing.md`](../../contributing.md) (the whole page, 47 lines).
+- [`docs/contributing.md`](../contributing.md) (the whole page, 47 lines).
 - [`src/game/state.ts`](../../../src/game/state.ts) lines 1 to 56 (the types), 58 to 124 (the class, reading), 126 to 194 (`applyEffects`, `tick`, `write`, `announce`).
 - [`src/game/state-vars.ts`](../../../src/game/state-vars.ts) lines 7 to 30.
 - [`docs/state.md`](../../state.md), sections "Add a variable", "Add a requirement", "Add an effect".

@@ -395,7 +395,7 @@ New lines on the PHOTOS page's grid and close-up. None mentions resolution, size
 
 ## PHOTOS page: the LOOK switch (issue 117d)
 New lines for the LOOK switch on the PHOTOS page. None mentions pixels, resolution or the game. Wired in `src/game/achievements/photos-draw.ts` and `feature.ts`. Marc to mark: keep / soften / rewrite.
-- Switch label (button, and key S on the keyboard): LOOK: CRISP / LOOK: SOFT / LOOK: CHUNKY (Soft is the default; the order is Crisp, Soft, Chunky)
+- Switch label (button, and key S on the keyboard): LOOK: CRISP / LOOK: SOFT / LOOK: CHUNKY (Soft is the default; the order is Crisp, Soft, Chunky) - keep
 - Line under the grid (short, one row): New pictures only.
 - Line on the empty page (long, wraps): New pictures only. The ones you have keep their look.
 - If the browser cannot keep the choice (shown as a message, the choice lasts until the page is closed): This browser will not remember the look.

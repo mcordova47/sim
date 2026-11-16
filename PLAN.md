@@ -128,10 +128,10 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 088 | [A phone battery (a gag) and a charge-your-phone task](issues/088-phone-battery.md) | claude | done | 086 |
 | 089 | [Flashcards guest mode: study without a sync key (build)](issues/089-flashcards-guest-mode-build.md) | claude | done | 083, 082 |
 | 090 | [Mobile: a taller, squarer picture that scrolls (assess, then prototype)](issues/090-mobile-narrow-view.md) | claude | done | 087 |
-| 091 | [Encounter music: a short battle-style track during an ad, and a result jingle](issues/091-encounter-music.md) | marc + claude | todo (design done, build issues filed) | 080 |
+| 091 | [Encounter music: a short battle-style track during an ad, and a result jingle](issues/091-encounter-music.md) | marc + claude | done (design done, build issues filed) | 080 |
 | 091a | [Encounter music 1: bus, scene, placeholder track](issues/091a-encounter-bus-scene.md) | claude | done | 091 |
 | 091b | [Encounter music 2: result jingles (success only)](issues/091b-encounter-jingles.md) | claude | done | 091a |
-| 091c | [Encounter music 3: docs and tuning](issues/091c-encounter-docs.md) | claude | todo | 091b |
+| 091c | [Encounter music 3: docs and tuning](issues/091c-encounter-docs.md) | claude | done | 091b |
 | 091d | [Encounter music 4: Marc writes the real track](issues/091d-encounter-real-track.md) | marc | done | 091a |
 | 092 | [Mobile landscape: the controls must not cover the picture](issues/092-mobile-landscape-controls.md) | claude | done | 087, 090 |
 | 093 | [Mobile stage 3: key entry, a tappable pause screen, and key hints that match the controls](issues/093-mobile-text-menus-and-hints.md) | claude | done | 087, 089 |

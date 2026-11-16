@@ -1,16 +1,11 @@
 ---
 id: 091
 title: "Encounter music: a short battle-style track during an ad, and a result jingle"
-status: todo
+status: done
 owner: marc + claude
 depends_on: [080]
 note: "design done, build issues filed"
 summary: "A short battle-style track plays during an ad."
-needs:
-  - who: marc
-    kind: review
-    why: "091c (the encounter music docs) is approved on branch issue/091c-encounter-docs: say merge. Listening to the music at /?encounter=ad-candle&again=1 is optional."
-    since: 2026-11-15
 ---
 
 ## Goal
@@ -30,3 +25,4 @@ Marc (2026-10-27): "encounter music", like the fight music in Pokemon or Final F
 
 ## Progress log
 - 2026-10-28: Design note written: `docs/encounter-music-design.md` (branch issue/091-design). Awaiting Marc's answers to its open questions before any build.
+- 2026-11-15 (planner): all four stages merged (091a, 091b, 091c docs, 091d Marc's track); closed.

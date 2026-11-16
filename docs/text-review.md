@@ -337,7 +337,7 @@ The pixel font is capitals only, so these draw in capitals. Opened from the paus
 - Import result: SAVE MERGED / SAVE MERGED. THE TRACK LIST IS FULL. / NOTHING NEW IN THAT SAVE - keep
 - Import refused: NOT A SAVE FROM THIS GAME / THAT SAVE IS FROM A NEWER GAME / THAT SAVE COULD NOT BE READ / THAT SAVE IS TOO BIG - keep
 - Restore result: BACK TO BEFORE THE LAST IMPORT / NOTHING TO GO BACK TO - keep
-- Hint (touch): B: BACK
+- Hint (touch): B: BACK - keep
 
 ## Sync page, status and automatic sync (issues 103 and 104)
 Capitals only. Nothing animated, no counters, no "ERROR". A failure is a plain line, and the game says it will try again by itself.

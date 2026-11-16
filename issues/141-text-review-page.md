@@ -7,6 +7,10 @@ owner: claude
 depends_on: ["140"]
 summary: "One line at a time, with Keep, Soften and Rewrite, served by the local issues server."
 kind: build
+unverified:
+  - "How the cards feel to Marc over a long session (pixel font at 24px for short strings, plain text for long ones) is unseen; only screenshots were looked at."
+  - "Decision d1 (duplicates) is implemented as 'mark once, applies to every copy' behind DUPLICATE_POLICY; the duplicate rule also covers identical lines repeated inside the seven ads, not only the dialog tree, because duplicateOf is by identical text."
+  - "Touch use on a real phone was not tried; the phone layout was checked at 390 px in headless Chrome only."
 decisions:
   - id: d1
     who: marc
@@ -35,3 +39,8 @@ Design and Marc's answers (2026-11-15): issue 139 (`issues/139-text-review-walkt
 ## Progress log
 - 2026-11-15 (claude): plan: scripts/text-review-page.mjs (card model, the duplicate switch, markup, page script), a guarded POST api/text/mark and GET api/text/card in the server, the page and its nav link only in served builds (static output untouched), io gets an alsoIds option so one mark can cover a duplicate copy in one write and one commit, tests, a real run on a copy in headless Chrome, a short contributing.md section.
 
+- 2026-11-15 (claude): built and checked. Files: scripts/text-review-page.mjs (card model, DUPLICATE_POLICY switch, markup, styles, page script), scripts/text-review-page.test.mjs, scripts/issues-serve.mjs (GET api/text/card, POST api/text/mark with the token, Host/Origin, JSON, main, hash, dirty-doc guards), scripts/issues-site.mjs (served builds only: text.html, text.js, styles, a hidden-until-ping nav link), scripts/text-review-io.mjs (alsoIds and placeholders options so a duplicate's copies are marked in one write and one commit; previousAll in the result), docs/contributing.md (new section), docs/text-review.md (the how-to sentence now says how to start the page).
+  - Static build: built both old (main) and new issues-site.mjs over the same checkout: all 207 files byte-identical.
+  - Duplicates: 19 items carry duplicateOf (by identical text, so the repeated ad lines count too, not only the dialog tree); under the default 'once' policy 279 cards are shown. Label split: the two Sofa scene child lines show their label apart and the rewrite box is prefilled without it.
+  - Real flow, headless Chrome on a copy (temp git repo on main, origin removed): Keep by button, Soften by S with a note, Rewrite by R, Skip by right arrow, Back by left arrow, Clear the mark (byte-for-byte restored with previous.placeholder), a duplicate mark landing on both copies in one commit, a stale page, an uncommitted doc and a wrong token all refused in plain words with nothing written, the empty state, no horizontal scroll at 390 and 1200 px, light and dark. Screenshots in the session scratchpad.
+  - Checks: npm test 3844 pass (the earlier 9 failures from 134 d1 are gone on this main), npx tsc --noEmit, npm run build, npm run check:dist, issues:check --validate pass.

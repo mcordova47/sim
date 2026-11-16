@@ -199,7 +199,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Body: You left DRIED FLOWERS in your cart. - keep
 - Body: A small bunch that never needs watering. - keep
 - Body: Complete your order today. - keep
-- Button: COMPLETE ORDER -
+- Button: COMPLETE ORDER - keep
 - Look closer: Dried flower bunch, glass jar. -
 - Look closer: $24. Free returns. -
 

@@ -216,7 +216,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 **4. Northfield Studio** (email, Amazon; sells `art-starry-night`; unsubscribe difficulty 1 of 2; arrives 24 game hours after the order)
 - Header: AMAZON / RECOMMENDED - keep
 - From: Amazon.com - keep
-- Subject or caption: Recommended for you: Starry Night print -
+- Subject or caption: Recommended for you: Starry Night print - keep
 - Body: Because you viewed wall art. -
 - Body: Northfield Studio. 4.6 stars, 312 ratings. -
 - Body: FREE delivery Thursday. -

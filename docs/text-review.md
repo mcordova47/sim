@@ -358,7 +358,7 @@ Capitals only. One deadpan note and one source per real item, shown in the THING
 The entry also shows the where-now line (the slot's "where" text, or IN THE INVENTORY) and, for something you can change, CHANGE IT AT THE DINING TABLE (or the STANDING DESK, CUBE BOOKSHELF, LAMP TABLE, or "X OR Y" when two fit).
 - Source, starting things: FROM: ALREADY HERE - keep
 - Source, everything that arrives: FROM: A PACKAGE (fallbacks if a source is not written: A GIFT, A FIND, A DELIVERY, SOME BROWSING) - keep
-- BARN DRAWING: A BARN. IT HAS BEEN A BARN FOR A WHILE.
+- BARN DRAWING: A BARN. IT HAS BEEN A BARN FOR A WHILE. - rewrite: BARN DRAWING: A RUSTIC-LOOKING BARN. YOUR UNCLE PAINTED IT. YOU WONDER WHERE IT IS...
 - GOLD ABSTRACT: GOLD, MOSTLY. IT HAS NEVER EXPLAINED ITSELF.
 - SILKSCREEN: A LONG PRINT. IT FILLS ITS WALL.
 - SNAKE PLANT: A SNAKE PLANT. IT ASKS FOR VERY LITTLE.

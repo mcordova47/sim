@@ -241,7 +241,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Body: Use code EVENING20 at checkout. - keep
 - Body: Offer ends at midnight. - keep
 - Button: SHOP THE SALE - keep
-- Look closer: Evening candle, soy wax, 8 OZ. -
+- Look closer: Evening candle, soy wax, 8 OZ. - keep
 - Look closer: $22 $17.60 -
 
 **7. Saltmarsh Prints** (social post, Instagram; sells `art-water-lilies`; unsubscribe difficulty 0 of 2; arrives 12 game hours after the order)

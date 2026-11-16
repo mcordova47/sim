@@ -9,7 +9,7 @@ summary: "Edits to decisions and needs are done by tested functions and one comm
 kind: build
 unverified:
   - "A real commit made by the command in the main checkout with Marc's own git identity, global hooks and signing (only temporary repos were used, by the author and by the reviewer)."
-needs: [{who: marc, kind: try, why: "Run npm run issues -- answer on a real open decision once", since: 2026-11-15}]
+needs: []
 ---
 
 ## Goal

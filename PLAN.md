@@ -202,7 +202,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 131 | [Issues as data 3: decisions and the decisions log](issues/131-issues-stage-3.md) | claude | done | 130 |
 | 132 | [Issues as data 4: an agent backfill of summaries and threads](issues/132-issues-backfill.md) | claude | done | 130 |
 | 133 | [Issue pages: a theme of our own](issues/133-issue-pages-theme.md) | marc + claude | done | 130 |
-| 134 | [Tidy stale statuses](issues/134-tidy-stale-statuses.md) | marc + claude | todo | |
+| 134 | [Tidy stale statuses](issues/134-tidy-stale-statuses.md) | marc + claude | done | |
 | 135 | [Issue tasks API (answer from the pages)](issues/135-issue-tasks-api.md) | marc + claude | done | 131 |
 | 136 | [Issues API: edit functions and command](issues/136-issues-api-command.md) | claude | done | 135 |
 | 137 | [Issues API: local server and Answer buttons](issues/137-issues-api-server.md) | claude | done | 136 |

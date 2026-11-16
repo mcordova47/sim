@@ -210,7 +210,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Body: Listed 3 days ago. Is this still available? - keep
 - Button: MESSAGE SELLER - keep
 - Look closer: Linen shade, brass base. Bulb included. - keep
-- Look closer: Delivery is $6 within 10 miles. -
+- Look closer: Delivery is $6 within 10 miles. - keep
 - Narrator (instead of the usual): A LISTING HAS APPEARED. -
 
 **4. Northfield Studio** (email, Amazon; sells `art-starry-night`; unsubscribe difficulty 1 of 2; arrives 24 game hours after the order)

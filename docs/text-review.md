@@ -323,7 +323,7 @@ The pixel font is capitals only, so these draw in capitals. On the touch layer a
 - Card front hint (touch): TAP OR A: flip - keep
 - Card buttons (touch): SAY IT (and the voice name in the practice deck) - keep
 - Done screen buttons (touch): OTHER KEY, NO KEY (a key holder); USE A KEY (a guest); hint A: leave - keep
-- Start again (touch): START AGAIN, then "Erase them and start again?" with YES, ERASE and NO
+- Start again (touch): START AGAIN, then "Erase them and start again?" with YES, ERASE and NO - keep
 
 ## Moving a save to another device: the transfer page (issue 102)
 The pixel font is capitals only, so these draw in capitals. Opened from the pause screen: the touch button TRANSFER SAVE, or the key T on the desktop (the pause screen shows `T: TRANSFER SAVE` above its hint line when the list leaves the line free).

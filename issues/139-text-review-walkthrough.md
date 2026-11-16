@@ -5,7 +5,7 @@ short: "Text review walkthrough"
 status: todo
 owner: marc + claude
 depends_on: ["137"]
-summary: "Step through the unmarked lines of the text review one at a time, mark each keep, soften or rewrite, with the context beside it."
+summary: "Walk through the unmarked text-review lines one at a time and mark each keep, soften or rewrite, with context beside it."
 kind: design
 decisions:
   - id: d1

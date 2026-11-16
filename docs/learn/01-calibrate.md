@@ -6,9 +6,9 @@
 
 **Read.** (New to TypeScript syntax? Keep the [TypeScript crib](reference-typescript-crib.md) open beside you; the [repo map](reference-repo-map.md) and [glossary](reference-glossary.md) are there too.)
 - [`docs/contributing.md`](../contributing.md) (the whole page, 47 lines).
-- [`src/game/state.ts`](../../../src/game/state.ts) lines 1 to 56 (the types), 58 to 124 (the class, reading), 126 to 194 (`applyEffects`, `tick`, `write`, `announce`).
-- [`src/game/state-vars.ts`](../../../src/game/state-vars.ts) lines 7 to 30.
-- [`docs/state.md`](../../state.md), sections "Add a variable", "Add a requirement", "Add an effect".
+- [`src/game/state.ts`](../../src/game/state.ts) lines 1 to 56 (the types), 58 to 124 (the class, reading), 126 to 194 (`applyEffects`, `tick`, `write`, `announce`).
+- [`src/game/state-vars.ts`](../../src/game/state-vars.ts) lines 7 to 30.
+- [`docs/state.md`](../state.md), sections "Add a variable", "Add a requirement", "Add an effect".
 
 **The idea.** The apartment and the character are a handful of named numbers, each with `min`, `max` and sometimes `wrap`. Everything a task does is a list of `Effect`s: `{ var, add }` or `{ var, set }`. `applyEffects` is a fold over that list that clamps (or wraps) each value, then announces one change per variable after all of them have applied. This is as close to an Elm `update` as the code gets: effects are data and one function interprets them. The difference is that `ApartmentState` is a mutable class.
 

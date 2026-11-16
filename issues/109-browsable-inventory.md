@@ -5,6 +5,18 @@ status: done
 owner: marc + claude
 depends_on: [073]
 summary: "A browsable inventory in the pause screen shows what you own, without counts or pressure"
+decisions:
+  - id: d1
+    who: marc
+    q: "Your longer item notes need more room, so the THINGS grid now shows three rows (15 things a page) instead of four (20). Keep three rows?"
+    options:
+      - "keep three rows; no note is shortened"
+      - "go back to four rows, and shorten the notes that overflow"
+    recommendation: "keep three rows: nothing of yours is shortened, and it only costs one more page"
+    status: answered
+    answer: "keep three rows; no note is shortened"
+    by: marc
+    on: 2026-11-16
 ---
 
 ## Goal

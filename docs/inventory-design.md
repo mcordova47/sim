@@ -17,7 +17,7 @@ A quiet page on the pause screen (key L, or the touch menu) called THINGS: a gri
 The pause screen. A THINGS button beside TRANSFER SAVE and SYNC (touch), key `I` on the keyboard (free today), `Esc` or `L` closes back to the list. No new screen system, no new button on the world HUD. The clock stays held, as it is for the rest of the pause screen.
 
 ### The grid
-- One cell per owned item, drawn at its real size (16x16 plant or lamp, 32x16 painting, 48x16 silkscreen, 16x32 pantry), centred in a cell of 52x24. 5 columns at 320 wide, 4 at 224 wide, so no scaling and no blur.
+- One cell per owned item, drawn at its real size (16x16 plant or lamp, 32x16 painting, 48x16 silkscreen, 16x32 pantry), centred in a cell of 52x24. 5 columns at 320 wide, 4 at 224 wide, so no scaling and no blur. Three rows a page (issue 143: it was four, until Marc's longer notes, up to 80 characters, needed the room under the grid; the entry wraps a note over as many rows as it needs).
 - **Order: the order you got them** (the saved `owned` order, starting items first). No kind tabs, no sort modes. It reads like a shelf that fills slowly; new things simply appear at the end, so no "NEW" badge is needed (a badge is a chore to clear).
 - Paged like the achievements list on touch (`PAGE 1/2`), scrolling rows with the cursor on desktop. The page number says nothing about what exists.
 - An item shown in the room has a small dot in its cell corner? **No.** Placement is in the detail line only, to keep the grid plain.
@@ -25,7 +25,7 @@ The pause screen. A THINGS button beside TRANSFER SAVE and SYNC (touch), key `I`
 ### The entry (the box below the grid)
 ```
  SNOW WAGON                     [sprite at 2x]
- A WAGON. IT HAS SEEN SOME SNOW.        (deadpan line)
+ A LANDSCAPE OF YOUR AUNT'S YARD.       (the line; +5 NOSTALGIA)
  FROM: A GIFT                           (source)
  ON THE TABLE WALL                      (where now)
  CHANGE IT AT THE DINING TABLE          (only if in a slot or the inventory)

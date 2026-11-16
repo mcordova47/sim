@@ -113,8 +113,16 @@ describe("the item lines", () => {
     }
     expect(new Set(real.map((i) => i.note)).size).toBe(real.length);
   });
+  it("the longest note is within the limit with some room (80, the entry box wraps it over several rows)", () => {
+    expect(NOTE_MAX).toBe(80);
+    expect(Math.max(...real.map((i) => i.note!.length))).toBeLessThanOrEqual(NOTE_MAX);
+  });
   it("say nothing about counts, totals or what is missing", () => {
-    const text = real.map((i) => `${i.note} ${i.from}`).join(" ");
+    // Marc's own words from the text review (issue 143) are not counts of the collection: a print number,
+    // a joke score and three phrases with "of". They are the only things taken out before the check.
+    const MARC_PHRASES = ["NUM. 1/12", "+5 NOSTALGIA", "SENSE OF PRIDE", "A LANDSCAPE OF", "A HABIT OF"];
+    let text = real.map((i) => `${i.note} ${i.from}`).join(" ");
+    for (const phrase of MARC_PHRASES) text = text.replace(phrase, "");
     expect(text).not.toMatch(/\d|\bMORE\b|MISSING|\bALL\b|COLLECT|\bSET\b|\bOF\b/);
   });
 });

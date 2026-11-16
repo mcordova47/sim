@@ -206,6 +206,8 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 135 | [Issue tasks API (answer from the pages)](issues/135-issue-tasks-api.md) | marc + claude | done | 131 |
 | 136 | [Issues API: edit functions and command](issues/136-issues-api-command.md) | claude | done | 135 |
 | 137 | [Issues API: local server and Answer buttons](issues/137-issues-api-server.md) | claude | done | 136 |
+| 138 | [Close out in-progress threads](issues/138-close-out-threads.md) | marc + claude | todo | |
+| 139 | [Text review walkthrough](issues/139-text-review-walkthrough.md) | marc + claude | todo | 137 |
 <!-- issues:table:end -->
 
 ## Order of work

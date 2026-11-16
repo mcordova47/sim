@@ -274,7 +274,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 
 ### The ad blocker (achievements list, key B)
 - Hint line, alone: B: AD BLOCKER OFF   L: CLOSE   SHIFT+R: RESET (and ON) - keep
-- Hint line with the voice key as well (shorter so it fits): B: AD BLOCK OFF  D: VOICE  L: CLOSE  SHIFT+R: RESET -
+- Hint line with the voice key as well (shorter so it fits): B: AD BLOCK OFF  D: VOICE  L: CLOSE  SHIFT+R: RESET - keep
 - Shown for a moment after the key: AD BLOCKER: ON / AD BLOCKER: OFF -
 
 ## Flashcards progress page (issue 082)

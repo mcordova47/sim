@@ -26,7 +26,7 @@ The pause-screen page where pictures are added and removed. The first five lines
 - Nothing stored: No pictures yet. The sofa has nothing to scroll. (the sofa task is issue 113d; until it is built the line points at nothing) - keep
 - Count: 12 pictures on this device / 1 picture on this device - keep
 - Progress: Making picture 3 of 12 - keep
-- Added: 12 pictures added. / 1 picture added. / No pictures added.
+- Added: 12 pictures added. / 1 picture added. / No pictures added. - keep
 - Already stored (new): 2 were already here. / 1 was already here.
 - Not readable: 2 could not be read.
 - Over the cap: Room for 60. The rest stayed where they were.

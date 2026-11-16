@@ -10,7 +10,7 @@ Strings added later (mood in 038, the mirror in 041, the gallery view in 040) ar
 
 ## Pause screen title (issue 116)
 The product name is Simagotchi (Marc, 2026-10-29). The pause screen's header used to read "PAUSE  ACHIEVEMENTS 3/26"; it now reads "SIMAGOTCHI  3/26" (title in butter, count in mist). The full old line plus the name would run into the good-hour legend at the right, so the word ACHIEVEMENTS and the word PAUSE are gone from the header; the list below is the achievements and the PAUSE pill/hints still name the screen. Wired in `src/game/achievements/draw.ts`. Marc to mark: keep / rewrite (e.g. "SIMAGOTCHI  ACHIEVEMENTS 3/26" if the legend is moved). Not added: any in-game title such as "Siminal Crossing" (undecided).
-- SIMAGOTCHI
+- SIMAGOTCHI - keep
 - 3/26
 
 ## Side-project picture (issue 101)

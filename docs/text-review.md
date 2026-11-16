@@ -296,7 +296,7 @@ The pixel font is capitals only, so these draw in capitals. The first two choice
 - Choice, first item: Study without a key - keep
 - Choice, second item: Enter a sync key - keep
 - Choice note (two lines): Without a key, progress is saved / in this browser only. - keep
-- Choice hint: Up, Down, E: pick   Esc: back
+- Choice hint: Up, Down, E: pick   Esc: back - keep
 - Done screen, guest, under the figures: Saved in this browser only.
 - Done screen, guest, when storage could not keep answers: Progress was not kept.
 - Done screen controls, guest: E: leave   K: use a key

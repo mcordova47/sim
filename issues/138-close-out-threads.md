@@ -39,7 +39,10 @@ decisions:
       - "keep it as a todo"
       - "build it"
     recommendation: "drop it into ideas.md unless you missed it; the issue said to skip it if stages 1 to 4 felt fine"
-    status: open
+    status: answered
+    answer: "drop it into ideas"
+    by: marc
+    on: 2026-11-15
   - id: d4
     who: marc
     q: "114c (guitar: a pause-screen line showing skill, optional; the guitar timing game and the wrong-note sounds stay on hold). What now?"

@@ -27,7 +27,10 @@ decisions:
       - "drop it"
       - "keep it for later"
     recommendation: "yes: docs only, so it is safe; then close 091"
-    status: open
+    status: answered
+    answer: "yes, an agent writes the docs"
+    by: marc
+    on: 2026-11-15
   - id: d3
     who: marc
     q: "106e (phone track editor: long press and drag painting, optional): did the phone editor feel fine without it?"

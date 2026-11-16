@@ -239,7 +239,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Subject or caption: 20% off ends tonight - keep
 - Body: Hand-poured soy candle. 40-hour burn. - keep
 - Body: Use code EVENING20 at checkout. - keep
-- Body: Offer ends at midnight. -
+- Body: Offer ends at midnight. - keep
 - Button: SHOP THE SALE -
 - Look closer: Evening candle, soy wax, 8 OZ. -
 - Look closer: $22 $17.60 -

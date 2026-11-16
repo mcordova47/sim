@@ -196,7 +196,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Header: GMAIL / PROMOTIONS - keep
 - From: GARNET LANE FLORALS - keep
 - Subject or caption: Still thinking about it? Your cart is waiting. - keep
-- Body: You left DRIED FLOWERS in your cart. -
+- Body: You left DRIED FLOWERS in your cart. - keep
 - Body: A small bunch that never needs watering. -
 - Body: Complete your order today. -
 - Button: COMPLETE ORDER -

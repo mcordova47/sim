@@ -15,7 +15,10 @@ decisions:
       - "in docs/text-review.md, edited in place by the tool, in one standard mark format"
       - "in a data file the tool reads, with docs/text-review.md generated from it"
     recommendation: "in docs/text-review.md, edited in place: it is the file you already know, and the tool is a careful editor of it"
-    status: open
+    status: answered
+    answer: "in docs/text-review.md, edited in place by the tool, in one standard mark format"
+    by: marc
+    on: 2026-11-15
   - id: d2
     who: marc
     q: "What should the walkthrough look like?"

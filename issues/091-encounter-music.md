@@ -6,6 +6,11 @@ owner: marc + claude
 depends_on: [080]
 note: "design done, build issues filed"
 summary: "A short battle-style track plays during an ad."
+needs:
+  - who: marc
+    kind: review
+    why: "091c (the encounter music docs) is approved on branch issue/091c-encounter-docs: say merge. Listening to the music at /?encounter=ad-candle&again=1 is optional."
+    since: 2026-11-15
 ---
 
 ## Goal

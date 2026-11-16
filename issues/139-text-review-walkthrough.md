@@ -38,7 +38,10 @@ decisions:
       - "the mark is only recorded in the doc; an agent applies the marked lines to the game's text in a batch (tests guard the text rules)"
       - "the tool also edits the line in the game's source"
     recommendation: "marks only: an agent applies them in a batch, so a wording change never goes into the code unreviewed"
-    status: open
+    status: answered
+    answer: "the mark is only recorded in the doc; an agent applies the marked lines to the game's text in a batch (tests guard the text rules)"
+    by: marc
+    on: 2026-11-15
   - id: d4
     who: marc
     q: "Which lines come first?"

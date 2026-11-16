@@ -75,7 +75,10 @@ decisions:
       - "keep it as a todo"
       - "pick one now"
     recommendation: "park it in ideas.md until you have an effect in mind"
-    status: open
+    status: answered
+    answer: "park it in ideas"
+    by: marc
+    on: 2026-11-15
   - id: d7
     who: marc
     q: "127 (Spanish verb drills): the design questions are filed in the issue. Start them now?"

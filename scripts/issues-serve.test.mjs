@@ -5,7 +5,7 @@ import path from 'node:path';
 import net from 'node:net';
 import { execFileSync } from 'node:child_process';
 import { createApp, startServer } from './issues-serve.mjs';
-import { hashOf } from './issues-edit-io.mjs';
+import { hashOf, runCommand } from './issues-edit-io.mjs';
 import { buildFromDisk } from './issues-site.mjs';
 
 const FM = `---
@@ -155,7 +155,11 @@ describe('the POST handler', () => {
     const t = fs.readFileSync(repo.file, 'utf8');
     expect(t).not.toContain('Try the first thing');
     expect(t).toContain('Do the second thing');
-    expect(repo.g('log', '-1', '--format=%s')).toBe('001: resolved a need\n');
+    expect(repo.g('log', '-1', '--format=%s')).toBe('001: resolved a try need\n');
+    // the command makes the same commit message
+    const other = makeRepo();
+    runCommand(['need', 'resolve', '001', '1'], { root: other.dir, out: () => {}, err: () => {} });
+    expect(other.g('log', '-1', '--format=%s')).toBe(repo.g('log', '-1', '--format=%s'));
   });
   it('refuses a missing or wrong token, writing nothing', () => {
     const repo = makeRepo();

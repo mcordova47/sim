@@ -98,7 +98,7 @@ export function createApp({ root, token, port, now = today, branches = false }) 
       case 'resolve': {
         if (!Number.isInteger(body.need) || body.need < 1) return refuse(400, 'Which need to resolve was not clear, so nothing was changed.');
         edit = (t, name) => resolveNeed(t, String(body.need), { name });
-        label = 'resolved a need';
+        label = undefined; // the command uses the edit's own summary, so the commit message is the same
         break;
       }
       default:

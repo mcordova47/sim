@@ -273,7 +273,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Under the sender of an email: TO: ME - keep
 
 ### The ad blocker (achievements list, key B)
-- Hint line, alone: B: AD BLOCKER OFF   L: CLOSE   SHIFT+R: RESET (and ON) -
+- Hint line, alone: B: AD BLOCKER OFF   L: CLOSE   SHIFT+R: RESET (and ON) - keep
 - Hint line with the voice key as well (shorter so it fits): B: AD BLOCK OFF  D: VOICE  L: CLOSE  SHIFT+R: RESET -
 - Shown for a moment after the key: AD BLOCKER: ON / AD BLOCKER: OFF -
 

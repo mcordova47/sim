@@ -185,7 +185,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 **1. Little Fern Prints** (social post, Instagram; sells `art-robin`; unsubscribe difficulty 0 of 2; arrives 12 game hours after the order)
 - Header: INSTAGRAM / SPONSORED - keep
 - From: @LITTLEFERNPRINTS - keep
-- Subject or caption: NEW: THE ROBIN PRINT -
+- Subject or caption: NEW: THE ROBIN PRINT - keep
 - Body: Archival paper. Numbered edition of 200. -
 - Body: Free shipping on orders this week. -
 - Button: SHOP NOW -

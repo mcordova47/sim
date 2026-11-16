@@ -187,7 +187,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - From: @LITTLEFERNPRINTS - keep
 - Subject or caption: NEW: THE ROBIN PRINT - keep
 - Body: Archival paper. Numbered edition of 200. - keep
-- Body: Free shipping on orders this week. -
+- Body: Free shipping on orders this week. - keep
 - Button: SHOP NOW -
 - Look closer: ROBIN PRINT, 8 X 10 IN -
 - Look closer: 4.8 stars from 212 reviews. -

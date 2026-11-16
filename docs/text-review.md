@@ -317,7 +317,7 @@ The pixel font is capitals only, so these draw in capitals. On the touch layer a
 - Stop hint (touch): B TO STOP - keep
 - Decor list footer (touch): PAD: LOOK   A: PUT UP   B: BACK - keep
 - In-world prompt key cap (touch): A - keep
-- Pills while the key screen is up: KEYBOARD and PASTE (in place of CHOICE and SOUND)
+- Pills while the key screen is up: KEYBOARD and PASTE (in place of CHOICE and SOUND) - keep
 - Choice screen hint (touch): TAP, OR PAD AND A: pick   B: back
 - Key screen, touch only: Tap the box to type or paste; hint A: ok   B: back
 - Card front hint (touch): TAP OR A: flip

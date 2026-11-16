@@ -51,7 +51,10 @@ decisions:
       - "keep it as a todo"
       - "build it"
     recommendation: "drop it into ideas.md: it is optional and a skill line risks reading as a stat to chase"
-    status: open
+    status: answered
+    answer: "drop it into ideas"
+    by: marc
+    on: 2026-11-15
   - id: d5
     who: marc
     q: "111e (side project: `when` conditions so one drift follows the real room). When?"

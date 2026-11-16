@@ -295,7 +295,7 @@ The pixel font is capitals only, so these draw in capitals. The first two choice
 - Choice screen title: Study Spanish - keep
 - Choice, first item: Study without a key - keep
 - Choice, second item: Enter a sync key - keep
-- Choice note (two lines): Without a key, progress is saved / in this browser only.
+- Choice note (two lines): Without a key, progress is saved / in this browser only. - keep
 - Choice hint: Up, Down, E: pick   Esc: back
 - Done screen, guest, under the figures: Saved in this browser only.
 - Done screen, guest, when storage could not keep answers: Progress was not kept.

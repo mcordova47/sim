@@ -293,6 +293,14 @@ function copyRepo(withGit) {
   fs.cpSync(path.join(root, 'issues'), path.join(dir, 'issues'), { recursive: true });
   fs.cpSync(path.join(root, 'docs'), path.join(dir, 'docs'), { recursive: true });
   fs.copyFileSync(path.join(root, 'PLAN.md'), path.join(dir, 'PLAN.md'));
+  // Issue 134 is replaced in the copy by a fixture with three OPEN decisions, so these tests do not depend on
+  // which decisions are open in the real repo today (Marc answers them over time).
+  const f134 = fs.readdirSync(path.join(dir, 'issues')).find((n) => n.startsWith('134-')) ?? '134-fixture.md';
+  const dec = (n) => `  - id: d${n}\n    who: marc\n    q: "Fixture question ${n}?"\n    options:\n      - "done"\n      - "keep open"\n      - "blocked"\n    recommendation: "done"\n    status: open\n`;
+  fs.writeFileSync(
+    path.join(dir, 'issues', f134),
+    `---\nid: "134"\ntitle: "A fixture for the edit tests"\nshort: "Edit-test fixture"\nstatus: todo\nowner: marc + claude\ndepends_on: []\nsummary: "A fixture issue with open decisions for the edit tests."\nkind: chore\ndecisions:\n${dec(1)}${dec(2)}${dec(3)}---\n\n## Goal\nA fixture.\n\n## Progress log\n\n`,
+  );
   // Start from a table that is current for the copied issues, whatever state the real PLAN.md is in
   // (a branch or a fresh merge may not have regenerated it yet).
   const copied = analyze(loadFiles(path.join(dir, 'issues')), { docExists: () => true });
@@ -318,6 +326,7 @@ describe('the command on a copy of the real issues folder', () => {
     const { dir } = copyRepo(false);
     const file = find134(dir);
     const before = fs.readFileSync(file, 'utf8');
+    const realBefore = fs.readFileSync(path.join(root, 'issues', path.basename(file)), 'utf8');
     const msgs = [];
     const code = runCommand(['answer', '134', 'd1', 'done', '--date', ON, '--no-commit'], { root: dir, out: (m) => msgs.push(m), err: (m) => msgs.push(m) });
     expect(code, msgs.join('\n')).toBe(0);
@@ -329,7 +338,7 @@ describe('the command on a copy of the real issues folder', () => {
     expect(after.replace('    status: answered\n    answer: "done"\n    by: marc\n    on: 2026-11-15\n', '    status: open\n')).toBe(before);
     expect(analyze(loadFiles(path.join(dir, 'issues'))).errors).toEqual([]);
     // the real files are untouched
-    expect(fs.readFileSync(path.join(root, 'issues', path.basename(file)), 'utf8')).toBe(before);
+    expect(fs.readFileSync(path.join(root, 'issues', path.basename(file)), 'utf8')).toBe(realBefore);
   });
   it('--dry-run prints the change and writes nothing', () => {
     const { dir } = copyRepo(false);
@@ -360,10 +369,11 @@ describe('the command on a copy of the real issues folder', () => {
   it('a stale page (changed hash) is refused', () => {
     const { dir } = copyRepo(false);
     const file = find134(dir);
+    const copyBefore = fs.readFileSync(file, 'utf8');
     const r = editIssue({ root: dir, issue: '134', commit: false, expectHash: hashOf('old'), edit: (t, n) => answerDecision(t, 'd1', 'done', { on: ON, name: n }) });
     expect(r.ok).toBe(false);
     expect(r.message).toMatch(/changed on disk/);
-    expect(fs.readFileSync(file, 'utf8')).toBe(fs.readFileSync(path.join(root, 'issues', path.basename(file)), 'utf8'));
+    expect(fs.readFileSync(file, 'utf8')).toBe(copyBefore);
   });
   it('ask, need add and need resolve through the command', () => {
     const { dir } = copyRepo(false);

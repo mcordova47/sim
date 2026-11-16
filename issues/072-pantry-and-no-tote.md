@@ -1,7 +1,7 @@
 ---
 id: 072
 title: A real pantry (a stack of clear bins); remove the tote bag
-status: review
+status: done
 owner: agent
 depends_on: []
 summary: "A real pantry of clear bins replaces the tote bag."

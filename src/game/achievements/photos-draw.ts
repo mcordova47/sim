@@ -31,7 +31,7 @@ export const PHOTOS_REMOVED = "The pictures are gone. The originals were never h
 export const PHOTOS_REMOVE = "REMOVE ALL";
 export const PHOTOS_REMOVE_SURE = "SURE? REMOVE ALL";
 
-export const PHOTOS_DELETED = "Picture deleted. The original was never here.";
+export const PHOTOS_DELETED = "Picture deleted. Like it never happened.";
 export const PHOTOS_NOT_DELETED = "This browser could not remove it.";
 export const PHOTOS_DELETE = "DELETE";
 export const PHOTOS_DELETE_SURE = "SURE? DELETE";

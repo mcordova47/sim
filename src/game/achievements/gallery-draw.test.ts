@@ -67,7 +67,7 @@ describe.each(views)("gallery drawing, %s view", (_name, view) => {
   it("scene mode draws the phone: a paper bezel round an ink screen, and nothing outside the panel", () => {
     const c = canvas(view);
     const ctx = c.getContext() as unknown as CanvasRenderingContext2D;
-    const layout = gridLayout({ mode: "scene", screen: view, line: "You scroll for a while, because why not." });
+    const layout = gridLayout({ mode: "scene", screen: view, line: "You scroll for a while. Why did you open your phone, again?" });
     drawPhone(ctx, layout);
     drawGrid(ctx, sceneGallery(pics(6), () => 0.3), layout, "scene");
     drawPhoneFoot(ctx, layout);

@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { textWidth } from "../../render/font";
+import { REEL } from "../config";
 import {
   PAGE_SIZE,
   cellsOnPage,
@@ -274,7 +276,7 @@ describe("grid layout", () => {
   for (const [name, screen] of [["wide", WIDE], ["narrow", NARROW]] as const) {
     for (const mode of ["manage", "scene"] as const) {
       it(`${mode} on the ${name} view: six cells, inside the view, no overlap, in reading order`, () => {
-        const l = gridLayout({ mode, screen, line: "You scroll for a while, because why not." });
+        const l = gridLayout({ mode, screen, line: "You scroll for a while. Why did you open your phone, again?" });
         expect(l.cells).toHaveLength(PAGE_SIZE);
         l.cells.forEach((c, i) => {
           expect(inside(c, screen)).toBe(true);
@@ -319,10 +321,31 @@ describe("grid layout", () => {
     expect([n.x, n.y, n.w, n.h]).toEqual([8, 6, 208, 196]);
   });
 
-  it("the fixed line is one line on the wide view and wraps on the narrow one", () => {
-    const text = "You scroll for a while, because why not.";
-    expect(gridLayout({ mode: "scene", screen: WIDE, line: text }).phone!.line).toHaveLength(1);
+  it("the fixed line is one row on the wide view when it fits, two (a taller panel) when it wraps, and wraps on the narrow one", () => {
+    const text = "You scroll for a while. Why did you open your phone, again?";
+    expect(gridLayout({ mode: "scene", screen: WIDE, line: "Mostly the same few places." }).phone!.line).toHaveLength(1);
+    const two = gridLayout({ mode: "scene", screen: WIDE, line: text }).phone!;
+    expect(two.line).toHaveLength(2);
+    expect(two.panel.h).toBe(186);
+    expect(two.line.map((l) => l.text).join(" ")).toBe(text);
     expect(gridLayout({ mode: "scene", screen: NARROW, line: text }).phone!.line.length).toBeGreaterThan(1);
+  });
+
+  it("every line of the pool is shown whole on both views, inside the phone and clear of the buttons", () => {
+    for (const line of REEL.phoneLines) {
+      for (const screen of [WIDE, NARROW]) {
+        const l = gridLayout({ mode: "scene", screen, line });
+        const p = l.phone!;
+        expect(p.line.map((t) => t.text).join(" "), line).toBe(line);
+        expect(inside(p.panel, screen)).toBe(true);
+        for (const t of p.line) {
+          expect(t.y + 7).toBeLessThanOrEqual(p.screen.y + p.screen.h);
+          expect(t.x).toBeGreaterThanOrEqual(p.screen.x);
+          expect(t.x + textWidth(t.text)).toBeLessThanOrEqual(p.screen.x + p.screen.w);
+        }
+        for (const b of p.buttons) for (const t of p.line) expect(t.y + 7).toBeLessThanOrEqual(b.rect.y);
+      }
+    }
   });
 
   it("manage mode leaves room under the grid on both views", () => {

@@ -100,7 +100,7 @@ There is spare height (about 40 px) on the narrow view, kept as air.
         +------------------------+
  DEL DELETE   <  >  OTHERS   ESC BACK       foot, hint line over the ink
 ```
-After DELETE: the foot becomes "SURE? DELETE   ANY OTHER KEY CANCELS" in `tangerine`. The second DELETE press (or Y, as REMOVE ALL accepts) deletes that one record, goes back to the grid with the highlight on the same cell number (or the last, if that was the last), and the status line says "Picture deleted. The original was never here." Any other key, or Esc, only puts the question away. Esc with no question asked goes back to the grid.
+After DELETE: the foot becomes "SURE? DELETE   ANY OTHER KEY CANCELS" in `tangerine`. The second DELETE press (or Y, as REMOVE ALL accepts) deletes that one record, goes back to the grid with the highlight on the same cell number (or the last, if that was the last), and the status line says "Picture deleted. Like it never happened." Any other key, or Esc, only puts the question away. Esc with no question asked goes back to the grid.
 
 **Keys** (grid): Arrows move; E opens; A add; S switches LOOK; R remove all (R or Y confirms); Esc back. (Close-up): Left/Right other picture; Delete (or Backspace) asks; E or Esc back. Hint line follows the keys, as the pause pages do (`hintLine`). **Touch** (close-up): an OPEN/DELETE/BACK button row (16 px high) and a tap on the picture goes back; the DELETE button turns into SURE? DELETE on the first tap and any other tap cancels. There is no delete in the grid (Marc).
 
@@ -119,7 +119,7 @@ Same task, same prompt, same pose (`sit-sofa`). Activity type stays `reel`, the 
  | +----------+ +----------+ +----------+        |
  | |  ####### | |   pic    | |   pic    |        |   # = the highlight
  | +----------+ +----------+ +----------+        |
- |   You scroll for a while, because why not.     |   the fixed line, one line, centred
+ |   You scroll for a while. Why did you open your phone, again?     |   the fixed line, centred (two rows, and a 9 px taller panel, when it wraps: issue 143)
  +----------------------------------------------+
 ```
 Panel height: bezel 4 + strip 9 + 2 + 147 + 2 + line 9 + bezel 4 = 177, centred with 7 px above and below. The world is dimmed behind it (night at 70 percent, as the slideshow does now).
@@ -135,8 +135,9 @@ Panel height: bezel 4 + strip 9 + 2 + 147 + 2 + line 9 + bezel 4 = 177, centred 
  |   | #### | | pic  | | pic  |
  |   +------+ +------+ +------+
  |                        |
- | You scroll for a while,|   the fixed line wraps to two lines
- | because why not.       |
+ | You scroll for a while.|   the fixed line wraps to two lines
+ | Why did you open your  |
+ | phone, again?          |
  |                        |
  | [ CONTINUE ]  [ LEAVE ]|   touch only
  +------------------------+
@@ -238,7 +239,7 @@ The scene replaces `ReelActivity` completely in one issue (117e); there is no fl
 
 ## 8. Text proposals (candidates only: Marc reviews them; none may be about resolution, size or pixels)
 **The fixed phone-view line** (one chosen when the scene starts from `REEL.phoneLines`, shown for the whole session under the grid):
-- "You scroll for a while, because why not."
+- "You scroll for a while. Why did you open your phone, again?"
 - "There is a lot of it, and it is all yours."
 - "Mostly the same few places."
 - "You have taken a lot of pictures of this."
@@ -256,7 +257,7 @@ The scene replaces `ReelActivity` completely in one issue (117e); there is no fl
 
 **Manage mode** (the PHOTOS page, in the style of 113):
 - LOOK line: "New pictures only. The ones you have keep their look."
-- Delete: "SURE? DELETE" ; result "Picture deleted. The original was never here."
+- Delete: "SURE? DELETE" ; result "Picture deleted. Like it never happened."
 - Empty grid: "No pictures yet. The sofa has nothing to scroll." (as today)
 - Add summary lines are unchanged (`summaryLines`).
 Texts go through `docs/text-review.md` as every line does. The old five `REEL.captions` are removed with the slideshow.

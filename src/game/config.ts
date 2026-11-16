@@ -475,7 +475,7 @@ export const REEL = {
   // Seconds of close-up time before the scene's one ad roll (issue 117f). A player who leaves sooner gets none.
   adAfter: 8,
   phoneLines: [
-    "You scroll for a while, because why not.",
+    "You scroll for a while. Why did you open your phone, again?",
     "There is a lot of it, and it is all yours.",
     "Mostly the same few places.",
     "You have taken a lot of pictures of this.",

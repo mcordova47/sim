@@ -17,7 +17,7 @@ const PANEL = COLOR.night;
 const MARGIN = 6;
 const GRID_TOP = 16;
 export const THINGS_CELL_H = 24;
-export const THINGS_ROWS = 4;
+export const THINGS_ROWS = 3;
 // The pantry is 32 tall at its own size: its cell shows the top of it, the entry box all of it.
 const PAD = 4;
 const SPRITE_SCALE = 2;

@@ -225,7 +225,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Look closer: In stock. Sold by Northfield Studio. - keep
 
 **5. Maple Row** (text message, Messages; sells `lamp-stool-lamp`; unsubscribe difficulty 1 of 2; arrives 8 game hours after the order)
-- Header: MESSAGES / MAPLE ROW -
+- Header: MESSAGES / MAPLE ROW - keep
 - Message: Maple Row: Your stool lamp is back in stock. -
 - Body: Limited quantities. Shop before it's gone. -
 - Body: Msg & data rates may apply. STOP to opt out. -

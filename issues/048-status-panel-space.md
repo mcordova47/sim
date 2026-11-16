@@ -1,7 +1,7 @@
 ---
 id: 048
 title: Status panel space (and a phone battery?)
-status: in-progress
+status: done
 owner: marc + claude
 depends_on: []
 note: "design note merged and answered, layout B; the build is its own issue"
@@ -46,3 +46,6 @@ Verdict: approve. Acceptance criterion 1 (three or four layouts mocked at real s
 - 2026-10-27 (Marc, clock): show `9:40` with a sun, dusk or moon icon and no AM/PM. Taken at the note's recommendations unless he objects: in the portrait shell the picture's empty top band stays as an ink stripe until he sees the shell on his iPhone (cropping the 320x192 view is a 049 decision); the minute digit is left as it is. All eight questions in docs/hud-design.md are now answered or defaulted; the build (stage 1, always-on small bars in the top band) can be written as its own issue.
 
 - 2026-10-27, claude: docs-only text fixes to `docs/hud-design.md`: the reviewer's eight nits (strip mock row width, sprite count of 11 with 9 for stages 1 and 2, chip sizes and the grown 116 x 14 avoid box, 5-digit score assumption, mock legend and the shaded cell, the body-LED gag option, the band fill, all nine tint keys), section 8 rewritten to the decided gag plus charge-task design, section 10 shows Marc's answers. No re-review needed for these text fixes (no code, no new claims about the code). Not merged.
+
+### 2026-11-15, Marc
+Phone battery remains a gag for now.

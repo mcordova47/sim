@@ -109,7 +109,10 @@ decisions:
       - "keep them for me (the learning modules)"
       - "give them to an agent"
     recommendation: "keep them for you; they are small and ready"
-    status: open
+    status: answered
+    answer: "keep them for me (the learning modules)"
+    by: marc
+    on: 2026-11-15
 ---
 
 ## Goal

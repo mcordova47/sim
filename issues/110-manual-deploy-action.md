@@ -20,3 +20,6 @@ Marc (2026-10-28): after the Netlify production branch is `production` (docs/dep
 
 ## Acceptance criteria
 - The workflow file exists and is valid; a failing test stops the deploy; it never force-pushes; no secrets in the file; docs updated; Marc runs it once to confirm it deploys.
+
+## Progress log
+- 2026-11-15 (marc): this has been run successfully

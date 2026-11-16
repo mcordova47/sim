@@ -351,7 +351,7 @@ Capitals only. Nothing animated, no counters, no "ERROR". A failure is a plain l
 - Message after pressing it: AUTOMATIC SYNC IS ON / AUTOMATIC SYNC IS OFF. SYNC NOW STILL WORKS - keep
 - Messages after a manual sync (stage 2): SYNC IS ON / SYNCED / SYNC IS OFF / ONE MOMENT / PAIRED. SYNC IS ON / THAT IS NOT A SYNC KEY OR LINK / SYNC STOPPED. THE SAVED COPY IS DELETED / LINK COPIED - keep
 - Questions: STOP SYNCING AND DELETE THE SAVED COPY? / SYNC WITH THE SAVE IN THIS LINK? - keep
-- No message at all when a save from another device is picked up (decided: no "picked up where you left off").
+- No message at all when a save from another device is picked up (decided: no "picked up where you left off"). - keep
 
 ## Browsable inventory: item lines (issue 109a)
 Capitals only. One deadpan note and one source per real item, shown in the THINGS page (issue 109b). Marc marks each: keep, soften or rewrite. A new gift gets a line when it is added.

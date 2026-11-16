@@ -390,7 +390,7 @@ New lines on the PHOTOS page's grid and close-up. None mentions resolution, size
 - Page number (top right, only with more than one page): PAGE 2 OF 10 - keep
 - Grid buttons: OPEN (new, beside ADD PHOTOS, REMOVE ALL, BACK) - keep
 - Close-up buttons (touch): DELETE / SURE? DELETE (turns orange after the first tap) / BACK, and < > for the other pictures - keep
-- Close-up keys line (keyboard): DEL: DELETE  < >: OTHERS  ESC: BACK
+- Close-up keys line (keyboard): DEL: DELETE  < >: OTHERS  ESC: BACK - keep
 - Close-up question (keyboard): DEL: SURE? DELETE  OTHER KEY: CANCEL
 
 ## PHOTOS page: the LOOK switch (issue 117d)

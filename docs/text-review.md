@@ -31,7 +31,7 @@ The pause-screen page where pictures are added and removed. The first five lines
 - Not readable: 2 could not be read. - keep
 - Over the cap: Room for 60. The rest stayed where they were. - keep
 - Storage trouble (new): This browser could not keep them all. / This browser could not read the pictures. / This browser could not remove them all. - keep
-- No storage in this browser: This browser will not keep pictures.
+- No storage in this browser: This browser will not keep pictures. - keep
 - Buttons: ADD PHOTOS, REMOVE ALL, SURE? REMOVE ALL, BACK. Pause screen: PHOTOS (touch button), O: PHOTOS (desktop hint).
 - After REMOVE ALL: The pictures are gone. The originals were never here.
 - Sofa task (issue 113d, wired): name and prompt "Scroll through photos"; unmet reason NO PICTURES (never shown to the player in practice: with no pictures the task is not listed). The task has no flavor line.

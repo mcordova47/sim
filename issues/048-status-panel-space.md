@@ -47,5 +47,4 @@ Verdict: approve. Acceptance criterion 1 (three or four layouts mocked at real s
 
 - 2026-10-27, claude: docs-only text fixes to `docs/hud-design.md`: the reviewer's eight nits (strip mock row width, sprite count of 11 with 9 for stages 1 and 2, chip sizes and the grown 116 x 14 avoid box, 5-digit score assumption, mock legend and the shaded cell, the body-LED gag option, the band fill, all nine tint keys), section 8 rewritten to the decided gag plus charge-task design, section 10 shows Marc's answers. No re-review needed for these text fixes (no code, no new claims about the code). Not merged.
 
-### 2026-11-15, Marc
-Phone battery remains a gag for now.
+- 2026-11-15 (marc): phone battery remains a gag for now.

@@ -20,6 +20,9 @@ import { formatProblem } from './issues.mjs';
 import { buildFromDisk } from './issues-site.mjs';
 import { answerDecision, dropDecision, deferDecision, resolveNeed } from './issues-edit.mjs';
 import { editIssue, findIssueFile, hashOf, today } from './issues-edit-io.mjs';
+import { readReview, markReviewLine, REVIEW_PATH } from './text-review-io.mjs';
+import { nextUnmarked } from './text-review.mjs';
+import { visibleItems, copiesOf, cardOf, progressWords } from './text-review-page.mjs';
 
 const MAX_BODY = 20000;
 const TYPES = {
@@ -114,6 +117,55 @@ export function createApp({ root, token, port, now = today, branches = false }) 
     });
   }
 
+  // The text review page (issue 141). A mark goes through the same guards as an answer: the
+  // checkout is on main, the doc is the one the page was shown, and the doc has no uncommitted edits.
+  function markText(body) {
+    const id = clean(body.id, 300);
+    const hash = clean(body.hash, 64);
+    const mark = body.mark === 'clear' ? null : body.mark;
+    if (!id || !hash || !/^[0-9a-f]{64}$/.test(hash) || !(mark === null || ['keep', 'soften', 'rewrite'].includes(mark))) {
+      return refuse(400, 'That request was not complete, so nothing was changed. Reload the page and try again.');
+    }
+    const note = body.note === undefined || body.note === '' || body.note === null ? '' : clean(body.note, 500);
+    if (note === null) return refuse(400, 'The note is too long or not text, so nothing was changed.');
+    let placeholders = {};
+    if (body.placeholders !== undefined && body.placeholders !== null) {
+      const ph = body.placeholders;
+      if (typeof ph !== 'object' || Array.isArray(ph) || Object.values(ph).some((v) => typeof v !== 'boolean')) return refuse(400, 'That request was not understood, so nothing was changed.');
+      placeholders = ph;
+    }
+    const branch = (gitTry(root, ['rev-parse', '--abbrev-ref', 'HEAD']) || '').trim();
+    if (branch !== 'main') return refuse(409, `The checkout is on ${branch || 'no branch'}, not main, so nothing was changed. Switch it to main and reload.`);
+    const r = readReview(root);
+    if (!r.ok) return refuse(404, `${r.message} Nothing was changed.`);
+    if (r.hash !== hash) return refuse(409, 'The text review changed on disk since this page was loaded, so nothing was changed. Reload the page and try again.');
+    const dirty = gitTry(root, ['status', '--porcelain', '--', REVIEW_PATH]);
+    if (dirty === null) return refuse(409, 'This folder is not a git checkout, so nothing was changed.');
+    if (dirty.trim()) return refuse(409, 'The text review has uncommitted edits, so nothing was changed. Commit them or put them aside, then reload the page.');
+    const item = r.items.find((x) => x.id === id);
+    if (!item) return refuse(409, 'That line is not in the text review any more, so nothing was changed. Reload the page and try again.');
+    const also = copiesOf(r.items, item).map((x) => x.id);
+    const res = markReviewLine({ root, itemId: id, alsoIds: also, mark, note, placeholders, expectHash: hash });
+    if (!res.ok) return refuse(409, res.message);
+    const after = readReview(root);
+    const fresh = after.ok ? after.items.find((x) => x.id === id) : null;
+    return json(200, {
+      ok: true, message: res.message, committed: res.committed, commitMessage: res.commitMessage, notCommitted: res.notCommitted,
+      hash: res.hash, diff: res.diff, previousAll: res.previousAll, ids: res.ids,
+      card: fresh ? cardOf(fresh, after.items) : null,
+    });
+  }
+
+  function textCard(url) {
+    const r = readReview(root);
+    if (!r.ok) return refuse(404, r.message);
+    const after = url.searchParams.get('after') || null;
+    const skipped = (url.searchParams.get('skipped') || '').split(',').filter(Boolean).slice(0, 2000);
+    const pool = visibleItems(r.items);
+    const item = nextUnmarked(pool, after && pool.some((x) => x.id === after) ? after : null, skipped);
+    return json(200, { ok: true, hash: r.hash, card: item ? cardOf(item, r.items) : null, words: item ? progressWords(r.items, item) : null });
+  }
+
   // req: { method, url, headers, body (string) } -> { status, type, body, headers? }
   function handle(req) {
     const host = String(req.headers.host || '').toLowerCase();
@@ -124,6 +176,13 @@ export function createApp({ root, token, port, now = today, branches = false }) 
       const origin = req.headers.origin;
       if (origin && origin !== `http://${host}`) return refuse(403, 'That request came from another site, so nothing was changed.');
       if (!tokenOk(req.headers['x-issues-token'], token)) return refuse(403, 'This page is not allowed to write (its key is missing or from an older run). Reload the page and try again.');
+      if (p === '/api/text/mark') {
+        if (!String(req.headers['content-type'] || '').startsWith('application/json')) return refuse(400, 'That request was not understood, so nothing was changed.');
+        let tb;
+        try { tb = JSON.parse(req.body || ''); } catch { return refuse(400, 'That request was not understood, so nothing was changed.'); }
+        if (!tb || typeof tb !== 'object' || Array.isArray(tb)) return refuse(400, 'That request was not understood, so nothing was changed.');
+        return markText(tb);
+      }
       if (!/^api\/(answer|drop|defer|resolve)$/.test(p.slice(1))) return refuse(404, 'There is nothing here.');
       if (!String(req.headers['content-type'] || '').startsWith('application/json')) return refuse(400, 'That request was not understood, so nothing was changed.');
       let body;
@@ -133,6 +192,7 @@ export function createApp({ root, token, port, now = today, branches = false }) 
     }
     if (req.method !== 'GET' && req.method !== 'HEAD') return { status: 405, type: 'text/plain; charset=utf-8', body: 'Not allowed.' };
     if (p === '/api/ping') return json(200, { issues: true });
+    if (p === '/api/text/card') return textCard(url);
     const name = p === '/' ? 'index.html' : p.slice(1);
     if (name.endsWith('.html')) rebuild(); // a reload always shows what is on disk now
     if (!Object.hasOwn(built, name)) return { status: 404, type: 'text/plain; charset=utf-8', body: 'There is no such page.' };

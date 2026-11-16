@@ -69,6 +69,13 @@ An answered decision looks like this in the file:
 
 Run it from the main checkout. A change is refused, with a plain message on the page and nothing written, if the checkout is not on `main`, if the issue file has uncommitted edits, or if the file changed since the page was loaded (reload the page and try again). Every change also needs the key that only this run's pages carry, so another tab or site cannot write. As with the command, it commits only when the rest of the checkout is clean, never pushes, and serves nothing but the generated pages. Stop it with Ctrl+C. It takes `--no-open` (do not open the browser) and `--branches` (as for the static pages).
 
+## Walking through the text review
+`npm run issues:serve` also serves a **Text review** page (the link appears in the menu of the served pages only; the static pages do not have it). It shows one line of `docs/text-review.md` at a time, newest sections first: the string large (in the game's pixel font when it can draw every character and the string is short, otherwise plain text), with its section and where it appears beneath. Choose **Keep**, **Soften** or **Rewrite** (the last two ask for a note or the replacement text), **Skip** (the line comes back later in the same visit), or **Back** to the previous line, where its mark can be changed or cleared with **Clear the mark**. Keys: K, S, R, left arrow for Back, right arrow for Skip.
+
+Each mark is written into `docs/text-review.md` in place (nothing else in the file changes) and committed on `main` under the same rules as an answer: refused with a plain message if the checkout is not on `main`, if the file has uncommitted edits, or if it changed since the page loaded; the commit is skipped, and the page says so, when anything else in the checkout is uncommitted. Nothing is pushed, and nothing in the game changes: an agent applies the marks later in a batch.
+
+A line that appears twice in the document (the dialog tree is under both Dialogs and contemplate) is shown once, and its mark is written to every copy in the same commit. A copy that already carries a different mark (or none, when the first copy is marked) is left alone and shown as a card of its own. That is one switch, `DUPLICATE_POLICY` in `scripts/text-review-page.mjs` (`'once'`, or `'separately'` to ask about each copy); it waits on decision d1 of issue 141.
+
 ## Ideas
 Have a loose idea? Add a few lines to `docs/ideas.md` (no status, no owner, no deadline); it only becomes an issue when you decide to do it.
 

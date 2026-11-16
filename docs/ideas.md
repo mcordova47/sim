@@ -33,3 +33,12 @@ Where other idea lists already live (not copied here): the decor wishlist in [de
 
 ## Make the issue pages look like ours
 Graduated to [issue 133](../issues/133-issue-pages-theme.md) (2026-11-15).
+
+## Phone track editor: long press and drag painting
+*Marc, 2026-11-15 (was issue 106e, optional stage 5 of the phone track editor).* A hold timer and drag on the canvas: long press on a note cycles its length, on an empty cell sets the pen; drag across the beat channel paints hits along the row (the natural phone gesture for drum rows). Dropped for now because stages 1 to 4 feel fine; needs pointer-down and move handling on the canvas, which `touch-ui.ts` only does as a tap today (`docs/track-editor-phones-design.md`, sections 3.6 and 5).
+
+## Guitar: a pause-screen skill line
+*Marc, 2026-11-15 (was issue 114c, optional).* One deadpan line on the pause screen that shows the guitar skill after the first session: no bar, no number that can fall, nothing to chase (the guitar skill design, section 11, "114f"). Dropped for now: a skill line risks reading like a stat to chase. Wording would go in the text review.
+
+## Side project: one real effect
+*Marc, 2026-11-15 (was issue 111f).* The little room reaching into the real one: `SideProject.effects` and one real effect, once there is an effect in mind. Options from the design (`docs/side-project-config-design.md`): a cosmetic appearance in the real room, or a tiny mood or energy tweak. Parked until Marc picks. Related: the side project could have its own title, something like "Siminal Crossing".

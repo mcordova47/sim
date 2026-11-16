@@ -2,7 +2,7 @@
 id: "138"
 title: "Close out the in-progress threads"
 short: "Close out in-progress threads"
-status: todo
+status: done
 owner: marc + claude
 depends_on: []
 summary: "Nine questions about what is really left on the threads still showing as in progress, so each is closed, parked or started."
@@ -135,3 +135,4 @@ After tidying the stale statuses (issue 134), these threads still show as in pro
 
 ## Progress log
 - 2026-11-15 (planner): filed from Marc's question about what is left, with the nine questions recorded before asking.
+- 2026-11-15 (planner): all nine answered by Marc. Applied: 049 done; 117g done (the text lines go to issue 139); 106e, 114c and 111f moved into docs/ideas.md and their issue files removed; 114 closed; 111e, 120, 124 and 127 stay as todo (120 and 124 are Marc's learn-book tasks; 127 waits); 091c goes to an agent (docs only).

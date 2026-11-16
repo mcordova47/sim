@@ -88,7 +88,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 046 | [Escape during any action (and a cutscene's text)](issues/046-cutscene-escape.md) | claude | done | |
 | 047 | [Art round 2 from the 034 playtest](issues/047-art-round-2.md) | agent | done | |
 | 048 | [Status panel space (and a phone battery?)](issues/048-status-panel-space.md) | marc + claude | done (design note merged and answered, layout B; the build is its own issue) | |
-| 049 | [Mobile (explore)](issues/049-mobile.md) | marc + claude | in-progress (design note merged and answered; stage 1 build issue to write) | |
+| 049 | [Mobile (explore)](issues/049-mobile.md) | marc + claude | done (design note merged and answered; stage 1 build issue to write) | |
 | 050 | [Guitar redraw (Marc's tweaks)](issues/050-guitar-redraw.md) | agent | done | |
 | 051 | [The meta side project](issues/051-meta-side-project.md) | marc + claude | done | |
 | 052 | [Fix the sleeping and sofa-sitting poses](issues/052-pose-fixes.md) | agent | done | |
@@ -152,7 +152,6 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 106b | [Track editor on phones 2: taps that edit](issues/106b-editor-touch-taps.md) | claude | done | 106a |
 | 106c | [Track editor on phones 3: name, More menu, delete](issues/106c-editor-touch-name-menu.md) | claude | done | 106b |
 | 106d | [Track editor on phones 4: share and paste](issues/106d-editor-touch-share-paste.md) | claude | done | 106c |
-| 106e | [Track editor on phones 5: long press, drag paint, polish (optional)](issues/106e-editor-touch-polish.md) | claude | todo | 106d |
 | 107 | [The guitar: flipped so it reads as standing on a stand](issues/107-guitar-on-a-stand.md) | claude | done | 100 |
 | 108 | [The guitar's timbre follows the current instrument](issues/108-guitar-timbre.md) | claude | done | |
 | 109 | [A browsable inventory, like a pokedex](issues/109-browsable-inventory.md) | marc + claude | done | 073 |
@@ -166,7 +165,6 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 111c | [Side project config 3: the view and the painter](issues/111c-sideproject-view.md) | claude | done | 111 |
 | 111d | [Side project config 4: the real config file and the figure](issues/111d-sideproject-room.md) | claude | done | 111a, 111b, 111c |
 | 111e | [Side project config 5: `when` conditions](issues/111e-sideproject-when.md) | claude | todo | 111d |
-| 111f | [Side project config 6: one real effect (later)](issues/111f-sideproject-effects.md) | marc + claude | todo | 111e |
 | 112 | [Real-world effects: what is feasible (research)](issues/112-real-world-effects-research.md) | marc + claude | done | |
 | 113 | [Photo reel: pixelated pictures from your own device (experiment)](issues/113-photo-reel-experiment.md) | marc + claude | done | 112 |
 | 113a | [Photo reel 1: pixelate](issues/113a-reel-pixelate.md) | claude | done | 113 |
@@ -174,10 +172,9 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 113c | [Photo reel 3: PHOTOS page](issues/113c-reel-photos-page.md) | claude | done | 113a, 113b |
 | 113d | [Photo reel 4: the reel and sofa task](issues/113d-reel-activity.md) | claude | done | 113c |
 | 113e | [Photo reel 5: on-device pass](issues/113e-reel-phone-pass.md) | claude | todo (superseded by 117g) | 113d |
-| 114 | [Guitar skill: from single notes to fingerstyle](issues/114-guitar-skill.md) | marc + claude | todo (design done, see docs/guitar-skill-design.md; build is 114a to 114c) | 108 |
+| 114 | [Guitar skill: from single notes to fingerstyle](issues/114-guitar-skill.md) | marc + claude | done | 108 |
 | 114a | [Guitar skill 1: rule, chords, strumming (levels 1 to 3)](issues/114a-guitar-skill-levels-1-3.md) | claude | done | 108 |
 | 114b | [Guitar skill 2: the groove and melody (level 4)](issues/114b-guitar-skill-groove.md) | claude | done | 114a |
-| 114c | [Guitar skill 3 (optional): the pause-screen line](issues/114c-guitar-skill-pause-line.md) | claude | todo | 114a |
 | 115 | [A gentle limiter on the master output (clipping safety)](issues/115-master-limiter.md) | claude | done | |
 | 116 | [Name the game Simagotchi](issues/116-simagotchi-name.md) | claude | done | |
 | 117 | [Photos like a phone gallery: browse, delete one, close-up scene](issues/117-photo-gallery.md) | marc + claude | done | 113 |
@@ -187,7 +184,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 117d | [Photo gallery 4: the LOOK switch](issues/117d-gallery-look-switch.md) | claude | done | 117a, 117c |
 | 117e | [Photo gallery 5: the sofa scene replaces the slideshow](issues/117e-gallery-scene.md) | claude | done | 117b |
 | 117f | [Photo gallery 6: an ad can interrupt the close-up](issues/117f-gallery-ad-interrupt.md) | claude | done | 117e |
-| 117g | [Photo gallery 7: text review, phone pass, docs](issues/117g-gallery-pass.md) | claude | todo | 117f, 117d |
+| 117g | [Photo gallery 7: text review, phone pass, docs](issues/117g-gallery-pass.md) | claude | done | 117f, 117d |
 | 119 | [A Simagotchi logo and favicon](issues/119-simagotchi-logo.md) | claude | done | 116 |
 | 120 | [Pause legend overlap on the narrow view](issues/120-pause-legend-narrow.md) | claude | todo | 116 |
 | 121 | [Fix the flaky flashcards activity test](issues/121-flaky-flashcards-test.md) | claude | done | |
@@ -206,8 +203,10 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 135 | [Issue tasks API (answer from the pages)](issues/135-issue-tasks-api.md) | marc + claude | done | 131 |
 | 136 | [Issues API: edit functions and command](issues/136-issues-api-command.md) | claude | done | 135 |
 | 137 | [Issues API: local server and Answer buttons](issues/137-issues-api-server.md) | claude | done | 136 |
-| 138 | [Close out in-progress threads](issues/138-close-out-threads.md) | marc + claude | todo | |
-| 139 | [Text review walkthrough](issues/139-text-review-walkthrough.md) | marc + claude | todo | 137 |
+| 138 | [Close out in-progress threads](issues/138-close-out-threads.md) | marc + claude | done | |
+| 139 | [Text review walkthrough](issues/139-text-review-walkthrough.md) | marc + claude | done | 137 |
+| 140 | [Text review 1: parser and marks](issues/140-text-review-parser.md) | claude | todo | 139 |
+| 141 | [Text review 2: the page](issues/141-text-review-page.md) | claude | todo | 140 |
 <!-- issues:table:end -->
 
 ## Order of work

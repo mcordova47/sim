@@ -1,10 +1,9 @@
 ---
 id: 114
 title: "Guitar skill: from single notes to fingerstyle"
-status: todo
+status: done
 owner: marc + claude
 depends_on: [108]
-note: "design done, see docs/guitar-skill-design.md; build is 114a to 114c"
 summary: "Guitar skill from single notes to fingerstyle; the pause line is left."
 ---
 
@@ -33,3 +32,4 @@ Marc (2026-10-28): layer in progression after the timbre (108). A new **"guitar 
 - **Wrong key presses sound messed up** (nice to have, later): a wrong key in the notes game plays a deliberately off sound, such as a muted-string thunk, a buzz or a dissonant clash, instead of a clean note. Could depend on skill (a beginner clunks more, a better player's slips are subtler). Needs a look at how the notes activity decides what a wrong press is; file as its own small issue when picked.
 - **More chords at higher levels** (Marc, 2026-10-28): increase the number of chords as skill rises, so a level has more than four chords and there is no longer a one-to-one mapping between the arrow keys and chords. Balance this against complexity: how a key picks among several chords (a held modifier, the previous chord, the position in the groove's progression, a second key row) without making it hard to play. Design with Marc after the level 6 groove (114b) is felt.
   - Planner's recommendation (2026-10-28, Marc asked to balance code complexity): **park it.** The six levels and the level 6 groove already give variety; a key-to-several-chords mapping costs roughly 150 to 250 lines plus hints and tests and loses the easy "one arrow, one chord" feel. Cheaper ways to get variety later: per-session seeded choice among two or three chord sets for the same arrows, or richer groove progressions. Revisit after the groove is felt.
+- 2026-11-15 (planner): Marc dropped 114c (the pause-screen skill line) into ideas (decision d4 of issue 138); the timing game and wrong-note sounds stay on hold. Closed.

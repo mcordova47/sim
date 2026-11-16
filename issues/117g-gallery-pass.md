@@ -1,7 +1,7 @@
 ---
 id: 117g
 title: "Photo gallery 7: text review, phone pass, docs"
-status: todo
+status: done
 owner: claude
 depends_on: [117f, 117d]
 summary: "The last gallery pass: Marc marks the new text lines and tries touch and looks on a real device"
@@ -16,4 +16,4 @@ Design and Marc's answers (2026-10-29): `docs/photo-gallery-design.md` (shared 3
 - Marc says it feels right; tuning done; unverified items listed.
 
 ## Progress log
-
+- 2026-11-15 (planner): Marc: the phone check is done; the text lines go to the text review walkthrough (issue 139) (decision d8 of issue 138). Closed.

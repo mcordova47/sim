@@ -2,7 +2,7 @@
 id: "139"
 title: "A text review walkthrough: one line at a time, like answering decisions"
 short: "Text review walkthrough"
-status: todo
+status: done
 owner: marc + claude
 depends_on: ["137"]
 summary: "Walk through the unmarked text-review lines one at a time and mark each keep, soften or rewrite, with context beside it."
@@ -73,3 +73,4 @@ Marc (2026-11-15), after answering the stale decisions on the page and finding i
 
 ## Progress log
 - 2026-11-15 (planner): filed from Marc's request; the four design questions recorded before asking.
+- 2026-11-15 (planner): all four answered by Marc (marks live in docs/text-review.md edited in place; a page in the local issues server; marks only recorded, applied later by an agent in a batch; newest sections first). Build issues 140 and 141 filed.

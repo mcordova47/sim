@@ -236,7 +236,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 **6. Hollis Candle Co.** (email, Gmail; sells `lamp-candle`; unsubscribe difficulty 1 of 2; arrives 8 game hours after the order)
 - Header: GMAIL / PROMOTIONS - keep
 - From: HOLLIS CANDLE CO. - keep
-- Subject or caption: 20% off ends tonight -
+- Subject or caption: 20% off ends tonight - keep
 - Body: Hand-poured soy candle. 40-hour burn. -
 - Body: Use code EVENING20 at checkout. -
 - Body: Offer ends at midnight. -

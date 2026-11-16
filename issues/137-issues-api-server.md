@@ -8,7 +8,7 @@ depends_on: ["136"]
 summary: "The pages can answer a decision for you when served locally, through the same tested functions."
 kind: build
 unverified: []
-needs: [{who: marc, kind: try, why: "Run npm run issues:serve once and answer a real open decision from the page", since: 2026-11-15}]
+needs: []
 ---
 
 ## Goal

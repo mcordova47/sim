@@ -50,7 +50,10 @@ decisions:
       - "the newest sections first (gallery, sync, inventory, photos), then the older ones"
       - "only lines the game shows often (tasks and dialogs) first"
     recommendation: "the newest sections first, since they are the freshest in your mind and the oldest were written before the text rules settled"
-    status: open
+    status: answered
+    answer: "the newest sections first (gallery, sync, inventory, photos), then the older ones"
+    by: marc
+    on: 2026-11-15
 ---
 
 ## Goal

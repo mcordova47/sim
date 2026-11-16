@@ -354,7 +354,7 @@ Capitals only. Nothing animated, no counters, no "ERROR". A failure is a plain l
 - No message at all when a save from another device is picked up (decided: no "picked up where you left off").
 
 ## Browsable inventory: item lines (issue 109a)
-Capitals only. One deadpan note and one source per real item, shown in the THINGS page (issue 109b). Marc marks each: keep, change or cut. A new gift gets a line when it is added.
+Capitals only. One deadpan note and one source per real item, shown in the THINGS page (issue 109b). Marc marks each: keep, soften or rewrite. A new gift gets a line when it is added.
 The entry also shows the where-now line (the slot's "where" text, or IN THE INVENTORY) and, for something you can change, CHANGE IT AT THE DINING TABLE (or the STANDING DESK, CUBE BOOKSHELF, LAMP TABLE, or "X OR Y" when two fit).
 - Source, starting things: FROM: ALREADY HERE
 - Source, everything that arrives: FROM: A PACKAGE (fallbacks if a source is not written: A GIFT, A FIND, A DELIVERY, SOME BROWSING)
@@ -379,7 +379,7 @@ The entry also shows the where-now line (the slot's "where" text, or IN THE INVE
 - SUNFLOWERS: SUNFLOWERS IN A VASE. THEY ARE HOLDING UP.
 
 ## THINGS page: the silhouette (issue 109c)
-Capitals only. Shown for something an ad put in front of you that you did not take (ignored, hidden, or closed). The page draws a flat dark shape of it, and nothing else about it: no name, no source, no place, no hint how to get one, no count. If it later arrives, the shape simply becomes the item. Marc marks each: keep, change or cut.
+Capitals only. Shown for something an ad put in front of you that you did not take (ignored, hidden, or closed). The page draws a flat dark shape of it, and nothing else about it: no name, no source, no place, no hint how to get one, no count. If it later arrives, the shape simply becomes the item. Marc marks each: keep, soften or rewrite.
 - Name line: ???
 - Line under it: YOU HAVE SEEN ONE OF THESE.
 

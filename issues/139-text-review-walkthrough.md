@@ -54,11 +54,6 @@ decisions:
     answer: "the newest sections first (gallery, sync, inventory, photos), then the older ones"
     by: marc
     on: 2026-11-15
-needs:
-  - who: marc
-    kind: review
-    why: "140 (the text review parser and in-place marks) is approved on branch issue/140-text-review-parser: say merge; then 141, the page, starts."
-    since: 2026-11-15
 ---
 
 ## Goal

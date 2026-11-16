@@ -262,7 +262,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 | text message | REPLY STOP | A TEXT MESSAGE HAS ARRIVED. | YOU LEAVE IT UNREAD. | YOU HAVE BEEN UNSUBSCRIBED. | REPLY STOP AGAIN TO CONFIRM. | keep |
 
 ### Lines for every card
-- Menu: IGNORE, LOOK CLOSER, ADD TO CART -
+- Menu: IGNORE, LOOK CLOSER, ADD TO CART - keep
 - Extra narrator line at low mood: IT IS HARD TO LOOK AWAY. -
 - Extra narrator line at high mood: YOU ARE NOT INTERESTED. -
 - You already have the item (the card stays until you close it): YOU ALREADY HAVE ONE. -

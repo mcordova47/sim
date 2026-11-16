@@ -248,7 +248,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Header: INSTAGRAM / SPONSORED - keep
 - From: @SALTMARSHPRINTS - keep
 - Subject or caption: Water Lilies - keep
-- Body: Giclee print, matted and ready to hang. -
+- Body: Giclee print, matted and ready to hang. - keep
 - Body: Rated 4.9 by 40,000 customers. -
 - Button: SHOP NOW - keep
 - Look closer: Water Lilies, 12 X 16 IN -

@@ -13,7 +13,6 @@
     "check:dist": "node scripts/check-dist.mjs",
     "tools": "node scripts/tools.mjs",
     "lab": "node scripts/tools.mjs lab",
-    "learn": "mdbook serve docs/learn --open",
     "issues": "node scripts/issues.mjs",
     "issues:check": "node scripts/issues.mjs --check",
     "issues:site": "node scripts/issues-site.mjs",

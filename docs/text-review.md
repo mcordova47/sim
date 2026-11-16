@@ -268,7 +268,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - You already have the item (the card stays until you close it): YOU ALREADY HAVE ONE. - keep
 - The item is already ordered or waiting at the door: IT IS ALREADY IN YOUR CART. - keep
 - The delivery queue is full: YOUR CART IS FULL. - keep
-- An Ignore that turned into a purchase: YOU TAP IT WITHOUT MEANING TO. ADDED TO CART. -
+- An Ignore that turned into a purchase: YOU TAP IT WITHOUT MEANING TO. ADDED TO CART. - keep
 - After an order: ORDER CONFIRMED. ARRIVES LATER TODAY. (6 game hours or less) / ORDER CONFIRMED. ARRIVES TOMORROW. -
 - Under the sender of an email: TO: ME -
 

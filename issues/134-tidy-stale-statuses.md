@@ -76,7 +76,10 @@ decisions:
       - "keep open"
       - "blocked"
     recommendation: "done: it is merged and the table already showed it done"
-    status: open
+    status: answered
+    answer: "done"
+    by: marc
+    on: 2026-11-15
   - id: d7
     who: marc
     q: "097 (the codebase walkthrough): the learn book is merged and you are working through it. What status?"

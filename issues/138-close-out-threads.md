@@ -15,7 +15,10 @@ decisions:
       - "done"
       - "keep open"
     recommendation: "done: nothing is left in it"
-    status: open
+    status: answered
+    answer: "done"
+    by: marc
+    on: 2026-11-15
   - id: d2
     who: marc
     q: "091c (encounter music: docs, and gathering the tunable numbers): the numbers already live in ENCOUNTERS.music and you tuned by ear. Have an agent write the docs now (docs only, no sound change)?"

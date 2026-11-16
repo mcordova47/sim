@@ -23,7 +23,7 @@ The product name is Simagotchi (Marc, 2026-10-29). The pause screen's header use
 ## PHOTOS page (issue 113c)
 The pause-screen page where pictures are added and removed. The first five lines are the design note's (`docs/photo-reel-design.md` section 7); the rest were written with the build. No line mentions resolution, size or pixels (Marc's rule). Wired in `src/game/achievements/photos-draw.ts` and `src/game/reel/photo-add.ts`. Marc to mark: keep / soften / rewrite.
 - Page text (one paragraph): Pick some pictures. They will be kept on this device. The originals are not kept. Nothing leaves this device. - keep
-- Nothing stored: No pictures yet. The sofa has nothing to scroll. (the sofa task is issue 113d; until it is built the line points at nothing)
+- Nothing stored: No pictures yet. The sofa has nothing to scroll. (the sofa task is issue 113d; until it is built the line points at nothing) - keep
 - Count: 12 pictures on this device / 1 picture on this device
 - Progress: Making picture 3 of 12
 - Added: 12 pictures added. / 1 picture added. / No pictures added.

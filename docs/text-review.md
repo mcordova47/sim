@@ -270,7 +270,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - The delivery queue is full: YOUR CART IS FULL. - keep
 - An Ignore that turned into a purchase: YOU TAP IT WITHOUT MEANING TO. ADDED TO CART. - keep
 - After an order: ORDER CONFIRMED. ARRIVES LATER TODAY. (6 game hours or less) / ORDER CONFIRMED. ARRIVES TOMORROW. - keep
-- Under the sender of an email: TO: ME -
+- Under the sender of an email: TO: ME - keep
 
 ### The ad blocker (achievements list, key B)
 - Hint line, alone: B: AD BLOCKER OFF   L: CLOSE   SHIFT+R: RESET (and ON) -

@@ -237,7 +237,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Header: GMAIL / PROMOTIONS - keep
 - From: HOLLIS CANDLE CO. - keep
 - Subject or caption: 20% off ends tonight - keep
-- Body: Hand-poured soy candle. 40-hour burn. -
+- Body: Hand-poured soy candle. 40-hour burn. - keep
 - Body: Use code EVENING20 at checkout. -
 - Body: Offer ends at midnight. -
 - Button: SHOP THE SALE -

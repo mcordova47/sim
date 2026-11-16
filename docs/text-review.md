@@ -188,7 +188,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Subject or caption: NEW: THE ROBIN PRINT - keep
 - Body: Archival paper. Numbered edition of 200. - keep
 - Body: Free shipping on orders this week. - keep
-- Button: SHOP NOW -
+- Button: SHOP NOW - keep
 - Look closer: ROBIN PRINT, 8 X 10 IN -
 - Look closer: 4.8 stars from 212 reviews. -
 
@@ -229,7 +229,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Message: Maple Row: Your stool lamp is back in stock. -
 - Body: Limited quantities. Shop before it's gone. -
 - Body: Msg & data rates may apply. STOP to opt out. -
-- Button: SHOP NOW -
+- Button: SHOP NOW - keep
 - Look closer: Stool lamp, oak, with shade. -
 - Look closer: $39. Ships in 2 days. -
 
@@ -250,7 +250,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Subject or caption: Water Lilies -
 - Body: Giclee print, matted and ready to hang. -
 - Body: Rated 4.9 by 40,000 customers. -
-- Button: SHOP NOW -
+- Button: SHOP NOW - keep
 - Look closer: Water Lilies, 12 X 16 IN -
 - Look closer: $48. Free shipping over $35. -
 

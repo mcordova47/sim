@@ -36,7 +36,7 @@ The pause-screen page where pictures are added and removed. The first five lines
 - After REMOVE ALL: The pictures are gone. The originals were never here. - keep
 - Sofa task (issue 113d, wired): name and prompt "Scroll through photos"; unmet reason NO PICTURES (never shown to the player in practice: with no pictures the task is not listed). The task has no flavor line. - keep
 - Sofa scene (issue 117e, replaces the 113d slideshow and its five captions; pools are `REEL.phoneLines` and `REEL.closeupLines` in `src/game/config.ts`, plain lists, so a "rewrite" or a deletion is a one-line change; no line mentions resolution, size or pixels or claims anything about what a picture shows, and a test checks that). Marc to mark each: keep / soften / rewrite.
-  - Fixed phone-view line (one is chosen when the scene starts and shown under the grid for the whole session): You scroll for a while, because why not. - rewrite: You scroll for a while. Why did you open your phone, again? / There is a lot of it, and it is all yours. - / Mostly the same few places. - / You have taken a lot of pictures of this. - / You were there for most of these. - / Nothing here needs an answer. -
+  - Fixed phone-view line (one is chosen when the scene starts and shown under the grid for the whole session): You scroll for a while. Why did you open your phone, again? - keep / There is a lot of it, and it is all yours. - / Mostly the same few places. - / You have taken a lot of pictures of this. - / You were there for most of these. - / Nothing here needs an answer. -
   - Close-up caption (one is chosen each time a close-up opens): Ah, memories. - keep / You remember this. Mostly. - / Look at that. - / Good times, probably. - / You were there. - / Was it always like that? - / You could look at this all day. You do not. -
   - Scene chrome: title PHOTOS; hints E: CONTINUE   ESC: LEAVE (wide), buttons CONTINUE and LEAVE (narrow), E: DONE in the close-up (A: DONE on the touch layer). - keep
 
@@ -358,24 +358,24 @@ Capitals only. One deadpan note and one source per real item, shown in the THING
 The entry also shows the where-now line (the slot's "where" text, or IN THE INVENTORY) and, for something you can change, CHANGE IT AT THE DINING TABLE (or the STANDING DESK, CUBE BOOKSHELF, LAMP TABLE, or "X OR Y" when two fit).
 - Source, starting things: FROM: ALREADY HERE - keep
 - Source, everything that arrives: FROM: A PACKAGE (fallbacks if a source is not written: A GIFT, A FIND, A DELIVERY, SOME BROWSING) - keep
-- BARN DRAWING: A BARN. IT HAS BEEN A BARN FOR A WHILE. - rewrite: BARN DRAWING: A RUSTIC-LOOKING BARN. YOUR UNCLE PAINTED IT. YOU WONDER WHERE IT IS...
-- GOLD ABSTRACT: GOLD, MOSTLY. IT HAS NEVER EXPLAINED ITSELF. - rewrite: GOLD ABSTRACT: DEUS EX MESSINA.
-- SILKSCREEN: A LONG PRINT. IT FILLS ITS WALL. - rewrite: SILKSCREEN: A SILKSCREEN PRINT. NUM. 1/12, WHICH YOU FEEL A STRANGE SENSE OF PRIDE ABOUT.
+- BARN DRAWING: A RUSTIC-LOOKING BARN. YOUR UNCLE PAINTED IT. YOU WONDER WHERE IT IS... - keep
+- GOLD ABSTRACT: DEUS EX MESSINA. - keep
+- SILKSCREEN: A SILKSCREEN PRINT. NUM. 1/12, WHICH YOU FEEL A STRANGE SENSE OF PRIDE ABOUT. - keep
 - SNAKE PLANT: A SNAKE PLANT. IT ASKS FOR VERY LITTLE. - keep
-- LAMP: A LAMP. IT DOES THE ONE THING. - rewrite: LAMP: A LAMP. IT'S A GOOD LAMP, YOU THINK.
-- CLEAR BINS: CLEAR BINS. YOU CAN SEE WHAT IS IN THEM. - rewrite: CLEAR BINS: YOU GUESS THESE WILL DO AS A PANTRY, FOR NOW.
-- ROBIN PRINT: A BIRD ON A BRANCH. IT IS STAYING PUT. - rewrite: ROBIN PRINT: WHERE ARE YOU, ROBIN?
-- CONCERT POSTER: A POSTER FOR A SHOW THAT HAPPENED. - rewrite: CONCERT POSTER: A POSTER FROM THAT SHOW YOU JUST WENT TO.
+- LAMP: A LAMP. IT'S A GOOD LAMP, YOU THINK. - keep
+- CLEAR BINS: YOU GUESS THESE WILL DO AS A PANTRY, FOR NOW. - keep
+- ROBIN PRINT: WHERE ARE YOU, ROBIN? - keep
+- CONCERT POSTER: A POSTER FROM THAT SHOW YOU JUST WENT TO. - keep
 - WARM LAMP: A LAMP, BUT WARMER. - keep
-- DRIED FLOWERS: DRIED FLOWERS. THEY ARE DONE, AND THAT IS FINE. - rewrite: DRIED FLOWERS: THEY LAST SO LONG IT FEELS ILLEGAL.
-- SNOW WAGON: A WAGON. IT HAS SEEN SOME SNOW. - rewrite: SNOW WAGON: A LANDSCAPE OF YOUR AUNT'S YARD. +5 NOSTALGIA.
+- DRIED FLOWERS: THEY LAST SO LONG IT FEELS ILLEGAL. - keep
+- SNOW WAGON: A LANDSCAPE OF YOUR AUNT'S YARD. +5 NOSTALGIA. - keep
 - STOOL LAMP: A SMALL LAMP ON A STOOL. A GOOD ARRANGEMENT. - keep
-- SERENITY NOW: IT ASKS FOR CALM, NOT VERY CALMLY. - rewrite: SERENITY NOW: YOU DON'T MAKE A HABIT OF BUYING JOKE ART, BUT THE ARTIST SEEMED COOL.
-- CANOES: SOME CANOES. NOBODY IS IN A HURRY. - rewrite: CANOES: JUST A COUPLE CANOES. EMPTY. HOW VERY RIMBAUD.
-- CANDLE: A CANDLE. IT MOVES A LITTLE, ON ITS OWN. - rewrite: CANDLE: THE ORIGINAL LAMP.
-- GREAT WAVE: A BIG WAVE. IT IS STILL ABOUT TO ARRIVE. - rewrite: GREAT WAVE: JUST BECAUSE IT'S IN EVERY COLLEGE DORM DOESN'T MAKE IT BAD.
-- STARRY NIGHT: A NIGHT SKY. IT IS QUITE BUSY UP THERE. - rewrite: STARRY NIGHT: NOT YOUR FAVORITE VAN GOGH, BUT THERE IS A REASON IT'S A CLASSIC.
-- WATER LILIES: LILIES ON WATER. VERY RESTFUL. - rewrite: WATER LILIES: PEOPLE TALK ABOUT CAPTURING A FLEETING MOMENT, BUT YOU JUST THINK IT'S PRETTY.
+- SERENITY NOW: YOU DON'T MAKE A HABIT OF BUYING JOKE ART, BUT THE ARTIST SEEMED COOL. - keep
+- CANOES: JUST A COUPLE CANOES. EMPTY. HOW VERY RIMBAUD. - keep
+- CANDLE: THE ORIGINAL LAMP. - keep
+- GREAT WAVE: JUST BECAUSE IT'S IN EVERY COLLEGE DORM DOESN'T MAKE IT BAD. - keep
+- STARRY NIGHT: NOT YOUR FAVORITE VAN GOGH, BUT THERE IS A REASON IT'S A CLASSIC. - keep
+- WATER LILIES: PEOPLE TALK ABOUT CAPTURING A FLEETING MOMENT, BUT YOU JUST THINK IT'S PRETTY. - keep
 - SUNFLOWERS: SUNFLOWERS IN A VASE. THEY ARE HOLDING UP.
 
 ## THINGS page: the silhouette (issue 109c)
@@ -385,7 +385,7 @@ Capitals only. Shown for something an ad put in front of you that you did not ta
 
 ## PHOTOS page: gallery and delete one (issue 117c)
 New lines on the PHOTOS page's grid and close-up. None mentions resolution, size or pixels. Wired in `src/game/achievements/photos-draw.ts` and `feature.ts`. Marc to mark: keep / soften / rewrite.
-- After a delete: Picture deleted. The original was never here. - rewrite: After a delete: Picture deleted. Like it never happened.
+- After a delete: Picture deleted. Like it never happened. - keep
 - A delete that failed: This browser could not remove it. - keep
 - Page number (top right, only with more than one page): PAGE 2 OF 10 - keep
 - Grid buttons: OPEN (new, beside ADD PHOTOS, REMOVE ALL, BACK) - keep

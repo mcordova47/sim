@@ -15,8 +15,9 @@ export interface GlowFlicker {
   seed: number;
 }
 
-// The most characters in a `note` or `from` (two lines of the entry box in issue 109b).
-export const NOTE_MAX = 48;
+// The most characters in a `note` (issue 143: Marc's text review rewrites run to 78; the entry box wraps a note over
+// as many rows as it needs, and the grid has three rows so there is room) or a `from`.
+export const NOTE_MAX = 80;
 export const FROM_MAX = 30;
 
 export type DecorKind = "art" | "plant" | "lamp" | "prop" | "rug" | "instrument" | "plugin" | "pantry";
@@ -113,12 +114,12 @@ export const DECOR_SLOTS: DecorSlot[] = [
 
 // Today's room, as items. These are the starting set: owned from the first run.
 export const DECOR_ITEMS: DecorItem[] = [
-  { id: "art-barn", name: "BARN DRAWING", kind: "art", sprite: "painting", w: 32, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "A BARN. IT HAS BEEN A BARN FOR A WHILE.", slots: ["art-table", "art-desk"] },
-  { id: "art-abstract", name: "GOLD ABSTRACT", kind: "art", sprite: "painting-desk", w: 32, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "GOLD, MOSTLY. IT HAS NEVER EXPLAINED ITSELF.", slots: ["art-table", "art-desk"] },
-  { id: "art-silkscreen", name: "SILKSCREEN", kind: "art", sprite: "painting-wide", w: 48, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "A LONG PRINT. IT FILLS ITS WALL.", slots: ["art-bed"] },
+  { id: "art-barn", name: "BARN DRAWING", kind: "art", sprite: "painting", w: 32, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "A RUSTIC-LOOKING BARN. YOUR UNCLE PAINTED IT. YOU WONDER WHERE IT IS...", slots: ["art-table", "art-desk"] },
+  { id: "art-abstract", name: "GOLD ABSTRACT", kind: "art", sprite: "painting-desk", w: 32, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "DEUS EX MESSINA.", slots: ["art-table", "art-desk"] },
+  { id: "art-silkscreen", name: "SILKSCREEN", kind: "art", sprite: "painting-wide", w: 48, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "A SILKSCREEN PRINT. NUM. 1/12, WHICH YOU FEEL A STRANGE SENSE OF PRIDE ABOUT.", slots: ["art-bed"] },
   { id: "plant-snake", name: "SNAKE PLANT", kind: "plant", sprite: "plant-1", family: "plant", w: 16, h: 16, color: "leaf", how: "start", from: "ALREADY HERE", note: "A SNAKE PLANT. IT ASKS FOR VERY LITTLE." },
-  { id: "lamp-table", name: "LAMP", kind: "lamp", sprite: "lamp-table", w: 16, h: 16, color: "butter", how: "start", from: "ALREADY HERE", note: "A LAMP. IT DOES THE ONE THING.", glow: { radius: 40, alpha: 0.2 } },
-  { id: "pantry-bins", name: "CLEAR BINS", kind: "pantry", sprite: "pantry", w: 16, h: 32, color: "mist", how: "start", from: "ALREADY HERE", note: "CLEAR BINS. YOU CAN SEE WHAT IS IN THEM." },
+  { id: "lamp-table", name: "LAMP", kind: "lamp", sprite: "lamp-table", w: 16, h: 16, color: "butter", how: "start", from: "ALREADY HERE", note: "A LAMP. IT'S A GOOD LAMP, YOU THINK.", glow: { radius: 40, alpha: 0.2 } },
+  { id: "pantry-bins", name: "CLEAR BINS", kind: "pantry", sprite: "pantry", w: 16, h: 32, color: "mist", how: "start", from: "ALREADY HERE", note: "YOU GUESS THESE WILL DO AS A PANTRY, FOR NOW." },
 ];
 
 // The real gifts (issue 043 stage A, docs/random-encounters.md section 3), in the
@@ -127,20 +128,20 @@ export const DECOR_ITEMS: DecorItem[] = [
 // nothing wide yet); items with no slot yet are still ownable inventory.
 const WALL = ["art-table", "art-desk"];
 export const GIFT_ITEMS: DecorItem[] = [
-  { id: "art-robin", name: "ROBIN PRINT", kind: "art", sprite: "art-robin", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "A BIRD ON A BRANCH. IT IS STAYING PUT.", slots: WALL },
-  { id: "art-concert-poster", name: "CONCERT POSTER", kind: "art", sprite: "art-concert-poster", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "A POSTER FOR A SHOW THAT HAPPENED.", slots: WALL },
+  { id: "art-robin", name: "ROBIN PRINT", kind: "art", sprite: "art-robin", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "WHERE ARE YOU, ROBIN?", slots: WALL },
+  { id: "art-concert-poster", name: "CONCERT POSTER", kind: "art", sprite: "art-concert-poster", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "A POSTER FROM THAT SHOW YOU JUST WENT TO.", slots: WALL },
   { id: "lamp-warm", name: "WARM LAMP", kind: "lamp", sprite: "lamp-warm", w: 16, h: 16, color: "tangerine", how: "gift", from: "A PACKAGE", note: "A LAMP, BUT WARMER.", glow: { radius: 40, alpha: 0.2 } },
-  { id: "plant-dried", name: "DRIED FLOWERS", kind: "plant", sprite: "plant-dried", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "DRIED FLOWERS. THEY ARE DONE, AND THAT IS FINE." },
-  { id: "art-snow-wagon", name: "SNOW WAGON", kind: "art", sprite: "art-snow-wagon", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "A WAGON. IT HAS SEEN SOME SNOW.", slots: WALL },
+  { id: "plant-dried", name: "DRIED FLOWERS", kind: "plant", sprite: "plant-dried", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "THEY LAST SO LONG IT FEELS ILLEGAL." },
+  { id: "art-snow-wagon", name: "SNOW WAGON", kind: "art", sprite: "art-snow-wagon", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "A LANDSCAPE OF YOUR AUNT'S YARD. +5 NOSTALGIA.", slots: WALL },
   { id: "lamp-stool-lamp", name: "STOOL LAMP", kind: "lamp", sprite: "stool-lamp", w: 16, h: 16, color: "butter", how: "gift", from: "A PACKAGE", note: "A SMALL LAMP ON A STOOL. A GOOD ARRANGEMENT.", glow: { radius: 24, alpha: 0.2 } },
-  { id: "art-serenity-now", name: "SERENITY NOW", kind: "art", sprite: "art-serenity-now", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "IT ASKS FOR CALM, NOT VERY CALMLY.", slots: WALL },
-  { id: "art-canoes", name: "CANOES", kind: "art", sprite: "art-canoes", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "SOME CANOES. NOBODY IS IN A HURRY.", slots: WALL },
+  { id: "art-serenity-now", name: "SERENITY NOW", kind: "art", sprite: "art-serenity-now", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "YOU DON'T MAKE A HABIT OF BUYING JOKE ART, BUT THE ARTIST SEEMED COOL.", slots: WALL },
+  { id: "art-canoes", name: "CANOES", kind: "art", sprite: "art-canoes", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "JUST A COUPLE CANOES. EMPTY. HOW VERY RIMBAUD.", slots: WALL },
   // A small light that wanders a little, slowly (never a strobe).
-  { id: "lamp-candle", name: "CANDLE", kind: "lamp", sprite: "lamp-candle", w: 16, h: 16, color: "butter", how: "gift", from: "A PACKAGE", note: "A CANDLE. IT MOVES A LITTLE, ON ITS OWN.", glow: { radius: 20, alpha: 0.18, flicker: { alpha: 0.2, radius: 0.08, seed: 11 } } },
-  { id: "art-great-wave", name: "GREAT WAVE", kind: "art", sprite: "art-great-wave", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "A BIG WAVE. IT IS STILL ABOUT TO ARRIVE.", slots: WALL },
+  { id: "lamp-candle", name: "CANDLE", kind: "lamp", sprite: "lamp-candle", w: 16, h: 16, color: "butter", how: "gift", from: "A PACKAGE", note: "THE ORIGINAL LAMP.", glow: { radius: 20, alpha: 0.18, flicker: { alpha: 0.2, radius: 0.08, seed: 11 } } },
+  { id: "art-great-wave", name: "GREAT WAVE", kind: "art", sprite: "art-great-wave", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "JUST BECAUSE IT'S IN EVERY COLLEGE DORM DOESN'T MAKE IT BAD.", slots: WALL },
   // After the first ten (the later list): owned only once something gives them.
-  { id: "art-starry-night", name: "STARRY NIGHT", kind: "art", sprite: "art-starry-night", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "A NIGHT SKY. IT IS QUITE BUSY UP THERE.", slots: WALL },
-  { id: "art-water-lilies", name: "WATER LILIES", kind: "art", sprite: "art-water-lilies", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "LILIES ON WATER. VERY RESTFUL.", slots: WALL },
+  { id: "art-starry-night", name: "STARRY NIGHT", kind: "art", sprite: "art-starry-night", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "NOT YOUR FAVORITE VAN GOGH, BUT THERE IS A REASON IT'S A CLASSIC.", slots: WALL },
+  { id: "art-water-lilies", name: "WATER LILIES", kind: "art", sprite: "art-water-lilies", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "PEOPLE TALK ABOUT CAPTURING A FLEETING MOMENT, BUT YOU JUST THINK IT'S PRETTY.", slots: WALL },
   { id: "art-sunflowers", name: "SUNFLOWERS", kind: "art", sprite: "art-sunflowers", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "SUNFLOWERS IN A VASE. THEY ARE HOLDING UP.", slots: WALL },
 ];
 

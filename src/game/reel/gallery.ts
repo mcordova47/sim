@@ -230,14 +230,17 @@ export function gridLayout({ mode, screen, line = "" }: GridOptions): GridLayout
   const gridW = GRID_COLS * w + (GRID_COLS - 1) * gap;
   const gridH = GRID_ROWS * h + (GRID_ROWS - 1) * gap;
   const panelW = wide ? 306 : 208;
-  const panelH = wide ? 177 : 196;
+  // The wide phone has one line of text under the grid; a line that wraps (Marc's longer ones, issue 143) gets a
+  // second row and the panel grows by it, so nothing is cut. Never more than two rows there.
+  const lines = wrapText(line, panelW - 2 * PHONE_BEZEL - 8);
+  const wideLines = Math.min(Math.max(lines.length, 1), 2);
+  const panelH = wide ? 177 + (wideLines - 1) * LINE_H : 196;
   const panel: Rect = { x: Math.floor((screen.width - panelW) / 2), y: Math.floor((screen.height - panelH) / 2), w: panelW, h: panelH };
   const inner: Rect = { x: panel.x + PHONE_BEZEL, y: panel.y + PHONE_BEZEL, w: panel.w - 2 * PHONE_BEZEL, h: panel.h - 2 * PHONE_BEZEL };
   const strip: Rect = { x: inner.x, y: inner.y, w: inner.w, h: STRIP_H };
   const cells = place(inner.x + Math.floor((inner.w - gridW) / 2), strip.y + STRIP_H + 2, gap);
   const gridBottom = strip.y + STRIP_H + 2 + gridH;
-  const lines = wrapText(line, inner.w - 8);
-  const textLines = wide ? lines.slice(0, 1) : lines;
+  const textLines = wide ? lines.slice(0, 2) : lines;
   const lineTop = wide ? gridBottom + 2 : gridBottom + 4;
   const linePos = textLines.map((text, i) => ({ text, x: inner.x + Math.floor((inner.w - textWidth(text)) / 2), y: lineTop + i * LINE_H }));
   const buttons: NonNullable<GridLayout["phone"]>["buttons"] = [];

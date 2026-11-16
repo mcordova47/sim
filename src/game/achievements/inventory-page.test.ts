@@ -106,14 +106,15 @@ describe.each([
     setView(view);
     const entries = entriesOf(true);
     for (const touch of [false, true]) {
-      for (let cursor = 0; cursor < entries.length; cursor += 3) {
+      for (let cursor = 0; cursor < entries.length; cursor += 1) {
         vi.mocked(drawText).mockClear();
         drawThings(ctx, { entries, cursor, touch });
         const all = texts().join("\n");
         expect(all).toContain("THINGS");
         expect(all).not.toMatch(/TOTAL|COMPLETE|MISSING|OWN(ED)?\b|LEFT|NEW\b|COLLECT|ALL \d|%/);
         const nums = texts().filter((t) => /\d/.test(t));
-        for (const t of nums) expect(t, t).toMatch(/^PAGE \d+\/\d+$/);
+        // The print number and the joke score in Marc's two notes (issue 143) are the only other numerals.
+        for (const t of nums) expect(t, t).toMatch(/^PAGE \d+\/\d+$|1\/12|\+5|NUM\.$/);
       }
     }
   });

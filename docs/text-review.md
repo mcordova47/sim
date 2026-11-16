@@ -183,7 +183,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 
 
 **1. Little Fern Prints** (social post, Instagram; sells `art-robin`; unsubscribe difficulty 0 of 2; arrives 12 game hours after the order)
-- Header: INSTAGRAM / SPONSORED -
+- Header: INSTAGRAM / SPONSORED - keep
 - From: @LITTLEFERNPRINTS -
 - Subject or caption: NEW: THE ROBIN PRINT -
 - Body: Archival paper. Numbered edition of 200. -
@@ -245,7 +245,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Look closer: $22 $17.60 -
 
 **7. Saltmarsh Prints** (social post, Instagram; sells `art-water-lilies`; unsubscribe difficulty 0 of 2; arrives 12 game hours after the order)
-- Header: INSTAGRAM / SPONSORED -
+- Header: INSTAGRAM / SPONSORED - keep
 - From: @SALTMARSHPRINTS -
 - Subject or caption: Water Lilies -
 - Body: Giclee print, matted and ready to hang. -

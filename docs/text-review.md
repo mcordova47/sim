@@ -186,7 +186,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Header: INSTAGRAM / SPONSORED - keep
 - From: @LITTLEFERNPRINTS - keep
 - Subject or caption: NEW: THE ROBIN PRINT - keep
-- Body: Archival paper. Numbered edition of 200. -
+- Body: Archival paper. Numbered edition of 200. - keep
 - Body: Free shipping on orders this week. -
 - Button: SHOP NOW -
 - Look closer: ROBIN PRINT, 8 X 10 IN -

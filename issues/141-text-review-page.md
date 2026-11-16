@@ -7,6 +7,15 @@ owner: claude
 depends_on: ["140"]
 summary: "One line at a time, with Keep, Soften and Rewrite, served by the local issues server."
 kind: build
+decisions:
+  - id: d1
+    who: marc
+    q: "The dialog tree appears twice in the text review (under Dialogs and under contemplate), so 19 lines are duplicates. Mark each once?"
+    options:
+      - "mark each once: the walkthrough shows it once and the mark applies to both copies"
+      - "mark both copies separately"
+    recommendation: "mark each once, so you are never asked the same line twice"
+    status: open
 ---
 
 ## Goal

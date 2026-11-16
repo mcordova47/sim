@@ -15,7 +15,7 @@ The product name is Simagotchi (Marc, 2026-10-29). The pause screen's header use
 
 ## Side-project picture (issue 101)
 "Work on the side project" view, the four lines (Marc rewrote the last three on 2026-10-28; the glitch line calls out the deliberate picture glitch: the tiny figure stands on the desk, facing out). Wired in `src/game/side-projects.ts`. Marc to mark: keep / soften / rewrite.
-- A small version of this room, on a small screen. Someone is at the desk.
+- A small version of this room, on a small screen. Someone is at the desk. - keep
 - It looks like the tiny person is... standing on top of the desk? Gotta remember to fix that.
 - Their screen shows another little room with another little guy.
 - You wonder if you're just a little guy on someone else's screen, and the silly notion gives you a good chuckle. -

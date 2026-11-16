@@ -16,7 +16,10 @@ decisions:
       - "keep open"
       - "blocked"
     recommendation: "done: everything it described shipped; it has been `blocked` since the game changed direction"
-    status: open
+    status: answered
+    answer: "done"
+    by: marc
+    on: 2026-11-15
   - id: d2
     who: marc
     q: "048 (more room for the status panel): the ribbon (086) and the battery (088, 094) shipped, and a second stage was never filed. What status?"

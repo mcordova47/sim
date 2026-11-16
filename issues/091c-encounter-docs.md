@@ -6,9 +6,7 @@ owner: claude
 depends_on: [091b]
 short: "Encounter music 3: docs and tuning"
 summary: "Encounter music gets documented, with every tunable number gathered in config"
-unverified:
-  - How the encounter music, the duck and the jingles sound; an agent cannot hear, only Marc can.
-  - The tuned values in ENCOUNTERS.music are as built; nobody has judged them by ear, so the tuning half of the acceptance (Marc says it sounds right) is open.
+unverified: []
 needs: []
 ---
 
@@ -42,3 +40,4 @@ Design and Marc's answers (2026-10-29): `docs/encounter-music-design.md` (Marc c
   - Round-2 diff (`41fda68..HEAD`) touches only docs/random-encounters.md and this file. Re-read `src/game/sound/encounter-sound.ts`: in `follow`, a `waiting` loop starts as soon as `scene.phase !== "entering"` or `frame >= startFrame`; `gone` (scene null, i.e. Escape) fades a playing loop over `escapeFade` and returns the record over `duckUp`, and sets a never-started loop to idle. So Escape before frame 32 never starts it; after an E skip the loop starts as the card opens. The existing test "an E skip starts it when the card opens" shows `playing` in the very step of the skip (sound updates after game in the same frame), so a later Escape always finds a playing loop; the corrected Escape bullet is right. The "Look closer" sentence now reads clearly. Re-ran encounter-sound and encounter-game tests (83 pass) and `npm run issues:check -- --validate` (175 valid).
   - Nits, not blocking: the bullet says the loop starts "on the next frame after the card opens"; it actually starts in the same frame the skip is processed (still true that any later Escape fades a playing loop). The test titled "a skip then Escape, and Escape before the hit" only exercises Escape at frame 10 (a code follow-up for the author's list, not a doc defect). The ~16 ms sync figure remains an unchecked estimate.
   - Unverified (agent cannot hear): how the loop, duck, fades and jingles sound; the tuned `ENCOUNTERS.music` values. Marc's listening step (`needs: try`) stays open.
+- 2026-11-15 (marc): the sound has already been verified

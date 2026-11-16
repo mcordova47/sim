@@ -28,7 +28,7 @@ The pause-screen page where pictures are added and removed. The first five lines
 - Progress: Making picture 3 of 12 - keep
 - Added: 12 pictures added. / 1 picture added. / No pictures added. - keep
 - Already stored (new): 2 were already here. / 1 was already here. - keep
-- Not readable: 2 could not be read.
+- Not readable: 2 could not be read. - keep
 - Over the cap: Room for 60. The rest stayed where they were.
 - Storage trouble (new): This browser could not keep them all. / This browser could not read the pictures. / This browser could not remove them all.
 - No storage in this browser: This browser will not keep pictures.

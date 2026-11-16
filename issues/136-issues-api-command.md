@@ -7,8 +7,7 @@ owner: claude
 depends_on: ["135"]
 summary: "Edits to decisions and needs are done by tested functions and one command, so they cannot be done wrongly."
 kind: build
-unverified:
-  - "A real commit made by the command in the main checkout with Marc's own git identity, global hooks and signing (only temporary repos were used, by the author and by the reviewer)."
+unverified: []
 needs: []
 ---
 
@@ -33,3 +32,5 @@ Design and Marc's answers (2026-11-15): issue 135 (`issues/135-issue-tasks-api.m
 - Review notes, none blocking: (1) after a failed commit (hook or signing) the file is left staged, which the message does not say; (2) `--date 2026-02-31` is accepted (Date.parse rolls it over); (3) an answer beginning with `--` cannot be typed, since it reads as a flag; (4) an open decision with an empty `answer:` is refused with the "bug in the editor" message, which is misleading but writes nothing, and an option that is not a string (a map) throws instead of refusing, but the validator lets that through and no real file has it; (5) options written as `(a) text` cannot be picked by letter, only by text (no real file uses them); (6) docs: the sample `answer: "b: Keep it open"` is illustrative (real options without letters record just the option text), `--date` and `--by` are not documented, and the commit also includes `PLAN.md` if the table changed; (7) the build log says add-then-resolve "restores the bytes", but it leaves `needs: []` when the key was absent (the test's own title says so).
 - Could not verify: a real commit in the main checkout with Marc's own git identity, global hooks and signing (only temporary repos were used).
 
+### 2026-11-15, Marc
+Verified on actual issues.

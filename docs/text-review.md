@@ -320,7 +320,7 @@ The pixel font is capitals only, so these draw in capitals. On the touch layer a
 - Pills while the key screen is up: KEYBOARD and PASTE (in place of CHOICE and SOUND) - keep
 - Choice screen hint (touch): TAP, OR PAD AND A: pick   B: back - keep
 - Key screen, touch only: Tap the box to type or paste; hint A: ok   B: back - keep
-- Card front hint (touch): TAP OR A: flip
+- Card front hint (touch): TAP OR A: flip - keep
 - Card buttons (touch): SAY IT (and the voice name in the practice deck)
 - Done screen buttons (touch): OTHER KEY, NO KEY (a key holder); USE A KEY (a guest); hint A: leave
 - Start again (touch): START AGAIN, then "Erase them and start again?" with YES, ERASE and NO

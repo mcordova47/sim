@@ -88,7 +88,10 @@ decisions:
       - "keep open"
       - "blocked"
     recommendation: "keep open: the walkthrough is ongoing"
-    status: open
+    status: answered
+    answer: "keep open"
+    by: marc
+    on: 2026-11-15
 ---
 
 ## Goal

@@ -109,7 +109,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 069 | [Decor items decide whether they give light; the stool is a real item](issues/069-decor-glow.md) | claude | done | |
 | 070 | [Boxes: flatten, take out the recycling, they disappear](issues/070-boxes-recycling.md) | claude | done | 066 |
 | 071 | [No recycling bin; recycle from the boxes; no cooldowns on state-gated tasks](issues/071-recycling-and-cooldowns.md) | claude | done | |
-| 072 | [A real pantry (a stack of clear bins); remove the tote bag](issues/072-pantry-and-no-tote.md) | agent | review | |
+| 072 | [A real pantry (a stack of clear bins); remove the tote bag](issues/072-pantry-and-no-tote.md) | agent | done | |
 | 073 | [Decor: an item is displayed in one place at a time (swap, inventory)](issues/073-decor-inventory.md) | claude | done | |
 | 074 | [Art for the first gifts (paintings, lamps, plant, poster)](issues/074-art-first-gifts.md) | agent | done | |
 | 075 | [Experiment: a per-letter voice for dialog text, behind a toggle](issues/075-dialog-voice-experiment.md) | claude | done | |

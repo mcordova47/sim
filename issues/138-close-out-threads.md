@@ -86,7 +86,10 @@ decisions:
       - "yes, start the design"
       - "not yet"
     recommendation: "yes if the flashcards app has deployed the drills (you resolved the wait, so I think it has)"
-    status: open
+    status: answered
+    answer: "not yet"
+    by: marc
+    on: 2026-11-15
   - id: d8
     who: marc
     q: "117g (photo gallery last pass): it has two parts, the text lines (which the text review walkthrough, issue 139, will cover) and trying the gallery on your phone. Which is done?"

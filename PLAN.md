@@ -208,7 +208,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 140 | [Text review 1: parser and marks](issues/140-text-review-parser.md) | claude | done | 139 |
 | 141 | [Text review 2: the page](issues/141-text-review-page.md) | claude | done | 140 |
 | 142 | [Encounter music follow-ups](issues/142-encounter-music-followups.md) | claude | todo | 091c |
-| 143 | [Apply text rewrites](issues/143-apply-text-rewrites.md) | claude | review | 141 |
+| 143 | [Apply text rewrites](issues/143-apply-text-rewrites.md) | claude | done | 141 |
 <!-- issues:table:end -->
 
 ## Order of work

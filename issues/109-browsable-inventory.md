@@ -5,11 +5,6 @@ status: done
 owner: marc + claude
 depends_on: [073]
 summary: "A browsable inventory in the pause screen shows what you own, without counts or pressure"
-needs:
-  - who: marc
-    kind: review
-    why: "143 (your 17 text rewrites applied to the game) is approved on branch issue/143-apply-text-rewrites: say merge, or what is off."
-    since: 2026-11-16
 decisions:
   - id: d1
     who: marc

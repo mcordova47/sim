@@ -2,7 +2,7 @@
 id: "141"
 title: "Text review walkthrough 2: the page in the local server"
 short: "Text review 2: the page"
-status: review
+status: done
 owner: claude
 depends_on: ["140"]
 summary: "One line at a time, with Keep, Soften and Rewrite, served by the local issues server."
@@ -59,3 +59,13 @@ Design and Marc's answers (2026-11-15): issue 139 (`issues/139-text-review-walkt
     - [ ] (minor) contributing.md: mention the 110-character limit for the pixel font.
   - Not verified (unchanged from the author, still open): how the cards feel to Marc over a long session; touch use on a real phone (390 px was emulated in headless Chrome only).
 - 2026-11-15 (claude, after review): fixed the review finding. Under 'once', a mark on the first copy now covers only the copies that carry the same mark as it (in step); a copy that was hand-marked differently, or left unmarked when the first copy is marked, is never overwritten and is shown as a card of its own. Tests for both cases added. docs/contributing.md now says the pixel font is used for short strings it can draw. [x] both checklist items done. Status back to review for a second look.
+- 2026-11-15 (claude, second independent review): verdict APPROVE. Checked the fix (git diff 732765d..HEAD: visibleItems/copiesOf in step only, one test, contributing wording) on a COPY (temp clone on a local main, origin removed) with a CDP driver in headless Chrome against `node scripts/issues-serve.mjs --no-open`; the real repos and docs/text-review.md were never touched. Decision d1 left open and untouched.
+  - Hand-marked the contemplate copy `rewrite: my careful hand rewrite`, then K on the Dialogs copy: only the Dialogs line became keep (one commit); the hand rewrite is intact. The previous failure is gone.
+  - Hand-marked the first copy only: the other copy appears as its own card (no "also appears" note); soften with a note on it wrote only that copy, the first stayed keep. Back then Clear on that copy restored its bytes; after the clear the copy still comes up as its own card on reload (not hidden, not looping).
+  - Normal flow (both unmarked): Rewrite once marked both copies in one commit; Back, Clear restored the doc byte-for-byte, checkout clean.
+  - Three-copy group (ad "Button: SHOP NOW", lines 191/232/253) with the middle copy hand-marked rewrite: Keep on the first marked the first and the third in one commit, left the middle alone; Back and Clear on the first undid exactly those two, byte-equal to the state before the mark.
+  - Exhaustive logic walk on that three-copy group: 125 starting states (each copy none/keep/soften a/rewrite b/soften c), marking every visible unmarked card Keep through the real copiesOf/markReviewLine: 0 loops, 0 unreachable unmarked lines, 0 pre-existing marks changed or overwritten.
+  - DUPLICATE_POLICY='separately' (edited in the copy only): the first copy marks only itself, both later copies come up as their own cards and are marked separately.
+  - Checks in the worktree: npm test 3860 pass (3 skipped), npx tsc --noEmit, npm run build, npm run check:dist, issues:check --validate (two summary-length warnings in other issues, 138 and 142) all pass; worktree clean. The fix touched no site/static files, so the first review's byte-identical static check still stands.
+  - Minor, not blocking: an out-of-step copy shown as its own card carries no hint that the same line appears elsewhere (the "One mark covers every copy" note shows only on a first copy with copies in step). Out-of-step copies that are already marked are never shown as cards (only reachable by hand in the doc), which is the intended no-overwrite behaviour.
+  - Still not verified: how the cards feel to Marc over a long session; touch use on a real phone.

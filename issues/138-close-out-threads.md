@@ -5,7 +5,7 @@ short: "Close out in-progress threads"
 status: todo
 owner: marc + claude
 depends_on: []
-summary: "Nine questions about what is really left on the threads that still show as in progress, so each can be closed, parked or started."
+summary: "Nine questions about what is really left on the threads still showing as in progress, so each is closed, parked or started."
 kind: chore
 decisions:
   - id: d1

@@ -10,7 +10,8 @@ import { parseReview } from './text-review.mjs';
 import { DUPLICATE_POLICY, splitLabel, pixelFits, visibleItems, textBody, TEXT_SCRIPT } from './text-review-page.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const REAL_DOC = fs.readFileSync(path.join(here, '..', 'docs', 'text-review.md'), 'utf8');
+// A frozen snapshot of the doc as it was when the walkthrough shipped (no marks): the live doc changes as Marc marks lines.
+const REAL_DOC = fs.readFileSync(path.join(here, 'fixtures', 'text-review-snapshot.md'), 'utf8');
 const ISSUE = `---
 id: "001"
 title: "First thing"

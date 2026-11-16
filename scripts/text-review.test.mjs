@@ -8,7 +8,11 @@ import { parseReview, markLine, clearMark, nextUnmarked, splitSlots, progress } 
 import { readReview, markReviewLine, nextCard, hashOf } from './text-review-io.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const REAL = fs.readFileSync(path.join(root, 'docs/text-review.md'), 'utf8');
+// A frozen copy of docs/text-review.md as it was when the walkthrough shipped (298 strings, no marks): the live doc
+// changes every time Marc marks a line, so the tests that count or round-trip run on this snapshot; one test at the end
+// checks that the live doc still parses.
+const REAL = fs.readFileSync(path.join(root, 'scripts/fixtures/text-review-snapshot.md'), 'utf8');
+const LIVE = fs.readFileSync(path.join(root, 'docs/text-review.md'), 'utf8');
 const tmpdir = () => fs.mkdtempSync(path.join(os.tmpdir(), 'text-review-'));
 
 const FIX = [
@@ -407,5 +411,13 @@ describe('markReviewLine', () => {
     expect(nextCard({ root: dir, afterId: first.item.id, skipped: [second.item.id] }).item.id).not.toBe(second.item.id);
     expect(first.progress.left).toBe(first.progress.total);
     expect(hashOf(REAL)).toBe(first.hash);
+  });
+});
+
+describe('the live docs/text-review.md', () => {
+  it('still parses: nothing unparsed, and at least as many strings as the snapshot', () => {
+    const p = parseReview(LIVE);
+    expect(p.unparsed).toEqual([]);
+    expect(p.items.length).toBeGreaterThanOrEqual(parseReview(REAL).items.length);
   });
 });

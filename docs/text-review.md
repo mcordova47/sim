@@ -398,4 +398,4 @@ New lines for the LOOK switch on the PHOTOS page. None mentions pixels, resoluti
 - Switch label (button, and key S on the keyboard): LOOK: CRISP / LOOK: SOFT / LOOK: CHUNKY (Soft is the default; the order is Crisp, Soft, Chunky) - keep
 - Line under the grid (short, one row): New pictures only. - keep
 - Line on the empty page (long, wraps): New pictures only. The ones you have keep their look. - keep
-- If the browser cannot keep the choice (shown as a message, the choice lasts until the page is closed): This browser will not remember the look.
+- If the browser cannot keep the choice (shown as a message, the choice lasts until the page is closed): This browser will not remember the look. - keep

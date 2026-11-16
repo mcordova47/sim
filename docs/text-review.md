@@ -193,7 +193,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Look closer: 4.8 stars from 212 reviews. - keep
 
 **2. Garnet Lane Florals** (email, Gmail; sells `plant-dried`; unsubscribe difficulty 2 of 2; arrives 8 game hours after the order)
-- Header: GMAIL / PROMOTIONS -
+- Header: GMAIL / PROMOTIONS - keep
 - From: GARNET LANE FLORALS -
 - Subject or caption: Still thinking about it? Your cart is waiting. -
 - Body: You left DRIED FLOWERS in your cart. -
@@ -234,7 +234,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Look closer: $39. Ships in 2 days. -
 
 **6. Hollis Candle Co.** (email, Gmail; sells `lamp-candle`; unsubscribe difficulty 1 of 2; arrives 8 game hours after the order)
-- Header: GMAIL / PROMOTIONS -
+- Header: GMAIL / PROMOTIONS - keep
 - From: HOLLIS CANDLE CO. -
 - Subject or caption: 20% off ends tonight -
 - Body: Hand-poured soy candle. 40-hour burn. -

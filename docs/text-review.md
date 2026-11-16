@@ -247,7 +247,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 **7. Saltmarsh Prints** (social post, Instagram; sells `art-water-lilies`; unsubscribe difficulty 0 of 2; arrives 12 game hours after the order)
 - Header: INSTAGRAM / SPONSORED - keep
 - From: @SALTMARSHPRINTS - keep
-- Subject or caption: Water Lilies -
+- Subject or caption: Water Lilies - keep
 - Body: Giclee print, matted and ready to hang. -
 - Body: Rated 4.9 by 40,000 customers. -
 - Button: SHOP NOW - keep

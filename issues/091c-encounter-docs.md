@@ -1,7 +1,7 @@
 ---
 id: 091c
 title: "Encounter music 3: docs and tuning pass"
-status: in-progress
+status: review
 owner: claude
 depends_on: [091b]
 short: "Encounter music 3: docs and tuning"
@@ -39,3 +39,5 @@ Design and Marc's answers (2026-10-29): `docs/encounter-music-design.md` (Marc c
   - [ ] Optional wording: the sentence "Look closer, the second page and the dialog voice play over it unchanged" (same file, four-passes bullet) is cryptic; say what is meant.
   - [ ] Optional: "up to about a frame (16 ms) off the hit" is an estimate, not checked by any test.
   - Unverified (agent cannot hear): how the loop, the duck, the fades and both jingles sound; the tuned values in ENCOUNTERS.music; the sync of the downbeat with the hit chord. Marc's listening step (needs: try) is still open.
+
+- 2026-11-15 (agent): Review round 1 fixes: the Escape bullet in docs/random-encounters.md corrected (after an E skip the loop starts the next frame, so a later Escape fades a playing loop); the cryptic Look closer sentence reworded. The ~16 ms sync figure stays as the design note's estimate (unchecked). Status back to review for round 2.

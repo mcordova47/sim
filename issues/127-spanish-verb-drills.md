@@ -47,4 +47,4 @@ Wait for the app's deploy before shipping, do not design around an older core. D
 
 ## Progress log
 - 2026-11-15 (planner): filed from Marc's request, with the PR's contents summarised above. Not yet checked: whether the deployed `core.v1.js` at palabras.mcord.dev already has the drill exports (the PR merged today; the app may need a deploy). Marc: wait for the deploy before shipping (see Sequencing).
-
+- 2026-11-15 (marc): flashcard app was deployed

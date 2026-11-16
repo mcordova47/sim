@@ -28,7 +28,10 @@ decisions:
       - "keep open"
       - "blocked"
     recommendation: "keep open: a stage 2 for the panel and mobile was talked about but is not filed; or move it to ideas"
-    status: open
+    status: answered
+    answer: "done"
+    by: marc
+    on: 2026-11-15
   - id: d3
     who: marc
     q: "062 (decor you can swap and buy): the stages are merged and the wishlist lives in docs/decor.md. What status?"

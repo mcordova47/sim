@@ -93,9 +93,9 @@ The pause-screen page where pictures are added and removed. The first five lines
 
 ## Dialogs (contemplate and task dialogs)
 
-- (prompt) Contemplate what?
+- (prompt) Contemplate what? - keep
   - (label) Existence
-    - (prompt) Which part?
+    - (prompt) Which part? - keep
       - (label) Why anything exists
         - (text) Why is there something rather than nothing? You think about it for a while. The answer is probably the dishes.
       - (label) Why it is like this
@@ -110,9 +110,9 @@ The pause-screen page where pictures are added and removed. The first five lines
   - (label) Nothing, actually
 
 ### contemplate
-- (prompt) Contemplate what?
+- (prompt) Contemplate what? - keep
   - (label) Existence
-    - (prompt) Which part?
+    - (prompt) Which part? - keep
       - (label) Why anything exists
         - (text) Why is there something rather than nothing? You think about it for a while. The answer is probably the dishes.
       - (label) Why it is like this
@@ -183,76 +183,76 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 
 
 **1. Little Fern Prints** (social post, Instagram; sells `art-robin`; unsubscribe difficulty 0 of 2; arrives 12 game hours after the order)
-- Header: INSTAGRAM / SPONSORED -
-- From: @LITTLEFERNPRINTS -
-- Subject or caption: NEW: THE ROBIN PRINT -
-- Body: Archival paper. Numbered edition of 200. -
-- Body: Free shipping on orders this week. -
-- Button: SHOP NOW -
-- Look closer: ROBIN PRINT, 8 X 10 IN -
-- Look closer: 4.8 stars from 212 reviews. -
+- Header: INSTAGRAM / SPONSORED - keep
+- From: @LITTLEFERNPRINTS - keep
+- Subject or caption: NEW: THE ROBIN PRINT - keep
+- Body: Archival paper. Numbered edition of 200. - keep
+- Body: Free shipping on orders this week. - keep
+- Button: SHOP NOW - keep
+- Look closer: ROBIN PRINT, 8 X 10 IN - keep
+- Look closer: 4.8 stars from 212 reviews. - keep
 
 **2. Garnet Lane Florals** (email, Gmail; sells `plant-dried`; unsubscribe difficulty 2 of 2; arrives 8 game hours after the order)
-- Header: GMAIL / PROMOTIONS -
-- From: GARNET LANE FLORALS -
-- Subject or caption: Still thinking about it? Your cart is waiting. -
-- Body: You left DRIED FLOWERS in your cart. -
-- Body: A small bunch that never needs watering. -
-- Body: Complete your order today. -
-- Button: COMPLETE ORDER -
-- Look closer: Dried flower bunch, glass jar. -
-- Look closer: $24. Free returns. -
+- Header: GMAIL / PROMOTIONS - keep
+- From: GARNET LANE FLORALS - keep
+- Subject or caption: Still thinking about it? Your cart is waiting. - keep
+- Body: You left DRIED FLOWERS in your cart. - keep
+- Body: A small bunch that never needs watering. - keep
+- Body: Complete your order today. - keep
+- Button: COMPLETE ORDER - keep
+- Look closer: Dried flower bunch, glass jar. - keep
+- Look closer: $24. Free returns. - keep
 
 **3. Oakline Home Goods** (social post, Facebook Marketplace; sells `lamp-warm`; unsubscribe difficulty 0 of 2; arrives 24 game hours after the order)
-- Header: FACEBOOK MARKETPLACE / OAKLINE HOME GOODS -
-- Subject or caption: Table lamp, warm shade - $18 -
-- Body: Like new. Works great. Pickup or delivery. -
-- Body: Listed 3 days ago. Is this still available? -
-- Button: MESSAGE SELLER -
-- Look closer: Linen shade, brass base. Bulb included. -
-- Look closer: Delivery is $6 within 10 miles. -
-- Narrator (instead of the usual): A LISTING HAS APPEARED. -
+- Header: FACEBOOK MARKETPLACE / OAKLINE HOME GOODS - keep
+- Subject or caption: Table lamp, warm shade - $18 - keep
+- Body: Like new. Works great. Pickup or delivery. - keep
+- Body: Listed 3 days ago. Is this still available? - keep
+- Button: MESSAGE SELLER - keep
+- Look closer: Linen shade, brass base. Bulb included. - keep
+- Look closer: Delivery is $6 within 10 miles. - keep
+- Narrator (instead of the usual): A LISTING HAS APPEARED. - keep
 
 **4. Northfield Studio** (email, Amazon; sells `art-starry-night`; unsubscribe difficulty 1 of 2; arrives 24 game hours after the order)
-- Header: AMAZON / RECOMMENDED -
-- From: Amazon.com -
-- Subject or caption: Recommended for you: Starry Night print -
-- Body: Because you viewed wall art. -
-- Body: Northfield Studio. 4.6 stars, 312 ratings. -
-- Body: FREE delivery Thursday. -
-- Button: VIEW ITEM -
-- Look closer: Starry Night, framed, 12 X 16 IN -
-- Look closer: In stock. Sold by Northfield Studio. -
+- Header: AMAZON / RECOMMENDED - keep
+- From: Amazon.com - keep
+- Subject or caption: Recommended for you: Starry Night print - keep
+- Body: Because you viewed wall art. - keep
+- Body: Northfield Studio. 4.6 stars, 312 ratings. - keep
+- Body: FREE delivery Thursday. - keep
+- Button: VIEW ITEM - keep
+- Look closer: Starry Night, framed, 12 X 16 IN - keep
+- Look closer: In stock. Sold by Northfield Studio. - keep
 
 **5. Maple Row** (text message, Messages; sells `lamp-stool-lamp`; unsubscribe difficulty 1 of 2; arrives 8 game hours after the order)
-- Header: MESSAGES / MAPLE ROW -
-- Message: Maple Row: Your stool lamp is back in stock. -
-- Body: Limited quantities. Shop before it's gone. -
-- Body: Msg & data rates may apply. STOP to opt out. -
-- Button: SHOP NOW -
-- Look closer: Stool lamp, oak, with shade. -
-- Look closer: $39. Ships in 2 days. -
+- Header: MESSAGES / MAPLE ROW - keep
+- Message: Maple Row: Your stool lamp is back in stock. - keep
+- Body: Limited quantities. Shop before it's gone. - keep
+- Body: Msg & data rates may apply. STOP to opt out. - keep
+- Button: SHOP NOW - keep
+- Look closer: Stool lamp, oak, with shade. - keep
+- Look closer: $39. Ships in 2 days. - keep
 
 **6. Hollis Candle Co.** (email, Gmail; sells `lamp-candle`; unsubscribe difficulty 1 of 2; arrives 8 game hours after the order)
-- Header: GMAIL / PROMOTIONS -
-- From: HOLLIS CANDLE CO. -
-- Subject or caption: 20% off ends tonight -
-- Body: Hand-poured soy candle. 40-hour burn. -
-- Body: Use code EVENING20 at checkout. -
-- Body: Offer ends at midnight. -
-- Button: SHOP THE SALE -
-- Look closer: Evening candle, soy wax, 8 OZ. -
-- Look closer: $22 $17.60 -
+- Header: GMAIL / PROMOTIONS - keep
+- From: HOLLIS CANDLE CO. - keep
+- Subject or caption: 20% off ends tonight - keep
+- Body: Hand-poured soy candle. 40-hour burn. - keep
+- Body: Use code EVENING20 at checkout. - keep
+- Body: Offer ends at midnight. - keep
+- Button: SHOP THE SALE - keep
+- Look closer: Evening candle, soy wax, 8 OZ. - keep
+- Look closer: $22 $17.60 - keep
 
 **7. Saltmarsh Prints** (social post, Instagram; sells `art-water-lilies`; unsubscribe difficulty 0 of 2; arrives 12 game hours after the order)
-- Header: INSTAGRAM / SPONSORED -
-- From: @SALTMARSHPRINTS -
-- Subject or caption: Water Lilies -
-- Body: Giclee print, matted and ready to hang. -
-- Body: Rated 4.9 by 40,000 customers. -
-- Button: SHOP NOW -
-- Look closer: Water Lilies, 12 X 16 IN -
-- Look closer: $48. Free shipping over $35. -
+- Header: INSTAGRAM / SPONSORED - keep
+- From: @SALTMARSHPRINTS - keep
+- Subject or caption: Water Lilies - keep
+- Body: Giclee print, matted and ready to hang. - keep
+- Body: Rated 4.9 by 40,000 customers. - keep
+- Button: SHOP NOW - keep
+- Look closer: Water Lilies, 12 X 16 IN - keep
+- Look closer: $48. Free shipping over $35. - keep
 
 ### Narrator and menu lines, by kind of card
 | card | menu label for the second choice | narrator when it appears | after Ignore | after an unsubscribe that works | after one that fails | mark |
@@ -262,33 +262,33 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 | text message | REPLY STOP | A TEXT MESSAGE HAS ARRIVED. | YOU LEAVE IT UNREAD. | YOU HAVE BEEN UNSUBSCRIBED. | REPLY STOP AGAIN TO CONFIRM. |  |
 
 ### Lines for every card
-- Menu: IGNORE, LOOK CLOSER, ADD TO CART -
+- Menu: IGNORE, LOOK CLOSER, ADD TO CART - keep
 - Extra narrator line at low mood: IT IS HARD TO LOOK AWAY. -
 - Extra narrator line at high mood: YOU ARE NOT INTERESTED. -
 - You already have the item (the card stays until you close it): YOU ALREADY HAVE ONE. -
 - The item is already ordered or waiting at the door: IT IS ALREADY IN YOUR CART. -
 - The delivery queue is full: YOUR CART IS FULL. -
 - An Ignore that turned into a purchase: YOU TAP IT WITHOUT MEANING TO. ADDED TO CART. -
-- After an order: ORDER CONFIRMED. ARRIVES LATER TODAY. (6 game hours or less) / ORDER CONFIRMED. ARRIVES TOMORROW. -
-- Under the sender of an email: TO: ME -
+- After an order: ORDER CONFIRMED. ARRIVES LATER TODAY. (6 game hours or less) / ORDER CONFIRMED. ARRIVES TOMORROW. - keep
+- Under the sender of an email: TO: ME - keep
 
 ### The ad blocker (achievements list, key B)
-- Hint line, alone: B: AD BLOCKER OFF   L: CLOSE   SHIFT+R: RESET (and ON) -
-- Hint line with the voice key as well (shorter so it fits): B: AD BLOCK OFF  D: VOICE  L: CLOSE  SHIFT+R: RESET -
-- Shown for a moment after the key: AD BLOCKER: ON / AD BLOCKER: OFF -
+- Hint line, alone: B: AD BLOCKER OFF   L: CLOSE   SHIFT+R: RESET (and ON) - keep
+- Hint line with the voice key as well (shorter so it fits): B: AD BLOCK OFF  D: VOICE  L: CLOSE  SHIFT+R: RESET - keep
+- Shown for a moment after the key: AD BLOCKER: ON / AD BLOCKER: OFF - keep
 
 ## Flashcards progress page (issue 082)
 Shown at the desk when no cards are left to review. The pixel font is capitals only, so these draw in capitals.
-- Title: Study Spanish
-- Known: 127 of 1000 words known
-- Met: 312 of 1000 words met
-- Due now: 12 cards due now. (1 card due now.)
-- Nothing due: Nothing is due. That is all for now.
-- Next: The next one is due in 5 hours. (under a minute, N minutes, N hours, N days)
-- Soon: 9 cards within a day.
-- This visit, only if something was answered: This time: 8 got it, 2 again.
-- Without figures (the app has not added the function yet, or it could not be read): Nothing is due. Come back later.
-- Hint: E: leave
+- Title: Study Spanish - keep
+- Known: 127 of 1000 words known - keep
+- Met: 312 of 1000 words met - keep
+- Due now: 12 cards due now. (1 card due now.) - keep
+- Nothing due: Nothing is due. That is all for now. - keep
+- Next: The next one is due in 5 hours. (under a minute, N minutes, N hours, N days) - keep
+- Soon: 9 cards within a day. - keep
+- This visit, only if something was answered: This time: 8 got it, 2 again. - keep
+- Without figures (the app has not added the function yet, or it could not be read): Nothing is due. Come back later. - keep
+- Hint: E: leave - keep
 
 ## Flashcards guest mode (issue 089)
 The pixel font is capitals only, so these draw in capitals. The first two choice lines are the wording from the design note.
@@ -297,16 +297,16 @@ The pixel font is capitals only, so these draw in capitals. The first two choice
 - Choice, second item: Enter a sync key - keep
 - Choice note (two lines): Without a key, progress is saved / in this browser only. - keep
 - Choice hint: Up, Down, E: pick   Esc: back - keep
-- Done screen, guest, under the figures: Saved in this browser only.
-- Done screen, guest, when storage could not keep answers: Progress was not kept.
-- Done screen controls, guest: E: leave   K: use a key
-- Done screen controls, key holder: E: leave   K: other key   G: no key
-- Blocked storage, top left of every card: NOT SAVED
-- Blocked storage, on the front of a card: Progress will not be kept.
-- Saved cards refused (same screen for a key holder, without the options): The saved cards could not be read.
-- Start again, first: S: start again
-- Start again, after S: Erase them and start again? Y: yes
-- The game's reset question is unchanged and already says everything: RESET ALL PROGRESS? Y: YES
+- Done screen, guest, under the figures: Saved in this browser only. - keep
+- Done screen, guest, when storage could not keep answers: Progress was not kept. - keep
+- Done screen controls, guest: E: leave   K: use a key - keep
+- Done screen controls, key holder: E: leave   K: other key   G: no key - keep
+- Blocked storage, top left of every card: NOT SAVED - keep
+- Blocked storage, on the front of a card: Progress will not be kept. - keep
+- Saved cards refused (same screen for a key holder, without the options): The saved cards could not be read. - keep
+- Start again, first: S: start again - keep
+- Start again, after S: Erase them and start again? Y: yes - keep
+- The game's reset question is unchanged and already says everything: RESET ALL PROGRESS? Y: YES - keep
 
 ## Touch layer wording and the pause screen (issue 093)
 The pixel font is capitals only, so these draw in capitals. On the touch layer a hint names the buttons (A, B, PAD, PAUSE, CHOICE) instead of keys; on the desktop every line above is unchanged.

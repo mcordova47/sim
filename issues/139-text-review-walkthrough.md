@@ -27,7 +27,10 @@ decisions:
       - "a terminal command that steps through the lines, answering by key"
       - "both"
     recommendation: "the page in the local server first, the same flow as answering decisions; a terminal version later if wanted"
-    status: open
+    status: answered
+    answer: "a page in the local issues server, one line at a time: the text, where it appears, then Keep, Soften or Rewrite (with your replacement)"
+    by: marc
+    on: 2026-11-15
   - id: d3
     who: marc
     q: "What happens after a mark?"

@@ -6,7 +6,7 @@ owner: claude
 depends_on: []
 short: "A manual deploy button on GitHub"
 summary: "A manual deploy button on GitHub."
-needs: [{who: marc, kind: try, why: "Run the workflow once to confirm it deploys", since: 2026-10-28}]
+needs: []
 ---
 
 ## Goal

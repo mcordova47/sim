@@ -204,7 +204,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 133 | [Issue pages: a theme of our own](issues/133-issue-pages-theme.md) | marc + claude | done | 130 |
 | 134 | [Tidy stale statuses](issues/134-tidy-stale-statuses.md) | marc + claude | todo | |
 | 135 | [Issue tasks API (answer from the pages)](issues/135-issue-tasks-api.md) | marc + claude | done | 131 |
-| 136 | [Issues API: edit functions and command](issues/136-issues-api-command.md) | claude | todo | 135 |
+| 136 | [Issues API: edit functions and command](issues/136-issues-api-command.md) | claude | done | 135 |
 | 137 | [Issues API: local server and Answer buttons](issues/137-issues-api-server.md) | claude | todo | 136 |
 <!-- issues:table:end -->
 

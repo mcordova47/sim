@@ -49,6 +49,30 @@ The encounter music's loop is a plain `.track` file, so replacing it is a good f
 ## The issue files are data
 Each issue is a Markdown file with front matter (`id`, `title`, `status`, `owner`, `depends_on`, always strings in quotes where needed). To file one, copy an old issue. Optional fields are `summary` (a one-line headline), `short` and `note` (used by the `PLAN.md` table), `thread` and `kind`, `needs` (what is waiting on someone: `who`, a `kind` of `decide`, `do`, `try`, `review` or `wait`, a plain `why`, and `since`; delete the entry when it is resolved, since an empty list is the calm state), `unverified` (things nobody has checked) and `superseded_by`. `npm run issues:check -- --validate` checks them with plain messages; `npm run issues` regenerates the table in `PLAN.md` (never edit that block by hand); `npm run issues:site` builds the pages into `dist-issues/` (open `dist-issues/index.html`; not committed). The design is in `docs/issues-as-data-design.md`.
 
+## Answering a decision from the command line
+Instead of hand-editing an issue's front matter, run one command from the main checkout. It changes only the lines it has to (the order of keys, comments, quoting and the rest of the file stay exactly as they were), checks the result with the same rules as `npm run issues:check -- --validate`, and refuses with a plain message if anything is wrong, such as an unknown issue or decision, a decision that is already answered, or an answer that is not one of the listed options.
+
+```
+npm run issues -- answer 134 d1 b                 # a letter, an option's text, or "as recommended"
+npm run issues -- answer 134 d1 "something else" --other
+npm run issues -- drop 134 d2 "no longer needed"   # the reason is optional
+npm run issues -- defer 134 d3 "ask me after the demo"   # stays open, with a dated note
+npm run issues -- ask 134 "Should it?" --option yes --option no --recommend yes
+npm run issues -- need add 134 --who marc --kind try --why "Look at the pages"
+npm run issues -- need resolve 134 "look at the"    # a number, or words from its why
+```
+
+Add `--dry-run` to see the change (a few lines of diff) without writing anything. After a real edit it regenerates the `PLAN.md` table if that changed. If the checkout is on `main` and has no other uncommitted changes, it also commits just that file with your own git name and email and a message like `134: answered d1`; otherwise it edits the file only and says why it did not commit (`--no-commit` always skips the commit). It never pushes.
+
+An answered decision looks like this in the file:
+
+```
+    status: answered
+    answer: "b: Keep it open"
+    by: marc
+    on: 2026-11-15
+```
+
 ## Ideas
 Have a loose idea? Add a few lines to `docs/ideas.md` (no status, no owner, no deadline); it only becomes an issue when you decide to do it.
 

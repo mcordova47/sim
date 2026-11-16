@@ -16,6 +16,7 @@ import {
   NEEDS_PILL, numberWord, collectDecisions, whoWord,
 } from './issues.mjs';
 import { pixelFontDataUri } from './pixel-font.mjs';
+import { textBody, TEXT_CSS, TEXT_SCRIPT } from './text-review-page.mjs';
 import { hashOf } from './issues-edit-io.mjs';
 
 const FAVICON = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'public', 'favicon.png');
@@ -855,9 +856,14 @@ export function buildSite(issues, git, { overlay = [], decisions = [], look = LO
     // Served pages only: the token, the controls' script and their styles.
     files['style.css'] += SERVE_CSS;
     files['serve.js'] = SERVE_SCRIPT;
+    // The text review walkthrough (issue 141): a served-only page and its script and styles.
+    files['style.css'] += TEXT_CSS;
+    files['text.js'] = TEXT_SCRIPT;
+    files['text.html'] = layout({ title: 'Text review', stamp, body: textBody() }).replace('<script src="site.js"></script>', '<script src="site.js"></script>\n<script src="text.js"></script>');
     for (const name of Object.keys(files)) {
       if (!name.endsWith('.html')) continue;
       files[name] = files[name]
+        .replace('All threads</a></nav>', 'All threads</a> <a class="serve-only" hidden href="text.html">Text review</a></nav>')
         .replace('</head>', `<meta name="issues-token" content="${esc(serve.token)}">\n</head>`)
         .replace('<script src="site.js"></script>', '<script src="site.js"></script>\n<script src="serve.js"></script>');
     }

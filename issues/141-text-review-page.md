@@ -2,7 +2,7 @@
 id: "141"
 title: "Text review walkthrough 2: the page in the local server"
 short: "Text review 2: the page"
-status: todo
+status: in-progress
 owner: claude
 depends_on: ["140"]
 summary: "One line at a time, with Keep, Soften and Rewrite, served by the local issues server."
@@ -33,4 +33,5 @@ Design and Marc's answers (2026-11-15): issue 139 (`issues/139-text-review-walkt
 - Marking, skipping, going back and clearing work on a copy in headless Chrome; every refusal is calm; the static pages are unchanged without the server; the usual checks pass; an independent review that exercises the flow on a copy.
 
 ## Progress log
+- 2026-11-15 (claude): plan: scripts/text-review-page.mjs (card model, the duplicate switch, markup, page script), a guarded POST api/text/mark and GET api/text/card in the server, the page and its nav link only in served builds (static output untouched), io gets an alsoIds option so one mark can cover a duplicate copy in one write and one commit, tests, a real run on a copy in headless Chrome, a short contributing.md section.
 

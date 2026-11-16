@@ -30,16 +30,31 @@ export function readReview(root) {
 
 // Mark (or clear: mark null) one item. Returns { ok, message, wrote, committed, diff, item, hash }.
 // expectHash is the hash the page was shown; a different file on disk is refused.
-export function markReviewLine({ root, itemId, mark, note, placeholder, expectHash = null, dryRun = false, commit = true }) {
+// alsoIds: other items that get the same mark in the same write and the same commit (the copies of a
+// duplicated line, issue 141); placeholders: { id: true|false } per item for a byte-exact undo. `previousAll`
+// in the result says how every touched line was before ({ id: { mark, placeholder } }).
+export function markReviewLine({ root, itemId, mark, note, placeholder, alsoIds = [], placeholders = {}, expectHash = null, dryRun = false, commit = true }) {
   const file = reviewFile(root);
   if (!fs.existsSync(file)) return { ok: false, message: `There is no ${REVIEW_PATH} in this checkout.` };
   const before = fs.readFileSync(file, 'utf8');
   if (expectHash && hashOf(before) !== expectHash) {
     return { ok: false, message: 'The text review changed on disk since it was shown, so nothing was changed. Reload and try again.' };
   }
-  const r = markLine(before, itemId, mark, note, placeholder === undefined ? {} : { placeholder });
+  const ph = (id) => (Object.hasOwn(placeholders, id) ? { placeholder: !!placeholders[id] } : id === itemId && placeholder !== undefined ? { placeholder } : {});
+  const r = markLine(before, itemId, mark, note, ph(itemId));
   if (r.ok === false) return { ok: false, message: r.message };
-  const base = { ok: true, wrote: false, committed: false, summary: r.summary, item: r.item, previous: r.previous, hash: hashOf(r.text) };
+  const previousAll = { [itemId]: r.previous };
+  const ids = [itemId];
+  for (const id of alsoIds) {
+    const q = markLine(r.text, id, mark, note, ph(id));
+    if (q.ok === false) return { ok: false, message: q.message };
+    previousAll[id] = q.previous;
+    ids.push(id);
+    r.text = q.text;
+  }
+  if (alsoIds.length) r.unchanged = r.text === before;
+  if (alsoIds.length && !r.unchanged) r.summary = `${r.summary} (and ${alsoIds.length === 1 ? 'its copy' : `${alsoIds.length} copies`})`;
+  const base = { ok: true, wrote: false, committed: false, summary: r.summary, item: r.item, previous: r.previous, previousAll, ids, hash: hashOf(r.text) };
   if (r.unchanged) return { ...base, message: 'Already marked that way. Nothing to change.', hash: hashOf(before) };
   const diff = showDiff('text-review.md', before, r.text).split('\n').map((l) => l.replace(/^(---|\+\+\+) issues\//, '$1 docs/')).join('\n');
   if (dryRun) return { ...base, diff, message: `${r.summary} (dry run: nothing was written)` };

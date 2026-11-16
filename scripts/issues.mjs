@@ -117,7 +117,7 @@ function checkDecisions(issue, err) {
     return;
   }
   const seen = new Set();
-  const known = ['id', 'q', 'options', 'recommendation', 'status', 'answer', 'by', 'who', 'on', 'doc'];
+  const known = ['id', 'q', 'options', 'recommendation', 'status', 'answer', 'by', 'who', 'on', 'doc', 'note'];
   list.forEach((d, i) => {
     const at = list.length > 1 ? ` (entry ${i + 1}${isString(d.id) ? `, ${d.id}` : ''})` : '';
     const bad = (m) => err('decisions', `decisions${at}: ${m}`);
@@ -134,7 +134,7 @@ function checkDecisions(issue, err) {
     if ('by' in d && !NEEDS_WHO.includes(d.by)) bad(`by "${d.by}" is not one of: ${NEEDS_WHO.join(', ')}.`);
     if ('on' in d && !validDate(d.on)) bad('on must be a date like 2026-11-15.');
     if ('options' in d && (!Array.isArray(d.options) || !d.options.every((o) => isString(o) && o.trim() !== ''))) bad('options must be a list of short labels, like ["Crisp", "Soft"].');
-    for (const k of ['recommendation', 'answer']) {
+    for (const k of ['recommendation', 'answer', 'note']) {
       if (k in d && (!isString(d[k]) || d[k].trim() === '')) bad(`${k} must be one plain line of text.`);
     }
     if ('doc' in d && (!isString(d.doc) || !isDocPath(d.doc, true))) bad('doc must be a repo path to a Markdown file, with an optional #section, like docs/x-design.md#14-questions.');
@@ -883,5 +883,10 @@ function main(argv) {
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  process.exitCode = main(process.argv.slice(2));
+  const args = process.argv.slice(2);
+  if (['answer', 'drop', 'defer', 'ask', 'need'].includes(args[0])) {
+    // The edit commands (issue 136) live in their own modules.
+    const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+    import('./issues-edit-io.mjs').then((m) => { process.exitCode = m.runCommand(args, { root }); });
+  } else process.exitCode = main(args);
 }

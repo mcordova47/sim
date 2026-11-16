@@ -2,11 +2,14 @@
 id: "136"
 title: "Issues API 1: the edit functions and the command"
 short: "Issues API: edit functions and command"
-status: todo
+status: review
 owner: claude
 depends_on: ["135"]
 summary: "Edits to decisions and needs are done by tested functions and one command, so they cannot be done wrongly."
 kind: build
+unverified:
+  - "A real commit made by the command in the main checkout with Marc's own git identity (only temporary repos were used)."
+needs: [{who: marc, kind: try, why: "Run npm run issues -- answer on a real open decision once", since: 2026-11-15}]
 ---
 
 ## Goal
@@ -23,4 +26,6 @@ Design and Marc's answers (2026-11-15): issue 135 (`issues/135-issue-tasks-api.m
 - Each function leaves the rest of the file untouched (tested); refusals are plain; `--dry-run` writes nothing; the commit step runs only on a clean main checkout; `npm test`, `npx tsc --noEmit`, `npm run build`, `npm run check:dist` pass; an independent review with a written entry.
 
 ## Progress log
-
+- 2026-11-15 (claude): started. Plan: pure splice-based edit functions in `scripts/issues-edit.mjs` (positions from the `yaml` package's source ranges, so only the changed place differs; a built-in check re-parses the result and compares it with the intended data), a thin I/O and git layer in `scripts/issues-edit-io.mjs`, the command wired into `scripts/issues.mjs`.
+- 2026-11-15 (claude): built. I did not use the Document API to print the file (it would re-quote and re-indent); it is used only to find ranges, and every edit is a splice of the original text, so no round trip can change bytes. Added `note` as a known decision field (used by defer and drop). Files: `scripts/issues-edit.mjs`, `scripts/issues-edit-io.mjs`, `scripts/issues-edit.test.mjs`, `scripts/issues.mjs` (dispatch, `note`), `docs/contributing.md` (new section). Tests (45) cover every function and refusal on fixtures with comments, odd quoting, flow and block layouts; add-then-resolve over all 174 real files restores the bytes; the command on a copy of the issues folder (134 d1: diff is the status, answer, by and on lines); the commit step on temporary git repos. `npm test`, `tsc --noEmit`, `npm run build`, `check:dist` and the validator pass.
+- Could not check: use through the real `npm run issues` with a real commit (only dry run on the real repo; commits tested on temp repos).

@@ -73,6 +73,11 @@ An answered decision looks like this in the file:
     on: 2026-11-15
 ```
 
+## Answering from the pages
+`npm run issues:serve` (or `npm run tools -- issues --serve`) builds the issue pages and serves them on this computer only (127.0.0.1, a free port that it prints and opens in your browser). Pages opened this way show an **Answer** box on each open decision (choose an option or write your own answer, plus **Drop** and **Keep open** with an optional note) and a **Resolve** button on each need of an issue. They use the same functions as the command above, so the file edit, the validation and the commit are identical. The static pages, and pages opened from disk, have none of this and are unchanged.
+
+Run it from the main checkout. A change is refused, with a plain message on the page and nothing written, if the checkout is not on `main`, if the issue file has uncommitted edits, or if the file changed since the page was loaded (reload the page and try again). Every change also needs the key that only this run's pages carry, so another tab or site cannot write. As with the command, it commits only when the rest of the checkout is clean, never pushes, and serves nothing but the generated pages. Stop it with Ctrl+C. It takes `--no-open` (do not open the browser) and `--branches` (as for the static pages).
+
 ## Ideas
 Have a loose idea? Add a few lines to `docs/ideas.md` (no status, no owner, no deadline); it only becomes an issue when you decide to do it.
 

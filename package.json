@@ -17,6 +17,7 @@
     "issues": "node scripts/issues.mjs",
     "issues:check": "node scripts/issues.mjs --check",
     "issues:site": "node scripts/issues-site.mjs",
+    "issues:serve": "node scripts/issues-serve.mjs",
     "pixel": "node scripts/tools.mjs pixel"
   },
   "devDependencies": {

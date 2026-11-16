@@ -16,6 +16,7 @@ import {
   NEEDS_PILL, numberWord, collectDecisions, whoWord,
 } from './issues.mjs';
 import { pixelFontDataUri } from './pixel-font.mjs';
+import { hashOf } from './issues-edit-io.mjs';
 
 const FAVICON = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'public', 'favicon.png');
 
@@ -517,10 +518,156 @@ function decisionBlock(d, ctx, { showThread = false } = {}) {
 <p class="q">${esc(d.q)}</p>
 ${d.answer ? `<p class="a"><span class="muted">Chose:</span> ${esc(d.answer)}</p>` : ''}
 ${d.recommendation ? `<p class="rec"><span class="muted">Recommended:</span> ${esc(d.recommendation)}</p>` : ''}
-${opts}
+${opts}${ctx.serve && d.source === 'issue' && d.status === 'open' ? `\n${answerForm(d, ctx.serve)}` : ''}
 <div class="meta">${showThread && i ? `<a href="${t && t.page ? `thread-${esc(t.id)}.html` : `issue-${esc(i.fm.id)}.html`}">${esc(label(t ? t.root : i))}</a> (${esc(d.issue)})` : ''}${d.doc ? `${showThread ? ' &middot; ' : ''}<code>${esc(d.doc.replace(/#.*$/, ''))}</code>${d.docTitle ? `, ${esc(d.docTitle)}` : ''}` : ''}</div>
 </article>`;
 }
+
+
+// ---------------------------------------------------------------------------
+// Answer controls (issue 137). Only written into the pages when `buildSite` gets a `serve`
+// option (the local server): { token, hashes: Map(issue id -> hash of its file) }. Without it
+// none of this exists, so the static build is byte for byte what it was.
+// ---------------------------------------------------------------------------
+
+const hashOfIssue = (serve, id) => esc(serve.hashes.get(id) || '');
+
+function answerForm(d, serve) {
+  const name = `opt-${d.issue}-${d.id}`;
+  const opts = Array.isArray(d.options) && d.options.length
+    ? `<fieldset class="opts-pick"><legend class="muted">Choose one</legend>${d.options.map((o, k) => `<label class="opt"><input type="radio" name="${esc(name)}" value="${esc(o)}"> <span><span class="muted">(${String.fromCharCode(97 + k)})</span> ${esc(o)}</span></label>`).join('')}</fieldset>`
+    : '';
+  return `<div class="answer serve-only" hidden data-issue="${esc(d.issue)}" data-decision="${esc(d.id)}" data-hash="${hashOfIssue(serve, d.issue)}">
+<details class="leaf"><summary>Answer</summary><div class="inner"><form class="answer-form">
+${opts}
+<label class="field">${opts ? 'Or write your own answer' : 'Your answer'} <input type="text" name="free" autocomplete="off"></label>
+<label class="field">A note, if you like (for Drop and Keep open) <input type="text" name="note" autocomplete="off"></label>
+<div class="tools"><button type="submit" data-act="answer">Record answer</button><button type="button" data-act="drop">Drop</button><button type="button" data-act="defer">Keep open</button></div>
+<p class="answer-msg" role="status" aria-live="polite"></p>
+</form></div></details>
+</div>`;
+}
+
+function resolveControl(issueId, number, serve) {
+  return `<span class="serve-only" hidden data-issue="${esc(issueId)}" data-need="${number}" data-hash="${hashOfIssue(serve, issueId)}"><button type="button" data-act="resolve">Resolve</button> <span class="answer-msg" role="status" aria-live="polite"></span></span>`;
+}
+
+export const SERVE_CSS = `
+[hidden] { display: none !important; }
+.answer { margin: 8px 0 4px; }
+.answer-form { display: grid; gap: 10px; }
+.answer-form fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+.answer-form legend { padding: 0; font-size: 0.85rem; }
+.answer-form .opt { display: flex; gap: 8px; align-items: flex-start; margin: 6px 0; }
+.answer-form .opt input { margin-top: 0.35em; flex: none; }
+.answer-form .field { display: block; font-size: 0.9rem; color: var(--muted); }
+.answer-form input[type="text"] { display: block; width: 100%; max-width: 100%; margin-top: 3px; font: inherit; font-size: 1rem; color: var(--text); background: var(--bg); border: 0; border-radius: 0; box-shadow: var(--edge, 0 0 0 1px var(--line)); margin-left: 2px; margin-right: 2px; width: calc(100% - 4px); padding: 6px 8px; }
+.answer-msg { margin: 4px 0; font-size: 0.9rem; color: var(--muted); }
+.answer-msg.refused { color: var(--need-text); background: var(--need-bg); padding: 6px 10px; }
+.answer-msg.confirm { color: var(--text); }
+li.confirm { color: var(--muted); }
+.answer-form button[disabled], .serve-only button[disabled] { opacity: 0.6; cursor: default; }
+`;
+
+export const SERVE_SCRIPT = `(function () {
+  var meta = document.querySelector('meta[name="issues-token"]');
+  if (!meta || !window.fetch) return;
+  var token = meta.getAttribute('content');
+  function post(path, body) {
+    return fetch(path, { method: 'POST', headers: { 'content-type': 'application/json', 'x-issues-token': token }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().catch(function () { return { ok: false, message: 'The server gave an answer this page could not read.' }; }); });
+  }
+  function say(el, text, kind) { el.textContent = text; el.className = 'answer-msg' + (kind ? ' ' + kind : ''); }
+  function done(res) {
+    var t = res.message || '';
+    if (res.committed) t += ' Committed on main. Nothing was pushed.';
+    else if (res.notCommitted) t += ' ' + res.notCommitted + ' Commit it yourself when you are ready; nothing was pushed.';
+    return t;
+  }
+  function setHash(issue, hash) {
+    if (!hash) return;
+    document.querySelectorAll('[data-issue="' + issue + '"]').forEach(function (e) { if (e.hasAttribute('data-hash')) e.setAttribute('data-hash', hash); });
+  }
+  function replaceCard(box, res) {
+    var id = box.closest('article.dec');
+    var msg = done(res);
+    if (!id) return;
+    fetch(location.pathname, { cache: 'no-store' }).then(function (r) { return r.text(); }).then(function (html) {
+      var doc = new DOMParser().parseFromString(html, 'text/html');
+      var fresh = doc.getElementById(id.id);
+      if (!fresh) throw new Error('gone');
+      var p = document.createElement('p');
+      p.className = 'answer-msg confirm'; p.setAttribute('role', 'status'); p.textContent = msg;
+      fresh.appendChild(p);
+      var node = document.importNode(fresh, true);
+      node.querySelectorAll('.serve-only').forEach(function (e) { e.hidden = false; });
+      id.replaceWith(node);
+    }).catch(function () {
+      var m = box.querySelector('.answer-msg'); if (m) say(m, msg, 'confirm');
+      box.querySelectorAll('button, input').forEach(function (b) { b.disabled = true; });
+    });
+  }
+  document.addEventListener('click', function (ev) {
+    var b = ev.target.closest && ev.target.closest('button[data-act]');
+    if (!b) return;
+    ev.preventDefault();
+    var box = b.closest('.serve-only');
+    if (!box) return;
+    var act = b.getAttribute('data-act');
+    var msgEl = box.querySelector('.answer-msg');
+    var body = { issue: box.getAttribute('data-issue'), hash: box.getAttribute('data-hash') };
+    var path;
+    if (act === 'resolve') { path = 'api/resolve'; body.need = Number(box.getAttribute('data-need')); }
+    else {
+      body.decision = box.getAttribute('data-decision');
+      var form = box.querySelector('form');
+      var free = form.elements.free.value.trim();
+      var picked = form.querySelector('input[type=radio]:checked');
+      body.note = form.elements.note.value.trim();
+      if (act === 'answer') {
+        if (free) { body.answer = free; body.other = true; }
+        else if (picked) { body.answer = picked.value; body.other = false; }
+        else { say(msgEl, 'Choose an option or write an answer first.', 'refused'); return; }
+      }
+      path = 'api/' + act;
+    }
+    var buttons = box.querySelectorAll('button');
+    buttons.forEach(function (x) { x.disabled = true; });
+    say(msgEl, 'Saving...', '');
+    post(path, body).then(function (res) {
+      if (!res.ok) { buttons.forEach(function (x) { x.disabled = false; }); say(msgEl, res.message || 'Nothing was changed.', 'refused'); return; }
+      setHash(body.issue, res.hash);
+      if (act === 'resolve') {
+        var li = box.closest('li'); var n = body.need;
+        document.querySelectorAll('[data-issue="' + body.issue + '"][data-need]').forEach(function (e) {
+          var k = Number(e.getAttribute('data-need')); if (k > n) e.setAttribute('data-need', String(k - 1));
+        });
+        if (li) { li.className = 'confirm'; li.textContent = done(res); } else say(msgEl, done(res), 'confirm');
+      } else if (act === 'defer') {
+        buttons.forEach(function (x) { x.disabled = false; });
+        say(msgEl, done(res), 'confirm');
+        replaceCard(box, res);
+      } else replaceCard(box, res);
+    }).catch(function () {
+      buttons.forEach(function (x) { x.disabled = false; });
+      say(msgEl, 'The page could not reach the local server. Nothing was changed.', 'refused');
+    });
+  });
+  document.addEventListener('submit', function (ev) {
+    var f = ev.target; if (!f.classList || !f.classList.contains('answer-form')) return;
+    ev.preventDefault(); var b = f.querySelector('button[data-act="answer"]'); if (b) b.click();
+  });
+  document.addEventListener('input', function (ev) {
+    var t = ev.target; var f = t.closest && t.closest('.answer-form'); if (!f) return;
+    if (t.name === 'free' && t.value) f.querySelectorAll('input[type=radio]').forEach(function (r) { r.checked = false; });
+    if (t.type === 'radio') f.elements.free.value = '';
+  });
+  // Feature detect: show the controls only when this server answers.
+  fetch('api/ping', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
+    if (j && j.issues === true) document.querySelectorAll('.serve-only').forEach(function (e) { e.hidden = false; });
+  }).catch(function () {});
+})();
+`;
 
 function decisionsPage(ctx) {
   const { model, stamp } = ctx;
@@ -551,6 +698,12 @@ const decisionsPeek = (list) => {
 };
 const upFirstWord = (t) => t.charAt(0).toUpperCase() + t.slice(1);
 
+
+// The 1-based place of a need in its issue's own list (the model copies each entry).
+const needNumber = (n) => {
+  const list = Array.isArray(n.issue.fm.needs) ? n.issue.fm.needs : [];
+  return list.findIndex((x) => x.who === n.who && x.kind === n.kind && x.why === n.why && x.since === n.since) + 1;
+};
 
 function threadPage(t, ctx) {
   const { model, stamp } = ctx;
@@ -585,7 +738,7 @@ function threadPage(t, ctx) {
   }
   if (needsHere.length) {
     parts.push(branch('Waiting on', esc(needsHere.map((n) => NEEDS_PILL[n.kind]).join(', ')),
-      `<ul class="plain">${needsHere.map((n) => `<li>${needPill(n.kind)} ${issueLink(n.issue, esc(n.id))}: ${esc(needsLine(n))} <span class="muted">asked ${esc(n.since)}</span></li>`).join('')}</ul>`));
+      `<ul class="plain">${needsHere.map((n) => `<li>${needPill(n.kind)} ${issueLink(n.issue, esc(n.id))}: ${esc(needsLine(n))} <span class="muted">asked ${esc(n.since)}</span>${ctx.serve && !n.decision ? ` ${resolveControl(n.id, needNumber(n), ctx.serve)}` : ''}</li>`).join('')}</ul>`));
   }
   parts.push(branch('Not verified', unverified.length ? esc(unverified[0].u) : 'None recorded yet.',
     unverified.length ? `<ul class="plain">${unverified.map((x) => `<li>${esc(x.u)} <span class="muted">(${esc(x.id)})</span></li>`).join('')}</ul>` : '<p class="calm">None recorded yet.</p>'));
@@ -653,7 +806,7 @@ function issuePage(i, ctx) {
 ${fm.summary ? `<p class="lede">${esc(fm.summary)}</p>` : ''}
 <div class="tools">${pill(STATUS_WORDS[fm.status])}${fm.kind ? pill(fm.kind) : ''}<span class="muted">${esc(fm.owner)}</span><button type="button" class="js-only" data-open-all>Open everything</button></div>
 <div class="facts">${deps.length ? `<span>after ${deps.join(', ')}</span>` : ''}${unblocks.length ? `<span>unblocks ${unblocks.join(', ')}</span>` : ''}${fm.note ? `<span>${esc(fm.note)}</span>` : ''}${sup ? `<span>replaced by <a href="issue-${sup.fm.id}.html">${esc(sup.fm.id)}</a></span>` : ''}</div>
-${needs.length ? `<section id="needs" class="band"><h2>What this needs</h2><ul class="plain">${needs.map((n) => `<li>${needPill(n.kind)} ${esc(needsLine(n))} <span class="muted">asked ${esc(n.since)}</span></li>`).join('')}</ul></section>` : '<span id="needs"></span>'}
+${needs.length ? `<section id="needs" class="band"><h2>What this needs</h2><ul class="plain">${needs.map((n, k) => `<li>${needPill(n.kind)} ${esc(needsLine(n))} <span class="muted">asked ${esc(n.since)}</span>${ctx.serve ? ` ${resolveControl(fm.id, k + 1, ctx.serve)}` : ''}</li>`).join('')}</ul></section>` : '<span id="needs"></span>'}
 ${iDecisions.length ? `<section id="decisions" class="band"><h2>Decisions</h2><p class="muted">${esc(decisionsPeek(iDecisions))}</p><div class="decs">${iDecisions.map((d) => decisionBlock(d, ctx)).join('\n')}</div></section>` : '<span id="decisions"></span>'}
 ${unver.length ? `<section class="band"><h2>Not verified</h2><ul>${unver.map((u) => `<li>${esc(u)}</li>`).join('')}</ul></section>` : ''}
 ${tree.intro ? markdown(tree.intro, known) : ''}
@@ -666,7 +819,7 @@ ${tree.intro ? markdown(tree.intro, known) : ''}
 // ---------------------------------------------------------------------------
 
 // Returns a map of file name -> contents (strings). No writing here, so tests can look.
-export function buildSite(issues, git, { overlay = [], decisions = [], look = LOOK } = {}) {
+export function buildSite(issues, git, { overlay = [], decisions = [], look = LOOK, serve = null } = {}) {
   const model = buildModel(issues, decisions);
   const stamp = stampText(git);
   const shipped = recentlyShipped(git.merges || [], model.byId);
@@ -681,7 +834,7 @@ export function buildSite(issues, git, { overlay = [], decisions = [], look = LO
   }
   inFlight.sort((a, b) => (a.id < b.id ? -1 : 1));
 
-  const ctx = { model, git, stamp, inFlight, shipped };
+  const ctx = { model, git, stamp, inFlight, shipped, serve };
   const files = {
     'style.css': buildCss(look),
     'favicon.png': fs.readFileSync(FAVICON),
@@ -698,26 +851,51 @@ export function buildSite(issues, git, { overlay = [], decisions = [], look = LO
     recentlyShipped: shipped,
   });
   files['issues.json'] = JSON.stringify(json, null, 2) + '\n';
+  if (serve) {
+    // Served pages only: the token, the controls' script and their styles.
+    files['style.css'] += SERVE_CSS;
+    files['serve.js'] = SERVE_SCRIPT;
+    for (const name of Object.keys(files)) {
+      if (!name.endsWith('.html')) continue;
+      files[name] = files[name]
+        .replace('</head>', `<meta name="issues-token" content="${esc(serve.token)}">\n</head>`)
+        .replace('<script src="site.js"></script>', '<script src="site.js"></script>\n<script src="serve.js"></script>');
+    }
+  }
   return files;
+}
+
+// Read the issue files and the git facts of `root` and build the pages in memory.
+// `serve` is { token } for the local server (issue 137); the content hashes are added here.
+export function buildFromDisk(root, { branches = false, serve = null } = {}) {
+  const loaded = loadFiles(path.join(root, 'issues'));
+  const { issues, errors, warnings } = analyze(loaded, { docExists: (p) => fs.existsSync(path.join(root, p)) });
+  if (errors.length) return { errors, warnings };
+  const g = gitFacts(root, { branches });
+  const byId = new Map(issues.map((i) => [i.fm.id, i]));
+  const overlay = branches ? branchOverlay(root, byId) : [];
+  const read = (p) => (fs.existsSync(path.join(root, p)) ? fs.readFileSync(path.join(root, p), 'utf8') : null);
+  const found = collectDecisions(issues, read);
+  let serveOpt = null;
+  if (serve) {
+    const textOf = new Map(loaded.map((f) => [f.name, f.text]));
+    serveOpt = { token: serve.token, hashes: new Map(issues.map((i) => [i.fm.id, hashOf(textOf.get(i.name) ?? '')])) };
+  }
+  const files = buildSite(issues, g, { overlay, decisions: found.decisions, serve: serveOpt });
+  return { errors, warnings, files, problems: found.problems };
 }
 
 function main(argv) {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-  const withBranches = argv.includes('--branches');
-  const { issues, errors, warnings } = analyze(loadFiles(path.join(root, 'issues')), { docExists: (p) => fs.existsSync(path.join(root, p)) });
-  for (const w of warnings) console.log(`warning: ${formatProblem(w)}`);
-  if (errors.length) {
-    for (const e of errors) console.error(`error: ${formatProblem(e)}`);
+  const built = buildFromDisk(root, { branches: argv.includes('--branches') });
+  for (const w of built.warnings) console.log(`warning: ${formatProblem(w)}`);
+  if (built.errors.length) {
+    for (const e of built.errors) console.error(`error: ${formatProblem(e)}`);
     console.error('\nFix the issue files first (npm run issues:check -- --validate).');
     return 1;
   }
-  const g = gitFacts(root, { branches: withBranches });
-  const byId = new Map(issues.map((i) => [i.fm.id, i]));
-  const overlay = withBranches ? branchOverlay(root, byId) : [];
-  const read = (p) => (fs.existsSync(path.join(root, p)) ? fs.readFileSync(path.join(root, p), 'utf8') : null);
-  const found = collectDecisions(issues, read);
-  for (const pr of found.problems) console.log(`warning: ${pr.doc}:${pr.line}: ${pr.message}`);
-  const files = buildSite(issues, g, { overlay, decisions: found.decisions });
+  for (const pr of built.problems) console.log(`warning: ${pr.doc}:${pr.line}: ${pr.message}`);
+  const files = built.files;
   const out = path.join(root, 'dist-issues');
   fs.rmSync(out, { recursive: true, force: true });
   fs.mkdirSync(out, { recursive: true });

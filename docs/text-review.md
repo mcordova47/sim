@@ -214,7 +214,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Narrator (instead of the usual): A LISTING HAS APPEARED. - keep
 
 **4. Northfield Studio** (email, Amazon; sells `art-starry-night`; unsubscribe difficulty 1 of 2; arrives 24 game hours after the order)
-- Header: AMAZON / RECOMMENDED -
+- Header: AMAZON / RECOMMENDED - keep
 - From: Amazon.com -
 - Subject or caption: Recommended for you: Starry Night print -
 - Body: Because you viewed wall art. -

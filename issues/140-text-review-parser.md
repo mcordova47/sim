@@ -2,11 +2,15 @@
 id: "140"
 title: "Text review walkthrough 1: the parser and the in-place mark function"
 short: "Text review 1: parser and marks"
-status: todo
+status: done
 owner: claude
 depends_on: ["139"]
 summary: "A parser turns text-review.md into one item per string, and a tested function writes a mark back in place."
 kind: build
+unverified:
+  - "The pre-existing failures in scripts/issues-edit.test.mjs (8) and issues-site.test.mjs (1) come from main's current issue data (134 d1 is answered now), not from this work; checked by reading, not by running them on main."
+  - "No page uses this yet (issue 141), so how the cards read to Marc is unseen; the doc's 'the walkthrough page writes it for you' sentence is not true until 141 is built."
+  - "The pre-existing failures were confirmed by their messages (134 d1 is already answered), not by running the suite on main."
 ---
 
 ## Goal
@@ -25,4 +29,18 @@ Design and Marc's answers (2026-11-15): issue 139 (`issues/139-text-review-walkt
 - The parser finds every string in the real doc (report the count per section); marking and clearing round-trips byte for byte; refusals are plain; `npm test`, `npx tsc --noEmit`, `npm run build`, `npm run check:dist` pass; an independent review with a written entry.
 
 ## Progress log
-
+- 2026-11-15 (claude): plan: scripts/text-review.mjs (pure parse, mark, clear, order), scripts/text-review-io.mjs (hash guard, clean-main commit, never pushes), tests on fixtures and on copies of the real doc, and the "How to mark" paragraph.
+- 2026-11-15 (claude): built. Files: scripts/text-review.mjs, scripts/text-review-io.mjs, scripts/text-review.test.mjs, docs/text-review.md (only the "How to mark" paragraph, line 5). The issues scripts are untouched (the io module imports hashOf, commitCheck and showDiff from issues-edit-io.mjs).
+  - Items: 298 in the real doc (per section: Pause title 2, Side-project 4, PHOTOS 113c 27, Tasks 35, Dialogs 15, contemplate 15, Code 12, Email 12, Mixed 8, seven ads 58, Narrator table 3, every card 9, ad blocker 3, Flashcards progress 10, guest 15, touch 14, transfer 11, sync 11, inventory 21, silhouette 2, gallery 7, LOOK 4). A separate counting script (python, line by line) and the test's own hand counter agree section by section.
+  - Shapes: table rows with a last "mark" column (35 task rows, 3 narrator rows); bullets at any depth; dialog lines tagged (prompt)/(label)/(text), including a tagged parent that has children; multi-string lines ("A. - / B. - / C. -", 13 strings in 2 lines) are one item per string. Not items: the "State variable meanings" list (8 lines, internal), one untagged list-heading bullet (the "Sofa scene" line whose three child lines are the strings). Nothing in the doc was unparseable.
+  - Mark format: `- text - keep`, `- text - soften: note`, `- text - rewrite: new text`; in tables the mark column holds the same without the dash. A bare trailing dash or an empty cell is "unmarked". Existing marked lines: there are none in the real doc (74 lines carry a bare dash as an empty mark, which stays valid and becomes `- text - keep` when marked). Unknown hand-written table marks parse as kind "unknown" and are never overwritten (only cleared).
+  - Clearing: restores the bare dash on multi-string segments and on lines in sections that mostly use it, else removes the mark. Two lines (side-project line 21, PHOTOS line 41) do not match their section's habit, so a caller that wants byte-for-byte undo passes `previous.placeholder` (every mark result returns `previous`); with it, mark then clear of all 298 items is byte for byte.
+  - Open points for the planner: the doc has the dialog tree twice (Dialogs and "contemplate"), so 15 lines appear twice (items carry `duplicateOf`); sections 109a and 109c still say "keep, change or cut" in their intro (not changed; "change" and "cut" are not marks).
+  - Checks: npm test for text-review 33 tests pass; the rest of the suite has 9 failures that do not touch this work (see unverified); npx tsc --noEmit, npm run build, npm run check:dist, issues:check pass.
+- 2026-11-15 (claude, independent review): verdict approve.
+  - Count: my own python line counter and parseReview agree on all 298 items, section by section (Pause title 2, Side-project 4, PHOTOS 113c 27, Tasks 35, Dialogs 15, contemplate 15, Code 12, Email 12, Mixed 8, seven ads 58, Narrator table 3, every card 9, ad blocker 3, Flashcards progress 10, guest 15, touch 14, transfer 11, sync 11, inventory 21, silhouette 2, gallery 7, LOOK 4; State variable meanings, cutscene and heading-only sections 0). Parser reports 0 unparsed lines; 9 skipped = the 8 State variable lines plus the untagged "Sofa scene" list heading, whose three child lines are items. Table rows with a mark column, bullets at any depth, (prompt)/(label)/(text) lines, "A. - / B. - / C. -" lines (one item per string), bare trailing dashes all handled sensibly.
+  - In place: 1192 mark/clear cases on a copy of the real doc (every item, keep, soften with and without note, rewrite with quotes, backslash, unicode, emoji, trailing " -"): exactly one line differs from the original, other ids unchanged, mark then clear with previous.placeholder is byte for byte. Odd fixtures (' - keep' inside text, tabs, trailing spaces, duplicate texts, upper-case hand marks, empty 'soften:', note ending in ' -', note containing ' - keep', a 100k-character line, no trailing newline, CRLF) all behaved; CRLF files are refused outright; stale or unknown ids, a changed line and a bad mark word give plain refusals. I/O in a temp repo with a bare remote: stale hash refused, dry run writes nothing, a mark on clean main commits only the doc as the repo identity (Marc Cordova as author and committer), repeating a mark says nothing to change, other dirty file or non-main branch writes but says "Not committed: why", remote received nothing, no tmp files left.
+  - Order: newest issue number first (117d, 117c, 116, 113c, 109c, 109a, 103/104, 102, 101, 093, 089, 082, then ads (043) and the unnumbered Tasks, Dialogs, Typing text in document order); nextUnmarked skips marked items, wraps, puts skipped ids last, returns null when all are marked or the list is empty.
+  - Doc: the diff of docs/text-review.md is the "How to mark" paragraph only and it matches the behavior; no issues script is edited (branch touches only the doc, this issue, and three new text-review files).
+  - Checks: text-review tests 33 pass; npx tsc --noEmit, npm run build, npm run check:dist pass. npm test: 8 failures, all in scripts/issues-edit.test.mjs and issues-site.test.mjs, with messages "Decision d1 is already answered by marc on 2026-11-15" (134 d1); none of the branch's files are involved.
+  - Non-blocking notes: (1) the first string of the two Sofa scene child lines carries its label ("Fixed phone-view line (...): You scroll for a while..."), so a card for it shows the label inside the text and a rewrite would have to leave the label out; page 141 should handle that. (2) A single-string line like "- one - / two" cannot be marked (the result would read as two strings, so it is refused with a plain message); none exists in the real doc. (3) The "unknown mark" refusal quotes the hand-written mark text in its message. (4) 19 items are duplicates of the dialog tree (duplicateOf) as the author said.

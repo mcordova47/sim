@@ -322,7 +322,7 @@ The pixel font is capitals only, so these draw in capitals. On the touch layer a
 - Key screen, touch only: Tap the box to type or paste; hint A: ok   B: back - keep
 - Card front hint (touch): TAP OR A: flip - keep
 - Card buttons (touch): SAY IT (and the voice name in the practice deck) - keep
-- Done screen buttons (touch): OTHER KEY, NO KEY (a key holder); USE A KEY (a guest); hint A: leave
+- Done screen buttons (touch): OTHER KEY, NO KEY (a key holder); USE A KEY (a guest); hint A: leave - keep
 - Start again (touch): START AGAIN, then "Erase them and start again?" with YES, ERASE and NO
 
 ## Moving a save to another device: the transfer page (issue 102)

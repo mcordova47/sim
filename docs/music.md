@@ -25,9 +25,9 @@ Design and the reasons for each choice are in `docs/make-tracks.md`. In short:
 - The code is `src/game/music/demos.ts` (the grid and the text round trip), `demo-store.ts` (storage and the reward), `demo-library.ts` (the shared store and the record menu), `src/game/activities/make-track.ts` (the editor) and `src/render/track-editor.ts` (how it looks).
 
 ## System tracks and the sleep lullaby (issue 078)
-`src/game/music/system/` holds tracks the game plays for itself. They are `.track` files like the records, but the record player never reads that folder: they are not in its menu, cannot be chosen, and are not saved in `life.sound.v1`. `src/game/music/system-tracks.ts` loads them by id (the file name). Today there is one, `sleep-lullaby.track`: a first draft by Claude to be replaced by ear (edit the file, or make one in the track editor and paste it in): four bars of three beats at 72 bpm, a sine melody over a triangle bass, exactly 10 seconds, so one pass covers the 9 second sleep.
+`src/game/music/system/` holds tracks the game plays for itself. They are `.track` files like the records, but the record player never reads that folder: they are not in its menu, cannot be chosen, and are not saved in `life.sound.v1`. `src/game/music/system-tracks.ts` loads them by id (the file name). Today there are two: the encounter's battle loop (see "The encounter's music" below) and `sleep-lullaby.track`, a first draft by Claude to be replaced by ear (edit the file, or make one in the track editor and paste it in): four bars of three beats at 72 bpm, a sine melody over a triangle bass, exactly 10 seconds, so one pass covers the 9 second sleep.
 
-The sound has a third bus, `sleep`, next to `effects` and `music`. It is made the first time it is used, and sits at 0 (silent) until ramped up. `Synth.rampBus(bus, level, seconds)` moves a bus's gain in a straight line from where it is now (it replaces a ramp that is going; `busLevel` reads where a bus is); only the bus moves, never the notes on it and never the master, so mute is untouched. `MusicPlayer` takes the bus name (`"music"` for the record player, `"sleep"` for the lullaby's own player).
+The sound has extra buses, `sleep` (issue 078) and `encounter` (issue 091a), next to `effects` and `music` (`Bus` in `synth.ts`). Each is made the first time it is used, and sits at 0 (silent) until ramped up. `Synth.rampBus(bus, level, seconds)` moves a bus's gain in a straight line from where it is now (it replaces a ramp that is going; `busLevel` reads where a bus is); only the bus moves, never the notes on it and never the master, so mute is untouched. `MusicPlayer` takes the bus name (`"music"` for the record player, `"sleep"` for the lullaby's own player).
 
 **While you sleep** (`src/game/sound/sleep-sound.ts`, driven by the scene of the sleep activity, see `docs/sleep.md`):
 - The lullaby fades in over `lullabyIn` (1.5 s) starting `lullabyInDelay` (0.3 s) after you lie down, to `lullabyGain` (0.55) on the sleep bus, and fades out over the last `lullabyOut` (2 s). Naps have none.
@@ -36,6 +36,44 @@ The sound has a third bus, `sleep`, next to `effects` and `music`. It is made th
 - **Escape** (or an error) puts every bus back to rest in `escapeRestore` (0.4 s) and stops the lullaby.
 - **Mute** is untouched: the master gain is 0 and everything is silent, the fades going on in time, so unmuting part way is at the right point of the fade. The sequence never changes the mute or writes the saved settings (a duck is never saved).
 - With **no audio** (before the first key, or no audio in the browser) the sequence runs in silence. The lullaby starts only if there is a synth when the sequence begins: audio that starts part way through stays silent to its end.
+
+## The encounter's music (issue 091)
+An ad encounter has a battle-style loop and two result jingles. How it behaves in the game (when it starts, four passes then a fade, ducking the record, reduced motion, Escape) is in `docs/random-encounters.md` ("The encounter's music and result jingles"); the design and Marc's answers are in `docs/encounter-music-design.md`. This section is about the track and how to tune it.
+
+### What a system track is
+A `.track` file in `src/game/music/system/`, loaded by `system-tracks.ts` by its file name (`encounter-battle.track` is `SYSTEM_TRACKS["encounter-battle"]`, exported as `ENCOUNTER_BATTLE`). It is the same format as a record, but the record player never reads that folder, so it is never in the menu, cannot be chosen and is never saved. The game plays it itself, through its own `MusicPlayer` on its own bus (`"encounter"`), so the record can be ducked independently. A file with a mistake is logged and left out (the encounter is then silent; the tests fail on it).
+
+### The encounter track
+`encounter-battle.track` holds **only the loop**: the format has no intro, and the entrance (buzz, rising pulse run, hit chord) is the intro. It is Marc's (issue 091d, merged from his own PR): key of G, 135 bpm, sixteen beats (four bars of four) so a pass is 16 x 60 / 135, about 7.1 s; channels `melody` (square), `harmony_h` and `harmony_l` (sawtooth), `bass` (triangle) and `beat` (drums). It starts on the downbeat the hit chord lands on, and it plays `maxLoops` passes then fades (all in the table below). The old placeholder (8 s, 120 bpm, three channels) is gone; Marc also chose on purpose to go past the editor's limits (135 bpm, sawtooth harmonies, sixteen-beat loops written by hand), so only the guard below applies.
+
+**The guard test** is `src/game/encounter-sound.test.ts`, "the placeholder system track" (the name is from the first draft). It checks that `system/` holds exactly the two files (add a system track and you must add it to that list), that the track parses, that it is not a record or in the record menu, that no note ends after the track's end and the first note is at beat 0, and that one pass is at least 6 s and four passes are 24 to 40 s. It does not check tempo or waves. It does not check that every channel is the same length (only that none runs past the longest), so keep the channels equal by hand or the shorter ones go quiet at the end of each pass.
+
+### Lab markers versus the game
+The music lab (`docs/music-lab.md`) reads the `.track` format plus two marker lines, `== intro ==` (played once) and `== loop ==`. The game has no intro: a system track is only a loop. So to put a lab result in the game, copy the header (`title:`, `note:`, `tempo:`) and the channels of the **loop** section only into `encounter-battle.track`, with no marker lines (a text with no marker is all loop, so plain text round-trips). The lab's intro is for auditioning a lead-in; "Play with the encounter intro" plays the game's real entrance cues and starts the loop on the hit, so you hear it the way the game does. The lab's sliders (tempo, per-channel volume) are not in the file until you press "Write slider values into the text". The lab's **encounter music level** is `ENCOUNTERS.music.gain` and is not written into the text: copy that number into `config.ts` by hand. The lab's own encounter stand-in (`labmusic=1`) has its own copy of the duck and fade numbers (`LAB_ENCOUNTER` in `src/lab/lab-encounter.ts`), which are not read from config.
+
+### Tuning by ear
+An agent cannot hear; this is Marc's to do.
+1. **The track:** run `npm run dev`, open `http://localhost:5173/music-lab.html`, edit the loop, and use "Play with the encounter intro" to hear it after the real entrance. Copy the result into `src/game/music/system/encounter-battle.track` (above). `npm test` guards it.
+2. **In the real game:** open `http://localhost:5173/?encounter=ad-candle&again=1` (the dev server only; any ad id or `random`). Press any key to start (the browser keeps audio locked until a key press), play it, then press any key to start it again with no reload. Listen for: the loop starting on the hit chord and in time with it; the record going quiet and coming back; four passes then a quiet card; each way out (Ignore, Unsubscribe, Add to cart, Escape, E to skip the entrance); and a reduced-motion setting in the browser (no music, the jingles still play).
+3. **The numbers:** change them in `ENCOUNTERS.music` in `src/game/config.ts` (the dev server reloads). The jingle notes are `SOUND.effects.encounterUnsubscribed` and `encounterCart`; their gains are in the voices. The loop level is also easy to try in the lab first.
+
+### Every number in `ENCOUNTERS.music`
+Times are seconds; "bus level" is a Web Audio gain (1 is unchanged); everything goes on through the master (`SOUND.master`, 0.35) and mute.
+
+| Key | Value | Meaning and unit |
+|---|---|---|
+| `startFrame` | 32 | The entrance frame (60 a second) on which the loop starts; must equal the frame of the `encounter-hit` cue in `ENCOUNTERS.entrance.sounds` (a test checks). With an E skip the loop starts when the card opens instead. |
+| `gain` | 0.35 | Level of the `encounter` bus while the loop plays (absolute, not times `SOUND.musicLevel`; with `musicLevel` 0.7 it is half the record). The track's own channel volumes are on top of it. |
+| `maxLoops` | 4 | Number of full passes before the loop fades itself out (a count; one pass is about 7.1 s, so about 28.4 s). |
+| `loopFadeOut` | 4 | Seconds the loop fades to silence after the last pass. |
+| `duckTo` | 0 | The record's level during an encounter as a fraction of `SOUND.musicLevel` (0 is silence, 1 no change). The record keeps playing. |
+| `duckDown` | 0.3 | Seconds the record takes to go down to `duckTo`, from the first frame of the encounter. |
+| `duckUp` | 1.5 | Seconds the record takes to return to `SOUND.musicLevel`, starting when the exit wipe begins (and after an Escape). |
+| `resultFade` | 0.35 | Seconds the loop fades when the closing line opens, or when the exit wipe begins with no closing line. |
+| `escapeFade` | 0.25 | Seconds the loop fades when the encounter ends any other way (Escape, a cancelled dialog, an error). |
+| `jingles` | `{ unsubscribed: "encounter-unsubscribed", cart: "encounter-cart" }` | Outcome to cue name, for the outcomes that succeeded. An outcome not listed has no jingle and keeps `entrance.exitCue`. Cue to effect is in `SOUND.cues`; the notes are in `SOUND.effects`. |
+
+Related numbers elsewhere: `SOUND.musicLevel` (0.7) is the record's level; `ENCOUNTERS.entrance.skipAfter` (6) is the frame after which E skips; `entrance.exitCue` and `softCue` name the exit echo and the reduced-motion note.
 
 ## The music lab (issue 122)
 A dev-only page for trying tracks with the real synth (live `.track` editing, an intro and a loop heard together, sliders, the real encounter): see `docs/music-lab.md`.

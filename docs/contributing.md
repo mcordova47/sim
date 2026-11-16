@@ -31,15 +31,6 @@ You never need to push for any of this. Releasing is separate (`docs/deploy.md`)
 - `main` should never make the live game worse than what is deployed (`docs/deploy.md`).
 - New player-visible words go into `docs/text-review.md` so they can be marked later (no rush).
 
-## Worked example: the encounter track (issue 091d)
-The encounter music's loop is a plain `.track` file, so replacing it is a good first change.
-- Worktree: `../sim-worktrees/091d-encounter-real-track`, branch `issue/091d-encounter-real-track`.
-- Compose in the music lab (`npm run lab`). The lab's `== intro ==` and `== loop ==` markers are a lab feature; a system track holds only the loop. The entrance's buzz, rising pulse and hit chord (`ENCOUNTERS.entrance.sounds` in `src/game/config.ts`) stay as they are, and the loop starts on the hit at frame 32, in G, like the entrance's pulse run.
-- Replace `src/game/music/system/encounter-battle.track` with the loop text.
-- `npm test` has a guard for system tracks: it must parse, no note may run past the loop end, and the first note is on the downbeat.
-- Listen in the real encounter: `npm run dev`, open `/?encounter=ad-candle&again=1`, press a key. Gain and fades are `ENCOUNTERS.music` in `config.ts`.
-- Commit, set `status: review` in `issues/091d-encounter-real-track.md`, then ask for the review.
-
 ## Where the state lives, and how to read it
 - **`main` (the main checkout) is the record.** The issue files on `main`, the table in `PLAN.md` (generated from them) and the pages from `npm run issues:site` all show `main` and nothing else.
 - **A branch is work in progress.** Each issue is worked on a branch `issue/NNN-slug` in its own worktree under `../sim-worktrees/NNN-slug`, which is just a second checkout of that branch. The agent edits its own issue file there (status, log, `unverified`, `needs`), and none of that is visible on `main` until the planner merges it. You only go into a worktree to try something (`npm run dev` there); you never need to edit in one.

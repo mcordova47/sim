@@ -54,6 +54,11 @@ decisions:
     answer: "the newest sections first (gallery, sync, inventory, photos), then the older ones"
     by: marc
     on: 2026-11-15
+needs:
+  - who: marc
+    kind: review
+    why: "141 (the text review page) is approved on branch issue/141-text-review-page: say merge; then run npm run issues:serve and open Text review."
+    since: 2026-11-15
 ---
 
 ## Goal

@@ -10,7 +10,7 @@ kind: build
 decisions:
   - id: d1
     who: marc
-    q: "The dialog tree appears twice in the text review (under Dialogs and under contemplate), so 19 lines are duplicates. Mark each once?"
+    q: "19 lines of the text review are exact duplicates of another line (the dialog tree appears twice, and a few lines repeat inside the ads). Mark each once?"
     options:
       - "mark each once: the walkthrough shows it once and the mark applies to both copies"
       - "mark both copies separately"

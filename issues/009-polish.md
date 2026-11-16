@@ -1,7 +1,7 @@
 ---
 id: 009
 title: "Polish: sound, particles, achievements, time of day"
-status: blocked
+status: done
 owner: marc + claude
 depends_on: [009a, 009b, 009c, 009d]
 short: "Polish (umbrella)"

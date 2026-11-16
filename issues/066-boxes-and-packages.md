@@ -1,7 +1,7 @@
 ---
 id: 066
 title: Flattened boxes and collected packages are linked
-status: review
+status: done
 owner: claude
 depends_on: []
 summary: "Flattened boxes and collected packages are linked."

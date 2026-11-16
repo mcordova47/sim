@@ -2,11 +2,15 @@
 id: "137"
 title: "Issues API 2: a local server and Answer buttons on the pages"
 short: "Issues API: local server and Answer buttons"
-status: todo
+status: review
 owner: claude
 depends_on: ["136"]
 summary: "The pages can answer a decision for you when served locally, through the same tested functions."
 kind: build
+unverified:
+  - "Use in Marc's own browser (Safari or his Chrome) and his own phone; the real run used headless Chrome for Testing on a copy of the repo, with a 390 px emulated width rather than a 390 px iframe."
+  - "A real commit from the page in the main checkout with Marc's own git identity, global hooks and signing (only temporary copies were used)."
+needs: [{who: marc, kind: try, why: "Run npm run issues:serve once and answer a real open decision from the page", since: 2026-11-15}]
 ---
 
 ## Goal
@@ -23,4 +27,10 @@ Design and Marc's answers (2026-11-15): issue 135 (`issues/135-issue-tasks-api.m
 - Answering from the page produces exactly the edit and commit the command would; every refusal is shown calmly; the static pages are unchanged without the server; nothing listens on a non-local address (tested); the usual checks pass; an independent review that exercises it on a copy of the repo.
 
 ## Progress log
-
+- 2026-11-15 (claude): started. Plan: `scripts/issues-serve.mjs` (a request handler as a plain function, plus a thin `http` wrapper bound to 127.0.0.1), a `serve` option on `buildSite` that adds the controls, token, content hashes, `serve.js` and a few styles (without it nothing changes), and `buildFromDisk` in `scripts/issues-site.mjs` so the server rebuilds from disk.
+- 2026-11-15 (claude): built. Files: `scripts/issues-serve.mjs`, `scripts/issues-serve.test.mjs` (18 tests), `scripts/issues-site.mjs` (the `serve` option, `buildFromDisk`), `scripts/tools.mjs` (`--serve`), `package.json` (`issues:serve`), `docs/contributing.md` (new short section).
+  - How it works: the server rebuilds the pages from disk on every page load (so a reload always shows the truth and a fresh hash); each served page carries the per-run token in a `<meta>` and each control carries its issue's file hash. A POST goes through, in order: Host check (127.0.0.1 or localhost with the port), Origin check, token (constant-time), then branch is `main`, the hash still matches, the file has no uncommitted edits, and only then `editIssue` (the same functions, validation and commit rule as the command). The answer is always recorded as `by: marc`. Free text is sent with `--other` semantics; picking an option sends its text.
+  - Controls: Answer on open decisions that live in an issue's front matter (decisions that come from design docs have no controls: they are not in a file this tool edits), Resolve on needs on issue and thread pages. The needs cards on the home and needs pages are links, so they have no button; they update on reload. Controls start hidden and are shown only after the page's script gets a reply from `api/ping` (feature detection); the static build has none of the markup (checked: the static output is byte identical to before apart from the stamp line, which notes uncommitted edits while I work).
+  - Nothing else is served: pages and their assets come from the in-memory build by exact name (no path from disk, no directory listing), `Cache-Control: no-store`, a strict Content-Security-Policy (own scripts and styles only, no framing restrictions so that a phone-width iframe works), bodies over 20 KB are refused.
+  - Verified: `npm test` (3811 pass), `npx tsc --noEmit`, `npm run build`, `npm run check:dist`, `npm run issues:check -- --validate`. Tests cover the markup with and without the server, every refusal (token missing and wrong, other origin and host, stale hash, uncommitted file, not on main, bad requests), the commit and the no-commit case, what is (not) served, and a real server: binds 127.0.0.1 only (also checked that it does not answer on this machine's other addresses), a different token each run. Real run in headless Chrome (Chrome for Testing, driven over the DevTools protocol) on a temporary git copy of the repo: answered a decision with a free-text answer and another by picking an option, dropped one with a note, kept one open with a note, resolved a need, saw the stale, uncommitted-file, wrong-token and not-on-main messages, and the home page no longer listed the resolved need after a reload; git showed one commit per action touching one file. No horizontal scroll at 390 px or 1000 px on the home, needs, decisions and issue pages.
+  - Not checked: Marc's own browser and phone, a commit with his real git identity and signing, and a 390 px iframe (I used the browser's emulated 390 px width, since a page inside a cross-origin iframe cannot be scripted).

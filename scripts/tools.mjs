@@ -22,7 +22,7 @@ const TOOLS = {
     what: "pixel looks: see a picture through the game's palette at several sizes (opens the page)",
     run: () => openFile(resolve(root, "art/tools/pixel-looks.html")),
   },
-  issues: { what: "the issue pages: build them from main and open them (add --branches to also show branch work)", run: () => run("node", ["scripts/issues-site.mjs", ...process.argv.slice(3)]) || openFile(resolve(root, "dist-issues/index.html")) },
+  issues: { what: "the issue pages: build them from main and open them (add --branches to also show branch work; add --serve to serve them locally with Answer buttons)", run: () => process.argv.includes("--serve") ? run("node", ["scripts/issues-serve.mjs", ...process.argv.slice(3).filter((a) => a !== "--serve")]) : run("node", ["scripts/issues-site.mjs", ...process.argv.slice(3)]) || openFile(resolve(root, "dist-issues/index.html")) },
   dev: { what: "the game itself on the dev server", run: () => run("npx", ["vite"]) },
   sprites: { what: "rebuild public/sprites from art/src/*.sprite", run: () => run("node", ["scripts/sprites.mjs"]) },
   brand: { what: "rebuild the favicon and link-preview images (add --check to only verify)", run: () => run("node", ["scripts/brand.mjs", ...process.argv.slice(3)]) },

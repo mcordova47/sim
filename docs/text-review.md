@@ -310,7 +310,7 @@ The pixel font is capitals only, so these draw in capitals. The first two choice
 
 ## Touch layer wording and the pause screen (issue 093)
 The pixel font is capitals only, so these draw in capitals. On the touch layer a hint names the buttons (A, B, PAD, PAUSE, CHOICE) instead of keys; on the desktop every line above is unchanged.
-- Pause screen title: PAUSE, with the section line ACHIEVEMENTS n/N beside it (the pill that opens it is PAUSE, not LIST).
+- Pause screen title: PAUSE, with the section line ACHIEVEMENTS n/N beside it (the pill that opens it is PAUSE, not LIST). - keep
 - Pause screen buttons (touch): AD BLOCKER: ON / OFF, DIALOG VOICE: <setting>, RESET PROGRESS, CLOSE, PAGE 1/2
 - Reset question (touch): RESET ALL PROGRESS? with the buttons YES, RESET and NO
 - Pause screen hint (touch): PAD: LOOK   PAUSE: CLOSE

@@ -266,7 +266,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Extra narrator line at low mood: IT IS HARD TO LOOK AWAY. - keep
 - Extra narrator line at high mood: YOU ARE NOT INTERESTED. - keep
 - You already have the item (the card stays until you close it): YOU ALREADY HAVE ONE. - keep
-- The item is already ordered or waiting at the door: IT IS ALREADY IN YOUR CART. -
+- The item is already ordered or waiting at the door: IT IS ALREADY IN YOUR CART. - keep
 - The delivery queue is full: YOUR CART IS FULL. -
 - An Ignore that turned into a purchase: YOU TAP IT WITHOUT MEANING TO. ADDED TO CART. -
 - After an order: ORDER CONFIRMED. ARRIVES LATER TODAY. (6 game hours or less) / ORDER CONFIRMED. ARRIVES TOMORROW. -

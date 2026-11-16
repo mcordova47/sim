@@ -7,7 +7,7 @@ depends_on: [026]
 short: "Study Spanish: the verb drills from the flashcards core"
 thread: "026"
 summary: "Spanish verb drills from the flashcards core, once the flashcards app has deployed."
-needs: [{who: other, kind: wait, why: "The flashcards app has to deploy first", on: "the flashcards app deploy", since: 2026-11-15}]
+needs: []
 ---
 
 ## Goal

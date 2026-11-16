@@ -159,7 +159,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 109a | [Inventory 1: entry data](issues/109a-inventory-entry-data.md) | claude | done | 109 |
 | 109b | [Inventory 2: the THINGS page](issues/109b-inventory-page.md) | claude | done | 109a |
 | 109c | [Inventory 3: seen silhouettes](issues/109c-inventory-silhouettes.md) | claude | done | 109b |
-| 110 | [A manual deploy button on GitHub](issues/110-manual-deploy-action.md) | claude | review | |
+| 110 | [A manual deploy button on GitHub](issues/110-manual-deploy-action.md) | claude | done | |
 | 111 | [The side project picture reacts to editable config (stretch)](issues/111-side-project-config.md) | marc + claude | done | 101 |
 | 111a | [Side project config 1: the parser and command set](issues/111a-sideproject-parser.md) | claude | done | 111 |
 | 111b | [Side project config 2: compose the little room from the real one](issues/111b-sideproject-compose.md) | claude | done | 111 |

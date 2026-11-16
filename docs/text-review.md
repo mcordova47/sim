@@ -391,7 +391,7 @@ New lines on the PHOTOS page's grid and close-up. None mentions resolution, size
 - Grid buttons: OPEN (new, beside ADD PHOTOS, REMOVE ALL, BACK) - keep
 - Close-up buttons (touch): DELETE / SURE? DELETE (turns orange after the first tap) / BACK, and < > for the other pictures - keep
 - Close-up keys line (keyboard): DEL: DELETE  < >: OTHERS  ESC: BACK - keep
-- Close-up question (keyboard): DEL: SURE? DELETE  OTHER KEY: CANCEL
+- Close-up question (keyboard): DEL: SURE? DELETE  OTHER KEY: CANCEL - keep
 
 ## PHOTOS page: the LOOK switch (issue 117d)
 New lines for the LOOK switch on the PHOTOS page. None mentions pixels, resolution or the game. Wired in `src/game/achievements/photos-draw.ts` and `feature.ts`. Marc to mark: keep / soften / rewrite.

@@ -33,7 +33,7 @@ The pause-screen page where pictures are added and removed. The first five lines
 - Storage trouble (new): This browser could not keep them all. / This browser could not read the pictures. / This browser could not remove them all. - keep
 - No storage in this browser: This browser will not keep pictures. - keep
 - Buttons: ADD PHOTOS, REMOVE ALL, SURE? REMOVE ALL, BACK. Pause screen: PHOTOS (touch button), O: PHOTOS (desktop hint). - keep
-- After REMOVE ALL: The pictures are gone. The originals were never here.
+- After REMOVE ALL: The pictures are gone. The originals were never here. - keep
 - Sofa task (issue 113d, wired): name and prompt "Scroll through photos"; unmet reason NO PICTURES (never shown to the player in practice: with no pictures the task is not listed). The task has no flavor line.
 - Sofa scene (issue 117e, replaces the 113d slideshow and its five captions; pools are `REEL.phoneLines` and `REEL.closeupLines` in `src/game/config.ts`, plain lists, so a "rewrite" or a deletion is a one-line change; no line mentions resolution, size or pixels or claims anything about what a picture shows, and a test checks that). Marc to mark each: keep / soften / rewrite.
   - Fixed phone-view line (one is chosen when the scene starts and shown under the grid for the whole session): You scroll for a while, because why not. - / There is a lot of it, and it is all yours. - / Mostly the same few places. - / You have taken a lot of pictures of this. - / You were there for most of these. - / Nothing here needs an answer. -

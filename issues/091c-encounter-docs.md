@@ -9,11 +9,7 @@ summary: "Encounter music gets documented, with every tunable number gathered in
 unverified:
   - How the encounter music, the duck and the jingles sound; an agent cannot hear, only Marc can.
   - The tuned values in ENCOUNTERS.music are as built; nobody has judged them by ear, so the tuning half of the acceptance (Marc says it sounds right) is open.
-needs:
-  - who: marc
-    kind: try
-    why: Listen with ?encounter=ad-candle&again=1 and say whether the music and jingles sound right or what to change.
-    since: 2026-11-15
+needs: []
 ---
 
 ## Goal

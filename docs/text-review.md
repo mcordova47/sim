@@ -293,7 +293,7 @@ Shown at the desk when no cards are left to review. The pixel font is capitals o
 ## Flashcards guest mode (issue 089)
 The pixel font is capitals only, so these draw in capitals. The first two choice lines are the wording from the design note.
 - Choice screen title: Study Spanish - keep
-- Choice, first item: Study without a key
+- Choice, first item: Study without a key - keep
 - Choice, second item: Enter a sync key
 - Choice note (two lines): Without a key, progress is saved / in this browser only.
 - Choice hint: Up, Down, E: pick   Esc: back

@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { loadFiles, analyze } from './issues.mjs';
+import { loadFiles, analyze, generateTable, replaceTable } from './issues.mjs';
 import {
   answerDecision, dropDecision, deferDecision, addDecision, addNeed, resolveNeed, resolveAnswer,
 } from './issues-edit.mjs';
@@ -293,6 +293,11 @@ function copyRepo(withGit) {
   fs.cpSync(path.join(root, 'issues'), path.join(dir, 'issues'), { recursive: true });
   fs.cpSync(path.join(root, 'docs'), path.join(dir, 'docs'), { recursive: true });
   fs.copyFileSync(path.join(root, 'PLAN.md'), path.join(dir, 'PLAN.md'));
+  // Start from a table that is current for the copied issues, whatever state the real PLAN.md is in
+  // (a branch or a fresh merge may not have regenerated it yet).
+  const copied = analyze(loadFiles(path.join(dir, 'issues')), { docExists: () => true });
+  const current = replaceTable(fs.readFileSync(path.join(dir, 'PLAN.md'), 'utf8'), generateTable(copied.issues));
+  if (current.ok) fs.writeFileSync(path.join(dir, 'PLAN.md'), current.text);
   if (withGit) {
     const g = (...a) => execFileSync('git', ['-C', dir, ...a], { encoding: 'utf8', stdio: 'pipe' });
     g('init', '-q', '-b', 'main');

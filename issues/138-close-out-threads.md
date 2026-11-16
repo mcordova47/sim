@@ -63,7 +63,10 @@ decisions:
       - "build it next"
       - "drop it into ideas"
     recommendation: "keep it as a todo: nothing needs it yet"
-    status: open
+    status: answered
+    answer: "keep it as a todo for later"
+    by: marc
+    on: 2026-11-15
   - id: d6
     who: marc
     q: "111f (side project: one real effect). You said this waits for you to pick the effect. Park it as an idea until you have one?"

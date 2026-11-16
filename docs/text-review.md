@@ -345,7 +345,7 @@ Capitals only. Nothing animated, no counters, no "ERROR". A failure is a plain l
 - Status, on, after one worked this visit: SYNC: ON. LAST SYNCED JUST NOW (or LAST SYNCED 5 MIN AGO, LAST SYNCED 2 H AGO) - keep
 - Status, on, automatic sync switched off: SYNC: ON. AUTOMATIC SYNC IS OFF - keep
 - Status, no network or the server is not answering: SYNC: NO CONNECTION. TRYING AGAIN LATER (with automatic sync off: SYNC: NO CONNECTION) - keep
-- Status, the server does not know the key (automatic sync stops until you act): SYNC: KEY NOT FOUND. PASTE A NEW KEY
+- Status, the server does not know the key (automatic sync stops until you act): SYNC: KEY NOT FOUND. PASTE A NEW KEY - keep
 - Status, other: SYNC: UNAVAILABLE / SYNC: UPDATE THE GAME / SYNC: SAVE ON THE SERVER IS UNREADABLE / SYNC: THE SERVER REFUSED THE SAVE
 - Button (the key A on a keyboard): AUTO SYNC: ON / AUTO SYNC: OFF
 - Message after pressing it: AUTOMATIC SYNC IS ON / AUTOMATIC SYNC IS OFF. SYNC NOW STILL WORKS

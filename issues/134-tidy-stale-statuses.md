@@ -2,7 +2,7 @@
 id: "134"
 title: "Tidy the stale statuses (009, 048, 062, 065, 066, 072, 097)"
 short: "Tidy stale statuses"
-status: todo
+status: done
 owner: marc + claude
 depends_on: []
 summary: "Seven old issues show as live threads although most of their work is merged; each needs a status that tells the truth."

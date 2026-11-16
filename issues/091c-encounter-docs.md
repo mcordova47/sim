@@ -1,7 +1,7 @@
 ---
 id: 091c
 title: "Encounter music 3: docs and tuning pass"
-status: review
+status: done
 owner: claude
 depends_on: [091b]
 short: "Encounter music 3: docs and tuning"
@@ -41,3 +41,8 @@ Design and Marc's answers (2026-10-29): `docs/encounter-music-design.md` (Marc c
   - Unverified (agent cannot hear): how the loop, the duck, the fades and both jingles sound; the tuned values in ENCOUNTERS.music; the sync of the downbeat with the hit chord. Marc's listening step (needs: try) is still open.
 
 - 2026-11-15 (agent): Review round 1 fixes: the Escape bullet in docs/random-encounters.md corrected (after an E skip the loop starts the next frame, so a later Escape fades a playing loop); the cryptic Look closer sentence reworded. The ~16 ms sync figure stays as the design note's estimate (unchecked). Status back to review for round 2.
+
+- 2026-11-15 (reviewer, round 2, independent): Verdict: **approve**.
+  - Round-2 diff (`41fda68..HEAD`) touches only docs/random-encounters.md and this file. Re-read `src/game/sound/encounter-sound.ts`: in `follow`, a `waiting` loop starts as soon as `scene.phase !== "entering"` or `frame >= startFrame`; `gone` (scene null, i.e. Escape) fades a playing loop over `escapeFade` and returns the record over `duckUp`, and sets a never-started loop to idle. So Escape before frame 32 never starts it; after an E skip the loop starts as the card opens. The existing test "an E skip starts it when the card opens" shows `playing` in the very step of the skip (sound updates after game in the same frame), so a later Escape always finds a playing loop; the corrected Escape bullet is right. The "Look closer" sentence now reads clearly. Re-ran encounter-sound and encounter-game tests (83 pass) and `npm run issues:check -- --validate` (175 valid).
+  - Nits, not blocking: the bullet says the loop starts "on the next frame after the card opens"; it actually starts in the same frame the skip is processed (still true that any later Escape fades a playing loop). The test titled "a skip then Escape, and Escape before the hit" only exercises Escape at frame 10 (a code follow-up for the author's list, not a doc defect). The ~16 ms sync figure remains an unchecked estimate.
+  - Unverified (agent cannot hear): how the loop, duck, fades and jingles sound; the tuned `ENCOUNTERS.music` values. Marc's listening step (`needs: try`) stays open.

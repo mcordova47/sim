@@ -16,15 +16,22 @@ export const DUPLICATE_POLICY = 'once';
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+const sameMark = (a, b) => (!a && !b) || (!!a && !!b && a.kind === b.kind && (a.note || '') === (b.note || ''));
+
+// A copy is "in step" when it carries the same mark as its first copy (both unmarked counts).
+// A copy that is out of step (hand-marked differently, or left unmarked when the first copy is
+// marked) is never overwritten by a mark on the first copy, and is shown as a card of its own.
+const inStep = (items, copy) => sameMark(copy.mark, (items.find((x) => x.id === copy.duplicateOf) || {}).mark);
+
 // The items the walkthrough walks through, in order.
 export function visibleItems(items, policy = DUPLICATE_POLICY) {
-  return policy === 'once' ? items.filter((x) => !x.duplicateOf) : items;
+  return policy === 'once' ? items.filter((x) => !x.duplicateOf || !inStep(items, x)) : items;
 }
 
-// The ids a mark on `item` also covers: its later copies (policy 'once').
+// The ids a mark on `item` also covers: its later copies that are in step with it (policy 'once').
 export function copiesOf(items, item, policy = DUPLICATE_POLICY) {
   if (policy !== 'once') return [];
-  return items.filter((x) => x.duplicateOf === item.id);
+  return items.filter((x) => x.duplicateOf === item.id && sameMark(x.mark, item.mark));
 }
 
 // A label that sits inside the text ("Fixed phone-view line (one is chosen ...): You scroll ...")

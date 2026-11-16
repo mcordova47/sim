@@ -185,6 +185,33 @@ describe('POST /api/text/mark', () => {
     // the card says where else it appears
     expect(card(a, '').ok).toBe(true);
   });
+  it('never overwrites or hides a copy that is out of step with its first copy', () => {
+    const items = parseReview(REAL_DOC).items;
+    const copy = items.find((x) => x.duplicateOf && x.shape === 'bullet' && !x.segments);
+    const original = items.find((x) => x.id === copy.duplicateOf);
+    const handMark = (doc, it, mark) => doc.split('\n').map((l, k) => (k + 1 === it.line ? `${l.replace(/ -$/, '')} - ${mark}` : l)).join('\n');
+    // 1: the copy is hand-marked, the first copy is not: marking the first leaves the copy alone
+    let repo = makeRepo(handMark(REAL_DOC, copy, 'rewrite: my own words'));
+    let a = app(repo);
+    let h = card(a).hash;
+    const r = parse(post(a, { id: original.id, hash: h, mark: 'keep' }));
+    expect(r.ok).toBe(true);
+    expect(r.ids).toContain(original.id);
+    expect(r.ids).not.toContain(copy.id);
+    const re = parseReview(fs.readFileSync(repo.doc, 'utf8')).items;
+    expect(re.find((x) => x.id === copy.id).mark).toEqual({ kind: 'rewrite', note: 'my own words' });
+    // 2: the first copy is hand-marked, the copy is not: the copy is shown as its own card
+    repo = makeRepo(handMark(REAL_DOC, original, 'keep'));
+    a = app(repo);
+    const shown = visibleItems(parseReview(fs.readFileSync(repo.doc, 'utf8')).items);
+    expect(shown.some((x) => x.id === copy.id)).toBe(true);
+    h = card(a).hash;
+    const r2 = parse(post(a, { id: copy.id, hash: h, mark: 'soften', note: 'n' }));
+    expect(r2.ids).toContain(copy.id);
+    expect(r2.ids).not.toContain(original.id);
+    const re2 = parseReview(fs.readFileSync(repo.doc, 'utf8')).items;
+    expect(re2.find((x) => x.id === original.id).mark).toEqual({ kind: 'keep', note: '' });
+  });
   it('refuses calmly: no token, wrong host, another origin, bad body, wrong content type', () => {
     const repo = makeRepo();
     const a = app(repo);

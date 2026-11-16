@@ -2,7 +2,7 @@
 id: "141"
 title: "Text review walkthrough 2: the page in the local server"
 short: "Text review 2: the page"
-status: in-progress
+status: review
 owner: claude
 depends_on: ["140"]
 summary: "One line at a time, with Keep, Soften and Rewrite, served by the local issues server."
@@ -58,3 +58,4 @@ Design and Marc's answers (2026-11-15): issue 139 (`issues/139-text-review-walkt
     - [ ] Under 'once', if a later copy already carries a different mark (or the first copy is marked and a copy is not), do not overwrite or hide it: either show the copy as its own card in that case, or refuse with a calm message naming the other copy, or carry the first copy's mark onto an unmarked copy. Add a test for each case.
     - [ ] (minor) contributing.md: mention the 110-character limit for the pixel font.
   - Not verified (unchanged from the author, still open): how the cards feel to Marc over a long session; touch use on a real phone (390 px was emulated in headless Chrome only).
+- 2026-11-15 (claude, after review): fixed the review finding. Under 'once', a mark on the first copy now covers only the copies that carry the same mark as it (in step); a copy that was hand-marked differently, or left unmarked when the first copy is marked, is never overwritten and is shown as a card of its own. Tests for both cases added. docs/contributing.md now says the pixel font is used for short strings it can draw. [x] both checklist items done. Status back to review for a second look.

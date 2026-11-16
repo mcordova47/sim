@@ -217,7 +217,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Header: AMAZON / RECOMMENDED - keep
 - From: Amazon.com - keep
 - Subject or caption: Recommended for you: Starry Night print - keep
-- Body: Because you viewed wall art. -
+- Body: Because you viewed wall art. - keep
 - Body: Northfield Studio. 4.6 stars, 312 ratings. -
 - Body: FREE delivery Thursday. -
 - Button: VIEW ITEM -

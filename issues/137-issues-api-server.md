@@ -7,9 +7,7 @@ owner: claude
 depends_on: ["136"]
 summary: "The pages can answer a decision for you when served locally, through the same tested functions."
 kind: build
-unverified:
-  - "Use in Marc's own browser (Safari or his Chrome) and his own phone; the real run used headless Chrome for Testing on a copy of the repo, with a 390 px emulated width rather than a 390 px iframe."
-  - "A real commit from the page in the main checkout with Marc's own git identity, global hooks and signing (only temporary copies were used)."
+unverified: []
 needs: [{who: marc, kind: try, why: "Run npm run issues:serve once and answer a real open decision from the page", since: 2026-11-15}]
 ---
 
@@ -50,3 +48,4 @@ Design and Marc's answers (2026-11-15): issue 135 (`issues/135-issue-tasks-api.m
   - Checks: `npm test` (3811 pass, 3 skipped), `npx tsc --noEmit`, `npm run build`, `npm run check:dist`, `npm run issues:check -- --validate` (174 valid, only the two usual warnings) all clean.
   - No regression: answer by option text, drop with note and defer with note all returned 200 and committed one file each; a wrong token gave 403 with the calm message and wrote nothing. The change since round 1 is two lines in `scripts/issues-serve.mjs` plus the test, so the round 1 browser, refusal and static-build checks stand.
   - Still unverified (kept in front matter): Marc's own browser and phone, a real commit with his git identity and signing, a true 390 px iframe. Note: PLAN.md was edited by the author (reserved for the planner); merge should regenerate it. Needs `try` for Marc stays.
+- 2026-11-15 (marc): verified

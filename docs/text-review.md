@@ -347,7 +347,7 @@ Capitals only. Nothing animated, no counters, no "ERROR". A failure is a plain l
 - Status, no network or the server is not answering: SYNC: NO CONNECTION. TRYING AGAIN LATER (with automatic sync off: SYNC: NO CONNECTION) - keep
 - Status, the server does not know the key (automatic sync stops until you act): SYNC: KEY NOT FOUND. PASTE A NEW KEY - keep
 - Status, other: SYNC: UNAVAILABLE / SYNC: UPDATE THE GAME / SYNC: SAVE ON THE SERVER IS UNREADABLE / SYNC: THE SERVER REFUSED THE SAVE - keep
-- Button (the key A on a keyboard): AUTO SYNC: ON / AUTO SYNC: OFF
+- Button (the key A on a keyboard): AUTO SYNC: ON / AUTO SYNC: OFF - keep
 - Message after pressing it: AUTOMATIC SYNC IS ON / AUTOMATIC SYNC IS OFF. SYNC NOW STILL WORKS
 - Messages after a manual sync (stage 2): SYNC IS ON / SYNCED / SYNC IS OFF / ONE MOMENT / PAIRED. SYNC IS ON / THAT IS NOT A SYNC KEY OR LINK / SYNC STOPPED. THE SAVED COPY IS DELETED / LINK COPIED
 - Questions: STOP SYNCING AND DELETE THE SAVED COPY? / SYNC WITH THE SAVE IN THIS LINK?

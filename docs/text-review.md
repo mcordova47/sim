@@ -294,7 +294,7 @@ Shown at the desk when no cards are left to review. The pixel font is capitals o
 The pixel font is capitals only, so these draw in capitals. The first two choice lines are the wording from the design note.
 - Choice screen title: Study Spanish - keep
 - Choice, first item: Study without a key - keep
-- Choice, second item: Enter a sync key
+- Choice, second item: Enter a sync key - keep
 - Choice note (two lines): Without a key, progress is saved / in this browser only.
 - Choice hint: Up, Down, E: pick   Esc: back
 - Done screen, guest, under the figures: Saved in this browser only.

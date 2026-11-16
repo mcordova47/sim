@@ -1,11 +1,19 @@
 ---
 id: 091c
 title: "Encounter music 3: docs and tuning pass"
-status: todo
+status: review
 owner: claude
 depends_on: [091b]
 short: "Encounter music 3: docs and tuning"
 summary: "Encounter music gets documented, with every tunable number gathered in config"
+unverified:
+  - How the encounter music, the duck and the jingles sound; an agent cannot hear, only Marc can.
+  - The tuned values in ENCOUNTERS.music are as built; nobody has judged them by ear, so the tuning half of the acceptance (Marc says it sounds right) is open.
+needs:
+  - who: marc
+    kind: try
+    why: Listen with ?encounter=ad-candle&again=1 and say whether the music and jingles sound right or what to change.
+    since: 2026-11-15
 ---
 
 ## Goal
@@ -18,3 +26,8 @@ Design and Marc's answers (2026-10-29): `docs/encounter-music-design.md` (Marc c
 
 ## Progress log
 
+
+- 2026-11-15 (agent): Marc's decision (issue 138 d2): an agent writes the docs now; DOCS ONLY, no code or sound change. Plan: a section in docs/random-encounters.md (the sound as built), a section in docs/music.md (system tracks, tuning by ear, a table of every `ENCOUNTERS.music` number), fix stale statements, check each claim against the code, then an independent review.
+- 2026-11-15 (agent): Docs written, no code or sound change. Files: `docs/random-encounters.md` (new subsection "The encounter's music and result jingles", under section 13; the exit-echo sentence in the entrance-sound bullet fixed), `docs/music.md` (new section "The encounter's music": system tracks, the loop-only track, the guard test, lab markers vs the game, tuning by ear, a table of every `ENCOUNTERS.music` number; "one system track" and "third bus" statements fixed), `docs/music-lab.md` (the stand-in sentence updated now the real feature exists). Checked by reading `encounter-sound.ts`, `encounter-scene.ts`, `activities/encounter.ts`, `config.ts`, `synth.ts`, the track file and the tests; ran `npx vitest run` (3803 pass; 8 failures in `scripts/issues-edit.test.mjs` and a real-repo issues test, which fail the same way on unmodified main, unrelated) and `npm run issues:check -- --validate`.
+  - Surprising or undocumented, now documented: (1) `gain` is an absolute bus level (0.35), not a share of `musicLevel`; it equals half of 0.7 only by coincidence of the numbers. (2) `duckTo` is a fraction of `musicLevel`. (3) After the four passes fade, the record stays ducked to silence until the exit wipe, so the card sits in complete quiet. (4) Reduced motion also means no duck: the record plays on at normal level. (5) Jingles still play in reduced motion. (6) Once the loop has begun its four-pass fade, a result line does not restart the fade. (7) The guard test is named "placeholder" and its last test title says "about eight seconds"; its bounds are 6 s per pass and 24 to 40 s for four passes; it does not check that every channel is the same length despite its title. (8) The test also pins the exact list of files in `system/`.
+  - Follow-ups (not done, code is out of scope): (a) `LAB_ENCOUNTER` in `src/lab/lab-encounter.ts` repeats the duck and fade numbers (0.3, 1.5, 0.35) and `defaultGain = musicLevel * 0.5` instead of reading `ENCOUNTERS.music`; they can drift. (b) Rename the stale "placeholder" and "eight seconds" test titles in `src/game/encounter-sound.test.ts` and the "placeholder track" wording in the `config.ts` and test comments. (c) `docs/encounter-music-design.md` still reads as a plan (placeholder, 8 s, `gain` suggested 0.5 of musicLevel); it is a historical note and was not edited. (d) The 12-frame exit wipe, 0 duration of the `rampBus("encounter", 0, 0)` start are literals in code, not magic tuning values; no other tunable numbers were found outside `ENCOUNTERS.music` and `SOUND.effects`.

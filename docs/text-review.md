@@ -336,7 +336,7 @@ The pixel font is capitals only, so these draw in capitals. Opened from the paus
 - Paste, when the browser will not give the clipboard: PRESS CTRL+V TO PASTE (touch: COULD NOT READ THE CLIPBOARD. TRY OPEN FILE.) - keep
 - Import result: SAVE MERGED / SAVE MERGED. THE TRACK LIST IS FULL. / NOTHING NEW IN THAT SAVE - keep
 - Import refused: NOT A SAVE FROM THIS GAME / THAT SAVE IS FROM A NEWER GAME / THAT SAVE COULD NOT BE READ / THAT SAVE IS TOO BIG - keep
-- Restore result: BACK TO BEFORE THE LAST IMPORT / NOTHING TO GO BACK TO
+- Restore result: BACK TO BEFORE THE LAST IMPORT / NOTHING TO GO BACK TO - keep
 - Hint (touch): B: BACK
 
 ## Sync page, status and automatic sync (issues 103 and 104)

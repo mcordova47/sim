@@ -190,7 +190,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Body: Free shipping on orders this week. - keep
 - Button: SHOP NOW - keep
 - Look closer: ROBIN PRINT, 8 X 10 IN - keep
-- Look closer: 4.8 stars from 212 reviews. -
+- Look closer: 4.8 stars from 212 reviews. - keep
 
 **2. Garnet Lane Florals** (email, Gmail; sells `plant-dried`; unsubscribe difficulty 2 of 2; arrives 8 game hours after the order)
 - Header: GMAIL / PROMOTIONS -

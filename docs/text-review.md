@@ -252,7 +252,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Body: Rated 4.9 by 40,000 customers. - keep
 - Button: SHOP NOW - keep
 - Look closer: Water Lilies, 12 X 16 IN - keep
-- Look closer: $48. Free shipping over $35. -
+- Look closer: $48. Free shipping over $35. - keep
 
 ### Narrator and menu lines, by kind of card
 | card | menu label for the second choice | narrator when it appears | after Ignore | after an unsubscribe that works | after one that fails | mark |

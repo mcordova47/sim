@@ -40,7 +40,10 @@ decisions:
       - "keep open"
       - "blocked"
     recommendation: "done: the system shipped; the rest is the ideas backlog in docs/decor.md"
-    status: open
+    status: answered
+    answer: "done"
+    by: marc
+    on: 2026-11-15
   - id: d4
     who: marc
     q: "065 (blinds on both windows, dinner plate): reviewed, merged long ago, the file still says `review`. What status?"

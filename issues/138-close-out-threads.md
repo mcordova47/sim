@@ -98,7 +98,10 @@ decisions:
       - "the phone check is done; the text lines are for the walkthrough"
       - "neither yet"
     recommendation: "the phone check is done if you have tried the gallery and the sofa scene on your phone; the text lines go to the walkthrough"
-    status: open
+    status: answered
+    answer: "the phone check is done; the text lines are for the walkthrough"
+    by: marc
+    on: 2026-11-15
   - id: d9
     who: marc
     q: "120 and 124 (pause legend on the narrow view; the side project skipping only a bad line) are the learn-book tasks for modules 11 and 8. Keep them for you?"

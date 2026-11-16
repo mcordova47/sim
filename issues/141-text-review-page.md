@@ -19,7 +19,10 @@ decisions:
       - "mark each once: the walkthrough shows it once and the mark applies to both copies"
       - "mark both copies separately"
     recommendation: "mark each once, so you are never asked the same line twice"
-    status: open
+    status: answered
+    answer: "mark each once: the walkthrough shows it once and the mark applies to both copies"
+    by: marc
+    on: 2026-11-15
 ---
 
 ## Goal

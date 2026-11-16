@@ -101,7 +101,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 059 | [Make your own tracks in the game](issues/059-make-your-own-tracks.md) | marc + claude | done | |
 | 060 | [Draw the gallery wall view](issues/060-gallery-wall-view.md) | agent | done | |
 | 061 | [Admire the art: zoom in and comment very seriously](issues/061-art-zoom-gag.md) | marc + claude | done | |
-| 062 | [Customizable decor (inventory, swap, buy) (explore)](issues/062-customizable-decor.md) | marc + claude | in-progress (stages 1, 2 and 3a done; 3b and 4 remain) | |
+| 062 | [Customizable decor (inventory, swap, buy) (explore)](issues/062-customizable-decor.md) | marc + claude | done (stages 1, 2 and 3a done; 3b and 4 remain) | |
 | 063 | [Plants that grow in stages](issues/063-plant-growth.md) | marc + claude | done | |
 | 065 | [Both windows' blinds; the dinner plate only when there is dinner](issues/065-blinds-and-plate.md) | claude | review | |
 | 066 | [Flattened boxes and collected packages are linked](issues/066-boxes-and-packages.md) | claude | review | |

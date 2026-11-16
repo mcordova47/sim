@@ -52,7 +52,10 @@ decisions:
       - "keep open"
       - "blocked"
     recommendation: "done: it is merged and the table already showed it done"
-    status: open
+    status: answered
+    answer: "done"
+    by: marc
+    on: 2026-11-15
   - id: d5
     who: marc
     q: "066 (flattened boxes and collected packages): reviewed, merged, the file still says `review`. What status?"

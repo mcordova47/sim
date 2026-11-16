@@ -331,7 +331,7 @@ The pixel font is capitals only, so these draw in capitals. Opened from the paus
 - Explanation, five lines: MOVE YOUR SAVE TO ANOTHER BROWSER OR DEVICE. / COPY A CODE OR SAVE A FILE HERE, THEN PASTE / OR OPEN IT THERE. IMPORTING MERGES: IT NEVER / TAKES ANYTHING AWAY. A BROWSER CAN CLEAR A / SAVE, SO KEEP A FILE. - keep
 - Buttons (touch) and keys (desktop): COPY CODE (C), PASTE CODE (V, or Ctrl+V), SAVE FILE (F), OPEN FILE (O), RESTORE BEFORE IMPORT (Shift+R), BACK (Esc) - keep
 - Restore question: GO BACK TO BEFORE THE LAST IMPORT? with the buttons YES, GO BACK and NO (desktop: the same line then Y: YES) - keep
-- Copy: CODE COPIED / COULD NOT COPY. THE CODE IS IN THE CONSOLE. / COULD NOT MAKE A CODE
+- Copy: CODE COPIED / COULD NOT COPY. THE CODE IS IN THE CONSOLE. / COULD NOT MAKE A CODE - keep
 - File: FILE SAVED / COULD NOT SAVE A FILE / COULD NOT READ THAT FILE
 - Paste, when the browser will not give the clipboard: PRESS CTRL+V TO PASTE (touch: COULD NOT READ THE CLIPBOARD. TRY OPEN FILE.)
 - Import result: SAVE MERGED / SAVE MERGED. THE TRACK LIST IS FULL. / NOTHING NEW IN THAT SAVE

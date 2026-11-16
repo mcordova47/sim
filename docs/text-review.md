@@ -206,7 +206,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 **3. Oakline Home Goods** (social post, Facebook Marketplace; sells `lamp-warm`; unsubscribe difficulty 0 of 2; arrives 24 game hours after the order)
 - Header: FACEBOOK MARKETPLACE / OAKLINE HOME GOODS - keep
 - Subject or caption: Table lamp, warm shade - $18 - keep
-- Body: Like new. Works great. Pickup or delivery. -
+- Body: Like new. Works great. Pickup or delivery. - keep
 - Body: Listed 3 days ago. Is this still available? -
 - Button: MESSAGE SELLER -
 - Look closer: Linen shade, brass base. Bulb included. -

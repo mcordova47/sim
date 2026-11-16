@@ -2,7 +2,7 @@
 id: "137"
 title: "Issues API 2: a local server and Answer buttons on the pages"
 short: "Issues API: local server and Answer buttons"
-status: review
+status: done
 owner: claude
 depends_on: ["136"]
 summary: "The pages can answer a decision for you when served locally, through the same tested functions."
@@ -45,3 +45,8 @@ Design and Marc's answers (2026-11-15): issue 135 (`issues/135-issue-tasks-api.m
   - Notes, not blockers: `PLAN.md` was edited by the author (the 137 row to review), which the review skill reserves for the planner; harmless as the table is generated and merge regenerates it. An answer over 2000 characters gets the message "There is no answer to record" (slightly off). After Keep open the new card shows its confirmation at the bottom of the card, not next to the buttons.
   - Checklist for the author: [ ] make the Resolve commit message match the command's (and test it).
 - 2026-11-15 (claude): review round 1 item done: Resolve from the page now commits `136: resolved a try need`, the same message as the command (the server no longer sets its own label); the test now runs the command on a second repo and compares the two commit subjects. Set back to review.
+- 2026-11-15 (claude, independent review, round 2): verdict APPROVE. Re-checked the round 1 item (6eae042) on two temporary git copies of the branch (A served, driven by real HTTP POSTs with the page's own hashes and token; B ran `node scripts/issues.mjs`), never the real repo.
+  - Fixed: Resolve from the page commits `136: resolved a try need`, the command's subject. Same four actions (resolve, answer, drop, defer) on A and B: commit subjects, author and bodies identical, `issues/` trees byte-identical, and the resolve commit's diff identical (`git show` of both). The new test compares the two repos' subjects; read it, it does run the command on a second repo.
+  - Checks: `npm test` (3811 pass, 3 skipped), `npx tsc --noEmit`, `npm run build`, `npm run check:dist`, `npm run issues:check -- --validate` (174 valid, only the two usual warnings) all clean.
+  - No regression: answer by option text, drop with note and defer with note all returned 200 and committed one file each; a wrong token gave 403 with the calm message and wrote nothing. The change since round 1 is two lines in `scripts/issues-serve.mjs` plus the test, so the round 1 browser, refusal and static-build checks stand.
+  - Still unverified (kept in front matter): Marc's own browser and phone, a real commit with his git identity and signing, a true 390 px iframe. Note: PLAN.md was edited by the author (reserved for the planner); merge should regenerate it. Needs `try` for Marc stays.

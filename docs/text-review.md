@@ -197,7 +197,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - From: GARNET LANE FLORALS - keep
 - Subject or caption: Still thinking about it? Your cart is waiting. - keep
 - Body: You left DRIED FLOWERS in your cart. - keep
-- Body: A small bunch that never needs watering. -
+- Body: A small bunch that never needs watering. - keep
 - Body: Complete your order today. -
 - Button: COMPLETE ORDER -
 - Look closer: Dried flower bunch, glass jar. -

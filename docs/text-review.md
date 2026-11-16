@@ -218,7 +218,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - From: Amazon.com - keep
 - Subject or caption: Recommended for you: Starry Night print - keep
 - Body: Because you viewed wall art. - keep
-- Body: Northfield Studio. 4.6 stars, 312 ratings. -
+- Body: Northfield Studio. 4.6 stars, 312 ratings. - keep
 - Body: FREE delivery Thursday. -
 - Button: VIEW ITEM -
 - Look closer: Starry Night, framed, 12 X 16 IN -

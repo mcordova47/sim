@@ -200,7 +200,7 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Body: A small bunch that never needs watering. - keep
 - Body: Complete your order today. - keep
 - Button: COMPLETE ORDER - keep
-- Look closer: Dried flower bunch, glass jar. -
+- Look closer: Dried flower bunch, glass jar. - keep
 - Look closer: $24. Free returns. -
 
 **3. Oakline Home Goods** (social post, Facebook Marketplace; sells `lamp-warm`; unsubscribe difficulty 0 of 2; arrives 24 game hours after the order)

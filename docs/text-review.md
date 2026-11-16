@@ -343,7 +343,7 @@ The pixel font is capitals only, so these draw in capitals. Opened from the paus
 Capitals only. Nothing animated, no counters, no "ERROR". A failure is a plain line, and the game says it will try again by itself.
 - Status line, by state: SYNC: OFF / SYNC: ON / SYNC: WORKING... - keep
 - Status, on, after one worked this visit: SYNC: ON. LAST SYNCED JUST NOW (or LAST SYNCED 5 MIN AGO, LAST SYNCED 2 H AGO) - keep
-- Status, on, automatic sync switched off: SYNC: ON. AUTOMATIC SYNC IS OFF
+- Status, on, automatic sync switched off: SYNC: ON. AUTOMATIC SYNC IS OFF - keep
 - Status, no network or the server is not answering: SYNC: NO CONNECTION. TRYING AGAIN LATER (with automatic sync off: SYNC: NO CONNECTION)
 - Status, the server does not know the key (automatic sync stops until you act): SYNC: KEY NOT FOUND. PASTE A NEW KEY
 - Status, other: SYNC: UNAVAILABLE / SYNC: UPDATE THE GAME / SYNC: SAVE ON THE SERVER IS UNREADABLE / SYNC: THE SERVER REFUSED THE SAVE

@@ -376,7 +376,7 @@ The entry also shows the where-now line (the slot's "where" text, or IN THE INVE
 - GREAT WAVE: JUST BECAUSE IT'S IN EVERY COLLEGE DORM DOESN'T MAKE IT BAD. - keep
 - STARRY NIGHT: NOT YOUR FAVORITE VAN GOGH, BUT THERE IS A REASON IT'S A CLASSIC. - keep
 - WATER LILIES: PEOPLE TALK ABOUT CAPTURING A FLEETING MOMENT, BUT YOU JUST THINK IT'S PRETTY. - keep
-- SUNFLOWERS: SUNFLOWERS IN A VASE. THEY ARE HOLDING UP.
+- SUNFLOWERS: SUNFLOWERS IN A VASE. THEY ARE HOLDING UP. - rewrite: SUNFLOWERS: SUNFLOWERS IN A VASE. JUST LOOK AT THOSE BRUSH STROKES.
 
 ## THINGS page: the silhouette (issue 109c)
 Capitals only. Shown for something an ad put in front of you that you did not take (ignored, hidden, or closed). The page draws a flat dark shape of it, and nothing else about it: no name, no source, no place, no hint how to get one, no count. If it later arrives, the shape simply becomes the item. Marc marks each: keep, soften or rewrite.

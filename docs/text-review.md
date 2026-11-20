@@ -94,7 +94,7 @@ The pause-screen page where pictures are added and removed. The first five lines
 ## Dialogs (contemplate and task dialogs)
 
 - (prompt) Contemplate what? - keep
-  - (label) Existence
+  - (label) Existence - keep
     - (prompt) Which part? - keep
       - (label) Why anything exists
         - (text) Why is there something rather than nothing? You think about it for a while. The answer is probably the dishes.
@@ -111,7 +111,7 @@ The pause-screen page where pictures are added and removed. The first five lines
 
 ### contemplate
 - (prompt) Contemplate what? - keep
-  - (label) Existence
+  - (label) Existence - keep
     - (prompt) Which part? - keep
       - (label) Why anything exists
         - (text) Why is there something rather than nothing? You think about it for a while. The answer is probably the dishes.

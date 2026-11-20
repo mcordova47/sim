@@ -107,7 +107,7 @@ The pause-screen page where pictures are added and removed. The first five lines
     - (text) You subscribe to a service that helps you cancel your other subscriptions. It is $4.99 a month. You feel nothing.
   - (label) The impermanence of everything - keep
     - (text) The mug will break. The couch will sag. The song you wrote last week will be forgotten, and so will this thought. Still, the coffee was good.
-  - (label) Nothing, actually
+  - (label) Nothing, actually - keep
 
 ### contemplate
 - (prompt) Contemplate what? - keep
@@ -124,7 +124,7 @@ The pause-screen page where pictures are added and removed. The first five lines
     - (text) You subscribe to a service that helps you cancel your other subscriptions. It is $4.99 a month. You feel nothing.
   - (label) The impermanence of everything - keep
     - (text) The mug will break. The couch will sag. The song you wrote last week will be forgotten, and so will this thought. Still, the coffee was good.
-  - (label) Nothing, actually
+  - (label) Nothing, actually - keep
 
 ### cutscene record-play
 

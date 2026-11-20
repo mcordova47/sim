@@ -69,7 +69,7 @@ The pause-screen page where pictures are added and removed. The first five lines
 | fridge-stare | Stare into the fridge | Open the fridge | Nothing new has appeared since the last check. |  | keep |
 | humidifier | Refill the humidifier | Refill the humidifier | The air is now 4% less crunchy. |  |  |
 | take-trash | Take out the trash | Take out the trash | The bag was not full. You took it out anyway, out of spite. |  | rewrite: You're testing the physical limits of how much you can compress this trash. |
-| recycle-boxes | Take out the recycling | Take out the recycling | Down the stairs, into the bin, and the corner of the kitchen is yours again. | FLATTEN THE BOXES FIRST, NO BOXES TO TAKE OUT |  |
+| recycle-boxes | Take out the recycling | Take out the recycling | Down the stairs, into the bin, and the corner of the kitchen is yours again. | FLATTEN THE BOXES FIRST, NO BOXES TO TAKE OUT | rewrite: The kitchen is clear and you find what appears to be a Blockbuster gift card. |
 | cook | Cook dinner | Cook dinner | Smoke alarm: silent, but judging. | NO CLEAN PLATES |  |
 | dishes | Do the dishes | Do the dishes | The pile regrows when you look away. | NO DIRTY DISHES |  |
 | flatten-boxes | Flatten the boxes | Flatten boxes | You have been meaning to do this since spring. | NO BOXES TO FLATTEN |  |

@@ -77,7 +77,7 @@ The pause-screen page where pictures are added and removed. The first five lines
 | sit | Take a moment | Take a moment | Phone battery: 41%. Phone battery: 33%. |  | rewrite: Do I have to narrate everything? |
 | shower | Take a shower | Take a shower | Best ideas of the day, all forgotten by the towel. |  | rewrite: If only they'd record your ideas in there. What a world it would be... |
 | sleep | Go to sleep | Go to sleep | Just five minutes. It was not five minutes. | NOT TIRED YET |  |
-| contemplate | Contemplate | Contemplate |  |  |  |
+| contemplate | Contemplate | Contemplate |  |  | keep |
 | charge-phone (issue 088) | Charge your phone | Charge your phone | One hundred percent. You will not need it. |  |  |
 
 ## State variable meanings

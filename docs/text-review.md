@@ -98,7 +98,7 @@ The pause-screen page where pictures are added and removed. The first five lines
     - (prompt) Which part? - keep
       - (label) Why anything exists - keep
         - (text) Why is there something rather than nothing? You think about it for a while. The answer is probably the dishes.
-      - (label) Why it is like this
+      - (label) Why it is like this - keep
         - (text) It could have been otherwise. It could have been worse. It could have been a Tuesday.
       - (label) Never mind
   - (label) The state of democracy
@@ -115,7 +115,7 @@ The pause-screen page where pictures are added and removed. The first five lines
     - (prompt) Which part? - keep
       - (label) Why anything exists - keep
         - (text) Why is there something rather than nothing? You think about it for a while. The answer is probably the dishes.
-      - (label) Why it is like this
+      - (label) Why it is like this - keep
         - (text) It could have been otherwise. It could have been worse. It could have been a Tuesday.
       - (label) Never mind
   - (label) The state of democracy

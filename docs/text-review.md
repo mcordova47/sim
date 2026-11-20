@@ -59,7 +59,7 @@ The pause-screen page where pictures are added and removed. The first five lines
 | coffee | Make pour-over coffee | Make coffee | Weigh, grind, bloom, wait. Peak civilization. | NO CLEAN PLATES; COFFEE IS WAITING | rewrite: Weigh, grind, bloom, wait. You'd love this if you weren't so tired. |
 | drink-coffee | Drink the coffee | Drink the coffee | Still hot. Then suddenly not. Peak civilization, brief. | NO COFFEE MADE | rewrite: What a good feeling, the rush of energy before the panic attack. |
 | reheat | Reheat leftovers | Reheat leftovers | Thirty seconds more. Thirty seconds more. Cold in the middle. | NO CLEAN PLATES | rewrite: Burnt on the outside, ice cold in the middle, just like you like it. |
-| eat-dinner | Eat dinner | Eat dinner | Eaten while watching something you have already seen. | NO CLEAN PLATES |  |
+| eat-dinner | Eat dinner | Eat dinner | Eaten while watching something you have already seen. | NO CLEAN PLATES | keep |
 | doomscroll | Doomscroll | Doomscroll | One more. Okay, one more. Where did forty minutes go. |  |  |
 | work-sofa | Code from the couch | Work from the couch | Your back files a complaint. | TOO TIRED TO WORK |  |
 | nap | Take a nap | Take a nap | Twenty minutes, said the plan. The light has moved. | NOT SLEEPY ENOUGH |  |

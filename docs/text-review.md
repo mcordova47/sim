@@ -103,7 +103,7 @@ The pause-screen page where pictures are added and removed. The first five lines
       - (label) Never mind - keep
   - (label) The state of democracy - keep
     - (text) You open a tab to check. You open eleven more. By the time you close them it is dark out and nothing is settled.
-  - (label) Late stage capitalism
+  - (label) Late stage capitalism - keep
     - (text) You subscribe to a service that helps you cancel your other subscriptions. It is $4.99 a month. You feel nothing.
   - (label) The impermanence of everything
     - (text) The mug will break. The couch will sag. The song you wrote last week will be forgotten, and so will this thought. Still, the coffee was good.
@@ -120,7 +120,7 @@ The pause-screen page where pictures are added and removed. The first five lines
       - (label) Never mind - keep
   - (label) The state of democracy - keep
     - (text) You open a tab to check. You open eleven more. By the time you close them it is dark out and nothing is settled.
-  - (label) Late stage capitalism
+  - (label) Late stage capitalism - keep
     - (text) You subscribe to a service that helps you cancel your other subscriptions. It is $4.99 a month. You feel nothing.
   - (label) The impermanence of everything
     - (text) The mug will break. The couch will sag. The song you wrote last week will be forgotten, and so will this thought. Still, the coffee was good.

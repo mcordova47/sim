@@ -51,7 +51,7 @@ The pause-screen page where pictures are added and removed. The first five lines
 | sort-records | Alphabetize the records | Alphabetize records | By artist. Then by mood. Then by artist again. | TRY ANOTHER ORDER | keep |
 | sort-records-year | Arrange records by year | Records by year | Oldest first. Then the reissues start a fight. | TRY ANOTHER ORDER |  |
 | sort-records-fav | Rank the records by favorites | Records by favorites | Number one changed three times while you did it. | TRY ANOTHER ORDER |  |
-| sort-records-color | Arrange records by color | Records by color | It looks great. You can no longer find anything. | TRY ANOTHER ORDER |  |
+| sort-records-color | Arrange records by color | Records by color | It looks great. You can no longer find anything. | TRY ANOTHER ORDER | keep |
 | work | Answer emails | Work at the desk | Per my last email, you are doing great. | TOO TIRED TO WORK |  |
 | tidy-desk | Clean the desk | Clean the desk | It was a pile. It is now several smaller piles. |  |  |
 | journal | Write in the journal | Write in the journal | Dear diary, I made coffee. It was a lot. |  |  |

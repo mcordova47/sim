@@ -55,27 +55,27 @@ The pause-screen page where pictures are added and removed. The first five lines
 | work | Answer emails | Work at the desk | Per my last email, you are doing great. | TOO TIRED TO WORK | keep |
 | tidy-desk | Clean the desk | Clean the desk | It was a pile. It is now several smaller piles. |  | keep |
 | journal | Write in the journal | Write in the journal | Dear diary, I made coffee. It was a lot. |  |  |
-| record-play | Flip the record | Flip the record | Side B is the one you actually like. |  | rewrite: Side B is the good side. |
-| coffee | Make pour-over coffee | Make coffee | Weigh, grind, bloom, wait. Peak civilization. | NO CLEAN PLATES; COFFEE IS WAITING | rewrite: Weigh, grind, bloom, wait. You'd love this if you weren't so tired. |
-| drink-coffee | Drink the coffee | Drink the coffee | Still hot. Then suddenly not. Peak civilization, brief. | NO COFFEE MADE | rewrite: What a good feeling, the rush of energy before the panic attack. |
-| reheat | Reheat leftovers | Reheat leftovers | Thirty seconds more. Thirty seconds more. Cold in the middle. | NO CLEAN PLATES | rewrite: Burnt on the outside, ice cold in the middle, just like you like it. |
+| record-play | Flip the record | Flip the record | Side B is the good side. |  | keep |
+| coffee | Make pour-over coffee | Make coffee | Weigh, grind, bloom, wait. You'd love this if you weren't so tired. | NO CLEAN PLATES; COFFEE IS WAITING | keep |
+| drink-coffee | Drink the coffee | Drink the coffee | What a good feeling, the rush of energy before the panic attack. | NO COFFEE MADE | keep |
+| reheat | Reheat leftovers | Reheat leftovers | Burnt on the outside, ice cold in the middle, just like you like it. | NO CLEAN PLATES | keep |
 | eat-dinner | Eat dinner | Eat dinner | Eaten while watching something you have already seen. | NO CLEAN PLATES | keep |
 | doomscroll | Doomscroll | Doomscroll | One more. Okay, one more. Where did forty minutes go. |  | keep |
-| work-sofa | Code from the couch | Work from the couch | Your back files a complaint. | TOO TIRED TO WORK | rewrite: How can something be so comfortable and yet so painful? |
+| work-sofa | Code from the couch | Work from the couch | How can something be so comfortable and yet so painful? | TOO TIRED TO WORK | keep |
 | nap | Take a nap | Take a nap | Twenty minutes, said the plan. The light has moved. | NOT SLEEPY ENOUGH |  |
 | admire-art | Admire the art | Admire the art | Nobody asked you to look at it this long. |  |  |
-| work-bed | Work in bed | Work in bed | A mistake you make on purpose. | TOO TIRED TO WORK | rewrite: Couldn't hurt to close your eyes for just a second... |
+| work-bed | Work in bed | Work in bed | Couldn't hurt to close your eyes for just a second... | TOO TIRED TO WORK | keep |
 | guitar | Play three chords | Play guitar | Same three chords. Different, slightly worse, song. |  |  |
 | fridge-stare | Stare into the fridge | Open the fridge | Nothing new has appeared since the last check. |  | keep |
 | humidifier | Refill the humidifier | Refill the humidifier | The air is now 4% less crunchy. |  |  |
-| take-trash | Take out the trash | Take out the trash | The bag was not full. You took it out anyway, out of spite. |  | rewrite: You're testing the physical limits of how much you can compress this trash. |
-| recycle-boxes | Take out the recycling | Take out the recycling | Down the stairs, into the bin, and the corner of the kitchen is yours again. | FLATTEN THE BOXES FIRST, NO BOXES TO TAKE OUT | rewrite: The kitchen is clear and you find what appears to be a Blockbuster gift card. |
+| take-trash | Take out the trash | Take out the trash | You're testing the physical limits of how much you can compress this trash. |  | keep |
+| recycle-boxes | Take out the recycling | Take out the recycling | The kitchen is clear and you find what appears to be a Blockbuster gift card. | FLATTEN THE BOXES FIRST, NO BOXES TO TAKE OUT | keep |
 | cook | Cook dinner | Cook dinner | Smoke alarm: silent, but judging. | NO CLEAN PLATES |  |
 | dishes | Do the dishes | Do the dishes | The pile regrows when you look away. | NO DIRTY DISHES |  |
 | flatten-boxes | Flatten the boxes | Flatten boxes | You have been meaning to do this since spring. | NO BOXES TO FLATTEN | keep |
-| brush-teeth | Brush teeth | Brush teeth | Two full minutes. Honest. |  | rewrite: Because you do have your life together. |
-| sit | Take a moment | Take a moment | Phone battery: 41%. Phone battery: 33%. |  | rewrite: Do I have to narrate everything? |
-| shower | Take a shower | Take a shower | Best ideas of the day, all forgotten by the towel. |  | rewrite: If only they'd record your ideas in there. What a world it would be... |
+| brush-teeth | Brush teeth | Brush teeth | Because you do have your life together. |  | keep |
+| sit | Take a moment | Take a moment | Do I have to narrate everything? |  | keep |
+| shower | Take a shower | Take a shower | If only they'd record your ideas in there. What a world it would be... |  | keep |
 | sleep | Go to sleep | Go to sleep | Just five minutes. It was not five minutes. | NOT TIRED YET |  |
 | contemplate | Contemplate | Contemplate |  |  | keep |
 | charge-phone (issue 088) | Charge your phone | Charge your phone | One hundred percent. You will not need it. |  |  |
@@ -376,7 +376,7 @@ The entry also shows the where-now line (the slot's "where" text, or IN THE INVE
 - GREAT WAVE: JUST BECAUSE IT'S IN EVERY COLLEGE DORM DOESN'T MAKE IT BAD. - keep
 - STARRY NIGHT: NOT YOUR FAVORITE VAN GOGH, BUT THERE IS A REASON IT'S A CLASSIC. - keep
 - WATER LILIES: PEOPLE TALK ABOUT CAPTURING A FLEETING MOMENT, BUT YOU JUST THINK IT'S PRETTY. - keep
-- SUNFLOWERS: SUNFLOWERS IN A VASE. THEY ARE HOLDING UP. - rewrite: SUNFLOWERS: SUNFLOWERS IN A VASE. JUST LOOK AT THOSE BRUSH STROKES.
+- SUNFLOWERS: SUNFLOWERS IN A VASE. JUST LOOK AT THOSE BRUSH STROKES. - keep
 
 ## THINGS page: the silhouette (issue 109c)
 Capitals only. Shown for something an ad put in front of you that you did not take (ignored, hidden, or closed). The page draws a flat dark shape of it, and nothing else about it: no name, no source, no place, no hint how to get one, no count. If it later arrives, the shape simply becomes the item. Marc marks each: keep, soften or rewrite.

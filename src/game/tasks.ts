@@ -55,7 +55,8 @@ const CONTENT: Task[] = [
     flavor: 'Dear diary, I made coffee. It was a lot.' },
   // No cooldown (issue 068): the menu is always open to you. It pays only for a change of
   // record, at most once per MUSIC.payoutEveryMinutes (activities/record-player.ts).
-  { id: 'record-play', name: 'Choose a record', prompt: 'Choose a record', duration: 2, points: 25, cooldown: 0 },
+  { id: 'record-play', name: 'Choose a record', prompt: 'Choose a record', duration: 2, points: 25, cooldown: 0,
+    flavor: 'Side B is the good side.' },
   // The track editor (issue 059): no points of its own and no cooldown, since
   // it is always open to you; saving a track pays (activities/make-track.ts).
   { id: 'make-track', name: 'Make a track', prompt: 'Make a track', duration: 0, points: 0, cooldown: 0 },
@@ -65,11 +66,11 @@ const CONTENT: Task[] = [
 
   // Table
   { id: 'coffee', name: 'Make pour-over coffee', prompt: 'Make coffee', duration: 6, points: 70,
-    flavor: 'Weigh, grind, bloom, wait. Peak civilization.' },
+    flavor: "Weigh, grind, bloom, wait. You'd love this if you weren't so tired." },
   { id: 'drink-coffee', name: 'Drink the coffee', prompt: 'Drink the coffee', duration: 3, points: 30,
-    flavor: 'Still hot. Then suddenly not. Peak civilization, brief.' },
+    flavor: 'What a good feeling, the rush of energy before the panic attack.' },
   { id: 'reheat', name: 'Reheat leftovers', prompt: 'Reheat leftovers', duration: 3, points: 25,
-    flavor: 'Thirty seconds more. Thirty seconds more. Cold in the middle.' },
+    flavor: "Burnt on the outside, ice cold in the middle, just like you like it." },
   { id: 'eat-dinner', name: 'Eat dinner', prompt: 'Eat dinner', duration: 7, points: 60,
     flavor: 'Eaten while watching something you have already seen.' },
 
@@ -81,13 +82,13 @@ const CONTENT: Task[] = [
   { id: 'scroll-photos', name: 'Scroll through photos', prompt: 'Scroll through photos', duration: 0, points: 5,
     requires: [{ var: 'hasPhotos', min: 1, reason: 'NO PICTURES' }] },
   { id: 'work-sofa', name: 'Code from the couch', prompt: 'Work from the couch', duration: 8, points: 60,
-    flavor: 'Your back files a complaint.' },
+    flavor: 'How can something be so comfortable and yet so painful?' },
   { id: 'nap', name: 'Take a nap', prompt: 'Take a nap', duration: 5, points: 30, // duration = SLEEP.nap total
     flavor: 'Twenty minutes, said the plan. The light has moved.' },
   { id: 'admire-art', name: 'Admire the art', prompt: 'Admire the art', duration: 0, points: 25,
     flavor: 'Nobody asked you to look at it this long.' },
   { id: 'work-bed', name: 'Work in bed', prompt: 'Work in bed', duration: 8, points: 50,
-    flavor: 'A mistake you make on purpose.' },
+    flavor: "Couldn't hurt to close your eyes for just a second..." },
   { id: 'guitar', name: 'Play three chords', prompt: 'Play guitar', duration: 5, points: 55,
     flavor: 'Same three chords. Different, slightly worse, song.' },
 
@@ -97,10 +98,10 @@ const CONTENT: Task[] = [
   { id: 'humidifier', name: 'Refill the humidifier', prompt: 'Refill the humidifier', duration: 4, points: 45,
     flavor: 'The air is now 4% less crunchy.' },
   { id: 'take-trash', name: 'Take out the trash', prompt: 'Take out the trash', duration: 4, points: 50,
-    flavor: 'The bag was not full. You took it out anyway, out of spite.' },
+    flavor: "You're testing the physical limits of how much you can compress this trash." },
   // Issues 070 and 071: done at the boxes, and only offered there when they are flat.
   { id: 'recycle-boxes', name: 'Take out the recycling', prompt: 'Take out the recycling', duration: 5, points: 55,
-    flavor: 'Down the stairs, into the bin, and the corner of the kitchen is yours again.' },
+    flavor: 'The kitchen is clear and you find what appears to be a Blockbuster gift card.' },
   { id: 'cook', name: 'Cook dinner', prompt: 'Cook dinner', duration: 8, points: 90,
     flavor: 'Smoke alarm: silent, but judging.' },
   { id: 'dishes', name: 'Do the dishes', prompt: 'Do the dishes', duration: 7, points: 80,
@@ -110,11 +111,11 @@ const CONTENT: Task[] = [
 
   // Bath
   { id: 'brush-teeth', name: 'Brush teeth', prompt: 'Brush teeth', duration: 3, points: 30,
-    flavor: 'Two full minutes. Honest.' },
+    flavor: 'Because you do have your life together.' },
   { id: 'sit', name: 'Take a moment', prompt: 'Take a moment', duration: 4, points: 20,
-    flavor: 'Phone battery: 41%. Phone battery: 33%.' },
+    flavor: 'Do I have to narrate everything?' },
   { id: 'shower', name: 'Take a shower', prompt: 'Take a shower', duration: 6, points: 70,
-    flavor: 'Best ideas of the day, all forgotten by the towel.' },
+    flavor: "If only they'd record your ideas in there. What a world it would be..." },
 ];
 
 // What tasks change in the apartment and the character (issue 021). The numbers

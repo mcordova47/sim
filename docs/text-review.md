@@ -96,7 +96,7 @@ The pause-screen page where pictures are added and removed. The first five lines
 - (prompt) Contemplate what? - keep
   - (label) Existence - keep
     - (prompt) Which part? - keep
-      - (label) Why anything exists
+      - (label) Why anything exists - keep
         - (text) Why is there something rather than nothing? You think about it for a while. The answer is probably the dishes.
       - (label) Why it is like this
         - (text) It could have been otherwise. It could have been worse. It could have been a Tuesday.
@@ -113,7 +113,7 @@ The pause-screen page where pictures are added and removed. The first five lines
 - (prompt) Contemplate what? - keep
   - (label) Existence - keep
     - (prompt) Which part? - keep
-      - (label) Why anything exists
+      - (label) Why anything exists - keep
         - (text) Why is there something rather than nothing? You think about it for a while. The answer is probably the dishes.
       - (label) Why it is like this
         - (text) It could have been otherwise. It could have been worse. It could have been a Tuesday.

@@ -73,7 +73,7 @@ The pause-screen page where pictures are added and removed. The first five lines
 | cook | Cook dinner | Cook dinner | Smoke alarm: silent, but judging. | NO CLEAN PLATES |  |
 | dishes | Do the dishes | Do the dishes | The pile regrows when you look away. | NO DIRTY DISHES |  |
 | flatten-boxes | Flatten the boxes | Flatten boxes | You have been meaning to do this since spring. | NO BOXES TO FLATTEN | keep |
-| brush-teeth | Brush teeth | Brush teeth | Two full minutes. Honest. |  |  |
+| brush-teeth | Brush teeth | Brush teeth | Two full minutes. Honest. |  | rewrite: Because you do have your life together. |
 | sit | Take a moment | Take a moment | Phone battery: 41%. Phone battery: 33%. |  |  |
 | shower | Take a shower | Take a shower | Best ideas of the day, all forgotten by the towel. |  |  |
 | sleep | Go to sleep | Go to sleep | Just five minutes. It was not five minutes. | NOT TIRED YET |  |

@@ -66,7 +66,7 @@ The pause-screen page where pictures are added and removed. The first five lines
 | admire-art | Admire the art | Admire the art | Nobody asked you to look at it this long. |  |  |
 | work-bed | Work in bed | Work in bed | A mistake you make on purpose. | TOO TIRED TO WORK | rewrite: Couldn't hurt to close your eyes for just a second... |
 | guitar | Play three chords | Play guitar | Same three chords. Different, slightly worse, song. |  |  |
-| fridge-stare | Stare into the fridge | Open the fridge | Nothing new has appeared since the last check. |  |  |
+| fridge-stare | Stare into the fridge | Open the fridge | Nothing new has appeared since the last check. |  | keep |
 | humidifier | Refill the humidifier | Refill the humidifier | The air is now 4% less crunchy. |  |  |
 | take-trash | Take out the trash | Take out the trash | The bag was not full. You took it out anyway, out of spite. |  |  |
 | recycle-boxes | Take out the recycling | Take out the recycling | Down the stairs, into the bin, and the corner of the kitchen is yours again. | FLATTEN THE BOXES FIRST, NO BOXES TO TAKE OUT |  |

@@ -64,7 +64,7 @@ The pause-screen page where pictures are added and removed. The first five lines
 | work-sofa | Code from the couch | Work from the couch | Your back files a complaint. | TOO TIRED TO WORK | rewrite: How can something be so comfortable and yet so painful? |
 | nap | Take a nap | Take a nap | Twenty minutes, said the plan. The light has moved. | NOT SLEEPY ENOUGH |  |
 | admire-art | Admire the art | Admire the art | Nobody asked you to look at it this long. |  |  |
-| work-bed | Work in bed | Work in bed | A mistake you make on purpose. | TOO TIRED TO WORK |  |
+| work-bed | Work in bed | Work in bed | A mistake you make on purpose. | TOO TIRED TO WORK | rewrite: Couldn't hurt to close your eyes for just a second... |
 | guitar | Play three chords | Play guitar | Same three chords. Different, slightly worse, song. |  |  |
 | fridge-stare | Stare into the fridge | Open the fridge | Nothing new has appeared since the last check. |  |  |
 | humidifier | Refill the humidifier | Refill the humidifier | The air is now 4% less crunchy. |  |  |

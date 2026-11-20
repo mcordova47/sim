@@ -57,7 +57,7 @@ The pause-screen page where pictures are added and removed. The first five lines
 | journal | Write in the journal | Write in the journal | Dear diary, I made coffee. It was a lot. |  |  |
 | record-play | Flip the record | Flip the record | Side B is the one you actually like. |  | rewrite: Side B is the good side. |
 | coffee | Make pour-over coffee | Make coffee | Weigh, grind, bloom, wait. Peak civilization. | NO CLEAN PLATES; COFFEE IS WAITING | rewrite: Weigh, grind, bloom, wait. You'd love this if you weren't so tired. |
-| drink-coffee | Drink the coffee | Drink the coffee | Still hot. Then suddenly not. Peak civilization, brief. | NO COFFEE MADE |  |
+| drink-coffee | Drink the coffee | Drink the coffee | Still hot. Then suddenly not. Peak civilization, brief. | NO COFFEE MADE | rewrite: What a good feeling, the rush of energy before the panic attack. |
 | reheat | Reheat leftovers | Reheat leftovers | Thirty seconds more. Thirty seconds more. Cold in the middle. | NO CLEAN PLATES |  |
 | eat-dinner | Eat dinner | Eat dinner | Eaten while watching something you have already seen. | NO CLEAN PLATES |  |
 | doomscroll | Doomscroll | Doomscroll | One more. Okay, one more. Where did forty minutes go. |  |  |

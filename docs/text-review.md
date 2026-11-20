@@ -100,7 +100,7 @@ The pause-screen page where pictures are added and removed. The first five lines
         - (text) Why is there something rather than nothing? You think about it for a while. The answer is probably the dishes.
       - (label) Why it is like this - keep
         - (text) It could have been otherwise. It could have been worse. It could have been a Tuesday.
-      - (label) Never mind
+      - (label) Never mind - keep
   - (label) The state of democracy
     - (text) You open a tab to check. You open eleven more. By the time you close them it is dark out and nothing is settled.
   - (label) Late stage capitalism
@@ -117,7 +117,7 @@ The pause-screen page where pictures are added and removed. The first five lines
         - (text) Why is there something rather than nothing? You think about it for a while. The answer is probably the dishes.
       - (label) Why it is like this - keep
         - (text) It could have been otherwise. It could have been worse. It could have been a Tuesday.
-      - (label) Never mind
+      - (label) Never mind - keep
   - (label) The state of democracy
     - (text) You open a tab to check. You open eleven more. By the time you close them it is dark out and nothing is settled.
   - (label) Late stage capitalism

@@ -61,7 +61,7 @@ The pause-screen page where pictures are added and removed. The first five lines
 | reheat | Reheat leftovers | Reheat leftovers | Thirty seconds more. Thirty seconds more. Cold in the middle. | NO CLEAN PLATES | rewrite: Burnt on the outside, ice cold in the middle, just like you like it. |
 | eat-dinner | Eat dinner | Eat dinner | Eaten while watching something you have already seen. | NO CLEAN PLATES | keep |
 | doomscroll | Doomscroll | Doomscroll | One more. Okay, one more. Where did forty minutes go. |  | keep |
-| work-sofa | Code from the couch | Work from the couch | Your back files a complaint. | TOO TIRED TO WORK |  |
+| work-sofa | Code from the couch | Work from the couch | Your back files a complaint. | TOO TIRED TO WORK | rewrite: How can something be so comfortable and yet so painful? |
 | nap | Take a nap | Take a nap | Twenty minutes, said the plan. The light has moved. | NOT SLEEPY ENOUGH |  |
 | admire-art | Admire the art | Admire the art | Nobody asked you to look at it this long. |  |  |
 | work-bed | Work in bed | Work in bed | A mistake you make on purpose. | TOO TIRED TO WORK |  |

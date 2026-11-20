@@ -55,7 +55,7 @@ The pause-screen page where pictures are added and removed. The first five lines
 | work | Answer emails | Work at the desk | Per my last email, you are doing great. | TOO TIRED TO WORK | keep |
 | tidy-desk | Clean the desk | Clean the desk | It was a pile. It is now several smaller piles. |  | keep |
 | journal | Write in the journal | Write in the journal | Dear diary, I made coffee. It was a lot. |  |  |
-| record-play | Flip the record | Flip the record | Side B is the one you actually like. |  |  |
+| record-play | Flip the record | Flip the record | Side B is the one you actually like. |  | rewrite: Side B is the good side. |
 | coffee | Make pour-over coffee | Make coffee | Weigh, grind, bloom, wait. Peak civilization. | NO CLEAN PLATES; COFFEE IS WAITING |  |
 | drink-coffee | Drink the coffee | Drink the coffee | Still hot. Then suddenly not. Peak civilization, brief. | NO COFFEE MADE |  |
 | reheat | Reheat leftovers | Reheat leftovers | Thirty seconds more. Thirty seconds more. Cold in the middle. | NO CLEAN PLATES |  |

@@ -2,7 +2,7 @@
 id: "144"
 title: "Apply Marc's second batch of text rewrites"
 short: "Apply text rewrites 2"
-status: review
+status: done
 owner: claude
 depends_on: ["143"]
 summary: "Marc's 12 second-batch rewrite marks (one item note, eleven task flavor lines) are applied to the game's text."
@@ -32,3 +32,13 @@ The second 'apply the marks in a batch' step of issue 139: apply the 12 `rewrite
   - Render (headless Chrome, 1x, THINGS page, SUNFLOWERS selected): scratchpad sun-wide.png (320 x 192) and sun-narrow.png (224 x 208, no sprites): the note wraps in 2 and 3 lines inside the box. Flavor lines have no screen to render.
   - Checks: see the end of this log.
   - Checks run: npm test (169 files, 3863 passed), npx tsc --noEmit, npm run build, npm run check:dist, npm run issues:check -- --validate (valid; unrelated warnings on 116, 138, 142).
+- 2026-11-20 (claude, independent review): approve.
+  - Exact text: my own script compared all 12 strings character for character against src/game/decor-data.ts, the `flavor:` of each task block in src/game/tasks.ts and docs/text-review.md; all 12 match (plain ASCII, straight apostrophes, three full stops). The 11 old strings and the old SUNFLOWERS note have zero hits in src/.
+  - Font: a throwaway vitest (deleted) ran every task flavor and the SUNFLOWERS note through GLYPHS after uppercasing: no missing glyph. npm test's font-coverage tests also pass.
+  - Flavor not drawn: grep of `flavor` across src finds reads only in tests (font coverage, boxes.test.ts, battery) plus side-projects.ts, which has its own separate `flavor`. No game code reads `Interactable.flavor`, and no test pins a flavor length. Claim holds.
+  - record-play: main's tasks.ts had no flavor for it (only the doc row, from the older "Flip the record" task, dropped since 326035d). Adding `flavor` was reasonable: it is inert, keeps Marc's exact words and makes the doc and code agree on the line. The row's name and prompt in the doc still say "Flip the record" (stale; code says "Choose a record"); left alone, as scope.
+  - Doc: parseReview on a copy: 298 items, unparsed 0, zero rewrite marks (230 keep, 68 unmarked). `git diff main -- docs/text-review.md` is exactly 12 lines out and 12 in, the 12 old `rewrite:` rows (11 task rows, 1 decor bullet); no other marks touched. docs/learn/05 step 4 now quotes the new take-trash line and its wording stays coherent.
+  - Scope: git diff --stat main touches only docs/learn/05, docs/text-review.md, this issue, src/game/decor-data.ts and src/game/tasks.ts.
+  - Renders: sun-wide.png (320 x 192) shows the note on 2 lines inside the box; sun-narrow.png (224 x 208) shows 3 lines inside the box, nothing clipped, the lines below it intact. Fine.
+  - Checks: npm test (169 files, 3863 passed, 3 skipped), npx tsc --noEmit, npm run build, npm run check:dist and npm run issues:check -- --validate (178 valid, warnings only on unrelated issues) all pass.
+  - Unverified (kept in front matter): how the lines read in play, and flavor display (none exists).

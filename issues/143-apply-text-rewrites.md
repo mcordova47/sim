@@ -10,11 +10,6 @@ kind: build
 unverified:
   - "The THINGS page was rendered in the real game only at 320 x 192; the 224 x 208 layout was drawn through a harness in the dev server without sprites, because the game itself shows the list at 320 x 192 on the narrow phone too."
   - "How the longer notes read to Marc in play (pace, humour) is unseen; only screenshots were looked at."
-needs:
-  - who: marc
-    kind: review
-    why: "144 (your second batch of text rewrites) is approved on branch issue/144-apply-text-rewrites-2: say merge, or what is off."
-    since: 2026-11-20
 ---
 
 ## Goal

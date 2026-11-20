@@ -142,7 +142,7 @@ export const GIFT_ITEMS: DecorItem[] = [
   // After the first ten (the later list): owned only once something gives them.
   { id: "art-starry-night", name: "STARRY NIGHT", kind: "art", sprite: "art-starry-night", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "NOT YOUR FAVORITE VAN GOGH, BUT THERE IS A REASON IT'S A CLASSIC.", slots: WALL },
   { id: "art-water-lilies", name: "WATER LILIES", kind: "art", sprite: "art-water-lilies", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "PEOPLE TALK ABOUT CAPTURING A FLEETING MOMENT, BUT YOU JUST THINK IT'S PRETTY.", slots: WALL },
-  { id: "art-sunflowers", name: "SUNFLOWERS", kind: "art", sprite: "art-sunflowers", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "SUNFLOWERS IN A VASE. THEY ARE HOLDING UP.", slots: WALL },
+  { id: "art-sunflowers", name: "SUNFLOWERS", kind: "art", sprite: "art-sunflowers", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "SUNFLOWERS IN A VASE. JUST LOOK AT THOSE BRUSH STROKES.", slots: WALL },
 ];
 
 // TEST items (issue 062 stage 2): borrowed sprites, so the swap can be tried and

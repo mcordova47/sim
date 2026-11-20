@@ -44,7 +44,7 @@ The pause-screen page where pictures are added and removed. The first five lines
 
 | id | name | prompt | flavor | unmet reasons | mark |
 |---|---|---|---|---|---|
-| make-bed | Make the bed | Make the bed | It will be undone in eleven hours. Worth it. | BED IS MADE |  |
+| make-bed | Make the bed | Make the bed | It will be undone in eleven hours. Worth it. | BED IS MADE | keep |
 | open-blinds | Open the blinds | Open the blinds | The outside is still there. Good to know. | BLINDS ARE OPEN |  |
 | close-blinds | Close the blinds | Close the blinds | Now it is a cave. A cozy one. | BLINDS ARE CLOSED |  |
 | water-plant | Water the snake plant | Water the plant | It has survived worse owners. It has not had worse owners. |  |  |

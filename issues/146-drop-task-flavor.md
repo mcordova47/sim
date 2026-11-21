@@ -2,7 +2,7 @@
 id: "146"
 title: "Drop the task flavor lines and park the approved ones"
 short: "Drop task flavor lines"
-status: review
+status: done
 owner: claude
 depends_on: ["145"]
 summary: "Remove the never-drawn task flavor lines from the game and docs; park the ones Marc approved in docs/ideas.md."
@@ -31,3 +31,13 @@ Marc decided (issue 145, d1) to drop the task flavor lines for now. The ones he 
   - docs/text-review.md: flavor column dropped from the Tasks table (name, prompt, unmet reasons and mark kept; parse unchanged: 298 items, 0 unparsed, 35 task rows, 20 marks); the record-play row now reads Choose a record (it said Flip the record: issue 145 d2); added a one-sentence intro under Tasks (there was none). The frozen snapshot fixture is untouched. The sofa photo row still says "The task has no flavor line" (a marked line, left as is).
   - Learn exercises run in a scratch worktree (since removed): module 4 (wipe-counter at the counter, tests red before and green after, whole suite green after step 4, a `€` in the name gives `wipe-counter.name: "€"`, a `dishs` typo gives the unknown-variable error, the achievement turns sync-draw and transfer-draw red); module 5 steps 2 to 4 (take-trash gated by `trash` goes red at cooldowns.test.ts with `expected +0 to be 10`, green after moving it; ui-data green). The module 4 test one (`dishes` at 2 does not offer your task) also passes before the task exists, as before; not changed.
   - Checks: `npx tsc --noEmit`, `npm test` (169 files, 3863 passed), `npm run build`, `npm run check:dist`, `npm run issues:check -- --validate` all pass; golden frames unchanged.
+- 2026-11-21 (claude, independent review): verdict approve.
+  - No flavor value or field in src/ (`grep -w flavor src` empty; tsc clean). Pass.
+  - docs/ideas.md "Task flavor lines (parked)": checked with my own script (`parseReview` on `git show main:docs/text-review.md`): 35 task rows, 20 keep, 19 with a flavor line; the 19 bullets match `prompt: flavor` exactly, in count, text and order (record-play read as Choose a record). Pass.
+  - No unapproved line survives: the 15 unmarked flavors, water-plant-droop's, the placeholder-level lines and the side project's line were each searched under src/, docs/ and scripts/; the only hits are in scripts/fixtures/text-review-snapshot.md, which is unchanged (`git diff main...HEAD -- scripts/fixtures` empty). docs/text-review.md keeps one marked sofa row saying "no flavor line". Pass.
+  - docs/text-review.md parses: 298 items, 0 unparsed, 35 Tasks rows, 20 Tasks marks; all 263 other items identical (id and mark); the Tasks rows differ from main only in the record-play name/prompt. Pass.
+  - Learn exercises, run in a scratch worktree (removed): module 4 (tests red before the task and green after; whole suite green after step 4; `€` as the name gives `wipe-counter.name: "€"`; a `dishs` typo gives the unknown-variable error; the achievement turns sync-draw and transfer-draw red); module 5 step 3 (`take-trash` with `STATE_GATED` goes red with `expected +0 to be 10`, green after moving it in cooldowns.test.ts). Cited line ranges hold (interactable.ts 9 to 70, tasks.ts 92 to 117 helpers, STATE_GATED at 117, STATE_RULES from 119, TASKS at 394 to 396). Pass.
+  - `npm test` (169 files, 3863 passed), `npx tsc --noEmit`, `npm run build`, `npm run check:dist`, `npm run issues:check -- --validate` all pass; golden frames unchanged. Pass.
+  - Scope: only src/ flavor removals and tests, five docs, the issue file; no .claude, PLAN.md, other issues, reference-photos or private details. Pass.
+  - Not verified: visual (flavor was never drawn).
+  - PLAN.md table needs updating by the planner.

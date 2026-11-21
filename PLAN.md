@@ -210,7 +210,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 142 | [Encounter music follow-ups](issues/142-encounter-music-followups.md) | claude | todo | 091c |
 | 143 | [Apply text rewrites](issues/143-apply-text-rewrites.md) | claude | done | 141 |
 | 144 | [Apply text rewrites 2](issues/144-apply-text-rewrites-2.md) | claude | done | 143 |
-| 145 | [Show task flavor lines](issues/145-show-task-flavor.md) | marc + claude | todo | 144 |
+| 145 | [Show task flavor lines](issues/145-show-task-flavor.md) | marc + claude | done | 144 |
 <!-- issues:table:end -->
 
 ## Order of work

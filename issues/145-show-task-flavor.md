@@ -2,7 +2,7 @@
 id: "145"
 title: "Show the task flavor lines in the game"
 short: "Show task flavor lines"
-status: todo
+status: done
 owner: marc + claude
 depends_on: ["144"]
 summary: "Every task has a flavor line (the jokes in the text review) that the game never draws; decide where to show them."
@@ -17,7 +17,10 @@ decisions:
       - "as a one-line dialog box after the task ends"
       - "nowhere: keep them as notes and remove them from the text review"
     recommendation: "on completion, under the points in the award popup: it is when the joke lands, and the popup already pays attention to the task"
-    status: open
+    status: answered
+    answer: "nowhere, for now: the approved and rewritten flavor lines go into docs/ideas.md, the rest are removed (issue 146)"
+    by: marc
+    on: 2026-11-21
   - id: d2
     who: marc
     q: "The text review's Tasks table still lists a task called Flip the record with a flavor line, but the game's task is Choose a record. What should happen to that row?"
@@ -26,7 +29,10 @@ decisions:
       - "drop the row from the text review"
       - "rename the task in the game to Flip the record"
     recommendation: "rename the doc row to match the task as built; the flavor line you wrote is now attached to it"
-    status: open
+    status: defaulted
+    answer: "rename the doc row to match the task as built"
+    by: planner
+    on: 2026-11-21
 ---
 
 ## Goal
@@ -41,3 +47,4 @@ Found while applying the second batch of text review rewrites (issue 144): `Inte
 
 ## Progress log
 - 2026-11-20 (planner): filed from the 144 hand-back; both questions recorded as open decisions before asking.
+- 2026-11-21 (planner): Marc: not now. The flavor lines he approved or rewrote go into docs/ideas.md and the rest are removed from the game's data (issue 146); d2 (the stale Flip the record row) is settled as part of that work. Closed.

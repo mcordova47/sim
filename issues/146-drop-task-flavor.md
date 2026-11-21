@@ -2,7 +2,7 @@
 id: "146"
 title: "Drop the task flavor lines and park the approved ones"
 short: "Drop task flavor lines"
-status: done
+status: review
 owner: claude
 depends_on: ["145"]
 summary: "Remove the never-drawn task flavor lines from the game and docs; park the ones Marc approved in docs/ideas.md."
@@ -41,3 +41,4 @@ Marc decided (issue 145, d1) to drop the task flavor lines for now. The ones he 
   - Scope: only src/ flavor removals and tests, five docs, the issue file; no .claude, PLAN.md, other issues, reference-photos or private details. Pass.
   - Not verified: visual (flavor was never drawn).
   - PLAN.md table needs updating by the planner.
+- 2026-11-21 (claude, after the first review): Marc added: plain-command rows leave the text review. Removed 11 rows from the Tasks table (water-plant, tidy-desk, journal, record-play, doomscroll, admire-art, humidifier, take-trash, brush-teeth, shower, charge-phone); 24 rows remain (the 20 with blocked messages plus guitar, fridge-stare, sit, contemplate), 14 of them marked keep. Total items 298 -> 287, 0 unparsed. The 19 parked lines in docs/ideas.md are unchanged (taken before the rows left). `scripts/text-review.test.mjs` had a check that the live doc has at least as many strings as the snapshot; it now allows for these 11 fewer. Learn module 5 step 4 now says to add a take-trash row (the table no longer has one). Needs a second review of this change.

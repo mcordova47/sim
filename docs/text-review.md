@@ -42,45 +42,34 @@ The pause-screen page where pictures are added and removed. The first five lines
 
 ## Tasks
 
-One row per task: its id, name (the menu and the award popup), prompt (the short line at the object), the reasons it can be unmet (the blocked message) and the mark. The one-line flavor jokes the tasks used to carry were never drawn and were dropped (issue 146); the ones marked keep below are parked in `docs/ideas.md`.
+One row per task that has something to review: its id, name (the menu and the award popup), prompt (the short line at the object), the reasons it can be unmet (the blocked message, which the game does show) and the mark. Tasks that are only plain commands with no blocked message were removed from the table (Marc, 2026-11-21). The one-line flavor jokes the tasks used to carry were never drawn and were dropped (issue 146); the ones marked keep below are parked in `docs/ideas.md`.
 
 | id | name | prompt | unmet reasons | mark |
 |---|---|---|---|---|
 | make-bed | Make the bed | Make the bed | BED IS MADE |  |
 | open-blinds | Open the blinds | Open the blinds | BLINDS ARE OPEN |  |
 | close-blinds | Close the blinds | Close the blinds | BLINDS ARE CLOSED |  |
-| water-plant | Water the snake plant | Water the plant |  |  |
 | sort-records | Alphabetize the records | Alphabetize records | TRY ANOTHER ORDER | keep |
 | sort-records-year | Arrange records by year | Records by year | TRY ANOTHER ORDER |  |
 | sort-records-fav | Rank the records by favorites | Records by favorites | TRY ANOTHER ORDER |  |
 | sort-records-color | Arrange records by color | Records by color | TRY ANOTHER ORDER | keep |
 | work | Answer emails | Work at the desk | TOO TIRED TO WORK | keep |
-| tidy-desk | Clean the desk | Clean the desk |  | keep |
-| journal | Write in the journal | Write in the journal |  |  |
-| record-play | Choose a record | Choose a record |  | keep |
 | coffee | Make pour-over coffee | Make coffee | NO CLEAN PLATES; COFFEE IS WAITING | keep |
 | drink-coffee | Drink the coffee | Drink the coffee | NO COFFEE MADE | keep |
 | reheat | Reheat leftovers | Reheat leftovers | NO CLEAN PLATES | keep |
 | eat-dinner | Eat dinner | Eat dinner | NO CLEAN PLATES | keep |
-| doomscroll | Doomscroll | Doomscroll |  | keep |
 | work-sofa | Code from the couch | Work from the couch | TOO TIRED TO WORK | keep |
 | nap | Take a nap | Take a nap | NOT SLEEPY ENOUGH |  |
-| admire-art | Admire the art | Admire the art |  |  |
 | work-bed | Work in bed | Work in bed | TOO TIRED TO WORK | keep |
 | guitar | Play three chords | Play guitar |  |  |
 | fridge-stare | Stare into the fridge | Open the fridge |  | keep |
-| humidifier | Refill the humidifier | Refill the humidifier |  |  |
-| take-trash | Take out the trash | Take out the trash |  | keep |
 | recycle-boxes | Take out the recycling | Take out the recycling | FLATTEN THE BOXES FIRST, NO BOXES TO TAKE OUT | keep |
 | cook | Cook dinner | Cook dinner | NO CLEAN PLATES |  |
 | dishes | Do the dishes | Do the dishes | NO DIRTY DISHES |  |
 | flatten-boxes | Flatten the boxes | Flatten boxes | NO BOXES TO FLATTEN | keep |
-| brush-teeth | Brush teeth | Brush teeth |  | keep |
 | sit | Take a moment | Take a moment |  | keep |
-| shower | Take a shower | Take a shower |  | keep |
 | sleep | Go to sleep | Go to sleep | NOT TIRED YET |  |
 | contemplate | Contemplate | Contemplate |  | keep |
-| charge-phone (issue 088) | Charge your phone | Charge your phone |  |  |
 
 ## State variable meanings
 

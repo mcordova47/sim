@@ -2,7 +2,7 @@
 id: "146"
 title: "Drop the task flavor lines and park the approved ones"
 short: "Drop task flavor lines"
-status: review
+status: done
 owner: claude
 depends_on: ["145"]
 summary: "Remove the never-drawn task flavor lines from the game and docs; park the ones Marc approved in docs/ideas.md."
@@ -42,3 +42,10 @@ Marc decided (issue 145, d1) to drop the task flavor lines for now. The ones he 
   - Not verified: visual (flavor was never drawn).
   - PLAN.md table needs updating by the planner.
 - 2026-11-21 (claude, after the first review): Marc added: plain-command rows leave the text review. Removed 11 rows from the Tasks table (water-plant, tidy-desk, journal, record-play, doomscroll, admire-art, humidifier, take-trash, brush-teeth, shower, charge-phone); 24 rows remain (the 20 with blocked messages plus guitar, fridge-stare, sit, contemplate), 14 of them marked keep. Total items 298 -> 287, 0 unparsed. The 19 parked lines in docs/ideas.md are unchanged (taken before the rows left). `scripts/text-review.test.mjs` had a check that the live doc has at least as many strings as the snapshot; it now allows for these 11 fewer. Learn module 5 step 4 now says to add a take-trash row (the table no longer has one). Needs a second review of this change.
+- 2026-11-21 (claude, second independent review, of 636915c): verdict approve.
+  - Tasks table: with the flavor column dropped from main's rows, exactly the 11 named rows are gone (water-plant, tidy-desk, journal, record-play, doomscroll, admire-art, humidifier, take-trash, brush-teeth, shower, charge-phone); the other 24 rows (20 with unmet reasons plus guitar, fridge-stare, sit, contemplate) match main's id, name, prompt, unmet reasons and mark exactly (diff of the two tables shows only those 11 lines). The 263 non-Tasks items are identical in id and mark (`parseReview` on `git show main:docs/text-review.md`). Pass.
+  - Doc parses: 287 items, 0 unparsed, 24 Tasks rows. Pass.
+  - References: remaining mentions of the deleted ids in docs/ and src/ are about the tasks themselves (tasks.md, floor-plan, music.md and others), not table rows, and are still true. The `record-play` and `admire-art` hits in text-review.md are cutscene sections. learn 05 step 4 now says to add a new take-trash row; learn 04 line 29 and the charge-phone pointer refer to tasks.ts and the Tasks table in general, still fine. Pass.
+  - docs/ideas.md unchanged by 636915c; its 19 flavor bullets still match main's keep rows. scripts/fixtures/text-review-snapshot.md unchanged. The test edit (allow up to 11 fewer strings than the snapshot) is a sensible, narrow loosening that still checks unparsed is empty. Pass.
+  - `npm test` (169 files, 3863 passed), `npx tsc --noEmit`, `npm run build`, `npm run check:dist`, `npm run issues:check -- --validate` all pass. Pass.
+  - PLAN.md table needs updating by the planner.

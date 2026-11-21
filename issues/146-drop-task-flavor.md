@@ -2,7 +2,7 @@
 id: "146"
 title: "Drop the task flavor lines and park the approved ones"
 short: "Drop task flavor lines"
-status: todo
+status: in-progress
 owner: claude
 depends_on: ["145"]
 summary: "Remove the never-drawn task flavor lines from the game and docs; park the ones Marc approved in docs/ideas.md."

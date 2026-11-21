@@ -35,7 +35,6 @@ export const PLACEHOLDER_LEVEL: Level = parseTileMap(MAP, {
         duration: 3,
         points: 30,
         cooldown: 30,
-        flavor: "It will be undone in eleven hours. Worth it.",
         requires: [{ var: "bedMade", max: 0, reason: "BED IS MADE" }],
         effects: [{ var: "bedMade", set: 1 }],
       },
@@ -46,7 +45,6 @@ export const PLACEHOLDER_LEVEL: Level = parseTileMap(MAP, {
         duration: 6,
         points: 40,
         cooldown: 60,
-        flavor: "Just five minutes. It was not five minutes.",
         requires: [
           {
             anyOf: [
@@ -75,7 +73,6 @@ export const PLACEHOLDER_LEVEL: Level = parseTileMap(MAP, {
       duration: 1.5,
       points: 10,
       cooldown: 20,
-      flavor: "Nothing new in the fridge. A plate, though.",
       requires: [{ var: "dishes", max: 8, reason: "NO CLEAN PLATES" }],
       effects: [
         { var: "dishes", add: 1 },
@@ -98,7 +95,6 @@ export const PLACEHOLDER_LEVEL: Level = parseTileMap(MAP, {
       duration: 3,
       points: 20,
       cooldown: 45,
-      flavor: "Somehow still more dishes.",
       requires: [{ var: "dishes", min: 1, reason: "NO DIRTY DISHES" }],
       effects: [{ var: "dishes", set: 0 }],
       // More dishes, more points.
@@ -114,7 +110,6 @@ export const PLACEHOLDER_LEVEL: Level = parseTileMap(MAP, {
       duration: 5,
       points: 60,
       cooldown: 30,
-      flavor: "Per my last email, you are doing great.",
       requires: [{ var: "energy", min: 10, reason: "TOO TIRED TO WORK" }],
       effects: [{ var: "energy", add: -15 }],
     },

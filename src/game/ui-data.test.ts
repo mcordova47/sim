@@ -10,13 +10,12 @@ import { TASKS } from "./tasks";
 // task or a longer name breaks one of these, the failure says which task.
 
 describe("task text and the pixel font", () => {
-  it("only uses characters the font can draw, in names, prompts and flavor", () => {
+  it("only uses characters the font can draw, in names and prompts", () => {
     const problems: string[] = [];
     for (const task of TASKS) {
       for (const [field, text] of Object.entries({
         name: task.name,
         prompt: task.prompt,
-        flavor: task.flavor ?? "",
       })) {
         for (const ch of text.toUpperCase()) {
           if (ch !== " " && !GLYPHS[ch]) problems.push(`${task.id}.${field}: "${ch}"`);

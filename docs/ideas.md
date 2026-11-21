@@ -42,3 +42,26 @@ Graduated to [issue 133](../issues/133-issue-pages-theme.md) (2026-11-15).
 
 ## Side project: one real effect
 *Marc, 2026-11-15 (was issue 111f).* The little room reaching into the real one: `SideProject.effects` and one real effect, once there is an effect in mind. Options from the design (`docs/side-project-config-design.md`): a cosmetic appearance in the real room, or a tiny mood or energy tweak. Parked until Marc picks. Related: the side project could have its own title, something like "Siminal Crossing".
+
+## Task flavor lines (parked)
+*Marc, 2026-11-21 (was issue 145; dropped in issue 146).* Every task used to carry a one-line joke that the game never drew. Marc approved or rewrote the lines below and wants them kept in case they show up somewhere later; the rest were removed. Where they might show was decision d1 of issue 145: on completion, as a line under the points; under the task name in the task menu; or as a one-line dialog after the task. Each line is `task prompt: flavor line`.
+
+- Alphabetize records: By artist. Then by mood. Then by artist again.
+- Records by color: It looks great. You can no longer find anything.
+- Work at the desk: Per my last email, you are doing great.
+- Clean the desk: It was a pile. It is now several smaller piles.
+- Choose a record: Side B is the good side.
+- Make coffee: Weigh, grind, bloom, wait. You'd love this if you weren't so tired.
+- Drink the coffee: What a good feeling, the rush of energy before the panic attack.
+- Reheat leftovers: Burnt on the outside, ice cold in the middle, just like you like it.
+- Eat dinner: Eaten while watching something you have already seen.
+- Doomscroll: One more. Okay, one more. Where did forty minutes go.
+- Work from the couch: How can something be so comfortable and yet so painful?
+- Work in bed: Couldn't hurt to close your eyes for just a second...
+- Open the fridge: Nothing new has appeared since the last check.
+- Take out the trash: You're testing the physical limits of how much you can compress this trash.
+- Take out the recycling: The kitchen is clear and you find what appears to be a Blockbuster gift card.
+- Flatten boxes: You have been meaning to do this since spring.
+- Brush teeth: Because you do have your life together.
+- Take a moment: Do I have to narrate everything?
+- Take a shower: If only they'd record your ideas in there. What a world it would be...

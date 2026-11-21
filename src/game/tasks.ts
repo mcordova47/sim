@@ -11,7 +11,7 @@ import { currentRecordMenu } from "./music/demo-library";
 import { CODE_LINES, EMAIL_LINES, MIXED_LINES } from "./typing-text";
 
 // Task content from the first version of the game: names, prompts, durations,
-// points and a line of flavor, plus (below) what the tasks do to the apartment.
+// points, plus (below) what the tasks do to the apartment.
 // Where a task happens (which object, which tile) is not here; the floor plan
 // (`apartment.ts`) names tasks by id at the objects that offer them. The
 // personal task list (issue 024) will replace and extend this.
@@ -19,44 +19,32 @@ export type Task = Omit<Interactable, "zones">;
 
 const CONTENT: Task[] = [
   // Bed nook
-  { id: 'make-bed', name: 'Make the bed', prompt: 'Make the bed', duration: 3, points: 30,
-    flavor: 'It will be undone in eleven hours. Worth it.' },
-  { id: 'charge-phone', name: 'Charge your phone', prompt: 'Charge your phone', duration: 3, points: 8, cooldown: 60,
-    flavor: 'One hundred percent. You will not need it.' },
-  { id: 'open-blinds', name: 'Open the blinds', prompt: 'Open the blinds', duration: 1, points: 10,
-    flavor: 'The outside is still there. Good to know.' },
-  { id: 'close-blinds', name: 'Close the blinds', prompt: 'Close the blinds', duration: 1, points: 10,
-    flavor: 'Now it is a cave. A cozy one.' },
+  { id: 'make-bed', name: 'Make the bed', prompt: 'Make the bed', duration: 3, points: 30 },
+  { id: 'charge-phone', name: 'Charge your phone', prompt: 'Charge your phone', duration: 3, points: 8, cooldown: 60 },
+  { id: 'open-blinds', name: 'Open the blinds', prompt: 'Open the blinds', duration: 1, points: 10 },
+  { id: 'close-blinds', name: 'Close the blinds', prompt: 'Close the blinds', duration: 1, points: 10 },
   // The snake plant (issue 063): one of these is offered, by how it is doing.
   // Drooping first, then thirsty, then "still damp" (plant.ts has the rules).
   { id: 'water-plant-droop', name: 'Water the drooping snake plant', prompt: 'Water the drooping plant', duration: 2, points: 20,
-    exclusive: 'plant', liveSlot: 'plant-shelf', flavor: 'It perks up. It was only resting.' },
+    exclusive: 'plant', liveSlot: 'plant-shelf' },
   { id: 'water-plant', name: 'Water the snake plant', prompt: 'Water the plant', duration: 2, points: 20,
-    exclusive: 'plant', liveSlot: 'plant-shelf', flavor: 'It has survived worse owners. It has not had worse owners.' },
+    exclusive: 'plant', liveSlot: 'plant-shelf' },
   { id: 'check-plant', name: 'Check the snake plant', prompt: 'Check the plant', duration: 0, points: 2, cooldown: 60,
     exclusive: 'plant', liveSlot: 'plant-shelf',
     activity: { type: 'cutscene', steps: [{ say: 'The soil is still damp. The plant is doing fine.' }] } },
-  { id: 'sort-records', name: 'Alphabetize the records', prompt: 'Alphabetize records', duration: 6, points: 60,
-    flavor: 'By artist. Then by mood. Then by artist again.' },
+  { id: 'sort-records', name: 'Alphabetize the records', prompt: 'Alphabetize records', duration: 6, points: 60 },
 
-  { id: 'sort-records-year', name: 'Arrange records by year', prompt: 'Records by year', duration: 6, points: 60,
-    flavor: 'Oldest first. Then the reissues start a fight.' },
-  { id: 'sort-records-fav', name: 'Rank the records by favorites', prompt: 'Records by favorites', duration: 6, points: 60,
-    flavor: 'Number one changed three times while you did it.' },
-  { id: 'sort-records-color', name: 'Arrange records by color', prompt: 'Records by color', duration: 6, points: 60,
-    flavor: 'It looks great. You can no longer find anything.' },
+  { id: 'sort-records-year', name: 'Arrange records by year', prompt: 'Records by year', duration: 6, points: 60 },
+  { id: 'sort-records-fav', name: 'Rank the records by favorites', prompt: 'Records by favorites', duration: 6, points: 60 },
+  { id: 'sort-records-color', name: 'Arrange records by color', prompt: 'Records by color', duration: 6, points: 60 },
 
   // Work corner
-  { id: 'work', name: 'Answer emails', prompt: 'Work at the desk', duration: 8, points: 80,
-    flavor: 'Per my last email, you are doing great.' },
-  { id: 'tidy-desk', name: 'Clean the desk', prompt: 'Clean the desk', duration: 4, points: 30,
-    flavor: 'It was a pile. It is now several smaller piles.' },
-  { id: 'journal', name: 'Write in the journal', prompt: 'Write in the journal', duration: 5, points: 50,
-    flavor: 'Dear diary, I made coffee. It was a lot.' },
+  { id: 'work', name: 'Answer emails', prompt: 'Work at the desk', duration: 8, points: 80 },
+  { id: 'tidy-desk', name: 'Clean the desk', prompt: 'Clean the desk', duration: 4, points: 30 },
+  { id: 'journal', name: 'Write in the journal', prompt: 'Write in the journal', duration: 5, points: 50 },
   // No cooldown (issue 068): the menu is always open to you. It pays only for a change of
   // record, at most once per MUSIC.payoutEveryMinutes (activities/record-player.ts).
-  { id: 'record-play', name: 'Choose a record', prompt: 'Choose a record', duration: 2, points: 25, cooldown: 0,
-    flavor: 'Side B is the good side.' },
+  { id: 'record-play', name: 'Choose a record', prompt: 'Choose a record', duration: 2, points: 25, cooldown: 0 },
   // The track editor (issue 059): no points of its own and no cooldown, since
   // it is always open to you; saving a track pays (activities/make-track.ts).
   { id: 'make-track', name: 'Make a track', prompt: 'Make a track', duration: 0, points: 0, cooldown: 0 },
@@ -65,57 +53,37 @@ const CONTENT: Task[] = [
   { id: 'study-spanish', name: 'Study Spanish', prompt: 'Study Spanish', duration: 0, points: 0, cooldown: 0 },
 
   // Table
-  { id: 'coffee', name: 'Make pour-over coffee', prompt: 'Make coffee', duration: 6, points: 70,
-    flavor: "Weigh, grind, bloom, wait. You'd love this if you weren't so tired." },
-  { id: 'drink-coffee', name: 'Drink the coffee', prompt: 'Drink the coffee', duration: 3, points: 30,
-    flavor: 'What a good feeling, the rush of energy before the panic attack.' },
-  { id: 'reheat', name: 'Reheat leftovers', prompt: 'Reheat leftovers', duration: 3, points: 25,
-    flavor: "Burnt on the outside, ice cold in the middle, just like you like it." },
-  { id: 'eat-dinner', name: 'Eat dinner', prompt: 'Eat dinner', duration: 7, points: 60,
-    flavor: 'Eaten while watching something you have already seen.' },
+  { id: 'coffee', name: 'Make pour-over coffee', prompt: 'Make coffee', duration: 6, points: 70 },
+  { id: 'drink-coffee', name: 'Drink the coffee', prompt: 'Drink the coffee', duration: 3, points: 30 },
+  { id: 'reheat', name: 'Reheat leftovers', prompt: 'Reheat leftovers', duration: 3, points: 25 },
+  { id: 'eat-dinner', name: 'Eat dinner', prompt: 'Eat dinner', duration: 7, points: 60 },
 
   // Sofa
-  { id: 'doomscroll', name: 'Doomscroll', prompt: 'Doomscroll', duration: 10, points: 40,
-    flavor: 'One more. Okay, one more. Where did forty minutes go.' },
+  { id: 'doomscroll', name: 'Doomscroll', prompt: 'Doomscroll', duration: 10, points: 40 },
   // Only offered while the device holds pictures (requires hasPhotos; issue 113d). Pays a small fixed amount
   // when a session runs to its end; no mood change, no streak, no count anywhere.
   { id: 'scroll-photos', name: 'Scroll through photos', prompt: 'Scroll through photos', duration: 0, points: 5,
     requires: [{ var: 'hasPhotos', min: 1, reason: 'NO PICTURES' }] },
-  { id: 'work-sofa', name: 'Code from the couch', prompt: 'Work from the couch', duration: 8, points: 60,
-    flavor: 'How can something be so comfortable and yet so painful?' },
-  { id: 'nap', name: 'Take a nap', prompt: 'Take a nap', duration: 5, points: 30, // duration = SLEEP.nap total
-    flavor: 'Twenty minutes, said the plan. The light has moved.' },
-  { id: 'admire-art', name: 'Admire the art', prompt: 'Admire the art', duration: 0, points: 25,
-    flavor: 'Nobody asked you to look at it this long.' },
-  { id: 'work-bed', name: 'Work in bed', prompt: 'Work in bed', duration: 8, points: 50,
-    flavor: "Couldn't hurt to close your eyes for just a second..." },
-  { id: 'guitar', name: 'Play three chords', prompt: 'Play guitar', duration: 5, points: 55,
-    flavor: 'Same three chords. Different, slightly worse, song.' },
+  { id: 'work-sofa', name: 'Code from the couch', prompt: 'Work from the couch', duration: 8, points: 60 },
+  { id: 'nap', name: 'Take a nap', prompt: 'Take a nap', duration: 5, points: 30 }, // duration = SLEEP.nap total
+  { id: 'admire-art', name: 'Admire the art', prompt: 'Admire the art', duration: 0, points: 25 },
+  { id: 'work-bed', name: 'Work in bed', prompt: 'Work in bed', duration: 8, points: 50 },
+  { id: 'guitar', name: 'Play three chords', prompt: 'Play guitar', duration: 5, points: 55 },
 
   // Kitchen
-  { id: 'fridge-stare', name: 'Stare into the fridge', prompt: 'Open the fridge', duration: 3, points: 30,
-    flavor: 'Nothing new has appeared since the last check.' },
-  { id: 'humidifier', name: 'Refill the humidifier', prompt: 'Refill the humidifier', duration: 4, points: 45,
-    flavor: 'The air is now 4% less crunchy.' },
-  { id: 'take-trash', name: 'Take out the trash', prompt: 'Take out the trash', duration: 4, points: 50,
-    flavor: "You're testing the physical limits of how much you can compress this trash." },
+  { id: 'fridge-stare', name: 'Stare into the fridge', prompt: 'Open the fridge', duration: 3, points: 30 },
+  { id: 'humidifier', name: 'Refill the humidifier', prompt: 'Refill the humidifier', duration: 4, points: 45 },
+  { id: 'take-trash', name: 'Take out the trash', prompt: 'Take out the trash', duration: 4, points: 50 },
   // Issues 070 and 071: done at the boxes, and only offered there when they are flat.
-  { id: 'recycle-boxes', name: 'Take out the recycling', prompt: 'Take out the recycling', duration: 5, points: 55,
-    flavor: 'The kitchen is clear and you find what appears to be a Blockbuster gift card.' },
-  { id: 'cook', name: 'Cook dinner', prompt: 'Cook dinner', duration: 8, points: 90,
-    flavor: 'Smoke alarm: silent, but judging.' },
-  { id: 'dishes', name: 'Do the dishes', prompt: 'Do the dishes', duration: 7, points: 80,
-    flavor: 'The pile regrows when you look away.' },
-  { id: 'flatten-boxes', name: 'Flatten the boxes', prompt: 'Flatten boxes', duration: 5, points: 45,
-    flavor: 'You have been meaning to do this since spring.' },
+  { id: 'recycle-boxes', name: 'Take out the recycling', prompt: 'Take out the recycling', duration: 5, points: 55 },
+  { id: 'cook', name: 'Cook dinner', prompt: 'Cook dinner', duration: 8, points: 90 },
+  { id: 'dishes', name: 'Do the dishes', prompt: 'Do the dishes', duration: 7, points: 80 },
+  { id: 'flatten-boxes', name: 'Flatten the boxes', prompt: 'Flatten boxes', duration: 5, points: 45 },
 
   // Bath
-  { id: 'brush-teeth', name: 'Brush teeth', prompt: 'Brush teeth', duration: 3, points: 30,
-    flavor: 'Because you do have your life together.' },
-  { id: 'sit', name: 'Take a moment', prompt: 'Take a moment', duration: 4, points: 20,
-    flavor: 'Do I have to narrate everything?' },
-  { id: 'shower', name: 'Take a shower', prompt: 'Take a shower', duration: 6, points: 70,
-    flavor: "If only they'd record your ideas in there. What a world it would be..." },
+  { id: 'brush-teeth', name: 'Brush teeth', prompt: 'Brush teeth', duration: 3, points: 30 },
+  { id: 'sit', name: 'Take a moment', prompt: 'Take a moment', duration: 4, points: 20 },
+  { id: 'shower', name: 'Take a shower', prompt: 'Take a shower', duration: 6, points: 70 },
 ];
 
 // What tasks change in the apartment and the character (issue 021). The numbers
@@ -390,7 +358,6 @@ const EXTRA: Task[] = [
     points: 40,
     cooldown: 60,
     activity: { type: "sleep", kind: "sleep" },
-    flavor: "Just five minutes. It was not five minutes.",
     requires: [
       {
         anyOf: [

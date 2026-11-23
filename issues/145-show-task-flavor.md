@@ -33,7 +33,7 @@ decisions:
     answer: "rename the doc row to match the task as built"
     by: planner
     on: 2026-11-21
-needs: [{who: marc, kind: decide, why: "Say 'merge 146' when ready (drops the task flavor lines; reviewed twice; branch issue/146-drop-task-flavor)", since: 2026-11-21}]
+needs: []
 ---
 
 ## Goal

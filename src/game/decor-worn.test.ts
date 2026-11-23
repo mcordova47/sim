@@ -5,7 +5,7 @@ import { Decor } from "./decor";
 import { DECOR_ITEMS, GIFT_ITEMS } from "./decor-data";
 import { CHECKPOINTS } from "./delivery-checkpoints";
 import { Game } from "./game";
-import { OUTFITS, outfitFromItem } from "./outfits";
+import { OUTFITS, outfitFromItem, outfitItemId } from "./outfits";
 import { taskSpots } from "./plan-checks";
 import { TASKS } from "./tasks";
 
@@ -24,9 +24,10 @@ function setup(owned: string[] = []) {
 describe("worn outfits", () => {
   it("have one item per outfit, each shown by its idle-down sprite, in outfits.ts order", () => {
     const items = [...DECOR_ITEMS, ...GIFT_ITEMS].filter((i) => i.kind === "outfit");
-    expect(items.map((i) => i.id)).toEqual(OUTFITS.map((o) => `outfit-${o.id}`));
+    expect(items.map((i) => i.id)).toEqual(OUTFITS.map(outfitItemId));
     for (const [i, o] of OUTFITS.entries()) {
       expect(items[i].sprite).toBe(`${o.prefix}-idle-down`);
+      expect(items[i].name).toBe(o.name);
       expect(outfitFromItem(items[i].id)).toBe(i);
       expect(items[i].note && items[i].from).toBeTruthy();
     }

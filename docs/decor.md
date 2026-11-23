@@ -385,6 +385,13 @@ Step B of [decor-expansion-design.md](decor-expansion-design.md) (engine piece P
 - **The gifts.** Delivery checkpoints at day 39 (casual), day 42 (out) and day 45 (pajamas), after the plants (day 36). They are the planner's default days; change the number in `delivery-checkpoints.ts` to move one.
 - **Known and not fixed here.** The doing poses (sitting, typing, eating, sleeping) are drawn in the everyday clothes, so another outfit flips to the home look during them (issue 150).
 
+## What issue 156 built
+Many outfits, each with a style (Marc, 2026-11-23: "you should be able to have multiple casual/going out/pajama outfits").
+- **Outfits are data.** `OUTFITS` in `outfits.ts` is a list of `{ id, name, style, prefix }`. `style` is `home`, `casual`, `out` or `pajamas`, and several outfits may share one. It is only an attribute: nothing reads it to decide what is worn, offered or shown, and no outfit is better than another. The first four keep their places (home 0, casual 1, out 2, pajamas 3), so a saved `outfit` number and the `worn` slot still mean what they did. New outfits go at the end. The `outfit` state variable's `max` is `OUTFITS.length - 1`.
+- **Adding an outfit** is a line in `OUTFITS`, its 12 sprites (`<prefix>-idle-<dir>`, `<prefix>-walk-<dir>-1`, `-2`), and its item in `decor-data.ts` (`outfit-<id>`, the same `name`, shown by `<prefix>-idle-down`, a gift with a checkpoint). `decor-worn.test.ts` pins that the items and the list agree. Keep names neutral (no outfit is for one gender). The helpers (`outfitFromItem`, `outfitPrefix`, `outfitStyle`) take an optional list, which the tests use to try ten made-up outfits.
+- **The list and THINGS** already scroll (four rows and a cursor in the Change clothes list; pages in THINGS), so many outfits need no new code; `outfits.test.ts` drives the real swap activity over ten outfits (wrap, preview, choose, save).
+- **No outfit was added here.** The planned ones (casual A, B, D; going out A, B, D, E; pajamas A, C) wait for the art route (issue 156's d2 test, `art/options/route-test/`) and a later art issue. The robe (d1) is, by the recommended default, an ordinary outfit changed by hand; no shower hook.
+
 ## Ideas backlog (Marc, 2026-10-28)
 Not planned work: things Marc would like to find as decor over time, under the quiet-collecting rule (no pressure, scarcity or grinding; see "Where items come from, without pressure"). Each needs a slot kind, a size and art (the art budget, "First item set and art budget"), and the asset rules (`docs/art-style.md`) apply.
 - **Furniture and rooms:** different pantries, desk chairs, sofas, rugs, beds, desks, dining tables, bookshelves, curtains.

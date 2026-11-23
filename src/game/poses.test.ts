@@ -258,7 +258,7 @@ describe("outfits", () => {
   });
 
   it("knows its outfits, and an unknown number is the everyday clothes", () => {
-    expect(OUTFITS.map((o) => o.id)).toEqual(["home", "casual", "out", "pajamas"]);
+    expect(OUTFITS.slice(0, 4).map((o) => o.id)).toEqual(["home", "casual", "out", "pajamas"]);
     expect(outfitPrefix(1)).toBe("player-casual");
     expect(outfitPrefix(99)).toBe("player");
     expect(outfitPrefix(-1)).toBe("player");

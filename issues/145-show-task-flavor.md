@@ -100,7 +100,10 @@ decisions:
       - "yes"
       - "no"
     recommendation: "yes"
-    status: open
+    status: answered
+    answer: "yes"
+    by: marc
+    on: 2026-11-23
   - id: d10
     who: marc
     q: "Decor design (148, Q8): instruments display only for now (a mini keyboard); playable ones later, kalimba first?"

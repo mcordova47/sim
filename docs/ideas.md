@@ -74,3 +74,6 @@ Graduated to [issue 133](../issues/133-issue-pages-theme.md) (2026-11-15).
 
 ## A dress and other going-out options (idea)
 *Marc, 2026-11-23, from the outfit options (issue 155).* The plum dress candidate (out C) was set aside for now: nothing in the game should make the player conform to a gender, so a dress is fine as one option among several going-out outfits, once several outfits per category are allowed (issue 156). Come back to it with that in mind, alongside other silhouettes (a long coat, a jumpsuit, a kimono-style robe).
+
+## Put on the robe after a shower (idea)
+*Marc, 2026-11-23, answering d1 of issue 156.* After the Take a shower task you are put in the robe, if you own one (pajamas style outfit C from the outfit options), and stay in it until you change clothes or sleep. Build it later, once the robe outfit is drawn: for now the robe is an ordinary outfit you change into by hand. Things to settle then: what counts as "stay in it" (sleep, a nap, leaving the room), whether you can be put in it only at certain hours, and the pose problem (issue 150).

@@ -222,7 +222,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 154 | [Takeout bag](issues/154-takeout-bag.md) | claude | done | 153 |
 | 155 | [Bag and outfit art options](issues/155-art-options-bag-outfits.md) | marc + claude | done | |
 | 156 | [Many outfits per style](issues/156-many-outfits.md) | claude | todo | |
-| 157 | [Bag viewpoint](issues/157-takeout-bag-perspective.md) | claude | todo | 155 |
+| 157 | [Bag viewpoint](issues/157-takeout-bag-perspective.md) | claude | done | 155 |
 <!-- issues:table:end -->
 
 ## Order of work

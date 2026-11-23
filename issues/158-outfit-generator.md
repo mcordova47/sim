@@ -15,7 +15,10 @@ decisions:
       - "yes, day 48"
       - "another day"
     recommendation: "yes, day 48"
-    status: open
+    status: answered
+    answer: "as recommended"
+    by: planner
+    on: 2026-11-23
 ---
 
 ## Goal

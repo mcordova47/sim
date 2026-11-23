@@ -2,6 +2,8 @@
 
 Status: Marc picked (2026-10-23, see issue 062). **Stages 1, 2 and 3a are built** (data and drawing from state; the swap task; the delivery mechanism); stages 3b (the triggers: issue 043 encounters, real gifts) and 4 are not. "What stage 1 built" below says exactly what exists and where it differs from the first draft of this note. The rest is the design the later stages follow.
 
+More decor (an empty pot, cut flowers, trinkets, instruments, clothes, coffee apparatus, a rug, replacement furniture, a second plant slot, takeout): [decor-expansion-design.md](decor-expansion-design.md) (issue 148, a design for Marc to confirm).
+
 ## Inventory: an item is shown in one place (issue 073)
 Marc (2026-10-26): the same painting in several places makes no sense. Things you own and are not showing are the **inventory**; you place them again.
 - **Derived, not saved.** Inventory = owned (known) items that no slot shows. `Decor.inventory()`, `Decor.displayedAt(item)`. The save is unchanged (`owned`, and `placed` for slots that differ from their default).

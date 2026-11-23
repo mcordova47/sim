@@ -134,6 +134,15 @@ decisions:
     answer: "makes sense, but plunger-style press sounds too similar to a french press (assuming it's supposed to be aeropress?) so let's think about other names: air press? pneumatic press? some fake brand name?"
     by: marc
     on: 2026-11-23
+  - id: d13
+    who: marc
+    q: "Decor design (148, Q13, from Q5): stovetop coffee gear (percolator, moka pot, briki) is used at the stove, not the table. How should that work?"
+    options:
+      - "two coffee stations: a table slot and a stove slot; each apparatus fits one, the task is offered where its apparatus sits (the stove slot starts empty)"
+      - "one slot on the table only; stovetop pots are just a different look and name, still made at the table"
+      - "stovetop pots replace the table dripper and move the task to the stove while chosen"
+    recommendation: "two coffee stations: a table slot and a stove slot; each apparatus fits one, the task is offered where its apparatus sits (the stove slot starts empty)"
+    status: open
 unverified:
   - "How the ideas look and feel in the game is unchecked: nothing is built; the Ñ accent in a 9 px swap-list row and a 64x32 rug in the THINGS grid cell were reasoned from the code, not rendered."
   - "Pixel positions come from my own render of the map and sprites and from reading the sprite files; the reviewer re-checks them."

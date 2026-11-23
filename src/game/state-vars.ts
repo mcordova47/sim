@@ -27,6 +27,8 @@ export const STATE_VARS: StateVar[] = [
   { id: "plantDry", initial: 12, min: 0, max: 999, meaning: "Game hours since the snake plant was last watered. Past PLANT.droopAfterHours it droops; watering fixes it." },
   // Derived, never set by a task: 1 while a delivered package waits by the front door (issue 062).
   { id: "parcel", initial: 0, min: 0, max: 1, meaning: "1 while a package waits by the front door, 0 if not. Follows the delivery queue (deliveries.ts); no task sets it." },
+  // Derived, never set by a task (issue 154): which thing is drawn at the door. Both "parcel" and this are 1 when only the takeout waits.
+  { id: "takeoutBag", initial: 0, min: 0, max: 1, meaning: "1 while the only thing waiting by the front door is the takeout meal (no package), so the door tile draws a bag; 0 otherwise (the package box is drawn when parcel is 1 and this is 0). Follows the delivery queue (game.ts syncParcel); no task sets it." },
   // Derived, never set by a task (issue 107): the guitar piece shows an empty stand while this is 1.
   { id: "guitarOut", initial: 0, min: 0, max: 1, meaning: "1 while the guitar is off its stand (being played), 0 if it rests on it. Follows the running guitar task (game.ts syncGuitar); no task sets it." },
   // Derived, never set by a task (issue 113d): 1 while the device holds at least one reel picture, which is what lets the sofa offer "Scroll through photos".

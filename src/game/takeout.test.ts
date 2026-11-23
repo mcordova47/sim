@@ -183,7 +183,43 @@ describe("Order takeout", () => {
     expect(box).toBeDefined();
     const app = rooms.main.appearances?.find((a) => a.variants.some((v) => v.sprite === "delivery-box"));
     expect(app).toBeDefined();
-    expect(pickVariant(app!.variants, game.state)?.sprite).toBe("delivery-box");
+    // Issue 154: a meal alone is drawn as the bag, not the package box.
+    expect(pickVariant(app!.variants, game.state)?.sprite).toBe("takeout-bag");
+  });
+
+  it("draws the bag for a meal alone, the box for a package, and the box when both wait (issue 154)", () => {
+    const sprite = (game: Game) => {
+      game.update(dt, NO_INPUT);
+      const app = rooms.main.appearances!.find((a) => a.variants.some((v) => v.sprite === "delivery-box"))!;
+      return pickVariant(app.variants, game.state)?.sprite ?? null;
+    };
+    const none = newGame();
+    expect(sprite(none)).toBeNull();
+    const meal = newGame();
+    meal.player.placeAt(1, 1, "down");
+    meal.deliveries.deliverMeal(0);
+    meal.update(dt, NO_INPUT);
+    meal.update(dt, NO_INPUT);
+    expect(meal.deliveries.mealWaiting).toBe(true);
+    expect(sprite(meal)).toBe("takeout-bag");
+    expect(meal.state.get("parcel")).toBe(1); // still solid, same tile
+    const pkg = newGame();
+    pkg.player.placeAt(1, 1, "down");
+    pkg.deliveries.deliver("art-test-barn", 0);
+    pkg.update(dt, NO_INPUT);
+    pkg.update(dt, NO_INPUT);
+    expect(pkg.deliveries.waiting).toBe(true);
+    expect(sprite(pkg)).toBe("delivery-box");
+    pkg.deliveries.deliverMeal(0);
+    pkg.update(dt, NO_INPUT);
+    pkg.update(dt, NO_INPUT);
+    expect(pkg.deliveries.mealWaiting).toBe(true);
+    expect(sprite(pkg)).toBe("delivery-box");
+    // Open it all: the tile is empty again.
+    opening(pkg);
+    for (let i = 0; i < 600; i++) pkg.update(dt, i % 20 === 0 ? press : NO_INPUT);
+    expect(pkg.deliveries.waiting).toBe(false);
+    expect(sprite(pkg)).toBeNull();
   });
 
   it("is not fooled by a bad saved variable: the queue is the truth", () => {

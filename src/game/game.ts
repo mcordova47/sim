@@ -427,6 +427,9 @@ export class Game {
   private syncParcel(): void {
     const parcel = this.deliveries.waiting ? 1 : 0;
     if (this.state.has("parcel") && this.state.get("parcel") !== parcel) this.state.applyEffects([{ var: "parcel", set: parcel }]);
+    // Only the meal waiting (no package): the door tile draws the bag; a package waiting too keeps the box (issue 154).
+    const bag = this.deliveries.mealWaiting && this.deliveries.waitingItems.length === 0 ? 1 : 0;
+    if (this.state.has("takeoutBag") && this.state.get("takeoutBag") !== bag) this.state.applyEffects([{ var: "takeoutBag", set: bag }]);
     this.syncTakeout();
   }
 

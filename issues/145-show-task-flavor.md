@@ -70,7 +70,10 @@ decisions:
       - "yes"
       - "no"
     recommendation: "yes"
-    status: open
+    status: answered
+    answer: "yes"
+    by: marc
+    on: 2026-11-23
   - id: d7
     who: marc
     q: "Decor design (148, Q5): the coffee apparatus changes the task name and prompt, not the pay or the held-mug picture?"

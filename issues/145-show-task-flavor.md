@@ -89,7 +89,10 @@ decisions:
       - "yes"
       - "no"
     recommendation: "yes"
-    status: open
+    status: answered
+    answer: "yes"
+    by: marc
+    on: 2026-11-23
   - id: d9
     who: marc
     q: "Decor design (148, Q7): one rug size (64x32) at cols 3-6, rows 3-4, changed at the sofa?"

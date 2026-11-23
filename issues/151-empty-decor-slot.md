@@ -15,7 +15,10 @@ decisions:
       - "Only slots with no default; real-room slots stay always-shown"
       - "Any slot can be emptied"
     recommendation: "Only slots with no default; real-room slots stay always-shown"
-    status: open
+    status: answered
+    answer: "as recommended"
+    by: planner
+    on: 2026-11-23
   - id: d2
     who: marc
     q: "Empty decor slots (151, d2): offer the swap task on an emptiable slot that already holds something, even when nothing else fits (so a lone trinket can be taken down)?"

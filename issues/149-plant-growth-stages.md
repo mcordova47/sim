@@ -16,7 +16,10 @@ decisions:
       - "every live plant gets a fifth stage, shaped to the plant"
       - "only the pothos, as the first experiment"
     recommendation: "pothos and monstera only: the others look finished at four, and a stage costs a sprite per plant"
-    status: open
+    status: answered
+    answer: "pothos and monstera only (they have somewhere to go: trailing, bigger leaves); snake and spider plants stay at four"
+    by: marc
+    on: 2026-11-23
   - id: d2
     who: marc
     q: "How does the trailing pothos draw over the bookshelf, given the plant slot is 16x16 on the shelf's top?"

@@ -30,7 +30,10 @@ decisions:
       - "A or C"
       - "something else or draw another round"
     recommendation: "D"
-    status: open
+    status: answered
+    answer: "keep the current casual, plus A (grey hoodie), B (cardigan) and D (denim jacket); several outfits per category are allowed"
+    by: marc
+    on: 2026-11-23
   - id: d3
     who: marc
     q: "Art options (155): which going-out outfit? (A dusk-blue jacket with a red scarf, B light-blue button-up, C plum dress, D camel blazer over a tee, E long taupe coat, F mustard jacket over a tee)"

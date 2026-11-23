@@ -19,6 +19,7 @@ decisions:
     answer: "as recommended"
     by: planner
     on: 2026-11-23
+needs: [{who: marc, kind: try, why: "Look at the cardigan: npm run dev in ../sim-worktrees/158-outfit-generator with ?own=outfit-casual-cardigan, then Change clothes at the nightstand; then say 'merge 158'", since: 2026-11-23}]
 ---
 
 ## Goal

@@ -23,9 +23,6 @@ decisions:
     answer: "as recommended"
     by: planner
     on: 2026-11-23
-    kind: decide
-    why: "One open question (d1): what happens when the takeout arrives while a plate is on the table. A default is built and works; nothing else waits."
-    since: 2026-11-23
 ---
 
 ## Goal

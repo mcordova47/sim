@@ -22,8 +22,6 @@ export interface Interactable {
   // different hours): only the first one that can start is offered, so the
   // player never cycles through two of the same.
   exclusive?: string;
-  // One-line joke shown on completion.
-  flavor?: string;
   // Must all hold for the task to start. Otherwise the prompt shows the reason.
   requires?: Requirement[];
   // Changes made to the state when the task finishes.

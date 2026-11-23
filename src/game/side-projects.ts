@@ -20,7 +20,6 @@ export interface SideProject {
   // A full-screen picture (a `view-...` sprite) and what you think while looking at it.
   view: string;
   lines: string[];
-  flavor: string;
 }
 
 export const SIDE_PROJECTS: SideProject[] = [
@@ -41,7 +40,6 @@ export const SIDE_PROJECTS: SideProject[] = [
       "Their screen shows another little room with another little guy.",
       "You wonder if you're just a little guy on someone else's screen, and the silly notion gives you a good chuckle.",
     ],
-    flavor: "Same room, one size smaller.",
   },
 ];
 
@@ -56,7 +54,6 @@ export function sideProjectTask(p: SideProject): Task {
     duration: 0,
     points: p.points,
     cooldown: p.cooldown,
-    flavor: p.flavor,
     requires: [TIRED],
     effects,
     pose: "type-desk",

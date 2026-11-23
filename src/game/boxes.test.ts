@@ -55,10 +55,9 @@ describe("the boxes state variable", () => {
 });
 
 describe("Flatten the boxes", () => {
-  it("keeps its points, flavor and cooldown", () => {
+  it("keeps its points and cooldown", () => {
     const t = TASKS.find((x) => x.id === "flatten-boxes")!;
     expect(t.points).toBe(45);
-    expect(t.flavor).toBe("You have been meaning to do this since spring.");
     expect(t.requires).toEqual([{ var: "boxes", min: 1, max: 1, reason: "NO BOXES TO FLATTEN" }]);
   });
 
@@ -260,11 +259,10 @@ describe("Take out the recycling (issue 070)", () => {
     expect(game.state.get("boxes")).toBe(2);
   });
 
-  it("has its own points and flavor and leaves the trash task alone", () => {
+  it("has its own points and leaves the trash task alone", () => {
     const t = TASKS.find((x) => x.id === "recycle-boxes")!;
     expect(t.prompt).toBe("Take out the recycling");
     expect(t.points).toBe(55);
-    expect(t.flavor).toBeTruthy();
     expect(TASKS.find((x) => x.id === "take-trash")!.points).toBe(50);
   });
 });

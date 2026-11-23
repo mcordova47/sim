@@ -46,7 +46,7 @@ describe("side projects as data", () => {
   it("has unique ids and plain text the pixel font can draw", () => {
     expect(new Set(SIDE_PROJECTS.map((p) => p.id)).size).toBe(SIDE_PROJECTS.length);
     for (const p of SIDE_PROJECTS) {
-      for (const text of [p.name, p.prompt, p.flavor, ...p.lines]) expect(unsupportedChars(text), text).toEqual([]);
+      for (const text of [p.name, p.prompt, ...p.lines]) expect(unsupportedChars(text), text).toEqual([]);
     }
   });
 

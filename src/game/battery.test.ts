@@ -95,7 +95,7 @@ describe("the charge task", () => {
     expect(main.interactables.some((i) => i.id === "charge-phone")).toBe(true);
     expect(main.props?.some((p) => p.sprite === "phone-charger")).toBe(true);
     const t = TASKS.find((x) => x.id === "charge-phone")!;
-    for (const text of [t.name, t.prompt, t.flavor ?? ""]) expect(unsupportedChars(text.toUpperCase()), text).toEqual([]);
+    for (const text of [t.name, t.prompt]) expect(unsupportedChars(text.toUpperCase()), text).toEqual([]);
   });
 
   it("fills the phone, and can be done at any level and never blocks", () => {

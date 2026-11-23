@@ -57,7 +57,7 @@ describe("the placeholder level", () => {
 
   it("only uses characters the pixel font can draw", () => {
     for (const item of level.interactables) {
-      for (const text of [item.name, item.prompt, item.flavor ?? ""]) {
+      for (const text of [item.name, item.prompt]) {
         for (const ch of text.toUpperCase()) {
           if (ch !== " ") expect(GLYPHS[ch], `${item.id}: "${ch}"`).toBeDefined();
         }

@@ -415,9 +415,9 @@ describe('markReviewLine', () => {
 });
 
 describe('the live docs/text-review.md', () => {
-  it('still parses: nothing unparsed, and at least as many strings as the snapshot', () => {
+  it('still parses: nothing unparsed, and no more than the 11 plain-command task rows (issue 146) fewer strings than the snapshot', () => {
     const p = parseReview(LIVE);
     expect(p.unparsed).toEqual([]);
-    expect(p.items.length).toBeGreaterThanOrEqual(parseReview(REAL).items.length);
+    expect(p.items.length).toBeGreaterThanOrEqual(parseReview(REAL).items.length - 11);
   });
 });

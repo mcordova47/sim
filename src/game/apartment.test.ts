@@ -125,10 +125,10 @@ describe("tasks", () => {
     expect(placesOf("work-bed")).toEqual(["queen bed"]);
   });
 
-  it("only uses characters the pixel font can draw, in names, prompts and flavor", () => {
+  it("only uses characters the pixel font can draw, in names and prompts", () => {
     for (const room of Object.values(rooms)) {
       for (const item of room.interactables) {
-        for (const text of [item.name, item.prompt, item.flavor ?? ""]) {
+        for (const text of [item.name, item.prompt]) {
           for (const ch of text.toUpperCase()) {
             if (ch !== " ") expect(GLYPHS[ch], `${item.id}: "${ch}"`).toBeDefined();
           }

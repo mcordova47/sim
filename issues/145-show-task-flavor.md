@@ -149,7 +149,10 @@ decisions:
       - "yes"
       - "no"
     recommendation: "yes"
-    status: open
+    status: answered
+    answer: "makes sense, but plunger-style press sounds too similar to a french press (assuming it's supposed to be aeropress?) so let's think about other names: air press? pneumatic press? some fake brand name?"
+    by: marc
+    on: 2026-11-23
 needs: [{who: marc, kind: decide, why: "Say 'merge 147' when ready (six new plants; reviewed; branch issue/147-more-plants); art worth a look in the room first", since: 2026-11-23}, {who: marc, kind: decide, why: "Answer the 12 questions at the end of docs/decor-expansion-design.md (issue 148, on its branch until merged); each has a recommended default", since: 2026-11-23}, {who: marc, kind: decide, why: "Say 'merge 148' when ready (decor design note; approved on the third review; branch issue/148-decor-expansion-design)", since: 2026-11-23}]
 ---
 

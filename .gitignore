@@ -14,3 +14,5 @@ docs/about-marc.md
 docs/tasks-v2.md
 # Generated issues pages (issue 129 reserves the name; nothing writes it yet).
 dist-issues/
+# Generated art options page (issue 155).
+dist-options/

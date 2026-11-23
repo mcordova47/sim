@@ -59,7 +59,7 @@ One row per task that has something to review: its id, name (the menu and the aw
 | reheat | Reheat leftovers | Reheat leftovers | NO CLEAN PLATES | keep |
 | eat-dinner | Eat dinner | Eat dinner | NO CLEAN PLATES | keep |
 | work-sofa | Code from the couch | Work from the couch | TOO TIRED TO WORK | keep |
-| nap | Take a nap | Take a nap | NOT SLEEPY ENOUGH |  |
+| nap | Take a nap | Take a nap | NOT SLEEPY ENOUGH | keep |
 | work-bed | Work in bed | Work in bed | TOO TIRED TO WORK | keep |
 | guitar | Play three chords | Play guitar |  |  |
 | fridge-stare | Stare into the fridge | Open the fridge |  | keep |

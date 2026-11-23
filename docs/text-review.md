@@ -64,7 +64,7 @@ One row per task that has something to review: its id, name (the menu and the aw
 | guitar | Play three chords | Play guitar |  |  |
 | fridge-stare | Stare into the fridge | Open the fridge |  | keep |
 | recycle-boxes | Take out the recycling | Take out the recycling | FLATTEN THE BOXES FIRST, NO BOXES TO TAKE OUT | keep |
-| cook | Cook dinner | Cook dinner | NO CLEAN PLATES |  |
+| cook | Cook dinner | Cook dinner | NO CLEAN PLATES | keep |
 | dishes | Do the dishes | Do the dishes | NO DIRTY DISHES |  |
 | flatten-boxes | Flatten the boxes | Flatten boxes | NO BOXES TO FLATTEN | keep |
 | sit | Take a moment | Take a moment |  | keep |

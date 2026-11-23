@@ -7,6 +7,17 @@ owner: marc + claude
 depends_on: []
 summary: "Candidate art for the takeout bag and the three outfits, to browse and choose from before anything ships."
 kind: design
+decisions:
+  - id: d1
+    who: marc
+    q: "Art options (155): which takeout bag? (A tall paper bag with a twine handle, B rolled-top bag, C bag with a drink cup, D takeout carton with a wire handle)"
+    options:
+      - "A"
+      - "D"
+      - "B or C"
+      - "something else or draw another round"
+    recommendation: "A"
+    status: open
 ---
 
 ## Goal

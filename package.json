@@ -8,7 +8,7 @@
     "build": "tsc --noEmit && vite build",
     "test": "vitest run",
     "preview": "vite preview",
-    "sprites": "node scripts/sprites.mjs",
+    "sprites": "node scripts/outfits.mjs && node scripts/sprites.mjs",
     "brand": "node scripts/brand.mjs",
     "check:dist": "node scripts/check-dist.mjs",
     "tools": "node scripts/tools.mjs",

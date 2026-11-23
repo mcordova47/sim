@@ -1,0 +1,14 @@
+{
+  "_about": "Outfits that scripts/outfits.mjs turns into ordinary art/src/<prefix>-<state>-<dir>.sprite files (issue 158). See docs/art-style.md, 'Generated outfits'. Palette keys are letters from art/palette.json.",
+  "outfits": [
+    {
+      "id": "casual-cardigan",
+      "prefix": "player-casual-cardigan",
+      "template": "player-casual",
+      "describe": "casual option B: an open cardigan over a white tee, jeans",
+      "torso": { "rule": "open-front", "facing": { "up": "solid" }, "outer": "e", "shade": "7", "inner": "6" },
+      "legs": {},
+      "overlays": {}
+    }
+  ]
+}

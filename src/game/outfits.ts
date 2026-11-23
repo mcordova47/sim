@@ -25,6 +25,8 @@ export const OUTFITS: readonly OutfitDef[] = [
   { id: "casual", name: "CASUAL CLOTHES", style: "casual", prefix: "player-casual" },
   { id: "out", name: "GOING OUT CLOTHES", style: "out", prefix: "player-out" },
   { id: "pajamas", name: "PAJAMAS", style: "pajamas", prefix: "player-pajamas" },
+  // Issue 158: the first generated outfit (art/outfits.json, scripts/outfits.mjs).
+  { id: "casual-cardigan", name: "CARDIGAN AND TEE", style: "casual", prefix: "player-casual-cardigan" },
 ];
 
 export const HOME_PREFIX = OUTFITS[0].prefix;

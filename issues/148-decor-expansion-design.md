@@ -2,7 +2,7 @@
 id: "148"
 title: "Decor expansion: design note"
 short: "Decor expansion design"
-status: in-progress
+status: review
 owner: claude
 depends_on: []
 summary: "A design note for ten decor ideas: where each goes, what it costs, and the order to build them."
@@ -37,3 +37,4 @@ Marc (2026-11-23) wants many more decor options. Write `docs/decor-expansion-des
   - [ ] Smaller engine misstatements: tasks.ts:199 `nap` adds `NAP.hours` to plantDry, only `sleep` uses `addSkipped` (tasks.ts:377), so section 2's "nap or sleep ... addSkipped" is half right; the guitar pose does not "replace the piece" (poses.ts:49-55; no pose sets `replacesPiece`, poses.ts:63-70, so the bed row's mention is wrong too); a nylon guitar already has a voice (config.ts:1103-1106), so "plus a new timbre" is not needed for `guitar-nylon`; the record stand is found by a particle emitter by sprite name (config.ts:1569), not by the sound feature.
   - [ ] Takeout gaps: P7 does not say that `parseDeliveries`/`load`/`collect` assume decor ids (deliveries.ts:60-88, 213-215, 163); and opening the meal while a cooked plate is already on the table (plate 1; `eat-dinner` has no plate requirement, tasks.ts:215) is not handled. Three `swap-trinket-shelf-N` tasks on one shelf piece would be three identical Tab entries (SWAPS in tasks.ts:342-345); say how that is avoided.
   Unverified: how any of it looks or plays; issue 147's content; where the trinket examples came from. The reviewer did not open reference-photos/.
+- 2026-11-23 (claude): round 2, all nine review items addressed in docs/decor-expansion-design.md: (1) chair re-ranked (tied to the typing pose; the record stand is first); (2) the hook dropped, with the reason (its only stand tile is a static solid); (3) P6 now says the two decor tests change; (4) and (5) flowers: state-aware isLive/frozenVars and the reset rule for a new bunch replacing a dried one stated; (6) THINGS cell 61 wide (53 narrow); (7) P3 is its own step, J needs C and is M, G ships only the default item, the preamble says which steps change a fresh game; (8) nap, pose, nylon guitar voice and record stand statements corrected; (9) takeout: P7 lists the deliveries code that assumes decor ids, the existing-plate case is handled, and the shelf's three identical swap tasks are flagged. The trinket examples (alebrijes, telescope, finger skateboard, goose egg, worry doll, raccoon in a can) came from Marc's request text, not from any photo.

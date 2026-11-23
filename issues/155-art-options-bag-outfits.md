@@ -43,7 +43,10 @@ decisions:
       - "F"
       - "something else or draw another round"
     recommendation: "A"
-    status: open
+    status: answered
+    answer: "going out: A (jacket and scarf), B (button-up), D (blazer); E becomes a peacoat; the dress comes back later (it must not make the player conform to a gender; fine as one option among several)"
+    by: marc
+    on: 2026-11-23
   - id: d4
     who: marc
     q: "Art options (155): which pajamas? (A sky-and-white striped set, B blush tee with plum shorts and slippers, C white bathrobe with an orange belt)"

@@ -59,9 +59,9 @@ const GIFT_IDS = new Set(GIFT_ITEMS.map((i) => i.id));
 const ownedGifts = (game: Game) => GIFT_ITEMS.filter((i) => game.decor.owns(i.id)).map((i) => i.id);
 
 describe("the production checkpoint list", () => {
-  it("is the first ten of the note, in order", () => {
-    expect(CHECKPOINTS.map((m) => asItem(m)[0])).toEqual(FIRST_TEN.map(([, i]) => i));
-    CHECKPOINTS.forEach((m, i) => {
+  it("starts with the first ten of the note, in order", () => {
+    expect(CHECKPOINTS.slice(0, 10).map((m) => asItem(m)[0])).toEqual(FIRST_TEN.map(([, i]) => i));
+    CHECKPOINTS.slice(0, 10).forEach((m, i) => {
       const [when] = FIRST_TEN[i];
       if (isAch(when)) expect(m.achievement).toBe(when);
       else expect(m).toMatchObject({ stat: "days", atLeast: Number(when.slice(4)) });
@@ -94,7 +94,7 @@ describe("the production checkpoint list", () => {
     }
     d.own("plant-dried");
     expect(d.choices("plant-shelf").map((i) => i.id)).toContain("plant-dried");
-    expect(GIFT_ITEMS.length).toBe(13);
+    expect(GIFT_ITEMS.length).toBe(19);
     expect(DECOR_DATA.items.some((i) => i.id === "lamp-test-stool-lamp")).toBe(true); // TEST items stay until stage 4
   });
 });

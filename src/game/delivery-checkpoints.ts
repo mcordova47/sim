@@ -8,7 +8,7 @@ import type { Milestone } from "./deliveries";
 // time played (24 game hours each, sleeping included), or lifetime `tasks` done.
 
 // What a built game uses (issue 043 stage A, docs/random-encounters.md section 3):
-// the first ten gifts, in order. A day gift arrives 2 game hours after the day is
+// the first ten gifts, in order, then the plants of issue 147. A day gift arrives 2 game hours after the day is
 // reached; an achievement gift 2 game hours after it unlocks. An owned item gives
 // nothing (still fired). A test checks every item exists and none repeats.
 const SOON = 2;
@@ -23,6 +23,14 @@ export const CHECKPOINTS: readonly Milestone[] = [
   { id: "gift-day-13", stat: "days", atLeast: 13, item: "art-canoes", delayHours: SOON },
   { id: "gift-record-keeper", achievement: "records-all", item: "lamp-candle", delayHours: SOON },
   { id: "gift-day-16", stat: "days", atLeast: 16, item: "art-great-wave", delayHours: SOON },
+  // Plants for the shelf (issue 147), later than the first ten, live and dried in turn. The days are the planner's
+  // default: change the number to move a gift.
+  { id: "gift-day-21", stat: "days", atLeast: 21, item: "plant-pothos", delayHours: SOON },
+  { id: "gift-day-24", stat: "days", atLeast: 24, item: "plant-pampas", delayHours: SOON },
+  { id: "gift-day-27", stat: "days", atLeast: 27, item: "plant-monstera", delayHours: SOON },
+  { id: "gift-day-30", stat: "days", atLeast: 30, item: "plant-lavender", delayHours: SOON },
+  { id: "gift-day-33", stat: "days", atLeast: 33, item: "plant-spider", delayHours: SOON },
+  { id: "gift-day-36", stat: "days", atLeast: 36, item: "plant-eucalyptus", delayHours: SOON },
 ];
 
 // For trying it in the dev server only (`?deliver=test`, decor-dev.ts): the TEST items.

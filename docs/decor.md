@@ -53,6 +53,15 @@ No trigger is chosen yet; this is the pipe that triggers plug into.
 - The glow follows a preview too, so you see the light (or none) while the swap list is open.
 - TEST pair for the lamp slot: the bare stool gives no light, the stool with a lamp (smaller glow, radius 24) does. **Stage 4 (the art pass)** makes the real stool, which Marc also wants usable as a stool for guitar playing or recording, and its lamp pairing real items.
 
+## What issue 147 built: more plants for the shelf
+
+Six more items for the `plant-shelf` slot, with no new engine: the slot, the swap, `FAMILIES`, `Decor.isLive` and `frozenVars` already did everything. All six are gifts (`GIFT_ITEMS`, `from: "A PACKAGE"`), listed after the first ten in `delivery-checkpoints.ts`.
+- **Live** (new families in `FAMILIES`, each `{ stages: 4, droops: true }` like the snake plant, so `<family>-0..3` and `<family>-wilted` are the five sprites): `plant-pothos` (family `pothos`, trailing vines over a terracotta pot), `plant-monstera` (`monstera`, big split leaves, white pot) and `plant-spider` (`spider`, arching blades and spiderettes, teal pot). Fewer stages are allowed (`stages` can be 1 to 4 and `look` clamps to the last), but four costs only two more sprites per plant and keeps the growth the same as the snake plant's, so the stage and droop rules are untouched. A swapped-in live plant starts small (stage, growth and dry count to 0), as before.
+- **Still** (no family, one sprite each, like `plant-dried`): `plant-pampas` (plumes in a tall vase), `plant-lavender` (a bundle in a small jug) and `plant-eucalyptus` (stems in a glass jar). They hide the watering tasks and freeze the slot's variables while on the shelf (issue 105).
+- **When they arrive** (a default chosen by the planner; Marc can change any number in `delivery-checkpoints.ts`): pothos day 21, pampas day 24, monstera day 27, lavender day 30, spider plant day 33, eucalyptus day 36, each two game hours after the day starts. Nothing is required or missable and nothing is announced.
+- **Not changed:** the task names still say "snake plant" (`water-plant`, `water-plant-droop`, `check-plant`), the same as they did for the test plant; the object's name in `apartment.ts` and the state variable meanings too. Making them say "plant" is a separate small issue.
+- Tests: `src/game/decor-plants-147.test.ts`. The golden frames of the main room are unchanged (nobody owns the new items at the start).
+
 ## The rule that shapes everything
 Marc's decision (2026-10-23, in PLAN.md Decisions): collecting is a **quiet side effect**, a zen garden. It is not a goal, a ladder or a shop you grind for. So:
 

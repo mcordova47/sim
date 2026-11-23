@@ -48,6 +48,7 @@ decisions:
       - "something else or draw another round"
     recommendation: "A"
     status: open
+needs: [{who: marc, kind: try, why: "Browse the options: cd ../sim-worktrees/155-art-options && npm run tools -- options; then answer the four choices (bag, casual, out, pajamas)", since: 2026-11-23}]
 ---
 
 ## Goal

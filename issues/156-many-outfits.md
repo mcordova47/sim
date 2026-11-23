@@ -26,6 +26,15 @@ decisions:
       - "let the agent test both on one outfit and report what each looks like"
     recommendation: "let the agent test both on one outfit and report, since nine new outfits are planned (about 108 sprites by hand) and the poses make it worse"
     status: open
+  - id: d3
+    who: marc
+    q: "Outfit art (156, d3): the cardigan's tan merges into the tan hair (badly from behind and at 1x). What colour should it be?"
+    options:
+      - "putty grey with taupe shading"
+      - "keep tan and change something else"
+      - "another colour"
+    recommendation: "putty grey with taupe shading"
+    status: open
 ---
 
 ## Goal

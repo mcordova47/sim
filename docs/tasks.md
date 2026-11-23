@@ -7,6 +7,7 @@ Where the original task list is in `src/game/tasks.ts`; this lists what issue 03
 |---|---|---|
 | `blinds` (0 closed, 1 open) | Open the blinds, Close the blinds | each requires the other state; both east windows (issue 065) follow `blinds` and offer the task that applies, so either one changes both |
 | `plate` (0 none, 1 on the table) | Reheat leftovers, Cook dinner (set it), Eat dinner (clears it) | not an alternation: Eat dinner is still allowed with no plate out (it just leaves it at 0). Sleeping does not clear it. The table draws `table-plate` at 1, `table` (bare wood) at 0 |
+| `takeout` (0 none, 1 on the table), `takeoutOrdered` (derived) | Order takeout, Eat the takeout; Reheat, Cook and Eat dinner wait while `takeout` is 1 | issue 153. Ordering (nightstand) sets `takeoutOrdered`, which the game turns into a meal in the delivery queue (about 2 game hours, `DELIVERIES.mealDelayHours`) and then keeps in step with it (1 from the order until the box is opened). Order takeout is refused with THE TAKEOUT IS ON ITS WAY, or TAKEOUT IS WAITING while one is on the table. Opening the box puts the meal and the plate on the table (`takeout` 1, `plate` 1; a plate already there keeps the meal in the box); Eat the takeout clears both and sets `boxes` to 1. Cook, Reheat and Eat dinner are refused with TAKEOUT IS WAITING |
 | `mug` (0 empty, 1 full) | Make pour-over coffee, Drink the coffee | making needs an empty mug, drinking a full one |
 | `recordSort` (0 to 3, wraps) | Alphabetize, Arrange by year, Rank by favorites, Arrange by color | automatic: each ordering needs its turn, finishing moves it on; after color it is alphabetical again. No menu |
 
@@ -21,6 +22,7 @@ Lists: `src/game/typing-text.ts`.
 
 ## New
 - **Clean the desk** (`tidy-desk`, desk): points only; changes nothing; cooldown 90 s.
+- **Order takeout** (`order-takeout`, nightstand beside Charge your phone; issue 153): 8 points, 3 seconds, no cooldown (the state gates it). The meal arrives at the door box in about 2 game hours with the line THE TAKEOUT HAS ARRIVED. **Eat the takeout** (`eat-takeout`, dining table): 40 points, 5 seconds, +15 energy, +5 mood, no dishes, no cold timer, no money; it sets `boxes` to 1, so there is a container to flatten and recycle. Ordering plus eating pays about 48, cooking plus eating about 150: the lazy path with no extra reward.
 - **Charge your phone** (`charge-phone`, nightstand, with the phone-on-charger prop `phone-charger`; issue 088): sets the state variable `battery` (0 to 100, shown in the ribbon as a phone and a bar) to 100; 8 points, 3 seconds, 60 s cooldown (nothing in the state stops repeats, so it keeps one). The battery now drains (1 point per game hour, half that asleep, 6 per completed Doomscroll; issue 094), but no task reads it or is refused by it. The ribbon draws a four-segment battery and a small bolt over it for 4 seconds after the level rises; it is brick under 20. Phone tasks that care about a flat phone are a postponed idea.
 - **Take a nap** (`nap`, sofa): needs energy under `NAP.below`; adds `NAP.energy` and an hour; leaves the bed alone. A 5 second smaller version of the sleep sequence (`docs/sleep.md`): a gentler dark, a breath, a z, no lullaby, no snore, the record plays on.
 - **Go to sleep** (`sleep`, bed; issue 078): a 9 second sequence (`docs/sleep.md`), not a plain wait. When it finishes the clock moves on to the **wake hour**: at least 7 hours later and never before 06:30 (`SLEEP_WAKE`: `clock` has `wake: { atLeast: 7, notBefore: 6.5 }`). A 22:00 bedtime wakes at 06:30 (8.5 hours), a 02:00 one at 09:00 (7 hours), a sleep at 14:00 at 21:00 (7 hours). Plant dryness, the deliveries and every listener get the real hours (`plantDry` has `addSkipped: true`: it adds however many hours the `clock` effect moved). Energy goes to 100, the bed is unmade, mood +10. Escape applies none of it.
@@ -63,7 +65,7 @@ The small yellow clock icon (`icon-good-hour`, 9x9) means "this pays extra now".
 |---|---|
 | Take a nap +3, Go to sleep +10 | rest |
 | Play three chords +10 | music (also pays +0.3 points per mood point) |
-| Eat dinner +6, Cook dinner +4, Drink the coffee +4, Make coffee +2, Reheat +2 | food |
+| Eat dinner +6, Eat the takeout +5, Cook dinner +4, Drink the coffee +4, Make coffee +2, Reheat +2 | food |
 | Open the blinds +5 (Close the blinds -5 takes it back, so toggling is a wash) | light |
 | Admire the art +8, Flip the record +5 (only for a different record, at most once per 10 game minutes; no cooldown) | art and music |
 | Write in the journal +6 (pays +0.2 per mood point), Take a shower +6 | small rituals |
@@ -115,6 +117,7 @@ A time cooldown is only there where nothing else stops you doing a task again at
 | `sort-records` (and year, fav, color) | each waits its turn, then the cycle wraps | 45 | the cycle never ends, so it can be repeated |
 | `work`, `work-sofa`, `work-bed` | energy at least 10 | 30 | tiring but not blocked for long |
 | `tidy-desk` | none | 90 | a gag; keeps it from being farmed |
+| `order-takeout`, `eat-takeout` | one on its way / none on the table; a meal on the table | 0 | state-gated (issue 153), no cooldown |
 | `charge-phone` | none (it can always be done; it only sets the battery to 100) | 60 | nothing in the state stops repeating it |
 | `sleep` | tired or late at night | 60 | after sleeping the late hours can still allow it |
 | `nap` | energy under `NAP.below` | 60 | a nap leaves you still under the line |

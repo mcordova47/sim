@@ -17,7 +17,7 @@ import { Deliveries } from "./deliveries";
 import { EncounterActivity } from "./activities/encounter";
 import type { Ad } from "./encounter-ads";
 import { Encounters } from "./encounters";
-import { CLOCK, DEBUG, DIALOG, ENERGY, MOOD, TILE, VIEW } from "./config";
+import { CLOCK, DEBUG, DELIVERIES, DIALOG, ENERGY, MOOD, TILE, VIEW } from "./config";
 import type { Activity, ActivityHost, RecordState } from "./activity";
 import { openReelStore, type ReelPic, type ReelStoreHandle } from "./reel/reel-store";
 import type { Interactable } from "./interactable";
@@ -185,10 +185,12 @@ export class Game {
     // Sleeping and napping skip hours, and a delivery due in that time arrives when you wake.
     this.state.onClockSkip = (hours) => this.deliveries.advance(hours);
     this.deliveries.canArrive = () => !this.onPackageSpot();
-    this.deliveries.onArrive = () => {
+    this.deliveries.onArrive = (ids, meal) => {
       this.syncParcel();
       // Said once a frame at most, so arrivals at one moment never stack their text (issue 079).
       this.arrivalNoted = true;
+      if (ids.length > 0) this.arrivalHasItems = true;
+      if (meal) this.arrivalHasMeal = true;
     };
     this.player = new Player(level.spawn.x, level.spawn.y, level.facing);
     // A copy of the size, so a full-screen picture's `setView` never moves the camera's idea of the view.
@@ -425,6 +427,14 @@ export class Game {
   private syncParcel(): void {
     const parcel = this.deliveries.waiting ? 1 : 0;
     if (this.state.has("parcel") && this.state.get("parcel") !== parcel) this.state.applyEffects([{ var: "parcel", set: parcel }]);
+    this.syncTakeout();
+  }
+
+  // `takeoutOrdered` follows the queue (issue 153): 1 while the meal is on its way or waiting in the box.
+  // Ordering sets it to 1 first (stateChanged queues the meal); a save or a refused order is brought back here.
+  private syncTakeout(): void {
+    const ordered = this.deliveries.mealOrdered ? 1 : 0;
+    if (this.state.has("takeoutOrdered") && this.state.get("takeoutOrdered") !== ordered) this.state.applyEffects([{ var: "takeoutOrdered", set: ordered }]);
   }
 
   // The store for the photo reel, made on first use.
@@ -464,6 +474,8 @@ export class Game {
 
   // An arrival happened this frame and has not been said yet.
   private arrivalNoted = false;
+  private arrivalHasItems = false;
+  private arrivalHasMeal = false;
 
   // One plain line over the player.
   private say(text: string): void {
@@ -472,11 +484,17 @@ export class Game {
 
   // Opens the waiting packages: the items are added, and each one is named in one line.
   private collectDeliveries(onClosed?: () => void): void {
-    const got = this.deliveries.collect();
+    // The takeout goes on the table, so it waits in the box while a plate is still there (issue 153).
+    const tableFree = !this.state.has("plate") || this.state.get("plate") === 0;
+    const { items: got, meal } = this.deliveries.open(tableFree);
+    const mealHeld = !meal && this.deliveries.mealWaiting;
+    if (meal && this.state.has("takeout")) this.state.applyEffects([{ var: "takeout", set: 1 }, { var: "plate", set: 1 }]);
     this.syncParcel();
     // The new package's box joins the pile, so there is always something to flatten (issue 066).
     if (got.length > 0 && this.state.has("boxes")) this.state.applyEffects([{ var: "boxes", set: 1 }]);
     const lines = got.map((id) => `OPENED: ${this.decor.item(id)?.name ?? "A PACKAGE"}`);
+    if (meal) lines.push("OPENED: TAKEOUT. IT IS ON THE TABLE.");
+    if (mealHeld) lines.push("THERE IS A PLATE ON THE TABLE. THE TAKEOUT CAN WAIT.");
     if (lines.length === 0) {
       onClosed?.();
       return;
@@ -495,6 +513,11 @@ export class Game {
   private stateChanged(change: { id: string; value: number; previous: number }): void {
     // Enough waterings and the plant grows a stage (issue 063). Its own changes
     // come back through here, which settles any growth left over.
+    // Ordering takeout (issue 153): the order sets the variable, and the meal is queued here.
+    if (change.id === "takeoutOrdered" && change.value === 1 && !this.deliveries.mealOrdered) {
+      this.deliveries.deliverMeal(DELIVERIES.mealDelayHours);
+      this.syncParcel();
+    }
     if (change.id === "plantGrowth" && this.state.has("plantStage")) settlePlant(this.state);
     // Doors, piles and the like may now block or not.
     if (this.level.solids.some((s) => s.blockedWhen)) this.grid.setSolids(this.activeSolids());
@@ -758,7 +781,10 @@ export class Game {
     this.camera.update(dt, this.playerCentre());
     if (this.arrivalNoted) {
       this.arrivalNoted = false;
-      this.say("A PACKAGE HAS ARRIVED.");
+      // Only the takeout: its own line; anything else (or both) is a package.
+      this.say(this.arrivalHasMeal && !this.arrivalHasItems ? "THE TAKEOUT HAS ARRIVED." : "A PACKAGE HAS ARRIVED.");
+      this.arrivalHasItems = false;
+      this.arrivalHasMeal = false;
     }
     this.popups.update(dt);
     this.hud.update(dt, this.interaction.scoreboard.score);

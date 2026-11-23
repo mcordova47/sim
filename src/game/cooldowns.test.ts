@@ -20,7 +20,7 @@ const cooldownOf = (id: string) => task(id).cooldown ?? DEFAULT_TASK_COOLDOWN;
 // Every task whose state gate stops it being done again, so it needs no time cooldown.
 const STATE_GATED = [
   "make-bed", "open-blinds", "close-blinds", "coffee", "drink-coffee", "flatten-boxes", "recycle-boxes",
-  "water-plant", "water-plant-droop", "collect-delivery", "record-play", "make-track", "study-spanish",
+  "water-plant", "water-plant-droop", "collect-delivery", "order-takeout", "eat-takeout", "record-play", "make-track", "study-spanish",
 ];
 // Tasks that keep a time cooldown, because nothing in the state stops repeating them.
 const KEPT: Record<string, number> = {

@@ -16,6 +16,9 @@ export const STATE_VARS: StateVar[] = [
   { id: "clock", initial: 8, min: 0, max: 24, wrap: true, meaning: "Time of day in hours since midnight (8.5 is 8:30 AM)." },
   { id: "blinds", initial: 0, min: 0, max: 1, meaning: "1 if the blinds are open, 0 if closed (both east windows follow it)." },
   { id: "plate", initial: 0, min: 0, max: 1, meaning: "1 if a dinner plate is out on the dining table (reheating or cooking puts it there, eating dinner clears it), 0 if not." },
+  // Issue 153: takeout. `takeout` is set by opening the box and cleared by eating; `takeoutOrdered` is derived like `parcel`.
+  { id: "takeout", initial: 0, min: 0, max: 1, meaning: "1 if a takeout meal is out on the dining table (opening the box with the meal puts it there with the plate, eating it clears both), 0 if not. Cook, reheat and eat dinner wait while it is 1." },
+  { id: "takeoutOrdered", initial: 0, min: 0, max: 1, meaning: "1 from ordering takeout until the meal is taken out of the box by the door, 0 if not. Ordering sets it and the game queues the meal; it then follows the delivery queue (game.ts syncTakeout), so a save cannot disagree with it." },
   { id: "mug", initial: 0, min: 0, max: 1, meaning: "1 if a full mug of coffee is waiting to be drunk, 0 if not." },
   { id: "outfit", initial: 0, min: 0, max: 3, meaning: "What you are wearing: 0 everyday clothes, 1 casual, 2 out, 3 pajamas (see outfits.ts)." },
   // The snake plant on the bookshelf (issue 063, rules in plant.ts and PLANT in config.ts).

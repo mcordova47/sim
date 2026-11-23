@@ -16,7 +16,10 @@ decisions:
       - "opening the box is refused while a plate is on the table"
       - "the meal replaces the plate"
     recommendation: "the meal stays in the box with a one-line explanation until the plate is eaten"
-    status: open
+    status: answered
+    answer: "as recommended"
+    by: planner
+    on: 2026-11-23
 ---
 
 ## Goal

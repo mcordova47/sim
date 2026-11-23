@@ -7,6 +7,16 @@ owner: claude
 depends_on: []
 summary: "Order takeout at the nightstand phone; it arrives at the door box and you can eat it."
 kind: build
+decisions:
+  - id: d1
+    who: marc
+    q: "Takeout (153, d1): the takeout arrives while a cooked or reheated plate is already on the table. What happens?"
+    options:
+      - "the meal stays in the box with a one-line explanation until the plate is eaten"
+      - "opening the box is refused while a plate is on the table"
+      - "the meal replaces the plate"
+    recommendation: "the meal stays in the box with a one-line explanation until the plate is eaten"
+    status: open
 ---
 
 ## Goal

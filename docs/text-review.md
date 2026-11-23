@@ -51,7 +51,7 @@ One row per task that has something to review: its id, name (the menu and the aw
 | close-blinds | Close the blinds | Close the blinds | BLINDS ARE CLOSED | keep |
 | sort-records | Alphabetize the records | Alphabetize records | TRY ANOTHER ORDER | keep |
 | sort-records-year | Arrange records by year | Records by year | TRY ANOTHER ORDER | keep |
-| sort-records-fav | Rank the records by favorites | Records by favorites | TRY ANOTHER ORDER |  |
+| sort-records-fav | Rank the records by favorites | Records by favorites | TRY ANOTHER ORDER | keep |
 | sort-records-color | Arrange records by color | Records by color | TRY ANOTHER ORDER | keep |
 | work | Answer emails | Work at the desk | TOO TIRED TO WORK | keep |
 | coffee | Make pour-over coffee | Make coffee | NO CLEAN PLATES; COFFEE IS WAITING | keep |

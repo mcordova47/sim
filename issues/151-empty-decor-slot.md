@@ -26,7 +26,10 @@ decisions:
       - "Yes, offer it"
       - "No, only when something else fits"
     recommendation: "Yes, offer it"
-    status: open
+    status: answered
+    answer: "as recommended"
+    by: planner
+    on: 2026-11-23
 ---
 
 ## Goal

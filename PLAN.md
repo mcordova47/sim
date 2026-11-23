@@ -220,6 +220,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 152 | [Worn outfits](issues/152-worn-outfits.md) | claude | todo | 151 |
 | 153 | [Order takeout](issues/153-takeout.md) | claude | done | |
 | 154 | [Takeout bag](issues/154-takeout-bag.md) | claude | todo | 153 |
+| 155 | [Bag and outfit art options](issues/155-art-options-bag-outfits.md) | marc + claude | todo | |
 <!-- issues:table:end -->
 
 ## Order of work

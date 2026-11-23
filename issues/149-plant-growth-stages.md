@@ -27,7 +27,10 @@ decisions:
       - "a taller overlay sprite for the late stages, drawn over the bookshelf's top cubes (the plant is already an overlay piece), not hiding any task spot"
       - "keep it inside 16x16 and only show a longer trailing vine within the pot"
     recommendation: "a taller overlay for the late stages: that is the point of the idea, and the bookshelf's top cubes are decorative"
-    status: open
+    status: answered
+    answer: "a taller overlay sprite for the late stages, drawn over the bookshelf's top cubes (the plant is already an overlay piece), not hiding any task spot"
+    by: marc
+    on: 2026-11-23
 ---
 
 ## Goal

@@ -7,6 +7,15 @@ owner: claude
 depends_on: []
 summary: "Let a decor slot hold nothing, with a NOTHING row in the swap list; the first piece of the decor expansion."
 kind: build
+decisions:
+  - id: d1
+    who: marc
+    q: "Empty decor slots (151, d1): only a slot with no default can be emptied, so the real-room slots keep always showing something?"
+    options:
+      - "Only slots with no default; real-room slots stay always-shown"
+      - "Any slot can be emptied"
+    recommendation: "Only slots with no default; real-room slots stay always-shown"
+    status: open
 ---
 
 ## Goal

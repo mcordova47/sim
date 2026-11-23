@@ -114,7 +114,10 @@ decisions:
       - "yes"
       - "no"
     recommendation: "yes"
-    status: open
+    status: answered
+    answer: "yes (still items only at first); there is already an empty pot on top of the bookshelf; a larger floor plant next to the sofa is a future idea"
+    by: marc
+    on: 2026-11-23
   - id: d11
     who: marc
     q: "Decor design (148, Q11): replacement furniture only as gifts, one piece at a time, record stand first?"

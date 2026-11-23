@@ -125,7 +125,10 @@ decisions:
       - "yes"
       - "no"
     recommendation: "yes"
-    status: open
+    status: answered
+    answer: "yes: furniture arrives through the delivery pipe (gifts or ads), one piece at a time, record stand first"
+    by: marc
+    on: 2026-11-23
   - id: d12
     who: marc
     q: "Decor design (148, Q12): generic noun names for items (finger skateboard, pod machine, plunger-style press), no brands?"

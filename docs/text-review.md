@@ -50,7 +50,7 @@ One row per task that has something to review: its id, name (the menu and the aw
 | open-blinds | Open the blinds | Open the blinds | BLINDS ARE OPEN | keep |
 | close-blinds | Close the blinds | Close the blinds | BLINDS ARE CLOSED | keep |
 | sort-records | Alphabetize the records | Alphabetize records | TRY ANOTHER ORDER | keep |
-| sort-records-year | Arrange records by year | Records by year | TRY ANOTHER ORDER |  |
+| sort-records-year | Arrange records by year | Records by year | TRY ANOTHER ORDER | keep |
 | sort-records-fav | Rank the records by favorites | Records by favorites | TRY ANOTHER ORDER |  |
 | sort-records-color | Arrange records by color | Records by color | TRY ANOTHER ORDER | keep |
 | work | Answer emails | Work at the desk | TOO TIRED TO WORK | keep |

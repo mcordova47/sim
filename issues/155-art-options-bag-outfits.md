@@ -17,7 +17,10 @@ decisions:
       - "B or C"
       - "something else or draw another round"
     recommendation: "A"
-    status: open
+    status: answered
+    answer: "A and D look good, but both are drawn from the wrong perspective for something against the south wall (redo from the right viewpoint; see issue 157)"
+    by: marc
+    on: 2026-11-23
   - id: d2
     who: marc
     q: "Art options (155): which casual outfit? (A grey hoodie, B tan cardigan over a tee, C striped tee with chinos, D denim jacket over a tee)"

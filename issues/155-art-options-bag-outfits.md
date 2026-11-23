@@ -18,6 +18,16 @@ decisions:
       - "something else or draw another round"
     recommendation: "A"
     status: open
+  - id: d2
+    who: marc
+    q: "Art options (155): which casual outfit? (A grey hoodie, B tan cardigan over a tee, C striped tee with chinos, D denim jacket over a tee)"
+    options:
+      - "D"
+      - "B"
+      - "A or C"
+      - "something else or draw another round"
+    recommendation: "D"
+    status: open
 ---
 
 ## Goal

@@ -38,8 +38,9 @@ export function generateOutfit(def, read) {
     const dir = dirOf(f);
     const torsoRows = rows.map((r, i) => (/[ef]/.test(r) ? i : -1)).filter((i) => i >= 0);
     const lastTorso = torsoRows[torsoRows.length - 1];
-    const rule = RULES[def.torso.rule];
-    if (!rule) throw new Error(`${def.id}: unknown torso rule ${def.torso.rule}`);
+    const ruleName = def.torso.facing?.[dir] ?? def.torso.rule; // a facing can use its own rule (a plain back)
+    const rule = RULES[ruleName];
+    if (!rule) throw new Error(`${def.id}: unknown torso rule ${ruleName}`);
     const pal = def.torso;
     const made = rows.map((row, i) => {
       const chars = [...row];

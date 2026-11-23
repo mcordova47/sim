@@ -6,7 +6,7 @@
       "prefix": "player-casual-cardigan",
       "template": "player-casual",
       "describe": "casual option B: an open cardigan over a white tee, jeans",
-      "torso": { "rule": "open-front", "outer": "e", "shade": "7", "inner": "6" },
+      "torso": { "rule": "open-front", "facing": { "up": "solid" }, "outer": "e", "shade": "7", "inner": "6" },
       "legs": {},
       "overlays": {}
     }

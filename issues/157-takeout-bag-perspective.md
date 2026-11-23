@@ -7,6 +7,7 @@ owner: claude
 depends_on: ["155"]
 summary: "Redraw bag candidates A and D as seen against the south wall, not from the front."
 kind: build
+needs: [{who: marc, kind: try, why: "Look at the redrawn takeout bag (browse: cd ../sim-worktrees/157-bag-viewpoint && npm run tools -- options; or order takeout in the game); then say 'merge 157'", since: 2026-11-23}]
 ---
 
 ## Goal

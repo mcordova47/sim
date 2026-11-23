@@ -215,6 +215,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 147 | [More plants](issues/147-more-plants.md) | claude | done | |
 | 148 | [Decor expansion design](issues/148-decor-expansion-design.md) | claude | done | |
 | 149 | [More plant stages](issues/149-plant-growth-stages.md) | marc + claude | todo | 147 |
+| 150 | [Poses ignore outfit](issues/150-poses-ignore-outfit.md) | claude | todo | |
 <!-- issues:table:end -->
 
 ## Order of work

@@ -6,7 +6,7 @@ status: todo
 owner: claude
 depends_on: []
 summary: "Sitting, typing, eating and sleeping poses are drawn in everyday clothes only, so a worn outfit flips back."
-kind: bug
+kind: fix
 ---
 
 ## Goal

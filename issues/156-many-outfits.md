@@ -55,7 +55,7 @@ The outfits Marc picked (to be drawn in a later art issue, after this system and
 
 ## Notes (planner)
 - Poses staying in everyday clothes is issue 150; the art route chosen here decides how that is fixed.
-- No outfit may imply a gender; keep names neutral (for example "jacket and scarf", "peacoat").
+- No outfit should make the player conform to a gender. Marc (2026-11-23): that does NOT mean avoiding words like "dress"; avoiding them would end up with male-coded things and make male the default perspective. Aim for a spread (dresses, skirts, suits, coats, robes) so no gender is the default; names are plain and descriptive.
 
 ## Progress log
 - 2026-11-23 (planner): filed on main from Marc's feedback on the art options (issue 155).

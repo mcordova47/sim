@@ -212,6 +212,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 144 | [Apply text rewrites 2](issues/144-apply-text-rewrites-2.md) | claude | done | 143 |
 | 145 | [Show task flavor lines](issues/145-show-task-flavor.md) | marc + claude | done | 144 |
 | 146 | [Drop task flavor lines](issues/146-drop-task-flavor.md) | claude | done | 145 |
+| 148 | [Decor expansion design](issues/148-decor-expansion-design.md) | claude | done | |
 <!-- issues:table:end -->
 
 ## Order of work

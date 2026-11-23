@@ -7,13 +7,133 @@ owner: claude
 depends_on: []
 summary: "A design note for ten decor ideas: where each goes, what it costs, and the order to build them."
 kind: design
+decisions:
+  - id: d1
+    who: marc
+    q: "Decor design (148, Q1): do the art-free engine work first (empty-slot option, worn outfits, takeout) before drawing anything?"
+    options:
+      - "yes"
+      - "no"
+    recommendation: "yes"
+    status: answered
+    answer: "yes"
+    by: marc
+    on: 2026-11-23
+  - id: d2
+    who: marc
+    q: "Decor design (148, Q2): desk right corner for the first trinket, desk left corner kept for clutter (042), a wall shelf above the bookshelf later?"
+    options:
+      - "yes"
+      - "no"
+    recommendation: "yes"
+    status: answered
+    answer: "yes"
+    by: marc
+    on: 2026-11-23
+  - id: d3
+    who: marc
+    q: "Decor design (148, Q3): worn outfits first, changed at the nightstand, poses stay in everyday clothes for now?"
+    options:
+      - "yes"
+      - "no"
+    recommendation: "yes"
+    status: open
+  - id: d4
+    who: marc
+    q: "Decor design (148, Q4): cut flowers wilt at 3 game days and dry at 5 into a lasting arrangement, and a free task freshens them?"
+    options:
+      - "yes"
+      - "no"
+    recommendation: "yes"
+    status: answered
+    answer: "yes"
+    by: marc
+    on: 2026-11-23
+  - id: d5
+    who: marc
+    q: "Decor design (148, Q5): the coffee apparatus changes the task name and prompt, not the pay or the held-mug picture?"
+    options:
+      - "yes"
+      - "no"
+    recommendation: "yes"
+    status: open
+  - id: d6
+    who: marc
+    q: "Decor design (148, Q6): takeout ordered at the nightstand phone, eaten at the table for 40 points, +15 energy, +5 mood, no dishes, a container to recycle, no cold timer?"
+    options:
+      - "yes"
+      - "no"
+    recommendation: "yes"
+    status: answered
+    answer: "yes"
+    by: marc
+    on: 2026-11-23
+  - id: d7
+    who: marc
+    q: "Decor design (148, Q7): one rug size (64x32) at cols 3-6, rows 3-4, changed at the sofa?"
+    options:
+      - "yes"
+      - "no"
+    recommendation: "yes"
+    status: answered
+    answer: "yes"
+    by: marc
+    on: 2026-11-23
+  - id: d8
+    who: marc
+    q: "Decor design (148, Q8): instruments display only for now (a mini keyboard); playable ones later, kalimba first?"
+    options:
+      - "yes"
+      - "no"
+    recommendation: "yes"
+    status: answered
+    answer: "yes"
+    by: marc
+    on: 2026-11-23
+  - id: d9
+    who: marc
+    q: "Decor design (148, Q9): the worry doll is plain WORRY DOLL in the list, the Spanish name only in its note once the accent is seen in the list?"
+    options:
+      - "yes"
+      - "no"
+    recommendation: "yes"
+    status: answered
+    answer: "yes"
+    by: marc
+    on: 2026-11-23
+  - id: d10
+    who: marc
+    q: "Decor design (148, Q10): a second plant slot (window sill) holds still items only at first?"
+    options:
+      - "yes"
+      - "no"
+    recommendation: "yes"
+    status: open
+  - id: d11
+    who: marc
+    q: "Decor design (148, Q11): replacement furniture only as gifts, one piece at a time, record stand first?"
+    options:
+      - "yes"
+      - "no"
+    recommendation: "yes"
+    status: open
+  - id: d12
+    who: marc
+    q: "Decor design (148, Q12): generic noun names for items (finger skateboard, pod machine, plunger-style press), no brands?"
+    options:
+      - "yes"
+      - "no"
+    recommendation: "yes"
+    status: answered
+    answer: "makes sense, but plunger-style press sounds too similar to a french press (assuming it's supposed to be aeropress?) so let's think about other names: air press? pneumatic press? some fake brand name?"
+    by: marc
+    on: 2026-11-23
 unverified:
   - "How the ideas look and feel in the game is unchecked: nothing is built; the Ñ accent in a 9 px swap-list row and a 64x32 rug in the THINGS grid cell were reasoned from the code, not rendered."
   - "Pixel positions come from my own render of the map and sprites and from reading the sprite files; the reviewer re-checks them."
   - "Review 2026-11-23: where the trinket examples (goose egg, worry doll, alebrijes, finger skateboard) came from is unverified: they appear only in this note; reference-photos/ was not opened. Issue 147's content (another worktree) was not read, so the 147 dependencies are unchecked. Every play-feel claim (dried flowers look pretty, takeout balance, the empty shelf and hook reading as quiet) is unverified: nothing is built."
   - "Review 2 2026-11-23: how anything looks or plays is still unverified (nothing is built); issue 147 not read; the trinket example origin is the author's statement only; reference-photos/ not opened. The sound feature's lookup of the record stand was not found in src (only the particle emitter at config.ts:1569 and the task at tasks.ts:239 were)."
   - "Review 3 2026-11-23: how anything looks or plays is unverified (nothing is built). The trinket examples' origin is the author's statement only; the raccoon in a can is in decor.md's ideas backlog (Marc's text, which cites a photo), and reference-photos/ was not opened. The Ñ accent in a swap-list row was not rendered."
-needs: [{who: marc, kind: decide, why: "Confirm the ten decor ideas, the build order and the questions at the end of docs/decor-expansion-design.md", since: 2026-11-23}]
 ---
 
 ## Goal

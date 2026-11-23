@@ -20,6 +20,7 @@ decisions:
     answer: "as recommended"
     by: planner
     on: 2026-11-23
+needs: [{who: marc, kind: decide, why: "Say 'merge 153' when ready (order takeout; reviewed; d1, a plate already on the table, took the built default)", since: 2026-11-23}]
 ---
 
 ## Goal

@@ -44,14 +44,16 @@ describe("the decor tables", () => {
   });
 
   it("have the first-cut slots for the main room, and the kitchen's pantry (issue 072)", () => {
-    expect(DECOR_SLOTS.map((s) => s.id)).toEqual(["art-table", "art-desk", "art-bed", "plant-shelf", "lamp-sofa", "pantry"]);
+    expect(DECOR_SLOTS.map((s) => s.id)).toEqual(["art-table", "art-desk", "art-bed", "plant-shelf", "lamp-sofa", "pantry", "worn"]);
     expect(DECOR_SLOTS.filter((s) => s.room !== "main").map((s) => s.id)).toEqual(["pantry"]);
+    // Not drawn on the map (issue 152): only the worn outfit.
+    expect(DECOR_SLOTS.filter((s) => s.offMap).map((s) => s.id)).toEqual(["worn"]);
   });
 
   it("match the real main room: each slot is exactly where and as big as the object it draws", () => {
     expect(() => new Decor().checkLevel(APARTMENT.rooms.main)).not.toThrow();
     const main = APARTMENT.rooms.main;
-    for (const slot of DECOR_SLOTS.filter((s) => s.room === "main")) {
+    for (const slot of DECOR_SLOTS.filter((s) => s.room === "main" && !s.offMap)) {
       const found = [...(main.appearances ?? []), ...(main.props ?? [])].find((o) => ("slot" in o ? o.slot : undefined) === slot.id);
       expect(found, slot.id).toBeDefined();
       expect(found!.area).toEqual(slot.area);

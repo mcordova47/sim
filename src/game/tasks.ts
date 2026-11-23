@@ -362,7 +362,7 @@ export const SWAP_PROMPT: Partial<Record<DecorKind, string>> = {
   lamp: "Change the lamp",
   trinket: "Change the trinket",
   coffee: "Change the coffee gear",
-  outfit: "Change the outfit",
+  outfit: "Change clothes",
   furniture: "Change the furniture",
 };
 export const swapTaskId = (slotId: string) => `swap-${slotId}`;

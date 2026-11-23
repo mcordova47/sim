@@ -27,7 +27,7 @@ import { Emitter, type GameEvents } from "./events";
 import { Grid } from "./grid";
 import { InteractionSystem } from "./interaction";
 import { validateLevel, type Door, type Level, type Piece } from "./level";
-import { outfitPrefix } from "./outfits";
+import { outfitFromItem, outfitPrefix } from "./outfits";
 import { Player } from "./player";
 import { settlePlant } from "./plant";
 import { CARRIED, POSES, breathBand, heldSprite, type PoseDef } from "./poses";
@@ -472,6 +472,14 @@ export class Game {
     if (this.state.get("guitarOut") !== out) this.state.applyEffects([{ var: "guitarOut", set: out }]);
   }
 
+  // What you wear follows the decor slot `worn` (issue 152). Derived like `parcel`: brought in step each frame, never
+  // set by a task. It reads what the room shows, so the clothes list previews the outfit on you; sleeping changes nothing.
+  private syncOutfit(): void {
+    if (!this.state.has("outfit") || !this.decor.hasSlot("worn")) return;
+    const outfit = outfitFromItem(this.decor.shownIn("worn")?.id);
+    if (this.state.get("outfit") !== outfit) this.state.applyEffects([{ var: "outfit", set: outfit }]);
+  }
+
   // An arrival happened this frame and has not been said yet.
   private arrivalNoted = false;
   private arrivalHasItems = false;
@@ -720,6 +728,7 @@ export class Game {
     // After a load the saved box state may not match the queue (a save written as a package arrived).
     this.syncParcel();
     this.syncGuitar();
+    this.syncOutfit();
     this.syncPhotos();
     // A swap preview lasts only while the swap list is open, whatever closed it.
     if (this.decor.previewing && !this.interaction.active) this.decor.clearPreview();
@@ -766,6 +775,7 @@ export class Game {
       this.interaction.update(dt, this.player, this.inputLocked ? NO_INPUT : controls);
     }
     this.syncGuitar();
+    this.syncOutfit();
     this.syncPhotos();
     this.player.stepTimeScale = this.state.get("energy") < ENERGY.lowBelow ? ENERGY.tiredStepFactor : 1;
     // Free to walk unless a task is running or something else has the controls.
@@ -800,6 +810,7 @@ export class Game {
     this.deliveries.advance((dt * CLOCK.minutesPerSecond) / 60);
     this.syncParcel();
     this.syncGuitar();
+    this.syncOutfit();
     this.syncPhotos();
   }
 

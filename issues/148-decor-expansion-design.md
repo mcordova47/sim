@@ -59,7 +59,10 @@ decisions:
       - "yes"
       - "no"
     recommendation: "yes"
-    status: open
+    status: answered
+    answer: "yes; but some apparatus (percolator, moka pot, briki) may be triggered from the stove, so think about that (d13)"
+    by: marc
+    on: 2026-11-23
   - id: d6
     who: marc
     q: "Decor design (148, Q6): takeout ordered at the nightstand phone, eaten at the table for 40 points, +15 energy, +5 mood, no dishes, a container to recycle, no cold timer?"

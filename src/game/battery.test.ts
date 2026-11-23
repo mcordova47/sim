@@ -24,7 +24,8 @@ function doTask(game: Game, id: string): boolean {
   game.player.placeAt(spot.stand.col, spot.stand.row, spot.face);
   game.update(dt, NO_INPUT);
   let started = false;
-  game.events.on("taskStart", () => (started = true));
+  // The nightstand also offers Order takeout (issue 153), which comes up while Charge your phone cools down.
+  game.events.on("taskStart", ({ item }) => { if (item.id === id) started = true; });
   game.update(dt, press);
   for (let i = 0; i < 60 * 30 && game.interaction.busy; i++) game.update(dt, game.dialogOpen && i % 20 === 0 ? press : NO_INPUT);
   return started;

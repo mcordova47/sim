@@ -140,6 +140,8 @@ export const DELIVERIES = {
   maxDelayHours: 24 * 14,
   // Most milestone ids remembered as fired in the save.
   maxFired: 200,
+  // Game hours from ordering takeout to its arrival at the box (issue 153): one minute of play.
+  mealDelayHours: 2,
   // Largest game-hours total read from a save (a damaged number cannot go past this).
   maxHours: 1e7,
 };

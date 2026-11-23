@@ -21,6 +21,8 @@ const CONTENT: Task[] = [
   // Bed nook
   { id: 'make-bed', name: 'Make the bed', prompt: 'Make the bed', duration: 3, points: 30 },
   { id: 'charge-phone', name: 'Charge your phone', prompt: 'Charge your phone', duration: 3, points: 8, cooldown: 60 },
+  // Issue 153: the meal comes to the door box (the delivery queue); Eat the takeout is at the dining table.
+  { id: 'order-takeout', name: 'Order takeout', prompt: 'Order takeout', duration: 3, points: 8 },
   { id: 'open-blinds', name: 'Open the blinds', prompt: 'Open the blinds', duration: 1, points: 10 },
   { id: 'close-blinds', name: 'Close the blinds', prompt: 'Close the blinds', duration: 1, points: 10 },
   // The snake plant (issue 063): one of these is offered, by how it is doing.
@@ -77,6 +79,7 @@ const CONTENT: Task[] = [
   // Issues 070 and 071: done at the boxes, and only offered there when they are flat.
   { id: 'recycle-boxes', name: 'Take out the recycling', prompt: 'Take out the recycling', duration: 5, points: 55 },
   { id: 'cook', name: 'Cook dinner', prompt: 'Cook dinner', duration: 8, points: 90 },
+  { id: 'eat-takeout', name: 'Eat the takeout', prompt: 'Eat the takeout', duration: 5, points: 40 },
   { id: 'dishes', name: 'Do the dishes', prompt: 'Do the dishes', duration: 7, points: 80 },
   { id: 'flatten-boxes', name: 'Flatten the boxes', prompt: 'Flatten boxes', duration: 5, points: 45 },
 
@@ -91,6 +94,8 @@ const CONTENT: Task[] = [
 // personal task list (issue 024) sets them.
 const dirty = (n: number) => ({ var: "dishes", add: n });
 const NO_CLEAN_PLATES = { var: "dishes", max: 8, reason: "NO CLEAN PLATES" };
+// Issue 153: a takeout meal on the table is the plate, so no second meal goes beside it.
+const NO_TAKEOUT = { var: "takeout", max: 0, reason: "TAKEOUT IS WAITING" };
 
 // One step of the record cycle: it is this ordering's turn when `recordSort`
 // is `turn`, and doing it moves the cycle on (the variable wraps).
@@ -211,9 +216,25 @@ const STATE_RULES: Record<string, Partial<Task>> = {
       ],
     },
   },
-  reheat: { requires: [NO_CLEAN_PLATES], effects: [dirty(1), { var: "plate", set: 1 }, { var: "energy", add: 8 }, { var: "mood", add: 2 }] },
-  "eat-dinner": { requires: [NO_CLEAN_PLATES], effects: [dirty(2), { var: "plate", set: 0 }, { var: "energy", add: 15 }, { var: "mood", add: 6 }] },
-  cook: { requires: [NO_CLEAN_PLATES], effects: [dirty(2), { var: "plate", set: 1 }, { var: "energy", add: 5 }, { var: "mood", add: 4 }] },
+  reheat: { requires: [NO_CLEAN_PLATES, NO_TAKEOUT], effects: [dirty(1), { var: "plate", set: 1 }, { var: "energy", add: 8 }, { var: "mood", add: 2 }] },
+  "eat-dinner": { requires: [NO_CLEAN_PLATES, NO_TAKEOUT], effects: [dirty(2), { var: "plate", set: 0 }, { var: "energy", add: 15 }, { var: "mood", add: 6 }] },
+  cook: { requires: [NO_CLEAN_PLATES, NO_TAKEOUT], effects: [dirty(2), { var: "plate", set: 1 }, { var: "energy", add: 5 }, { var: "mood", add: 4 }] },
+  // Issue 153. Ordering sets `takeoutOrdered` and the game queues the meal (game.ts); one at a time,
+  // and not while one is on the table. Eating pays less than cooking and leaves no dishes, only a
+  // box to flatten and recycle. Both are gated by state, so no cooldown.
+  "order-takeout": {
+    ...STATE_GATED,
+    requires: [
+      { var: "takeoutOrdered", max: 0, reason: "THE TAKEOUT IS ON ITS WAY" },
+      { var: "takeout", max: 0, reason: "TAKEOUT IS WAITING" },
+    ],
+    effects: [{ var: "takeoutOrdered", set: 1 }],
+  },
+  "eat-takeout": {
+    ...STATE_GATED,
+    requires: [{ var: "takeout", min: 1, reason: "NO TAKEOUT" }],
+    effects: [{ var: "takeout", set: 0 }, { var: "plate", set: 0 }, { var: "boxes", set: 1 }, { var: "energy", add: 15 }, { var: "mood", add: 5 }],
+  },
   // Mash keys to type. How fast it goes decides how well the work went. What
   // is typed depends on where: emails at the desk, code on the couch, a bit of
   // both in bed.
@@ -288,6 +309,7 @@ const LOOKS: Record<string, Pick<Task, "pose" | "held">> = {
   sleep: { pose: "sleep-bed" },
   "drink-coffee": { pose: "eat-table", held: "mug" },
   "eat-dinner": { pose: "eat-table" },
+  "eat-takeout": { pose: "eat-table" },
   reheat: { pose: "eat-table" },
 };
 
@@ -315,6 +337,7 @@ const GOOD_HOURS: Record<string, HourWindow[]> = {
   "drink-coffee": [at(6, 11)],
   reheat: [at(12, 14), at(18, 21)],
   "eat-dinner": [at(18, 21)],
+  "eat-takeout": [at(18, 21)],
   nap: [at(13, 16)],
   "admire-art": [at(15, 19)],
   guitar: [at(17, 23)],

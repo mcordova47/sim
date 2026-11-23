@@ -396,3 +396,13 @@ New lines for the LOOK switch on the PHOTOS page. None mentions pixels, resoluti
 - Line under the grid (short, one row): New pictures only. - keep
 - Line on the empty page (long, wraps): New pictures only. The ones you have keep their look. - keep
 - If the browser cannot keep the choice (shown as a message, the choice lasts until the page is closed): This browser will not remember the look. - keep
+
+## Takeout (issue 153)
+New lines for ordering and eating takeout. The restaurant and the app are never named, so no brand appears. Wired in `src/game/tasks.ts` and `src/game/game.ts`. Marc to mark: keep / soften / rewrite.
+- Task names and prompts: Order takeout / Eat the takeout - keep
+- Order refused while one is coming: THE TAKEOUT IS ON ITS WAY - 
+- Order, Cook, Reheat and Eat dinner refused while the meal is on the table: TAKEOUT IS WAITING - 
+- Eat refused with no meal: NO TAKEOUT - 
+- Arrival line over the player: THE TAKEOUT HAS ARRIVED. - 
+- Opening the box (one page): OPENED: TAKEOUT. IT IS ON THE TABLE. - 
+- Opening the box with a plate still on the table (one page; the takeout stays in the box): THERE IS A PLATE ON THE TABLE. THE TAKEOUT CAN WAIT. - 

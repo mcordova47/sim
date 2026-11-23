@@ -96,7 +96,7 @@ const MAIN: Record<string, ObjectDef> = {
     name: "dining table",
     sprite: "table",
     color: "tangerine",
-    tasks: ["coffee", "drink-coffee", "reheat", "eat-dinner", "swap-art-table"],
+    tasks: ["coffee", "drink-coffee", "reheat", "eat-dinner", "eat-takeout", "swap-art-table"],
     // The dinner plate is there only after reheating or cooking, until you eat (issue 065).
     variants: [
       { sprite: "table-plate", when: [{ var: "plate", min: 1 }], color: "tangerine" },
@@ -106,7 +106,7 @@ const MAIN: Record<string, ObjectDef> = {
   D: { name: "standing desk", sprite: "desk", color: "butter", tasks: ["work", "side-project-game", "journal", "tidy-desk", "make-track", "study-spanish", "swap-art-desk"] },
   C: { name: "desk chair", sprite: "desk-chair", color: "ink" },
   H: { name: "cube bookshelf", sprite: "bookshelf", color: "butter", tasks: ["water-plant-droop", "water-plant", "check-plant", "sort-records", "sort-records-year", "sort-records-fav", "sort-records-color", "swap-plant-shelf"] },
-  N: { name: "nightstand", sprite: "nightstand", color: "tangerine", tasks: ["charge-phone", "swap-art-bed"] },
+  N: { name: "nightstand", sprite: "nightstand", color: "tangerine", tasks: ["charge-phone", "order-takeout", "swap-art-bed"] },
   B: {
     name: "queen bed",
     sprite: "bed-made",

@@ -122,7 +122,10 @@ decisions:
       - "yes"
       - "no"
     recommendation: "yes"
-    status: open
+    status: answered
+    answer: "yes"
+    by: marc
+    on: 2026-11-23
   - id: d12
     who: marc
     q: "Decor design (148, Q10): a second plant slot (window sill) holds still items only at first?"

@@ -37,7 +37,10 @@ decisions:
       - "yes"
       - "no"
     recommendation: "yes"
-    status: open
+    status: answered
+    answer: "yes, but treat the pose pop as a bug and file an issue (150)"
+    by: marc
+    on: 2026-11-23
   - id: d4
     who: marc
     q: "Decor design (148, Q4): cut flowers wilt at 3 game days and dry at 5 into a lasting arrangement, and a free task freshens them?"

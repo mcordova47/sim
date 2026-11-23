@@ -40,7 +40,10 @@ decisions:
       - "yes"
       - "no"
     recommendation: "yes"
-    status: open
+    status: answered
+    answer: "yes"
+    by: marc
+    on: 2026-11-23
   - id: d4
     who: marc
     q: "Decor design (148, Q2): desk right corner for the first trinket, desk left corner kept for clutter (042), a wall shelf above the bookshelf later?"

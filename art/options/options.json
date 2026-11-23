@@ -1,0 +1,153 @@
+{
+  "title": "Art options: the takeout bag and the outfits",
+  "groups": [
+    {
+      "id": "bag",
+      "title": "Takeout bag",
+      "kind": "bag",
+      "blurb": "Something that waits on the floor in front of the front door. The bag in issue 154 is a rectangle that reads like a box; these have different silhouettes. Each is 16x16 in the room palette, no text or brand.",
+      "current": [
+        {
+          "label": "Now (issue 154, unmerged): paper bag",
+          "src": "art/options/reference/takeout-bag-154.sprite"
+        },
+        {
+          "label": "The package box it replaces",
+          "src": "art/src/delivery-box.sprite"
+        }
+      ],
+      "candidates": [
+        {
+          "letter": "A",
+          "file": "bag/bag-a-tall-handle",
+          "label": "Tall paper bag with a twine handle loop and a darker side."
+        },
+        {
+          "letter": "B",
+          "file": "bag/bag-b-rolled-top",
+          "label": "Paper bag with a rolled-over top and a wide belly."
+        },
+        {
+          "letter": "C",
+          "file": "bag/bag-c-bag-and-cup",
+          "label": "Paper bag with a lidded drink cup and straw standing up out of the open top."
+        },
+        {
+          "letter": "D",
+          "file": "bag/bag-d-carton-wire",
+          "label": "Takeout carton, wider at the top, with a wire handle."
+        }
+      ]
+    },
+    {
+      "id": "casual",
+      "title": "Casual outfit",
+      "kind": "outfit",
+      "slot": "casual",
+      "blurb": "Now: a fern-green sweater and denim jeans. It reads as a sweater and jeans, which is what was asked for, but green on blue is plain and the arms are bare skin from the elbow down so the sweater does not look long-sleeved.",
+      "current": [
+        {
+          "label": "Now: green sweater and jeans",
+          "src": "art/src/player-casual-idle-down.sprite"
+        }
+      ],
+      "candidates": [
+        {
+          "letter": "A",
+          "file": "casual/casual-a-hoodie",
+          "label": "Putty-grey hoodie with the hood at the neck and a pouch pocket; jeans."
+        },
+        {
+          "letter": "B",
+          "file": "casual/casual-b-cardigan",
+          "label": "Tan open cardigan over a white tee; jeans."
+        },
+        {
+          "letter": "C",
+          "file": "casual/casual-c-stripes",
+          "label": "Striped long-sleeve tee (white and slate); tan chinos."
+        },
+        {
+          "letter": "D",
+          "file": "casual/casual-d-denim-jacket",
+          "label": "Denim jacket open over a white tee; dark jeans."
+        }
+      ]
+    },
+    {
+      "id": "out",
+      "title": "Going-out outfit",
+      "kind": "outfit",
+      "slot": "out",
+      "blurb": "Now: a red-and-brown check shirt over brown trousers (issue 034 / the character brief: 'corduroy pants and a flannel'). That is a lumberjack flannel with corduroy trousers: a lived-in daytime look, not obviously 'out'. The brief gives no other idea of what going out means, so this group has the most options.",
+      "current": [
+        {
+          "label": "Now: red check flannel, brown corduroy",
+          "src": "art/src/player-out-idle-down.sprite"
+        }
+      ],
+      "candidates": [
+        {
+          "letter": "A",
+          "file": "out/out-a-jacket-scarf",
+          "label": "Dusk-blue jacket with a brick-red scarf; dark trousers."
+        },
+        {
+          "letter": "B",
+          "file": "out/out-b-button-up",
+          "label": "Light-blue button-up shirt, sleeves rolled; dark trousers."
+        },
+        {
+          "letter": "C",
+          "file": "out/out-c-dress",
+          "label": "Plum dress with a flared skirt, bare legs, brick shoes."
+        },
+        {
+          "letter": "D",
+          "file": "out/out-d-blazer",
+          "label": "Camel blazer over a white tee; dark trousers."
+        },
+        {
+          "letter": "E",
+          "file": "out/out-e-long-coat",
+          "label": "Knee-length taupe coat, double row of buttons; dark legs below."
+        },
+        {
+          "letter": "F",
+          "file": "out/out-f-mustard-jacket",
+          "label": "Mustard jacket over a white tee, orange pocket flaps; dark trousers."
+        }
+      ]
+    },
+    {
+      "id": "pajamas",
+      "title": "Pajamas",
+      "kind": "outfit",
+      "slot": "pajamas",
+      "blurb": "Now: a teal top over plum bottoms, with one slightly lighter shoulder pixel. Reads as a matching set in two colours, but at 1x it is close to the casual outfit's value and could be anything at home.",
+      "current": [
+        {
+          "label": "Now: teal top, plum bottoms",
+          "src": "art/src/player-pajamas-idle-down.sprite"
+        }
+      ],
+      "candidates": [
+        {
+          "letter": "A",
+          "file": "pajamas/pajamas-a-striped",
+          "label": "Sky-and-white striped pyjama set."
+        },
+        {
+          "letter": "B",
+          "file": "pajamas/pajamas-b-tee-shorts",
+          "label": "Oversized blush sleep tee, plum shorts, bare legs, orange slippers."
+        },
+        {
+          "letter": "C",
+          "file": "pajamas/pajamas-c-robe",
+          "label": "White terry bathrobe with an orange belt, bare legs, slippers."
+        }
+      ]
+    }
+  ]
+}

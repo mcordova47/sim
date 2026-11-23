@@ -82,7 +82,7 @@ describe("worn outfits", () => {
     const { game, decor } = setup(["outfit-pajamas"]);
     decor.place("worn", "outfit-pajamas");
     game.update(dt, NO_INPUT);
-    game.state.applyEffects([{ var: "clock", wake: 7 }, { var: "energy", set: 100 }]);
+    game.state.applyEffects([{ var: "energy", set: 100 }]);
     game.update(dt, NO_INPUT);
     expect(game.state.get("outfit")).toBe(3);
     const loaded = new Decor();

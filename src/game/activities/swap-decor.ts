@@ -15,7 +15,8 @@ import type { DecorItem } from "../decor-data";
 // a completion and never a cancel. The preview is only a view (`Decor.preview`),
 // so nothing is saved or changed until E. An item is shown in one place (issue
 // 073): a row for an item shown elsewhere says where, and a line above the keys
-// says what E does (swaps with the item here, or why it cannot).
+// says what E does (swaps with the item here, or why it cannot). A slot with no default (issue 151) can
+// hold nothing: its list starts with a NOTHING row (a null entry) that clears it.
 
 // Layout, in pixels: rows shown at once, row height, the box's margin and padding.
 const ROWS = 4;
@@ -34,6 +35,7 @@ export const footer = (): string =>
     { key: "ESC", text: "BACK" },
   ]);
 const HERE = "(IN PLACE)";
+const NOTHING = "NOTHING";
 
 export class SwapDecorActivity extends BaseActivity {
   cancellable = true;
@@ -44,7 +46,8 @@ export class SwapDecorActivity extends BaseActivity {
   readonly holdsClock = true;
 
   cursor = 0;
-  private list: DecorItem[] = [];
+  // A null entry is the NOTHING row, first, for a slot that can be empty.
+  private list: (DecorItem | null)[] = [];
 
   constructor(
     private readonly slotId: string,
@@ -52,19 +55,19 @@ export class SwapDecorActivity extends BaseActivity {
     private readonly host: ActivityHost,
   ) {
     super();
-    this.list = decor.choices(slotId);
+    this.list = this.rows();
     // Nothing to choose from (the task is not offered then): just a quiet end.
     if (this.list.length < 2) {
       this.finish({ completed: false, quiet: true });
       return;
     }
-    this.cursor = Math.max(0, this.list.findIndex((i) => i.id === decor.placedIn(slotId).id));
+    this.cursor = Math.max(0, this.list.findIndex((i) => (i?.id ?? null) === (decor.heldIn(slotId)?.id ?? null)));
   }
 
   update(_dt: number, controls: Controls): void {
     if (this.done) return;
     // What you own cannot shrink while this is open, but never trust that.
-    this.list = this.decor.choices(this.slotId);
+    this.list = this.rows();
     if (this.list.length < 2) return this.leave();
     this.cursor = Math.min(Math.max(this.cursor, 0), this.list.length - 1);
     if (controls.cancelPressed) return this.cancel();
@@ -72,19 +75,19 @@ export class SwapDecorActivity extends BaseActivity {
     const step = controls.dirPressed === "up" ? -1 : controls.dirPressed === "down" ? 1 : 0;
     if (step === 0) return;
     this.cursor = (this.cursor + step + this.list.length) % this.list.length;
-    this.decor.preview(this.slotId, this.list[this.cursor].id);
+    this.decor.preview(this.slotId, this.list[this.cursor]?.id ?? null);
   }
 
   // E: put the highlighted item up (if it is not the one already there).
   private choose(): void {
     const item = this.list[this.cursor];
     this.decor.clearPreview();
-    if (!item) return this.leave();
-    const plan = this.decor.plan(this.slotId, item.id);
+    if (item === undefined) return this.leave();
+    const plan = this.decor.plan(this.slotId, item?.id ?? null);
     const wasLive = new Map(plan.ok ? plan.changes.map((c) => [c.slot, this.decor.isLive(c.slot)] as const) : []);
     // Refused (the other slot cannot take what is here): the list stays open and says why.
     if (!plan.ok) return;
-    if (plan.changes.length && this.decor.place(this.slotId, item.id)) {
+    if (plan.changes.length && this.decor.place(this.slotId, item?.id ?? null)) {
       // A live plant you put in over another live plant starts small: its slot's growth and dryness start over.
       // A still item (dried flowers) standing in, or leaving, keeps the live plant's state as it was (issue 105).
       for (const c of plan.changes) {
@@ -96,12 +99,21 @@ export class SwapDecorActivity extends BaseActivity {
   }
 
   // The line above the keys for the highlighted item: what E would do.
-  note(item: DecorItem | undefined): string {
-    if (!item || item.id === this.decor.placedIn(this.slotId).id) return "";
-    const plan = this.decor.plan(this.slotId, item.id);
+  note(item: DecorItem | null | undefined): string {
+    if (item === undefined) return "";
+    const here = this.decor.heldIn(this.slotId);
+    if ((item?.id ?? null) === (here?.id ?? null)) return "";
+    const plan = this.decor.plan(this.slotId, item?.id ?? null);
     if (!plan.ok) return plan.reason;
-    const here = this.decor.placedIn(this.slotId);
+    if (item === null) return `${here!.name} GOES TO THE INVENTORY`;
+    if (!here) return this.decor.displayedAt(item.id) ? "MOVES IT HERE" : "";
     return this.decor.displayedAt(item.id) ? `SWAPS WITH ${here.name}` : `${here.name} GOES TO THE INVENTORY`;
+  }
+
+  // The rows: NOTHING first when the slot can be empty, then what fits.
+  private rows(): (DecorItem | null)[] {
+    const items = this.decor.choices(this.slotId);
+    return this.decor.canBeEmpty(this.slotId) ? [null, ...items] : items;
   }
 
   // Leaves the room as it was.
@@ -137,7 +149,7 @@ export class SwapDecorActivity extends BaseActivity {
     drawText(ctx, slot.name, left, y + PAD, opts);
     drawText(ctx, `${this.cursor + 1}/${this.list.length}`, right, y + PAD, { ...opts, align: "right" });
     const first = Math.min(Math.max(this.cursor - ROWS + 1, 0), this.list.length - rows);
-    const here = this.decor.placedIn(this.slotId).id;
+    const here = this.decor.heldIn(this.slotId)?.id ?? null;
         for (let i = 0; i < rows; i++) {
       const item = this.list[first + i];
       const top = y + PAD + HEAD + i * ROW;
@@ -149,9 +161,10 @@ export class SwapDecorActivity extends BaseActivity {
         ctx.fillRect(left + 2, top + 2, 1, 1);
       }
       // At the right: "(IN PLACE)" for the one here, or where the item is shown now.
-      const elsewhere = item.id === here ? undefined : this.decor.displayedAt(item.id);
-      const tag = item.id === here ? HERE : elsewhere ? (elsewhere.where ?? elsewhere.name) : "";
-      drawText(ctx, fitLabel(item.name, right - left - 10 - (tag ? textWidth(tag) + 6 : 0)), left + 8, top, opts);
+      const id = item?.id ?? null;
+      const elsewhere = item === null || id === here ? undefined : this.decor.displayedAt(item.id);
+      const tag = id === here ? HERE : elsewhere ? (elsewhere.where ?? elsewhere.name) : "";
+      drawText(ctx, fitLabel(item?.name ?? NOTHING, right - left - 10 - (tag ? textWidth(tag) + 6 : 0)), left + 8, top, opts);
       if (tag) drawText(ctx, tag, right, top, { ...opts, align: "right" });
     }
     drawText(ctx, fitLabel(this.note(this.list[this.cursor]), right - left), left, y + PAD + HEAD + rows * ROW + 1, opts);

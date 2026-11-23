@@ -2,11 +2,30 @@
 id: "151"
 title: "Decor: slots that can hold nothing (the empty option)"
 short: "Empty decor slots"
-status: todo
+status: review
 owner: claude
 depends_on: []
 summary: "Let a decor slot hold nothing, with a NOTHING row in the swap list; the first piece of the decor expansion."
 kind: build
+unverified:
+  - "Nothing was seen in a browser: no real slot is empty yet, so the NOTHING row and an empty slot in the room were exercised only through tests and the headless swap activity, not drawn on screen."
+decisions:
+  - id: d1
+    who: marc
+    q: "Empty slots (151): the NOTHING row and place(slot, none) are allowed only for a slot with no default (the real room's slots keep always showing something). Is that right, or should a slot with a default also be able to be emptied?"
+    options:
+      - "only slots without a default"
+      - "any slot"
+    recommendation: "only slots without a default"
+    status: open
+  - id: d2
+    who: marc
+    q: "Empty slots (151): the swap task is offered on an emptiable slot that holds something even when nothing else fits, so a lone trinket can be taken down again. The design note's rule ('only when there is something to put in') would leave it stuck. Keep this?"
+    options:
+      - "yes, offer it"
+      - "no, only when something else fits"
+    recommendation: "yes, offer it"
+    status: open
 ---
 
 ## Goal
@@ -22,3 +41,5 @@ Build step A of `docs/decor-expansion-design.md` (engine pieces P1 and P2): the 
 
 ## Progress log
 - 2026-11-23 (planner): filed on main from Marc's answers to issue 148 (decor expansion design note).
+- 2026-11-23: started. Plan: make `DecorSlot.default` optional and thread it through `Decor` (`plan`, `place`, `preview`, `starting`, `parseDecor`, `validateDecorData`, `look`), add the NOTHING row to the swap list, let a slot's legend entry in `tilemap.ts` have no sprite, add the four kinds and prompts, a test-only empty slot test and the docs section.
+- 2026-11-23: done, in review. Files: `src/game/decor.ts`, `decor-data.ts`, `tilemap.ts`, `game.ts` (empty slot and prop draw nothing), `activities/swap-decor.ts`, `time-of-day/feature.ts`, `sound/feature.ts` (nullable readers), `tasks.ts` (only the four `SWAP_PROMPT` lines and an `export`, to stay clear of the takeout work), new `decor-empty.test.ts`, `decor.test.ts` (one expectation changed on purpose: a slot object with no sprite no longer throws), `docs/decor.md`. An empty slot object in a map legend simply has no `sprite`. Checks run: `npx tsc --noEmit`, `npm test` (171 files pass, golden main-room frames unchanged), `npm run build`, `npm run check:dist`. Two judgement calls are recorded as decisions d1 and d2 (emptiable only without a default; the swap task also offered on an emptiable slot that holds something). Not checked: how it looks in a browser, since no real slot is empty yet.

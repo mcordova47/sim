@@ -490,8 +490,8 @@ describe("drawing from the store", () => {
     expect(fills).toContain("32,16,32,16");
   });
 
-  it("refuses a room that has a slot object without its default sprite or with variants", () => {
-    expect(() => parseTileMap(MAP, { A: { slot: "art-table" } }, { id: "main" })).toThrow(/default sprite/);
+  it("refuses a room that has a slot object with variants (a slot object without a sprite is an empty slot, issue 151)", () => {
+    expect(() => parseTileMap(MAP, { A: { slot: "art-table" } }, { id: "main" })).not.toThrow();
     expect(() =>
       parseTileMap(MAP, { A: { slot: "art-table", sprite: "x", variants: [{ sprite: "x" }] } }, { id: "main" }),
     ).toThrow(/variants/);

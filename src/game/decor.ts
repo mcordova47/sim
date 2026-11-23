@@ -31,7 +31,8 @@ export interface DecorLook {
 
 // What putting an item in a slot changes: each slot and the item it will show,
 // or why it is refused (a plain line in the font's capitals).
-export type DecorPlan = { ok: true; changes: { slot: string; item: string }[] } | { ok: false; reason: string };
+// `item` is null when the change empties the slot (only a slot without a default).
+export type DecorPlan = { ok: true; changes: { slot: string; item: string | null }[] } | { ok: false; reason: string };
 
 const isRecord = (v: unknown): v is Record<string, unknown> =>
   typeof v === "object" && v !== null && !Array.isArray(v);
@@ -67,8 +68,8 @@ export const fits = (slot: DecorSlot, item: DecorItem): boolean =>
   slot.kinds.includes(item.kind) && sameSize(slot.area, item) && (!item.slots || item.slots.includes(slot.id));
 
 // Throws, naming the problem, if the tables could not work: a repeated id, an
-// id that does not start with its kind, a slot whose default is missing or does
-// not fit it, an unknown family, or a name the font cannot draw.
+// id that does not start with its kind, a slot whose default is unknown or does
+// not fit it (a slot may have no default: it starts empty), an unknown family, or a name the font cannot draw.
 export function validateDecorData(data: DecorData): void {
   const bad: string[] = [];
   const items = new Map<string, DecorItem>();
@@ -92,12 +93,12 @@ export function validateDecorData(data: DecorData): void {
     if (seen.has(slot.id)) bad.push(`slot "${slot.id}" is listed twice`);
     seen.add(slot.id);
     if (!(slot.area.w > 0 && slot.area.h > 0)) bad.push(`slot "${slot.id}" has no size`);
-    const item = items.get(slot.default);
-    if (!item) bad.push(`slot "${slot.id}" has the unknown default "${slot.default}"`);
-    else if (!fits(slot, item)) bad.push(`slot "${slot.id}": the default "${item.id}" does not fit (kind or size)`);
+    const item = slot.default === undefined ? undefined : items.get(slot.default);
+    if (slot.default !== undefined && !item) bad.push(`slot "${slot.id}" has the unknown default "${slot.default}"`);
+    else if (item && !fits(slot, item)) bad.push(`slot "${slot.id}": the default "${item.id}" does not fit (kind or size)`);
     if (unsupportedChars(slot.name).length) bad.push(`slot "${slot.id}" name has letters the font cannot draw`);
     if (slot.where && unsupportedChars(slot.where).length) bad.push(`slot "${slot.id}" "where" has letters the font cannot draw`);
-    const other = data.slots.find((o) => o !== slot && o.default === slot.default);
+    const other = slot.default === undefined ? undefined : data.slots.find((o) => o !== slot && o.default === slot.default);
     if (other && other.id > slot.id) bad.push(`slots "${slot.id}" and "${other.id}" have the same default "${slot.default}" (an item is shown in one place)`);
   }
   if (bad.length) throw new Error(`Decor data: ${bad.join("; ")}`);
@@ -112,11 +113,11 @@ export class Decor {
   private owned = new Set<string>();
   // Shown in an ad and not taken, in the order seen. Never holds an owned item.
   private seen = new Set<string>();
-  // Slot to item, only for slots that differ from their default. At most one slot shows an item.
+  // Slot to item, only for slots that differ from their default (an empty slot, which has none, is absent). At most one slot shows an item.
   private placed = new Map<string, string>();
   // What the room shows while you look at the swap list (never saved): the slot
   // and the item moved into it, and (for a swap) the other slot and its new item.
-  private previewed: Map<string, string> | null = null;
+  private previewed: Map<string, string | null> | null = null;
 
   constructor(private readonly data: DecorData = DECOR_DATA) {
     validateDecorData(data);
@@ -136,7 +137,7 @@ export class Decor {
 
   // Owned from the first run: every slot's default, and anything marked "start".
   starting(): string[] {
-    return [...new Set([...this.data.slots.map((s) => s.default), ...this.data.items.filter((i) => i.how === "start").map((i) => i.id)])];
+    return [...new Set([...this.data.slots.flatMap((s) => (s.default === undefined ? [] : [s.default])), ...this.data.items.filter((i) => i.how === "start").map((i) => i.id)])];
   }
 
   hasSlot(slotId: string): boolean {
@@ -151,22 +152,37 @@ export class Decor {
     return this.items.get(itemId);
   }
 
-  // The item the slot holds: what is placed, or the slot's default.
-  private heldBy(slotId: string): string {
+  // The item the slot holds: what is placed, or the slot's default; undefined for an empty slot.
+  private heldBy(slotId: string): string | undefined {
     return this.placed.get(slotId) ?? this.slots.get(slotId)!.default;
   }
 
+  // Whether the slot can hold nothing: it has no default (issue 151).
+  canBeEmpty(slotId: string): boolean {
+    const slot = this.slots.get(slotId);
+    return !!slot && slot.default === undefined;
+  }
+
   // The item in the slot as the room shows it: the one being previewed, the
-  // placed one, or the slot's default. Throws for a slot that does not exist.
-  itemIn(slotId: string): DecorItem {
+  // placed one, or the slot's default; undefined when it shows nothing. Throws for a slot that does not exist.
+  shownIn(slotId: string): DecorItem | undefined {
     if (!this.slots.has(slotId)) throw new Error(`Unknown decor slot "${slotId}"`);
-    return this.items.get(this.previewed?.get(slotId) ?? this.heldBy(slotId))!;
+    const id = this.previewed?.has(slotId) ? (this.previewed.get(slotId) ?? undefined) : this.heldBy(slotId);
+    return id === undefined ? undefined : this.items.get(id);
+  }
+
+  // `shownIn` for a slot that always shows something (one with a default); throws for an empty slot.
+  itemIn(slotId: string): DecorItem {
+    const item = this.shownIn(slotId);
+    if (!item) throw new Error(`Decor slot "${slotId}" is empty (use shownIn)`);
+    return item;
   }
 
   // Whether the item really in the slot is a live one (a family that grows or droops, like the
   // snake plant) and so offers watering. Dried flowers and other still items are not (issue 105).
   isLive(slotId: string): boolean {
-    const rules = this.placedIn(slotId).family ? this.data.families[this.placedIn(slotId).family!] : undefined;
+    const family = this.heldIn(slotId)?.family;
+    const rules = family ? this.data.families[family] : undefined;
     return !!rules && (rules.stages > 0 || rules.droops);
   }
 
@@ -181,10 +197,18 @@ export class Decor {
     return ids;
   }
 
-  // The item that is really in the slot, whatever is being previewed.
-  placedIn(slotId: string): DecorItem {
+  // The item that is really in the slot, whatever is being previewed; undefined for an empty slot.
+  heldIn(slotId: string): DecorItem | undefined {
     if (!this.slots.has(slotId)) throw new Error(`Unknown decor slot "${slotId}"`);
-    return this.items.get(this.heldBy(slotId))!;
+    const id = this.heldBy(slotId);
+    return id === undefined ? undefined : this.items.get(id);
+  }
+
+  // `heldIn` for a slot that always holds something (one with a default); throws for an empty slot.
+  placedIn(slotId: string): DecorItem {
+    const item = this.heldIn(slotId);
+    if (!item) throw new Error(`Decor slot "${slotId}" is empty (use heldIn)`);
+    return item;
   }
 
   // The slot that really shows the item, if any (never the preview).
@@ -246,16 +270,27 @@ export class Decor {
   // What putting an item in a slot would do (issue 073). An item is shown in one
   // place: from the inventory it replaces what is there (which goes to the
   // inventory); one shown in another slot swaps with what this slot shows, and is
-  // refused, with the reason, if that item does not fit the other slot.
-  plan(slotId: string, itemId: string): DecorPlan {
+  // refused, with the reason, if that item does not fit the other slot. `null` is NOTHING: it
+  // empties a slot that has no default (the item goes to the inventory), and is refused for one that has.
+  // An item moving into an empty slot from one that must hold something is refused too.
+  plan(slotId: string, itemId: string | null): DecorPlan {
     const slot = this.slots.get(slotId);
-    const item = this.items.get(itemId);
-    if (!slot || !item || !this.owned.has(itemId)) return { ok: false, reason: "YOU DO NOT HAVE THAT" };
-    if (!fits(slot, item)) return { ok: false, reason: `${item.name} DOES NOT FIT ${slot.where ?? slot.name}` };
+    if (!slot) return { ok: false, reason: "YOU DO NOT HAVE THAT" };
     const now = this.heldBy(slotId);
+    if (itemId === null) {
+      if (!this.canBeEmpty(slotId)) return { ok: false, reason: `${slot.where ?? slot.name} CANNOT BE EMPTY` };
+      return { ok: true, changes: now === undefined ? [] : [{ slot: slotId, item: null }] };
+    }
+    const item = this.items.get(itemId);
+    if (!item || !this.owned.has(itemId)) return { ok: false, reason: "YOU DO NOT HAVE THAT" };
+    if (!fits(slot, item)) return { ok: false, reason: `${item.name} DOES NOT FIT ${slot.where ?? slot.name}` };
     if (now === itemId) return { ok: true, changes: [] };
     const from = this.displayedAt(itemId);
     if (!from) return { ok: true, changes: [{ slot: slotId, item: itemId }] };
+    if (now === undefined) {
+      if (!this.canBeEmpty(from.id)) return { ok: false, reason: `${from.where ?? from.name} CANNOT BE EMPTY` };
+      return { ok: true, changes: [{ slot: slotId, item: itemId }, { slot: from.id, item: null }] };
+    }
     const current = this.items.get(now)!;
     if (!fits(from, current)) return { ok: false, reason: `${current.name} DOES NOT FIT ${from.where ?? from.name}` };
     return { ok: true, changes: [{ slot: slotId, item: itemId }, { slot: from.id, item: now }] };
@@ -265,7 +300,7 @@ export class Decor {
   // (owned, fitting, and not refused). It is not saved, does not count as a
   // change, and `clearPreview` (or `place`, `reset`, `load`) puts the room back.
   // Anything else clears the preview. One preview at a time.
-  preview(slotId: string, itemId: string): boolean {
+  preview(slotId: string, itemId: string | null): boolean {
     const plan = this.plan(slotId, itemId);
     this.previewed = plan.ok ? new Map(plan.changes.map((c) => [c.slot, c.item])) : null;
     return plan.ok;
@@ -303,23 +338,24 @@ export class Decor {
   }
 
   // Whether the slot has something to change to: an owned item that fits it and
-  // is in the inventory (not shown anywhere). The swap task is only offered then,
+  // is in the inventory (not shown anywhere), or an emptiable slot that shows something (so it
+  // can be cleared again). The swap task is only offered then,
   // so a fresh game, where every owned item is on show, has no new prompts. (Once
   // the list is open it also shows items displayed elsewhere, which swap.)
   canChange(slotId: string): boolean {
-    return this.choices(slotId).some((i) => !this.displayedAt(i.id));
+    return this.choices(slotId).some((i) => !this.displayedAt(i.id)) || (this.canBeEmpty(slotId) && this.heldBy(slotId) !== undefined);
   }
 
-  // Puts an owned item that fits into the slot, by `plan`. False (and nothing
+  // Puts an owned item that fits into the slot, by `plan` (`null` empties an emptiable slot). False (and nothing
   // changes) for an unknown slot or item, one you do not own, one that does not
   // fit, or a swap the other slot refuses.
-  place(slotId: string, itemId: string): boolean {
+  place(slotId: string, itemId: string | null): boolean {
     const plan = this.plan(slotId, itemId);
     this.previewed = null;
     if (!plan.ok) return false;
     for (const c of plan.changes) {
-      if (c.item === this.slots.get(c.slot)!.default) this.placed.delete(c.slot);
-      else this.placed.set(c.slot, c.item);
+      if ((c.item ?? undefined) === this.slots.get(c.slot)!.default) this.placed.delete(c.slot);
+      else this.placed.set(c.slot, c.item!);
     }
     if (plan.changes.length) this.onChange?.();
     return true;
@@ -328,7 +364,12 @@ export class Decor {
   // What the slot looks like now. Items with a family follow the plant's state by
   // the family's rules: `<family>-wilted` when drooping, `<family>-<stage>` when
   // it grows, and the item's own sprite when it does neither (so a plant that
-  // never grows never droops).
+  // never grows never droops). Null for an empty slot: nothing is drawn.
+  lookAt(slotId: string, state: ApartmentState): DecorLook | null {
+    return this.shownIn(slotId) ? this.look(slotId, state) : null;
+  }
+
+  // `lookAt` for a slot that always shows something; throws for an empty slot.
   look(slotId: string, state: ApartmentState): DecorLook {
     const slot = this.slots.get(slotId);
     const item = this.itemIn(slotId);
@@ -422,7 +463,7 @@ export class Decor {
 // its default.
 export function parseDecor(raw: unknown, data: DecorData = DECOR_DATA): DecorSave {
   const items = new Map(data.items.map((i) => [i.id, i]));
-  const owned = new Set<string>([...data.slots.map((s) => s.default), ...data.items.filter((i) => i.how === "start").map((i) => i.id)]);
+  const owned = new Set<string>([...data.slots.flatMap((s) => (s.default === undefined ? [] : [s.default])), ...data.items.filter((i) => i.how === "start").map((i) => i.id)]);
   if (isRecord(raw) && Array.isArray(raw.owned)) {
     for (const id of raw.owned.slice(0, DECOR.maxOwned)) {
       if (owned.size >= DECOR.maxOwned) break;
@@ -442,6 +483,8 @@ export function parseDecor(raw: unknown, data: DecorData = DECOR_DATA): DecorSav
   let complete = true;
   for (const slot of data.slots) {
     if (shows.has(slot.id)) continue;
+    // A slot without a default is simply empty when nothing valid was placed in it.
+    if (slot.default === undefined) continue;
     const pick = !used.has(slot.default) ? slot.default : data.items.find((i) => owned.has(i.id) && !used.has(i.id) && fits(slot, i))?.id;
     if (pick === undefined) complete = false;
     else {
@@ -450,7 +493,10 @@ export function parseDecor(raw: unknown, data: DecorData = DECOR_DATA): DecorSav
     }
   }
   const placed: Record<string, string> = {};
-  if (complete) for (const slot of data.slots) if (shows.get(slot.id) !== slot.default) placed[slot.id] = shows.get(slot.id)!;
+  if (complete) for (const slot of data.slots) {
+    const shown = shows.get(slot.id);
+    if (shown !== undefined && shown !== slot.default) placed[slot.id] = shown;
+  }
   // Seen: short strings, no repeats, at most DECOR.maxSeen, never an owned id (read last, so it is
   // judged against the owned list as repaired above).
   const seen: string[] = [];

@@ -2,7 +2,7 @@
 id: "148"
 title: "Decor expansion: design note"
 short: "Decor expansion design"
-status: in-progress
+status: review
 owner: claude
 depends_on: []
 summary: "A design note for ten decor ideas: where each goes, what it costs, and the order to build them."
@@ -47,3 +47,4 @@ Marc (2026-11-23) wants many more decor options. Write `docs/decor-expansion-des
   - [ ] P7 says `parseDeliveries`, `load` and `collect` all "drop what `decor.item` does not know"; `parseDeliveries` (deliveries.ts:60-88) does not look at the decor at all (it only checks id shape and time), only `load` (:213) and `collect` (:163) do. Reword; the meal entry still needs a shape there.
   - [ ] Minor: slot table lists kind `furniture` and P2 lists `clothes` but not `furniture`; P2 should name the kinds the slot table uses (and drop `clothes` if unused).
   Unverified: how anything looks or plays; issue 147's content; the origin of the trinket examples (author says Marc's request text); the sound feature's lookup of the record stand (not found in src; the section 8 cell says the sound feature finds it, which I could not confirm). reference-photos/ not opened.
+- 2026-11-23 (claude): round 2 findings fixed in the doc (P1 users, P3 row label Q, `fresh-flowers` needs its own gate, still-only sill is M, P7 wording, kinds list, record stand wording). Two review rounds are used up; these were wording and consistency fixes, so no third review was run. Marc or the planner may run /review-issue 148 again if wanted.

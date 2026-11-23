@@ -71,7 +71,7 @@ Kitchen: the counter (abs 16, 48, 48x32) has a free worktop right of the sink, b
 
 **Time mechanism (all game time; a game hour is 30 s, a day is 12 min).** Reuse the slot's existing dry-hours variable (`plantDry`, which `ApartmentState.tick` already advances, and which a nap advances by a fixed `NAP.hours` and a sleep by the real hours skipped, `addSkipped`). The "live replaces live" rule resets the count only when the item leaving was live too (`swap-decor.ts` checks `wasLive && isLive`); a new bunch replacing a dried one would **not** reset and would arrive already dried. So the reset rule must also cover a live item replacing a dried one of its own family (the same fix as the pot in section 1). Thresholds are data in `FAMILIES`: wilting at 72 game hours (3 days, 36 minutes of play), dried at 120 (5 days, one hour). The snake plant today droops at 96 (`PLANT.droopAfterHours`).
 - `FamilyRules` gets an optional `driesAfter` and the sprite `<family>-dried`; `Decor.look` picks it (it already picks `-wilted` and `-<stage>`). Once dried, the item should count as not live, so the plant tasks hide and the vars freeze. **`Decor.isLive` and `frozenVars` take no state today** (`decor.ts`, used at `game.ts:184` and `236`), so they must become state-aware, an engine need beyond the family field. The result is a dried arrangement that stays for ever, like `plant-dried` today. Reuse of the existing `plant-dried` sprite as the end state is an option.
-- A task `fresh-flowers` ("Put in fresh flowers", at the bookshelf), offered while the flowers are wilting or dried: sets the count back to 0. A few points like watering (20, no cooldown beyond the state gate). It is a free act, not a purchase; no stock to run out of.
+- A task `fresh-flowers` ("Put in fresh flowers", at the bookshelf), offered while the flowers are wilting or dried. It cannot use `liveSlot`, which hides a task once the item is not live (`game.ts:236`), so it needs its own gate (a family that can be refreshed). It sets the count back to 0. A few points like watering (20, no cooldown beyond the state gate). It is a free act, not a purchase; no stock to run out of.
 - The task text must follow the item: today the three plant tasks are named "Water the snake plant" in `tasks.ts` and `liveSlot` is hard-wired to `plant-shelf`. A small shared piece, **item-aware task text** (a `DecorItem` field giving the name and prompt for the slot's care task), is needed here, for the coffee apparatus (section 6) and for 147's plants. Build it once.
 
 **Art.** Per flower type: `flowers-0` (fresh), `flowers-wilted`, and the dried look (reuse `plant-dried`, or 1 new). So 2 new sprites at 16x16 for the first bunch, 2 for each further kind.
@@ -196,7 +196,7 @@ Items: harmonica, keyboard, jaw harp, kalimba.
 | Piece | Size (abs position) | What the replacement must keep | Extra cost |
 |---|---|---|---|
 | Desk chair | 16x16 (128, 48) | the typing pose (`poses.ts`: `type-desk`, 16x32 at desk local (32, 16), abs 128-143 x 48-63) **draws its own chair on this very tile**, so a replacement chair flips back to the old one while you type | 1 sprite plus the typing pose redrawn (`player-type-desk`); not the easiest |
-| Record stand | 16x16 (144, 112) | the `record-play` task; the sound feature finds it | 1 sprite; the stand is also found by a particle emitter in `config.ts` (checked when built) |
+| Record stand | 16x16 (144, 112) | the `record-play` task (`tasks.ts`) | 1 sprite; the stand is also found by a particle emitter in `config.ts` (checked when built) |
 | Nightstand | 48x16 (224, 16) | the phone prop at local x 18; the painting above; the swap task for the bed painting | 1 sprite, the top strip stays free in the middle |
 | Standing desk | 64x32 (96, 16) | the laptop where the typing pose is (local x 32-47); the two free corners (trinket slot, clutter) | 1 sprite |
 | Sofa | 96x32 (32, 80) | cushions where the poses are (`sit-sofa` local x 61, `read-sofa` local x 45); the north side stays the standing edge | 1 sprite; poses mean cushion positions are fixed |
@@ -225,7 +225,7 @@ Items: harmonica, keyboard, jaw harp, kalimba.
 
 **Quiet-collecting risks.** A second plant you cannot water is not a pet; stills never need anything. A live second plant doubles the care tasks on the bookshelf-and-window pair; keep it optional (nothing droops into a loss, as today).
 
-**Size.** S (still only), L (live). Depends on 147 for the plants. **Question:** still only? Recommended: yes, first; a live second plant only if 147's plants feel good.
+**Size.** M (still only, as build row J), L (live). Depends on 147 for the plants. **Question:** still only? Recommended: yes, first; a live second plant only if 147's plants feel good.
 
 ## 10. Order takeout
 
@@ -252,13 +252,13 @@ Items: harmonica, keyboard, jaw harp, kalimba.
 ## Shared engine pieces
 | Piece | What | Used by |
 |---|---|---|
-| P1. The `empty` slot option (also: a map legend entry with a `slot` needs a default sprite, `tilemap.ts` throws without one, so an empty slot object must name one) | `default` optional; an empty slot shows nothing (no placeholder box); a `NOTHING` row at the top of the swap list; `place(slot, none)`; `starting`, `parseDecor` and `validateDecorData` skip a missing default; save keeps `placed` only for slots with an item | trinkets, rug, shelf, sill, hook |
-| P2. Kind prompts | `SWAP_PROMPT` for new kinds; new `DecorKind` values: `trinket`, `coffee`, `outfit`, `clothes` (`rug` and `instrument` exist) | everything that is not art, plant or lamp |
+| P1. The `empty` slot option (also: a map legend entry with a `slot` needs a default sprite, `tilemap.ts` throws without one, so an empty slot object must name one) | `default` optional; an empty slot shows nothing (no placeholder box); a `NOTHING` row at the top of the swap list; `place(slot, none)`; `starting`, `parseDecor` and `validateDecorData` skip a missing default; save keeps `placed` only for slots with an item | trinkets, rug, shelf, sill |
+| P2. Kind prompts | `SWAP_PROMPT` for new kinds; new `DecorKind` values: `trinket`, `coffee`, `outfit`, `furniture` (`rug` and `instrument` exist) | everything that is not art, plant or lamp |
 | P3. Item looks by state | a `DecorItem` field: show sprite X while a var is at least N | table, bed, guitar |
 | P4. Item-aware task text | a `DecorItem` field giving the care or make task's name and prompt | coffee, flowers, 147's plants |
 | P5. Floor layer | a list of non-solid floor items drawn under everything sorted | the rug |
 | P6. Non-map slot | a slot with no piece in the room (area only for the size check) and a derived state var. `decor.test.ts` pins the exact slot list (line 47) and requires every main-room slot to match a drawn piece or prop of equal area (lines 53-58), so both tests change: non-map slots are exempt | worn outfits |
-| P7. Meal in the delivery pipe | a `kind` on `Pending`, a state var `takeout`; `parseDeliveries`, `load` and `collect` all assume decor ids (they drop what `decor.item` does not know), so each needs a meal case | takeout only |
+| P7. Meal in the delivery pipe | a `kind` on `Pending`, a state var `takeout`; `load` and `collect` assume decor ids (`load` drops what `decor.item` does not know, `collect` calls `decor.own`), so each needs a meal case; `parseDeliveries` only checks id shape and time | takeout only |
 | P8. A live plant fits only slots with vars | one rule in `fits` | second plant slot, 147 |
 
 ## New slots (all default none unless a default is shown)
@@ -292,7 +292,7 @@ Each is its own small issue, independently releasable and no worse than before o
 | F | Empty pot and arrive-into | S + art | 147 | no |
 | G | Coffee apparatus step 1: slot `coffee-table`, table redraw, only the default item (looks the same) | M + art | nothing | the table is redrawn but looks the same |
 | G2 | Item-aware task text (P4), the coffee names, then the other apparatus | S + art | G (and agreed with 147) | no |
-| P3 | Item looks by state (shared piece, its own small issue before N's table and bed, and P) | S | nothing | no |
+| P3 | Item looks by state (shared piece, its own small issue before N's table and bed, and Q) | S | nothing | no |
 | H | Display instruments on trinket slots (art and items) | S + art | C | no |
 | I | The wall shelf and three shelf slots | M + art | A, C | yes (a new, empty shelf) |
 | J | Second plant slot, still only: `sill-window`, P8, renaming the lower window | M | A, C, 147 | no |

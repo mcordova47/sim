@@ -20,7 +20,9 @@ export interface GlowFlicker {
 export const NOTE_MAX = 80;
 export const FROM_MAX = 30;
 
-export type DecorKind = "art" | "plant" | "lamp" | "prop" | "rug" | "instrument" | "plugin" | "pantry";
+// `trinket`, `coffee`, `outfit` and `furniture` are for the decor expansion (docs/decor-expansion-design.md, issue 151):
+// no item has one yet, so they only need their swap prompt (tasks.ts SWAP_PROMPT).
+export type DecorKind = "art" | "plant" | "lamp" | "prop" | "rug" | "instrument" | "plugin" | "pantry" | "trinket" | "coffee" | "outfit" | "furniture";
 
 // A place that holds one item. `area` is where the item's sprite is drawn, in
 // pixels from the room's top left; an item fits only if its size is the same.
@@ -33,8 +35,10 @@ export interface DecorSlot {
   where?: string;
   area: Rect;
   kinds: DecorKind[];
-  // The item shown on a fresh game, and the fallback when a saved one is gone.
-  default: string;
+  // The item shown on a fresh game, and the fallback when a saved one is gone. Left out, the slot starts
+  // EMPTY: it draws nothing, can hold nothing, and its swap list has a NOTHING row at the top (issue 151).
+  // Only a slot without a default can be emptied.
+  default?: string;
   // For a slot that holds a growing plant: the state variables the plant's
   // stage and dryness live in (stage belongs to the slot, not the item).
   stageVar?: string;

@@ -196,7 +196,7 @@ export class SoundFeature implements Layer {
   // one (its sprite names it), otherwise the default (the guitar on its stand).
   get instrument(): string {
     const { decor } = this.game;
-    return decor.hasSlot("guitar") ? decor.placedIn("guitar").sprite : SOUND.defaultInstrument;
+    return decor.hasSlot("guitar") ? (decor.heldIn("guitar")?.sprite ?? SOUND.defaultInstrument) : SOUND.defaultInstrument;
   }
 
   // The effect the guitar's notes play now (issue 108).

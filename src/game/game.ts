@@ -920,7 +920,9 @@ export class Game {
   // variant whose state holds. A slot item with no art is a labelled box.
   private appearanceLook(appearance: Appearance): Variant | null {
     if (appearance.slot === undefined) return pickVariant(appearance.variants, this.state);
-    const { sprite, color, label } = this.decor.look(appearance.slot, this.state);
+    const look = this.decor.lookAt(appearance.slot, this.state);
+    if (!look) return null;
+    const { sprite, color, label } = look;
     return { sprite, ...(color && { color }), label };
   }
 
@@ -999,8 +1001,10 @@ export class Game {
     for (const prop of level.props ?? []) {
       if (prop.when && !this.state.matchesAll(prop.when)) continue;
       const variant = this.decor.hasSlot(prop.slot)
-        ? this.decor.look(prop.slot, this.state)
+        ? this.decor.lookAt(prop.slot, this.state)
         : pickVariant(prop.variants ?? [], this.state);
+      // An empty slot (issue 151) draws nothing, not even the prop's own placeholder.
+      if (!variant && this.decor.hasSlot(prop.slot)) continue;
       const sprite = variant?.sprite ?? prop.sprite;
       const { x, y, w, h } = prop.area;
       drawables.push({

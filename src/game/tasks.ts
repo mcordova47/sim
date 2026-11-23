@@ -333,10 +333,14 @@ const GOOD_HOURS: Record<string, HourWindow[]> = {
 // It opens the swap list (activities/swap-decor.ts) and is only offered when the
 // slot has something else to put in it. It pays nothing, changes no mood and has
 // no cooldown: arranging your things is not a chore to score.
-const SWAP_PROMPT: Partial<Record<DecorKind, string>> = {
+export const SWAP_PROMPT: Partial<Record<DecorKind, string>> = {
   art: "Change the painting",
   plant: "Change the plant",
   lamp: "Change the lamp",
+  trinket: "Change the trinket",
+  coffee: "Change the coffee gear",
+  outfit: "Change the outfit",
+  furniture: "Change the furniture",
 };
 export const swapTaskId = (slotId: string) => `swap-${slotId}`;
 const SWAPS: Task[] = DECOR_SLOTS.filter((s) => s.object).map((s) => {

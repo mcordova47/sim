@@ -71,3 +71,6 @@ Graduated to [issue 133](../issues/133-issue-pages-theme.md) (2026-11-15).
 
 ## A larger floor plant (idea)
 *Marc, 2026-11-23, while answering Q10 of issue 148.* Somewhere to put a larger plant, for example on the floor next to the sofa (a fiddle-leaf or a rubber plant type, taller than the 16x16 shelf plants). It would need a floor or tall-prop slot, its own plant variables if it is live (the L-sized work in section 9 of [decor-expansion-design.md](decor-expansion-design.md)), and a spot that blocks no task spot. Marc also notes there is already an empty pot on top of the bookshelf, which the empty-pot step (build row F) should check against the real map before drawing anything new. Not planned.
+
+## A dress and other going-out options (idea)
+*Marc, 2026-11-23, from the outfit options (issue 155).* The plum dress candidate (out C) was set aside for now: nothing in the game should make the player conform to a gender, so a dress is fine as one option among several going-out outfits, once several outfits per category are allowed (issue 156). Come back to it with that in mind, alongside other silhouettes (a long coat, a jumpsuit, a kimono-style robe).

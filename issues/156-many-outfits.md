@@ -44,7 +44,7 @@ decisions:
     answer: "fern + walnut for the cardigan (casual B)"
     by: marc
     on: 2026-11-23
-needs: [{who: marc, kind: decide, why: "Answer d1 (robe), d2 (art route) and d3 (cardigan colour) of issue 156, then say 'merge 156' (outfits as data with a style; built, reviewed; branch issue/156-many-outfits)", since: 2026-11-23}]
+needs: []
 ---
 
 ## Goal

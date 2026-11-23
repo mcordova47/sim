@@ -16,7 +16,10 @@ decisions:
       - "after a shower you are put in the robe if you own one, until you change or sleep"
       - "after a shower the Change clothes list opens with the robe highlighted, so it is one press"
     recommendation: "the robe is an ordinary outfit you change into by hand for now; the shower hook is a later, separate step once the robe art exists"
-    status: open
+    status: answered
+    answer: "the idea is (2): after a shower you are put in the robe if you own one, until you change or sleep; but build it later, once the robe exists. For now the robe is an ordinary outfit changed by hand"
+    by: marc
+    on: 2026-11-23
   - id: d2
     who: marc
     q: "Each outfit needs 12 sprites (4 idle, 8 walk) and the poses (issue 150) multiply that. How should new outfits be drawn?"

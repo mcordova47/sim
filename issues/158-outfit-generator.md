@@ -2,14 +2,13 @@
 id: "158"
 title: "Outfit generator: sprites from a small data entry"
 short: "Outfit generator"
-status: review
+status: done
 owner: claude
 depends_on: ["156"]
 summary: "Generate an outfit's 12 sprites from a palette per region plus a torso rule, with a few hand-drawn rows on top."
 kind: build
 unverified:
-  - "The Change clothes list and the THINGS page were not looked at drawn with the cardigan in them (covered by tests that drive the real swap activity, not by a screenshot)."
-  - "How the cardigan feels walking at the real 1x size on a normal display was judged from 3x browser captures, not at 1x on a screen."
+  - "How the cardigan feels walking at the real 1x size on a normal display: the reviewer also looked only at 3x browser captures (headless Chrome), not at 1x on a real screen."
 decisions:
   - id: d1
     who: marc
@@ -42,3 +41,12 @@ Marc (2026-11-23), decision d2 of issue 156: the hybrid art route. One body temp
   - Docs: `docs/art-style.md` 'Generated outfits' (how to add one, poses note), `docs/decor.md` 'What issue 158 built'.
   - Checks: `npm test` 175 files, 3981 pass; `npm run build` passes.
   - Not done / outside scope: the poses, the other eight outfits (issue 159), and no V-neck overlay for the cardigan (the data supports overlays; none added).
+- 2026-11-23 (claude, independent review): verdict approve.
+  - Generator checks I wrote and ran in a scratch copy outside the repo: re-running says "up to date" and `git status` stays clean after `npm run sprites` (run twice here). A hand edit to a generated file (one pixel in row 11) fails the checked-in-as-generated test; `npm run sprites` rewrites it back byte-identical. Torso key `z` in the data: the sprite pass stops with 290 "not in the palette" problems and writes nothing. Overlay with a bad key: same, 16 problems. Overlay row 40: "row 40 is 0 wide, expected 16", nothing written. Unknown torso rule: the generator throws "unknown torso rule". Bad legs letter: test fails. An orphan generated file with no data entry: test fails. A 3-wide overlay row throws "not 16 wide".
+  - The three hand-drawn outfits: `git diff main` is empty for every `player-out-*` and `player-pajamas-*` file and for the `player-casual-(idle|walk)-*` files; no header on them. Only 12 new `.sprite` and 12 new PNGs for the cardigan plus the listed code, docs and package.json files changed; no `PLAN.md` or other issue touched.
+  - `npm run build` passes; `npm test` 175 files, 3981 pass, 3 skipped; golden frames not re-recorded and pass; `npm run issues:check -- --validate` valid.
+  - In the game (dev server on a scratch copy with the Game exposed on `window`; nothing of that in the repo), `?own=outfit-casual-cardigan`: Tab at the nightstand reaches Change clothes (3 of 3); the CLOTHES list shows EVERYDAY CLOTHES (in place) and CARDIGAN AND TEE; moving to it previews the cardigan on the player; E puts it on (`outfit` = 4, worn = `outfit-casual-cardigan`). THINGS (L, then I) shows the cardigan figure as the last tile with "CARDIGAN AND TEE / IT DOES UP. YOU HAVE DECIDED IT DOESN'T. / FROM: A PACKAGE / WORN / CHANGE IT AT THE NIGHTSTAND". The gift is on the day 48 checkpoint (`gift-day-48`, test count raised).
+  - What I saw walking (real arrow keys, 3x captures, in the room next to the lamp table): down, a white tee strip down the middle, fern either side, a dark walnut column between the tee and fern; reads as an open cardigan. Up, all fern with a walnut seam, clearly apart from the brown hair. Left, fern body with the tee at the front edge and walnut line; walk frames swing arm and legs without the torso breaking. Right, the same mirrored (my capture of the right walk was partly covered by a dialog because I bumped the lamp, but the body read the same). In the full room view the player reads as a green jacket over white, distinct from the blue everyday clothes. The walnut is close to the outline so from the front the V is a dark stripe, as the implementer wrote.
+  - Minor, not blocking: an overlay keyed by a misspelt file name (for example `idle-dwon`) is silently ignored by the generator and no test catches it; the generator itself does not validate palette letters (the sprite pass and test do). Worth a check in a later issue (159 will add overlays).
+  - Not verified: 1x on a real display (kept in `unverified`). Decision d1 (day 48) stays open for Marc; it is a number in `delivery-checkpoints.ts`.
+  - Tell the planner: the table in PLAN.md needs updating (issue 158 done).

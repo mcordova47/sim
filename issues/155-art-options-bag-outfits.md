@@ -38,6 +38,16 @@ decisions:
       - "something else or draw another round"
     recommendation: "A"
     status: open
+  - id: d4
+    who: marc
+    q: "Art options (155): which pajamas? (A sky-and-white striped set, B blush tee with plum shorts and slippers, C white bathrobe with an orange belt)"
+    options:
+      - "A"
+      - "B"
+      - "C"
+      - "something else or draw another round"
+    recommendation: "A"
+    status: open
 ---
 
 ## Goal

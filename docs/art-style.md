@@ -185,3 +185,22 @@ The little room on the side project's monitor is the real room drawn wrong on pu
 
 ## Outfit sprites (issue 156)
 An outfit is 12 files, `<prefix>-idle-<dir>` and `<prefix>-walk-<dir>-1`, `-2` for `down`, `up`, `left`, `right`, 16x16, named by the outfit's `prefix` in `src/game/outfits.ts` (`player-casual-cardigan-idle-down`). The shipped outfits are drawn on the same body as the everyday clothes: the head, hands (`a`) and feet outline are the same pixels and only the torso block (about 10x5 pixels, rows 7 to 11, 8 to 11 in the side walk frames) and the legs change colour. Do not use `8` or `9` (the hair colours) as the main colour of a top: it merges into the hair at 1x, so use a colour the hair does not (putty `l` with taupe `m`, for example). A white tee shows well at 1x as a four-pixel strip at the front. The art-route test for one outfit (hand-drawn against a rule that repaints the casual torso) is in `art/options/route-test/` (not built into the game; `npm run sprites` reads only `art/src`).
+
+### Generated outfits (issue 158)
+A solid-colour or jacket-over-a-shirt outfit does not need 12 hand-drawn files. Add an entry to `art/outfits.json` and run `npm run sprites`; it first runs `scripts/outfits.mjs`, which writes the 12 `.sprite` files into `art/src` (each starts with a `GENERATED` comment; running again with the same data changes nothing), then renders them as usual. The game and the sprite checks see ordinary sprites.
+
+An entry:
+```
+{ "id": "casual-cardigan", "prefix": "player-casual-cardigan", "template": "player-casual",
+  "describe": "an open cardigan over a white tee, jeans",
+  "torso":  { "rule": "open-front", "outer": "e", "shade": "7", "inner": "6" },
+  "legs":   { "h": "4" },
+  "overlays": { "idle-down": { "7": "..1ee766667ee1.." } } }
+```
+- `template` is a hand-drawn outfit's prefix (12 files). Its head, hands and outline stay as they are. Only the torso run (the `e` and `f` letters, rows 7 to 11) is repainted, so the template must have a torso drawn in those two letters (`player-casual` does).
+- `torso.rule` picks the layout per facing (`RULES` in the script): `open-front` is a jacket or cardigan over a shirt (down: shirt in the middle, a shade column each side; up: a shade seam; sides: shirt at the front edge, a shade column, then the jacket), `solid` is one colour. `outer`, `shade` and `inner` are palette letters from `art/palette.json`. A new layout is a short function in `RULES`.
+- `legs` swaps palette letters on the rows below the torso (`"h": "4"` turns the jeans dusk blue). Leave it `{}` to keep them.
+- `overlays` are hand-drawn rows laid over the result for the places a rule cannot reach (a scarf at the neck, a hem over the legs): file name (`idle-down`, `walk-left-1`, ...), then row number (0 to 15), then 16 characters of palette letters or `.`.
+- Then the other three pieces, as for any outfit: a line at the END of `OUTFITS` in `src/game/outfits.ts` (prefix as above), an item `outfit-<id>` in `src/game/decor-data.ts` (a gift with a note and a `from`), and a checkpoint day in `src/game/delivery-checkpoints.ts`. Two tests count gifts and checkpoints (`deliveries.test.ts`, `checkpoints-stage-a.test.ts`); raise their numbers by one. Colour choices: do not use `8` or `9` as the main colour of a top (see above).
+- `scripts/outfits.test.mjs` fails if a generated sprite is not 16x16, uses a key outside the palette, differs from what the data produces (you forgot to run `npm run sprites`), or if the hand-drawn outfits were touched. To look at the result: `npm run sprites -- --sheet=player-casual-cardigan` and open `art/contact-sheet.png`.
+- Poses (issue 150): the same idea covers them. The doing poses (sitting, typing, sleeping) are drawn in the everyday clothes, with the shirt `h` and trousers `4`; a per-outfit map of palette letters (`{ "h": "<this outfit's top>", "4": "<its trousers>" }`) applied to those files would dress solid-colour outfits for free. Patterned or silhouette-changing outfits would still need overlay rows or hand drawing. Not built here.

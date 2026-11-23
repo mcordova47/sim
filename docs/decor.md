@@ -402,3 +402,6 @@ Not planned work: things Marc would like to find as decor over time, under the q
 - **Added 2026-10-28:** a canned raccoon (photo in reference-photos/toys); other coffee apparatuses (french press, syphon, aeropress, moka pot, percolator, espresso machine); meaningless stats affected by things like clothes; equippable things in the spirit of materia that do nothing (a cool rock); coasters that get more and more extravagant but look almost the same (the better-armour treadmill, as a joke). The browsable inventory, like a pokedex, and a new guitar note timbre are separate ideas (see PLAN.md notes).
 When an idea is picked, it becomes an item line in `decor-data.ts` plus a sprite, and a checkpoint or a delivery source if it is a gift (`docs/random-encounters.md`).
 
+
+## What issue 158 built
+The first generated outfit: CARDIGAN AND TEE (`outfit-casual-cardigan`, style casual, fern cardigan with walnut shading as Marc chose). Its 12 sprites come from `art/outfits.json` through `scripts/outfits.mjs` (see 'Generated outfits' in [art-style.md](art-style.md)). It is the fifth line of `OUTFITS` (index 4), a gift on day 48 (`gift-day-48`) with the note "IT DOES UP. YOU HAVE DECIDED IT DOESN'T." The hand-drawn casual, out and pajamas outfits are unchanged.

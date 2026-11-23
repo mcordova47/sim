@@ -169,6 +169,7 @@ export const GIFT_ITEMS: DecorItem[] = [
   { id: "outfit-casual", name: "CASUAL CLOTHES", kind: "outfit", sprite: "player-casual-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "SOFT PANTS. THE OTHER PANTS HAVE LOST." },
   { id: "outfit-out", name: "GOING OUT CLOTHES", kind: "outfit", sprite: "player-out-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "FOR WHEN THE PLAN INVOLVES A DOOR." },
   { id: "outfit-pajamas", name: "PAJAMAS", kind: "outfit", sprite: "player-pajamas-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "THE DAY ENDS WHEN YOU SAY SO." },
+  { id: "outfit-casual-cardigan", name: "CARDIGAN AND TEE", kind: "outfit", sprite: "player-casual-cardigan-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "IT DOES UP. YOU HAVE DECIDED IT DOESN'T." },
 ];
 
 // TEST items (issue 062 stage 2): borrowed sprites, so the swap can be tried and

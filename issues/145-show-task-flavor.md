@@ -51,7 +51,10 @@ decisions:
       - "yes"
       - "no"
     recommendation: "yes"
-    status: open
+    status: answered
+    answer: "yes"
+    by: marc
+    on: 2026-11-23
   - id: d5
     who: marc
     q: "Decor design (148, Q3): worn outfits first, changed at the nightstand, poses stay in everyday clothes for now?"

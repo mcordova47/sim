@@ -44,7 +44,7 @@ decisions:
     answer: "fern + walnut for the cardigan (casual B)"
     by: marc
     on: 2026-11-23
-needs: []
+needs: [{who: marc, kind: decide, why: "Say 'merge 156' when ready (outfits as data with a style; built, reviewed; d1 to d3 answered; branch issue/156-many-outfits)", since: 2026-11-23}]
 ---
 
 ## Goal

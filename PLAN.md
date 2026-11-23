@@ -217,9 +217,9 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 149 | [More plant stages](issues/149-plant-growth-stages.md) | marc + claude | todo | 147 |
 | 150 | [Poses ignore outfit](issues/150-poses-ignore-outfit.md) | claude | todo | |
 | 151 | [Empty decor slots](issues/151-empty-decor-slot.md) | claude | done | |
-| 152 | [Worn outfits](issues/152-worn-outfits.md) | claude | todo | 151 |
+| 152 | [Worn outfits](issues/152-worn-outfits.md) | claude | done | 151 |
 | 153 | [Order takeout](issues/153-takeout.md) | claude | done | |
-| 154 | [Takeout bag](issues/154-takeout-bag.md) | claude | todo | 153 |
+| 154 | [Takeout bag](issues/154-takeout-bag.md) | claude | done | 153 |
 | 155 | [Bag and outfit art options](issues/155-art-options-bag-outfits.md) | marc + claude | todo | |
 <!-- issues:table:end -->
 

@@ -77,3 +77,6 @@ Graduated to [issue 133](../issues/133-issue-pages-theme.md) (2026-11-15).
 
 ## Put on the robe after a shower (idea)
 *Marc, 2026-11-23, answering d1 of issue 156.* After the Take a shower task you are put in the robe, if you own one (pajamas style outfit C from the outfit options), and stay in it until you change clothes or sleep. Build it later, once the robe outfit is drawn: for now the robe is an ordinary outfit you change into by hand. Things to settle then: what counts as "stay in it" (sleep, a nap, leaving the room), whether you can be put in it only at certain hours, and the pose problem (issue 150).
+
+## A red jacket outfit (idea)
+*Marc, 2026-11-23, from the cardigan colour comparison (issue 156 d3).* Brick red with walnut shading, as a jacket over a tee: a classic "rebel with a red jacket" look (a casual or going-out outfit; no real person is named in the repo). Not planned; add it to the list of outfits to draw once the outfit generator exists (see issue 156, d2).

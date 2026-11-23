@@ -56,7 +56,10 @@ decisions:
       - "C"
       - "something else or draw another round"
     recommendation: "A"
-    status: open
+    status: answered
+    answer: "pajamas: the current one, A but try vertical stripes, and C (the robe), which might be worn after a shower"
+    by: marc
+    on: 2026-11-23
 needs: [{who: marc, kind: try, why: "Browse the options: cd ../sim-worktrees/155-art-options && npm run tools -- options; then answer the four choices (bag, casual, out, pajamas)", since: 2026-11-23}]
 ---
 

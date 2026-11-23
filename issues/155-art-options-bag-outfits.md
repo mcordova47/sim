@@ -10,11 +10,16 @@ kind: design
 unverified:
   - "The page was only seen as a headless Chrome screenshot, not opened by hand, and the sprites were judged by looking at 8x renders and a 3x scene; how they feel in the game at 1x on the real room was not seen."
   - "Only the idle-down frame exists for each outfit candidate; walk frames and the other three facings are not drawn."
-needs:
-  - who: marc
-    kind: decide
-    why: "Choose a bag (A to D), a casual, a going-out and a pajamas option from the browsing page, or none."
-    since: 2026-11-23
+decisions:
+  - id: d1
+    who: marc
+    q: "Which art should we build? Open the options page (npm run tools -- options) and pick a bag (A to D), a casual (A to D), a going-out (A to F) and a pajamas (A to C) option, or say none."
+    options:
+      - "bag A, casual B, out B, pajamas A (the plainest reads)"
+      - "pick your own letters"
+      - "none: draw another round"
+    recommendation: "bag A (tall bag with handle: the clearest different silhouette), casual B (cardigan), out B (light-blue button-up: reads as dressed up without a costume), pajamas A (stripes)"
+    status: open
 ---
 
 ## Goal

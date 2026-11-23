@@ -153,7 +153,11 @@ const MAIN: Record<string, ObjectDef> = {
     blockedWhen: [{ var: "parcel", min: 1 }],
     color: "tangerine",
     tasks: ["collect-delivery"],
-    variants: [{ sprite: "delivery-box", when: [{ var: "parcel", min: 1 }], label: "PACKAGE", color: "tangerine" }],
+    // The bag while only the takeout waits (issue 154); the box for a package, or both.
+    variants: [
+      { sprite: "takeout-bag", when: [{ var: "takeoutBag", min: 1 }], label: "TAKEOUT", color: "tangerine" },
+      { sprite: "delivery-box", when: [{ var: "parcel", min: 1 }], label: "PACKAGE", color: "tangerine" },
+    ],
   },
   f: { name: "front door (decoration for now)", sprite: "front-door", color: "tangerine" },
   "1": { door: { to: "kitchen", arrive: { col: 11, row: 3, facing: "left" } } },

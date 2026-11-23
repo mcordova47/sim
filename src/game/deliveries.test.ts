@@ -578,7 +578,7 @@ describe("the package by the door", () => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("drawing the box", () => {
-  function drawn(withPackage: boolean): string[] {
+  function drawn(withPackage: boolean, withMeal = false): string[] {
     const lines: string[] = [];
     const sprites: SpriteDrawer = {
       has: () => true,
@@ -589,6 +589,7 @@ describe("drawing the box", () => {
     vi.stubGlobal("document", { createElement: () => ({ width: 0, height: 0, getContext: () => ctx }) });
     const game = new Game(APARTMENT.rooms.main, { rooms: APARTMENT.rooms, sprites, random: () => 0.5 });
     if (withPackage) game.deliveries.deliver(BARN, 0);
+    if (withMeal) game.deliveries.deliverMeal(0);
     game.update(1 / 60, NO_INPUT);
     lines.length = 0;
     game.render(ctx, 1);
@@ -598,5 +599,16 @@ describe("drawing the box", () => {
   it("draws the box on the floor by the door only while a package waits", () => {
     expect(drawn(false).filter((l) => l.startsWith("delivery-box"))).toEqual([]);
     expect(drawn(true).filter((l) => l.startsWith("delivery-box"))).toEqual(["delivery-box 160 128"]);
+  });
+
+  // Issue 154: a meal alone is a bag at the same tile; with a package too, the box.
+  it("draws the takeout bag, not the box, for a meal alone", () => {
+    const at = (l: string[], n: string) => l.filter((x) => x.startsWith(n));
+    const meal = drawn(false, true);
+    expect(at(meal, "takeout-bag")).toEqual(["takeout-bag 160 128"]);
+    expect(at(meal, "delivery-box")).toEqual([]);
+    const both = drawn(true, true);
+    expect(at(both, "delivery-box")).toEqual(["delivery-box 160 128"]);
+    expect(at(both, "takeout-bag")).toEqual([]);
   });
 });

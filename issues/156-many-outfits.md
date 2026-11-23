@@ -25,10 +25,7 @@ decisions:
       - "a base body plus recolored or layered clothing, so a new outfit is mostly a palette and an overlay (cheaper, may look flatter)"
       - "let the agent test both on one outfit and report what each looks like"
     recommendation: "let the agent test both on one outfit and report, since nine new outfits are planned (about 108 sprites by hand) and the poses make it worse"
-    status: answered
-    answer: "the hybrid: one body template, each outfit's sprites generated from a small data entry (palette per region plus a rule per facing), a few hand-drawn rows where the silhouette changes; the generator is its own small issue before the outfit art"
-    by: marc
-    on: 2026-11-23
+    status: open
   - id: d3
     who: marc
     q: "Outfit art (156, d3): the cardigan's tan merges into the tan hair (badly from behind and at 1x). What colour should it be?"

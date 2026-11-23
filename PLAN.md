@@ -219,6 +219,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 151 | [Empty decor slots](issues/151-empty-decor-slot.md) | claude | done | |
 | 152 | [Worn outfits](issues/152-worn-outfits.md) | claude | todo | 151 |
 | 153 | [Order takeout](issues/153-takeout.md) | claude | done | |
+| 154 | [Takeout bag](issues/154-takeout-bag.md) | claude | todo | 153 |
 <!-- issues:table:end -->
 
 ## Order of work

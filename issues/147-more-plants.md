@@ -11,8 +11,6 @@ unverified:
   - "How the six plants look in the real room in a browser (viewed only as 16x16 sprites at 8x on a brown background)."
   - "How the gifts feel when they arrive on days 21 to 36: only the schedule is tested, not played."
   - "Review 2026-11-23: the monstera's leaf-hole rings read a little like clover at stages 1 to 3, and the spider plant is close to the snake plant's silhouette at stages 0 to 2 (only the teal pot tells them apart); judged from 16x16 sprites at 12x, not in the real room or a browser."
-needs:
-  - {who: marc, kind: review, why: "Look at the new plant art and the six note lines in docs/text-review.md; the arrival days (21 to 36) are a default you can change.", since: 2026-11-23}
 ---
 
 ## Goal

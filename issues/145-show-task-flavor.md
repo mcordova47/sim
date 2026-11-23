@@ -33,7 +33,7 @@ decisions:
     answer: "rename the doc row to match the task as built"
     by: planner
     on: 2026-11-21
-needs: [{who: marc, kind: decide, why: "Say 'merge 147' when ready (six new plants; reviewed; branch issue/147-more-plants); art worth a look in the room first", since: 2026-11-23}]
+needs: []
 ---
 
 ## Goal

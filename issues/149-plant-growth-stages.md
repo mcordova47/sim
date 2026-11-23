@@ -4,7 +4,7 @@ title: "More growth stages for some plants (a pothos that trails over the booksh
 short: "More plant stages"
 status: todo
 owner: marc + claude
-depends_on: []
+depends_on: ["147"]
 summary: "Some plants get more stages; the pothos eventually trails down over the bookshelf."
 kind: design
 decisions:
@@ -31,7 +31,7 @@ decisions:
 Marc (2026-11-23): after seeing the six new plants (issue 147), some plants should have more growth stages, for example a pothos that eventually flows over the bookshelf.
 
 ## Notes (planner)
-- Builds on issue 147, not yet merged (add it to depends_on once it is) (the new plant families `plant-pothos`, `plant-monstera`, `plant-spider`); FAMILIES allows a different number of stages per family, but the slot is 16x16 and an item must equal the slot size, so a taller sprite needs a decision (d2) and probably a small engine change (an overhang drawn over the bookshelf).
+- Builds on issue 147 (the new plant families `plant-pothos`, `plant-monstera`, `plant-spider`); FAMILIES allows a different number of stages per family, but the slot is 16x16 and an item must equal the slot size, so a taller sprite needs a decision (d2) and probably a small engine change (an overhang drawn over the bookshelf).
 - Growth timing is `growthVar` waiting for waterings; a fifth or sixth stage needs its thresholds chosen and tested so the plant does not outgrow the day-33 and day-36 gift pacing in a way that feels like a chore (quiet-collecting rule: no pressure).
 - A swapped-in live plant starts small (existing rule), so a fully grown trailing pothos is lost on swap; consider whether the swap list should say so (the inventory notes, issue 109a).
 

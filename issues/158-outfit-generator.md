@@ -7,6 +7,15 @@ owner: claude
 depends_on: ["156"]
 summary: "Generate an outfit's 12 sprites from a palette per region plus a torso rule, with a few hand-drawn rows on top."
 kind: build
+decisions:
+  - id: d1
+    who: marc
+    q: "Outfit generator (158, d1): is gift day 48 (three days after the pajamas on day 45) fine for the cardigan?"
+    options:
+      - "yes, day 48"
+      - "another day"
+    recommendation: "yes, day 48"
+    status: open
 ---
 
 ## Goal

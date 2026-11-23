@@ -7,6 +7,7 @@ owner: claude
 depends_on: ["151"]
 summary: "Outfits become decor items worn from a non-map slot, changed at the nightstand."
 kind: build
+needs: [{who: marc, kind: try, why: "Try changing clothes at the nightstand (use ?days=39 to get the first outfit, or ?own=outfit-casual in dev); then say 'merge 152'", since: 2026-11-23}]
 ---
 
 ## Goal

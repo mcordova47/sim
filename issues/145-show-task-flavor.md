@@ -111,7 +111,10 @@ decisions:
       - "yes"
       - "no"
     recommendation: "yes"
-    status: open
+    status: answered
+    answer: "yes"
+    by: marc
+    on: 2026-11-23
   - id: d11
     who: marc
     q: "Decor design (148, Q9): the worry doll is plain WORRY DOLL in the list, the Spanish name only in its note once the accent is seen in the list?"

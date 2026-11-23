@@ -30,6 +30,7 @@ decisions:
     answer: "as recommended"
     by: planner
     on: 2026-11-23
+needs: [{who: marc, kind: decide, why: "Say 'merge 151' when ready (empty decor slots; reviewed; two small defaults d1 and d2 were taken by the planner, change them if you like)", since: 2026-11-23}]
 ---
 
 ## Goal

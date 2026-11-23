@@ -28,6 +28,16 @@ decisions:
       - "something else or draw another round"
     recommendation: "D"
     status: open
+  - id: d3
+    who: marc
+    q: "Art options (155): which going-out outfit? (A dusk-blue jacket with a red scarf, B light-blue button-up, C plum dress, D camel blazer over a tee, E long taupe coat, F mustard jacket over a tee)"
+    options:
+      - "A"
+      - "C"
+      - "F"
+      - "something else or draw another round"
+    recommendation: "A"
+    status: open
 ---
 
 ## Goal

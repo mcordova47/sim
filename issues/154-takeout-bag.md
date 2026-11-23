@@ -7,6 +7,7 @@ owner: claude
 depends_on: ["153"]
 summary: "The takeout meal waiting at the door is drawn as a bag, not the package box."
 kind: build
+needs: [{who: marc, kind: try, why: "Look at the takeout bag at the front door (order takeout at the nightstand, wait about 2 game hours); then say 'merge 154'", since: 2026-11-23}]
 ---
 
 ## Goal

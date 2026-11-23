@@ -65,3 +65,6 @@ Graduated to [issue 133](../issues/133-issue-pages-theme.md) (2026-11-15).
 - Brush teeth: Because you do have your life together.
 - Take a moment: Do I have to narrate everything?
 - Take a shower: If only they'd record your ideas in there. What a world it would be...
+
+## Order takeout (idea)
+*Marc, 2026-11-23.* Order takeout from the phone; it arrives a little later at the door like a package (the delivery pipe in [decor.md](decor.md), `deliver(item, delayHours)`, already puts a box by the front door), and you have the option to eat it. Things to settle when it is picked: where you order (a phone task, an ad, a menu with a fake restaurant brand: no real delivery brands), how long it takes, what the delivered thing is (a food item that Eat dinner can use instead of cooking, or a bag you open that is eaten right away), what it does to mood, energy and the `dishes` count (takeout means no cooking and maybe a container to recycle), and whether it can go cold if left at the door. Quiet-collecting rule: nothing required, no money. Related: the cook, reheat and eat-dinner tasks, the boxes and recycling work (issues 066, 070, 071).

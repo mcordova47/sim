@@ -23,6 +23,16 @@
           "label": "Tall paper bag with a twine handle loop and a darker side."
         },
         {
+          "letter": "A2",
+          "file": "bag/bag-a-south-wall",
+          "label": "Issue 157: A redrawn for the south wall (behind and above): pinched paper top, twine handle standing up, thin front slice. Chosen."
+        },
+        {
+          "letter": "D2",
+          "file": "bag/bag-d-south-wall",
+          "label": "Issue 157: D redrawn for the south wall: closed carton top with a wire handle. Reads more like a pot."
+        },
+        {
           "letter": "B",
           "file": "bag/bag-b-rolled-top",
           "label": "Paper bag with a rolled-over top and a wide belly."

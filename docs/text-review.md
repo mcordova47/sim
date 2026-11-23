@@ -374,6 +374,11 @@ The entry also shows the where-now line (the slot's "where" text, or IN THE INVE
 - LAVENDER BUNDLE: SMELLS LIKE A DRAWER THAT HAS NEVER HAD A BAD DAY. -
 - SPIDER PLANT: IT KEEPS MAKING SMALLER ONES. NOBODY ASKED. -
 - EUCALYPTUS JAR: STEMS IN A JAR. THE ROOM SMELLS LIKE A SPA THAT GAVE UP. -
+- EVERYDAY CLOTHES (a starting thing, issue 152): THE USUAL. IT HAS WORKED SO FAR. -
+- CASUAL CLOTHES: SOFT PANTS. THE OTHER PANTS HAVE LOST. -
+- GOING OUT CLOTHES: FOR WHEN THE PLAN INVOLVES A DOOR. -
+- PAJAMAS: THE DAY ENDS WHEN YOU SAY SO. -
+- Slot name in the swap list header: CLOTHES; where line: WORN; the swap task name and prompt: Change clothes (issue 152; it replaces the placeholder "Change the outfit") -
 
 ## THINGS page: the silhouette (issue 109c)
 Capitals only. Shown for something an ad put in front of you that you did not take (ignored, hidden, or closed). The page draws a flat dark shape of it, and nothing else about it: no name, no source, no place, no hint how to get one, no count. If it later arrives, the shape simply becomes the item. Marc marks each: keep, soften or rewrite.

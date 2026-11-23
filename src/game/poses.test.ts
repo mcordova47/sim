@@ -232,7 +232,11 @@ describe("outfits", () => {
     const game = setup(sprites);
     frame(game, sprites);
     expect(sprites.names()).toContain("player-idle-down");
-    game.state.applyEffects([{ var: "outfit", set: 3 }]);
+    // The outfit follows the decor slot `worn` (issue 152); nothing else sets it.
+    game.decor.own("outfit-pajamas");
+    expect(game.decor.place("worn", "outfit-pajamas")).toBe(true);
+    game.update(0.001, NO_INPUT);
+    expect(game.state.get("outfit")).toBe(3);
     frame(game, sprites);
     expect(sprites.names()).toContain("player-pajamas-idle-down");
     expect(sprites.names()).not.toContain("player-idle-down");
@@ -244,7 +248,10 @@ describe("outfits", () => {
   it("falls back to the everyday clothes, logging once, when an outfit has no art", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
     const sprites = new Recorder((n) => !n.startsWith("player-out-"));
-    const game = setup(sprites, { outfit: 2 });
+    const game = setup(sprites);
+    game.decor.own("outfit-out");
+    game.decor.place("worn", "outfit-out");
+    game.update(0.001, NO_INPUT);
     for (let i = 0; i < 4; i++) frame(game, sprites);
     expect(sprites.names()).toContain("player-idle-down");
     expect(warn.mock.calls.filter((c) => String(c[0]).includes('"player-out-idle-down"'))).toHaveLength(1);

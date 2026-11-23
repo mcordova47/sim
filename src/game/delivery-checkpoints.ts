@@ -31,6 +31,10 @@ export const CHECKPOINTS: readonly Milestone[] = [
   { id: "gift-day-30", stat: "days", atLeast: 30, item: "plant-lavender", delayHours: SOON },
   { id: "gift-day-33", stat: "days", atLeast: 33, item: "plant-spider", delayHours: SOON },
   { id: "gift-day-36", stat: "days", atLeast: 36, item: "plant-eucalyptus", delayHours: SOON },
+  // Clothes (issue 152), after the plants. Planner's default days: change the number to move a gift.
+  { id: "gift-day-39", stat: "days", atLeast: 39, item: "outfit-casual", delayHours: SOON },
+  { id: "gift-day-42", stat: "days", atLeast: 42, item: "outfit-out", delayHours: SOON },
+  { id: "gift-day-45", stat: "days", atLeast: 45, item: "outfit-pajamas", delayHours: SOON },
 ];
 
 // For trying it in the dev server only (`?deliver=test`, decor-dev.ts): the TEST items.

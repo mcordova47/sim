@@ -50,6 +50,9 @@ export interface DecorSlot {
   // swap task (`swap-<slot id>`, issue 062 stage 2) is offered there, only when
   // there is something else to put in the slot. Checked against the room at startup.
   object?: string;
+  // True for a slot that is not a place on the map (the worn outfit, issue 152): nothing is drawn at `area`
+  // (it is only the size items must match), so no map object or prop is expected for it.
+  offMap?: boolean;
 }
 
 export interface DecorItem {
@@ -118,6 +121,8 @@ export const DECOR_SLOTS: DecorSlot[] = [
   { id: "lamp-sofa", where: "BY THE SOFA", room: "main", name: "LAMP BY THE SOFA", area: { x: 128, y: 96, w: 16, h: 16 }, kinds: ["lamp"], default: "lamp-table", object: "lamp table" },
   // The pantry in the kitchen (issue 072): a 16x32 stack of bins down the east wall. Nothing to swap yet (no `object`, one item); stage 4 can add upgrade items.
   { id: "pantry", where: "IN THE PANTRY", room: "kitchen", name: "PANTRY", area: { x: 176, y: 16, w: 16, h: 32 }, kinds: ["pantry"], default: "pantry-bins" },
+  // What you wear (issue 152). Not drawn on the map: the player's sprites follow it (`Game.syncOutfit`). Changed from the nightstand drawer.
+  { id: "worn", where: "WORN", room: "main", name: "CLOTHES", area: { x: 0, y: 0, w: 16, h: 16 }, kinds: ["outfit"], default: "outfit-home", object: "nightstand", offMap: true },
 ];
 
 // Today's room, as items. These are the starting set: owned from the first run.
@@ -127,6 +132,7 @@ export const DECOR_ITEMS: DecorItem[] = [
   { id: "art-silkscreen", name: "SILKSCREEN", kind: "art", sprite: "painting-wide", w: 48, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "A SILKSCREEN PRINT. NUM. 1/12, WHICH YOU FEEL A STRANGE SENSE OF PRIDE ABOUT.", slots: ["art-bed"] },
   { id: "plant-snake", name: "SNAKE PLANT", kind: "plant", sprite: "plant-1", family: "plant", w: 16, h: 16, color: "leaf", how: "start", from: "ALREADY HERE", note: "A SNAKE PLANT. IT ASKS FOR VERY LITTLE." },
   { id: "lamp-table", name: "LAMP", kind: "lamp", sprite: "lamp-table", w: 16, h: 16, color: "butter", how: "start", from: "ALREADY HERE", note: "A LAMP. IT'S A GOOD LAMP, YOU THINK.", glow: { radius: 40, alpha: 0.2 } },
+  { id: "outfit-home", name: "EVERYDAY CLOTHES", kind: "outfit", sprite: "player-idle-down", w: 16, h: 16, color: "dusk", how: "start", from: "ALREADY HERE", note: "THE USUAL. IT HAS WORKED SO FAR." },
   { id: "pantry-bins", name: "CLEAR BINS", kind: "pantry", sprite: "pantry", w: 16, h: 32, color: "mist", how: "start", from: "ALREADY HERE", note: "YOU GUESS THESE WILL DO AS A PANTRY, FOR NOW." },
 ];
 
@@ -159,6 +165,10 @@ export const GIFT_ITEMS: DecorItem[] = [
   { id: "plant-lavender", name: "LAVENDER BUNDLE", kind: "plant", sprite: "plant-lavender", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "SMELLS LIKE A DRAWER THAT HAS NEVER HAD A BAD DAY." },
   { id: "plant-spider", name: "SPIDER PLANT", kind: "plant", sprite: "spider-1", family: "spider", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "IT KEEPS MAKING SMALLER ONES. NOBODY ASKED." },
   { id: "plant-eucalyptus", name: "EUCALYPTUS JAR", kind: "plant", sprite: "plant-eucalyptus", w: 16, h: 16, color: "mist", how: "gift", from: "A PACKAGE", note: "STEMS IN A JAR. THE ROOM SMELLS LIKE A SPA THAT GAVE UP." },
+  // Clothes (issue 152): worn from the `worn` slot, drawn as the player's idle-down sprite. The player's own outfit list is outfits.ts.
+  { id: "outfit-casual", name: "CASUAL CLOTHES", kind: "outfit", sprite: "player-casual-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "SOFT PANTS. THE OTHER PANTS HAVE LOST." },
+  { id: "outfit-out", name: "GOING OUT CLOTHES", kind: "outfit", sprite: "player-out-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "FOR WHEN THE PLAN INVOLVES A DOOR." },
+  { id: "outfit-pajamas", name: "PAJAMAS", kind: "outfit", sprite: "player-pajamas-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "THE DAY ENDS WHEN YOU SAY SO." },
 ];
 
 // TEST items (issue 062 stage 2): borrowed sprites, so the swap can be tried and

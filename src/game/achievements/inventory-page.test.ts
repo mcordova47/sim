@@ -119,10 +119,10 @@ describe.each([
     }
   });
 
-  it("a fresh game (six starting things) reads fine with no page button", () => {
+  it("a fresh game (seven starting things) reads fine with no page button", () => {
     setView(view);
     const entries = entriesOf(false);
-    expect(entries.length).toBe(6);
+    expect(entries.length).toBe(7);
     expect(thingsPages(entries.length)).toBe(1);
     expect(thingsButtons({ entries, cursor: 0, touch: true }).map((b) => b.id)).toEqual(["back"]);
     vi.mocked(drawText).mockClear();

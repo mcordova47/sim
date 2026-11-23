@@ -368,6 +368,12 @@ The entry also shows the where-now line (the slot's "where" text, or IN THE INVE
 - STARRY NIGHT: NOT YOUR FAVORITE VAN GOGH, BUT THERE IS A REASON IT'S A CLASSIC. - keep
 - WATER LILIES: PEOPLE TALK ABOUT CAPTURING A FLEETING MOMENT, BUT YOU JUST THINK IT'S PRETTY. - keep
 - SUNFLOWERS: SUNFLOWERS IN A VASE. JUST LOOK AT THOSE BRUSH STROKES. - keep
+- POTHOS: ITS LEAVES HAVE STARTED FOR THE FLOOR. YOU ADMIRE THE AMBITION. -
+- PAMPAS PLUMES: THEY SHED A LITTLE. THAT IS THE WHOLE COMMITMENT. -
+- MONSTERA: THE HOLES ARE ON PURPOSE. YOU CHECKED. -
+- LAVENDER BUNDLE: SMELLS LIKE A DRAWER THAT HAS NEVER HAD A BAD DAY. -
+- SPIDER PLANT: IT KEEPS MAKING SMALLER ONES. NOBODY ASKED. -
+- EUCALYPTUS JAR: STEMS IN A JAR. THE ROOM SMELLS LIKE A SPA THAT GAVE UP. -
 
 ## THINGS page: the silhouette (issue 109c)
 Capitals only. Shown for something an ad put in front of you that you did not take (ignored, hidden, or closed). The page draws a flat dark shape of it, and nothing else about it: no name, no source, no place, no hint how to get one, no count. If it later arrives, the shape simply becomes the item. Marc marks each: keep, soften or rewrite.

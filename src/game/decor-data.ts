@@ -100,6 +100,10 @@ export const FAMILIES: Record<string, FamilyRules> = {
   plant: { stages: 4, droops: true },
   // TEST: a plant that never grows or droops (like dried flowers will), drawn with its own sprite.
   "plant-test": { stages: 0, droops: false },
+  // The other live houseplants (issue 147): the same four stages and the same drooping as the snake plant.
+  pothos: { stages: 4, droops: true },
+  monstera: { stages: 4, droops: true },
+  spider: { stages: 4, droops: true },
 };
 
 export const DECOR_SLOTS: DecorSlot[] = [
@@ -143,6 +147,14 @@ export const GIFT_ITEMS: DecorItem[] = [
   { id: "art-starry-night", name: "STARRY NIGHT", kind: "art", sprite: "art-starry-night", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "NOT YOUR FAVORITE VAN GOGH, BUT THERE IS A REASON IT'S A CLASSIC.", slots: WALL },
   { id: "art-water-lilies", name: "WATER LILIES", kind: "art", sprite: "art-water-lilies", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "PEOPLE TALK ABOUT CAPTURING A FLEETING MOMENT, BUT YOU JUST THINK IT'S PRETTY.", slots: WALL },
   { id: "art-sunflowers", name: "SUNFLOWERS", kind: "art", sprite: "art-sunflowers", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "SUNFLOWERS IN A VASE. JUST LOOK AT THOSE BRUSH STROKES.", slots: WALL },
+  // Plants for the shelf (issue 147). The live ones grow and droop like the snake plant; the dried ones are still items.
+  // In the order the checkpoints give them, alternating live and dried.
+  { id: "plant-pothos", name: "POTHOS", kind: "plant", sprite: "pothos-1", family: "pothos", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "ITS LEAVES HAVE STARTED FOR THE FLOOR. YOU ADMIRE THE AMBITION." },
+  { id: "plant-pampas", name: "PAMPAS PLUMES", kind: "plant", sprite: "plant-pampas", w: 16, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "THEY SHED A LITTLE. THAT IS THE WHOLE COMMITMENT." },
+  { id: "plant-monstera", name: "MONSTERA", kind: "plant", sprite: "monstera-1", family: "monstera", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "THE HOLES ARE ON PURPOSE. YOU CHECKED." },
+  { id: "plant-lavender", name: "LAVENDER BUNDLE", kind: "plant", sprite: "plant-lavender", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "SMELLS LIKE A DRAWER THAT HAS NEVER HAD A BAD DAY." },
+  { id: "plant-spider", name: "SPIDER PLANT", kind: "plant", sprite: "spider-1", family: "spider", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "IT KEEPS MAKING SMALLER ONES. NOBODY ASKED." },
+  { id: "plant-eucalyptus", name: "EUCALYPTUS JAR", kind: "plant", sprite: "plant-eucalyptus", w: 16, h: 16, color: "mist", how: "gift", from: "A PACKAGE", note: "STEMS IN A JAR. THE ROOM SMELLS LIKE A SPA THAT GAVE UP." },
 ];
 
 // TEST items (issue 062 stage 2): borrowed sprites, so the swap can be tried and

@@ -44,6 +44,7 @@ decisions:
       - "both, at once"
     recommendation: "gifts from day 85 on (three days apart) and in the random-encounter pool when issue 163 lands"
     status: open
+needs: [{who: marc, kind: try, why: "Look at the coffee gear: cd ~/Dev/repos/mcordova47/sim-worktrees/168-coffee-gear && npm run dev, open /?own=coffee-french-press,coffee-drip-machine,coffee-pod-machine,coffee-percolator,coffee-moka-pot,coffee-briki, Change the coffee gear at the table and the stove, make coffee at each; answer d1 to d4; then say 'merge 168'", since: 2026-11-24}]
 ---
 
 ## Goal

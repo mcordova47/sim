@@ -134,7 +134,10 @@ decisions:
       - "keep the droplets: they are the signal that the water is on, and they are tiny and short"
       - "make the droplets still too (a few fixed short strokes under the tap)"
     recommendation: "keep the droplets: they are the signal that the water is on, and they are tiny and short"
-    status: open
+    status: answered
+    answer: "keep the droplets (Marc deferred to the planner: they are what says the water is on)"
+    by: planner
+    on: 2026-11-24
 needs: [{who: marc, kind: decide, why: "Answer d9 to d11, then say 'merge 165' (the in-room shower scene design, revised to your answers; reviewed; the build follows 164)", since: 2026-11-24}]
 ---
 

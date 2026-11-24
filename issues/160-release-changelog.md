@@ -2,7 +2,7 @@
 id: "160"
 title: "A simple changelog for production releases, from the issues"
 short: "Release changelog"
-status: review
+status: done
 owner: marc + claude
 depends_on: []
 summary: "Draft a high-level changelog of what a production release adds, from the done issues merged since the last release."
@@ -73,3 +73,7 @@ Decided by Marc (d1, d2, 2026-11-24): a command prints a draft changelog; the de
   - Real history: `origin/production` is at 585e3a0, so the default range is empty on this checkout ("Nothing new for players in this release."). With no production branch (the first-release fallback, 1573 commits) the draft lists 143, 144, 147, 151 to 154 and 156 only, because 166 older issues have no `kind`; that is d3 (open, default: write the first headline by hand).
   - Checked: npm test (3994 pass), npx tsc --noEmit, npm run build, npm run check:dist, npm run issues:check -- --validate; the two workflow shell bodies were run locally with a stub `gh` (notes present: release called with the notes file; notes absent: skipped, exit 0).
   - Not checked: anything on GitHub (see `unverified`).
+- 2026-11-24 (review, independent): verdict APPROVE. Re-ran npm test (3994 pass), npx tsc --noEmit, npm run check:dist, npm run issues:check -- --validate (194 valid, only old warnings). Own edge checks in a throwaway repo (outside the tree): ids with letters (002a listed), a Merge commit for an issue not done (skipped), an issue turned done with no Merge commit (listed), `changelog: none` on a fix (skipped), a design issue with its own sentence (listed under New), chore with none (skipped), empty range and reversed range (one calm line), bad --from (plain error, exit 1), unknown flag (usage, exit 2), no production branch (note on top, full history), `--to` a tag and nothing in the working tree (works from git). Length: 139 and 140 pass, 141 is rejected with a plain message; multi-line, empty and non-string rejected; `none` and `None` accepted. Real-history output over all commits lists only the 8 expected player-facing lines, no private text. Workflow read line by line: existing steps and their order intact, nothing removed; the two new steps are continue-on-error, the release step skips on a missing or empty notes file (a failed node run leaves an empty file), no commits or pushes other than the existing production push, release runs only after a successful push, first run (no origin/production) falls back to the first commit, an empty release says so plainly.
+  - Criteria: command and options pass; filtering and grouping pass; new field and validator pass; docs (deploy.md, contributing.md, issues-as-data-design.md) pass; changelog lines on 136 to 158 pass (149 and 159 are in other worktrees, so left for later; fine); workflow pass by reading and local simulation; standard checks pass. Workflow running on Actions, `gh release create` with GITHUB_TOKEN, and origin/production being in the Actions checkout are UNVERIFIED (already in `unverified`).
+  - Minor, no action needed: `--from` with no value silently uses the default range; a changelog sentence of exactly "none." would be listed; a re-deploy of an unchanged commit makes another "nothing new" release. d3 stays open (default: write the first headline by hand).
+  - Planner: the PLAN.md table needs updating (160 done). Branch to merge: issue/160-release-changelog.

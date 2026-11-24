@@ -76,7 +76,10 @@ decisions:
       - "a one-time line the first time it happens, then nothing"
       - "a short line every time (for example YOU PUT ON THE ROBE.)"
     recommendation: "nothing: no text and no sound; the new sprite is the news"
-    status: open
+    status: answered
+    answer: "nothing: no text and no sound; the new sprite is the news"
+    by: marc
+    on: 2026-11-24
   - id: d7
     who: marc
     q: "Does a change you make by hand stick, and does it stop the timed return to everyday?"

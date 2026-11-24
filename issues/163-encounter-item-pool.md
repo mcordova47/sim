@@ -57,6 +57,15 @@ decisions:
     answer: "weight items you do not own about ten times more than ones you do, so repeats stay rare while the pool is large"
     by: marc
     on: 2026-11-24
+  - id: d5
+    who: marc
+    q: "Item pool (163, d5): how often should a shop ad come up compared with the seven special ads?"
+    options:
+      - "equal chance: each shop and each special ad is one entry in the draw (weighted 10:1 toward what you lack)"
+      - "shops more often than the specials (as the pool grows)"
+      - "specials more often"
+    recommendation: "equal chance: each shop and each special ad is one entry in the draw (weighted 10:1 toward what you lack)"
+    status: open
 ---
 
 ## Goal

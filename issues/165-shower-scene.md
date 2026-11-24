@@ -44,6 +44,15 @@ decisions:
       - "ignore the setting for this scene"
     recommendation: "with it on, the steam is still and the bubbles do not move; the scene is otherwise the same"
     status: open
+  - id: d5
+    who: marc
+    q: "When no bathrobe will be worn (none owned or the ROBE slot is empty), what does the last picture of the shower scene show?"
+    options:
+      - "the outfit that will be worn after the shower (usually the everyday one), standing where the robe would"
+      - "a towel wrapped round the player (one more picture to draw)"
+      - "no last picture: the scene ends on the bubbles and the room comes back"
+    recommendation: "the outfit that will be worn after the shower (usually the everyday one), standing where the robe would"
+    status: open
 ---
 
 ## Goal

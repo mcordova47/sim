@@ -16,7 +16,10 @@ decisions:
       - "one slot per style: home, casual, going out, pajamas, plus the robe in pajamas"
       - "something else"
     recommendation: "EVERYDAY (home or casual outfits), PAJAMAS, ROBE (worn after a shower), GOING OUT (reserved: nothing triggers it yet)"
-    status: open
+    status: answered
+    answer: "EVERYDAY (home or casual outfits), PAJAMAS, ROBE (worn after a shower), GOING OUT (reserved: nothing triggers it yet)"
+    by: marc
+    on: 2026-11-24
   - id: d2
     who: marc
     q: "Which occasions change your clothes automatically, and what brings you back to everyday?"

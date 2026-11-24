@@ -38,6 +38,7 @@ decisions:
     answer: "drop the 'the' from all task names and prompts too"
     by: marc
     on: 2026-11-24
+needs: [{who: marc, kind: decide, why: "Read the shorter task names and prompts (list in the issue and the note at the top of the Tasks section in docs/text-review.md; 'Work from couch', 'Stare into fridge', 'Open fridge' are the borderline ones); answer d1 and d2; then say 'merge 174'", since: 2026-11-24}]
 ---
 
 ## Goal

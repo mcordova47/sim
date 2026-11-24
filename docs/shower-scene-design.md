@@ -102,7 +102,7 @@ All data in `config.ts`; the game's one pool and feature draw them (section 1), 
 | Kind | Shape | Colours | What | Rate while the water runs |
 |---|---|---|---|---|
 | `showerDrop` | `drop` | `sky`, `paper` | falls from the tap end of the tub toward the bubbles: life 0.12 to 0.17 s, vy 48 to 62 px/s, a little gravity, so it ends above the head (the face stays clear) | 2 every 0.04 to 0.07 s, about 5 alive |
-| `showerSteam` | `cloud` | `mist`, `mist`, `paper` | rises from over the tub and drifts a little: life 1.6 to 2.2 s, vy -9 to -5 (so it climbs about 10 px, inside the room), sway 1.6 px at 0.6 Hz, fades from 0.4 of its life | 1 every 0.14 to 0.24 s, about 10 alive |
+| `showerSteam` | `cloud` | `mist`, `mist`, `paper` | rises from over the tub and drifts a little: life 1.6 to 2.2 s, vy -9 to -5 (so it climbs 8 to 20 px over its life, up to the tub's north end and still inside the room), sway 1.6 px at 0.6 Hz, fades from 0.4 of its life | 1 every 0.14 to 0.24 s, about 10 alive |
 | `showerFog` | `fog` | `mist`, `paper` | big, slow, long: life 3 to 4 s, vy -4 to -2, sway 3 px at 0.3 Hz | 1 every 0.5 to 0.9 s over the tub and the floor beside it, about 5 alive |
 | `foamBubble` | `ring` | `sky`, `paper` | floats off the bubbles: life 1.2 to 1.8 s, vy -9 to -5, sway 1.2 px at 0.9 Hz | 1 every 0.5 to 0.9 s, about 2 alive |
 
@@ -154,7 +154,7 @@ How: an emitter gets a flag, `motion: "moves"` (skipped when reduced; the defaul
 6. **Missing pose art:** the plain player is drawn and the missing file is logged once (`currentPose`), so a half-built stage never breaks the task; the particles still run.
 7. **The pose hidden behind the tub:** only if its bottom edge falls above the tub's, so the build fixes `at.y + size.h` to the tub's bottom (80) and a test checks it, like the existing "draws the pose after the furniture it overlaps" (`poses.test.ts`).
 8. **A dialog or popup during the task:** popups rise above the pose picture (`playerPopup`); a dialog cannot open during a task.
-9. **Particles outside the room:** the view is mostly ink above the bath, and steam would show over it if it rose past the north wall; the rates and speeds above keep it within about 10 pixels of the tub (looked at in the mockup, not at speed).
+9. **Particles outside the room:** the view is mostly ink above the bath, and steam would show over it if it rose past the north wall; the speeds above keep it within about 20 pixels of where it starts, inside the room (looked at in the mockup, not at speed).
 10. **Spam:** a 10 s cooldown plus the 6 s scene means a shower every 16 s plays the whole scene again (d7: Marc said yes).
 11. **The scene is small on screen.** At 1x the bubbles are 16 pixels wide in a 320 x 192 picture. That is the game's normal scale and what Marc chose (no close-up); the detail mockups are 6 times life size.
 12. **The golden frames:** the bath is not in `main-room-frames.golden.test.ts` (the main room only) and the pose draws only during the task, so nothing there changes.

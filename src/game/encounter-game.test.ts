@@ -376,7 +376,8 @@ describe("an ad for something you already have", () => {
     const s = setup();
     s.game.decor.own("art-robin");
     const m = mood(s.game);
-    s.rnd.next(0.1, 0.01);
+    // The draw is weighted toward what you lack (issue 163): 0 is the first ad, the robin print, however light its weight.
+    s.rnd.next(0.1, 0);
     doTask(s.game, "doomscroll");
     expect(encounterUp(s.game)).toBe(true);
     const afterScroll = mood(s.game);
@@ -407,7 +408,7 @@ describe("an ad for something you already have", () => {
   it("an item already ordered or waiting at the door says it is in the cart", () => {
     const s = setup();
     s.game.deliveries.deliver("art-robin", 20);
-    s.rnd.next(0.1, 0.01);
+    s.rnd.next(0.1, 0);
     doTask(s.game, "doomscroll");
     expect(readAll(s.game)).toEqual([ENCOUNTER_WORDS.alreadyInCart]);
     expect(s.game.interaction.busy).toBe(false);
@@ -554,7 +555,7 @@ describe("what is saved", () => {
   it("the cooldown and the ads seen are in the progress save and come back on a reload", () => {
     const a = withSaves();
     a.game.deliveries.advance(60);
-    // The last of the seven ads (the day 1 gift, the robin print, is already on its way, so it would be a dismissal).
+    // The last thing the draw can offer (the day 1 gift, the robin print, is already on its way, so it would be a dismissal).
     a.rnd.next(0.1, 0.99);
     doTask(a.game, "doomscroll");
     expect(encounterUp(a.game)).toBe(true);
@@ -562,7 +563,9 @@ describe("what is saved", () => {
     readAll(a.game);
     a.feature.save();
     const raw = JSON.parse(a.progress.getItem("life.progress.v1")!);
-    expect(raw.encounters).toMatchObject({ day: 2, today: 1, soon: false, seen: ["ad-water-lilies"] });
+    expect(raw.encounters).toMatchObject({ day: 2, today: 1, soon: false });
+    expect(raw.encounters.seen).toHaveLength(1);
+    expect(raw.encounters.seen).toEqual(a.game.encounters.seen);
     expect(raw.encounters.last).toBeGreaterThanOrEqual(60);
 
     const b = withSaves(a.progress, a.settings);

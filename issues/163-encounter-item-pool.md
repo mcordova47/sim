@@ -2,11 +2,17 @@
 id: "163"
 title: "Random-encounter items: a growing pool, with repeats"
 short: "Item pool and repeats"
-status: todo
+status: done
 owner: marc + claude
 depends_on: []
 summary: "Let random encounters draw from a growing pool of items, allow repeats, and keep repeats rare as the pool grows."
 kind: build
+changelog: "Random ads now come from nine shops that sell any item you do not own yet, so repeats are rare."
+unverified:
+  - "How the ads feel over a long game (how often a repeat still shows the already-own card), which needs hours of play."
+  - "Rug, trinket and instrument shop ads on real items: those items live on unmerged branches, so they were looked at only with temporary stand-in items, removed again."
+  - "The shop names and copy have not had Marc's text pass or a check that no name points at a real small business."
+  - "Reviewer (2026-11-24): the rug, trinket and music shop cards were not seen in the running game (no such items on this branch); only checked by arithmetic (crop rule for 128x64 and 112x48, longest real names from the 166 and 167 branches fit 46 letters)."
 decisions:
   - id: d1
     who: marc
@@ -75,7 +81,6 @@ decisions:
       - "a close-up detail of the rug's pattern"
     recommendation: "the middle of the rug at real size, cropped to the box"
     status: open
-needs: [{who: marc, kind: try, why: "See the shop ads: cd ~/Dev/repos/mcordova47/sim-worktrees/163-item-pool && npm run dev, open /?encounter=line-frames (also line-gallery, line-plants, line-lamps, line-clothing, line-coffee), press a key; read the shop names in docs/text-review.md; answer d5 and d6; then say 'merge 163'", since: 2026-11-24}]
 ---
 
 ## Goal
@@ -98,3 +103,16 @@ Decided by Marc (d2 to d4, 2026-11-24): milestone gifts keep a fixed core set an
 
 ## Progress log
 - 2026-11-24 (planner): filed on main with its open decisions (the issue file is born on main); Marc's request after merging the outfit work.
+- 2026-11-24 (claude): started in ~/Dev/repos/mcordova47/sim-worktrees/163-item-pool on issue/163-item-pool. Plan: derive the pool from item data, a data list of product lines, a pure seeded weighted draw wired into the roll, a fit-in-the-card rule for big sprites, tests, docs.
+- 2026-11-24 (claude): built it. New: `src/game/encounter-draw.ts` (the pool, `weightedIndex`, `drawAd`, `drawLineAd`), `src/game/encounter-lines.ts` (nine shops, generic names), `ENCOUNTERS.pool` in config (kinds and the 10 to 1 weights), `Decor.allItems()`, `Game.itemPool()` and `Game.drawAd()`; `Encounters` takes the lines and `pick` uses the draw (without a pool it is the old uniform pick over the fixed ads); the card's `productFit` crops a sprite bigger than the box to its middle at 1x; the dev shortcut accepts a line id (`?encounter=line-plants`). Save format unchanged (`seen` also holds line ids, which load as known). Milestone gifts, `deliver()` and the already-own card are untouched. Tests: `src/game/encounter-draw.test.ts` (pool list by kind, art for every pool item, statistics for the 10 to 1 draw, all-owned, no art, copy fits for every line and real item, save compatibility, crop rule). Three existing tests that scripted the random to land on the (owned) robin ad now pass 0 instead of 0.01 (the first entry, whatever its weight), and the reload test checks that one id was saved instead of the last ad's name: the draw has more entries and is weighted, nothing else changed. Docs: `docs/random-encounters.md` sections 4, 5, 6, 9 and the new 15; `docs/text-review.md` has the shops and copy. Looked at the running game (dev server, headless browser) with an ad of every line: frames, gallery, plants, lamps, clothing, coffee, and, with temporary stand-in items copied from the rug and trinket branches (removed again, nothing committed), rugs, trinkets and music: text fit, picture and menu clear of each other, rug cropped to the middle. Left open for Marc: d5 and d6.
+- 2026-11-24 (reviewer, independent): verdict APPROVE. Standard checks run by me: npm test (179 files, 4291 passed, 3 skipped), npx tsc --noEmit clean, npm run build, npm run check:dist, npm run issues:check -- --validate (209 valid), npm run sprites (git clean afterwards; golden frames unchanged since tests pass).
+  - Pool in data: pass. Derived rule (not start, not TEST, kind in config); real pool today art 9, plant 7, lamp 3, outfit 12, coffee 6 (37); the listing test and the art test exist. Checkpoint list and the seven ads untouched.
+  - Product lines: pass. Nine data lines, generic invented names; all kinds work from item kinds. Every line x every real item: headline/body/closer at most 46 letters, at most 3 body lines, ASCII only, no leftover {name} (my own check). Real rug, trinket and instrument names from the 166 and 167 branches (read only) are all shorter than the longest case tested (worst headline 37 letters).
+  - Draw: pass. Own checks: NaN, Infinity, -1, 2, null and undefined random never throw and always return an ad; empty pool and no ads return null or the fixed ads; all-owned gives equal weights; recent covering every candidate falls back; with half the pool owned, owned ads were 11.1% of 20000 seeded draws (about 1 to 10 expected); queued and waiting items count as owned through Game.itemPool(). Gates and delivery untouched in the diff.
+  - Card: pass for the sizes I can test: productFit over 16x16, 32x16, 16x32, 16x48, 128x64, 112x48, 1x1, 300x300 in three box sizes stays inside the sprite and inside the box. I saw frames, gallery, plants, lamps, clothing and coffee cards in the running game (headless Chrome, dev shortcut, a key press needed first): text clear of picture and menu, pictures centred. Rugs: not seen (see unverified).
+  - Tests: pass. Statistics, all-owned, no art, save compatibility (my check: old ad ids and line ids load, unknown, duplicate, non-string ids dropped; seen order kept) all present.
+  - Docs and text: pass. Section 15, text-review shops and changelog line (under 140) present.
+  - Look at one ad of each line: partial. 6 of 9 seen by me; rugs, trinkets and music cannot be seen on this branch (no items), so they stay unverified.
+  - Edits to existing tests: justified. With the old uniform draw 0.01 x 7 landed on the first ad (the owned robin print); the new draw has 16 weighted entries (total weight about 150), so 0.01 now lands on the second entry; 0 is the first entry whatever its weight, which is what those tests meant. The reload test now asserts one id saved and equal to the game's own seen list: slightly weaker (it no longer pins which entry 0.99 picks), but the roundtrip it tests is intact. Nit, optional: pin the expected id (the last drawable shop) instead of just the length.
+  - Findings, none blocking: (1) ?encounter=line-rugs with an empty line silently falls back to a random draw (documented in section 15). (2) Copy such as "Only a few left in this size" (gallery) is ad-style scarcity wording; it is the ad's joke and nothing in the game is pressured, but it is for Marc's text pass. (3) The drawRegion fallback branch in drawProduct ignores the crop (only reached by fake sprites in tests).
+  - Unverified: feel over a long game; rug, trinket and music cards on real items; Marc's text pass. d5 and d6 stay open for Marc. Scope: only files in the issue's list; no PLAN.md or other issue changes. Planner: update the PLAN.md table.

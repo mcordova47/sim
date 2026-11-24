@@ -16,6 +16,8 @@ import { Decor } from "./decor";
 import { Deliveries } from "./deliveries";
 import { EncounterActivity } from "./activities/encounter";
 import type { Ad } from "./encounter-ads";
+import { drawAd, drawLineAd, itemPool, type ItemPool } from "./encounter-draw";
+import { lineById } from "./encounter-lines";
 import { Encounters } from "./encounters";
 import { CLOCK, DEBUG, DELIVERIES, DIALOG, ENERGY, MOOD, TILE, VIEW } from "./config";
 import type { Activity, ActivityHost, RecordState } from "./activity";
@@ -271,8 +273,26 @@ export class Game {
       blocked: this.adBlockerOn,
       busy: this.dialog.open || this.inputLocked || this.interaction.busy,
       usable: (a) => this.decor.item(a.item) !== undefined,
+      pool: this.itemPool(),
     });
     if (ad) this.startEncounter(ad);
+  }
+
+  // What the ad draw sees (issue 163): the pool of items the product-line ads may sell, and whether you own one or
+  // have it on its way.
+  itemPool(): ItemPool {
+    return {
+      items: itemPool(this.decor.allItems()),
+      has: (id) => this.decor.owns(id) || this.deliveries.pendingItems.some((p) => p.id === id) || this.deliveries.waitingItems.includes(id),
+    };
+  }
+
+  // An ad drawn now with the real weights and none of the gates, or one product line's (dev shortcut). Null if none.
+  drawAd(lineId?: string): Ad | null {
+    const pool = this.itemPool();
+    const line = lineId === undefined ? undefined : lineById(lineId);
+    if (line) return drawLineAd(line, pool, () => this.random());
+    return drawAd({ ads: this.encounters.ads, lines: this.encounters.lines, pool, random: () => this.random(), usable: (a) => this.decor.item(a.item) !== undefined });
   }
 
   // Shows `ad` as an encounter now (the roll does, and so does the dev shortcut). False if something
@@ -320,6 +340,7 @@ export class Game {
       blocked: this.adBlockerOn,
       busy: this.dialog.open || this.inputLocked,
       usable: (a) => this.decor.item(a.item) !== undefined,
+      pool: this.itemPool(),
     });
     return ad ? this.buildEncounter(ad) : null;
   }

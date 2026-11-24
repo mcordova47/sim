@@ -255,6 +255,16 @@ export const ENCOUNTERS = {
   // The last ads shown that are not shown again if another is possible, and the most kept in the save.
   recent: 3,
   maxSeen: 20,
+  // The pool the product-line ads draw from (issue 163): every real item of these kinds that is not a starting item
+  // and not a TEST item. A draw weights an item (or an ad whose item is) you do not own `unowned` times as high as one
+  // you own or have ordered (`owned`), so an ad for something you have stays rare while the pool is large and is only
+  // the usual one when everything is owned. The kinds are the ones an ad can sell (not props, plug-ins, the pantry
+  // or furniture); a kind with no items yet simply gives its shop nothing to sell.
+  pool: {
+    kinds: ["art", "plant", "lamp", "rug", "outfit", "coffee", "trinket", "instrument"] as readonly string[],
+    unowned: 10,
+    owned: 1,
+  },
 };
 
 // Energy runs from 0 to 100 (see state-vars.ts).

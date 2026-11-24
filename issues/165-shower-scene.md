@@ -62,6 +62,15 @@ decisions:
       - "yes, but only after the player has seen the whole scene once"
     recommendation: "no: Escape is the one back-out and pays nothing, as in every other scene"
     status: open
+  - id: d7
+    who: marc
+    q: "A shower can be repeated every 16 seconds (a 10 second cooldown and the 6 second scene). Should every shower play the whole scene?"
+    options:
+      - "yes: it is only 6 seconds; look again after playing it"
+      - "the whole scene the first time each game day, a shorter one (just the water and the robe) after that"
+      - "only the first shower ever plays the scene"
+    recommendation: "yes: it is only 6 seconds; look again after playing it"
+    status: open
 ---
 
 ## Goal

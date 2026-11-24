@@ -22,7 +22,7 @@ const esc: Controls = { ...NO_INPUT, keys: ["Escape"], cancelPressed: true };
 const TAB: Controls = { ...NO_INPUT, keys: ["Tab"] };
 const dir = (d: "up" | "down"): Controls => ({ ...NO_INPUT, dirPressed: d, dir: d });
 
-// Empty slots (the rug, issue 166) show nothing and are left out.
+// Empty slots (the rug, issue 166; the coffee stove, issue 168) show nothing and are left out.
 const shownIds = (d: Decor) => DECOR_SLOTS.flatMap((s) => d.shownIn(s.id)?.id ?? []);
 const realShownIds = (d: Decor) => DECOR_SLOTS.flatMap((s) => d.heldIn(s.id)?.id ?? []);
 const distinct = (ids: string[]) => new Set(ids).size === ids.length;
@@ -257,7 +257,7 @@ describe("fuzz: random swaps, saves, reloads and Escape on the real Game", () =>
         // Every slot shows something it owns that fits it.
         for (const s of DECOR_SLOTS) {
           const item = decor.heldIn(s.id);
-          if (!item) continue; // an empty slot (the rug)
+          if (!item) continue;
           expect(decor.owns(item.id), `step ${step}`).toBe(true);
           expect(item.kind === s.kinds[0] || s.kinds.includes(item.kind)).toBe(true);
         }

@@ -234,11 +234,13 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 165 | [Shower scene](issues/165-shower-scene.md) | marc + claude | todo | 164 |
 | 166 | [A rug](issues/166-rug.md) | marc + claude | todo | |
 | 167 | [Trinkets](issues/167-trinkets.md) | marc + claude | todo | |
-| 168 | [Coffee gear](issues/168-coffee-gear.md) | marc + claude | todo | |
+| 168 | [Coffee gear](issues/168-coffee-gear.md) | marc + claude | done | |
 | 169 | [Shelf and sill](issues/169-wall-shelf-and-sill.md) | marc + claude | todo | 167 |
 | 170 | [Empty pot](issues/170-empty-pot.md) | marc + claude | todo | |
 | 171 | [Cut flowers](issues/171-cut-flowers.md) | marc + claude | todo | |
 | 172 | [Record stand](issues/172-record-stand.md) | marc + claude | todo | |
+| 173 | [Trinket display design](issues/173-trinket-display.md) | marc + claude | todo | 151 |
+| 174 | [Shorter swap prompts](issues/174-swap-prompt-wording.md) | marc + claude | todo | 166, 168 |
 <!-- issues:table:end -->
 
 ## Order of work

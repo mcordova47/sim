@@ -44,6 +44,43 @@ decisions:
       - "ignore the setting for this scene"
     recommendation: "with it on, the steam is still and the bubbles do not move; the scene is otherwise the same"
     status: open
+  - id: d5
+    who: marc
+    q: "When no bathrobe will be worn (none owned or the ROBE slot is empty), what does the last picture of the shower scene show?"
+    options:
+      - "the outfit that will be worn after the shower (usually the everyday one), standing where the robe would"
+      - "a towel wrapped round the player (one more picture to draw)"
+      - "no last picture: the scene ends on the bubbles and the room comes back"
+    recommendation: "the outfit that will be worn after the shower (usually the everyday one), standing where the robe would"
+    status: open
+  - id: d6
+    who: marc
+    q: "Besides Escape (stop, no points, no robe), should there be a way to skip to the end of the shower scene and still be paid?"
+    options:
+      - "no: Escape is the one back-out and pays nothing, as in every other scene"
+      - "yes: pressing E skips to the last picture and pays the usual points"
+      - "yes, but only after the player has seen the whole scene once"
+    recommendation: "no: Escape is the one back-out and pays nothing, as in every other scene"
+    status: open
+  - id: d7
+    who: marc
+    q: "A shower can be repeated every 16 seconds (a 10 second cooldown and the 6 second scene). Should every shower play the whole scene?"
+    options:
+      - "yes: it is only 6 seconds; look again after playing it"
+      - "the whole scene the first time each game day, a shorter one (just the water and the robe) after that"
+      - "only the first shower ever plays the scene"
+    recommendation: "yes: it is only 6 seconds; look again after playing it"
+    status: open
+  - id: d8
+    who: marc
+    q: "What colour is the shower stall's tile in the close-up? The real bath is white glossy tile, but a heap of white bubbles cannot be seen against white."
+    options:
+      - "teal tile, for readability (a departure from the apartment)"
+      - "the real bath's white tile, with the bubbles outlined in dusk (hard to read in the mockup)"
+      - "a pale blue (sky) tile, between the two"
+    recommendation: "teal tile, for readability (a departure from the apartment)"
+    status: open
+needs: [{who: marc, kind: decide, why: "Look at the shower scene mockups (~/Dev/repos/mcordova47/sim-worktrees/165-shower-scene/docs/shower-scene-mockups/) and answer d1 to d8; then say 'merge 165' (design only; reviewed; the build follows 164)", since: 2026-11-24}]
 ---
 
 ## Goal

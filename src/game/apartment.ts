@@ -59,6 +59,16 @@ const MAIN_PROPS: PropDef[] = [
   // The mug waiting on the dining table (issue 065): there while nobody is
   // carrying coffee (`mug` 0), gone when a full mug is made (held-mug overlay) and
   // back after drinking it. Its own piece, so it could become a decor prop later.
+  // The coffee gear on the table (issue 168): the slot `coffee-table`, today's pour-over cone unless something else is placed.
+  {
+    name: "coffee maker",
+    slot: "coffee-table",
+    on: "T",
+    at: { x: 46, y: 2 },
+    size: { w: 16, h: 16 },
+    sprite: "coffee-pourover",
+    color: "paper",
+  },
   {
     name: "coffee mug",
     slot: "prop-table",
@@ -99,7 +109,7 @@ const MAIN: Record<string, ObjectDef> = {
     name: "dining table",
     sprite: "table",
     color: "tangerine",
-    tasks: ["coffee", "drink-coffee", "reheat", "eat-dinner", "eat-takeout", "swap-art-table"],
+    tasks: ["coffee", "drink-coffee", "reheat", "eat-dinner", "eat-takeout", "swap-art-table", "swap-coffee-table"],
     // The dinner plate is there only after reheating or cooking, until you eat (issue 065).
     variants: [
       { sprite: "table-plate", when: [{ var: "plate", min: 1 }], color: "tangerine" },
@@ -188,6 +198,12 @@ export const KITCHEN_MAP = [
   "#############",
 ];
 
+// The coffee pot on the stove's top-right burner (issue 168): the slot starts empty, so nothing is drawn until a pot is placed.
+// Its sprite is the placeholder only; the item decides what shows.
+const KITCHEN_PROPS: PropDef[] = [
+  { name: "coffee pot", slot: "coffee-stove", on: "V", at: { x: 29, y: 8 }, size: { w: 16, h: 16 }, color: "mist" },
+];
+
 const KITCHEN: Record<string, ObjectDef> = {
   C: {
     name: "sink and counter",
@@ -202,7 +218,7 @@ const KITCHEN: Record<string, ObjectDef> = {
       { sprite: "dishes-0", color: "butter" },
     ],
   },
-  V: { name: "stove", sprite: "stove", color: "ink", tasks: ["cook"] },
+  V: { name: "stove", sprite: "stove", color: "ink", tasks: ["cook", "coffee-stove", "swap-coffee-stove"] },
   h: { name: "range hood", sprite: "hood", color: "paper" },
   N: { name: "trash bin", sprite: "bin", color: "slate", tasks: ["take-trash"] },
   // The boxes follow the state variable `boxes` (issue 066): a stack, or flattened
@@ -269,7 +285,7 @@ export const APARTMENT: Apartment = {
       id: "main", tasks: TASKS, facing: "down", floor: "floor-wood", wallPieces: WALL_PIECES.main, props: MAIN_PROPS,
     }),
     kitchen: parseTileMap(KITCHEN_MAP, KITCHEN, {
-      id: "kitchen", tasks: TASKS, facing: "left", floor: "floor-kitchen", wallPieces: WALL_PIECES.kitchen,
+      id: "kitchen", tasks: TASKS, facing: "left", floor: "floor-kitchen", wallPieces: WALL_PIECES.kitchen, props: KITCHEN_PROPS,
     }),
     bath: parseTileMap(BATH_MAP, BATH, {
       id: "bath", tasks: TASKS, facing: "left", floor: "floor-bath", wallPieces: WALL_PIECES.bath,

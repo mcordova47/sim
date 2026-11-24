@@ -44,6 +44,41 @@ decisions:
       - "slots always hold something (a default for each)"
     recommendation: "an empty slot falls back to your everyday clothes; the first owned outfit that suits a slot fills it by itself"
     status: open
+  - id: d5
+    who: marc
+    q: "Which outfits may go in which slot (the new `fits` list on an outfit)?"
+    options:
+      - "explicit `fits` list, natural slot first (used only for auto-fill): EVERYDAY takes home, casual and out outfits; GOING OUT takes casual and out; PAJAMAS takes pajamas; ROBE takes the bathrobe and pajamas"
+      - "strict by style: each slot takes only its own style (a blazer cannot go in EVERYDAY)"
+      - "no limit: any outfit in any slot"
+    recommendation: "explicit `fits` list, natural slot first (used only for auto-fill): EVERYDAY takes home, casual and out outfits; GOING OUT takes casual and out; PAJAMAS takes pajamas; ROBE takes the bathrobe and pajamas"
+    status: open
+  - id: d6
+    who: marc
+    q: "Does an automatic change of clothes say or sound anything?"
+    options:
+      - "nothing: no text and no sound; the new sprite is the news"
+      - "a one-time line the first time it happens, then nothing"
+      - "a short line every time (for example YOU PUT ON THE ROBE.)"
+    recommendation: "nothing: no text and no sound; the new sprite is the news"
+    status: open
+  - id: d7
+    who: marc
+    q: "Does a change you make by hand stick, and does it stop the timed return to everyday?"
+    options:
+      - "yes: it sticks until the next occasion (sleep or a shower), and only an occasion arms the timed return"
+      - "it sticks, but the timed return still happens after two awake hours"
+    recommendation: "yes: it sticks until the next occasion (sleep or a shower), and only an occasion arms the timed return"
+    status: open
+  - id: d8
+    who: marc
+    q: "Does a nap change your clothes?"
+    options:
+      - "no: a nap changes nothing (you nap in what you have on)"
+      - "yes: it puts you in the PAJAMAS slot like sleeping does"
+    recommendation: "no: a nap changes nothing (you nap in what you have on)"
+    status: open
+needs: [{who: marc, kind: decide, why: "Answer d1 to d8 of the outfit slots design (docs/outfit-slots-design.md on branch issue/164-outfit-slots), then say 'merge 164'; the design is reviewed; the build and the shower scene (165) follow", since: 2026-11-24}]
 ---
 
 ## Goal

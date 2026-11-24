@@ -8,7 +8,7 @@ Where the original task list is in `src/game/tasks.ts`; this lists what issue 03
 | `blinds` (0 closed, 1 open) | Open the blinds, Close the blinds | each requires the other state; both east windows (issue 065) follow `blinds` and offer the task that applies, so either one changes both |
 | `plate` (0 none, 1 on the table) | Reheat leftovers, Cook dinner (set it), Eat dinner (clears it) | not an alternation: Eat dinner is still allowed with no plate out (it just leaves it at 0). Sleeping does not clear it. The table draws `table-plate` at 1, `table` (bare wood) at 0 |
 | `takeout` (0 none, 1 on the table), `takeoutOrdered` (derived) | Order takeout, Eat the takeout; Reheat, Cook and Eat dinner wait while `takeout` is 1 | issue 153. Ordering (nightstand) sets `takeoutOrdered`, which the game turns into a meal in the delivery queue (about 2 game hours, `DELIVERIES.mealDelayHours`) and then keeps in step with it (1 from the order until the box is opened). Order takeout is refused with THE TAKEOUT IS ON ITS WAY, or TAKEOUT IS WAITING while one is on the table. Opening the box puts the meal and the plate on the table (`takeout` 1, `plate` 1; a plate already there keeps the meal in the box); Eat the takeout clears both and sets `boxes` to 1. Cook, Reheat and Eat dinner are refused with TAKEOUT IS WAITING |
-| `mug` (0 empty, 1 full) | Make pour-over coffee, Drink the coffee | making needs an empty mug, drinking a full one |
+| `mug` (0 empty, 1 full) | Make pour-over coffee (or stovetop, issue 168), Drink the coffee | making needs an empty mug, drinking a full one |
 | `recordSort` (0 to 3, wraps) | Alphabetize, Arrange by year, Rank by favorites, Arrange by color | automatic: each ordering needs its turn, finishing moves it on; after color it is alphabetical again. No menu |
 
 ## What you type
@@ -104,7 +104,8 @@ A time cooldown is only there where nothing else stops you doing a task again at
 | `make-bed` | `bedMade` is 0 (sleeping unmakes it) | 0 | state gate; was 30 |
 | `open-blinds` | `blinds` is 0 | 0 | state gate; was 15 |
 | `close-blinds` | `blinds` is 1 | 0 | state gate; was 15 |
-| `coffee` | `mug` is 0, and clean plates | 0 | needs an empty mug, so it alternates with drinking |
+| `coffee` | `mug` is 0, and clean plates | 0 | needs an empty mug, so it alternates with drinking; named for the apparatus on the table (issue 168) |
+| `coffee-stove` | the same as `coffee`, and a pot on the stove | 0 | the stove's coffee, hidden while the stove is empty; named for the pot |
 | `drink-coffee` | `mug` is 1 | 0 | state gate |
 | `flatten-boxes` | `boxes` is 1 | 0 | state gate; a package puts the stack back |
 | `recycle-boxes` | `boxes` is 0 (hidden otherwise) | 0 | state gate |

@@ -8,6 +8,15 @@ depends_on: []
 summary: "List every animation with its speed, size and looping, and decide which should change when the browser asks for less motion."
 kind: research
 changelog: none
+decisions:
+  - id: d1
+    who: marc
+    q: "Reduced motion (162, d1): hold the candle's glow steady when the browser asks for less motion?"
+    options:
+      - "yes"
+      - "no"
+    recommendation: "yes"
+    status: open
 ---
 
 ## Goal

@@ -70,6 +70,14 @@ decisions:
       - "it sticks, but the timed return still happens after two awake hours"
     recommendation: "yes: it sticks until the next occasion (sleep or a shower), and only an occasion arms the timed return"
     status: open
+  - id: d8
+    who: marc
+    q: "Does a nap change your clothes?"
+    options:
+      - "no: a nap changes nothing (you nap in what you have on)"
+      - "yes: it puts you in the PAJAMAS slot like sleeping does"
+    recommendation: "no: a nap changes nothing (you nap in what you have on)"
+    status: open
 ---
 
 ## Goal

@@ -76,7 +76,10 @@ decisions:
       - "yes: pressing E skips to the last picture and pays the usual points"
       - "yes, but only after the player has seen the whole scene once"
     recommendation: "no: Escape is the one back-out and pays nothing, as in every other scene"
-    status: open
+    status: answered
+    answer: "no: Escape is the one back-out and pays nothing, as in every other scene"
+    by: marc
+    on: 2026-11-24
   - id: d7
     who: marc
     q: "A shower can be repeated every 16 seconds (a 10 second cooldown and the 6 second scene). Should every shower play the whole scene?"

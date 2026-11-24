@@ -25,6 +25,14 @@ decisions:
       - "no"
     recommendation: "no"
     status: open
+  - id: d3
+    who: marc
+    q: "Reduced motion (162, d3): make the art close-up zoom, the phone camera scroll and the waking light ramp calmer under the setting?"
+    options:
+      - "yes"
+      - "no"
+    recommendation: "no"
+    status: open
 ---
 
 ## Goal

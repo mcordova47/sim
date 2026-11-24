@@ -29,7 +29,10 @@ decisions:
       - "split by kind: art and plants by encounters, clothes and furniture by milestones"
       - "new items go only to the random pool; milestones stop adding new things"
     recommendation: "milestone gifts keep a fixed core set and trickle; every new item from now on joins the random pool (and may also be a milestone gift)"
-    status: open
+    status: answered
+    answer: "milestone gifts keep a fixed core set and trickle; every new item from now on joins the random pool (and may also be a milestone gift)"
+    by: marc
+    on: 2026-11-24
   - id: d3
     who: marc
     q: "How does an ad map to items (today seven ads each sell one fixed item)?"

@@ -28,7 +28,10 @@ decisions:
       - "waking up and a shower change clothes automatically; returning to everyday is only by hand (nothing is automatic)"
       - "waking up, a shower and a nap change clothes; everyday returns when you start your first real task of the day"
     recommendation: "waking up puts you in the PAJAMAS slot; a shower puts you in the ROBE slot; you return to EVERYDAY by hand at the bookshelf, or automatically after about two game hours awake"
-    status: open
+    status: answered
+    answer: "waking up and a shower change clothes automatically; returning to everyday is only by hand (nothing is automatic)"
+    by: marc
+    on: 2026-11-24
   - id: d3
     who: marc
     q: "How does the Change clothes list at the bookshelf work?"

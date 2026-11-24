@@ -104,6 +104,15 @@ decisions:
       - "a column of four"
     recommendation: "a row of four"
     status: open
+  - id: d12
+    who: marc
+    q: "What happens to the unmerged issue 167 branch, whose ten pictures are too big?"
+    options:
+      - "build stage A from it: keep its slot, swap task, items, notes and gifts, swap in the small pictures, and merge it only after that, so the big art never reaches main"
+      - "merge 167 now and replace the pictures later (the big art would be live meanwhile)"
+      - "drop 167 and start the slot again"
+    recommendation: "build stage A from it: keep its data and swap in the small pictures before it is merged"
+    status: open
 ---
 
 ## Goal

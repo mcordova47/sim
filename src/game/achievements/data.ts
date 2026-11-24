@@ -34,7 +34,7 @@ export const ACHIEVEMENTS: Achievement[] = [
   { id: "dishes-3", name: "Sink Duty", description: "Do the dishes three times.", when: { task: "dishes", atLeast: 3 } },
   { id: "guitar-3", name: "Same Three Chords", description: "Play guitar three times.", when: { task: "guitar", atLeast: 3 } },
   { id: "bed-3", name: "Hospital Corners", description: "Make the bed three times.", when: { task: "make-bed", atLeast: 3 } },
-  { id: "plant-3", name: "Green Thumb", description: "Water the snake plant three times.", when: { anyOf: ["water-plant", "water-plant-droop"], atLeast: 3 } },
+  { id: "plant-3", name: "Green Thumb", description: "Water the plant three times.", when: { anyOf: ["water-plant", "water-plant-droop"], atLeast: 3 } },
   { id: "contemplate-3", name: "Deep Thoughts", description: "Contemplate three times.", when: { task: "contemplate", atLeast: 3 } },
   { id: "sleep-3", name: "Asleep Again", description: "Go to sleep three times.", when: { task: "sleep", atLeast: 3 } },
 

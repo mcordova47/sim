@@ -9,11 +9,30 @@ import { ACHIEVEMENTS, type Condition } from "./data";
 import { LIST_CAPACITY } from "./draw";
 import { Stats } from "./stats";
 import { isMet } from "./unlock";
+import { DECOR_DATA } from "../decor-data";
+import { TASKS } from "../tasks";
 
 const taskIds = new Set(Object.values(APARTMENT.rooms).flatMap((r) => r.interactables.map((i) => i.id)));
 
 const taskIdsIn = (c: Condition): string[] =>
   "task" in c ? [c.task] : "anyOf" in c ? c.anyOf : "tasks" in c ? c.tasks : [];
+
+describe("plant wording (issue 161)", () => {
+  // The shelf plant can be swapped, so text about it must not name one.
+  const names = DECOR_DATA.items.filter((i) => i.kind === "plant" && i.taskName).map((i) => i.taskName!.toLowerCase());
+  const naming = (text: string) => names.filter((n) => text.toLowerCase().includes(n));
+
+  it("no achievement names a plant the shelf can swap away from", () => {
+    expect(names.length).toBeGreaterThan(1);
+    for (const a of ACHIEVEMENTS) expect(naming(a.name + " " + a.description), a.id).toEqual([]);
+  });
+
+  it("no plant task names a specific plant in its name, prompt or cutscene", () => {
+    for (const t of TASKS.filter((t) => t.liveSlot === "plant-shelf")) {
+      expect(naming(JSON.stringify([t.name, t.prompt, t.activity ?? null])), t.id).toEqual([]);
+    }
+  });
+});
 
 describe("achievement data", () => {
   it("lists at least 15 achievements with unique ids and names", () => {

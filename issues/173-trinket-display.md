@@ -52,6 +52,68 @@ decisions:
       - "no photos: draw from the kind of thing"
     recommendation: "yes, I will add photos to reference-photos/ before the art pass; the agent looks read-only and draws its own stylized sprites"
     status: open
+  - id: d6
+    who: marc
+    q: "Should a place's prompts (Examine, Display trinket) appear only where the item is, not from every tile of the piece?"
+    options:
+      - "yes: a slot task's zone is the piece tile that contains the item (the desk's col 9, the nightstand's col 14, each shelf slot's own column)"
+      - "no: keep every tile of the piece (Examine shows anywhere along the 4-tile desk)"
+    recommendation: "yes: a slot task's zone is the piece tile that contains the item"
+    status: open
+  - id: d7
+    who: marc
+    q: "The window sill: the east windows are drawn edge-on with no ledge, so small things only sit on it if the lower window is redrawn with a ledge. Build it?"
+    options:
+      - "later and optional: build the desk, nightstand, shelf and cubbies first, then decide the sill (needs 2 new window sprites)"
+      - "now, with the window redraw"
+      - "drop the sill"
+    recommendation: "later and optional: build the desk, nightstand, shelf and cubbies first, then decide the sill"
+    status: open
+  - id: d8
+    who: marc
+    q: "The lamp table has no free pixel (the lamp fills it). Drop it from the places?"
+    options:
+      - "drop it; the cubbies, desk, nightstand and shelf are enough"
+      - "redraw the four lamps with a smaller lamp to leave a corner (large)"
+      - "widen the lamp table to two tiles (large; every lamp is redrawn)"
+    recommendation: "drop it; the cubbies, desk, nightstand and shelf are enough"
+    status: open
+  - id: d9
+    who: marc
+    q: "Issue 169's wall shelf: its first slot (x 160) is above the bookshelf, where nobody can stand to face it. Move the three slots one tile east, to x 176, 192 and 208?"
+    options:
+      - "yes: the three slots at x 176, 192 and 208, each with a standing tile (11, 1), (12, 1) and (13, 1)"
+      - "no: keep x 160, 176 and 192 (the first slot can only be reached through a list)"
+    recommendation: "yes: the three slots at x 176, 192 and 208"
+    status: open
+  - id: d10
+    who: marc
+    q: "How large is the examine close-up?"
+    options:
+      - "48x48 art shown at 3x (144x144) on both views, the same pixel size as the zoomed art"
+      - "32x32 art shown at 4x (less detail, the same screen size)"
+      - "64x64 art shown at 2x (more detail, the same screen size, more to draw)"
+    recommendation: "48x48 art shown at 3x (144x144) on both views"
+    status: open
+  - id: d11
+    who: marc
+    q: "How are the real bookshelf's four cubbies arranged? The mockups assume a row of four."
+    options:
+      - "a row of four (as the floor plan's 1 tile by 4 suggests)"
+      - "two by two"
+      - "a column of four"
+    recommendation: "a row of four"
+    status: open
+  - id: d12
+    who: marc
+    q: "What happens to the unmerged issue 167 branch, whose ten pictures are too big?"
+    options:
+      - "build stage A from it: keep its slot, swap task, items, notes and gifts, swap in the small pictures, and merge it only after that, so the big art never reaches main"
+      - "merge 167 now and replace the pictures later (the big art would be live meanwhile)"
+      - "drop 167 and start the slot again"
+    recommendation: "build stage A from it: keep its data and swap in the small pictures before it is merged"
+    status: open
+needs: [{who: marc, kind: decide, why: "Look at the trinket display mockups (~/Dev/repos/mcordova47/sim-worktrees/173-trinket-display/docs/trinket-display-mockups/) and answer d1 to d12; then say 'merge 173' (design only; reviewed)", since: 2026-11-24}]
 ---
 
 ## Goal

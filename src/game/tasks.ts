@@ -27,12 +27,13 @@ const CONTENT: Task[] = [
   { id: 'close-blinds', name: 'Close the blinds', prompt: 'Close the blinds', duration: 1, points: 10 },
   // The snake plant (issue 063): one of these is offered, by how it is doing.
   // Drooping first, then thirsty, then "still damp" (plant.ts has the rules).
-  { id: 'water-plant-droop', name: 'Water the drooping snake plant', prompt: 'Water the drooping plant', duration: 2, points: 20,
-    exclusive: 'plant', liveSlot: 'plant-shelf' },
-  { id: 'water-plant', name: 'Water the snake plant', prompt: 'Water the plant', duration: 2, points: 20,
-    exclusive: 'plant', liveSlot: 'plant-shelf' },
-  { id: 'check-plant', name: 'Check the snake plant', prompt: 'Check the plant', duration: 0, points: 2, cooldown: 60,
-    exclusive: 'plant', liveSlot: 'plant-shelf',
+  // The names say "plant" and follow the plant on the shelf (`itemWord`): "Water the snake plant", "Water the pothos".
+  { id: 'water-plant-droop', name: 'Water the drooping plant', prompt: 'Water the drooping plant', duration: 2, points: 20,
+    exclusive: 'plant', liveSlot: 'plant-shelf', itemWord: 'plant' },
+  { id: 'water-plant', name: 'Water the plant', prompt: 'Water the plant', duration: 2, points: 20,
+    exclusive: 'plant', liveSlot: 'plant-shelf', itemWord: 'plant' },
+  { id: 'check-plant', name: 'Check the plant', prompt: 'Check the plant', duration: 0, points: 2, cooldown: 60,
+    exclusive: 'plant', liveSlot: 'plant-shelf', itemWord: 'plant',
     activity: { type: 'cutscene', steps: [{ say: 'The soil is still damp. The plant is doing fine.' }] } },
   { id: 'sort-records', name: 'Alphabetize the records', prompt: 'Alphabetize records', duration: 6, points: 60 },
 

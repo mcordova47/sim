@@ -3,9 +3,12 @@ import { NO_INPUT } from "../input/controls";
 import type { SpriteDrawer } from "../render/sprites";
 import { APARTMENT } from "./apartment";
 import { PLANT } from "./config";
-import { Decor, fits } from "./decor";
-import { DECOR_DATA, DECOR_SLOTS, FAMILIES, itemSprites } from "./decor-data";
+import { textWidth, unsupportedChars } from "../render/font";
+import { PLAYER_SPRITES } from "../render/player-sprite";
+import { Decor, fits, validateDecorData } from "./decor";
+import { DECOR_DATA, DECOR_SLOTS, FAMILIES, TASK_NAME_MAX, itemSprites } from "./decor-data";
 import { Game } from "./game";
+import { taskSpots } from "./plan-checks";
 import { settlePlant } from "./plant";
 import { ApartmentState } from "./state";
 import { STATE_VARS } from "./state-vars";
@@ -124,8 +127,9 @@ describe("stages are per family", () => {
 
 describe("the taller stages", () => {
   it("name their height in data, and only for the late stages", () => {
-    expect(FAMILIES.pothos.overhang).toEqual({ 4: 16, 5: 16 });
-    expect(FAMILIES.monstera.overhang).toEqual({ 4: 16 });
+    // The pothos's vines hang down over the bookshelf's south face; the monstera's crown reaches up.
+    expect(FAMILIES.pothos.overhang).toEqual({ 4: { down: 16 }, 5: { down: 16 } });
+    expect(FAMILIES.monstera.overhang).toEqual({ 4: { up: 16 } });
     expect(FAMILIES.plant.overhang).toBeUndefined();
     expect(FAMILIES.spider.overhang).toBeUndefined();
   });
@@ -138,27 +142,31 @@ describe("the taller stages", () => {
       expect(names).toEqual(expect.arrayContaining([...Array(rules.stages).keys()].map((n) => `${family}-${n}`).concat(`${family}-wilted`, ...wilted)));
       for (const name of names) expect(spriteExists(name), name).toBe(true);
       for (let stage = 0; stage < rules.stages; stage++) {
-        const up = rules.overhang?.[stage] ?? 0;
-        expect(size(`${family}-${stage}`), `${family}-${stage}`).toEqual({ w: 16, h: 16 + up });
-        if (up) expect(size(`${family}-wilted-${stage}`)).toEqual({ w: 16, h: 16 + up });
+        const over = rules.overhang?.[stage];
+        const h = 16 + (over?.up ?? 0) + (over?.down ?? 0);
+        expect(size(`${family}-${stage}`), `${family}-${stage}`).toEqual({ w: 16, h });
+        if (over) expect(size(`${family}-wilted-${stage}`)).toEqual({ w: 16, h });
       }
       expect(size(`${family}-wilted`)).toEqual({ w: 16, h: 16 });
     }
   });
 
-  it("the look says how far up the sprite reaches, and drooping picks that stage's own sprite", () => {
+  it("the look says how far the sprite reaches, up or down, and, and drooping picks that stage's own sprite", () => {
     const pothos = holding("plant-pothos");
     for (let stage = 0; stage < 6; stage++) {
       const grown = pothos.look("plant-shelf", stateWith(stage));
       const droop = pothos.look("plant-shelf", stateWith(stage, PLANT.droopAfterHours));
-      const up = FAMILIES.pothos.overhang![stage];
+      const over = FAMILIES.pothos.overhang![stage];
       expect(grown.sprite).toBe(`pothos-${stage}`);
-      expect(grown.up).toBe(up);
-      expect(droop.sprite).toBe(up ? `pothos-wilted-${stage}` : "pothos-wilted");
-      expect(droop.up).toBe(up);
+      expect(grown.down).toBe(over?.down);
+      expect(grown.up).toBeUndefined();
+      expect(droop.sprite).toBe(over ? `pothos-wilted-${stage}` : "pothos-wilted");
+      expect(droop.down).toBe(over?.down);
+      expect(droop.up).toBeUndefined();
     }
     const monstera = holding("plant-monstera");
     expect(monstera.look("plant-shelf", stateWith(4)).up).toBe(16);
+    expect(monstera.look("plant-shelf", stateWith(4)).down).toBeUndefined();
     expect(monstera.look("plant-shelf", stateWith(4, 200)).sprite).toBe("monstera-wilted-4");
     expect(monstera.look("plant-shelf", stateWith(3, 200)).sprite).toBe("monstera-wilted");
     expect(monstera.look("plant-shelf", stateWith(3)).up).toBeUndefined();
@@ -172,7 +180,7 @@ describe("the taller stages", () => {
     expect(shelf.area).toMatchObject({ w: 16, h: 16 });
   });
 
-  it("are drawn at the slot's place moved up by the extra height, after the bookshelf", () => {
+  it("are drawn at the slot's place, moved up by the extra height above it if any, after the bookshelf and in front of its south face", () => {
     const draws: { name: string; x: number; y: number }[] = [];
     const sprites: SpriteDrawer = {
       has: () => true,
@@ -182,10 +190,12 @@ describe("the taller stages", () => {
     const ctx = new Proxy({}, { get: () => () => {}, set: () => true }) as unknown as CanvasRenderingContext2D;
     vi.stubGlobal("document", { createElement: () => ({ width: 0, height: 0, getContext: () => ctx }) });
     try {
-      for (const [stage, dry, expected, up] of [
-        [3, 0, "pothos-3", 0], [4, 0, "pothos-4", 16], [5, 0, "pothos-5", 16], [5, 200, "pothos-wilted-5", 16], [2, 200, "pothos-wilted", 0],
+      for (const [id, stage, dry, expected, up] of [
+        ["plant-pothos", 3, 0, "pothos-3", 0], ["plant-pothos", 4, 0, "pothos-4", 0], ["plant-pothos", 5, 0, "pothos-5", 0],
+        ["plant-pothos", 4, 200, "pothos-wilted-4", 0], ["plant-pothos", 5, 200, "pothos-wilted-5", 0], ["plant-pothos", 2, 200, "pothos-wilted", 0],
+        ["plant-monstera", 4, 0, "monstera-4", 16], ["plant-monstera", 4, 200, "monstera-wilted-4", 16], ["plant-monstera", 3, 0, "monstera-3", 0],
       ] as const) {
-        const decor = holding("plant-pothos");
+        const decor = holding(id);
         const game = new Game(APARTMENT.rooms.main, { rooms: APARTMENT.rooms, decor, sprites, random: () => 0.5 });
         game.state.onChange = undefined;
         game.state.applyEffects([{ var: "plantStage", set: stage }, { var: "plantDry", set: dry }]);
@@ -204,22 +214,87 @@ describe("the taller stages", () => {
     }
   });
 
-  it("stay on the bookshelf's top: only the shelf's own tasks and no other prop under the extra rows", () => {
+  it("never hide the player: at every spot where the plant's tasks are done, anyone whose tile the sprite's box touches is drawn after it", () => {
     const main = APARTMENT.rooms.main;
-    const piece = main.pieces.find((p) => p.name === "cube bookshelf")!;
-    const reach = { x: shelf.area.x, y: shelf.area.y - 16, w: 16, h: 16 };
-    expect(reach.y).toBeGreaterThanOrEqual(piece.bounds.y);
-    expect(reach.x).toBeGreaterThanOrEqual(piece.bounds.x);
-    expect(reach.x + reach.w).toBeLessThanOrEqual(piece.bounds.x + piece.bounds.w);
-    const overlap = (a: { x: number; y: number; w: number; h: number }) =>
-      a.x < reach.x + reach.w && a.x + a.w > reach.x && a.y < reach.y + reach.h && a.y + a.h > reach.y;
-    for (const i of main.interactables) {
-      if (i.zones.some(overlap)) expect(i.id).toMatch(/plant|records|swap-plant-shelf/);
-    }
-    for (const p of main.props ?? []) {
-      if (p.slot !== "plant-shelf") expect(overlap(p.area), `prop ${p.slot}`).toBe(false);
+    const draws: { name: string; x: number; y: number }[] = [];
+    const sprites: SpriteDrawer = {
+      has: () => true,
+      draw: (_c, name, x, y) => void draws.push({ name, x, y }),
+      drawRegion: () => {},
+    };
+    const ctx = new Proxy({}, { get: () => () => {}, set: () => true }) as unknown as CanvasRenderingContext2D;
+    vi.stubGlobal("document", { createElement: () => ({ width: 0, height: 0, getContext: () => ctx }) });
+    try {
+      const stands = new Set<string>();
+      for (const spot of taskSpots(main)) {
+        const task = main.interactables.find((i) => i.id === spot.id)!;
+        if (task.liveSlot === "plant-shelf" || /records/.test(task.id) || task.id === "swap-plant-shelf") stands.add(`${spot.stand.col},${spot.stand.row},${spot.face}`);
+      }
+      expect(stands.size).toBeGreaterThan(0);
+      let touched = 0;
+      for (const [stage, expected, over] of [[5, "pothos-5", { up: 0, down: 16 }], [4, "pothos-4", { up: 0, down: 16 }]] as const) {
+        for (const stand of stands) {
+          const [col, row, face] = stand.split(",");
+          const decor = holding("plant-pothos");
+          const game = new Game(main, { rooms: APARTMENT.rooms, decor, sprites, random: () => 0.5 });
+          game.state.onChange = undefined;
+          game.state.applyEffects([{ var: "plantStage", set: stage }]);
+          game.player.placeAt(Number(col), Number(row), face as "up");
+          draws.length = 0;
+          game.update(1 / 60, NO_INPUT);
+          game.render(ctx, 0.5);
+          const plant = draws.findIndex((d) => d.name === expected);
+          const player = draws.findIndex((d) => PLAYER_SPRITES.includes(d.name));
+          expect(plant, expected).toBeGreaterThanOrEqual(0);
+          expect(player, "the player is drawn").toBeGreaterThanOrEqual(0);
+          // The sprite's box, and the player's tile.
+          const box = { x: shelf.area.x, y: shelf.area.y - over.up, w: 16, h: 16 + over.up + over.down };
+          const tile = { x: Number(col) * 16, y: Number(row) * 16 };
+          if (tile.x < box.x + box.w && tile.x + 16 > box.x && tile.y < box.y + box.h && tile.y + 16 > box.y) {
+            touched++;
+            expect(player, `${expected} with the player at ${stand}`).toBeGreaterThan(plant);
+          }
+        }
+      }
+      // Standing in front of the shelf (south of it) is one of those spots, so the check above ran.
+      expect(touched).toBeGreaterThan(0);
+    } finally {
+      vi.unstubAllGlobals();
     }
   });
+
+  it("keep every visible pixel on the bookshelf's own sprite: no floor tile, task spot or other prop is covered", () => {
+    const main = APARTMENT.rooms.main;
+    const piece = main.pieces.find((p) => p.name === "cube bookshelf")!;
+    const bounds = piece.bounds;
+    const stands = taskSpots(main).map((s) => s.stand);
+    for (const [family, rules] of Object.entries({ pothos: FAMILIES.pothos, monstera: FAMILIES.monstera })) {
+      for (const [stage, over] of Object.entries(rules.overhang!)) {
+        const top = shelf.area.y - (over.up ?? 0);
+        for (const name of [`${family}-${stage}`, `${family}-wilted-${stage}`]) {
+          const rows = (/^size: .*\n([\s\S]*)$/m.exec(sources[`/art/src/${name}.sprite`]) ?? [])[1]?.trim().split("\n") ?? [];
+          expect(rows.length, name).toBe(16 + (over.up ?? 0) + (over.down ?? 0));
+          rows.forEach((row, r) => {
+            [...row].forEach((c, x) => {
+              if (c === ".") return;
+              const px = shelf.area.x + x;
+              const py = top + r;
+              const where = `${name} pixel ${x},${r}`;
+              expect(px >= bounds.x && px < bounds.x + bounds.w && py >= bounds.y && py < bounds.y + bounds.h, where).toBe(true);
+              // Never on a tile anyone stands on to do something.
+              expect(stands.some((t) => Math.floor(px / 16) === t.col && Math.floor(py / 16) === t.row), where).toBe(false);
+            });
+          });
+        }
+      }
+    }
+    for (const p of main.props ?? []) {
+      if (p.slot === "plant-shelf") continue;
+      const grown = { x: shelf.area.x, y: shelf.area.y - 16, w: 16, h: 48 };
+      expect(p.area.x < grown.x + grown.w && p.area.x + p.area.w > grown.x && p.area.y < grown.y + grown.h && p.area.y + p.area.h > grown.y, `prop ${p.slot}`).toBe(false);
+    }
+  });
+
 });
 
 describe("a fresh game", () => {
@@ -228,5 +303,77 @@ describe("a fresh game", () => {
     expect(d.owns("plant-pothos")).toBe(false);
     expect(d.owns("plant-monstera")).toBe(false);
     expect(d.look("plant-shelf", stateWith(1)).sprite).toBe("plant-1");
+  });
+});
+
+// Item-aware task text (issue 149, P4 in docs/decor-expansion-design.md).
+describe("the plant tasks follow the plant on the shelf", () => {
+  const tasks = APARTMENT.rooms.main.interactables.filter((i) => i.liveSlot === "plant-shelf");
+  const plants = DECOR_DATA.items.filter((i) => i.kind === "plant");
+  const nameOf = (id: string, task: string) => holding(id).taskName(tasks.find((t) => t.id === task)!);
+
+  it("the three plant tasks say which plant, and the snake plant's wording is exactly as it was", () => {
+    expect(tasks.map((t) => t.id).sort()).toEqual(["check-plant", "water-plant", "water-plant-droop"]);
+    expect(new Decor().taskName(tasks.find((t) => t.id === "water-plant")!)).toBe("Water the snake plant");
+    expect(new Decor().taskName(tasks.find((t) => t.id === "water-plant-droop")!)).toBe("Water the drooping snake plant");
+    expect(new Decor().taskName(tasks.find((t) => t.id === "check-plant")!)).toBe("Check the snake plant");
+    expect(nameOf("plant-pothos", "water-plant")).toBe("Water the pothos");
+    expect(nameOf("plant-pothos", "water-plant-droop")).toBe("Water the drooping pothos");
+    expect(nameOf("plant-monstera", "check-plant")).toBe("Check the monstera");
+    expect(nameOf("plant-spider", "water-plant")).toBe("Water the spider plant");
+  });
+
+  it("the prompts are untouched, and an item with no task name leaves the plain wording", () => {
+    const water = tasks.find((t) => t.id === "water-plant")!;
+    expect(water.prompt).toBe("Water the plant");
+    expect(tasks.find((t) => t.id === "water-plant-droop")!.prompt).toBe("Water the drooping plant");
+    expect(tasks.find((t) => t.id === "check-plant")!.prompt).toBe("Check the plant");
+    const d = new Decor();
+    d.own("plant-test-grown");
+    d.place("plant-shelf", "plant-test-grown");
+    expect(d.heldIn("plant-shelf")!.taskName).toBeUndefined();
+    expect(d.taskName(water)).toBe("Water the plant");
+    // A task with no word to replace, or no slot, is as written.
+    expect(new Decor().taskName({ name: "Make the bed" })).toBe("Make the bed");
+    expect(new Decor().taskName({ name: "Water the plant", itemWord: "plant" })).toBe("Water the plant");
+  });
+
+  it("every live plant item has a task name, and every plant item's name draws in the font in every task", () => {
+    for (const item of plants) {
+      if (item.taskName !== undefined) {
+        expect(unsupportedChars(item.taskName), `${item.id} taskName`).toEqual([]);
+        expect(item.taskName.length).toBeGreaterThan(0);
+        expect(item.taskName.length).toBeLessThanOrEqual(TASK_NAME_MAX);
+      }
+      if (item.family && FAMILIES[item.family]?.stages > 0 && !item.tags?.includes("test")) expect(item.taskName, `${item.id} needs a taskName`).toBeDefined();
+      const d = new Decor();
+      d.own(item.id);
+      d.place("plant-shelf", item.id);
+      for (const t of tasks) {
+        const text = d.taskName(t);
+        expect(unsupportedChars(text), `${item.id} in ${t.id}: "${text}"`).toEqual([]);
+        // The progress label must fit the screen with room to spare.
+        expect(textWidth(text) + 6, `${item.id} in ${t.id}`).toBeLessThanOrEqual(200);
+      }
+    }
+  });
+
+  it("validateDecorData refuses a task name the font cannot draw, or an empty or long one", () => {
+    const item = DECOR_DATA.items.find((i) => i.id === "plant-pothos")!;
+    for (const taskName of ["pothos \u2603", "", "a very very long plant name"]) {
+      const data = { ...DECOR_DATA, items: DECOR_DATA.items.map((i) => (i === item ? { ...i, taskName } : i)) };
+      expect(() => validateDecorData(data), taskName).toThrow(/taskName/);
+    }
+  });
+
+  it("the running task's label uses the plant's name", () => {
+    const draws: string[] = [];
+    const decor = holding("plant-monstera");
+    const game = new Game(APARTMENT.rooms.main, { rooms: APARTMENT.rooms, decor, random: () => 0.5 });
+    const task = tasks.find((t) => t.id === "water-plant")!;
+    // What drawWorldUi hands the progress label.
+    draws.push(decor.taskName(task));
+    expect(draws).toEqual(["Water the monstera"]);
+    expect(game.decor.taskName(task)).toBe("Water the monstera");
   });
 });

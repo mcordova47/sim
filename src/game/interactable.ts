@@ -58,6 +58,11 @@ export interface Interactable {
   // decor slot holds a live item, one whose family has stages or droops. Dried flowers or
   // anything else that stands in the slot hides it.
   liveSlot?: string;
+  // Item-aware task text (issue 149, P4 in docs/decor-expansion-design.md): `name` is written with the plain
+  // word for the thing ("Water the plant"), and when the item in `liveSlot` has a `taskName` ("snake plant") that
+  // word replaces `itemWord` ("plant") in the name shown while the task runs. An item without a `taskName` leaves
+  // the plain wording. Only the name changes: a prompt that says "the plant" stays as written.
+  itemWord?: string;
   // The task of opening a delivered package (issue 062 stage 3a). Only offered
   // while a package waits, ends quietly and pays nothing.
   delivery?: boolean;

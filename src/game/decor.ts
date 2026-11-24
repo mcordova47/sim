@@ -1,6 +1,6 @@
 import { unsupportedChars } from "../render/font";
 import { DECOR, PLANT, TILE } from "./config";
-import { DECOR_DATA, FROM_MAX, NOTE_MAX, isTestItem, itemSprites, type DecorData, type DecorItem, type DecorSlot } from "./decor-data";
+import { DECOR_DATA, FROM_MAX, NOTE_MAX, TASK_NAME_MAX, isTestItem, itemSprites, type DecorData, type DecorItem, type DecorSlot } from "./decor-data";
 import type { Level } from "./level";
 import type { ApartmentState } from "./state";
 import type { Rect } from "./world";
@@ -27,9 +27,10 @@ export interface DecorLook {
   color?: DecorItem["color"];
   // The item's name, for the placeholder box when the art is missing.
   label: string;
-  // Pixels the sprite reaches above the slot's top (a tall late stage, issue 149); 0 or left out for a
-  // sprite the size of the slot.
+  // Pixels the sprite reaches above the slot's top and below its bottom (a late stage that overhangs, issue 149);
+  // left out for a sprite the size of the slot.
   up?: number;
+  down?: number;
 }
 
 // What putting an item in a slot changes: each slot and the item it will show,
@@ -85,6 +86,9 @@ export function validateDecorData(data: DecorData): void {
     for (const id of item.slots ?? []) if (!data.slots.some((s) => s.id === id)) bad.push(`item "${item.id}" names the unknown slot "${id}"`);
     if (item.family && !data.families[item.family]) bad.push(`item "${item.id}" uses the unknown family "${item.family}"`);
     if (unsupportedChars(item.name).length) bad.push(`item "${item.id}" name has letters the font cannot draw`);
+    if (item.taskName !== undefined && (unsupportedChars(item.taskName).length || item.taskName.length === 0 || item.taskName.length > TASK_NAME_MAX)) {
+      bad.push(`item "${item.id}" taskName must be 1 to ${TASK_NAME_MAX} characters the font can draw`);
+    }
     for (const [what, text, max] of [["note", item.note, NOTE_MAX], ["from", item.from, FROM_MAX]] as const) {
       if (text === undefined) continue;
       if (unsupportedChars(text).length) bad.push(`item "${item.id}" ${what} has letters the font cannot draw`);
@@ -383,13 +387,23 @@ export class Decor {
     const raw = slot?.stageVar && state.has(slot.stageVar) ? Math.floor(state.get(slot.stageVar)) : 0;
     // A stage above the family's last (a hand-edited save) shows the last one.
     const stage = Math.min(Math.max(raw, 0), Math.max(rules.stages - 1, 0));
-    const up = rules.overhang?.[stage];
+    const over = rules.stages > 0 ? rules.overhang?.[stage] : undefined;
+    const reach = over ? { ...(over.up && { up: over.up }), ...(over.down && { down: over.down }) } : {};
     if (rules.droops && dry >= PLANT.droopAfterHours) {
-      const sprite = up && rules.stages > 0 ? `${item.family}-wilted-${stage}` : `${item.family}-wilted`;
-      return { ...base, sprite, color: "butter", ...(up && rules.stages > 0 && { up }) };
+      return { ...base, sprite: over ? `${item.family}-wilted-${stage}` : `${item.family}-wilted`, color: "butter", ...reach };
     }
-    if (rules.stages > 0) return { ...base, sprite: `${item.family}-${stage}`, ...(up && { up }) };
+    if (rules.stages > 0) return { ...base, sprite: `${item.family}-${stage}`, ...reach };
     return base;
+  }
+
+  // The name a task shows (issue 149, Interactable.itemWord): the task's own `name`, with its `itemWord` replaced by
+  // the `taskName` of the item that is really in its `liveSlot`. The plain name when there is no such word or item name.
+  taskName(task: { name: string; itemWord?: string; liveSlot?: string }): string {
+    if (!task.itemWord || !task.liveSlot) return task.name;
+    const word = this.heldIn(task.liveSlot)?.taskName;
+    if (!word) return task.name;
+    const at = task.name.lastIndexOf(task.itemWord);
+    return at < 0 ? task.name : task.name.slice(0, at) + word + task.name.slice(at + task.itemWord.length);
   }
 
   // The growth rules of the plant in the slot: the last stage it can reach and the waterings for each step.

@@ -1149,13 +1149,15 @@ export class Game {
         if (interaction.active.item.decorSlot === undefined && !interaction.active.item.encounter) {
           // The banner fades while asleep, so it is not over the sleeper's head (issue 078).
           const alpha = this.sleepScene?.bannerAlpha ?? 1;
+          // The name follows the item the task is about (issue 149): "Water the pothos".
+          const shown = { ...interaction.active.item, name: this.decor.taskName(interaction.active.item) };
           // In a pose (issue 100) the banner sits above the whole pose picture, not over its top half:
           // at the desk the player stands a tile south of where they are drawn seated.
           const anchor = this.currentPose() && !this.sleepScene ? this.playerScreenRect(cam) : actor;
-          if (alpha >= 1) drawProgress(ctx, anchor, interaction.active.item, interaction.progress, VIEW, popupBoxes);
+          if (alpha >= 1) drawProgress(ctx, anchor, shown, interaction.progress, VIEW, popupBoxes);
           else if (alpha > 0.01) {
             ctx.globalAlpha = alpha;
-            drawProgress(ctx, anchor, interaction.active.item, interaction.progress, VIEW, popupBoxes);
+            drawProgress(ctx, anchor, shown, interaction.progress, VIEW, popupBoxes);
             ctx.globalAlpha = 1;
           }
         }

@@ -62,6 +62,14 @@ decisions:
       - "a short line every time (for example YOU PUT ON THE ROBE.)"
     recommendation: "nothing: no text and no sound; the new sprite is the news"
     status: open
+  - id: d7
+    who: marc
+    q: "Does a change you make by hand stick, and does it stop the timed return to everyday?"
+    options:
+      - "yes: it sticks until the next occasion (sleep or a shower), and only an occasion arms the timed return"
+      - "it sticks, but the timed return still happens after two awake hours"
+    recommendation: "yes: it sticks until the next occasion (sleep or a shower), and only an occasion arms the timed return"
+    status: open
 ---
 
 ## Goal

@@ -110,7 +110,7 @@ decisions:
       - "show only the slots you can fill"
     recommendation: "yes, all four always: an empty slot reads (EVERYDAY) and GOING OUT reads BY HAND"
     status: open
-needs: []
+needs: [{who: marc, kind: decide, why: "Answer d9, then say 'merge 164' (the outfit slots design, updated to your answers; reviewed; the build follows)", since: 2026-11-24}]
 ---
 
 ## Goal

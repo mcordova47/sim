@@ -64,7 +64,10 @@ decisions:
       - "strict by style: each slot takes only its own style (a blazer cannot go in EVERYDAY)"
       - "no limit: any outfit in any slot"
     recommendation: "explicit `fits` list, natural slot first (used only for auto-fill): EVERYDAY takes home, casual and out outfits; GOING OUT takes casual and out; PAJAMAS takes pajamas; ROBE takes the bathrobe and pajamas"
-    status: open
+    status: answered
+    answer: "strict by style: each slot takes only its own style (a blazer cannot go in EVERYDAY)"
+    by: marc
+    on: 2026-11-24
   - id: d6
     who: marc
     q: "Does an automatic change of clothes say or sound anything?"

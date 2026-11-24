@@ -16,7 +16,10 @@ decisions:
       - "in the bath room itself: the player stays in the tub with effects drawn over it"
       - "both: the in-room version while it runs, a close-up for the finish"
     recommendation: "a composed close-up like the sofa and side-project scenes: the player in the shower, bubbles and steam, then out in the robe"
-    status: open
+    status: answered
+    answer: "in the bath room itself: the player stays in the tub with effects drawn over it"
+    by: marc
+    on: 2026-11-24
   - id: d2
     who: marc
     q: "How should the effects look?"

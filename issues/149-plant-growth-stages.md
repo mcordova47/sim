@@ -39,7 +39,10 @@ decisions:
       - "add a short line to the swap list"
       - "add it to each plant's note"
     recommendation: "no change for now"
-    status: open
+    status: answered
+    answer: "as recommended"
+    by: planner
+    on: 2026-11-24
 ---
 
 ## Goal

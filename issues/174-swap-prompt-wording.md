@@ -34,7 +34,10 @@ decisions:
       - "drop the 'the' from all task names and prompts too"
       - "only where a prompt overflows a narrow phone view"
     recommendation: "leave them as they are for now"
-    status: open
+    status: answered
+    answer: "drop the 'the' from all task names and prompts too"
+    by: marc
+    on: 2026-11-24
 ---
 
 ## Goal

@@ -1,227 +1,188 @@
 # A Sims-like shower scene that ends in the bathrobe (design note, issue 165)
 
-Status: a design for Marc to confirm. Nothing is built; `src/` and `art/` are untouched. The four open questions from the filing (d1 to d4) are in [issues/165-shower-scene.md](../issues/165-shower-scene.md) and are still open: this note designs for the recommended answer of each and says what changes if Marc picks another. Four more questions found while reading the code (d5 to d8) are in the same file. Idea notes: [ideas.md](ideas.md) 'Put on the robe after a shower' (with Marc's 2026-11-24 addition). It builds on the outfit slots design of issue 164 ([outfit-slots-design.md](outfit-slots-design.md) on the branch `issue/164-outfit-slots`, not merged yet), and on the composed-view precedents: the sofa scene (issue 117, [photo-gallery-design.md](photo-gallery-design.md) 3.5), the side project's composed room (issue 111, [side-project-config-design.md](side-project-config-design.md)) and the sleep sequence ([sleep.md](sleep.md)).
+Status: a design for Marc to confirm. Nothing is built; `src/` and `art/` are untouched. Marc answered the questions on 2026-11-24 (in [issues/165-shower-scene.md](../issues/165-shower-scene.md)): the scene plays **in the bath room itself**, the player stays in the tub with the effects drawn over it (d1), bubbles over the body with the head showing, steam and fog drifting up and droplets falling, all calm and slow (d2), a soft hiss and a quiet click when it stops with the music playing on (d3), and with reduced motion the steam is still and the bubbles do not move (d4). There is no cutscene: the player appears in the tub, and afterwards appears beside it in the robe or in everyday clothes (d5). No skip: Escape pays nothing (d6). Every shower plays the whole scene (d7). No close-up (d8). This note replaces an earlier version that designed a composed close-up (it is in git history on this branch).
+
+It builds on the outfit slots design of issue 164 ([outfit-slots-design.md](outfit-slots-design.md) on the branch `issue/164-outfit-slots`, not merged), where Marc has answered that waking up and a shower change clothes automatically, that returning to everyday is by hand only, and that each slot takes only its own style. Precedents: the sleeping pose (issue 078, [sleep.md](sleep.md)) for a clothes-free pose, the coffee and dish emitters for particles tied to a task.
 
 ## In short
-- **One scene, drawn by a new activity.** Taking a shower becomes a full-screen close-up of a shower stall, for the whole 6 seconds the task already lasts. The task keeps its id `shower`, its 6 seconds, its 70 points and its mood +6 (`tasks.ts:90,189`). The activity draws everything itself, in screen space, like the sofa scene (`activities/reel.ts`).
-- **Four pictures, in order:** (1) shower off, the curtain closed (you step in); (2) the curtain open, the shower on, you in a heap of soap bubbles with only your head showing, droplets falling, steam rising, the window of the stall fogging; (3) the shower off with a click, still in the bubbles, steam thinning; (4) out, in the bathrobe, the bubbles gone. Then the scene ends and the room is back, with the usual popup and confetti.
-- **The bubbles do the covering.** Nothing below the chin is ever drawn except bubbles (and, in the last picture, the robe). So there is no body art, no clothes-free sprite, and the picture is the same for everyone.
-- **Particles reuse the particle pool** (`src/game/particles`) but with the scene's own pool, because the game's pool is drawn in the world pass, which the full-screen scene covers (section 1). Three new particle kinds and three tiny shapes, all data in `config.ts`.
-- **Sound:** a soft hiss while the water runs, a quiet click each time the tap turns. The hiss needs a small engine addition (section 6), because today a noise voice cannot last longer than half a second or be cut off.
-- **Escape** backs out at any moment: no points, no mood, no robe, no cooldown, as for every task.
-- **Reduced motion:** the steam and bubbles hold still, the curtain cuts instead of sliding, the fog does not fade; the four pictures and the timing stay.
-- **The robe is not this scene's to put on.** The last picture draws whatever outfit the occasion will put on (the bathrobe if one is in the ROBE slot, otherwise the EVERYDAY outfit; until 164 is built, the outfit worn now), and the real change follows from issue 164's occasion when the task ends.
-- **Size:** about 7 sprites, 3 particle kinds, 2 sound effects, one activity, one tiny sound class and about 25 lines in the synth. Four stages, each its own branch and review (section 11).
-
-Mockups (section 3) were rendered with the game's own palette, the real player and robe sprites and the 5x7 font; the scene's new art in them is drawn in code as a stand-in. They are three or four times life size.
+- **The shower becomes a pose.** Like sleeping in the bed, `shower` gets `pose: "shower-tub"`: while the task runs the plain player is not drawn and one picture is drawn over the tub, the player standing in it with a heap of soap bubbles from the chin down and the head showing. It is `clothed: false` (like `sleep-bed`), so it is the same for every outfit and nothing flips. The player does not walk anywhere: they "appear" in the tub, and when the task ends they "appear" again on the tile beside it.
+- **The effects are the game's normal particles, in the bath room, over the tub.** Four new particle kinds (droplets, steam, fog, floating bubbles) in `PARTICLES.kinds`, emitted by `PARTICLES.taskEmitters.shower`, drawn by the existing pool. Emitters can already be limited to phases; a small generalisation lets a task have phases (in, water, off) from data.
+- **Art: one new sprite**, `player-shower-tub` (16 x 48, palette only, no text), the head and the bubbles at its top.
+- **Sound:** a soft hiss while the water runs and a click when it stops. The hiss needs a small engine addition (section 7).
+- **Reduced motion:** still steam and fog (a fixed set drawn where moving ones would be), no floating bubbles; the rest is the same.
+- **Escape** at any moment: the pose goes, the player is where they were, nothing is paid, no robe.
+- **The robe is not this scene's to put on.** The occasion of issue 164 (when the task ends and nothing is active) changes the clothes; the pose draws no clothes, so the player simply appears beside the tub already in the robe if the ROBE slot says so, otherwise in the everyday clothes.
+- **Size:** 1 sprite, 4 particle kinds and 4 tiny shapes, about 60 lines of config and 40 of code for the effects, about 100 lines for the sound; three small stages (section 11). Much smaller than the close-up.
 
 ## 1. What the code does today (checked)
 Line numbers are for `main` at `b1db29a`.
 
 | Claim | Where |
 |---|---|
-| `shower` is a plain timed task: 6 seconds, 70 points, no pose, no activity (so a `WaitActivity`); effect mood +6; good hours 06:00 to 10:00 and 20:00 to 23:00; cooldown is the default 10 s. | `tasks.ts:90,189,349`; `config.ts:69` `DEFAULT_TASK_COOLDOWN`; `docs/tasks.md:129` |
-| It is offered at the tub (map letter `U`, a 2 x 4 piece down the west wall of the 9 x 6 bath). The toilet `Q` and the vanity sink `V` are against the north wall; the door is on the east wall. | `apartment.ts:231-244`; `docs/floor-plan.md` 'Bath' |
-| An activity is a class registered by name; a task asks for it with `activity: { type: "..." }`. Registered kinds are imported in `activities/index.ts`. `WaitActivity` is the plain timed one: it counts `elapsed`, sets `progress` and finishes `{ completed: true }`. | `activity.ts:220` (`registerActivity`), `activities/wait.ts`, `activities/index.ts` |
-| An activity's `draw(ctx, screen, avoid)` is called after the world, the world UI and the HUD, so it covers all of them, and the "ESC TO STOP" hint is drawn after it, on top. `screen` is the live view: `DESKTOP_VIEW` 320 x 192 or `NARROW_VIEW` 224 x 208 on a phone. | `game.ts:857-863,868-876`; `config.ts:6-12`; `activity.ts:156` |
-| Escape cancels a cancellable activity (`activity.cancel()`); `finish` with `completed: false` returns before the effects, the score, the cooldown and `onComplete`, so `taskComplete` is never emitted; `taskCancelled` is. Completion applies the effects, scores, then `onComplete` (the popup, the `taskComplete` event). | `interaction.ts:159-160,302-347` |
-| Particles live in a `ParticlePool` (a fixed set of slots, reused; `spawn`, `update(dt)`, `draw(ctx)`). `draw` fills 1-pixel squares at `Math.round(x), Math.round(y)` in **whatever coordinates the context has**, so a scaled context draws them chunky. A kind is data (`PARTICLES.kinds`), a shape is a small `#` grid (`PARTICLE_SHAPES`); an unknown shape or kind throws. | `particles/pool.ts:82-176`; `config.ts:1415,1468-1498`; `particles/effects.ts` (`kindOf`, `puff`) |
-| The game's one pool is drawn by `ParticlesFeature.drawWorld`, in the world pass; `taskEmitters` (by task id) anchor to the task's zone, pose, a piece or the player, all in world pixels. The world pass is under the scene (`game.ts:859` comes after it), so an emitter for `shower` would draw particles nobody sees. | `particles/feature.ts:134,150-200`; `config.ts:1546`; `game.ts:857-859` |
-| Reduced motion is read in one place, `reducedMotionAsked` / `liveReducedMotion` (`reduced-motion.ts`), passed into `Game` (`main.ts:25`) and exposed as `Game.reducedMotionAsked` (`game.ts:155`); the candle reads it every frame and the ad encounter once at its start. The `ActivityHost` an activity receives has **no** reduced-motion member today; the encounter gets it through its own dependencies (`game.ts:306`). | `reduced-motion.ts`; `game.ts:155,306,339-377`; `time-of-day/feature.ts:151` |
-| Sounds: an effect is `{ voices: [...] }` in `SOUND.effects` (`config.ts:1127`); a **noise voice** is a filtered noise with `freq`, `q`, `length`, `gain`. The noise buffer is **0.5 s** long and played once (`NOISE_SECONDS`), every voice's gain starts at its peak and ramps **exponentially down** to silence over its length, and only formant voices have `hold`. An effect cannot be stopped once scheduled. Buses: `effects`, `music`, and the lazily made `sleep` and `encounter`, which can be ramped (`rampBus`). | `sound/synth.ts:15-18,102,152-165,224-232`; `config.ts:659-667`; `sound/audio-types.ts:48-53` |
-| The sleep scene is the model for a sound that follows a scene: `SleepSound` reads the scene each frame, ramps its own bus, and puts everything back by itself when the scene is gone for any reason; with no audio context it does nothing. Mute is the master gain, which no bus touches. | `sound/sleep-sound.ts:7-16` |
-| Composed full-screen scenes lay themselves out for both views from the live `screen` size: the sofa scene does it for 320 x 192 and 224 x 208 without switching the view (`showsPicture`, which flips a phone to 320 x 192, is only for pictures drawn for the desktop size). | `docs/photo-gallery-design.md` 3.5; `game.ts:635-642` |
-| The game's canvases have image smoothing off (`render/canvas.ts:259,271,329,344`), so a sprite drawn under `ctx.scale(4, 4)` stays crisp; `Sprites.draw` rounds the position and draws at the image's own size. `SpriteDrawer.drawScaled(ctx, name, x, y, scale, smooth)` also exists (smoothing off when `smooth` is false) but **nothing calls it today**, so the scene uses `ctx.save(); ctx.translate(stage); ctx.scale(4, 4); sprites.draw(...)`, the same transform it gives the particle pool. | `render/canvas.ts`; `render/sprites.ts:104-140` |
-| Sprite sizes must be multiples of 16 (except `icon-*`); every sprite the game asks for is listed in `render/sprite-names.ts` and `sprite-names.test.ts` fails if a file is missing. The palette has 22 colours (`art/palette.json`). | `scripts/sprite-lib.mjs:30-48`; `render/sprite-names.ts`; `docs/art-style.md` 'Grid' |
-| The player is 16 x 16. The head is rows 0 to 6 of every standing sprite (hair and face); the torso starts at row 7 and differs by outfit. The robe is `player-pajamas-robe-*`, generated, with bare ankles. | `art/src/player-idle-down.sprite`, `art/src/player-pajamas-robe-idle-down.sprite`; `outfits.ts:24-41` |
-| The bed pose is `clothed: false`, a whole picture with no clothes showing (issue 150); there is no outfit-free standing sprite and none is needed here (section 4). | `poses.ts:66-80` |
-| There is no outfit slot code on `main`: `outfitSlots`, `resolve` and `OUTFIT_OCCASIONS` exist only in the design on the 164 branch. | `grep` over `src/` finds none |
+| `shower` is a plain timed task: 6 s, 70 points, effect mood +6, good hours 06:00 to 10:00 and 20:00 to 23:00, default cooldown 10 s. No pose today, so a `WaitActivity`. | `tasks.ts:90,189,349`; `config.ts:69` |
+| It is offered at the tub: map letter `U`, 2 x 4 tiles (cols 1-2, rows 1-4) down the west wall of the 9 x 6 bath, so a 32 x 64 piece at pixel (16, 16). It is faced from col 3, rows 1 to 4, looking left; the toilet `Q` and vanity `V` are on the north wall, the door `1` in the east wall at row 3. | `apartment.ts:228-245`; `game.ts:916-922` (`facedPiece`) |
+| A task names a `pose` (a key of `POSES`); it plays only at the piece the pose belongs to (`on`), drawn at `at` (pixels from the piece's top-left) with `size`; `replacesPiece` hides the piece's own sprite; `clothed: false` means one picture for every outfit. If the art is missing the plain player is drawn. | `poses.ts:8-39,66-80`; `game.ts:232-238,955-963` |
+| While a pose plays the plain player is not drawn; the pose picture is added to the same draw list as the furniture, sorted by the bottom edge (`y + size.h`), and "the sort is stable, so on a tie the player (added last) is in front". The sofa pose sprite is as tall as the sofa for that reason. A pose whose bottom edge is the piece's bottom edge is drawn in front of the piece. | `game.ts:1081-1104`; `poses.ts` (the `sit-sofa` comment) |
+| A popup over a player in a pose rises above the pose picture; `playerScreenRect` follows the pose too. When the task ends the plain player is drawn again at the tile they never left. | `game.ts:924-950` |
+| The task table pairs tasks with poses (`sleep: { pose: "sleep-bed" }`, `nap`, `doomscroll`...). The pose art is listed for the loader from `POSES` automatically. | `tasks.ts:301-312`; `render/player-sprite.ts:22-25` |
+| The camera holds a world smaller than the view still: centred sideways and **at the bottom**, "so the strip above it is free for the HUD". The bath is 144 x 96, so on the desktop (320 x 192) it is at x 88, y 96, and on the phone (224 x 208) at x 40, y 112. The rest of the picture is ink. | `render/camera.ts:70-80`; `game.ts:201,839-846`; `config.ts:6-12` |
+| Layers draw in the world pass after the world, the player and the pose, inside the camera's transform; the particle feature is one of them, so particles draw over a pose and are not tinted by the time of day. The HUD and activity pictures come after. | `game.ts:839-859`; `particles/feature.ts:134` |
+| Particles: one `ParticlePool` (budget 200), kinds are data (`PARTICLES.kinds`), shapes are `#` grids (`PARTICLE_SHAPES`), unknown ones throw. `PARTICLES.taskEmitters` maps a task id to emitters (`kind`, `every`, `count`, `at`, optional `color` and `phases`) that run while that task runs; anchors are `zone`, `pose`, `piece` (by sprite name) or `player`, in world pixels. A one-shot burst exists only for task completion (confetti). | `config.ts:1415-1424,1426-1470,1468-1498,1546-1562`; `particles/feature.ts:80-90,130-200` |
+| An emitter's `phases` is typed `"fall" \| "asleep" \| "wake"` and read from `game.sleepScene?.phase` only; an emitter that stops applying forgets its timer, so it starts with a puff next time it applies. | `config.ts:1455`; `particles/feature.ts:144-146,150-160` |
+| Escape cancels a cancellable activity; `finish` with `completed: false` returns before the effects, the score, the cooldown and `onComplete`, so `taskComplete` is never emitted. Completion applies the effects, scores, shows the popup and emits `taskComplete`, then may start an ad encounter. | `interaction.ts:159-160,302-347`; `game.ts:197-231` |
+| Reduced motion: read in one place (`reduced-motion.ts`), passed into `Game` and exposed as `Game.reducedMotionAsked` (read every frame by the candle); `ParticlesFeature` has a `game` and can read it. | `reduced-motion.ts`; `game.ts:155`; `time-of-day/feature.ts:151` |
+| Sounds: an effect is `{ voices }` in `SOUND.effects`; a noise voice is one 0.5 s buffer played once with an exponentially falling envelope, only formant voices have `hold`, an effect cannot be stopped once scheduled; buses `effects`, `music` and the lazily made `sleep` and `encounter` can be ramped (`rampBus`); `SleepSound` is the model for a sound that follows a running thing and puts everything back when it is gone; mute is the master gain. | `sound/synth.ts:15-18,102,152-165,224-232`; `config.ts:659-667,1127`; `sound/audio-types.ts:48-53`; `sound/sleep-sound.ts` |
+| There is no outfit slot code on `main`; `outfitSlots`, the ROBE slot and the occasion exist only in the 164 design. | `grep` over `src/` |
+| Sprite sizes are multiples of 16 (except `icon-*`); every sprite file is listed for the loader and `sprite-names.test.ts` fails if one is missing; the player is 16 x 16 and the head is rows 0 to 6 of every standing sprite. | `scripts/sprite-lib.mjs:40-42`; `render/sprite-names.ts`; `art/src/player-idle-down.sprite` |
 
-## 2. Where it plays (d1) and what it is made of
-d1 recommends a composed close-up. So the scene is a new activity, `shower` (`activities/shower.ts`), registered like `sleep` and `reel`, and the task becomes `activity: { type: "shower" }` (duration still the task's 6 s; the activity reads `item.duration` and works in fractions of it, so changing the duration later keeps the shape). It sets `cancellable = true`. It does **not** hold the clock (`holdsClock` stays false): today a shower takes 6 real seconds of game clock (12 game minutes) and that is unchanged. It does not set `showsPicture`: the scene is laid out for the live view itself.
+## 2. The room as the game draws it
+The bath is small on screen. The view holds it centred sideways and at the bottom: on the desktop it is the lower middle of the picture (x 88 to 232, y 96 to 192) and on the phone the lower middle of the narrow view (x 40 to 184, y 112 to 208); above it there is ink (the HUD chips sit there). The tub is the 2 x 4 piece at the left of the room; the player stands on col 3 (the tile just east of the tub's curtain strip) and faces it. The scene is drawn **in this room at its normal size**, with no zoom: the pose is 16 x 48 pixels, drawn over the tub (the tub's water is 13 pixels wide, so the head and bubbles are 16 pixels wide at most).
 
-**The picture.** A front-on view of the stall, drawn at **4 times** the art pixels. The stage is 48 x 48 art pixels (3 tiles square), so 192 x 192 on screen: a square in the middle of the view, with `night` around it. Why 4x: the player is 16 x 16 and a head at 4x is 64 px wide, large enough to read the face and the bubbles, small enough that the whole stall fits on both screens. (3x made the figure a speck; 2x is the world's own scale and makes it worse.)
+The mockups use the real bath map, the real floor, wall, door, tub, toilet and vanity sprites, the real player and robe sprites and the game's centring. The pose art and the particles are stand-ins (section 13 says how they were made). Not drawn: the HUD chips in the ink strip above, and the popup and confetti at the tub.
 
-| View | Screen | Stage position | Around the stage |
-|---|---|---|---|
-| Desktop | 320 x 192 | x 64 to 256, y 0 to 192 | `night`, 64 px each side |
-| Phone | 224 x 208 | x 16 to 208, y 8 to 200 | `night`, 16 px each side, 8 above and below |
+Desktop (320 x 192, shown 3 times life size, with a caption strip that is not part of the game):
 
-Both are `Math.floor((screen - 192) / 2)`, so the stage is on a whole pixel. The view does not switch: `NARROW_VIEW` and `DESKTOP_VIEW` already give `draw` their own size. The "ESC TO STOP" hint (`B TO STOP` on touch) is drawn by the game on top of the scene at the top centre (desktop) or under the chips (phone, `stopHintAt`); the shower arm sits below it (art row 5 and down) so they never meet.
+![1 before](shower-scene-mockups/shower-room-desktop-1.png)
+![2 in the tub, off](shower-scene-mockups/shower-room-desktop-2.png)
+![3 on](shower-scene-mockups/shower-room-desktop-3.png)
+![4 off](shower-scene-mockups/shower-room-desktop-4.png)
+![5 after, in the robe](shower-scene-mockups/shower-room-desktop-5.png)
 
-**What the stage shows (all front-on; the tub is the one furniture piece the art style draws from above, `art-style.md` exceptions, so the stall is its own picture, like the bed pose):**
-- a tiled wall with a shower arm and head on the right (the head hangs over the middle);
-- a linen curtain on a rod, drawn in three states (closed, half open, open), in the colours of the tub's own curtain (`tub.sprite`: cream, putty, taupe);
-- the front of the tub as a rim and a face across the bottom, with the figure behind or, in the last picture, in front of it;
-- the figure: the player's **head** (rows 0 to 6 of the real `player-idle-down` sprite, drawn at 4x) with a heap of foam covering everything from row 7 down. So the figure is the same for every outfit and never shows a torso, an arm or a leg: the scene needs **no clothes-free art**.
+The tub at 6 times, for the effects (2, 3, 4, 5, and 3 with reduced motion):
 
-**Tile colour (d8).** The real bath is white glossy tile with grout every 8 px (`art-style.md`, issue 054). In the mockups the stall's tile is **teal** for one reason: a white heap of bubbles on white tile cannot be read (see `shower-desktop-2-white.png`, same frame on white tile; the foam's outline has to be dusk and still looks like a smudge). Teal is therefore a departure from the apartment, flagged as d8 with the recommendation to keep it.
+![detail 2](shower-scene-mockups/shower-room-detail-2.png)
+![detail 3](shower-scene-mockups/shower-room-detail-3.png)
+![detail 4](shower-scene-mockups/shower-room-detail-4.png)
+![detail 5](shower-scene-mockups/shower-room-detail-5.png)
+![detail 3 still](shower-scene-mockups/shower-room-detail-3-still.png)
 
-## 3. The four pictures (mockups)
-Timeline for the 6 second task (fractions of `item.duration` in the data; seconds are for 6):
+Phone (224 x 208): the same five.
 
-```
-0.0                0.7   0.85  1.0                             4.6   5.3     6.0
-|-- 1 off, curtain closed --|     |--------- 2 on --------------|-- 3 off --|-- 4 robe --|
-        drip       curtain half, open     hiss, foam, steam, droplets, fog    click, drips,    foam gone,
-                                          bob 0.5 s                          steam thins     fog 6 percent
-```
+![phone 1](shower-scene-mockups/shower-room-phone-1.png)
+![phone 2](shower-scene-mockups/shower-room-phone-2.png)
+![phone 3](shower-scene-mockups/shower-room-phone-3.png)
+![phone 4](shower-scene-mockups/shower-room-phone-4.png)
+![phone 5](shower-scene-mockups/shower-room-phone-5.png)
 
-| Picture | Seconds | What is drawn | Sound |
-|---|---|---|---|
-| 1 Shower off, curtain closed | 0.0 to 0.7 | the closed curtain over the stall, the head dripping once or twice | none (the usual start blip) |
-| (curtain) | 0.7 to 1.0 | half open for 0.15 s, then open | none |
-| 2 On | 1.0 to 4.6 | nozzles lit; droplets from the head to the figure; steam rising from the tub and drifting up; a small bubble now and then from the heap; the foam alternates between its two shapes every 0.5 s; fog steps up to its second level; | the click, then the hiss (fades in 0.25 s) |
-| 3 Off | 4.6 to 5.3 | nozzles dark; two or three late drips; steam thinning; the foam still, one shape; fog drops one level | the click, the hiss fades out in 0.12 s |
-| 4 Out, in the robe | 5.3 to 6.0 | the foam gone; the figure in front of the tub in the outfit that will be worn (the real `player-pajamas-robe-idle-down` sprite, 4x); a wisp of steam; fog at its last level | none (the usual chime comes at the end with the popup) |
+Picture 5 when no robe will be worn (the empty ROBE slot falls back to everyday clothes) and picture 3 under reduced motion:
 
-Desktop (320 x 192, shown 3x with a caption strip that is not part of the game):
+![5 without a robe](shower-scene-mockups/shower-room-desktop-5b.png)
+![3 reduced motion](shower-scene-mockups/shower-room-desktop-3-still.png)
 
-![frame 1](shower-scene-mockups/shower-desktop-1.png)
-![frame 2](shower-scene-mockups/shower-desktop-2.png)
-![frame 3](shower-scene-mockups/shower-desktop-3.png)
-![frame 4](shower-scene-mockups/shower-desktop-4.png)
+## 3. The pictures and the timing
+The task keeps its 6 seconds, 70 points, mood +6, cooldown and good hours. Its pictures follow its progress through three **phases**, data in `config.ts` as fractions of the task's duration (so a changed duration keeps the shape):
 
-Phone (224 x 208), the same four:
+| Phase | Fraction | Seconds (of 6) | Picture | Sound |
+|---|---|---|---|---|
+| `in` | 0 to 0.167 | 0.0 to 1.0 | the player appears in the tub in bubbles, the water off; one drip from the tap | none beyond the usual task-start blip |
+| `water` | 0.167 to 0.767 | 1.0 to 4.6 | droplets fall from the tap end onto the bubbles; steam rises; fog drifts; a bubble floats off now and then | the hiss fades in over 0.25 s |
+| `off` | 0.767 to 1 | 4.6 to 6.0 | the droplets stop, two or three late drips, the steam and fog thin out | a click, the hiss fades out in 0.12 s |
+| after | the task has ended | (the room) | the player appears on the tile beside the tub, the bubbles pop (a burst of floating bubbles over the tub), wisps of steam fade over about 2 seconds | the usual chime with the popup |
 
-![phone 1](shower-scene-mockups/shower-phone-1.png)
-![phone 2](shower-scene-mockups/shower-phone-2.png)
-![phone 3](shower-scene-mockups/shower-phone-3.png)
-![phone 4](shower-scene-mockups/shower-phone-4.png)
+The pose picture is one still picture for all three phases: the water is in the particles, not in the art. (The sleeping pose is the same idea: a picture, and effects over it.)
 
-Picture 4 when no robe will be worn (d5, recommended: the scene shows the outfit that will be worn, here the everyday one), and picture 2 on white tile for comparison (d8):
-
-![frame 4, everyday outfit](shower-scene-mockups/shower-desktop-4b.png)
-![frame 2, white tile](shower-scene-mockups/shower-desktop-2-white.png)
-
-What the mockups are and are not: the stall, curtain and foam are drawn in code as stand-ins (real art is stage 1); the head and robe are the real sprites; the particles are placed by a small simulation that uses the pool's own equations (position, velocity, gravity, sway, the three-step fade) re-implemented outside the game, not by the real pool; the stop hint on the phone is drawn at an estimated height. Nothing was run in a browser.
-
-## 4. The art needed
-All palette only (the 22 colours), no text, multiples of 16, ink outlines where the art style wants them, lit from the top left. Seven new sprites, about 12,500 pixels:
+## 4. Art needed
+One new sprite, palette only (22 colours), no text, ink outline where the style wants it, lit from the top left:
 
 | Name | Size | Count | What |
 |---|---|---|---|
-| `shower-stall-off` | 48 x 48 | 1 | the tiled wall, the arm and head (nozzles dark), the tub's front rim and face; the lower rows of the wall behind the figure are plain tile |
-| `shower-stall-on` | 48 x 48 | 1 | the same with the nozzles lit (`paper`) |
-| `shower-curtain-0`, `-1`, `-2` | 48 x 48 | 3 | closed, half open, open; rod and rings, pleats, a scalloped hem; transparent where there is no curtain |
-| `shower-foam-0`, `-1` | 32 x 16 | 2 | the heap of bubbles: an **opaque** cluster of circles in `paper`, an outline of `mist`, a few `sky` glints; the second shape differs by a few pixels (the bob). It must be opaque so no outfit shows through |
+| `player-shower-tub` | 16 x 48 | 1 | the player's head (hair and face, as `player-idle-down` rows 0 to 6) with a heap of bubbles from the chin down: opaque `paper` circles outlined in `mist`, a few `sky` glints. The head and bubbles fill the top 20 rows; the bottom 28 are clear |
 
-Not new art: the head (rows 0 to 6 of `player-idle-down`), the robe frame (`player-pajamas-robe-idle-down`) or the worn outfit's `idle-down`, the steam, droplets and bubbles (particles), the fog (a stepped alpha wash).
+Why 16 x 48 and not 16 x 20: the pose is drawn in front of the tub only if its bottom edge is not above the tub's (section 1: a stable sort by bottom edge). The tub piece is at y 16 and 64 tall (bottom 80); the pose goes at `at: { x: 6, y: 16 }` with height 48, so its bottom is also 80 and, being added after the pieces, it is drawn after the tub. Sprite sizes must be multiples of 16, so 48. The sofa's pose is shaped the same way.
 
-**The covering rule, and a test for it.** The foam must hide every opaque pixel of `player-idle-down` from row 7 down. The mockup script checked it: 0 uncovered pixels with the foam drawn here. The build adds a test that does the same on the real sprites (so a future change of the hair or the sprite cannot leak a torso).
+Gender-neutral: a head over a heap of soap, the same width for everyone, starting at the chin; no shoulders, chest, hips or body outline is drawn. The pose is `clothed: false`, so it is also the same for every outfit and needs no per-outfit sprite (unlike every other pose: `poses.ts` `clothed`).
 
-**Gender-neutral.** The picture shows a head over a heap of soap. No chest, hips or body outline is drawn; the heap is the same width for everyone and starts at the chin. The bare shoulders are not shown at all (the heap reaches the chin), which is also what keeps this clear of the censor-blur joke going too far: it is the same joke, made with soap.
+Not new art: the tub, the room, the robe and everyday sprites (the player after the task is the normal player), the steam, droplets, fog and bubbles (particles), the click and the hiss (sound). There is no curtain animation: the tub's own linen curtain strip stays as drawn.
 
-**Particles (data in `config.ts`, three new kinds and three shapes):**
+A risk, not a blocker: the head in the pose is drawn by hand from the home sprite, so a later change of the hair means redrawing this one file. The plain player is not drawn under the pose, so nothing can leak through the bubbles.
 
-| Kind | Shape | Colours | What | Rate (while on) |
+## 5. Particles (reusing `src/game/particles`)
+All data in `config.ts`; the game's one pool and feature draw them (section 1), so there is no separate pool. New shapes: `drop` (1 x 2), `cloud` (`.##.` / `####` / `.##.`), `fog` (8 x 4, `..####..` / `.######.` / `########` / `.######.`), `ring` (3 x 3). New kinds (colours are palette names; paper is invisible on the tub's rim, so steam leads with `mist`):
+
+| Kind | Shape | Colours | What | Rate while the water runs |
 |---|---|---|---|---|
-| `showerDrop` | `drop` (1 x 2) | `paper`, `sky` | falls from the head to the figure: life 0.16 to 0.22 s, vy 60 to 80 px/s, gravity 100, x spread 8 | 2 every 0.03 to 0.06 s, about 12 alive |
-| `showerSteam` | `cloud` (4 x 3: `.##.` / `####` / `.##.`) | `paper`, `mist` | rises from the tub's rim and sways: life 1.8 to 2.6 s, vy -13 to -7, sway 2 px at 0.6 Hz, fade from 0.4 | 1 every 0.18 to 0.3 s, about 10 alive (every 0.5 to 0.8 s in picture 3, every 0.7 to 1.1 s in picture 4) |
-| `foamBubble` | `ring` (3 x 3) | `paper`, `sky` | a bubble floating off the heap: life 1.4 to 2.2 s, vy -11 to -6, sway 1.5 px at 0.9 Hz | 1 every 0.4 to 0.8 s, about 3 alive |
+| `showerDrop` | `drop` | `sky`, `paper` | falls from the tap end of the tub toward the bubbles: life 0.12 to 0.17 s, vy 48 to 62 px/s, a little gravity, so it ends above the head (the face stays clear) | 2 every 0.04 to 0.07 s, about 5 alive |
+| `showerSteam` | `cloud` | `mist`, `mist`, `paper` | rises from over the tub and drifts a little: life 1.6 to 2.2 s, vy -9 to -5 (so it climbs about 10 px, inside the room), sway 1.6 px at 0.6 Hz, fades from 0.4 of its life | 1 every 0.14 to 0.24 s, about 10 alive |
+| `showerFog` | `fog` | `mist`, `paper` | big, slow, long: life 3 to 4 s, vy -4 to -2, sway 3 px at 0.3 Hz | 1 every 0.5 to 0.9 s over the tub and the floor beside it, about 5 alive |
+| `foamBubble` | `ring` | `sky`, `paper` | floats off the bubbles: life 1.2 to 1.8 s, vy -9 to -5, sway 1.2 px at 0.9 Hz | 1 every 0.5 to 0.9 s, about 2 alive |
 
-The existing `steam` and `bubble` kinds were not reused as they are: `steam` is 2 x 2 `paper` (invisible on a pale wall), `bubble` is the sink's tiny `dot2`. All three live in a second pool of about 60 slots owned by the activity (`new ParticlePool(60, random)`), updated with the activity's `update(dt)` and drawn in `draw` with `ctx.scale(4, 4)` after translating to the stage, so a particle's pixel is 4 screen pixels and nothing else changes in the pool. At most about 25 are alive, well inside the budget; nothing grows. The fog is a stepped alpha wash in `sky` over the whole picture (0, then 0.12, then 0.22 while on; 0.12 in picture 3; 0.06 in picture 4; moves in steps over 0.7 s), the same device as the night wash: it is slow and never flashes.
+The existing `steam` (2 x 2 `paper`, the coffee's) and `bubble` (the sink's `dot2`) were not reused as they are: too small and too pale for a tub. About 22 particles are alive at once against a budget of 200 shared with the steps and bursts; nothing grows (a full pool replaces the oldest). The phase filter and the `taskEmitters` entry `shower` turn them on and off: `in` has the lone drip, `water` the four emitters above, `off` the late drips and thinner steam and fog (the same kinds at lower rates).
 
-## 5. How it ends, what the robe has to do with it, and the numbers
-- **Points and mood are unchanged** (70 points, mood +6, 6 seconds, 10 second cooldown, good hours). The scene is only a picture of the task (Marc has said nothing to change them; the filing says "unchanged unless Marc says"). d7 asks whether a shower you take every 16 seconds should play the whole scene each time.
-- **When it ends**: after picture 4 the activity finishes `{ completed: true }`; the game applies the effects, scores, shows the popup and confetti (over the tub, in the room that is now visible again) and emits `taskComplete` for `shower` (`interaction.ts:302-347`).
-- **The robe is not put on by the scene.** Issue 164's occasion listens for `taskComplete` of `shower`, stores a pending change and applies it when no task, dialog or pose is active (164 section 5), so the real change of `worn` follows the end of the scene. The scene must not write `worn` and does not touch the outfit slots. It only needs to **draw the outfit that is about to be worn** in picture 4, so there is no pop at the cut back to the room.
-  - The outfit it draws is `outfitSlots.resolve("robe")` (the name used in the 164 design, which says it returns the outfit that the ROBE occasion will put on: the bathrobe if one is in the slot, otherwise the EVERYDAY outfit). The scene must not assume the robe is owned: a game with no robe shows picture 4 in the everyday outfit (mockup 4b).
-  - Until 164's stage 2 exists nothing changes `worn` after a shower, so the scene must draw **the outfit worn now**, not the robe, or the scene would put you in the robe and the room would take it away. So build stage 4 (section 11) is blocked on 164 and is one function: `outfitForShowerEnd()`; before it exists, it returns the worn outfit.
-- **If the player skips it (Escape)** at any point: the activity is cancelled, which pays nothing, applies no mood, starts no cooldown and fires no `taskComplete`, so **no robe and no occasion** (164 relies on exactly this). The hiss fades in 0.12 s (section 6), `taskCancelled`'s existing blip plays, the world is back with the player unchanged, and the shower can be started again at once. d6 asks whether a separate way to skip to the end and be paid is wanted; the recommendation is no (the universal back-out stays one thing, as in the sofa scene's Escape).
-- **Interruptions.** An ad encounter can only start after `taskComplete` (`maybeEncounter`), never during the scene; a dialog cannot open during it. The 164 gate defers the outfit change until the card is over.
+**Phases from data.** `EmitterDef.phases` is typed for the sleep sequence and read from `game.sleepScene?.phase`. The change: `phases` becomes a list of strings, and a new data table `TASK_PHASES` (`config.ts`, by task id: `shower: [{ until: 0.167, phase: "in" }, { until: 0.767, phase: "water" }, { until: 1, phase: "off" }]`) feeds a `Game.taskPhase` getter (the running task's progress, `activity.progress`, mapped through its table; the sleep scene's phase when it has one), which the particle feature and the sound read. About 25 lines.
 
-## 6. Sound (d3)
-Recommended: a soft hiss while the water runs and a quiet click when the tap turns; the music and a playing record are left alone (no ducking, unlike the sleep scene).
+**After the task.** A new small data table (`PARTICLES.finish`, by task id) makes `ParticlesFeature` burst a few particles when that task completes (it already bursts confetti on `taskComplete`): about 8 `foamBubble` over the tub, so the bubbles "pop" as the player appears outside. The steam and fog already in the pool carry on and fade by themselves within about 4 seconds; leaving the room clears the pool. Escape leaves the same leftovers fading, with no burst (not a completion).
+
+## 6. How it ends: where the player is, the robe, Escape
+- **Where the player stands afterwards:** where they stood before. The pose never moves the player (the bed's does not either): they pressed E on col 3, rows 1 to 4, facing the tub, so after the task the plain player is drawn on that same tile, facing the tub. That tile is free by construction (they stood on it), it is on the walkway, and the way out (the door at col 8, row 3) is the same as before. Nothing relocates the player or checks the map. (d10 asks if Marc would rather have one fixed place.)
+- **The robe:** the occasion of issue 164 listens for `taskComplete` of `shower`, stores a pending change and applies it when no task, dialog or pose is active (164 section 5); `interaction.finish` sets `active` to null before `onComplete`, so the player is free the same frame unless an ad encounter starts (then it waits for the card). The change is `wearSlot("robe")`: the bathrobe if one is in the ROBE slot, otherwise the EVERYDAY outfit (an empty slot falls back to everyday: Marc's answer in 164). The pose draws no clothes, so there is no frame in which the wrong clothes show: the player is a head in bubbles, then the plain player in whatever was just put on. This scene must not write `worn` and does not touch the slots. It does not even need `outfitSlots.resolve`: the unbuilt part is entirely in 164. Until 164's occasion exists, nothing changes `worn` and the player simply reappears in what they wore.
+- **Escape**, at any phase: the activity is cancelled (`cancellable` as today), which pays nothing, applies no mood, starts no cooldown and fires no `taskComplete`, so no occasion and no robe (164 relies on this); the pose goes and the plain player is back on their tile; the hiss fades in 0.12 s and `taskCancelled`'s blip plays; the shower can be started again at once. No skip-to-the-end (d6).
+- **Touch:** nothing to press; "B TO STOP" is the existing hint.
+- **Towel (Marc's aside under d5):** a towel as a ROBE-slot outfit, even the default, would be new outfit art through the generator (issue 158: 17 sprites per outfit) and a decision about styles under 164's strict slots. It is not part of this scene; it is a new question (d9).
+
+## 7. Sound (d3)
+A soft hiss while the water runs, a quiet click when it stops, the music and a playing record left alone (no ducking, unlike sleep).
 
 | Cue | When | Sound |
 |---|---|---|
-| `showerClick` (on) | the shower comes on (1.0 s) | two voices, about 30 ms: a square at 150 Hz and a band-passed noise tick at 1,400 Hz; played at pitch 0.85 |
-| hiss | from the click until the off click | filtered noise, steady: a high-passed layer (about 2,400 Hz, gain 0.05) and a band-passed body (about 900 Hz, q 0.5, gain 0.04); fades in over 0.25 s |
-| `showerClick` (off) | 4.6 s | the same click at pitch 1.0; the hiss fades out in 0.12 s |
+| hiss | the `water` phase | steady filtered noise: a high-passed layer (about 2,400 Hz, gain 0.05) and a band-passed body (about 900 Hz, q 0.5, gain 0.04), faded in over 0.25 s |
+| `showerClick` | the end of `water` | two voices, about 30 ms: a square at 150 Hz and a band-passed noise tick at 1,400 Hz; the hiss fades out in 0.12 s |
 
-The level is about the snore's noise layer (0.04; the snore's main voice is 0.07) and well under the steps; the scene adds nothing on top of the existing task start and complete sounds, which still play (a short blip at the start and the chime with the popup at the end).
+The level is about the snore's noise layer (0.04) and well under the steps; the existing task-start blip and the completion chime still play. Mute is the master gain, which none of this touches.
 
-**What the engine needs (small, and the one place this design touches the sound code):**
-1. A noise voice can run only 0.5 s once with a falling envelope (`synth.ts:17,152-165,224-232`), and an effect cannot be cut off once scheduled, so Escape in the middle of a 3.6 s scheduled hiss could not stop it. The recommended fix: a new bus `shower` (like `sleep` and `encounter`: `Bus`, the `ramps` entry, lazily made, silent until ramped); `NoiseVoice` gets optional `loop` and `hold` (the existing `hold` for formants generalised: `synth.ts:159`); `BufferSourceLike` gets `loop`; a class `ShowerSound` in `sound/shower-sound.ts`, modelled on `SleepSound`, reads the activity's scene each frame (a small `{ on: boolean }` the activity exposes, like `scene`), ramps the `shower` bus up and down, and puts it back to zero when the scene is gone for any reason (so a cancel, an error or a tab switch cannot leave a hiss). With no synth it does nothing: the scene runs in silence. About 25 lines in `synth.ts` and `audio-types.ts`, 70 in `ShowerSound`, 120 of tests with the fake audio context.
-2. The cheaper fallback, with no engine change: repeat a short noise burst about every 25 ms with overlapping tails. It is about 40 overlapping voices a second against a cap of 96 and flutters; use it only if Marc does not want the engine addition.
+**What the engine needs:** a noise voice lasts one 0.5 s buffer with a falling envelope and an effect cannot be cut off once scheduled (section 1), so a 3.6 s hiss that Escape can end needs: a new bus `shower` (like `sleep` and `encounter`: the `Bus` type, the `ramps` entry, made lazily, silent until ramped); `NoiseVoice` gets optional `loop` and `hold` (the existing formant `hold` generalised, `synth.ts:159`); `BufferSourceLike` gets `loop`; and a class `ShowerSound` (`sound/shower-sound.ts`, modelled on `SleepSound`) reads `game.taskPhase` each frame, ramps the bus up for `water` and down otherwise, and puts it back to zero when the task is gone for any reason (a cancel, an error, a tab switch). With no synth it does nothing. About 25 lines in the synth and types, 70 in `ShowerSound`, 120 of tests with the fake audio context. The fallback with no engine change is repeating a short noise burst every 25 ms with overlapping tails (about 40 overlapping voices a second against a cap of 96; it flutters).
 
-Mute works with either: mute is the master gain, which neither touches. Sounds are not motion, so reduced motion leaves them alone.
-
-## 7. Reduced motion (d4)
-`docs/reduced-motion.md` treats small, slow, local motion as fine and wants whole-screen or fast motion calmed. This scene has no fast or large motion: the biggest moves are the steam (slow, a few pixels a second), the curtain (a 0.15 s slide) and the fog (stepped, 6 to 22 percent). Even so Marc's request, and d4's recommendation, is that the setting is respected and the scene is otherwise the same. With the setting on:
+## 8. Reduced motion (d4)
+Marc's answer: the steam is still and the bubbles do not move; the scene is otherwise the same. With the browser setting on (`Game.reducedMotionAsked`, read each frame so a mid-task change takes effect, like the candle):
 
 | Thing | Normal | Reduced |
 |---|---|---|
-| Steam | clouds rise and sway | a fixed set of 6 clouds drawn where a 1 s run of the same emitter leaves them (the pool pre-rolled once, then never updated); picture 3 shows 3 of them |
-| Bubbles floating off | rise and sway | not drawn |
-| Droplets | fall from the head | three short fixed strokes under the head while the water is on |
-| Foam | two shapes every 0.5 s | `shower-foam-0` only |
-| Curtain | closed, half, open | closed, then open (the half picture is skipped) |
-| Fog | steps up over 0.7 s | at its level for the picture, no fade |
-| Pictures, timing, sound, Escape | as designed | unchanged |
+| Steam | clouds rise and sway | a fixed set of 6 clouds placed over the tub and beside it when the `water` phase starts, living the 3.6 s of the phase and then gone, no motion, no fade |
+| Fog | drifting clouds | a fixed set of 3, the same way |
+| Floating bubbles | rise and sway | not made (the pose's bubbles are a still picture anyway) |
+| Pop at the end | a burst of rings | not made |
+| Droplets | fall from the tap end | unchanged: 1 x 2 pixels, a few pixels of travel in 0.15 s; they are the signal that the water is on (d11 asks) |
+| Phases, timing, sound, Escape, the pose, the robe | as designed | unchanged |
 
-How it is read: the activity asks the host each frame (`host.reducedMotion?.()`, a new optional member of `ActivityHost`, one line in `Game.activityHost` that returns `this.reducedMotion()`, which is `liveReducedMotion()` from `main.ts`), not once at the start, so switching the setting mid-scene takes effect at once, like the candle. The other answers to d4: "skip the scene and play the old shower" is one `if` in the factory (a `WaitActivity` when the setting is on, read at the start, like the encounter); "ignore the setting" removes the table above. After building, `docs/reduced-motion.md` gets a row for the scene (it lists every moving thing).
+How: an emitter gets a flag, `motion: "moves"` (skipped when reduced; the default) or `"still"` (runs only when reduced); a still emitter has `every` at least as long as the phase, so it makes one batch per phase (an emitter that stops applying forgets its timer and "starts with a puff next time", section 1), and its kind has a life as long as the phase and zero speed. The mockup (3 with reduced motion) shows it. About 10 lines in the feature, plus data. `docs/reduced-motion.md` gets a row after building. There is no screen cut and no brightness change in this scene at all (it is the room, already on screen), so nothing here is a flash.
 
-The scene's entry and exit are hard cuts, like every full-screen picture (a cutscene `view`, the sofa scene); the scene is bright (teal and paper) so a cut from a dark night room is a large brightness change, once each way, six seconds apart. That is not a flash by the WCAG pair rule (`reduced-motion.md` 'How it was measured'), but it is noted in section 9.
+## 9. Edge cases and what could go wrong
+1. **Carrying a coffee** (state `mug` 1): the plain player, who holds the mug overlay, is not drawn during the pose; the mug steam is an ambient emitter that needs `free: true`, false while a task runs, so it stops; both come back after, since the state is untouched. Dishes, the plant, the boxes and every other state are untouched; the shower changes only mood (+6).
+2. **The clock:** the shower does not hold or skip it, so 6 s of play is 12 game minutes, as today; the time-of-day tint and the lamps carry on. A shower that straddles a good-hour boundary is judged at completion, as now.
+3. **A record playing:** the music goes on; the record player's note emitter is anchored to `record-stand`, which is not in the bath, so it makes none there (anchors return null for a missing piece).
+4. **Loading a save, or "sync now", mid-shower:** tasks are not saved, so a loaded game starts with the player free on their tile and nothing in the pool; applying another device's decor mid-task does not touch the pose.
+5. **An ad encounter right after:** it starts after `taskComplete`; the player stands in the old clothes behind the card until it ends and the occasion applies (164's gate).
+6. **Missing pose art:** the plain player is drawn and the missing file is logged once (`currentPose`), so a half-built stage never breaks the task; the particles still run.
+7. **The pose hidden behind the tub:** only if its bottom edge falls above the tub's, so the build fixes `at.y + size.h` to the tub's bottom (80) and a test checks it, like the existing "draws the pose after the furniture it overlaps" (`poses.test.ts`).
+8. **A dialog or popup during the task:** popups rise above the pose picture (`playerPopup`); a dialog cannot open during a task.
+9. **Particles outside the room:** the view is mostly ink above the bath, and steam would show over it if it rose past the north wall; the rates and speeds above keep it within about 10 pixels of the tub (looked at in the mockup, not at speed).
+10. **Spam:** a 10 s cooldown plus the 6 s scene means a shower every 16 s plays the whole scene again (d7: Marc said yes).
+11. **The scene is small on screen.** At 1x the bubbles are 16 pixels wide in a 320 x 192 picture. That is the game's normal scale and what Marc chose (no close-up); the detail mockups are 6 times life size.
+12. **The golden frames:** the bath is not in `main-room-frames.golden.test.ts` (the main room only) and the pose draws only during the task, so nothing there changes.
 
-## 8. Timing as data
-In `config.ts`, one object, fractions of the task's duration (so the shape survives a changed duration), tested at every boundary:
-
-```ts
-export const SHOWER_SCENE = {
-  scale: 4, stage: 48,                      // art pixels on a side; one art pixel is `scale` screen pixels
-  // fractions of the duration: curtain half, curtain open, water on, water off, out
-  beats: { curtainHalf: 0.117, curtainOpen: 0.142, on: 0.167, off: 0.767, out: 0.883 },
-  foamBobEvery: 0.5,
-  fog: { on: [0.12, 0.22], off: 0.12, out: 0.06, rampSeconds: 0.7 },
-  hiss: { fadeIn: 0.25, fadeOut: 0.12 },
-};
-```
-A pure function `showerFrameAt(progress, reduced)` returns `{ picture, curtain, foam, fog, water }`; the draw reads it and the sound reads `water`, so the picture and the sound cannot disagree.
-
-## 9. What could go wrong
-1. **The particles are under the scene.** The game's pool is drawn in the world pass and the scene covers it (`game.ts:857-859`); an entry for `shower` in `taskEmitters` would be invisible. Hence the activity's own pool (section 4). A test fails if `taskEmitters` ever gains `shower`.
-2. **No sustained noise.** Section 6: a plain 6 second effect would decay in a fraction of a second and could not be cut by Escape. The `shower` bus, `loop` and `hold` solve it; a test with the fake audio checks the bus is zero after a cancel.
-3. **Reduced motion unreachable from an activity.** `ActivityHost` has no such member (`game.ts:339-377`); added as optional so tests and other hosts are untouched. A test runs the scene with it true and false.
-4. **Leaking an outfit.** The foam hides rows 7 and down of the head sprite; a test checks every opaque pixel from row 7 down is covered by both foam shapes. The head comes from the everyday sprite, never the worn outfit's, so a future outfit with a hood or hat cannot appear in the shower.
-5. **The robe popping.** Picture 4 must draw what the occasion will put on, or the room would take it away at the cut (section 5). 164's `resolve` is unbuilt, so before it exists the scene draws the worn outfit.
-6. **Skipping it leaves no trace.** Cancel returns before `onComplete`, so no robe and no mood; 164's tests rely on the same line (`interaction.ts:302-313`). A test cancels at each picture.
-7. **Spam.** The 10 second cooldown and a 6 second scene means a shower every 16 seconds plays the scene again and again (d7). Marc may want the full scene only sometimes.
-8. **Brightness at night.** The stall is bright whatever the hour; from a dark night room it is a big change and a bright full screen for six seconds. Not measured or tried in a browser. Mitigation if it is too much: draw the stage with the same night wash the world has when the lamps are on (the scene would read the hour). Left out of the first build on purpose; look at it in a browser first.
-9. **A phone's stop hint and the stage.** The desktop hint overlays the tile at the top centre (it does not touch the arm, but it is low contrast on teal, so check it); on the phone it sits under the (hidden) chips at an estimated height. Checked only in the mockup.
-10. **Touch.** There is nothing to tap and nothing to press: the scene reads no keys (`readsKeys` false). The "B TO STOP" hint is the touch layer's back-out.
-11. **The scene's art is the only thing that lies about the real bath.** Teal tile (d8), the front-on stall and the curtain's colours are not from the apartment's photos (`reference-photos/` was not read). The tub's own curtain is linen in the art; the stall's wall tile is a choice.
-12. **Particle count and the budget.** The scene's own pool is 60 slots and about 25 live; the game's pool (200) is idle in the room behind. No growth.
-13. **The golden frame test.** The main room is untouched, so `main-room-frames.golden.test.ts` does not change; the new sprites are not in any room, so they need adding to the explicit list in `render/sprite-names.ts` (as `HUD_ICON_NAMES` is) or `sprite-names.test.ts` fails.
-14. **Clock.** The scene does not hold the clock, so the hour passes as it does today (12 game minutes in 6 seconds). If the shower ever pays at a good hour boundary it is judged at completion, as now.
-
-## 10. Reading list for the reviewer (claims to check against the code)
-Sections 1 and 9 are written to be checked: `tasks.ts:90,189,349`; `apartment.ts:231-244`; `activity.ts:156,220`; `game.ts:155,306,339-377,635-642,857-876`; `interaction.ts:159-160,302-347`; `particles/pool.ts:82-176`; `particles/feature.ts:134`; `config.ts:6-12,69,1127,1415,1468-1498,1546,659-667`; `sound/synth.ts:15-18,102,152-165,224-232`; `sound/audio-types.ts:48-53`; `sound/sleep-sound.ts`; `render/canvas.ts:259-344`; `render/sprites.ts:104-140`; `scripts/sprite-lib.mjs:30-48`; `art/src/player-idle-down.sprite` rows 0 to 6.
+## 10. What 164 must provide and what 165 must not do
+Per the 164 design and Marc's answers: the scene keeps the task id `shower` (the occasion is keyed on it, `OUTFIT_OCCASIONS = { sleep: "pajamas", shower: "robe" }`); never writes `worn`; never assumes the robe is owned; the change is deferred until no task, dialog or pose is active, so it cannot be used inside the scene and need not be, since the pose draws no clothes. Return to everyday is by hand only (Marc's answer), so after the shower the player stays in the robe until they change clothes or the next occasion (sleep).
 
 ## 11. Build plan (nothing is built)
-Four stages, each a branch and an independent review. 1 and 2 can run in parallel; 3 follows 2; 4 is blocked on issue 164's stage 2.
+Three stages, each a branch and an independent review. 1 and 2 are independent; 3 follows 2.
 
 | Stage | What | Size |
 |---|---|---|
-| 1. Art and data | The seven sprites in `art/src` (`npm run sprites`); the three shapes and three kinds in `config.ts`; `SHOWER_SCENE` and the emitter list in `config.ts`; the names in the sprite list; tests: the kinds and shapes exist, every beat is in order, the foam covers rows 7 and down of the head sprite, `taskEmitters` has no `shower`. | 7 sprites, about 60 lines of config, about 80 of tests |
-| 2. The activity | `activities/shower.ts` (`ShowerActivity`, `showerFrameAt`, its own pool, draw for both views), registered and imported in `activities/index.ts`; the task `shower` gets `activity: { type: "shower" }`; `ActivityHost.reducedMotion` and one line in `Game.activityHost`; tests: the frames at every boundary, both views, reduced and not, Escape at each picture pays nothing and emits no `taskComplete`, a finished scene awards 70 and mood +6 exactly as before; a render check of the four pictures (the real art). | about 220 lines, 200 of tests |
-| 3. Sound | The `shower` bus, noise `loop` and `hold`, `showerClick` and the hiss in `SOUND.effects`, `ShowerSound`, its wiring in `SoundFeature`; tests with the fake audio (the bus up during the water, zero after a cancel, nothing without a synth, mute untouched). | about 25 lines in the synth, 70 in `ShowerSound`, 120 of tests |
-| 4. The robe | `outfitForShowerEnd()` asks `outfitSlots.resolve("robe")` and the activity draws that outfit's `idle-down` in picture 4; until 164's stage 2 it returns the worn outfit. Tests: no robe owned, robe owned, a different outfit in the slot. | about 15 lines, 60 of tests |
+| 1. The pose | `player-shower-tub` (16 x 48) in `art/src`; `POSES["shower-tub"]` (`clothed: false`, `on: "tub"`, `at: { x: 6, y: 16 }`, size 16 x 48); `shower: { pose: "shower-tub" }` in the task table (the effects stay). Tests: the pose is in front of the tub, falls back to the plain player when the art is missing, the plain player is back after the task and after Escape, points and mood unchanged. | 1 sprite, about 8 lines of config, about 70 lines of tests |
+| 2. The effects | `TASK_PHASES` and `Game.taskPhase`; string phases in `EmitterDef`; `motion` on emitters; `PARTICLES.finish`; the four shapes and four kinds, `taskEmitters.shower`, the still variants; the finish burst in the feature. Tests: every shape and kind exists, phases switch at the fractions, emitters run only in their phase, reduced motion runs only still emitters and one batch per phase, the finish burst on completion and not on Escape, the pool never exceeds its budget over a whole shower. A render check of the five pictures with the real art. | about 60 lines of config, 40 of code, 150 of tests |
+| 3. The sound | The `shower` bus, noise `loop` and `hold`, `showerClick`, `ShowerSound` wired in `SoundFeature`. Tests with the fake audio: bus up in `water`, zero after Escape and after the end, nothing without a synth, mute untouched. | about 25 lines in the synth, 70 in `ShowerSound`, 120 of tests |
+| Integration | Once 164's stage 2 exists, a test: finishing `shower` puts the player in the ROBE slot's outfit, or everyday with none, and Escape changes nothing. No code of 165's. | about 40 lines of tests |
 
-Docs to update when built: [reduced-motion.md](reduced-motion.md) (a row), [art-style.md](art-style.md) (the seven sprites), [tasks.md](tasks.md) (the shower), [ideas.md](ideas.md) (remove 'Put on the robe after a shower'), [decor.md](decor.md) only if 164's note on the robe changes.
+Docs to update when built: [reduced-motion.md](reduced-motion.md) (a row), [art-style.md](art-style.md) (the one sprite), [tasks.md](tasks.md) (the shower), [ideas.md](ideas.md) (remove 'Put on the robe after a shower').
 
-## 12. Open questions
-All are `decisions` in [issues/165-shower-scene.md](../issues/165-shower-scene.md) with a recommended default; this note follows the recommendation of each.
-- d1 where it plays, d2 how the effects look, d3 sound, d4 reduced motion (Marc's, from the filing; still open).
-- d5 what picture 4 shows when no robe will be worn (section 5; recommended: the outfit that will be worn).
-- d6 whether there is a way to skip to the end and still be paid (section 5; recommended: no, Escape cancels and pays nothing).
-- d7 whether a repeated shower plays the whole scene every time (section 9, item 7; recommended: yes, it is only 6 seconds, and look again after playing).
-- d8 the stall's tile colour (section 2; recommended: teal, for readability, over the apartment's white).
+## 12. Questions
+Marc's answers are on the issue (d1 to d8, all answered). New ones, each with a recommended default and an open `decisions` entry on the issue:
+- **d9** a towel: should a towel be a second ROBE-slot outfit, and the default when no robe is owned? Recommended: not now; the empty slot falls back to everyday clothes, and a towel is filed as a later outfit idea (new art through the outfit generator and a style decision under 164's strict slots).
+- **d10** where the player appears after the shower. Recommended: on the tile they stood on (beside the tub, facing it), no relocation.
+- **d11** droplets under reduced motion. Recommended: keep them (tiny and short; they are what says the water is on); the steam, fog and bubbles are the ones that go still.
 
 ## 13. Not checked
-- Nothing was run in a browser: how the scene looks and feels at real size and speed, the timing, the touch layer and the phone's stop hint position are designed from the code.
-- The mockup art is stand-in; the real sprites could change the read of the foam and the steam. The particles in the mockups come from a re-implementation of the pool's equations, not the pool.
-- The hiss and the clicks were not heard; the levels are chosen by comparison with existing effects, and the loop and bus additions to the synth were read, not tried (no test used a looping source).
-- Issue 164 is a design on an unmerged branch: `outfitSlots.resolve`, the ROBE slot and the occasion are read from its note, not from code, and may be built differently.
-- The brightness change at night and the white-versus-teal choice are judgement calls that need Marc's eyes on a real screen.
+- Nothing was run in a browser: how the scene looks and feels at real size and speed, the timing, the touch layer and how small the bubbles read on a phone are designed from the code and the mockups.
+- The mockup pose art is drawn in code as a stand-in; the particles are placed by a small simulation that re-implements the pool's equations (position, velocity, gravity, sway and the three-step fade) outside the game, not by the real pool. The HUD, popup and confetti are not drawn. The camera's placement of the room is taken from `camera.ts`, not seen in the running game.
+- The hiss and the click were not heard; the synth additions were read, not tried.
+- Issue 164 is a design on an unmerged branch: the slots, the occasion and "return to everyday is by hand" are taken from its note and from Marc's answers on its issue, not from code.
+- Whether steam and fog stay inside the room's walls at real speed, and whether the 16 x 48 pose sorts in front of the tub exactly as the sofa pose does, were read from the draw code, not seen.

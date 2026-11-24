@@ -44,6 +44,14 @@ decisions:
       - "both, at once"
     recommendation: "checkpoint gifts spaced three days apart after the rugs (from about day 81) and in the random-encounter pool when issue 163 lands"
     status: open
+  - id: d5
+    who: marc
+    q: "Trinkets (167, d5): the raccoon in a can has no photo in reference-photos yet, so it was drawn from the kind of thing. Add a photo so it can be redrawn?"
+    options:
+      - "leave it stylized"
+      - "yes, I will add a photo to reference-photos/ and it gets redrawn"
+    recommendation: "leave it stylized"
+    status: open
 ---
 
 ## Goal

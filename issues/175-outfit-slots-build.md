@@ -8,6 +8,7 @@ depends_on: ["164"]
 summary: "Build the equip slots (everyday, pajamas, robe, going out), the slot list at the bookshelf, and the two automatic occasions."
 kind: build
 changelog: "Outfit slots: wear pajamas after waking and a robe after a shower, and pick what goes in each slot at the bookshelf."
+needs: [{who: marc, kind: try, why: "Try the outfit slots: cd ~/Dev/repos/mcordova47/sim-worktrees/175-outfit-slots-build && npm run dev, open /?own=outfit-casual-hoodie,outfit-casual-cardigan,outfit-pajamas,outfit-pajamas-striped,outfit-pajamas-robe,outfit-out, Change clothes at the cube bookshelf; for an occasion add &set=energy:10 and sleep at the bed; then say 'merge 175'", since: 2026-11-24}]
 ---
 
 ## Goal

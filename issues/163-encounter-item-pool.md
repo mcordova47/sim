@@ -66,6 +66,15 @@ decisions:
       - "specials more often"
     recommendation: "equal chance: each shop and each special ad is one entry in the draw (weighted 10:1 toward what you lack)"
     status: open
+  - id: d6
+    who: marc
+    q: "Item pool (163, d6): what should a rug ad show, since a rug is wider than the ad's picture box?"
+    options:
+      - "the middle of the rug at real size, cropped to the box"
+      - "the whole rug scaled down"
+      - "a close-up detail of the rug's pattern"
+    recommendation: "the middle of the rug at real size, cropped to the box"
+    status: open
 ---
 
 ## Goal

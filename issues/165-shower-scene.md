@@ -112,7 +112,10 @@ decisions:
       - "yes, as a second ROBE-slot outfit you can equip, but the default stays everyday clothes"
       - "yes, and the towel is what you wear after a shower until you own a robe"
     recommendation: "not now: with no robe the empty slot falls back to your everyday clothes; a towel is filed as a later outfit idea (new art through the outfit generator, and a style decision under the strict slots)"
-    status: open
+    status: answered
+    answer: "as recommended"
+    by: marc
+    on: 2026-11-24
   - id: d10
     who: marc
     q: "Where does the player appear after the shower?"

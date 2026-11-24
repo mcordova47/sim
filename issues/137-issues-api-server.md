@@ -7,6 +7,7 @@ owner: claude
 depends_on: ["136"]
 summary: "The pages can answer a decision for you when served locally, through the same tested functions."
 kind: build
+changelog: none
 unverified: []
 needs: []
 ---

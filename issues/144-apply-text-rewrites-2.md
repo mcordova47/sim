@@ -7,6 +7,7 @@ owner: claude
 depends_on: ["143"]
 summary: "Marc's 12 second-batch rewrite marks (one item note, eleven task flavor lines) are applied to the game's text."
 kind: build
+changelog: "A second batch of game text was reworded, mostly task and item lines."
 unverified:
   - "Task flavor lines are not drawn anywhere in the game (only stored in tasks.ts since issue 019), so how Marc's longer lines would look on screen was not seen; only the SUNFLOWERS note was rendered."
   - "How the new lines read in play (tone, pace, humour) is unseen."

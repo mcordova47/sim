@@ -29,7 +29,10 @@ decisions:
       - "commit CHANGELOG.md to main, then fast-forward production to that commit (the workflow pushes to main too, so your local main needs a pull afterwards)"
       - "both: a GitHub Release and a committed CHANGELOG.md"
     recommendation: "write it to the job summary and create a GitHub Release (tag) with the notes: no commit, so main and production never diverge"
-    status: open
+    status: answered
+    answer: "write it to the job summary and create a GitHub Release (tag) with the notes: no commit, so main and production never diverge"
+    by: marc
+    on: 2026-11-24
 ---
 
 ## Goal

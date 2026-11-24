@@ -60,6 +60,15 @@ decisions:
       - "no: keep every tile of the piece (Examine shows anywhere along the 4-tile desk)"
     recommendation: "yes: a slot task's zone is the piece tile that contains the item"
     status: open
+  - id: d7
+    who: marc
+    q: "The window sill: the east windows are drawn edge-on with no ledge, so small things only sit on it if the lower window is redrawn with a ledge. Build it?"
+    options:
+      - "later and optional: build the desk, nightstand, shelf and cubbies first, then decide the sill (needs 2 new window sprites)"
+      - "now, with the window redraw"
+      - "drop the sill"
+    recommendation: "later and optional: build the desk, nightstand, shelf and cubbies first, then decide the sill"
+    status: open
 ---
 
 ## Goal

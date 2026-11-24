@@ -52,7 +52,10 @@ decisions:
       - "an empty slot falls back to everyday and you always fill slots by hand"
       - "slots always hold something (a default for each)"
     recommendation: "an empty slot falls back to your everyday clothes; the first owned outfit that suits a slot fills it by itself"
-    status: open
+    status: answered
+    answer: "an empty slot falls back to your everyday clothes; the first owned outfit that suits a slot fills it by itself"
+    by: marc
+    on: 2026-11-24
   - id: d5
     who: marc
     q: "Which outfits may go in which slot (the new `fits` list on an outfit)?"

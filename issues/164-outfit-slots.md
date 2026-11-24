@@ -44,6 +44,15 @@ decisions:
       - "slots always hold something (a default for each)"
     recommendation: "an empty slot falls back to your everyday clothes; the first owned outfit that suits a slot fills it by itself"
     status: open
+  - id: d5
+    who: marc
+    q: "Which outfits may go in which slot (the new `fits` list on an outfit)?"
+    options:
+      - "explicit `fits` list, natural slot first (used only for auto-fill): EVERYDAY takes home, casual and out outfits; GOING OUT takes casual and out; PAJAMAS takes pajamas; ROBE takes the bathrobe and pajamas"
+      - "strict by style: each slot takes only its own style (a blazer cannot go in EVERYDAY)"
+      - "no limit: any outfit in any slot"
+    recommendation: "explicit `fits` list, natural slot first (used only for auto-fill): EVERYDAY takes home, casual and out outfits; GOING OUT takes casual and out; PAJAMAS takes pajamas; ROBE takes the bathrobe and pajamas"
+    status: open
 ---
 
 ## Goal

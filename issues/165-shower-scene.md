@@ -2,7 +2,7 @@
 id: "165"
 title: "A Sims-like shower scene that ends in the bathrobe"
 short: "Shower scene"
-status: todo
+status: review
 owner: marc + claude
 depends_on: ["164"]
 summary: "A short comic shower scene (bubbles, steam, a hiss) when you take a shower, ending with the player in the bathrobe."
@@ -44,6 +44,53 @@ decisions:
       - "ignore the setting for this scene"
     recommendation: "with it on, the steam is still and the bubbles do not move; the scene is otherwise the same"
     status: open
+  - id: d5
+    who: marc
+    q: "When no bathrobe will be worn (none owned or the ROBE slot is empty), what does the last picture of the shower scene show?"
+    options:
+      - "the outfit that will be worn after the shower (usually the everyday one), standing where the robe would"
+      - "a towel wrapped round the player (one more picture to draw)"
+      - "no last picture: the scene ends on the bubbles and the room comes back"
+    recommendation: "the outfit that will be worn after the shower (usually the everyday one), standing where the robe would"
+    status: open
+  - id: d6
+    who: marc
+    q: "Besides Escape (stop, no points, no robe), should there be a way to skip to the end of the shower scene and still be paid?"
+    options:
+      - "no: Escape is the one back-out and pays nothing, as in every other scene"
+      - "yes: pressing E skips to the last picture and pays the usual points"
+      - "yes, but only after the player has seen the whole scene once"
+    recommendation: "no: Escape is the one back-out and pays nothing, as in every other scene"
+    status: open
+  - id: d7
+    who: marc
+    q: "A shower can be repeated every 16 seconds (a 10 second cooldown and the 6 second scene). Should every shower play the whole scene?"
+    options:
+      - "yes: it is only 6 seconds; look again after playing it"
+      - "the whole scene the first time each game day, a shorter one (just the water and the robe) after that"
+      - "only the first shower ever plays the scene"
+    recommendation: "yes: it is only 6 seconds; look again after playing it"
+    status: open
+  - id: d8
+    who: marc
+    q: "What colour is the shower stall's tile in the close-up? The real bath is white glossy tile, but a heap of white bubbles cannot be seen against white."
+    options:
+      - "teal tile, for readability (a departure from the apartment)"
+      - "the real bath's white tile, with the bubbles outlined in dusk (hard to read in the mockup)"
+      - "a pale blue (sky) tile, between the two"
+    recommendation: "teal tile, for readability (a departure from the apartment)"
+    status: open
+unverified:
+  - "Nothing was run in a browser: how the scene looks and feels at real size and speed, the timing and the touch layer are designed from the code."
+  - "The mockup art (stall, curtain, foam) is drawn in code as a stand-in, and the mockup particles come from a re-implementation of the particle pool equations, not the real pool; the phone stop hint height is estimated."
+  - "The hiss and clicks were not heard, and the synth additions (a bus, a looping noise source with hold) were read in the code, not tried."
+  - "Issue 164 is an unmerged design: outfitSlots.resolve, the ROBE slot and the occasion are taken from its note, not from code."
+  - "How a bright scene reads when cut in from a dark night room was not seen on a real screen."
+needs:
+  - who: marc
+    kind: decide
+    why: "Answer d1 to d8 (or accept the recommended defaults) before the build stages are filed."
+    since: 2026-11-24
 ---
 
 ## Goal
@@ -54,3 +101,5 @@ A DESIGN issue first: `docs/shower-scene-design.md` with the scene as mockups at
 
 ## Progress log
 - 2026-11-24 (planner): filed on main with its open decisions (the issue file is born on main); Marc's request after merging the outfit work.
+- 2026-11-24 (claude): started on a worktree `~/Dev/repos/mcordova47/sim-worktrees/165-shower-scene` (branch `issue/165-shower-scene`, from main `b1db29a`). Plan: read the code the scene touches, render mockups with the game's own palette, sprites and font, and write `docs/shower-scene-design.md`. Note: `depends_on` 164 is `done` on its own unmerged branch, a design only; I read its note read-only and did not change it.
+- 2026-11-24 (claude): wrote `docs/shower-scene-design.md` and nine mockup PNGs in `docs/shower-scene-mockups/` (desktop 320 x 192 and phone 224 x 208, four pictures each, plus the no-robe picture 4 and the white-tile comparison). The design: a new activity drawing a front-on shower stall at 4x in a 192 x 192 stage centred on both views (no view switch); four pictures over the 6 second task (curtain closed, on with foam, steam, droplets and fog, off with a click, out in the robe or the outfit that will be worn); the player is a real head over an opaque heap of foam, so there is no clothes-free body art; the activity owns a second particle pool because the game's pool is under the scene; the hiss needs a `shower` bus and a looping noise voice with hold (about 25 lines in the synth); reduced motion freezes steam and bubbles and cuts the curtain; Escape pays nothing and fires no occasion; the robe is drawn by `outfitSlots.resolve("robe")` and never written by the scene. Seven sprites (five 48 x 48, two 32 x 16), three particle kinds, four build stages. Added d5 to d8 as open decisions (each with a recommended default) and a `needs` entry. Files: `docs/shower-scene-design.md`, `docs/shower-scene-mockups/*.png`, this file. Not checked: see `unverified`.

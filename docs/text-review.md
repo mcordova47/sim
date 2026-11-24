@@ -378,6 +378,16 @@ The entry also shows the where-now line (the slot's "where" text, or IN THE INVE
 - CASUAL CLOTHES: SOFT PANTS. THE OTHER PANTS HAVE LOST. -
 - GOING OUT CLOTHES: FOR WHEN THE PLAN INVOLVES A DOOR. -
 - PAJAMAS: THE DAY ENDS WHEN YOU SAY SO. -
+- More clothes (issues 158 and 159; names are plain and say what the thing is, no outfit is for one gender):
+  - CARDIGAN AND TEE: IT DOES UP. YOU HAVE DECIDED IT DOESN'T. -
+  - GREY HOODIE: A POCKET FOR EVERYTHING EXCEPT THE KEYS. -
+  - DENIM JACKET AND TEE: IT GOES WITH EVERYTHING. YOU HAVE CHECKED. -
+  - JACKET AND SCARF: A SCARF MAKES ANY ERRAND LOOK PLANNED. -
+  - BUTTON-UP SHIRT: EVERY BUTTON IS IN THE RIGHT HOLE. THIS TIME. -
+  - BLAZER AND TEE: IT MAKES A TEE LOOK LIKE A DECISION. -
+  - PEACOAT: WARM, AND NOBODY ASKS WHERE YOU ARE GOING. -
+  - STRIPED PAJAMAS: NOTHING ABOUT THESE IS URGENT. -
+  - BATHROBE: THE SHOWER WENT WELL. THE ROBE AGREES. -
 - Slot name in the swap list header: CLOTHES; where line: WORN; the swap task name and prompt: Change clothes (issue 152; it replaces the placeholder "Change the outfit") -
 
 ## THINGS page: the silhouette (issue 109c)

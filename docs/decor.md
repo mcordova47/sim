@@ -405,3 +405,20 @@ When an idea is picked, it becomes an item line in `decor-data.ts` plus a sprite
 
 ## What issue 158 built
 The first generated outfit: CARDIGAN AND TEE (`outfit-casual-cardigan`, style casual, fern cardigan with walnut shading as Marc chose). Its 12 sprites come from `art/outfits.json` through `scripts/outfits.mjs` (see 'Generated outfits' in [art-style.md](art-style.md)). It is the fifth line of `OUTFITS` (index 4), a gift on day 48 (`gift-day-48`) with the note "IT DOES UP. YOU HAVE DECIDED IT DOESN'T." The hand-drawn casual, out and pajamas outfits are unchanged.
+
+## What issue 159 built
+Eight more generated outfits, all from `art/outfits.json` (see 'Generated outfits' in [art-style.md](art-style.md)), each an item `outfit-<id>` that arrives as a gift (the planner's default days; change the number in `delivery-checkpoints.ts` to move one). Names are plain, notes deadpan, and no outfit is for one gender. The list is a spread of casual, going out and pajamas, so no one look is the default.
+
+| Day | Item | Name | Style |
+|---|---|---|---|
+| 51 | `outfit-casual-hoodie` | GREY HOODIE | casual |
+| 54 | `outfit-casual-denim-jacket` | DENIM JACKET AND TEE | casual |
+| 57 | `outfit-out-jacket-scarf` | JACKET AND SCARF | out |
+| 60 | `outfit-out-button-up` | BUTTON-UP SHIRT | out |
+| 63 | `outfit-out-blazer` | BLAZER AND TEE | out |
+| 66 | `outfit-out-peacoat` | PEACOAT | out |
+| 69 | `outfit-pajamas-striped` | STRIPED PAJAMAS | pajamas |
+| 72 | `outfit-pajamas-robe` | BATHROBE | pajamas |
+
+Colours were chosen to separate from the brown hair (tan and oak) and from each other: the blazer is taupe (a camel one merged with the hair and the wooden floor), and the blazer's back has a paper collar line at the neck. The robe's shower hook is still a later idea ([ideas.md](ideas.md)). Not drawn: the dress and the red jacket (ideas).
+

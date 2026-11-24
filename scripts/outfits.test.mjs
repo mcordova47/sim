@@ -31,7 +31,8 @@ describe("generated outfits", () => {
         const g = files[`${def.prefix}-${f}`].split("\n").filter((l) => /^[.0-9a-m]{16}$/.test(l));
         const changed = g.map((r, i) => (r !== t[i] ? i : -1)).filter((i) => i >= 0);
         expect(Math.min(...changed), f).toBeGreaterThanOrEqual(7);
-        expect(Math.max(...changed), f).toBeLessThanOrEqual(11);
+        const belowTorso = def.hem || def.legStripes || Object.keys(def.legs ?? {}).length > 0; // recoloured legs or a hem change rows 12 to 15
+        expect(Math.max(...changed), f).toBeLessThanOrEqual(belowTorso ? 15 : 11);
       }
     });
   }
@@ -43,9 +44,19 @@ describe("generated outfits", () => {
   it("does not touch the hand-drawn outfits", () => {
     for (const p of ["player-casual", "player-out", "player-pajamas"]) expect(read(`${p}-idle-down`)).not.toContain(HEADER_MARK);
   });
+  it("dresses the 159 outfits: sleeves, a hem over the legs, vertical stripes (palette keys, no outline pixels lost)", () => {
+    const byId = Object.fromEntries(loadOutfits().map((d) => [d.id, d]));
+    const robe = generateOutfit(byId["pajamas-robe"], read)["player-pajamas-robe-idle-down"].split("\n").filter((l) => /^[.0-9a-m]{16}$/.test(l));
+    expect(robe[12]).toContain("666666"); // the robe covers the top of the legs
+    expect(robe[14]).toContain("a"); // bare ankles below it
+    const stripes = generateOutfit(byId["pajamas-striped"], read)["player-pajamas-striped-idle-up"].split("\n").filter((l) => /^[.0-9a-m]{16}$/.test(l));
+    expect(stripes[8]).toMatch(/(i6|6i){3}/); // alternating columns, not rows
+    expect(stripes[8].slice(4, 12)).toBe(stripes[9].slice(4, 12)); // the body columns line up row to row
+  });
   it("applies hand-drawn overlay rows and rejects a bad one", () => {
     const def = { ...loadOutfits()[0], overlays: { "idle-down": { 6: "dddddddddddddddd" } } };
     expect(generateOutfit(def, read)[`${def.prefix}-idle-down`]).toContain("\ndddddddddddddddd\n");
     expect(() => generateOutfit({ ...def, overlays: { "idle-down": { 6: "ddd" } } }, read)).toThrow(/16 wide/);
+    expect(() => generateOutfit({ ...def, overlays: { "idle-dwon": { 6: "dddddddddddddddd" } } }, read)).toThrow(/unknown file/); // a misspelt file name is an error (issue 158 review)
   });
 });

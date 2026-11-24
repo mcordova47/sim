@@ -27,6 +27,15 @@ export const OUTFITS: readonly OutfitDef[] = [
   { id: "pajamas", name: "PAJAMAS", style: "pajamas", prefix: "player-pajamas" },
   // Issue 158: the first generated outfit (art/outfits.json, scripts/outfits.mjs).
   { id: "casual-cardigan", name: "CARDIGAN AND TEE", style: "casual", prefix: "player-casual-cardigan" },
+  // Issue 159: the chosen outfits, generated from art/outfits.json (the robe has hem rows over the legs).
+  { id: "casual-hoodie", name: "GREY HOODIE", style: "casual", prefix: "player-casual-hoodie" },
+  { id: "casual-denim-jacket", name: "DENIM JACKET AND TEE", style: "casual", prefix: "player-casual-denim-jacket" },
+  { id: "out-jacket-scarf", name: "JACKET AND SCARF", style: "out", prefix: "player-out-jacket-scarf" },
+  { id: "out-button-up", name: "BUTTON-UP SHIRT", style: "out", prefix: "player-out-button-up" },
+  { id: "out-blazer", name: "BLAZER AND TEE", style: "out", prefix: "player-out-blazer" },
+  { id: "out-peacoat", name: "PEACOAT", style: "out", prefix: "player-out-peacoat" },
+  { id: "pajamas-striped", name: "STRIPED PAJAMAS", style: "pajamas", prefix: "player-pajamas-striped" },
+  { id: "pajamas-robe", name: "BATHROBE", style: "pajamas", prefix: "player-pajamas-robe" },
 ];
 
 export const HOME_PREFIX = OUTFITS[0].prefix;

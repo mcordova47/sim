@@ -170,6 +170,14 @@ export const GIFT_ITEMS: DecorItem[] = [
   { id: "outfit-out", name: "GOING OUT CLOTHES", kind: "outfit", sprite: "player-out-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "FOR WHEN THE PLAN INVOLVES A DOOR." },
   { id: "outfit-pajamas", name: "PAJAMAS", kind: "outfit", sprite: "player-pajamas-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "THE DAY ENDS WHEN YOU SAY SO." },
   { id: "outfit-casual-cardigan", name: "CARDIGAN AND TEE", kind: "outfit", sprite: "player-casual-cardigan-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "IT DOES UP. YOU HAVE DECIDED IT DOESN'T." },
+  { id: "outfit-casual-hoodie", name: "GREY HOODIE", kind: "outfit", sprite: "player-casual-hoodie-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "A POCKET FOR EVERYTHING EXCEPT THE KEYS." },
+  { id: "outfit-casual-denim-jacket", name: "DENIM JACKET AND TEE", kind: "outfit", sprite: "player-casual-denim-jacket-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "IT GOES WITH EVERYTHING. YOU HAVE CHECKED." },
+  { id: "outfit-out-jacket-scarf", name: "JACKET AND SCARF", kind: "outfit", sprite: "player-out-jacket-scarf-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "A SCARF MAKES ANY ERRAND LOOK PLANNED." },
+  { id: "outfit-out-button-up", name: "BUTTON-UP SHIRT", kind: "outfit", sprite: "player-out-button-up-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "EVERY BUTTON IS IN THE RIGHT HOLE. THIS TIME." },
+  { id: "outfit-out-blazer", name: "BLAZER AND TEE", kind: "outfit", sprite: "player-out-blazer-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "IT MAKES A TEE LOOK LIKE A DECISION." },
+  { id: "outfit-out-peacoat", name: "PEACOAT", kind: "outfit", sprite: "player-out-peacoat-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "WARM, AND NOBODY ASKS WHERE YOU ARE GOING." },
+  { id: "outfit-pajamas-striped", name: "STRIPED PAJAMAS", kind: "outfit", sprite: "player-pajamas-striped-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "NOTHING ABOUT THESE IS URGENT." },
+  { id: "outfit-pajamas-robe", name: "BATHROBE", kind: "outfit", sprite: "player-pajamas-robe-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "THE SHOWER WENT WELL. THE ROBE AGREES." },
 ];
 
 // TEST items (issue 062 stage 2): borrowed sprites, so the swap can be tried and

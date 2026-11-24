@@ -9,6 +9,89 @@
       "torso": { "rule": "open-front", "facing": { "up": "solid" }, "outer": "e", "shade": "7", "inner": "6" },
       "legs": {},
       "overlays": {}
+    },
+    {
+      "id": "casual-hoodie",
+      "prefix": "player-casual-hoodie",
+      "template": "player-casual",
+      "describe": "casual option A: a grey hoodie, jeans",
+      "torso": { "rule": "hoodie", "outer": "l", "shade": "m" },
+      "legs": {},
+      "overlays": {},
+      "sleeves": "l"
+    },
+    {
+      "id": "casual-denim-jacket",
+      "prefix": "player-casual-denim-jacket",
+      "template": "player-casual",
+      "describe": "casual option D: a denim jacket over a white tee",
+      "torso": { "rule": "open-front", "facing": { "up": "solid" }, "outer": "h", "shade": "3", "inner": "6" },
+      "legs": { "h": "4" },
+      "overlays": {},
+      "sleeves": "h"
+    },
+    {
+      "id": "out-jacket-scarf",
+      "prefix": "player-out-jacket-scarf",
+      "template": "player-casual",
+      "describe": "going out option A: a dusk-blue jacket with a red scarf, dark trousers",
+      "torso": { "rule": "scarf", "outer": "4", "trim": "b" },
+      "legs": { "h": "2" },
+      "overlays": {},
+      "sleeves": "4"
+    },
+    {
+      "id": "out-button-up",
+      "prefix": "player-out-button-up",
+      "template": "player-casual",
+      "describe": "going out option B: a light-blue button-up shirt, dark trousers",
+      "torso": { "rule": "placket", "outer": "i", "shade": "5", "inner": "6" },
+      "legs": { "h": "2" },
+      "overlays": {},
+      "sleeves": "i"
+    },
+    {
+      "id": "out-blazer",
+      "prefix": "player-out-blazer",
+      "template": "player-casual",
+      "describe": "going out option D: a taupe blazer over a white tee, dark trousers",
+      "torso": { "rule": "open-front", "facing": { "up": "solid" }, "outer": "m", "shade": "8", "inner": "6", "collar": "6" },
+      "legs": { "h": "2" },
+      "overlays": {},
+      "sleeves": "m"
+    },
+    {
+      "id": "out-peacoat",
+      "prefix": "player-out-peacoat",
+      "template": "player-casual",
+      "describe": "going out option E: a slate peacoat with butter buttons over jeans",
+      "torso": { "rule": "buttoned", "outer": "3", "shade": "2", "trim": "d", "collar": "2" },
+      "legs": {},
+      "overlays": {},
+      "sleeves": "3",
+      "hem": [{ "h": "3" }, { "h": "3" }]
+    },
+    {
+      "id": "pajamas-striped",
+      "prefix": "player-pajamas-striped",
+      "template": "player-casual",
+      "describe": "pajamas option A: vertical sky and white stripes",
+      "torso": { "rule": "stripes-v", "outer": "i", "inner": "6" },
+      "legs": {},
+      "overlays": {},
+      "sleeves": "i",
+      "legStripes": { "from": "h", "keys": ["i", "6"] }
+    },
+    {
+      "id": "pajamas-robe",
+      "prefix": "player-pajamas-robe",
+      "template": "player-casual",
+      "describe": "pajamas option C: a white terry bathrobe with an orange belt, bare ankles",
+      "torso": { "rule": "robe", "outer": "6", "inner": "a", "trim": "c" },
+      "legs": {},
+      "overlays": {},
+      "sleeves": "6",
+      "hem": [{ "h": "6" }, { "h": "6" }, { "h": "a" }]
     }
   ]
 }

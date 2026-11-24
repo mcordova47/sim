@@ -8,6 +8,7 @@ depends_on: ["162"]
 summary: "Hold the candle's glow steady when reduced motion is asked, and honour the setting without a reload."
 kind: build
 changelog: "The candle's glow holds steady if your device asks for reduced motion."
+needs: [{who: marc, kind: try, why: "Look at the steady candle: cd ~/Dev/repos/mcordova47/sim-worktrees/162b-steady-candle && npm run dev, open /?hour=21&own=lamp-candle, place the candle from the lamp swap, turn Reduce motion on; then say 'merge 162b'", since: 2026-11-24}]
 ---
 
 ## Goal

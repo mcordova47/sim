@@ -109,7 +109,10 @@ decisions:
       - "yes, all four always: an empty slot reads (EVERYDAY) and GOING OUT reads BY HAND"
       - "show only the slots you can fill"
     recommendation: "yes, all four always: an empty slot reads (EVERYDAY) and GOING OUT reads BY HAND"
-    status: open
+    status: answered
+    answer: "as recommended (Marc: go with the planner's recommendation)"
+    by: planner
+    on: 2026-11-24
 needs: [{who: marc, kind: decide, why: "Answer d9, then say 'merge 164' (the outfit slots design, updated to your answers; reviewed; the build follows)", since: 2026-11-24}]
 ---
 

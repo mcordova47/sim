@@ -268,6 +268,22 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Hint line with the voice key as well (shorter so it fits): B: AD BLOCK OFF  D: VOICE  L: CLOSE  SHIFT+R: RESET - keep
 - Shown for a moment after the key: AD BLOCKER: ON / AD BLOCKER: OFF - keep
 
+## Product-line ads (issue 163)
+
+Shops that sell a kind of thing and show whichever item of that kind the draw gives them (`src/game/encounter-lines.ts`). `{name}` is the item's name in capitals (for example ROBIN PRINT, PEACOAT, MOKA POT). Rules: shops invented and generic, no real brand or platform (the platform line is just MAIL, FEED or MESSAGES); every line at most 46 letters with a 22 letter name; prices only where they cannot clash with an item. Mark each line `keep`, `soften` or `rewrite` after a dash.
+
+**To check once:** the shop names do not point at a real small business: Birchwood Frame Co., Penny Press Gallery, Fernhill Plant Shop, Dimwell Lighting, Linden Row Clothing, Slow Pour Supply, Underfoot Rug Co., Odds and Ends Shop, Reedbed Music.
+
+**Frames** (social; sells art; hide-ad difficulty 0; arrives in 12 hours): FEED / SPONSORED; @BIRCHWOODFRAMES; "New on the wall: {name}"; "Printed on thick paper. Ready to hang."; "Free shipping on orders this week."; SHOP NOW; look closer: "{name}", "Framed, 12 X 16 IN. 4.7 stars."
+**Gallery** (email; art; 1; 24 hours): MAIL / PROMOTIONS; PENNY PRESS GALLERY; "This week's pick: {name}"; "A small run, signed on the back."; "Only a few left in this size."; "Order by Friday for free delivery."; VIEW PRINT; look closer: "{name}", "Unframed, 12 X 16 IN. Ships in a tube."
+**Plants** (social; plant; 0; 12): FEED / SPONSORED; @FERNHILLPLANTS; "{name} is back in the shop"; "Packed with care. Care card in the box."; "Ships Tuesday, in a box with air holes."; SHOP NOW; look closer: "{name}", "Care card in the box. Free returns."
+**Lamps** (text message; lamp; 1; 8): MESSAGES / DIMWELL; "Dimwell: {name} is in stock."; "Bulb included. Returns for 30 days."; "Msg & data rates may apply. STOP to opt out."; SHOP NOW; look closer: "{name}", "Warm light, soft shadows. Ships in 2 days."
+**Clothing** (email; outfit; 2; 24): MAIL / PROMOTIONS; LINDEN ROW CLOTHING; "Just in: {name}"; "Soft, sturdy and made to be worn a lot."; "Free returns within 30 days."; "Sizes run true. Mostly."; SHOP NEW; look closer: "{name}", "Machine washable. Ships in 2 days."
+**Coffee gear** (email; coffee; 1; 24): MAIL / PROMOTIONS; SLOW POUR SUPPLY; "Morning upgrade: {name}"; "Makes a cup worth getting up for."; "Beans sold separately. Opinions included."; "Free shipping this week."; SHOP BREWERS; look closer: "{name}", "Makes one to four cups. Ships in 2 days."
+**Rugs** (email; rug; 1; 24): MAIL / PROMOTIONS; UNDERFOOT RUG CO.; "The {name} is in stock"; "Flat woven. Rolls up for easy storage."; "Ties the room together."; "Free shipping over $35."; SHOP RUGS; look closer: "{name}", "Spot clean only. Ships rolled, in 3 days."
+**Trinkets** (social; trinket; 0; 12): FEED / SPONSORED; @ODDSANDENDSSHOP; "{name}. You did not need this."; "Small, strange and good on a shelf."; "Each one is a little different."; SHOP NOW; look closer: "{name}", "About 3 IN tall. Gift wrap on request."
+**Instruments** (text message; instrument; 1; 24): MESSAGES / REEDBED; "Reedbed: {name} just came in."; "Come try it. Nobody is watching."; "Msg & data rates may apply. STOP to opt out."; SEE IT; look closer: "{name}", "Tuned and ready. Layaway available."
+
 ## Flashcards progress page (issue 082)
 Shown at the desk when no cards are left to review. The pixel font is capitals only, so these draw in capitals.
 - Title: Study Spanish - keep

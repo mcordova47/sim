@@ -162,6 +162,11 @@ export class Decor {
     return this.items.get(itemId);
   }
 
+  // Every item this store knows, in data order (the ad encounters' pool is drawn from it, issue 163).
+  allItems(): readonly DecorItem[] {
+    return this.data.items;
+  }
+
   // The item the slot holds: what is placed, or the slot's default; undefined for an empty slot.
   private heldBy(slotId: string): string | undefined {
     return this.placed.get(slotId) ?? this.slots.get(slotId)!.default;

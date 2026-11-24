@@ -1,5 +1,7 @@
 import { ENCOUNTERS } from "./config";
 import { ADS, type Ad } from "./encounter-ads";
+import { drawAd, type ItemPool, type PoolItem } from "./encounter-draw";
+import { LINES, type ProductLine } from "./encounter-lines";
 
 // The logic of the ad encounters (issue 043 stage B, docs/random-encounters.md section 4):
 // when one may start, which ad it is, the odds of an impulse buy and of an unsubscribe that
@@ -30,7 +32,7 @@ const finiteAtLeast0 = (v: unknown): v is number => typeof v === "number" && Num
 // forgotten, a repeated, over-long or unknown ad id is dropped, `seen` is cut to its cap.
 // `hours` (the delivery clock now), when given, pulls a `last` from the future back to it,
 // so a damaged save can never lock anyone out.
-export function parseEncounters(raw: unknown, hours?: number, known: (id: string) => boolean = (id) => ADS.some((a) => a.id === id)): EncounterSave {
+export function parseEncounters(raw: unknown, hours?: number, known: (id: string) => boolean = (id) => ADS.some((a) => a.id === id) || LINES.some((l) => l.id === id)): EncounterSave {
   const out = emptyEncounters();
   if (!isRecord(raw)) return out;
   if (finiteAtLeast0(raw.last)) out.last = hours !== undefined && Number.isFinite(hours) ? Math.min(raw.last, Math.max(hours, 0)) : raw.last;
@@ -84,6 +86,10 @@ export interface EncounterEnv {
   busy: boolean;
   // Whether an ad may be offered (its item exists and has art). Without it every ad may.
   usable?: (ad: Ad) => boolean;
+  // The item pool and what you already have (issue 163). Without it only the fixed ads are drawn, uniformly.
+  pool?: ItemPool;
+  // Whether a pool item has art the card can draw; without it every item may.
+  drawable?: (item: PoolItem) => boolean;
 }
 
 export class Encounters {
@@ -91,7 +97,10 @@ export class Encounters {
   // Told after the state changes (to save it).
   onChange?: () => void;
 
-  constructor(readonly ads: readonly Ad[] = ADS) {}
+  constructor(
+    readonly ads: readonly Ad[] = ADS,
+    readonly lines: readonly ProductLine[] = LINES,
+  ) {}
 
   // Gates, in order (the note's section 4). True if an encounter could be rolled for now.
   // Pure: it changes nothing.
@@ -131,16 +140,10 @@ export class Encounters {
     return ad;
   }
 
-  // Picks an ad, uniformly, preferring one that is not among the last `recent` shown. Null when
-  // the catalog has nothing usable.
-  pick(env: Pick<EncounterEnv, "random" | "usable">): Ad | null {
-    const usable = this.ads.filter((a) => env.usable?.(a) ?? true);
-    if (usable.length === 0) return null;
-    const recent = this.save.seen.slice(-ENCOUNTERS.recent);
-    const fresh = usable.filter((a) => !recent.includes(a.id));
-    const pool = fresh.length > 0 ? fresh : usable;
-    const r = env.random();
-    return pool[Math.min(pool.length - 1, Math.max(0, Math.floor((Number.isFinite(r) ? r : 0) * pool.length)))];
+  // Picks an ad (encounter-draw.ts `drawAd`): a fixed ad or a product line's item, weighted toward what you do not
+  // own, preferring one that is not among the last `recent` shown. Null when there is nothing usable.
+  pick(env: Pick<EncounterEnv, "random" | "usable" | "pool" | "drawable">): Ad | null {
+    return drawAd({ ads: this.ads, lines: this.lines, pool: env.pool, recent: this.save.seen, random: env.random, usable: env.usable, drawable: env.drawable });
   }
 
   // Records that an encounter with `ad` started at `hours`.
@@ -175,7 +178,7 @@ export class Encounters {
 
   // Replaces everything with a saved value (tolerant, see `parseEncounters`).
   load(raw: unknown, hours?: number): void {
-    this.save = parseEncounters(raw, hours, (id) => this.ads.some((a) => a.id === id));
+    this.save = parseEncounters(raw, hours, (id) => this.ads.some((a) => a.id === id) || this.lines.some((l) => l.id === id));
     this.onChange?.();
   }
 

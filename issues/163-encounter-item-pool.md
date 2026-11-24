@@ -2,11 +2,16 @@
 id: "163"
 title: "Random-encounter items: a growing pool, with repeats"
 short: "Item pool and repeats"
-status: todo
+status: review
 owner: marc + claude
 depends_on: []
 summary: "Let random encounters draw from a growing pool of items, allow repeats, and keep repeats rare as the pool grows."
 kind: build
+changelog: "Random ads now come from nine shops that sell any item you do not own yet, so repeats are rare."
+unverified:
+  - "How the ads feel over a long game (how often a repeat still shows the already-own card), which needs hours of play."
+  - "Rug, trinket and instrument shop ads on real items: those items live on unmerged branches, so they were looked at only with temporary stand-in items, removed again."
+  - "The shop names and copy have not had Marc's text pass or a check that no name points at a real small business."
 decisions:
   - id: d1
     who: marc
@@ -57,6 +62,25 @@ decisions:
     answer: "weight items you do not own about ten times more than ones you do, so repeats stay rare while the pool is large"
     by: marc
     on: 2026-11-24
+  - id: d5
+    who: marc
+    q: "How often should a shop ad come up compared with the seven special one-off ads?"
+    options:
+      - "equal chance: each shop and each special ad is one entry in the draw (nine shops and seven specials today), weighted 10 to 1 toward what you lack"
+      - "specials stay rarer: a shop weighs more than a special"
+      - "shops only: the seven specials appear only while they sell something you lack"
+    recommendation: "equal chance: each shop and each special ad is one entry in the draw, weighted 10 to 1 toward what you lack"
+    status: open
+  - id: d6
+    who: marc
+    q: "A rug is 128x64 and the picture box on the ad is 100x52. What should the card show?"
+    options:
+      - "the middle of the rug at its real size, cropped to the box (what is built)"
+      - "the whole rug shrunk to fit, with fractional pixels"
+      - "a smaller, simplified picture of the rug"
+    recommendation: "the middle of the rug at its real size, cropped to the box"
+    status: open
+needs: [{who: marc, kind: try, why: "Look at one ad of each shop (commands in the hand-back; copy in docs/text-review.md, section Product-line ads), then say whether to merge 163 and answer d5 and d6", since: 2026-11-24}]
 ---
 
 ## Goal
@@ -79,3 +103,5 @@ Decided by Marc (d2 to d4, 2026-11-24): milestone gifts keep a fixed core set an
 
 ## Progress log
 - 2026-11-24 (planner): filed on main with its open decisions (the issue file is born on main); Marc's request after merging the outfit work.
+- 2026-11-24 (claude): started in ~/Dev/repos/mcordova47/sim-worktrees/163-item-pool on issue/163-item-pool. Plan: derive the pool from item data, a data list of product lines, a pure seeded weighted draw wired into the roll, a fit-in-the-card rule for big sprites, tests, docs.
+- 2026-11-24 (claude): built it. New: `src/game/encounter-draw.ts` (the pool, `weightedIndex`, `drawAd`, `drawLineAd`), `src/game/encounter-lines.ts` (nine shops, generic names), `ENCOUNTERS.pool` in config (kinds and the 10 to 1 weights), `Decor.allItems()`, `Game.itemPool()` and `Game.drawAd()`; `Encounters` takes the lines and `pick` uses the draw (without a pool it is the old uniform pick over the fixed ads); the card's `productFit` crops a sprite bigger than the box to its middle at 1x; the dev shortcut accepts a line id (`?encounter=line-plants`). Save format unchanged (`seen` also holds line ids, which load as known). Milestone gifts, `deliver()` and the already-own card are untouched. Tests: `src/game/encounter-draw.test.ts` (pool list by kind, art for every pool item, statistics for the 10 to 1 draw, all-owned, no art, copy fits for every line and real item, save compatibility, crop rule). Three existing tests that scripted the random to land on the (owned) robin ad now pass 0 instead of 0.01 (the first entry, whatever its weight), and the reload test checks that one id was saved instead of the last ad's name: the draw has more entries and is weighted, nothing else changed. Docs: `docs/random-encounters.md` sections 4, 5, 6, 9 and the new 15; `docs/text-review.md` has the shops and copy. Looked at the running game (dev server, headless browser) with an ad of every line: frames, gallery, plants, lamps, clothing, coffee, and, with temporary stand-in items copied from the rug and trinket branches (removed again, nothing committed), rugs, trinkets and music: text fit, picture and menu clear of each other, rug cropped to the middle. Left open for Marc: d5 and d6.

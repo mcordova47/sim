@@ -156,7 +156,7 @@ const rooms = APARTMENT.rooms;
 const main: Level = { ...rooms.main, interactables: rooms.main.interactables.filter((i) => i.id === "doomscroll") };
 
 function start() {
-  const game = new Game(main, { rooms: { ...rooms, main }, random: (() => { const q = [0.1, 0.01]; return () => (q.length ? q.shift()! : 0.5); })() });
+  const game = new Game(main, { rooms: { ...rooms, main }, random: (() => { const q = [0.1, 0]; return () => (q.length ? q.shift()! : 0.5); })() });
   game.deliveries.advance(60);
   const spot = taskSpots(main).find((s) => s.id === "doomscroll")!;
   game.player.placeAt(spot.stand.col, spot.stand.row, spot.face);
@@ -206,7 +206,7 @@ describe("ad encounters mark an item seen when it is shown and not added", () =>
     expect(sil(g.decor)).toEqual([]);
   });
   it("an ad for something you own marks nothing", () => {
-    const g = new Game(main, { rooms: { ...rooms, main }, random: (() => { const q = [0.1, 0.01]; return () => (q.length ? q.shift()! : 0.5); })() });
+    const g = new Game(main, { rooms: { ...rooms, main }, random: (() => { const q = [0.1, 0]; return () => (q.length ? q.shift()! : 0.5); })() });
     g.decor.own("art-robin");
     g.deliveries.advance(60);
     const spot = taskSpots(main).find((s) => s.id === "doomscroll")!;

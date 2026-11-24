@@ -45,13 +45,15 @@ export function skipDaysFromSearch(deliveries: Deliveries, search: string): numb
 }
 
 // Dev shortcut (issue 043 stage B): `?encounter=ad-candle` shows that ad's encounter at once
-// (`?encounter=random`, or any other word, picks one), so the three cards and the menu can be looked
+// (`?encounter=line-plants` shows a plant shop ad with a plant drawn from the pool, `?encounter=random`, or any other word, picks one), so the three cards and the menu can be looked
 // at without playing to one. It ignores the gates (the day, the cooldown, the ad blocker) and does
 // not count for them. Dev server only (main.ts). Returns the ad shown, or null.
 export function encounterFromSearch(game: Game, search: string): Ad | null {
   const asked = new URLSearchParams(search).get("encounter");
   if (asked === null) return null;
-  const ad = adById(asked.trim()) ?? ADS[Math.floor(Math.random() * ADS.length)];
+  // An ad id, or a product line's id (`line-plants`): an item of its kind, drawn with the real weights.
+  // Anything else draws one as a roll would, from the fixed ads and the lines.
+  const ad = adById(asked.trim()) ?? game.drawAd(asked.trim()) ?? game.drawAd() ?? ADS[Math.floor(Math.random() * ADS.length)];
   return game.startEncounter(ad) ? ad : null;
 }
 

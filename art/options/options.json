@@ -163,7 +163,7 @@
       "id": "rugs",
       "title": "Rug layouts (issue 166)",
       "kind": "rugs",
-      "blurb": "Marc likes the rug as built (A) and wants to see where else a rug could go. Every layout is drawn over the real room from its map and sprites, in the game's order: floor, walls, rug, then furniture and the player, so a rug runs under whatever stands on it. Each card shows the whole room at 1x and a crop at 8x. Nothing here is in the game except A.",
+      "blurb": "Marc picked layouts C (wide living area) and D (under the bed) from the first page; A, B and E are out for now and not drawn. Each design is drawn over the real room in the game's order: floor, walls, rug, then furniture and the player. Each card shows the whole room at 1x and a crop at 8x. The designs are my own stylized pixels. Nothing here is in the game.",
       "layouts": [
         {
           "letter": "A",
@@ -186,7 +186,8 @@
               "label": "A2 Geometric (as built)",
               "src": "art/src/rug-geometric.sprite"
             }
-          ]
+          ],
+          "out": true
         },
         {
           "letter": "B",
@@ -209,7 +210,8 @@
               "label": "B2 Geometric, a grid of diamonds",
               "src": "art/options/rugs/b-living-geometric.sprite"
             }
-          ]
+          ],
+          "out": true
         },
         {
           "letter": "C",
@@ -231,6 +233,41 @@
               "id": "C2",
               "label": "C2 Geometric",
               "src": "art/options/rugs/c-wide-geometric.sprite"
+            },
+            {
+              "id": "C3",
+              "label": "C3 Plain field: one fern green with a leaf border and a thin cream line, fringe on the short ends.",
+              "src": "art/options/rugs/c3-field.sprite"
+            },
+            {
+              "id": "C4",
+              "label": "C4 Medallion: plum field, a diamond medallion in butter, brick, cream and blush, brick border with a butter line, fringe.",
+              "src": "art/options/rugs/c4-medallion.sprite"
+            },
+            {
+              "id": "C5",
+              "label": "C5 Shag: tangerine pile flecked with butter and brick, a wide cream two-tone edge, no fringe.",
+              "src": "art/options/rugs/c5-shag.sprite"
+            },
+            {
+              "id": "C6",
+              "label": "C6 Plaid flatweave: cream ground, wide teal bands both ways with thin fern lines, darker where they cross, teal border, fringe.",
+              "src": "art/options/rugs/c6-plaid.sprite"
+            },
+            {
+              "id": "C7",
+              "label": "C7 Braided oval: rag-rug rings of brick, cream, denim and mustard around a brick centre; an oval, so the corners show the floor.",
+              "src": "art/options/rugs/c7-braid.sprite"
+            },
+            {
+              "id": "C8",
+              "label": "C8 Kilim: horizontal bands of zigzags in brick, cream, slate and mustard, a slate border, fringe.",
+              "src": "art/options/rugs/c8-kilim.sprite"
+            },
+            {
+              "id": "C9",
+              "label": "C9 Faded vintage: putty field, a worn taupe and dusk medallion, a pale mist border with a few worn patches, fringe.",
+              "src": "art/options/rugs/c9-vintage.sprite"
             }
           ]
         },
@@ -255,6 +292,41 @@
               "id": "D2",
               "label": "D2 Geometric",
               "src": "art/options/rugs/d-bed-geometric.sprite"
+            },
+            {
+              "id": "D3",
+              "label": "D3 Plain field: one fern green with a leaf border and a thin cream line, fringe on the short ends.",
+              "src": "art/options/rugs/d3-field.sprite"
+            },
+            {
+              "id": "D4",
+              "label": "D4 Medallion: plum field, a diamond medallion in butter, brick, cream and blush, brick border with a butter line, fringe.",
+              "src": "art/options/rugs/d4-medallion.sprite"
+            },
+            {
+              "id": "D5",
+              "label": "D5 Shag: tangerine pile flecked with butter and brick, a wide cream two-tone edge, no fringe.",
+              "src": "art/options/rugs/d5-shag.sprite"
+            },
+            {
+              "id": "D6",
+              "label": "D6 Plaid flatweave: cream ground, wide teal bands both ways with thin fern lines, darker where they cross, teal border, fringe.",
+              "src": "art/options/rugs/d6-plaid.sprite"
+            },
+            {
+              "id": "D7",
+              "label": "D7 Braided oval: rag-rug rings of brick, cream, denim and mustard around a brick centre; an oval, so the corners show the floor.",
+              "src": "art/options/rugs/d7-braid.sprite"
+            },
+            {
+              "id": "D8",
+              "label": "D8 Kilim: horizontal bands of zigzags in brick, cream, slate and mustard, a slate border, fringe.",
+              "src": "art/options/rugs/d8-kilim.sprite"
+            },
+            {
+              "id": "D9",
+              "label": "D9 Faded vintage: putty field, a worn taupe and dusk medallion, a pale mist border with a few worn patches, fringe.",
+              "src": "art/options/rugs/d9-vintage.sprite"
             }
           ]
         },
@@ -280,7 +352,8 @@
               "label": "E2 Geometric door mat",
               "src": "art/options/rugs/e-door-geometric.sprite"
             }
-          ]
+          ],
+          "out": true
         }
       ]
     }

@@ -89,7 +89,7 @@ function rugFacts(layout, img) {
     }
     return n;
   };
-  return { tiles, tucked: [...tucked], walls, stand, hitsBox, hitsDoor, holes: layout.sleep ? { made: holes("bed-made"), unmade: holes("bed-unmade"), sleeping: holes("player-sleep-bed") } : null };
+  return { tiles, tucked: [...tucked], walls, stand, hitsBox, hitsDoor, holes: layout.sleep ? Object.fromEntries(["bed-made", "bed-unmade", "player-sleep-bed", "player-sleep-bed-unmade", "sp-bed-top"].map((n) => [n, holes(n)])) : null };
 }
 function rugCard(layout, design) {
   const img = load(design.src);
@@ -106,7 +106,7 @@ function rugCard(layout, design) {
 ${sleepCrop ? `<div class="scroll"><img class="room8" src="${png(sleepCrop)}" width="${sleepCrop.width}" height="${sleepCrop.height}"></div><small>8x, with the sleeping picture drawn over the bed</small>` : ""}</figure>`;
 }
 function rugSection(g) {
-  const blocks = g.layouts.map((l) => {
+  const blocks = g.layouts.filter((l) => !l.out).map((l) => {
     const first = load(l.designs[0].src);
     const f = rugFacts(l, first);
     const { col, row, w, h } = l.tile;
@@ -117,7 +117,7 @@ function rugSection(g) {
       f.tucked.length ? `Runs under: ${f.tucked.join(", ")}.` : "It runs under nothing.",
       `Package and takeout tile (col 10, row 8): ${f.hitsBox ? "COVERED" : "clear"}. Front door tiles: ${f.hitsDoor ? "COVERED" : "clear"}.`,
       f.stand.length ? `Open floor tiles beside a piece with tasks that it lies on (you can still stand and walk there, it is not solid): ${f.stand.join(" | ")}.` : "It lies on no standing tile for a task.",
-      f.holes ? `Bed check: the rug shows through ${f.holes.made} transparent pixels of the made-bed picture, ${f.holes.unmade} of the unmade one and ${f.holes.sleeping} of the sleeping picture (0 means the bed covers it cleanly).` : "",
+      f.holes ? `Bed check: transparent pixels of each bed picture that let the rug show through (0 means the bed covers it cleanly): ${Object.entries(f.holes).map(([n, v]) => `${n} ${v}`).join(", ")}.` : "",
     ].filter(Boolean).map((t) => `<li>${esc(t)}</li>`).join("");
     return `<div class="layout"><h3><b class="L">${l.letter}</b> ${esc(l.label)}</h3><ul>${facts}</ul><div class="row">${l.designs.map((d) => rugCard(l, d)).join("")}</div></div>`;
   }).join("\n");

@@ -22,6 +22,15 @@ describe("rug layouts (options page)", () => {
     expect(group.layouts.every((l) => l.designs.length >= 2)).toBe(true);
   });
 
+  it("Marc picked C and D: they carry at least six designs each (C1 to C9, D1 to D9), A, B and E are out", () => {
+    const by = (L: string) => group.layouts.find((l) => l.letter === L)! as (typeof group.layouts)[number] & { out?: boolean };
+    for (const L of ["C", "D"]) {
+      expect(by(L).out).toBeUndefined();
+      expect(by(L).designs.map((d) => d.id)).toEqual(Array.from({ length: 9 }, (_, i) => `${L}${i + 1}`));
+    }
+    for (const L of ["A", "B", "E"]) expect(by(L).out).toBe(true);
+  });
+
   it("every design is a sprite exactly as big as its footprint", () => {
     for (const l of group.layouts) for (const d of l.designs) {
       const text = source(d.src);

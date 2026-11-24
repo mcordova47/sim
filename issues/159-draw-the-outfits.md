@@ -16,7 +16,10 @@ decisions:
       - "go back to camel"
       - "another colour"
     recommendation: "keep taupe with a white collar line at the nape"
-    status: open
+    status: answered
+    answer: "keep taupe (taken by the planner: Marc said everything else is perfect; change it if not)"
+    by: planner
+    on: 2026-11-24
 needs: [{who: marc, kind: try, why: "Look at the eight new outfits: cd ../sim-worktrees/159-draw-the-outfits && npm run sprites -- --sheet=player and open art/contact-sheet.png, or npm run dev with ?own=outfit-<id>; then answer d1 and say 'merge 159'", since: 2026-11-24}]
 ---
 

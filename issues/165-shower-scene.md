@@ -80,6 +80,7 @@ decisions:
       - "a pale blue (sky) tile, between the two"
     recommendation: "teal tile, for readability (a departure from the apartment)"
     status: open
+needs: [{who: marc, kind: decide, why: "Look at the shower scene mockups (~/Dev/repos/mcordova47/sim-worktrees/165-shower-scene/docs/shower-scene-mockups/) and answer d1 to d8; then say 'merge 165' (design only; reviewed; the build follows 164)", since: 2026-11-24}]
 ---
 
 ## Goal

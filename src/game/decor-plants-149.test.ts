@@ -127,8 +127,9 @@ describe("stages are per family", () => {
 
 describe("the taller stages", () => {
   it("name their height in data, and only for the late stages", () => {
-    // The pothos's vines hang down over the bookshelf's south face; the monstera's crown reaches up.
-    expect(FAMILIES.pothos.overhang).toEqual({ 4: { down: 16 }, 5: { down: 16 } });
+    // The pothos's vines hang down over the bookshelf's south face (stage 4), and at stage 5 one also crawls across
+    // the shelf's top; the monstera's crown reaches up.
+    expect(FAMILIES.pothos.overhang).toEqual({ 4: { down: 16 }, 5: { up: 16, down: 16 } });
     expect(FAMILIES.monstera.overhang).toEqual({ 4: { up: 16 } });
     expect(FAMILIES.plant.overhang).toBeUndefined();
     expect(FAMILIES.spider.overhang).toBeUndefined();
@@ -159,10 +160,10 @@ describe("the taller stages", () => {
       const over = FAMILIES.pothos.overhang![stage];
       expect(grown.sprite).toBe(`pothos-${stage}`);
       expect(grown.down).toBe(over?.down);
-      expect(grown.up).toBeUndefined();
+      expect(grown.up).toBe(over?.up);
       expect(droop.sprite).toBe(over ? `pothos-wilted-${stage}` : "pothos-wilted");
       expect(droop.down).toBe(over?.down);
-      expect(droop.up).toBeUndefined();
+      expect(droop.up).toBe(over?.up);
     }
     const monstera = holding("plant-monstera");
     expect(monstera.look("plant-shelf", stateWith(4)).up).toBe(16);
@@ -191,8 +192,8 @@ describe("the taller stages", () => {
     vi.stubGlobal("document", { createElement: () => ({ width: 0, height: 0, getContext: () => ctx }) });
     try {
       for (const [id, stage, dry, expected, up] of [
-        ["plant-pothos", 3, 0, "pothos-3", 0], ["plant-pothos", 4, 0, "pothos-4", 0], ["plant-pothos", 5, 0, "pothos-5", 0],
-        ["plant-pothos", 4, 200, "pothos-wilted-4", 0], ["plant-pothos", 5, 200, "pothos-wilted-5", 0], ["plant-pothos", 2, 200, "pothos-wilted", 0],
+        ["plant-pothos", 3, 0, "pothos-3", 0], ["plant-pothos", 4, 0, "pothos-4", 0], ["plant-pothos", 5, 0, "pothos-5", 16],
+        ["plant-pothos", 4, 200, "pothos-wilted-4", 0], ["plant-pothos", 5, 200, "pothos-wilted-5", 16], ["plant-pothos", 2, 200, "pothos-wilted", 0],
         ["plant-monstera", 4, 0, "monstera-4", 16], ["plant-monstera", 4, 200, "monstera-wilted-4", 16], ["plant-monstera", 3, 0, "monstera-3", 0],
       ] as const) {
         const decor = holding(id);
@@ -232,7 +233,7 @@ describe("the taller stages", () => {
       }
       expect(stands.size).toBeGreaterThan(0);
       let touched = 0;
-      for (const [stage, expected, over] of [[5, "pothos-5", { up: 0, down: 16 }], [4, "pothos-4", { up: 0, down: 16 }]] as const) {
+      for (const [stage, expected, over] of [[5, "pothos-5", { up: 16, down: 16 }], [4, "pothos-4", { up: 0, down: 16 }]] as const) {
         for (const stand of stands) {
           const [col, row, face] = stand.split(",");
           const decor = holding("plant-pothos");

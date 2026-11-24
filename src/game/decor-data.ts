@@ -124,7 +124,7 @@ export const FAMILIES: Record<string, FamilyRules> = {
   // The other live houseplants (issue 147): the same four stages and the same drooping as the snake plant.
   // Issue 149: the pothos keeps growing, long after the others stop, and its vines hang down over the shelf's south
   // face; the monstera gets one more stage, a taller crown with bigger leaves. These stages are 16x32: sprites are whole tiles.
-  pothos: { stages: 6, droops: true, wateringsToGrow: [2, 3, 4, 6, 8], overhang: { 4: { down: 16 }, 5: { down: 16 } } },
+  pothos: { stages: 6, droops: true, wateringsToGrow: [2, 3, 4, 6, 8], overhang: { 4: { down: 16 }, 5: { up: 16, down: 16 } } },
   monstera: { stages: 5, droops: true, wateringsToGrow: [2, 3, 4, 7], overhang: { 4: { up: 16 } } },
   spider: { stages: 4, droops: true },
 };

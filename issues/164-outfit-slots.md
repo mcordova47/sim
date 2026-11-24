@@ -87,7 +87,10 @@ decisions:
       - "yes: it sticks until the next occasion (sleep or a shower), and only an occasion arms the timed return"
       - "it sticks, but the timed return still happens after two awake hours"
     recommendation: "yes: it sticks until the next occasion (sleep or a shower), and only an occasion arms the timed return"
-    status: open
+    status: answered
+    answer: "yes: it sticks until the next occasion (sleep or a shower), and only an occasion arms the timed return"
+    by: marc
+    on: 2026-11-24
   - id: d8
     who: marc
     q: "Does a nap change your clothes?"

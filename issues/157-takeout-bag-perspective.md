@@ -7,6 +7,7 @@ owner: claude
 depends_on: ["155"]
 summary: "Redraw bag candidates A and D as seen against the south wall, not from the front."
 kind: build
+changelog: none
 unverified:
   - "Not played in a browser: the bag was checked on a floor tile composite (8x and 1x), not on the real door tile in a running game."
   - "Reviewer did not run the game: how the bag looks on the real door tile in a running browser (scale, floor and door context, the TAKEOUT label) is unchecked."

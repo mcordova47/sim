@@ -7,6 +7,7 @@ owner: claude
 depends_on: ["140"]
 summary: "One line at a time, with Keep, Soften and Rewrite, served by the local issues server."
 kind: build
+changelog: none
 unverified:
   - "How the cards feel to Marc over a long session (pixel font at 24px for short strings, plain text for long ones) is unseen; only screenshots were looked at."
   - "Decision d1 (duplicates) is implemented as 'mark once, applies to every copy' behind DUPLICATE_POLICY; the duplicate rule also covers identical lines repeated inside the seven ads, not only the dialog tree, because duplicateOf is by identical text."

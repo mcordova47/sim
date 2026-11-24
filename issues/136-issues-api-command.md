@@ -7,6 +7,7 @@ owner: claude
 depends_on: ["135"]
 summary: "Edits to decisions and needs are done by tested functions and one command, so they cannot be done wrongly."
 kind: build
+changelog: none
 unverified: []
 needs: []
 ---

@@ -7,6 +7,7 @@ owner: claude
 depends_on: []
 summary: "Let a decor slot hold nothing, with a NOTHING row in the swap list; the first piece of the decor expansion."
 kind: build
+changelog: "A decor slot can now be left empty, with a Nothing choice in the swap list."
 unverified:
   - "Nothing was seen in a browser: no real slot is empty yet, so the NOTHING row and an empty slot in the room were exercised only through tests and the headless swap activity, not drawn on screen. Also not rendered: an empty slot that has a prop on it (read in game.ts only)."
 decisions:

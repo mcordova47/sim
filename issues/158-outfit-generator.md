@@ -7,6 +7,7 @@ owner: claude
 depends_on: ["156"]
 summary: "Generate an outfit's 12 sprites from a palette per region plus a torso rule, with a few hand-drawn rows on top."
 kind: build
+changelog: none
 unverified:
   - "How the cardigan feels walking at the real 1x size on a normal display: the reviewer also looked only at 3x browser captures (headless Chrome), not at 1x on a real screen."
 decisions:

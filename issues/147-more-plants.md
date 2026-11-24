@@ -7,6 +7,7 @@ owner: claude
 depends_on: []
 summary: "Three more live houseplants and three more dried arrangements for the plant shelf, arriving as gifts."
 kind: build
+changelog: "Three more houseplants and three dried arrangements for the plant shelf; they arrive as gifts on later days."
 unverified:
   - "How the six plants look in the real room in a browser (viewed only as 16x16 sprites at 8x on a brown background)."
   - "How the gifts feel when they arrive on days 21 to 36: only the schedule is tested, not played."

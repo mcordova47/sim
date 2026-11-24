@@ -7,6 +7,7 @@ owner: claude
 depends_on: []
 summary: "Let the player own several casual, going-out and pajama outfits; a style is an attribute of an outfit."
 kind: build
+changelog: "A wardrobe can hold several outfits, each a casual, going-out or pajama style."
 unverified:
   - "The Change clothes list was not looked at in a browser with many outfits (the cursor and scroll window are existing code, exercised by a test with ten made-up outfits but not drawn)."
   - "How the cardigan route test feels walking in the real game was not tried; it was judged on rendered sheets at 8x, 3x and 1x, and it is not in the game."

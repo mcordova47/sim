@@ -7,6 +7,7 @@ owner: claude
 depends_on: ["139"]
 summary: "A parser turns text-review.md into one item per string, and a tested function writes a mark back in place."
 kind: build
+changelog: none
 unverified:
   - "The pre-existing failures in scripts/issues-edit.test.mjs (8) and issues-site.test.mjs (1) come from main's current issue data (134 d1 is answered now), not from this work; checked by reading, not by running them on main."
   - "No page uses this yet (issue 141), so how the cards read to Marc is unseen; the doc's 'the walkthrough page writes it for you' sentence is not true until 141 is built."

@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { LineCounter, parseDocument } from 'yaml';
+import { changelogProblem } from './changelog-lib.mjs';
 
 export const STATUSES = ['todo', 'in-progress', 'blocked', 'review', 'done'];
 export const REQUIRED = ['id', 'title', 'status', 'owner', 'depends_on'];
@@ -17,7 +18,7 @@ export const REQUIRED = ['id', 'title', 'status', 'owner', 'depends_on'];
 // named in the design (section 4.1) for later stages and are accepted, not checked.
 export const OPTIONAL = [
   'short', 'note',
-  'summary', 'kind', 'thread', 'area', 'needs', 'decisions', 'unverified',
+  'summary', 'changelog', 'kind', 'thread', 'area', 'needs', 'decisions', 'unverified',
   'links', 'docs', 'superseded_by',
 ];
 // Closed sets (design sections 4.1 and 4.3). The pill on a card is exactly one of these words.
@@ -214,6 +215,10 @@ function checkOne(issue) {
       file: name, line: issue.lines.summary || 2,
       message: `The summary is ${fm.summary.length} characters; about ${SUMMARY_LIMIT} reads best as a headline.`,
     });
+  }
+  if ('changelog' in fm) {
+    const p = changelogProblem(fm.changelog);
+    if (p) err('changelog', p);
   }
   if ('kind' in fm && !KINDS.includes(fm.kind)) {
     err('kind', `The kind "${fm.kind}" is not one of: ${KINDS.join(', ')}.`);

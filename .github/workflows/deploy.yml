@@ -31,6 +31,23 @@ jobs:
       - run: npm test
       - run: npm run build
       - run: npm run check:dist
+      # Release notes (issue 160). Drafted BEFORE the push, while origin/production
+      # still points at the previous release. Fails soft: a changelog problem must
+      # never block a deploy, so this step cannot fail the job and every later
+      # step that uses its output checks that the file exists.
+      - name: Draft release notes
+        id: notes
+        continue-on-error: true
+        run: |
+          git fetch origin production || true
+          node scripts/changelog.mjs > "$RUNNER_TEMP/release-notes.md"
+          # GitHub caps a release body at 125000 characters.
+          head -c 100000 "$RUNNER_TEMP/release-notes.md" > "$RUNNER_TEMP/release-notes.cut" && mv "$RUNNER_TEMP/release-notes.cut" "$RUNNER_TEMP/release-notes.md"
+          {
+            echo "## Release notes"
+            echo
+            cat "$RUNNER_TEMP/release-notes.md"
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Fast-forward production
         run: |
           git fetch origin production || true
@@ -39,3 +56,22 @@ jobs:
             echo "Deployed $(git rev-parse --short HEAD) to the production branch."
             echo "Netlify builds it next: https://sim.mcord.dev/"
           } >> "$GITHUB_STEP_SUMMARY"
+      # Tag and publish the notes as a GitHub Release with the built-in token.
+      # Runs only if the push succeeded (the default `if: success()`), commits
+      # nothing, and fails soft: if the notes are missing or `gh` objects (for
+      # example the tag already exists) the deploy has already happened and the
+      # job stays green.
+      - name: Create GitHub Release
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ ! -s "$RUNNER_TEMP/release-notes.md" ]; then
+            echo "No release notes were drafted; skipping the GitHub Release."
+            exit 0
+          fi
+          tag="release-$(date -u +%Y-%m-%d-%H%M)"
+          gh release create "$tag" --target "$(git rev-parse HEAD)" \
+            --title "Release $(date -u +%Y-%m-%d)" \
+            --notes-file "$RUNNER_TEMP/release-notes.md"
+          echo "Release: $tag" >> "$GITHUB_STEP_SUMMARY"

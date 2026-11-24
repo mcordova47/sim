@@ -7,6 +7,7 @@ owner: claude
 depends_on: ["141"]
 summary: "Marc's 17 rewrite marks from the text review are applied to the game's text, with limits and layout to fit."
 kind: build
+changelog: "Some game text was reworded after a read-through of every line."
 unverified:
   - "The THINGS page was rendered in the real game only at 320 x 192; the 224 x 208 layout was drawn through a harness in the dev server without sprites, because the game itself shows the list at 320 x 192 on the narrow phone too."
   - "How the longer notes read to Marc in play (pace, humour) is unseen; only screenshots were looked at."

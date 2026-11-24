@@ -28,7 +28,10 @@ decisions:
       - "steam only, no bubbles"
       - "something sillier: more bubbles, bubbles that float away"
     recommendation: "soap bubbles cover the body with the head showing; steam and fog drift up; droplets fall from the showerhead; all calm and slow"
-    status: open
+    status: answered
+    answer: "soap bubbles cover the body with the head showing (a nod to the censor blur); steam and fog drift up; droplets fall from the showerhead; all calm and slow"
+    by: marc
+    on: 2026-11-24
   - id: d3
     who: marc
     q: "Sound for the scene?"

@@ -52,7 +52,10 @@ decisions:
       - "with it on, skip the scene and just play the old shower"
       - "ignore the setting for this scene"
     recommendation: "with it on, the steam is still and the bubbles do not move; the scene is otherwise the same"
-    status: open
+    status: answered
+    answer: "with it on, the steam is still and the bubbles do not move; the scene is otherwise the same"
+    by: marc
+    on: 2026-11-24
   - id: d5
     who: marc
     q: "When no bathrobe will be worn (none owned or the ROBE slot is empty), what does the last picture of the shower scene show?"

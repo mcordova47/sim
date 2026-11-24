@@ -8,7 +8,7 @@ import type { Milestone } from "./deliveries";
 // time played (24 game hours each, sleeping included), or lifetime `tasks` done.
 
 // What a built game uses (issue 043 stage A, docs/random-encounters.md section 3):
-// the first ten gifts, in order, then the plants of issue 147. A day gift arrives 2 game hours after the day is
+// the first ten gifts, in order, then the plants of issue 147, the clothes (152) and the coffee gear (168). A day gift arrives 2 game hours after the day is
 // reached; an achievement gift 2 game hours after it unlocks. An owned item gives
 // nothing (still fired). A test checks every item exists and none repeats.
 const SOON = 2;
@@ -44,6 +44,14 @@ export const CHECKPOINTS: readonly Milestone[] = [
   { id: "gift-day-66", stat: "days", atLeast: 66, item: "outfit-out-peacoat", delayHours: SOON },
   { id: "gift-day-69", stat: "days", atLeast: 69, item: "outfit-pajamas-striped", delayHours: SOON },
   { id: "gift-day-72", stat: "days", atLeast: 72, item: "outfit-pajamas-robe", delayHours: SOON },
+  // Coffee gear (issue 168), after the outfits (day 72), the rugs (75, 78) and the trinkets (from 81): table apparatus first, then the stove's.
+  // Planner's default days (three apart): change the number to move a gift.
+  { id: "gift-day-85", stat: "days", atLeast: 85, item: "coffee-french-press", delayHours: SOON },
+  { id: "gift-day-88", stat: "days", atLeast: 88, item: "coffee-drip-machine", delayHours: SOON },
+  { id: "gift-day-91", stat: "days", atLeast: 91, item: "coffee-pod-machine", delayHours: SOON },
+  { id: "gift-day-94", stat: "days", atLeast: 94, item: "coffee-percolator", delayHours: SOON },
+  { id: "gift-day-97", stat: "days", atLeast: 97, item: "coffee-moka-pot", delayHours: SOON },
+  { id: "gift-day-100", stat: "days", atLeast: 100, item: "coffee-briki", delayHours: SOON },
 ];
 
 // For trying it in the dev server only (`?deliver=test`, decor-dev.ts): the TEST items.

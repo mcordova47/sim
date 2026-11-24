@@ -139,6 +139,10 @@ export const DECOR_SLOTS: DecorSlot[] = [
   { id: "pantry", where: "IN THE PANTRY", room: "kitchen", name: "PANTRY", area: { x: 176, y: 16, w: 16, h: 32 }, kinds: ["pantry"], default: "pantry-bins" },
   // What you wear (issue 152). Not drawn on the map: the player's sprites follow it (`Game.syncOutfit`). Changed at the cube bookshelf (Marc, 2026-11-24).
   { id: "worn", where: "WORN", room: "main", name: "CLOTHES", area: { x: 0, y: 0, w: 16, h: 16 }, kinds: ["outfit"], default: "outfit-home", object: "cube bookshelf", offMap: true },
+  // The two coffee stations (issue 168): the pour-over cone on the dining table (today's look), and a burner on the stove that starts empty.
+  // Each apparatus fits one of them (its item's `slots`). The make-coffee task is offered where an apparatus sits.
+  { id: "coffee-table", where: "ON THE TABLE", room: "main", name: "COFFEE ON THE TABLE", area: { x: 62, y: 18, w: 16, h: 16 }, kinds: ["coffee"], default: "coffee-pourover", object: "dining table" },
+  { id: "coffee-stove", where: "ON THE STOVE", room: "kitchen", name: "COFFEE ON THE STOVE", area: { x: 93, y: 56, w: 16, h: 16 }, kinds: ["coffee"], object: "stove" },
 ];
 
 // Today's room, as items. These are the starting set: owned from the first run.
@@ -150,6 +154,7 @@ export const DECOR_ITEMS: DecorItem[] = [
   { id: "lamp-table", name: "LAMP", kind: "lamp", sprite: "lamp-table", w: 16, h: 16, color: "butter", how: "start", from: "ALREADY HERE", note: "A LAMP. IT'S A GOOD LAMP, YOU THINK.", glow: { radius: 40, alpha: 0.2 } },
   { id: "outfit-home", name: "EVERYDAY CLOTHES", kind: "outfit", sprite: "player-idle-down", w: 16, h: 16, color: "dusk", how: "start", from: "ALREADY HERE", note: "THE USUAL. IT HAS WORKED SO FAR." },
   { id: "pantry-bins", name: "CLEAR BINS", kind: "pantry", sprite: "pantry", w: 16, h: 32, color: "mist", how: "start", from: "ALREADY HERE", note: "YOU GUESS THESE WILL DO AS A PANTRY, FOR NOW." },
+  { id: "coffee-pourover", name: "POUR-OVER CONE", kind: "coffee", sprite: "coffee-pourover", taskName: "pour-over", slots: ["coffee-table"], w: 16, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "THE SLOW WAY. YOU SAY IT'S FOR THE FLAVOR." },
 ];
 
 // The real gifts (issue 043 stage A, docs/random-encounters.md section 3), in the
@@ -194,6 +199,13 @@ export const GIFT_ITEMS: DecorItem[] = [
   { id: "outfit-out-peacoat", name: "PEACOAT", kind: "outfit", sprite: "player-out-peacoat-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "WARM, AND NOBODY ASKS WHERE YOU ARE GOING." },
   { id: "outfit-pajamas-striped", name: "STRIPED PAJAMAS", kind: "outfit", sprite: "player-pajamas-striped-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "NOTHING ABOUT THESE IS URGENT." },
   { id: "outfit-pajamas-robe", name: "BATHROBE", kind: "outfit", sprite: "player-pajamas-robe-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "THE SHOWER WENT WELL. THE ROBE AGREES." },
+  // Coffee gear (issue 168): equal pay, only the picture and the task's name follow the apparatus. The table takes the first three, the stove the rest.
+  { id: "coffee-french-press", name: "FRENCH PRESS", kind: "coffee", sprite: "coffee-french-press", taskName: "french press", slots: ["coffee-table"], w: 16, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "YOU PRESS IT SLOWLY, LIKE SOMEONE WITH NOTHING SCHEDULED." },
+  { id: "coffee-drip-machine", name: "DRIP MACHINE", kind: "coffee", sprite: "coffee-drip-machine", taskName: "drip", slots: ["coffee-table"], w: 16, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "IT DOES THE WAITING FOR YOU. YOU WAIT ANYWAY." },
+  { id: "coffee-pod-machine", name: "POD MACHINE", kind: "coffee", sprite: "coffee-pod-machine", taskName: "pod", slots: ["coffee-table"], w: 16, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "EVERY CUP COMES IN A LITTLE CAPSULE. THE CAPSULES ADD UP." },
+  { id: "coffee-percolator", name: "PERCOLATOR", kind: "coffee", sprite: "coffee-percolator", taskName: "percolator", slots: ["coffee-stove"], w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "IT BUBBLES IN THE LITTLE GLASS KNOB. WATCHING IS THE POINT." },
+  { id: "coffee-moka-pot", name: "MOKA POT", kind: "coffee", sprite: "coffee-moka-pot", taskName: "moka", slots: ["coffee-stove"], w: 16, h: 16, color: "mist", how: "gift", from: "A PACKAGE", note: "IT SPUTTERS WHEN IT'S DONE. YOU HAVE LEARNED TO TRUST THE SPUTTER." },
+  { id: "coffee-briki", name: "BRIKI", kind: "coffee", sprite: "coffee-briki", taskName: "briki", slots: ["coffee-stove"], w: 16, h: 16, color: "tangerine", how: "gift", from: "A PACKAGE", note: "A TINY POT WITH A LONG HANDLE. THE FOAM IS NOT OPTIONAL." },
 ];
 
 // TEST items (issue 062 stage 2): borrowed sprites, so the swap can be tried and

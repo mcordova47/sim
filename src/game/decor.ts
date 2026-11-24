@@ -111,6 +111,9 @@ export function validateDecorData(data: DecorData): void {
   if (bad.length) throw new Error(`Decor data: ${bad.join("; ")}`);
 }
 
+// What a task needs to be worded after the item it is about (issues 149 and 168).
+export type TaskWording = { name: string; itemWord?: string; liveSlot?: string; heldSlot?: string };
+
 export class Decor {
   // Called after what is owned or placed changes.
   onChange?: () => void;
@@ -397,13 +400,24 @@ export class Decor {
   }
 
   // The name a task shows (issue 149, Interactable.itemWord): the task's own `name`, with its `itemWord` replaced by
-  // the `taskName` of the item that is really in its `liveSlot`. The plain name when there is no such word or item name.
-  taskName(task: { name: string; itemWord?: string; liveSlot?: string }): string {
-    if (!task.itemWord || !task.liveSlot) return task.name;
-    const word = this.heldIn(task.liveSlot)?.taskName;
-    if (!word) return task.name;
-    const at = task.name.lastIndexOf(task.itemWord);
-    return at < 0 ? task.name : task.name.slice(0, at) + word + task.name.slice(at + task.itemWord.length);
+  // the `taskName` of the item that is really in its `liveSlot` (or its `heldSlot`, issue 168). The plain name when
+  // there is no such word or item name.
+  taskName(task: TaskWording): string {
+    return this.worded(task.name, task);
+  }
+
+  // The same for the prompt (issue 168): "Make pour-over coffee" becomes "Make french press coffee".
+  taskPrompt(task: TaskWording & { prompt: string }): string {
+    return this.worded(task.prompt, task);
+  }
+
+  private worded(text: string, task: TaskWording): string {
+    const slot = task.liveSlot ?? task.heldSlot;
+    if (!task.itemWord || !slot) return text;
+    const word = this.heldIn(slot)?.taskName;
+    if (!word) return text;
+    const at = text.lastIndexOf(task.itemWord);
+    return at < 0 ? text : text.slice(0, at) + word + text.slice(at + task.itemWord.length);
   }
 
   // The growth rules of the plant in the slot: the last stage it can reach and the waterings for each step.

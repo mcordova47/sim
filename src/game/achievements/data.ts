@@ -30,7 +30,7 @@ const MIRRORS = ["mirror-tired", "mirror-morning", "mirror-day", "mirror-night"]
 export const ACHIEVEMENTS: Achievement[] = [
   // The same task, again and again.
   { id: "doomscroll-3", name: "One More Scroll", description: "Doomscroll three times.", when: { task: "doomscroll", atLeast: 3 } },
-  { id: "coffee-3", name: "Regular Order", description: "Make coffee three times.", when: { task: "coffee", atLeast: 3 } },
+  { id: "coffee-3", name: "Regular Order", description: "Make coffee three times.", when: { anyOf: ["coffee", "coffee-stove"], atLeast: 3 } },
   { id: "dishes-3", name: "Sink Duty", description: "Do the dishes three times.", when: { task: "dishes", atLeast: 3 } },
   { id: "guitar-3", name: "Same Three Chords", description: "Play guitar three times.", when: { task: "guitar", atLeast: 3 } },
   { id: "bed-3", name: "Hospital Corners", description: "Make the bed three times.", when: { task: "make-bed", atLeast: 3 } },

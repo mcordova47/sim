@@ -56,7 +56,10 @@ const CONTENT: Task[] = [
   { id: 'study-spanish', name: 'Study Spanish', prompt: 'Study Spanish', duration: 0, points: 0, cooldown: 0 },
 
   // Table
-  { id: 'coffee', name: 'Make pour-over coffee', prompt: 'Make coffee', duration: 6, points: 70 },
+  // Coffee follows the apparatus (issue 168): the words "pour-over" and "stovetop" are replaced by the item's `taskName` in the name and the prompt.
+  // The stove's version is only offered while a pot is on the stove (`heldSlot`); pay, time and effects are the same.
+  { id: 'coffee', name: 'Make pour-over coffee', prompt: 'Make pour-over coffee', duration: 6, points: 70, itemWord: 'pour-over', heldSlot: 'coffee-table' },
+  { id: 'coffee-stove', name: 'Make stovetop coffee', prompt: 'Make stovetop coffee', duration: 6, points: 70, itemWord: 'stovetop', heldSlot: 'coffee-stove' },
   { id: 'drink-coffee', name: 'Drink the coffee', prompt: 'Drink the coffee', duration: 3, points: 30 },
   { id: 'reheat', name: 'Reheat leftovers', prompt: 'Reheat leftovers', duration: 3, points: 25 },
   { id: 'eat-dinner', name: 'Eat dinner', prompt: 'Eat dinner', duration: 7, points: 60 },
@@ -122,6 +125,13 @@ function working(text: string[]): Partial<Task> {
 // state alone says when it can be done again (docs/tasks.md has the audit).
 const STATE_GATED = { cooldown: 0 };
 
+// Making coffee, at the table or on the stove (issue 168): the same rules and the same effects.
+const COFFEE: Partial<Task> = {
+  ...STATE_GATED,
+  requires: [NO_CLEAN_PLATES, { var: "mug", max: 0, reason: "COFFEE IS WAITING" }],
+  effects: [dirty(1), { var: "mug", set: 1 }, { var: "energy", add: 2 }, { var: "mood", add: 2 }],
+};
+
 const STATE_RULES: Record<string, Partial<Task>> = {
   "make-bed": {
     ...STATE_GATED,
@@ -152,11 +162,8 @@ const STATE_RULES: Record<string, Partial<Task>> = {
     effects: [{ var: "boxes", set: 2 }, { var: "mood", add: 3 }],
   },
   // Coffee alternates: the mug is empty, so you make it; it is full, so you drink it.
-  coffee: {
-    ...STATE_GATED,
-    requires: [NO_CLEAN_PLATES, { var: "mug", max: 0, reason: "COFFEE IS WAITING" }],
-    effects: [dirty(1), { var: "mug", set: 1 }, { var: "energy", add: 2 }, { var: "mood", add: 2 }],
-  },
+  coffee: COFFEE,
+  "coffee-stove": COFFEE,
   "drink-coffee": {
     ...STATE_GATED,
     requires: [{ var: "mug", min: 1, reason: "NO COFFEE MADE" }],
@@ -335,6 +342,7 @@ const GOOD_HOURS: Record<string, HourWindow[]> = {
   journal: [at(5, 8), at(20, 24)],
   "record-play": [at(17, 23)],
   coffee: [at(6, 11)],
+  "coffee-stove": [at(6, 11)],
   "drink-coffee": [at(6, 11)],
   reheat: [at(12, 14), at(18, 21)],
   "eat-dinner": [at(18, 21)],

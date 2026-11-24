@@ -241,7 +241,7 @@ export class Game {
     this.interaction.host = this.activityHost();
     // A swap with nothing to swap to is not offered (no prompt, not in the choice cycle).
     this.interaction.hidden = (item) =>
-      (item.decorSlot !== undefined && !this.decor.canChange(item.decorSlot)) || (item.liveSlot !== undefined && !this.decor.isLive(item.liveSlot)) || (item.delivery === true && !this.deliveries.waiting) ||
+      (item.decorSlot !== undefined && !this.decor.canChange(item.decorSlot)) || (item.liveSlot !== undefined && !this.decor.isLive(item.liveSlot)) || (item.heldSlot !== undefined && !this.decor.heldIn(item.heldSlot)) || (item.delivery === true && !this.deliveries.waiting) ||
       // Taking out the recycling is only offered at the boxes when they are flat (issues 070 and 071); otherwise Flatten the boxes is what shows.
       (item.id === "recycle-boxes" && this.state.has("boxes") && this.state.get("boxes") !== 0);
     this.dialog = new DialogRunner({
@@ -1171,7 +1171,7 @@ export class Game {
         const cooldown = interaction.cooldownRemaining(interaction.nearby);
         const unavailable = interaction.unavailableReason(interaction.nearby);
         const goodTime = unavailable === null && cooldown === 0 && interaction.isGoodTime(interaction.nearby);
-        drawPrompt(ctx, actor, interaction.nearby, cooldown, VIEW, popupBoxes, unavailable, goodTime, this.spriteDrawer, interaction.choices.length > 1 ? { index: interaction.choiceIndex, count: interaction.choices.length } : null);
+        drawPrompt(ctx, actor, { ...interaction.nearby, prompt: this.decor.taskPrompt(interaction.nearby) }, cooldown, VIEW, popupBoxes, unavailable, goodTime, this.spriteDrawer, interaction.choices.length > 1 ? { index: interaction.choiceIndex, count: interaction.choices.length } : null);
       }
     }
     this.popups.draw(ctx, VIEW, cam);

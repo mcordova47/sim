@@ -2,12 +2,20 @@
 id: "168"
 title: "Coffee gear: more ways to make coffee"
 short: "Coffee gear"
-status: in-progress
+status: review
 owner: marc + claude
 depends_on: []
 summary: "A coffee slot on the table and one on the stove, more apparatus, and task names that follow the apparatus."
 changelog: "The dining table and the stove can each hold a coffee maker, and Make coffee is named for whichever one is there."
 kind: build
+unverified:
+  - "How the table and stove items look in the running game in a browser (checked only in composed pictures at 1x and 8x, and in draw-call tests)."
+  - "The long prompt Make french press coffee fitting the prompt box on a narrow phone view."
+needs:
+  - who: marc
+    kind: try
+    why: "Look at the coffee gear on the table and the stove in the dev server (see the progress log for the address) and say whether the pictures and names feel right."
+    since: 2026-11-24
 decisions:
   - id: d1
     who: marc
@@ -60,3 +68,4 @@ Build steps G and G2 of `docs/decor-expansion-design.md` (section 6), with Marc'
 ## Progress log
 - 2026-11-24 (planner): filed on main with its open decisions (the issue file is born on main); Marc's request after merging the outfit work.
 - 2026-11-24 (agent): started in ~/Dev/repos/mcordova47/sim-worktrees/168-coffee-gear. Working assumptions, none answered by me: d1 AIR PRESS, d2 the first batch (table: french press, drip machine, pod machine; stove: percolator, moka pot, briki; the second batch is not built), d3 equal duration, d4 gifts from day 85 three days apart (the encounter pool waits for 163). Plan: slots and task text first, then art.
+- 2026-11-24 (agent): built, status review. Table slot `coffee-table` (prop on the table, default `coffee-pourover`, table and table-plate redrawn without the dripper) and stove slot `coffee-stove` (prop on the top-right burner, starts empty). Items: french press, drip machine, pod machine (table); percolator, moka pot, briki (stove); art in `art/src/coffee-*.sprite`. Task text: new `heldSlot` on tasks and `Decor.taskPrompt`, so the name and the prompt follow the apparatus; `coffee-stove` is a second task with the same rules (`COFFEE` in tasks.ts), offered only with a pot on the stove, counted with `coffee` for Regular Order and left out of "every task". Gifts: days 85, 88, 91 (table), 94, 97, 100 (stove); the encounter pool waits for 163. Files: apartment.ts, decor-data.ts, decor.ts, game.ts, interactable.ts, tasks.ts, delivery-checkpoints.ts, achievements/data.ts and feature.ts, docs (decor.md, tasks.md, text-review.md), new test decor-coffee-168.test.ts, art and public/sprites. Tests that pinned starting items (now 8), gift count (37), checkpoints (34) and the slot list were updated; `decor-worn.test.ts` now takes "earlier gifts" by list position. Golden frames recorded again (each frame gains one call: the `coffee-pourover` prop; the table pixels are not in the log). The prompt of the table task changed from "Make coffee" to "Make pour-over coffee" (same as its name). Not built: the second batch (espresso machine, siphon, air press), so no stylized espresso machine was needed. Looked at: table with each item, with and without the plate, 8x, and the stove with each pot, 8x (composed from the sprite files, not the running game). Try it: `cd ~/Dev/repos/mcordova47/sim-worktrees/168-coffee-gear && npm run dev`, then open the address with `?own=coffee-french-press,coffee-drip-machine,coffee-pod-machine,coffee-percolator,coffee-moka-pot,coffee-briki` and use the dining table and the stove (Change the coffee gear).

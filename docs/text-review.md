@@ -421,3 +421,15 @@ New lines for ordering and eating takeout. The restaurant and the app are never 
 - Arrival line over the player: THE TAKEOUT HAS ARRIVED. - 
 - Opening the box (one page): OPENED: TAKEOUT. IT IS ON THE TABLE. - 
 - Opening the box with a plate still on the table (one page; the takeout stays in the box): THERE IS A PLATE ON THE TABLE. THE TAKEOUT CAN WAIT. - 
+
+## Coffee gear (issue 168)
+New names and notes for the coffee apparatus, and the make-coffee wording that follows them ("Make french press coffee", "Make moka coffee"). No brand is named. Wired in `src/game/decor-data.ts` and `src/game/tasks.ts`. Marc to mark: keep / soften / rewrite.
+- Task names and prompts (the word in the middle follows the apparatus): Make pour-over coffee / Make french press coffee / Make drip coffee / Make pod coffee / Make percolator coffee / Make moka coffee / Make briki coffee / Make stovetop coffee (the plain wording) - 
+- POUR-OVER CONE: THE SLOW WAY. YOU SAY IT'S FOR THE FLAVOR. - 
+- FRENCH PRESS: YOU PRESS IT SLOWLY, LIKE SOMEONE WITH NOTHING SCHEDULED. - 
+- DRIP MACHINE: IT DOES THE WAITING FOR YOU. YOU WAIT ANYWAY. - 
+- POD MACHINE: EVERY CUP COMES IN A LITTLE CAPSULE. THE CAPSULES ADD UP. - 
+- PERCOLATOR: IT BUBBLES IN THE LITTLE GLASS KNOB. WATCHING IS THE POINT. - 
+- MOKA POT: IT SPUTTERS WHEN IT'S DONE. YOU HAVE LEARNED TO TRUST THE SPUTTER. - 
+- BRIKI: A TINY POT WITH A LONG HANDLE. THE FOAM IS NOT OPTIONAL. - 
+- Slot names (swap list): COFFEE ON THE TABLE, COFFEE ON THE STOVE; where: ON THE TABLE, ON THE STOVE; prompt: Change the coffee gear - 

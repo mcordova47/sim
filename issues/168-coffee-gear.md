@@ -2,10 +2,11 @@
 id: "168"
 title: "Coffee gear: more ways to make coffee"
 short: "Coffee gear"
-status: todo
+status: in-progress
 owner: marc + claude
 depends_on: []
 summary: "A coffee slot on the table and one on the stove, more apparatus, and task names that follow the apparatus."
+changelog: "The dining table and the stove can each hold a coffee maker, and Make coffee is named for whichever one is there."
 kind: build
 decisions:
   - id: d1
@@ -58,3 +59,4 @@ Build steps G and G2 of `docs/decor-expansion-design.md` (section 6), with Marc'
 
 ## Progress log
 - 2026-11-24 (planner): filed on main with its open decisions (the issue file is born on main); Marc's request after merging the outfit work.
+- 2026-11-24 (agent): started in ~/Dev/repos/mcordova47/sim-worktrees/168-coffee-gear. Working assumptions, none answered by me: d1 AIR PRESS, d2 the first batch (table: french press, drip machine, pod machine; stove: percolator, moka pot, briki; the second batch is not built), d3 equal duration, d4 gifts from day 85 three days apart (the encounter pool waits for 163). Plan: slots and task text first, then art.

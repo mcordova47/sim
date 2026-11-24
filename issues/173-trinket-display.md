@@ -52,6 +52,14 @@ decisions:
       - "no photos: draw from the kind of thing"
     recommendation: "yes, I will add photos to reference-photos/ before the art pass; the agent looks read-only and draws its own stylized sprites"
     status: open
+  - id: d6
+    who: marc
+    q: "Should a place's prompts (Examine, Display trinket) appear only where the item is, not from every tile of the piece?"
+    options:
+      - "yes: a slot task's zone is the piece tile that contains the item (the desk's col 9, the nightstand's col 14, each shelf slot's own column)"
+      - "no: keep every tile of the piece (Examine shows anywhere along the 4-tile desk)"
+    recommendation: "yes: a slot task's zone is the piece tile that contains the item"
+    status: open
 ---
 
 ## Goal

@@ -31,6 +31,15 @@ decisions:
     answer: "a taller overlay sprite for the late stages, drawn over the bookshelf's top cubes (the plant is already an overlay piece), not hiding any task spot"
     by: marc
     on: 2026-11-23
+  - id: d3
+    who: marc
+    q: "Plant stages (149, d3): should the swap list or the item note warn that a grown plant starts small again when swapped?"
+    options:
+      - "no change for now"
+      - "add a short line to the swap list"
+      - "add it to each plant's note"
+    recommendation: "no change for now"
+    status: open
 ---
 
 ## Goal

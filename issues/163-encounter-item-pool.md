@@ -51,15 +51,15 @@ decisions:
 ---
 
 ## Goal
-Marc (2026-11-24): the new plants and outfits all arrive as checkpoint gifts (game days 21 to 72, see `src/game/delivery-checkpoints.ts`); only seven ad encounters (issue 043 stage B, `src/game/encounter-ads.ts`) give items, each a fixed item, and the earlier decision was that only NEW things arrive. Marc wants to gradually increase the number of things you get through random encounters: repeats allowed, but minimized over time by eventually having a large pool.
+Marc (2026-11-24): the new plants and outfits all arrive as checkpoint gifts (game days 21 to 72, see `src/game/delivery-checkpoints.ts`); only seven ad encounters (issue 043 stage B, `src/game/encounter-ads.ts`) give items, each a fixed item, and the earlier decision was that only NEW things arrive. Marc wants to gradually increase the number of things you get through random encounters. A "repeat" means an ad for something you already own: that already happens and already shows the `YOU ALREADY HAVE ONE.` card (docs/random-encounters.md section 4), and nothing about it is reversed. The aim is to make such ads rarer over time by having a large pool.
 
 ## Notes (planner)
-- Today `deliver()` refuses an item you already own, and the ads' `item` is a single fixed id (robin print, dried flowers, warm lamp, Starry Night, stool lamp, candle, Water Lilies).
+- Clarified by Marc (2026-11-24): he does NOT want duplicates delivered or any earlier decision reversed; `deliver()` still refuses an owned item and the already-own card stays. d1 (what a repeat does) was a misreading and is dropped. Today the ads' `item` is a single fixed id (robin print, dried flowers, warm lamp, Starry Night, stool lamp, candle, Water Lilies).
 - Quiet-collecting rule: no scarcity, no pressure, nothing required; a repeat must not feel like a loss.
 - The random-encounter machinery (`docs/random-encounters.md`, sections 4, 6 and 9) and the delivery pipe (`docs/decor.md`) already exist.
 
 ## Acceptance criteria
-To be written once d1 to d4 are answered. Likely scope: a design note section in `docs/random-encounters.md`, a pool and weighting in data, repeat handling in the delivery pipe, ad concepts by product line, tests, and the text-review lines.
+To be written once d2 to d4 are answered. Likely scope: a design note section in `docs/random-encounters.md`, a pool and weighting in data, repeat handling in the delivery pipe, ad concepts by product line, tests, and the text-review lines.
 
 ## Progress log
 - 2026-11-24 (planner): filed on main with its open decisions (the issue file is born on main); Marc's request after merging the outfit work.

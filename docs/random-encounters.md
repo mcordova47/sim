@@ -39,7 +39,7 @@ Item ids start with their kind (rule from stage 1). "Art needed" is what stage 4
 | 1 | game day 1 | `art-robin` ROBIN PRINT | table wall, desk wall | **None.** The sprite `art-robin` (32x16, Marc's print) exists from issue 074. |
 | 2 | game day 3 | `art-concert-poster` CONCERT POSTER | table wall, desk wall | **None.** Redrawn in issue 076 as a dark gig-poster impression (night sky, blush planet, glowing horizon). |
 | 3 | game day 5 | `lamp-warm` WARM LAMP | lamp table | **1 new** 16x16 (second lamp, a warm shade; item `glow` as the table lamp) |
-| 4 | achievement Green Thumb (water the snake plant 3 times) | `plant-dried` DRIED FLOWERS | shelf plant slot | **1 new** 16x16 (never grows; a plant that needs no water, as the 062 note says) |
+| 4 | achievement Green Thumb (water the plant 3 times; reworded in 161, it said "the snake plant") | `plant-dried` DRIED FLOWERS | shelf plant slot | **1 new** 16x16 (never grows; a plant that needs no water, as the 062 note says) |
 | 5 | game day 8 | `art-snow-wagon` SNOW WAGON | table wall, desk wall | **None.** Issue 076, from Marc's winter yard print (32x16). |
 | 6 | game day 10 | `lamp-stool-lamp` STOOL LAMP | lamp table | **None.** The sprite `stool-lamp` exists and the TEST item `lamp-test-stool-lamp` already has its glow (radius 24, alpha 0.2). Stage 4 renames the TEST item to a real one. |
 | 7 | achievement Desk Job (every task at the desk) | `art-serenity-now` SERENITY NOW | table wall, desk wall | **None.** Issue 076, from Marc's canvas (32x16, tall frame; no text). |

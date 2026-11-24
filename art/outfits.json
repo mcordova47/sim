@@ -1,5 +1,17 @@
 {
   "_about": "Outfits that scripts/outfits.mjs turns into ordinary art/src/<prefix>-<state>-<dir>.sprite files (issue 158). See docs/art-style.md, 'Generated outfits'. Palette keys are letters from art/palette.json.",
+  "poses": [
+    { "sprite": "player-sit-sofa", "dir": "up" },
+    { "sprite": "player-read-sofa", "dir": "up" },
+    { "sprite": "player-type-desk", "dir": "up" },
+    { "sprite": "player-eat-table", "dir": "up" },
+    { "sprite": "player-guitar", "dir": "down" }
+  ],
+  "poseOnly": [
+    { "id": "casual", "prefix": "player-casual", "describe": "the hand-drawn casual sweater: fern green", "torso": { "rule": "solid", "outer": "e", "highlight": "f" } },
+    { "id": "out", "prefix": "player-out", "describe": "the hand-drawn red flannel with a two-colour check", "torso": { "rule": "check", "outer": "b", "inner": "7", "highlight": "k" } },
+    { "id": "pajamas", "prefix": "player-pajamas", "describe": "the hand-drawn teal pajama top", "torso": { "rule": "solid", "outer": "g", "highlight": "i" } }
+  ],
   "outfits": [
     {
       "id": "casual-cardigan",

@@ -9,7 +9,8 @@
 // is worn, offered or better, and the game never says one outfit suits a place or a time more than another.
 // To add an outfit: a line here (at the END, since `outfit` saves the index), its 12 sprites
 // (`<prefix>-idle-<dir>`, `<prefix>-walk-<dir>-1`, `-2` for each of four directions), and its item in decor-data.ts
-// (`outfit-<id>`, the same `name`, shown by `<prefix>-idle-down`). Names stay neutral: no outfit is for one gender.
+// (`outfit-<id>`, the same `name`, shown by `<prefix>-idle-down`), and the doing poses are dressed for it by the same
+// generator (issue 150): add the outfit to art/outfits.json and run `npm run sprites`; a test fails if a pose has no sprite for it. Names stay neutral: no outfit is for one gender.
 export type OutfitStyle = "home" | "casual" | "out" | "pajamas";
 
 export interface OutfitDef {
@@ -57,4 +58,14 @@ export function outfitFromItem(itemId: string | undefined, list: readonly Outfit
 // The style of an outfit number (home for anything unknown). Only an attribute: nothing depends on it yet.
 export function outfitStyle(outfit: number, list: readonly OutfitDef[] = OUTFITS): OutfitStyle {
   return (list[Math.round(outfit)] ?? list[0]).style;
+}
+
+// The sprite of a doing pose (issue 150) for an outfit: the pose's everyday-clothes sprite with its leading
+// `player` swapped for the outfit's prefix (`player-sit-sofa` -> `player-casual-hoodie-sit-sofa`). They are
+// generated from art/outfits.json with the walk sprites. Everyday clothes, and a pose that shows no clothes,
+// keep the base sprite; so does a missing file (`has` says whether it exists).
+export function outfitPoseSprite(base: string, prefix: string, has: (name: string) => boolean = () => true): string {
+  if (prefix === HOME_PREFIX || !base.startsWith(HOME_PREFIX)) return base;
+  const name = `${prefix}${base.slice(HOME_PREFIX.length)}`;
+  return has(name) ? name : base;
 }

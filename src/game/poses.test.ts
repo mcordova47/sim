@@ -4,8 +4,9 @@ import type { SpriteDrawer } from "../render/sprites";
 import { APARTMENT } from "./apartment";
 import { Game } from "./game";
 import type { Direction } from "./direction";
-import { OUTFITS, outfitPrefix } from "./outfits";
+import { OUTFITS, outfitPoseSprite, outfitPrefix } from "./outfits";
 import { HELD_ITEMS, POSES } from "./poses";
+import { POSE_SPRITES } from "../render/player-sprite";
 import { TASKS } from "./tasks";
 import { TILE } from "./config";
 
@@ -295,5 +296,70 @@ describe("the pose data", () => {
       );
       expect(there, t.id).toBe(true);
     }
+  });
+});
+
+// Issue 150: every doing pose is drawn in the outfit being worn.
+describe("poses in outfits", () => {
+  const sources = import.meta.glob("/art/src/player-*.sprite", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+  const sizeOf = (name: string) => /^size:\s*(\d+)x(\d+)/m.exec(sources[`/art/src/${name}.sprite`])!.slice(1).map(Number);
+  const clothed = Object.values(POSES).filter((p) => p.clothed !== false);
+
+  it("has a sprite, the same size as the everyday one, for every pose in every outfit", () => {
+    for (const o of OUTFITS) {
+      for (const pose of clothed) {
+        for (const base of [pose.sprite, ...(pose.variants ?? []).map((v) => v.sprite)]) {
+          const name = outfitPoseSprite(base, o.prefix);
+          expect(`/art/src/${name}.sprite` in sources, `${o.id}: ${name} is missing; add the outfit to art/outfits.json and run npm run sprites`).toBe(true);
+          expect(sizeOf(name), name).toEqual(sizeOf(base));
+        }
+      }
+    }
+  });
+
+  it("shows no clothes only in the sleep pose, and that one is the same for every outfit", () => {
+    expect(Object.entries(POSES).filter(([, p]) => p.clothed === false).map(([k]) => k)).toEqual(["sleep-bed"]);
+    const sprites = new Recorder();
+    const game = setup(sprites, { bedMade: 1, energy: 10 });
+    wear(game, "pajamas-striped");
+    start(game, 11, 4, "right", "sleep");
+    frame(game, sprites);
+    expect(sprites.names()).toContain("player-sleep-bed");
+  });
+
+  const cases: [string, number, number, Direction, Record<string, number>, string][] = [
+    ["doomscroll", 5, 4, "down", {}, "-sit-sofa"],
+    ["work", 6, 3, "up", {}, "-type-desk"],
+    ["drink-coffee", 2, 3, "up", { mug: 1 }, "-eat-table"],
+    ["guitar", 1, 5, "down", {}, "-guitar"],
+  ];
+  // The outfit follows the decor slot `worn` (issue 152), so wear it the way the player does.
+  const wear = (game: Game, id: string) => {
+    game.decor.own(`outfit-${id}`);
+    expect(game.decor.place("worn", `outfit-${id}`)).toBe(true);
+  };
+  it.each(OUTFITS.map((o, i) => [o.id, i, o.prefix] as const))("%s: the poses draw its sprite, never the everyday one", (id, index, prefix) => {
+    for (const [task, col, row, facing, state, suffix] of cases) {
+      const sprites = new Recorder();
+      const game = setup(sprites, state);
+      wear(game, id);
+      start(game, col, row, facing, task);
+      frame(game, sprites);
+      expect(sprites.names(), task).toContain(`${prefix}${suffix}`);
+      if (index > 0) expect(sprites.names(), task).not.toContain(`player${suffix}`);
+    }
+  });
+
+  it("loads every outfit's pose sprites with the others, so the game can draw them", () => {
+    for (const o of OUTFITS) for (const pose of clothed) expect(POSE_SPRITES, o.id).toContain(outfitPoseSprite(pose.sprite, o.prefix));
+  });
+
+  it("falls back to the everyday pose when an outfit's pose art is missing", () => {
+    const sprites = new Recorder((n) => n !== "player-casual-hoodie-sit-sofa");
+    const game = setup(sprites);
+    wear(game, "casual-hoodie");
+    start(game, 5, 4, "down", "doomscroll");
+    frame(game, sprites);
+    expect(sprites.names()).toContain("player-sit-sofa");
   });
 });

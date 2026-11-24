@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { root, parseSprite } from "./sprite-lib.mjs";
-import { FILES, HEADER_MARK, generateOutfit, loadOutfits } from "./outfits.mjs";
+import { FILES, HEADER_MARK, generateOutfit, generatePoses, loadOutfits, loadPoseOnly, loadPoses, poseFileName } from "./outfits.mjs";
 
 // Issue 158: generated outfit sprites.
 const srcDir = join(root, "art", "src");
@@ -37,7 +37,8 @@ describe("generated outfits", () => {
     });
   }
   it("has no generated file without a data entry", () => {
-    const expected = new Set(loadOutfits().flatMap((d) => FILES.map((f) => `${d.prefix}-${f}.sprite`)));
+    const poses = loadPoses().map((p) => p.sprite);
+    const expected = new Set([...loadOutfits().flatMap((d) => FILES.map((f) => `${d.prefix}-${f}.sprite`)), ...[...loadOutfits(), ...loadPoseOnly()].flatMap((d) => poses.map((p) => `${poseFileName(d.prefix, p)}.sprite`))]);
     const gen = readdirSync(srcDir).filter((f) => f.endsWith(".sprite") && read(f.replace(/\.sprite$/, "")).includes(HEADER_MARK));
     for (const f of gen) expect(expected.has(f), f).toBe(true);
   });
@@ -70,4 +71,31 @@ describe("generated outfits", () => {
     expect(() => generateOutfit({ ...def, overlays: { "idle-down": { 6: "ddd" } } }, read)).toThrow(/16 wide/);
     expect(() => generateOutfit({ ...def, overlays: { "idle-dwon": { 6: "dddddddddddddddd" } } }, read)).toThrow(/unknown file/); // a misspelt file name is an error (issue 158 review)
   });
+});
+
+// Issue 150: the doing poses, dressed by the same data.
+describe("generated pose sprites", () => {
+  for (const def of [...loadOutfits(), ...loadPoseOnly()]) {
+    it(`${def.id}: every pose, same size as the everyday one, palette keys only, only the top repainted, checked in as generated`, () => {
+      const files = generatePoses(def, loadPoses(), read);
+      expect(Object.keys(files)).toEqual(loadPoses().map((p) => poseFileName(def.prefix, p.sprite)));
+      for (const { sprite } of loadPoses()) {
+        const name = poseFileName(def.prefix, sprite);
+        const text = files[name];
+        const parsed = parseSprite(`${name}.sprite`, text);
+        const base = parseSprite(`${sprite}.sprite`, read(sprite));
+        expect(parsed.errors, name).toEqual([]);
+        expect([parsed.width, parsed.height], name).toEqual([base.width, base.height]);
+        const body = (t) => t.split("\n").filter((l) => l && !l.startsWith("#") && !l.startsWith("size"));
+        for (const row of body(text)) for (const c of row) expect(c === "." || palette.includes(c), `${name} key ${c}`).toBe(true);
+        // Only top pixels (h, i) and arm pixels (a) of the everyday picture change; the head, furniture and outline do not.
+        body(text).forEach((row, y) => [...row].forEach((c, x) => {
+          const b = body(read(sprite))[y][x];
+          if (c !== b) expect("hia".includes(b), `${name} (${x},${y}) ${b} -> ${c}`).toBe(true);
+        }));
+        expect(text.startsWith(`# ${HEADER_MARK}`)).toBe(true);
+        expect(read(name), `${name} is out of date: run npm run sprites`).toBe(text);
+      }
+    });
+  }
 });

@@ -1,7 +1,7 @@
 import type { Direction } from "../game/direction";
 import { DIRECTIONS } from "../game/direction";
 import { HELD_ITEMS, POSES, heldSprite } from "../game/poses";
-import { HOME_PREFIX, OUTFITS } from "../game/outfits";
+import { HOME_PREFIX, OUTFITS, outfitPoseSprite } from "../game/outfits";
 
 // Which sprite the player is drawn with, and whether to mirror it.
 export interface PlayerFrame {
@@ -19,7 +19,10 @@ export const PLAYER_SPRITES: string[] = framesFor(HOME_PREFIX);
 // Everything the player can be drawn from besides the walking frames of the
 // everyday clothes: the other outfits, the doing poses and the held items.
 export const OUTFIT_SPRITES: string[] = OUTFITS.slice(1).flatMap((o) => framesFor(o.prefix));
-export const POSE_SPRITES: string[] = Object.values(POSES).flatMap((p) => [p.sprite, ...(p.variants ?? []).map((v) => v.sprite)]);
+const poseSprites = Object.values(POSES).flatMap((p) => [p.sprite, ...(p.variants ?? []).map((v) => v.sprite)]);
+// ...and each pose that shows clothes, in every outfit (issue 150).
+const dressed = Object.values(POSES).filter((p) => p.clothed !== false).flatMap((p) => [p.sprite, ...(p.variants ?? []).map((v) => v.sprite)]);
+export const POSE_SPRITES: string[] = [...poseSprites, ...OUTFITS.slice(1).flatMap((o) => dressed.map((s) => outfitPoseSprite(s, o.prefix)))];
 export const HELD_SPRITES: string[] = HELD_ITEMS.flatMap((item) =>
   DIRECTIONS.map((dir) => heldSprite(item, dir)),
 );

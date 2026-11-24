@@ -42,7 +42,7 @@ decisions:
     answer: "no"
     by: marc
     on: 2026-11-24
-needs: [{who: marc, kind: decide, why: "Answer d1 to d3 (the audit's recommended defaults: steady candle yes, own switch no, leave zoom/camera/light ramp), then say 'merge 162'; the audit is on branch issue/162-reduced-motion-audit, in its last review", since: 2026-11-24}]
+needs: []
 ---
 
 ## Goal

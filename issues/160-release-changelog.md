@@ -2,7 +2,7 @@
 id: "160"
 title: "A simple changelog for production releases, from the issues"
 short: "Release changelog"
-status: todo
+status: review
 owner: marc + claude
 depends_on: []
 summary: "Draft a high-level changelog of what a production release adds, from the done issues merged since the last release."
@@ -33,6 +33,18 @@ decisions:
     answer: "write it to the job summary and create a GitHub Release (tag) with the notes: no commit, so main and production never diverge"
     by: marc
     on: 2026-11-24
+  - id: d3
+    who: marc
+    q: "Most issues filed before the kind field existed have no kind, so the first release lists only the recent ones. Backfill older issues with changelog sentences?"
+    options:
+      - "no: write the first release's headline by hand when you publish it; later releases list themselves"
+      - "yes: add changelog sentences to the older player-facing issues (a later chore)"
+    recommendation: "no: write the first release's headline by hand; later releases list themselves"
+    status: open
+unverified:
+  - "The deploy workflow was not run on GitHub: the new steps were checked by reading and by running their shell bodies locally with a stubbed gh."
+  - "That gh release create works with the built-in GITHUB_TOKEN here (it needs contents: write, which the workflow has) was not run."
+  - "That origin/production is present in the Actions checkout (fetch-depth 0 fetches all branches) was read from the checkout action's documented behaviour, not run."
 ---
 
 ## Goal
@@ -55,3 +67,9 @@ Decided by Marc (d1, d2, 2026-11-24): a command prints a draft changelog; the de
 
 ## Progress log
 - 2026-11-24 (planner): filed on main with its open decision (the issue file is born on main).
+- 2026-11-24 (agent): started. Plan: pure module scripts/changelog-lib.mjs with tests, CLI scripts/changelog.mjs reading issue files from git at the target ref, the `changelog` field in the validator, sentences on recent issues, two soft-failing workflow steps, docs.
+- 2026-11-24 (agent): done, in review. Files: scripts/changelog-lib.mjs, scripts/changelog.mjs, scripts/changelog.test.mjs (13 tests, including the command over a throwaway repo), scripts/issues.mjs (`changelog` accepted and checked: non-empty, one line, at most 140; `none` allowed), package.json (`npm run changelog`), .github/workflows/deploy.yml, docs/deploy.md, docs/contributing.md, docs/issues-as-data-design.md, and a `changelog:` line on issues 136, 137, 140, 141, 143, 144, 147, 151 to 158 (149 and 159 are in other worktrees, left alone; 150 is not merged).
+  - Workflow choice: notes are drafted BEFORE the push (origin/production still names the previous release) and the GitHub Release is created AFTER a successful push, so a notes problem cannot delay a deploy and a failed push never leaves a release for something that did not ship. Both new steps are `continue-on-error: true` and guard on the notes file. Existing steps and their order are untouched; the new steps sit around "Fast-forward production".
+  - Real history: `origin/production` is at 585e3a0, so the default range is empty on this checkout ("Nothing new for players in this release."). With no production branch (the first-release fallback, 1573 commits) the draft lists 143, 144, 147, 151 to 154 and 156 only, because 166 older issues have no `kind`; that is d3 (open, default: write the first headline by hand).
+  - Checked: npm test (3994 pass), npx tsc --noEmit, npm run build, npm run check:dist, npm run issues:check -- --validate; the two workflow shell bodies were run locally with a stub `gh` (notes present: release called with the notes file; notes absent: skipped, exit 0).
+  - Not checked: anything on GitHub (see `unverified`).

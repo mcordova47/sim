@@ -71,6 +71,15 @@ decisions:
       - "only the first shower ever plays the scene"
     recommendation: "yes: it is only 6 seconds; look again after playing it"
     status: open
+  - id: d8
+    who: marc
+    q: "What colour is the shower stall's tile in the close-up? The real bath is white glossy tile, but a heap of white bubbles cannot be seen against white."
+    options:
+      - "teal tile, for readability (a departure from the apartment)"
+      - "the real bath's white tile, with the bubbles outlined in dusk (hard to read in the mockup)"
+      - "a pale blue (sky) tile, between the two"
+    recommendation: "teal tile, for readability (a departure from the apartment)"
+    status: open
 ---
 
 ## Goal

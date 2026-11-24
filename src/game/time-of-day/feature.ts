@@ -148,7 +148,7 @@ export class TimeOfDayFeature implements Layer {
       for (const a of level.appearances ?? []) {
         const glow = a.slot === undefined ? undefined : this.game.decor.shownIn(a.slot)?.glow;
         if (!glow) continue;
-        const wander = glow.flicker ? flickerAt(glow.flicker, this.game.deliveries.hours) : { alpha: 1, radius: 1 };
+        const wander = glow.flicker && !this.game.reducedMotionAsked ? flickerAt(glow.flicker, this.game.deliveries.hours) : { alpha: 1, radius: 1 };
         glows.push({ x: a.area.x + a.area.w / 2, y: a.area.y + a.area.h / 2, radius: glow.radius * wander.radius, alpha: glow.alpha * wander.alpha });
       }
       for (const glow of TIME_OF_DAY.glows) {

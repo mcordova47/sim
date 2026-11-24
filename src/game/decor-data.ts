@@ -135,6 +135,9 @@ export const DECOR_SLOTS: DecorSlot[] = [
   { id: "art-bed", where: "ON THE BED WALL", room: "main", name: "ART OVER THE BED", area: { x: 224, y: 0, w: 48, h: 16 }, kinds: ["art"], default: "art-silkscreen", object: "nightstand" },
   { id: "plant-shelf", where: "ON THE SHELF", room: "main", name: "PLANT ON THE SHELF", area: { x: 160, y: 52, w: 16, h: 16 }, kinds: ["plant"], default: "plant-snake", stageVar: "plantStage", dryVar: "plantDry", growthVar: "plantGrowth", object: "cube bookshelf" },
   { id: "lamp-sofa", where: "BY THE SOFA", room: "main", name: "LAMP BY THE SOFA", area: { x: 128, y: 96, w: 16, h: 16 }, kinds: ["lamp"], default: "lamp-table", object: "lamp table" },
+  // The rug (issue 166, step E of decor-expansion-design.md): a floor prop, 64x32 at tile cols 3-6, rows 3-4, between the table and the
+  // sofa. No default, so a fresh game has no rug and looks the same; changed at the sofa.
+  { id: "rug-floor", where: "ON THE FLOOR", room: "main", name: "RUG", area: { x: 48, y: 48, w: 64, h: 32 }, kinds: ["rug"], object: "sofa" },
   // The pantry in the kitchen (issue 072): a 16x32 stack of bins down the east wall. Nothing to swap yet (no `object`, one item); stage 4 can add upgrade items.
   { id: "pantry", where: "IN THE PANTRY", room: "kitchen", name: "PANTRY", area: { x: 176, y: 16, w: 16, h: 32 }, kinds: ["pantry"], default: "pantry-bins" },
   // What you wear (issue 152). Not drawn on the map: the player's sprites follow it (`Game.syncOutfit`). Changed at the cube bookshelf (Marc, 2026-11-24).
@@ -181,6 +184,9 @@ export const GIFT_ITEMS: DecorItem[] = [
   { id: "plant-lavender", name: "LAVENDER BUNDLE", kind: "plant", sprite: "plant-lavender", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "SMELLS LIKE A DRAWER THAT HAS NEVER HAD A BAD DAY." },
   { id: "plant-spider", name: "SPIDER PLANT", kind: "plant", sprite: "spider-1", family: "spider", taskName: "spider plant", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "IT KEEPS MAKING SMALLER ONES. NOBODY ASKED." },
   { id: "plant-eucalyptus", name: "EUCALYPTUS JAR", kind: "plant", sprite: "plant-eucalyptus", w: 16, h: 16, color: "mist", how: "gift", from: "A PACKAGE", note: "STEMS IN A JAR. THE ROOM SMELLS LIKE A SPA THAT GAVE UP." },
+  // Rugs (issue 166): 64x32, lie on the floor between the table and the sofa (the `rug-floor` slot). Gifts after the outfits.
+  { id: "rug-striped", name: "STRIPED RUG", kind: "rug", sprite: "rug-striped", w: 64, h: 32, color: "dusk", how: "gift", from: "A PACKAGE", note: "ONE LONG OPINION ABOUT THE FLOOR, IN BLUE AND CREAM." },
+  { id: "rug-geometric", name: "DIAMOND RUG", kind: "rug", sprite: "rug-geometric", w: 64, h: 32, color: "butter", how: "gift", from: "A PACKAGE", note: "THE DIAMONDS ARE EVENLY SPACED. YOU HAVE CHECKED TWICE." },
   // Clothes (issue 152): worn from the `worn` slot, drawn as the player's idle-down sprite. The player's own outfit list is outfits.ts.
   { id: "outfit-casual", name: "CASUAL CLOTHES", kind: "outfit", sprite: "player-casual-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "SOFT PANTS. THE OTHER PANTS HAVE LOST." },
   { id: "outfit-out", name: "GOING OUT CLOTHES", kind: "outfit", sprite: "player-out-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "FOR WHEN THE PLAN INVOLVES A DOOR." },

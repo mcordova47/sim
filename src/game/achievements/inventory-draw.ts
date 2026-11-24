@@ -21,6 +21,9 @@ export const THINGS_ROWS = 3;
 // The pantry is 32 tall at its own size: its cell shows the top of it, the entry box all of it.
 const PAD = 4;
 const SPRITE_SCALE = 2;
+// The entry box draws things at 2x; one wider than a silkscreen (48) is drawn at its own size (the rugs, 64 wide,
+// issue 166), so the text beside it still has room on the narrow view.
+const entryScale = (item: { w: number }): number => (item.w > 48 ? 1 : SPRITE_SCALE);
 // The silhouette of something seen in an ad and not taken, and the two lines of its entry.
 const SHAPE = COLOR.ink;
 export const SILHOUETTE_NAME = "???";
@@ -118,7 +121,8 @@ export interface EntryLine {
 export function entryLayout(entry: InventoryEntry): { sprite: Rect; lines: EntryLine[]; bottom: number } {
   const box = thingsBox();
   const { w, h } = entry.item;
-  const sprite: Rect = { x: box.x + box.w - PAD - w * SPRITE_SCALE, y: box.y + 2, w: w * SPRITE_SCALE, h: h * SPRITE_SCALE };
+  const scale = entryScale(entry.item);
+  const sprite: Rect = { x: box.x + box.w - PAD - w * scale, y: box.y + 2, w: w * scale, h: h * scale };
   const left = box.x + PAD + 1;
   const beside = sprite.x - 6 - left;
   const full = box.x + box.w - PAD - left;
@@ -158,7 +162,7 @@ export function thingsHint(): string {
   ]);
 }
 
-// A sprite drawn at a whole-number scale and position, cropped to `h` rows when it is taller than its room.
+// A sprite drawn at a whole-number scale (or half size) and position, cropped to `h` rows when it is taller than its room.
 function drawSprite(ctx: CanvasRenderingContext2D, sprites: SpriteDrawer | undefined, name: string, at: { x: number; y: number }, size: { w: number; h: number }, scale: number, rows = size.h, flat = false): void {
   if (flat) {
     // A flat dark shape; without a drawer that can cut one out, a plain dark box of the same size.
@@ -168,7 +172,7 @@ function drawSprite(ctx: CanvasRenderingContext2D, sprites: SpriteDrawer | undef
     return;
   }
   if (!sprites) return;
-  if (!sprites.drawRegion) return sprites.draw(ctx, name, at.x, at.y, { width: size.w, height: size.h });
+  if (!sprites.drawRegion) return sprites.draw(ctx, name, at.x, at.y, { width: size.w * scale, height: size.h * scale });
   ctx.save();
   ctx.translate(Math.round(at.x), Math.round(at.y));
   sprites.drawRegion(ctx, name, { x: 0, y: 0, w: size.w, h: rows }, { width: size.w * scale, height: rows * scale });
@@ -194,10 +198,13 @@ export function drawThings(ctx: CanvasRenderingContext2D, view: ThingsView): voi
     ctx.fillRect(rect.x + 2, rect.y + 2, rect.w - 4, rect.h - 4);
     const entry = view.entries[index];
     const item = entry.item;
-    const rows = Math.min(item.h, rect.h - 4);
-    const x = rect.x + Math.floor((rect.w - item.w) / 2);
-    const y = rect.y + 2 + Math.floor((rect.h - 4 - rows) / 2);
-    drawSprite(ctx, view.sprites, item.sprite, { x, y }, item, 1, rows, entry.silhouette);
+    // A thing wider than its cell (the rugs, 64 wide: issue 166) is drawn at half size, the whole of it, instead of
+    // cropped; a taller one (the pantry) is still cropped to the cell's rows.
+    const scale = item.w > rect.w - 4 ? 0.5 : 1;
+    const rows = Math.min(item.h, Math.floor((rect.h - 4) / scale));
+    const x = rect.x + Math.floor((rect.w - item.w * scale) / 2);
+    const y = rect.y + 2 + Math.floor((rect.h - 4 - rows * scale) / 2);
+    drawSprite(ctx, view.sprites, item.sprite, { x, y }, item, scale, rows, entry.silhouette);
   }
 
   const box = thingsBox();
@@ -208,7 +215,7 @@ export function drawThings(ctx: CanvasRenderingContext2D, view: ThingsView): voi
   const entry = view.entries[Math.min(Math.max(view.cursor, 0), view.entries.length - 1)];
   if (entry) {
     const layout = entryLayout(entry);
-    drawSprite(ctx, view.sprites, entry.item.sprite, layout.sprite, entry.item, SPRITE_SCALE, entry.item.h, entry.silhouette);
+    drawSprite(ctx, view.sprites, entry.item.sprite, layout.sprite, entry.item, entryScale(entry.item), entry.item.h, entry.silhouette);
     for (const l of layout.lines) drawText(ctx, l.text, l.x, l.y, { color: l.color, shadow: null });
   }
   drawText(ctx, thingsHint(), VIEW.width / 2, VIEW.height - 9, { color: COLOR.mist, align: "center" });

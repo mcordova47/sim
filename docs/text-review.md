@@ -388,6 +388,10 @@ The entry also shows the where-now line (the slot's "where" text, or IN THE INVE
   - PEACOAT: WARM, AND NOBODY ASKS WHERE YOU ARE GOING. -
   - STRIPED PAJAMAS: NOTHING ABOUT THESE IS URGENT. -
   - BATHROBE: THE SHOWER WENT WELL. THE ROBE AGREES. -
+- Rugs (issue 166; each FROM: A PACKAGE):
+  - STRIPED RUG: ONE LONG OPINION ABOUT THE FLOOR, IN BLUE AND CREAM. -
+  - DIAMOND RUG: THE DIAMONDS ARE EVENLY SPACED. YOU HAVE CHECKED TWICE. -
+- Slot name in the swap list header: RUG; where line: ON THE FLOOR; the swap task name and prompt: Change the rug (issue 166, at the sofa) -
 - Slot name in the swap list header: CLOTHES; where line: WORN; the swap task name and prompt: Change clothes (issue 152; it replaces the placeholder "Change the outfit") -
 
 ## THINGS page: the silhouette (issue 109c)

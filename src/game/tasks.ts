@@ -361,6 +361,7 @@ export const SWAP_PROMPT: Partial<Record<DecorKind, string>> = {
   art: "Change the painting",
   plant: "Change the plant",
   lamp: "Change the lamp",
+  rug: "Change the rug",
   trinket: "Change the trinket",
   coffee: "Change the coffee gear",
   outfit: "Change clothes",

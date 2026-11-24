@@ -44,6 +44,9 @@ export const MAIN_MAP = [
 // Which sprite it shows comes from the plant in the slot (decor.ts `look`):
 // drooping wins over the stage, and the stage is the growth so far.
 const MAIN_PROPS: PropDef[] = [
+  // The rug (issue 166): a floor prop (no `on`), so `at` is in the room. 64x32 at cols 3-6, rows 3-4, the open floor
+  // between the table and the sofa. Nothing is there on a fresh game (the slot has no default).
+  { name: "rug", slot: "rug-floor", at: { x: 48, y: 48 }, size: { w: 64, h: 32 } },
   {
     name: "snake plant",
     slot: "plant-shelf",
@@ -123,7 +126,7 @@ const MAIN: Record<string, ObjectDef> = {
   // so either window's task changes both. The plain `window` sprite was deleted in issue 101.
   w: WINDOW_BLINDS,
   W: WINDOW_BLINDS,
-  S: { name: "sofa", sprite: "sofa-td", color: "brick", tasks: ["doomscroll", "scroll-photos", "contemplate", "work-sofa", "nap", "admire-art"] },
+  S: { name: "sofa", sprite: "sofa-td", color: "brick", tasks: ["doomscroll", "scroll-photos", "contemplate", "work-sofa", "nap", "admire-art", "swap-rug-floor"] },
   G: {
     name: "guitar",
     sprite: "guitar",

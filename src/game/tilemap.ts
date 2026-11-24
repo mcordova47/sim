@@ -4,7 +4,7 @@ import type { Appearance, Variant } from "./appearance";
 import type { Direction } from "./direction";
 import type { Interactable } from "./interactable";
 import type { Check } from "./state";
-import { pieceBounds, validateLevel, type Door, type Level, type Piece, type Prop, type WallTile } from "./level";
+import { pieceBounds, validateLevel, type Door, type FloorProp, type Level, type Piece, type Prop, type WallTile } from "./level";
 import { doorwayName, wallKind, wallTileName } from "./wall-tiles";
 import type { Solid } from "./world";
 
@@ -54,11 +54,12 @@ export interface ObjectDef {
 
 // A swappable thing on top of an object (see `Prop`). `on` is the legend
 // letter of the object, and `at` is the offset of its top-left from the top-left
-// of that object's tiles.
+// of that object's tiles. Left out, `on` makes a floor prop (the rug, issue 166): `at` is then
+// the offset from the room's top left, it has no solid and is drawn under everything that is sorted.
 export interface PropDef {
   name: string;
   slot: string;
-  on: string;
+  on?: string;
   at: { x: number; y: number };
   size: { w: number; h: number };
   sprite?: string;
@@ -207,21 +208,24 @@ export function parseTileMap(
     } else if (def.variants) appearances.push({ area: pieceBounds(tiles), variants: def.variants });
   }
 
-  const props: Prop[] = (options.props ?? []).map((def) => {
-    const on = pieceByChar.get(def.on);
-    if (!on) throw new Error(`${where}Prop "${def.slot}" sits on "${def.on}", which is not an object in this room`);
-    const { x, y } = on.bounds;
-    return {
+  const props: Prop[] = [];
+  const floorProps: FloorProp[] = [];
+  for (const def of options.props ?? []) {
+    const on = def.on === undefined ? undefined : pieceByChar.get(def.on);
+    if (def.on !== undefined && !on) throw new Error(`${where}Prop "${def.slot}" sits on "${def.on}", which is not an object in this room`);
+    const { x, y } = on?.bounds ?? { x: 0, y: 0 };
+    const prop = {
       name: def.name,
       slot: def.slot,
       area: { x: x + def.at.x, y: y + def.at.y, w: def.size.w, h: def.size.h },
-      on,
       ...(def.sprite && { sprite: def.sprite }),
       ...(def.variants && { variants: def.variants }),
       ...(def.when && { when: def.when }),
       ...(def.color && { color: def.color }),
     };
-  });
+    if (on) props.push({ ...prop, on });
+    else floorProps.push(prop);
+  }
 
   const tiled = options.floor !== undefined && options.wallPieces !== undefined;
   const walls: WallTile[] = [];
@@ -256,6 +260,7 @@ export function parseTileMap(
     doors,
     pieces,
     ...(props.length && { props }),
+    ...(floorProps.length && { floorProps }),
     ...(tiled && { floor: { sprite: options.floor!, tiles: floorTiles }, walls }),
     spawn,
     facing: options.facing,

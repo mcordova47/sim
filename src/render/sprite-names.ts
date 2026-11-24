@@ -20,7 +20,7 @@ export function spriteNames(rooms: Iterable<Level>): string[] {
     }
     for (const piece of level.pieces) if (piece.sprite) names.add(piece.sprite);
     for (const { variants } of level.appearances ?? []) for (const v of variants) names.add(v.sprite);
-    for (const prop of level.props ?? []) {
+    for (const prop of [...(level.props ?? []), ...(level.floorProps ?? [])]) {
       if (prop.sprite) names.add(prop.sprite);
       for (const v of prop.variants ?? []) names.add(v.sprite);
     }

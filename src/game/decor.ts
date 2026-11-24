@@ -438,7 +438,7 @@ export class Decor {
       }
     };
     for (const a of level.appearances ?? []) if (a.slot !== undefined) check(`an object`, a.slot, a.area, true);
-    for (const p of level.props ?? []) check(`prop "${p.name}"`, p.slot, p.area, false);
+    for (const p of [...(level.props ?? []), ...(level.floorProps ?? [])]) check(`prop "${p.name}"`, p.slot, p.area, false);
   }
 
   // What is wrong with the swap tasks in a room, in words (none if all is well):

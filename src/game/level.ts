@@ -55,6 +55,11 @@ export interface Prop {
   color?: keyof typeof COLOR;
 }
 
+// Something that lies on the floor (the rug, issue 166): a prop with no piece under it. `area` is where it is in
+// the room. It has no tiles, blocks nothing (it is not a solid) and is drawn right after the floor and walls, under the
+// player and every piece. It is kept apart from `props`, which all sit on a piece and sort with it.
+export type FloorProp = Omit<Prop, "on">;
+
 // One tile of wall to draw: which sprite, and the doorway sprite over it when
 // the tile is a door. Worked out by `wallKind` (see wall-tiles.ts).
 export interface WallTile {
@@ -84,6 +89,8 @@ export interface Level {
   pieces: Piece[];
   // Swappable things on top of the furniture (the plant on the bookshelf).
   props?: Prop[];
+  // Things that lie on the floor, under everything else that is drawn (the rug).
+  floorProps?: FloorProp[];
   // How to draw the room's floor and walls with the tileset. Rooms without it
   // are drawn as plain rectangles.
   floor?: { sprite: string; tiles: { col: number; row: number }[] };
@@ -154,7 +161,7 @@ export function validateStateNames(level: Level, known: (id: string) => boolean)
   for (const { variants } of level.appearances ?? []) {
     for (const v of variants) checks(`variant "${v.sprite}"`, v.when);
   }
-  for (const prop of level.props ?? []) {
+  for (const prop of [...(level.props ?? []), ...(level.floorProps ?? [])]) {
     checks(`prop "${prop.slot}" when`, prop.when);
     for (const v of prop.variants ?? []) checks(`prop "${prop.slot}" variant "${v.sprite}"`, v.when);
   }

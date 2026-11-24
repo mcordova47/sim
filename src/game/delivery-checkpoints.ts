@@ -44,6 +44,9 @@ export const CHECKPOINTS: readonly Milestone[] = [
   { id: "gift-day-66", stat: "days", atLeast: 66, item: "outfit-out-peacoat", delayHours: SOON },
   { id: "gift-day-69", stat: "days", atLeast: 69, item: "outfit-pajamas-striped", delayHours: SOON },
   { id: "gift-day-72", stat: "days", atLeast: 72, item: "outfit-pajamas-robe", delayHours: SOON },
+  // Rugs (issue 166), after the outfits (the last is day 72). Issue 166 decision d2's recommended default; change the number to move a gift.
+  { id: "gift-day-75", stat: "days", atLeast: 75, item: "rug-striped", delayHours: SOON },
+  { id: "gift-day-78", stat: "days", atLeast: 78, item: "rug-geometric", delayHours: SOON },
 ];
 
 // For trying it in the dev server only (`?deliver=test`, decor-dev.ts): the TEST items.

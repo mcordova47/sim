@@ -2,12 +2,43 @@
 id: "162"
 title: "Reduced motion: audit every animation in the game"
 short: "Reduced motion audit"
-status: todo
+status: review
 owner: claude
 depends_on: []
 summary: "List every animation with its speed, size and looping, and decide which should change when the browser asks for less motion."
 kind: research
 changelog: none
+decisions:
+  - id: d1
+    who: marc
+    q: "Hold the candle glow steady when the browser asks for reduced motion (draft 162b in docs/reduced-motion.md)?"
+    options:
+      - "yes: steady glow at its average; about five lines and a test"
+      - "no: leave the flicker, it is not a flash by the measured numbers"
+    recommendation: "yes: it is the only brightness change that runs by itself, forever; the fix is cheap"
+    status: open
+  - id: d2
+    who: marc
+    q: "Should the game get its own motion switch (a pause-screen setting that overrides the browser's), for people who cannot or do not know how to change their system setting?"
+    options:
+      - "no: the system setting is the standard; nothing more to build"
+      - "yes: a pause-screen switch that defaults to the system setting"
+    recommendation: "no for now: the system setting is what the standard asks for, and only one thing changes today"
+    status: open
+  - id: d3
+    who: marc
+    q: "Under reduced motion, should the art close-up zoom jump straight to its target and the phone camera snap instead of easing, and should the waking light take longer than 2 s?"
+    options:
+      - "leave all three: each is slow or a single crisp change the player caused"
+      - "cut the zoom straight to the target only"
+      - "all three calmer"
+    recommendation: "leave all three: none is a flash, and each is small, short or player-caused (see rows 4, 15 and 46)"
+    status: open
+unverified:
+  - "Nothing was run in a browser: the setting, the game with it on and the candle as it looks on screen were not seen."
+  - "Brightness numbers are computed from the palette and the code's formulas over assumed floor colours, not measured from rendered pixels."
+  - "The encounter entrance's count of about three flashes in 0.8 s is a hand count of up and down pairs, not rendered frames."
+  - "Chrome and Safari devtools emulation steps are from general knowledge; the OS settings paths and Firefox's preference are from MDN."
 ---
 
 ## Goal
@@ -22,3 +53,5 @@ Marc (2026-11-24) asked for an audit after learning that the game only honours t
 
 ## Progress log
 - 2026-11-24 (planner): filed on main from Marc's question about reduced motion and the game's animations.
+- 2026-11-24 (claude): started on branch issue/162-reduced-motion-audit. Plan: read how `reducedMotion` reaches `Game` and the encounter, search `src/` for every source of motion, measure the flicker and the biggest brightness changes from `config.ts` and the code (computed outside the repo), and write `docs/reduced-motion.md` with the table, the summary, the browser notes and follow-up drafts. Docs and this file only.
+- 2026-11-24 (claude): wrote `docs/reduced-motion.md`: summary, how it was measured, the candle's measured numbers (12 changes a second, about 2.5 cycles a second, strongest brightness swing about 0.03 against the 0.10 WCAG flash threshold, 1.7 to 2.4% of the picture), other brightness changes, a 56-row table of every moving thing, the setting in each browser and how to try it, one follow-up draft (162b steady candle) and what is unverified. Only the candle is worth changing; the ad encounter was already handled in 080. Three open decisions (d1 to d3) above, on this branch because the issue file is edited here; they need to reach main with the merge. Files: `docs/reduced-motion.md`, this file. No code or art changes. Scratch scripts for the measurements were kept outside the repo. Not checked: anything in a browser (see `unverified`).

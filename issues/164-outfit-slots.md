@@ -2,7 +2,7 @@
 id: "164"
 title: "Outfit slots that change by occasion"
 short: "Outfit slots"
-status: review
+status: done
 owner: marc + claude
 depends_on: []
 summary: "Equip outfits into slots (everyday, pajamas, robe, going out) and change into any slot from the bookshelf; occasions change clothes automatically."
@@ -109,3 +109,4 @@ This issue is a DESIGN issue first: the agent writes `docs/outfit-slots-design.m
   - [x] Line references: cancel return is interaction.ts:309-313 (note says 306-311); swap task is tasks.ts:372 (note says 370).
   Not checked (added to `unverified`): behaviour in a browser, touch layer on a phone, mockups in the running game. Nothing else out of scope; only docs/ and this file differ from main.
 - 2026-11-24 (agent): round 2: fixed all four review items in the design note (165 hook now says occasion() is deferred and the scene draws its own robe, with the empty-ROBE case; a nap shifts an armed returnAt; the award path noted; line references corrected). Status back to review.
+- 2026-11-24 (reviewer, round 2): independent re-review at 752c9e0. Verdict: APPROVE. The four round 1 items are truly fixed: (1) the 165 hook now says `occasion()` is deferred behind the busy gate, so the scene draws its own robe from the robe's sprites and the real change follows when the task ends; it also covers the empty-ROBE case (`outfitSlots.resolve("robe")`); sections 5 and 8 agree, and 165's file (shower task, robe via 164's occasion, Escape skips) can use it; (2) the nap shifts an armed `returnAt` by the skipped hour (NAP.hours 1; `applyEffects` runs `onClockSkip` before `onComplete`, so the listener sees the advanced hours); (3) `award` (interaction.ts:253-263) is noted; (4) line refs match: cancel return 309-313, swap task tasks.ts:372, effects 321, onComplete 346, syncOutfit 486 (called 740/787/822), decor.ts:175/352, feature.ts:186, merge.ts 148/197/238 (hand-copied fields confirmed), worn slot decor-data.ts:141, gift days 45/69/72. Also checked: after `finish` the active task is null, so the pose (derived from `interaction.active`) is gone before `onComplete`; cancel returns before effects and `onComplete`; the clock is held by `holdsClock` activities. All criteria pass by reading; `npm run issues:check -- --validate`: 207 valid (summary-length warnings only); `git diff main --stat`: only docs/outfit-slots-design.md, four mockup PNGs and this file. Not checked (in `unverified`): browser feel, touch layer on a phone, mockups in the running game. Planner: PLAN.md table needs updating; decisions d1 to d8 stay open for Marc.

@@ -21,6 +21,15 @@ decisions:
     answer: "the command (npm run changelog) printing a draft from what is on main and not on production; and the deploy workflow also runs it (Marc suggested it commits the result: see d2)"
     by: marc
     on: 2026-11-24
+  - id: d2
+    who: marc
+    q: "Changelog in the deploy workflow (160, d2): what should the workflow do with the generated changelog?"
+    options:
+      - "write it to the job summary and create a GitHub Release (tag) with the notes: no commit, so main and production never diverge"
+      - "commit CHANGELOG.md to main, then fast-forward production to that commit (the workflow pushes to main too, so your local main needs a pull afterwards)"
+      - "both: a GitHub Release and a committed CHANGELOG.md"
+    recommendation: "write it to the job summary and create a GitHub Release (tag) with the notes: no commit, so main and production never diverge"
+    status: open
 ---
 
 ## Goal

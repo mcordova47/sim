@@ -2,7 +2,7 @@
 id: "159"
 title: "Draw the chosen outfits"
 short: "Draw the outfits"
-status: review
+status: done
 owner: marc + claude
 depends_on: ["158"]
 summary: "Add the outfits Marc chose from the options with the generator: casual, going out and pajamas."
@@ -81,3 +81,9 @@ Candidates are in `art/options/`.
   - (2) Marc's instruction: Change clothes is now offered at the cube bookshelf, not the nightstand. `swap-worn` moved from the nightstand's `tasks` to the cube bookshelf's (after `swap-plant-shelf`) in `src/game/apartment.ts`; the `worn` slot's `object` is `cube bookshelf` (`decor-data.ts`, its comment no longer says drawer); the test title says the bookshelf (its spot lookup is by task id, so it follows). `swapProblems` and the choice-cycle tests pass; the bookshelf cycle now ends with the plant swap and the clothes swap. docs/decor.md (the 152 section, the swap task list) says so and notes the move. docs/decor-expansion-design.md is design history and was left alone. No item note or string says drawer for clothes (the only "drawer" is the lavender note about its smell, unrelated), and the text-review strings do not name the nightstand.
   - d1 (blazer) is closed as on main: taupe, answered by the planner.
   - Checks: `npm test` 4100 pass; `npm run sprites` clean second run; `npm run build` passes.
+- 2026-11-24 (claude, independent review of the follow-up commit 8d46f44): verdict approve.
+  - Scarf: only the three down files changed (`git diff HEAD~1 -- art/src`: idle-down, walk-down-1, walk-down-2); the up and side files (9) are byte-identical. Rendered all 12 frames at 8x and 1x with sprite-lib. At 8x the front reads as a knotted scarf with one loose tail on the left of the picture; in both walk-down frames the tail moves with the body shift and stays on the same side; up and side views keep the plain band. At 1x it is a small off-centre red notch, readable as a scarf end. Small difference from the art/options OUT A drawing: the knot row spans x 3 to 12 (the drawing x 4 to 11) and the tail is at x 6 and 7 (the drawing x 5 and 6), so it sits a column nearer the middle; not a problem.
+  - Bookshelf: real game (dev server, headless Chrome, real Tab and E key events, temporary `__game` line reverted by git checkout), with outfit-out and a spare plant owned: at the nightstand spot the choices are charge-phone and order-takeout only (no swap-art-bed, since no spare painting, and no swap-worn); at the bookshelf spot the cycle is water-plant, sort-records, swap-plant-shelf, swap-worn and wraps back (check-plant was not offered in that game state; the other record sort variants likewise). The list opened (CLOTHES 2/2, everyday clothes in place), Down moved the highlight, E put on the going out outfit (`worn` outfit-out, `outfit` 2) and the task ended.
+  - Grep of src and docs for clothes at the nightstand or a drawer: none left except docs/decor.md's history notes of the move, docs/decor.md line 29's object list (nightstand there is still right for swap-art-bed) and docs/asset-review.md (furniture list). docs/decor-expansion-design.md untouched.
+  - Checks: `npm test` 175 files, 4101 pass, 3 skipped; `npm run build` ok; `npm run sprites` "up to date", `git status` clean; `issues:check --validate` ok.
+  - Notes, not blocking: the test "offer Change clothes at the cube bookshelf" only checks the fresh-game negative and the prompt, not that the task is offered at the bookshelf or absent at the nightstand once an outfit is owned (the new structure is covered by `swapProblems` and what I ran by hand). The scarf test checks the tail's side from idle-down only.

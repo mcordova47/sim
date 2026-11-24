@@ -2,13 +2,14 @@
 id: "159"
 title: "Draw the chosen outfits"
 short: "Draw the outfits"
-status: review
+status: done
 owner: marc + claude
 depends_on: ["158"]
 summary: "Add the outfits Marc chose from the options with the generator: casual, going out and pajamas."
 kind: build
 unverified:
   - "Every outfit was looked at in headless Chrome captures (8x sheets, the room at 3x and a 320x240 viewport as 1x), not at 1x on a real display by hand."
+  - "Review: the taupe blazer was not seen on the wooden floor of the main room in the real game (the walks were in the bathroom's lilac tiles; the peacoat was seen in the main room); judged there from the palette (taupe a29b8c against oak and tan)."
   - "The gift days (51 to 72) were not played through; they are numbers in delivery-checkpoints.ts and a test checks every item is a real one."
 decisions:
   - id: d1
@@ -59,3 +60,20 @@ Candidates are in `art/options/`.
     - Distinguishable: hoodie (light grey), denim (blue over white), scarf (red band), button-up (light blue), blazer (taupe), peacoat (dark), stripes (pale blue stripes), robe (white and orange), cardigan (fern), plus the original three; none matches the hair (tan and oak). Nothing dropped: all eight read; the blazer was redrawn (colour).
   - Checks: `npm test` 175 files, 4094 pass, 3 skipped (golden frames unchanged, no re-record); `npm run build` passes; `npm run sprites` twice leaves git clean after the first commit; the generator tests cover the robe hem, the stripes and a misspelt overlay name.
   - Not checked: 1x on a real display by hand, the gift days in a long play.
+- 2026-11-24 (claude, independent review): verdict approve.
+  - Checks I ran: `npm test` 175 files, 4094 pass, 3 skipped; `npm run build` ok; `npm run sprites` leaves `git status` clean ("Outfit sprites are up to date"); `issues:check --validate` ok. `git diff main --name-status -- art/src public/sprites` shows only additions (192 files = 8 outfits x 12 x 2): the cardigan and the three hand-drawn outfits are untouched, byte for byte.
+  - My own script over all 96 new .sprite files: every one is 16x16, every key is in `art/palette.json`, the transparent silhouette is identical to `player-casual` in all 12 frames (only torso and leg rows 7 to 14 differ, so hair and face are unchanged), no text-like shapes. `OUTFITS` has 13 entries; every generated one has an `outfit-<id>` item with its sprite and a `gift-day-N` checkpoint (days 51 to 72 step 3, after 48, no duplicates); the counts 31 and 28 match.
+  - Generator: a misspelt overlay key throws; `sleeves`, `collar`, `hem` and `legStripes` behave in all 12 frames (the hem rows move with the walk frames; the lowest arm pixel stays a hand; collar only on the back and sides). Not found wrong in any frame.
+  - Looked: 8x sheet of 13 outfits x 12 frames; the real game (dev server, headless Chrome over the DevTools protocol, real arrow-key holds, `decor.place("worn", ...)` via a temporary `__game` line, reverted with git checkout) for all 12 outfits walking down, up, left and right at 3x (viewed at about 6x) on the bathroom's lilac tiles, plus the peacoat in the main room at 3x.
+    - Hoodie: light grey top, darker hood band and bulge from behind, jeans; clear against the hair, a little close to the blazer in value from behind but the blazer has a white nape line and dark trousers.
+    - Denim jacket: blue open jacket over a white tee in front, plain blue back (no stripe down the back), grey-blue trousers; sides show a dotted white tee edge (noisy, same as the cardigan).
+    - Jacket and scarf: red band at the neck from every side, two ends in front; clearest of the set.
+    - Button-up: light blue with a pale placket and a darker collar; plain light blue from behind and the sides; reads as a light-blue shirt, close to a tee at 1x as predicted.
+    - Blazer (taupe): grey-brown jacket open over a white tee in front, plain taupe back with a paper line at the nape, dark trousers. It reads, and is apart from the tan hair, the bathroom tiles and the other outfits. On the wooden floor of the main room I did not capture it (see unverified).
+    - Peacoat: dark slate to the knee, two columns of butter buttons on the front, jeans at the feet only, plain back; reads as a long coat and is clearly apart from the hair; it is the darkest outfit, near the outline colour at 1x.
+    - Striped pajamas: vertical sky and paper stripes on the body and legs, from every direction; reads as pajamas, light colour stands out from everything else; a soft blur at 1x.
+    - Robe: paper robe with a V of skin at the neck (a little like a long neck from the front), a tangerine belt visible from all four directions, bare ankles; reads as a robe.
+    - All 12 are distinguishable from the brown hair (tan and oak) and from each other by colour block: grey, denim over white, red band, light blue, taupe, dark slate, blue-white stripes, white-and-orange, plus the earlier green cardigan, green sweater, red and teal.
+  - Scope: only art/outfits.json, generator and its test, sprites, the four src files, the two count tests, three docs and this issue. No other issue or PLAN.md edits. No `reference-photos` content.
+  - Criteria: each outfit a data entry, looked at walking in four directions and in the room, said what I saw: pass (1x on a real display by hand: can't verify). Distinguishable from hair and each other: pass. Items, notes, gift days stated, strings in docs/text-review.md: pass (gift days in a long play: can't verify). Standard checks, fresh game unchanged: pass (golden frames unchanged, 8 new entries are gifts only).
+  - Left for Marc: d1 (keep the taupe blazer, which I agree reads better than camel would). The rest is approved.

@@ -37,14 +37,14 @@ const withSpare = () => new Decor(data());
 describe("the decor tables", () => {
   it("are valid, and every default fits its slot", () => {
     expect(() => validateDecorData(DECOR_DATA)).not.toThrow();
-    for (const slot of DECOR_SLOTS) {
+    for (const slot of DECOR_SLOTS.filter((x) => x.default)) {
       const item = DECOR_ITEMS.find((i) => i.id === slot.default)!;
       expect(fits(slot, item), slot.id).toBe(true);
     }
   });
 
   it("have the first-cut slots for the main room, and the kitchen's pantry (issue 072)", () => {
-    expect(DECOR_SLOTS.map((s) => s.id)).toEqual(["art-table", "art-desk", "art-bed", "plant-shelf", "lamp-sofa", "pantry", "worn"]);
+    expect(DECOR_SLOTS.map((s) => s.id)).toEqual(["art-table", "art-desk", "art-bed", "plant-shelf", "lamp-sofa", "pantry", "trinket-desk", "worn"]);
     expect(DECOR_SLOTS.filter((s) => s.room !== "main").map((s) => s.id)).toEqual(["pantry"]);
     // Not drawn on the map (issue 152): only the worn outfit.
     expect(DECOR_SLOTS.filter((s) => s.offMap).map((s) => s.id)).toEqual(["worn"]);
@@ -106,7 +106,7 @@ describe("the store", () => {
     expect(d.itemIn("art-bed").id).toBe("art-silkscreen");
     expect(d.itemIn("plant-shelf").id).toBe("plant-snake");
     expect(d.itemIn("lamp-sofa").id).toBe("lamp-table");
-    expect(d.toJSON()).toEqual({ owned: DECOR_SLOTS.map((s) => s.default), placed: {} });
+    expect(d.toJSON()).toEqual({ owned: DECOR_SLOTS.filter((s) => s.default).map((s) => s.default), placed: {} });
     expect(() => d.itemIn("nowhere")).toThrow(/Unknown decor slot/);
     expect(d.choices("nowhere")).toEqual([]);
   });
@@ -229,7 +229,7 @@ describe("what a slot looks like (plant rules per family)", () => {
 });
 
 describe("reading a saved decor value", () => {
-  const start = DECOR_SLOTS.map((s) => s.default);
+  const start = DECOR_SLOTS.filter((s) => s.default).map((s) => s.default);
   const today = { owned: start, placed: {} };
 
   it("a missing field is today's room", () => {
@@ -300,7 +300,7 @@ describe("reading a saved decor value", () => {
     expect(parseDecor(raw, data()).placed).toEqual({});
     const d = withSpare();
     d.load(raw);
-    expect(DECOR_SLOTS.map((s) => d.itemIn(s.id).id)).toEqual(DECOR_SLOTS.map((s) => s.default));
+    expect(DECOR_SLOTS.filter((s) => s.default).map((s) => d.itemIn(s.id).id)).toEqual(DECOR_SLOTS.filter((s) => s.default).map((s) => s.default));
   });
 
   it("always owns the starting items, even if the save lacks them, and never repeats an id", () => {
@@ -357,7 +357,11 @@ describe("reading a saved decor value", () => {
       const saved = d.toJSON();
       expect(saved.owned.length).toBeLessThanOrEqual(DECOR.maxOwned);
       for (const s of DECOR_SLOTS) {
-        const item = d.itemIn(s.id);
+        const item = d.heldIn(s.id);
+        if (!item) {
+          expect(s.default, `${s.id} is empty`).toBeUndefined();
+          continue;
+        }
         expect(fits(s, item), `${s.id} holds ${item.id}`).toBe(true);
         expect(d.owns(item.id)).toBe(true);
       }
@@ -409,7 +413,7 @@ describe("saving with the progress", () => {
     const storage = new FakeStorage();
     storage.setItem(KEY, JSON.stringify({ version: 1, unlocked: [], stats: {}, world: null }));
     const { game } = gameWith(storage);
-    expect(game.decor.toJSON()).toEqual({ owned: DECOR_SLOTS.map((s) => s.default), placed: {} });
+    expect(game.decor.toJSON()).toEqual({ owned: DECOR_SLOTS.filter((s) => s.default).map((s) => s.default), placed: {} });
   });
 
   it("the game saves its decor and the next visit has it back", () => {
@@ -419,7 +423,7 @@ describe("saving with the progress", () => {
     first.game.decor.place("art-table", "art-spare");
     expect(first.feature.save()).toBe(true);
     expect(JSON.parse(storage.data.get(KEY)!).decor).toEqual({
-      owned: [...DECOR_SLOTS.map((s) => s.default), "art-spare"],
+      owned: [...DECOR_SLOTS.filter((s) => s.default).map((s) => s.default), "art-spare"],
       placed: { "art-table": "art-spare" },
     });
     const second = gameWith(storage);

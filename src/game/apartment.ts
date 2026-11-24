@@ -53,6 +53,15 @@ const MAIN_PROPS: PropDef[] = [
     sprite: "plant-0",
     color: "leaf",
   },
+  // The desk's right corner (issue 167): drawn only when the slot holds a trinket, so there is no sprite here.
+  {
+    name: "trinket",
+    slot: "trinket-desk",
+    on: "D",
+    at: { x: 44, y: 1 },
+    size: { w: 16, h: 16 },
+    color: "tangerine",
+  },
   // The mug waiting on the dining table (issue 065): there while nobody is
   // carrying coffee (`mug` 0), gone when a full mug is made (held-mug overlay) and
   // back after drinking it. Its own piece, so it could become a decor prop later.
@@ -103,7 +112,7 @@ const MAIN: Record<string, ObjectDef> = {
       { sprite: "table", color: "tangerine" },
     ],
   },
-  D: { name: "standing desk", sprite: "desk", color: "butter", tasks: ["work", "side-project-game", "journal", "tidy-desk", "make-track", "study-spanish", "swap-art-desk"] },
+  D: { name: "standing desk", sprite: "desk", color: "butter", tasks: ["work", "side-project-game", "journal", "tidy-desk", "make-track", "study-spanish", "swap-art-desk", "swap-trinket-desk"] },
   C: { name: "desk chair", sprite: "desk-chair", color: "ink" },
   H: { name: "cube bookshelf", sprite: "bookshelf", color: "butter", tasks: ["water-plant-droop", "water-plant", "check-plant", "sort-records", "sort-records-year", "sort-records-fav", "sort-records-color", "swap-plant-shelf", "swap-worn"] },
   N: { name: "nightstand", sprite: "nightstand", color: "tangerine", tasks: ["charge-phone", "order-takeout", "swap-art-bed"] },

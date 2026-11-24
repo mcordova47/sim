@@ -22,8 +22,8 @@ const esc: Controls = { ...NO_INPUT, keys: ["Escape"], cancelPressed: true };
 const TAB: Controls = { ...NO_INPUT, keys: ["Tab"] };
 const dir = (d: "up" | "down"): Controls => ({ ...NO_INPUT, dirPressed: d, dir: d });
 
-const shownIds = (d: Decor) => DECOR_SLOTS.map((s) => d.itemIn(s.id).id);
-const realShownIds = (d: Decor) => DECOR_SLOTS.map((s) => d.placedIn(s.id).id);
+const shownIds = (d: Decor) => DECOR_SLOTS.map((s) => d.shownIn(s.id)?.id).filter((id): id is string => !!id);
+const realShownIds = (d: Decor) => DECOR_SLOTS.map((s) => d.heldIn(s.id)?.id).filter((id): id is string => !!id);
 const distinct = (ids: string[]) => new Set(ids).size === ids.length;
 
 describe("the inventory", () => {
@@ -255,7 +255,8 @@ describe("fuzz: random swaps, saves, reloads and Escape on the real Game", () =>
         expect(distinct(shownIds(decor)), `step ${step} preview`).toBe(true);
         // Every slot shows something it owns that fits it.
         for (const s of DECOR_SLOTS) {
-          const item = decor.placedIn(s.id);
+          const item = decor.heldIn(s.id);
+          if (!item) continue;
           expect(decor.owns(item.id), `step ${step}`).toBe(true);
           expect(item.kind === s.kinds[0] || s.kinds.includes(item.kind)).toBe(true);
         }

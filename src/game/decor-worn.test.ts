@@ -37,7 +37,7 @@ describe("worn outfits", () => {
 
   it("arrive as gifts on days after every earlier gift, casual then out then pajamas", () => {
     const days = (id: string) => Number(CHECKPOINTS.find((c) => c.item === id)!.atLeast);
-    const last = Math.max(...CHECKPOINTS.filter((c) => c.stat === "days" && !String(c.item).startsWith("outfit-")).map((c) => Number(c.atLeast)));
+    const last = Math.max(...CHECKPOINTS.filter((c) => c.stat === "days" && !/^(outfit|trinket|instrument)-/.test(String(c.item))).map((c) => Number(c.atLeast)));
     expect([days("outfit-casual"), days("outfit-out"), days("outfit-pajamas")]).toEqual([39, 42, 45]);
     expect(days("outfit-casual")).toBeGreaterThan(last);
   });

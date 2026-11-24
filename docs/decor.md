@@ -442,3 +442,11 @@ Eight more generated outfits, all from `art/outfits.json` (see 'Generated outfit
 
 Colours were chosen to separate from the brown hair (tan and oak) and from each other: the blazer is taupe (a camel one merged with the hair and the wooden floor), and the blazer's back has a paper collar line at the neck. The robe's shower hook is still a later idea ([ideas.md](ideas.md)). Not drawn: the dress and the red jacket (ideas).
 
+## What issue 167 built
+Steps C and H of [decor-expansion-design.md](decor-expansion-design.md): trinkets and display instruments on the desk's right corner.
+- **The slot.** `trinket-desk` (room main, area abs (140, 17, 16x16), kinds `trinket` and `instrument`, object `standing desk`) has no default, so it starts empty and a fresh game looks the same (golden frames unchanged). Its map piece is a `PropDef` on the desk `D` at local (44, 1) with no sprite, so nothing is drawn until an item is in it. The swap task `swap-trinket-desk`, "Change the trinket", is on the desk's tasks; like every swap it is offered only when there is something to put there or something to take down (the list has a NOTHING row). The left corner stays free for desk clutter (issue 042).
+- **Clear of the work.** Cell rows 0 and 15 of every sprite are empty and the art stays in rows 1 to 14, so the last row (desk-local y 16) never meets the typing pose (`type-desk` at desk-local (32, 16)); no task spot's tile is under the slot. `decor-trinkets.test.ts` checks this.
+- **The items** (16x16, palette only, no text, kind `trinket` or `instrument`, FROM: A PACKAGE): ALEBRIJE, LITTLE TELESCOPE, FINGER SKATEBOARD, PAINTED GOOSE EGG, WORRY DOLL, RACCOON IN A CAN, then the display-only HARMONICA, KALIMBA, JAW HARP and MINI KEYBOARD (kind `instrument`, ids `instrument-*`). Nothing is played, counted or needed; there is no set and no total.
+- **Gifts.** Checkpoints `gift-day-81` to `gift-day-108`, every third day, in the order above. The rug takes days 75 and 78 (issue 166) and the coffee gear starts at day 85 (issue 168), so these days (multiples of 3) never meet theirs.
+- **Tests that assumed every real slot has an item** now skip the empty slot (`decor.test.ts`, `decor-inventory.test.ts`); the gift counts moved (`deliveries.test.ts`, `checkpoints-stage-a.test.ts`).
+

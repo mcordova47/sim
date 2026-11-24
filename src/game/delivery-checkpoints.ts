@@ -44,6 +44,17 @@ export const CHECKPOINTS: readonly Milestone[] = [
   { id: "gift-day-66", stat: "days", atLeast: 66, item: "outfit-out-peacoat", delayHours: SOON },
   { id: "gift-day-69", stat: "days", atLeast: 69, item: "outfit-pajamas-striped", delayHours: SOON },
   { id: "gift-day-72", stat: "days", atLeast: 72, item: "outfit-pajamas-robe", delayHours: SOON },
+  // Trinkets (issue 167), then the display instruments, from day 81 every third day: after the rugs (days 75, 78, issue 166), on days that never meet the coffee gear's (from 85, issue 168).
+  { id: "gift-day-81", stat: "days", atLeast: 81, item: "trinket-alebrije", delayHours: SOON },
+  { id: "gift-day-84", stat: "days", atLeast: 84, item: "trinket-telescope", delayHours: SOON },
+  { id: "gift-day-87", stat: "days", atLeast: 87, item: "trinket-finger-skateboard", delayHours: SOON },
+  { id: "gift-day-90", stat: "days", atLeast: 90, item: "trinket-goose-egg", delayHours: SOON },
+  { id: "gift-day-93", stat: "days", atLeast: 93, item: "trinket-worry-doll", delayHours: SOON },
+  { id: "gift-day-96", stat: "days", atLeast: 96, item: "trinket-raccoon-can", delayHours: SOON },
+  { id: "gift-day-99", stat: "days", atLeast: 99, item: "instrument-harmonica", delayHours: SOON },
+  { id: "gift-day-102", stat: "days", atLeast: 102, item: "instrument-kalimba", delayHours: SOON },
+  { id: "gift-day-105", stat: "days", atLeast: 105, item: "instrument-jaw-harp", delayHours: SOON },
+  { id: "gift-day-108", stat: "days", atLeast: 108, item: "instrument-mini-keyboard", delayHours: SOON },
 ];
 
 // For trying it in the dev server only (`?deliver=test`, decor-dev.ts): the TEST items.

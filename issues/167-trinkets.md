@@ -2,11 +2,21 @@
 id: "167"
 title: "Trinkets and display instruments on the desk"
 short: "Trinkets"
-status: todo
+status: review
 owner: marc + claude
 depends_on: []
 summary: "A trinket slot on the desk's right corner with the first trinkets and small display instruments."
 kind: build
+changelog: "Six small trinkets and four display instruments can arrive as gifts and sit on the desk's right corner."
+unverified:
+  - "Not seen in a real, interactive browser session by a person: the art was looked at in headless Chrome screenshots of the room at 4x and 8x."
+  - "The THINGS page and the swap list rows were checked by tests (font, fit, note length) but not looked at as pictures for these ten items."
+  - "How the trinket picture feels at the real play size on a phone screen."
+needs:
+  - who: marc
+    kind: try
+    why: "Look at the ten new things on the desk and say which read well; decisions d1 to d4 are still open and were assumed at their recommended defaults."
+    since: 2026-11-24
 decisions:
   - id: d1
     who: marc
@@ -44,6 +54,14 @@ decisions:
       - "both, at once"
     recommendation: "checkpoint gifts spaced three days apart after the rugs (from about day 81) and in the random-encounter pool when issue 163 lands"
     status: open
+  - id: d5
+    who: marc
+    q: "The real raccoon in a can has no photo in reference-photos/toys yet (only finger-skateboard photos). Add one so it can be redrawn to match?"
+    options:
+      - "leave the stylized raccoon as it is until you add a photo"
+      - "add a photo and have it redrawn"
+    recommendation: "leave the stylized raccoon as it is until you add a photo"
+    status: open
 ---
 
 ## Goal
@@ -59,3 +77,7 @@ Build steps C and H of `docs/decor-expansion-design.md` (section 3 and 4). Marc 
 
 ## Progress log
 - 2026-11-24 (planner): filed on main with its open decisions (the issue file is born on main); Marc's request after merging the outfit work.
+- 2026-11-24 (claude): started. Working assumptions, because d1 to d4 are still open and I may not answer them: d1 all six trinkets, d2 harmonica, kalimba, jaw harp and mini keyboard as a second batch, d3 yes (looked at the real objects, read-only; nothing copied, traced or named in the repo), d4 checkpoint gifts three days apart from day 81. Only the recommended defaults were followed; if Marc picks otherwise the items and days are one line each in `decor-data.ts` and `delivery-checkpoints.ts`.
+- 2026-11-24 (claude): built. Slot `trinket-desk` (no default), a sprite-less prop on the desk `D` at local (44, 1), `swap-trinket-desk` ("Change the trinket") on the desk's tasks. Ten items (6 `trinket-*`, 4 `instrument-*`), 16x16 each, palette only, drawn in rows 1 to 14 so they never meet the typing pose (`type-desk`) or a task spot. Gift days: alebrije 81, telescope 84, finger skateboard 87, goose egg 90, worry doll 93, raccoon in a can 96, harmonica 99, kalimba 102, jaw harp 105, mini keyboard 108. Rug (166) uses 75 and 78 and coffee gear (168) starts at 85: mine are all multiples of 3 and the later issue's days at 85, 88... are not, so they cannot clash whatever 168 adds. The worry doll is plainly WORRY DOLL, no Spanish name (d9). Raccoon: there was no raccoon photo in `reference-photos/toys` (only finger-skateboard photos), so it is drawn from the kind of thing.
+- 2026-11-24 (claude): art seen. Sprites checked on the desk tan at 8x, then the real room (dev server, headless Chrome) at 4x and 8x with each item placed: every item sits in the desk's right corner, clear of the laptop and the stand; at 1 tile the fox, egg, doll, raccoon and keyboard read at once, the telescope reads as a tube on a tripod, the finger skateboard is the smallest and reads as a little deck with wheels, the kalimba and jaw harp are the least obvious. The golden frames for a fresh game are unchanged (the slot is empty).
+- 2026-11-24 (claude): checks. `npm test`, `npx tsc --noEmit` pass; new `src/game/decor-trinkets.test.ts` (slot, prop, clear of pose and task spots, items, gift days, swap in and NOTHING out in the real Game). Existing tests that assumed every real slot holds an item now skip the empty one (decor.test.ts, decor-inventory.test.ts); gift counts moved (deliveries.test.ts, checkpoints-stage-a.test.ts, decor-worn.test.ts). docs/decor.md has "What issue 167 built"; the strings are in docs/text-review.md. Files likely to conflict with main: `decor-data.ts` (slot and GIFT_ITEMS tail), `delivery-checkpoints.ts` (tail), `apartment.ts` (desk task line, MAIN_PROPS) and the gift-count tests, since 166 and 168 touch the same lists.

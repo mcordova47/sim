@@ -33,6 +33,7 @@ decisions:
     answer: "write it to the job summary and create a GitHub Release (tag) with the notes: no commit, so main and production never diverge"
     by: marc
     on: 2026-11-24
+needs: [{who: marc, kind: decide, why: "Say 'merge 160' when ready (release changelog command and workflow steps; reviewed; the workflow part can only be checked by the next deploy on GitHub)", since: 2026-11-24}]
 ---
 
 ## Goal

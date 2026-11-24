@@ -88,7 +88,10 @@ decisions:
       - "the whole scene the first time each game day, a shorter one (just the water and the robe) after that"
       - "only the first shower ever plays the scene"
     recommendation: "yes: it is only 6 seconds; look again after playing it"
-    status: open
+    status: answered
+    answer: "yes: it is only 6 seconds; look again after playing it"
+    by: marc
+    on: 2026-11-24
   - id: d8
     who: marc
     q: "What colour is the shower stall's tile in the close-up? The real bath is white glossy tile, but a heap of white bubbles cannot be seen against white."

@@ -227,7 +227,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 159 | [Draw the outfits](issues/159-draw-the-outfits.md) | marc + claude | done | 158 |
 | 160 | [Release changelog](issues/160-release-changelog.md) | marc + claude | done | |
 | 161 | [Plant wording](issues/161-plant-wording-not-snake.md) | claude | done | |
-| 162 | [Reduced motion audit](issues/162-reduced-motion-audit.md) | claude | todo | |
+| 162 | [Reduced motion audit](issues/162-reduced-motion-audit.md) | claude | done | |
 <!-- issues:table:end -->
 
 ## Order of work

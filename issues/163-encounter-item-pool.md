@@ -75,6 +75,7 @@ decisions:
       - "a close-up detail of the rug's pattern"
     recommendation: "the middle of the rug at real size, cropped to the box"
     status: open
+needs: [{who: marc, kind: try, why: "See the shop ads: cd ~/Dev/repos/mcordova47/sim-worktrees/163-item-pool && npm run dev, open /?encounter=line-frames (also line-gallery, line-plants, line-lamps, line-clothing, line-coffee), press a key; read the shop names in docs/text-review.md; answer d5 and d6; then say 'merge 163'", since: 2026-11-24}]
 ---
 
 ## Goal

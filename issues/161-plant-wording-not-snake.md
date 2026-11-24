@@ -8,6 +8,7 @@ depends_on: []
 summary: "The Green Thumb achievement and a few labels still say snake plant whatever plant is on the shelf."
 kind: fix
 changelog: none
+needs: [{who: marc, kind: decide, why: "Say 'merge 161' when ready (the Green Thumb text no longer names a plant; reviewed; branch issue/161-plant-wording)", since: 2026-11-24}]
 ---
 
 ## Goal

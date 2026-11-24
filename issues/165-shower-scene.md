@@ -104,6 +104,15 @@ decisions:
     answer: "no closeup"
     by: marc
     on: 2026-11-24
+  - id: d9
+    who: marc
+    q: "Marc suggested a towel might be another ROBE-slot option, even the default. Should a towel be drawn as an outfit for the ROBE slot, and be what you wear after a shower when you own no robe?"
+    options:
+      - "not now: with no robe the empty slot falls back to your everyday clothes; a towel is filed as a later outfit idea (new art through the outfit generator, and a style decision under the strict slots)"
+      - "yes, as a second ROBE-slot outfit you can equip, but the default stays everyday clothes"
+      - "yes, and the towel is what you wear after a shower until you own a robe"
+    recommendation: "not now: with no robe the empty slot falls back to your everyday clothes; a towel is filed as a later outfit idea (new art through the outfit generator, and a style decision under the strict slots)"
+    status: open
 needs: [{who: marc, kind: decide, why: "Look at the shower scene mockups (~/Dev/repos/mcordova47/sim-worktrees/165-shower-scene/docs/shower-scene-mockups/) and answer d1 to d8; then say 'merge 165' (design only; reviewed; the build follows 164)", since: 2026-11-24}]
 ---
 

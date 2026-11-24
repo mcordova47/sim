@@ -100,7 +100,7 @@ function rugCard(layout, design) {
   const m = 16;
   const crop = cropScale(room, rug.x - m, rug.y - m, w * T + 2 * m, h * T + 2 * m, 8);
   const sleepCrop = layout.sleep ? cropScale(composeMainRoom({ rugs: [rug], sleep: true, player: false }), rug.x - m, rug.y - m, w * T + 2 * m, h * T + 2 * m, 8) : null;
-  return `<figure class="card rug"><figcaption><b>${design.id}</b> ${esc(design.label)}</figcaption>
+  return `<figure class="card rug${design.chosen ? " chosen" : ""}"><figcaption><b>${design.id}</b>${design.chosen ? ' <span class="tag">CHOSEN</span>' : ""} ${esc(design.label)}</figcaption>
 <div class="scroll"><img class="room1" src="${png(room)}" width="${room.width}" height="${room.height}"></div><small>the room at 1x</small>
 <div class="scroll"><img class="room8" src="${png(crop)}" width="${crop.width}" height="${crop.height}"></div><small>8x, a tile of margin around it${layout.box ? " (the package box is waiting at col 10, row 8)" : ""}</small>
 ${sleepCrop ? `<div class="scroll"><img class="room8" src="${png(sleepCrop)}" width="${sleepCrop.width}" height="${sleepCrop.height}"></div><small>8x, with the sleeping picture drawn over the bed</small>` : ""}</figure>`;
@@ -145,7 +145,7 @@ p{color:#a9adc9;max-width:70ch}.row{display:flex;flex-wrap:wrap;gap:16px;margin:
 figcaption{margin-bottom:8px;min-height:3em}figcaption b{display:inline-block;background:#f08a4b;color:#1a1a2e;border-radius:4px;padding:0 7px;margin-right:4px}
 .shots{display:flex;gap:16px;align-items:flex-end}.shots>div{display:flex;flex-direction:column;gap:2px}
 img{image-rendering:pixelated;display:block}.big,.small{background:repeating-conic-gradient(#242538 0 25%,#2b2d42 0 50%) 0 0/16px 16px}
-.card.rug{width:auto;max-width:100%}.card.rug img{margin-top:8px}.scroll{overflow-x:auto;max-width:100%}.layout{margin:24px 0;padding:12px;border:1px solid #3b3e5c;border-radius:8px}.layout h3{margin:0 0 6px}.L{background:#f2a7c0;color:#1a1a2e;border-radius:4px;padding:0 8px;margin-right:6px}.layout ul{color:#a9adc9;margin:6px 0;padding-left:20px;max-width:90ch}
+.card.rug{width:auto;max-width:100%}.card.chosen{border:2px solid #5fae6b}.tag{background:#5fae6b;color:#1a1a2e;border-radius:4px;padding:0 6px;font-size:12px;font-weight:700}.card.rug img{margin-top:8px}.scroll{overflow-x:auto;max-width:100%}.layout{margin:24px 0;padding:12px;border:1px solid #3b3e5c;border-radius:8px}.layout h3{margin:0 0 6px}.L{background:#f2a7c0;color:#1a1a2e;border-radius:4px;padding:0 8px;margin-right:6px}.layout ul{color:#a9adc9;margin:6px 0;padding-left:20px;max-width:90ch}
 .small{background-size:2px 2px}.scene{margin-top:12px;max-width:100%;height:auto}small{color:#a9adc9;font-size:12px}
 </style><main><h1>${esc(config.title)}</h1>
 <p>Candidates only: nothing here is in the game. Each is shown large (8x) on a checkerboard, at its real size (1x), and in a small scene. For outfits only the standing-facing-down frame is drawn so far. Tell the planner the letters you like, for example "bag D, casual B, out A, pajamas C".</p>

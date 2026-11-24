@@ -388,10 +388,20 @@ The entry also shows the where-now line (the slot's "where" text, or IN THE INVE
   - PEACOAT: WARM, AND NOBODY ASKS WHERE YOU ARE GOING. -
   - STRIPED PAJAMAS: NOTHING ABOUT THESE IS URGENT. -
   - BATHROBE: THE SHOWER WENT WELL. THE ROBE AGREES. -
-- Rugs (issue 166; each FROM: A PACKAGE):
+- Rugs (issue 166; each FROM: A PACKAGE). Living area:
   - STRIPED RUG: ONE LONG OPINION ABOUT THE FLOOR, IN BLUE AND CREAM. -
   - DIAMOND RUG: THE DIAMONDS ARE EVENLY SPACED. YOU HAVE CHECKED TWICE. -
-- Slot name in the swap list header: RUG; where line: ON THE FLOOR; the swap task name and prompt: Change the rug (issue 166, at the sofa) -
+  - GREEN RUG: IT IS ONE COLOR ON PURPOSE. THE FLOOR SEEMS RELIEVED. -
+  - SHAG RUG: YOUR FEET HAVE OPINIONS ABOUT IT. THEY ARE GOOD ONES. -
+  - KILIM RUG: EVERY ZIGZAG WAS A DECISION. YOU RESPECT THE COMMITMENT. -
+- Rugs, under the bed (each FROM: A PACKAGE):
+  - STRIPED BED RUG: THE FIRST THING YOUR FEET FIND. THE STRIPES ARE ENCOURAGING. -
+  - DIAMOND BED RUG: THE DIAMONDS POINT AT THE BED. THE BED ACCEPTS THIS. -
+  - GREEN BED RUG: A SOFT PLACE TO START A HARD DAY, ONE FOOT AT A TIME. -
+  - SHAG BED RUG: THE MORNING STARTS WARMER. THE ALARM STAYS THE SAME. -
+  - BRAIDED BED RUG: SOMEONE BRAIDED THIS BY HAND. YOU SLEEP NEAR IT. -
+  - KILIM BED RUG: A ZIGZAG BORDER. THE BEDSIDE HAS NEVER LOOKED BUSIER. -
+- Slot names in the swap list header: RUG (where line: ON THE FLOOR) and BED RUG (where line: UNDER THE BED); the swap task names and prompts: Change the rug (at the sofa) and Change the bed rug (at the bed) (issue 166)
 - Slot name in the swap list header: CLOTHES; where line: WORN; the swap task name and prompt: Change clothes (issue 152; it replaces the placeholder "Change the outfit") -
 
 ## THINGS page: the silhouette (issue 109c)

@@ -44,9 +44,12 @@ export const MAIN_MAP = [
 // Which sprite it shows comes from the plant in the slot (decor.ts `look`):
 // drooping wins over the stage, and the stage is the growth so far.
 const MAIN_PROPS: PropDef[] = [
-  // The rug (issue 166): a floor prop (no `on`), so `at` is in the room. 64x32 at cols 3-6, rows 3-4, the open floor
-  // between the table and the sofa. Nothing is there on a fresh game (the slot has no default).
-  { name: "rug", slot: "rug-floor", at: { x: 48, y: 48 }, size: { w: 64, h: 32 } },
+  // The rugs (issue 166): floor props (no `on`), so `at` is in the room. The living-area rug is 128x64 at cols 2-9, rows 3-6 (under the
+  // front of the sofa, the desk chair and the lamp table); the bed rug is 112x48 at cols 11-17, rows 6-8 (under the bed, whose picture
+  // is drawn over it). Nothing is there on a fresh game (the slots have no default). Both stay off the walls, the package tile at col 10,
+  // row 8 and the door.
+  { name: "rug", slot: "rug-floor", at: { x: 32, y: 48 }, size: { w: 128, h: 64 } },
+  { name: "bed rug", slot: "rug-bed", at: { x: 176, y: 96 }, size: { w: 112, h: 48 } },
   {
     name: "snake plant",
     slot: "plant-shelf",
@@ -124,7 +127,7 @@ const MAIN: Record<string, ObjectDef> = {
     name: "queen bed",
     sprite: "bed-made",
     color: "mist",
-    tasks: ["make-bed", "sleep", "work-bed", "doomscroll"],
+    tasks: ["make-bed", "sleep", "work-bed", "doomscroll", "swap-rug-bed"],
     // Shows whether it is made.
     variants: [
       { sprite: "bed-made", when: [{ var: "bedMade", min: 1 }], color: "leaf" },

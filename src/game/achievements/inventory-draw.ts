@@ -21,9 +21,9 @@ export const THINGS_ROWS = 3;
 // The pantry is 32 tall at its own size: its cell shows the top of it, the entry box all of it.
 const PAD = 4;
 const SPRITE_SCALE = 2;
-// The entry box draws things at 2x; one wider than a silkscreen (48) is drawn at its own size (the rugs, 64 wide,
-// issue 166), so the text beside it still has room on the narrow view.
-const entryScale = (item: { w: number }): number => (item.w > 48 ? 1 : SPRITE_SCALE);
+// The entry box draws things at 2x; one wider than a silkscreen (48) is drawn at its own size, and one wider than 96 (the rugs,
+// 128 and 112 wide, issue 166) at half size, so the text beside it still has room on the narrow view.
+const entryScale = (item: { w: number }): number => (item.w > 96 ? 0.5 : item.w > 48 ? 1 : SPRITE_SCALE);
 // The silhouette of something seen in an ad and not taken, and the two lines of its entry.
 const SHAPE = COLOR.ink;
 export const SILHOUETTE_NAME = "???";
@@ -198,9 +198,11 @@ export function drawThings(ctx: CanvasRenderingContext2D, view: ThingsView): voi
     ctx.fillRect(rect.x + 2, rect.y + 2, rect.w - 4, rect.h - 4);
     const entry = view.entries[index];
     const item = entry.item;
-    // A thing wider than its cell (the rugs, 64 wide: issue 166) is drawn at half size, the whole of it, instead of
-    // cropped; a taller one (the pantry) is still cropped to the cell's rows.
-    const scale = item.w > rect.w - 4 ? 0.5 : 1;
+    // A thing wider than its cell (the rugs, 128 and 112 wide: issue 166) is drawn reduced by whole halvings (a half, then a quarter),
+    // the whole of it, instead of cropped; a taller one (the pantry) is still cropped to the cell's rows.
+    let scale = 1;
+    const wide = item.w > rect.w - 4;
+    while (scale > 0.25 && (item.w * scale > rect.w - 4 || (wide && item.h * scale > rect.h - 4))) scale /= 2;
     const rows = Math.min(item.h, Math.floor((rect.h - 4) / scale));
     const x = rect.x + Math.floor((rect.w - item.w * scale) / 2);
     const y = rect.y + 2 + Math.floor((rect.h - 4 - rows * scale) / 2);

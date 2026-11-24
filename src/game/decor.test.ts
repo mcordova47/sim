@@ -48,7 +48,7 @@ describe("the decor tables", () => {
   });
 
   it("have the first-cut slots for the main room, and the kitchen's pantry (issue 072)", () => {
-    expect(DECOR_SLOTS.map((s) => s.id)).toEqual(["art-table", "art-desk", "art-bed", "plant-shelf", "lamp-sofa", "rug-floor", "pantry", "worn", "coffee-table", "coffee-stove"]);
+    expect(DECOR_SLOTS.map((s) => s.id)).toEqual(["art-table", "art-desk", "art-bed", "plant-shelf", "lamp-sofa", "rug-floor", "rug-bed", "pantry", "worn", "coffee-table", "coffee-stove"]);
     expect(DECOR_SLOTS.filter((s) => s.room !== "main").map((s) => s.id)).toEqual(["pantry", "coffee-stove"]);
     // Not drawn on the map (issue 152): only the worn outfit.
     expect(DECOR_SLOTS.filter((s) => s.offMap).map((s) => s.id)).toEqual(["worn"]);

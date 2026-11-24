@@ -376,8 +376,10 @@ export const SWAP_PROMPT: Partial<Record<DecorKind, string>> = {
   furniture: "Change the furniture",
 };
 export const swapTaskId = (slotId: string) => `swap-${slotId}`;
+// A slot whose kind's prompt would be the same as another slot's at a neighbouring object says more (the rug under the bed).
+const SWAP_PROMPT_SLOT: Record<string, string> = { "rug-bed": "Change the bed rug" };
 const SWAPS: Task[] = DECOR_SLOTS.filter((s) => s.object).map((s) => {
-  const prompt = SWAP_PROMPT[s.kinds[0]] ?? "Change it";
+  const prompt = SWAP_PROMPT_SLOT[s.id] ?? SWAP_PROMPT[s.kinds[0]] ?? "Change it";
   return { id: swapTaskId(s.id), name: prompt, prompt, duration: 0, points: 0, cooldown: 0, decorSlot: s.id, activity: { type: "swap-decor" } };
 });
 

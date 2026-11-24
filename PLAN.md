@@ -229,6 +229,16 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 161 | [Plant wording](issues/161-plant-wording-not-snake.md) | claude | done | |
 | 162 | [Reduced motion audit](issues/162-reduced-motion-audit.md) | claude | done | |
 | 162b | [Steady candle](issues/162b-steady-candle.md) | claude | done | 162 |
+| 163 | [Item pool and repeats](issues/163-encounter-item-pool.md) | marc + claude | todo | |
+| 164 | [Outfit slots](issues/164-outfit-slots.md) | marc + claude | todo | |
+| 165 | [Shower scene](issues/165-shower-scene.md) | marc + claude | todo | 164 |
+| 166 | [A rug](issues/166-rug.md) | marc + claude | todo | |
+| 167 | [Trinkets](issues/167-trinkets.md) | marc + claude | todo | |
+| 168 | [Coffee gear](issues/168-coffee-gear.md) | marc + claude | todo | |
+| 169 | [Shelf and sill](issues/169-wall-shelf-and-sill.md) | marc + claude | todo | 167 |
+| 170 | [Empty pot](issues/170-empty-pot.md) | marc + claude | todo | |
+| 171 | [Cut flowers](issues/171-cut-flowers.md) | marc + claude | todo | |
+| 172 | [Record stand](issues/172-record-stand.md) | marc + claude | todo | |
 <!-- issues:table:end -->
 
 ## Order of work

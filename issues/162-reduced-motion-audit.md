@@ -16,7 +16,10 @@ decisions:
       - "yes"
       - "no"
     recommendation: "yes"
-    status: open
+    status: answered
+    answer: "yes"
+    by: marc
+    on: 2026-11-24
   - id: d2
     who: marc
     q: "Reduced motion (162, d2): add the game's own motion switch to the pause screen (separate from the browser setting)?"

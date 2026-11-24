@@ -32,6 +32,9 @@ export interface PoseDef {
   // The sprite's size, to draw it in front of whatever it overlaps.
   size: { w: number; h: number };
   replacesPiece?: boolean;
+  // False when no clothes show in the picture (the sleeper is under the covers, only the face out), so it is the same
+  // for every outfit. Every other pose has a sprite per outfit (`outfitPoseSprite`, issue 150).
+  clothed?: false;
 }
 
 export const POSES: Record<string, PoseDef> = {
@@ -65,6 +68,7 @@ export const POSES: Record<string, PoseDef> = {
     breath: { x: 6, y: 23, w: 31, h: 8 },
     variants: [{ sprite: "player-sleep-bed-unmade", when: [{ var: "bedMade", max: 0 }], breath: { x: 3, y: 21, w: 33, h: 7 } }],
     size: { w: 80, h: 96 },
+    clothed: false,
     on: "bed-made",
     at: { x: 0, y: 0 },
   },

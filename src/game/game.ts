@@ -27,7 +27,7 @@ import { Emitter, type GameEvents } from "./events";
 import { Grid } from "./grid";
 import { InteractionSystem } from "./interaction";
 import { validateLevel, type Door, type Level, type Piece } from "./level";
-import { outfitFromItem, outfitPrefix } from "./outfits";
+import { outfitFromItem, outfitPoseSprite, outfitPrefix } from "./outfits";
 import { Player } from "./player";
 import { settlePlant } from "./plant";
 import { CARRIED, POSES, breathBand, heldSprite, type PoseDef } from "./poses";
@@ -227,7 +227,9 @@ export class Game {
     }, this.state);
     this.interaction.onStart = (item) => {
       const def = item.pose ? POSES[item.pose] : undefined;
-      const sprite = def ? (def.variants?.find((v) => this.state.matchesAll(v.when))?.sprite ?? def.sprite) : null;
+      let sprite = def ? (def.variants?.find((v) => this.state.matchesAll(v.when))?.sprite ?? def.sprite) : null;
+      // The pose is drawn in the outfit being worn (issue 150), so nothing flips when it starts or ends.
+      if (def && sprite && def.clothed !== false) sprite = outfitPoseSprite(sprite, outfitPrefix(this.state.get("outfit")), (n) => this.painter.has(n));
       this.doing = { item, piece: this.facedPiece(), sprite };
       this.events.emit("taskStart", { item });
     };

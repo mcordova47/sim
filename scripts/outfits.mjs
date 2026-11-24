@@ -65,6 +65,8 @@ export const RULES = {
     if (dir === "down" && r === 1) return d <= 0.5 ? "inner" : "outer";
     return "outer";
   },
+  // A two-colour check (poses of the hand-drawn flannel, issue 150): `inner` lines every fourth column and every fourth row.
+  check: ({ x, r }) => (x % 4 === 0 || r % 4 === 1 ? "inner" : "outer"),
   // Vertical stripes: `outer` and `inner` alternate by column.
   "stripes-v": ({ x }) => (x % 2 === 0 ? "outer" : "inner"),
 };
@@ -128,14 +130,74 @@ export function generateOutfit(def, read) {
   return out;
 }
 
-export const loadOutfits = () => JSON.parse(readFileSync(join(root, "art", "outfits.json"), "utf8")).outfits;
+// The doing poses (issue 150). Each pose sprite shows the player in the everyday clothes: the top is `h` with the
+// highlight `i`, and arms are `a`. For each outfit this writes `<prefix>-<pose>` (the pose's name with its leading
+// `player` swapped for the outfit's prefix, `player-sit-sofa` -> `player-casual-hoodie-sit-sofa`) by repainting the
+// `h`/`i` pixels with the same torso rule the walk sprites use, as the pose faces (`dir`: from behind is `up`, the
+// guitar is seen from the front, `down`), and giving long sleeves to arm pixels that touch the top. Legs are
+// never visible in a pose. `overlays` of the outfit (keyed by the pose's sprite name here) lay hand-drawn rows on top.
+export const poseFileName = (prefix, sprite) => `${prefix}${sprite.slice("player".length)}`;
+
+export function generatePoses(def, poses, read) {
+  const out = {};
+  for (const { sprite, dir } of poses) {
+    const lines = read(sprite).split("\n");
+    const size = lines.find((l) => l.startsWith("size:"));
+    const width = Number(/size:\s*(\d+)x/.exec(size)[1]);
+    const rows = lines.filter((l) => l && !l.startsWith("#") && !l.startsWith("size"));
+    const ruleName = def.torso.facing?.[dir] ?? def.torso.rule;
+    const rule = RULES[ruleName];
+    if (!rule) throw new Error(`${def.id}: unknown torso rule ${ruleName}`);
+    const pal = def.torso;
+    const torsoRows = rows.map((r, i) => (/[hi]/.test(r) ? i : -1)).filter((i) => i >= 0);
+    const lastTorso = torsoRows[torsoRows.length - 1];
+    const n = torsoRows.length;
+    const is = (c) => c === "h" || c === "i";
+    const made = rows.map((row, i) => {
+      const chars = [...row];
+      if (!torsoRows.includes(i)) return row;
+      const cols = chars.map((c, x) => (is(c) ? x : -1)).filter((x) => x >= 0);
+      const x0 = cols[0], x1 = cols[cols.length - 1];
+      const r = torsoRows.indexOf(i);
+      for (const x of cols) {
+        const k = dir === "right" ? x1 - x : x - x0;
+        chars[x] = pal[rule({ dir, x, x0, x1, k, last: i === lastTorso, r, n })];
+        if (pal.collar && r === 0 && dir !== "down") chars[x] = pal.collar;
+        if (pal.highlight && row[x] === "i") chars[x] = pal.highlight; // the shoulder highlight the hand-drawn outfits have
+      }
+      if (def.sleeves && i !== lastTorso) {
+        const below = [...(rows[i + 1] ?? "")];
+        for (const [x, c] of chars.entries()) {
+          const touches = is([...row][x - 1]) || is([...row][x + 1]);
+          if (c === "a" && touches && (below[x] === "a" || below[x - 1] === "a" || below[x + 1] === "a")) chars[x] = def.sleeves;
+        }
+      }
+      return chars.join("");
+    });
+    for (const [row, text] of Object.entries(def.poseOverlays?.[sprite] ?? {})) {
+      if ([...text].length !== width) throw new Error(`${def.id} ${sprite} row ${row}: overlay is not ${width} wide`);
+      made[Number(row)] = text;
+    }
+    out[poseFileName(def.prefix, sprite)] =
+      `# ${HEADER_MARK} from art/outfits.json (${def.describe}); do not edit by hand, change the data and run npm run sprites. The pose ${sprite} dressed in this outfit.\n` +
+      `${size}\n${made.join("\n")}\n`;
+  }
+  return out;
+}
+
+const loadJson = () => JSON.parse(readFileSync(join(root, "art", "outfits.json"), "utf8"));
+export const loadOutfits = () => loadJson().outfits;
+export const loadPoses = () => loadJson().poses;
+// Hand-drawn outfits (casual, out, pajamas) have no generated walk sprites, only generated poses.
+export const loadPoseOnly = () => loadJson().poseOnly;
 const readTemplate = (name) => readFileSync(join(srcDir, `${name}.sprite`), "utf8");
 
 // Writes the files that differ; returns the names written.
 export function writeOutfits() {
   const written = [];
-  for (const def of loadOutfits()) {
-    for (const [name, text] of Object.entries(generateOutfit(def, readTemplate))) {
+  const jobs = [...loadOutfits().map((def) => [def, generateOutfit(def, readTemplate)]), ...loadPoseOnly().map((def) => [def, {}])];
+  for (const [def, walk] of jobs) {
+    for (const [name, text] of Object.entries({ ...walk, ...generatePoses(def, loadPoses(), readTemplate) })) {
       const path = join(srcDir, `${name}.sprite`);
       if (existsSync(path) && readFileSync(path, "utf8") === text) continue;
       writeFileSync(path, text);

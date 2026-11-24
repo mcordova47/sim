@@ -10,7 +10,7 @@ Status: a design for Marc to confirm. Nothing is built; `src/` and `art/` are un
 - **Sound:** a soft hiss while the water runs, a quiet click each time the tap turns. The hiss needs a small engine addition (section 6), because today a noise voice cannot last longer than half a second or be cut off.
 - **Escape** backs out at any moment: no points, no mood, no robe, no cooldown, as for every task.
 - **Reduced motion:** the steam and bubbles hold still, the curtain cuts instead of sliding, the fog does not fade; the four pictures and the timing stay.
-- **The robe is not this scene's to put on.** The last picture draws whatever outfit the occasion will put on (the bathrobe if one is in the ROBE slot, otherwise the outfit already worn), and the real change follows from issue 164's occasion when the task ends.
+- **The robe is not this scene's to put on.** The last picture draws whatever outfit the occasion will put on (the bathrobe if one is in the ROBE slot, otherwise the EVERYDAY outfit; until 164 is built, the outfit worn now), and the real change follows from issue 164's occasion when the task ends.
 - **Size:** about 7 sprites, 3 particle kinds, 2 sound effects, one activity, one tiny sound class and about 25 lines in the synth. Four stages, each its own branch and review (section 11).
 
 Mockups (section 3) were rendered with the game's own palette, the real player and robe sprites and the 5x7 font; the scene's new art in them is drawn in code as a stand-in. They are three or four times life size.
@@ -97,7 +97,7 @@ Picture 4 when no robe will be worn (d5, recommended: the scene shows the outfit
 What the mockups are and are not: the stall, curtain and foam are drawn in code as stand-ins (real art is stage 1); the head and robe are the real sprites; the particles are placed by a small simulation that uses the pool's own equations (position, velocity, gravity, sway, the three-step fade) re-implemented outside the game, not by the real pool; the stop hint on the phone is drawn at an estimated height. Nothing was run in a browser.
 
 ## 4. The art needed
-All palette only (the 22 colours), no text, multiples of 16, ink outlines where the art style wants them, lit from the top left. Seven new sprites, about 14,000 pixels:
+All palette only (the 22 colours), no text, multiples of 16, ink outlines where the art style wants them, lit from the top left. Seven new sprites, about 12,500 pixels:
 
 | Name | Size | Count | What |
 |---|---|---|---|
@@ -140,7 +140,7 @@ Recommended: a soft hiss while the water runs and a quiet click when the tap tur
 | hiss | from the click until the off click | filtered noise, steady: a high-passed layer (about 2,400 Hz, gain 0.05) and a band-passed body (about 900 Hz, q 0.5, gain 0.04); fades in over 0.25 s |
 | `showerClick` (off) | 4.6 s | the same click at pitch 1.0; the hiss fades out in 0.12 s |
 
-The level is about the snore's (the quietest sound in the game, 0.04) and well under the steps; the scene adds nothing on top of the existing task start and complete sounds, which still play (a short blip at the start and the chime with the popup at the end).
+The level is about the snore's noise layer (0.04; the snore's main voice is 0.07) and well under the steps; the scene adds nothing on top of the existing task start and complete sounds, which still play (a short blip at the start and the chime with the popup at the end).
 
 **What the engine needs (small, and the one place this design touches the sound code):**
 1. A noise voice can run only 0.5 s once with a falling envelope (`synth.ts:17,152-165,224-232`), and an effect cannot be cut off once scheduled, so Escape in the middle of a 3.6 s scheduled hiss could not stop it. The recommended fix: a new bus `shower` (like `sleep` and `encounter`: `Bus`, the `ramps` entry, lazily made, silent until ramped); `NoiseVoice` gets optional `loop` and `hold` (the existing `hold` for formants generalised: `synth.ts:159`); `BufferSourceLike` gets `loop`; a class `ShowerSound` in `sound/shower-sound.ts`, modelled on `SleepSound`, reads the activity's scene each frame (a small `{ on: boolean }` the activity exposes, like `scene`), ramps the `shower` bus up and down, and puts it back to zero when the scene is gone for any reason (so a cancel, an error or a tab switch cannot leave a hiss). With no synth it does nothing: the scene runs in silence. About 25 lines in `synth.ts` and `audio-types.ts`, 70 in `ShowerSound`, 120 of tests with the fake audio context.
@@ -189,7 +189,7 @@ A pure function `showerFrameAt(progress, reduced)` returns `{ picture, curtain, 
 6. **Skipping it leaves no trace.** Cancel returns before `onComplete`, so no robe and no mood; 164's tests rely on the same line (`interaction.ts:302-313`). A test cancels at each picture.
 7. **Spam.** The 10 second cooldown and a 6 second scene means a shower every 16 seconds plays the scene again and again (d7). Marc may want the full scene only sometimes.
 8. **Brightness at night.** The stall is bright whatever the hour; from a dark night room it is a big change and a bright full screen for six seconds. Not measured or tried in a browser. Mitigation if it is too much: draw the stage with the same night wash the world has when the lamps are on (the scene would read the hour). Left out of the first build on purpose; look at it in a browser first.
-9. **A phone's stop hint and the stage.** The desktop hint sits in the strip above the stage's arm; on the phone it sits under the (hidden) chips at an estimated height. Checked only in the mockup.
+9. **A phone's stop hint and the stage.** The desktop hint overlays the tile at the top centre (it does not touch the arm, but it is low contrast on teal, so check it); on the phone it sits under the (hidden) chips at an estimated height. Checked only in the mockup.
 10. **Touch.** There is nothing to tap and nothing to press: the scene reads no keys (`readsKeys` false). The "B TO STOP" hint is the touch layer's back-out.
 11. **The scene's art is the only thing that lies about the real bath.** Teal tile (d8), the front-on stall and the curtain's colours are not from the apartment's photos (`reference-photos/` was not read). The tub's own curtain is linen in the art; the stall's wall tile is a choice.
 12. **Particle count and the budget.** The scene's own pool is 60 slots and about 25 live; the game's pool (200) is idle in the room behind. No growth.

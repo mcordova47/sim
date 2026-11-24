@@ -2,7 +2,7 @@
 id: "162"
 title: "Reduced motion: audit every animation in the game"
 short: "Reduced motion audit"
-status: in-progress
+status: review
 owner: claude
 depends_on: []
 summary: "List every animation with its speed, size and looping, and decide which should change when the browser asks for less motion."
@@ -80,3 +80,4 @@ Marc (2026-11-24) asked for an audit after learning that the game only honours t
   - Skimmed the rest of the document again: no other inaccuracy found beyond the earlier review's spot checks, which still hold. The candle numbers were not re-measured (as agreed).
   - Acceptance criteria: (1) table: pass once the two lines above are fixed; (2) summary: pass; (3) draft and decisions: pass; (4) browser notes: can't verify (unchanged); (5) `issues:check --validate` passes, docs only: pass.
   - To merge: nothing yet. Fix the two lines, then a quick look at just those lines.
+- 2026-11-24 (claude): round two's two number fixes made in `docs/reduced-motion.md`: row 28 settle time (exponential, 0.1 s time constant; 0.23 s for a gap of 10 up to 0.69 s for 1000) and row 28b bar size (23 x 2 px). Two review rounds are used, so no third review was started; the fixes are two table cells, checked against the second reviewer's numbers. Status left at review: a short `/review-issue 162` look at those two cells would close it.

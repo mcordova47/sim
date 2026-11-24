@@ -14,7 +14,7 @@ unverified:
 needs:
   - who: marc
     kind: decide
-    why: "Optional: d3, whether the swap list should warn that a grown plant restarts small (default: no)."
+    why: "Optional: d3 (should the swap list warn that a grown plant restarts small; default no) and d4 (keep the crawling vine on the pothos's last stage along with the hanging one; default keep both)."
     since: 2026-11-24
 decisions:
   - id: d1
@@ -47,6 +47,14 @@ decisions:
       - "no change: the swap list stays as it is (a swapped-in plant has always started small, and nothing is punished)"
       - "add a short warning line to the swap list for a plant that has grown past stage 3"
     recommendation: "no change: it matches the existing rule, and a warning would add the pressure the quiet-collecting rule avoids"
+    status: open
+  - id: d4
+    who: marc
+    q: "The pothos's last stage hangs down the bookshelf's south face and also has one thin vine crawling across the shelf top. Keep both, or hang only (cleaner, but says only 'trailing')?"
+    options:
+      - "keep both: hanging plus one crawling vine"
+      - "hanging only (the curtain alone, in commit 6cce4fe)"
+    recommendation: "keep both: the crawling strand makes stage 5 clearly more grown than stage 4; the reviewer and I found it a close call, and it is a small art swap either way"
     status: open
 ---
 

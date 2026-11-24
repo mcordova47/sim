@@ -19,32 +19,32 @@ export type Task = Omit<Interactable, "zones">;
 
 const CONTENT: Task[] = [
   // Bed nook
-  { id: 'make-bed', name: 'Make the bed', prompt: 'Make the bed', duration: 3, points: 30 },
+  { id: 'make-bed', name: 'Make bed', prompt: 'Make bed', duration: 3, points: 30 },
   { id: 'charge-phone', name: 'Charge your phone', prompt: 'Charge your phone', duration: 3, points: 8, cooldown: 60 },
   // Issue 153: the meal comes to the door box (the delivery queue); Eat the takeout is at the dining table.
   { id: 'order-takeout', name: 'Order takeout', prompt: 'Order takeout', duration: 3, points: 8 },
-  { id: 'open-blinds', name: 'Open the blinds', prompt: 'Open the blinds', duration: 1, points: 10 },
-  { id: 'close-blinds', name: 'Close the blinds', prompt: 'Close the blinds', duration: 1, points: 10 },
+  { id: 'open-blinds', name: 'Open blinds', prompt: 'Open blinds', duration: 1, points: 10 },
+  { id: 'close-blinds', name: 'Close blinds', prompt: 'Close blinds', duration: 1, points: 10 },
   // The snake plant (issue 063): one of these is offered, by how it is doing.
   // Drooping first, then thirsty, then "still damp" (plant.ts has the rules).
   // The names say "plant" and follow the plant on the shelf (`itemWord`): "Water the snake plant", "Water the pothos".
-  { id: 'water-plant-droop', name: 'Water the drooping plant', prompt: 'Water the drooping plant', duration: 2, points: 20,
+  { id: 'water-plant-droop', name: 'Water drooping plant', prompt: 'Water plant', duration: 2, points: 20,
     exclusive: 'plant', liveSlot: 'plant-shelf', itemWord: 'plant' },
-  { id: 'water-plant', name: 'Water the plant', prompt: 'Water the plant', duration: 2, points: 20,
+  { id: 'water-plant', name: 'Water plant', prompt: 'Water plant', duration: 2, points: 20,
     exclusive: 'plant', liveSlot: 'plant-shelf', itemWord: 'plant' },
-  { id: 'check-plant', name: 'Check the plant', prompt: 'Check the plant', duration: 0, points: 2, cooldown: 60,
+  { id: 'check-plant', name: 'Check plant', prompt: 'Check plant', duration: 0, points: 2, cooldown: 60,
     exclusive: 'plant', liveSlot: 'plant-shelf', itemWord: 'plant',
     activity: { type: 'cutscene', steps: [{ say: 'The soil is still damp. The plant is doing fine.' }] } },
-  { id: 'sort-records', name: 'Alphabetize the records', prompt: 'Alphabetize records', duration: 6, points: 60 },
+  { id: 'sort-records', name: 'Alphabetize records', prompt: 'Alphabetize records', duration: 6, points: 60 },
 
   { id: 'sort-records-year', name: 'Arrange records by year', prompt: 'Records by year', duration: 6, points: 60 },
-  { id: 'sort-records-fav', name: 'Rank the records by favorites', prompt: 'Records by favorites', duration: 6, points: 60 },
+  { id: 'sort-records-fav', name: 'Rank records by favorites', prompt: 'Records by favorites', duration: 6, points: 60 },
   { id: 'sort-records-color', name: 'Arrange records by color', prompt: 'Records by color', duration: 6, points: 60 },
 
   // Work corner
-  { id: 'work', name: 'Answer emails', prompt: 'Work at the desk', duration: 8, points: 80 },
-  { id: 'tidy-desk', name: 'Clean the desk', prompt: 'Clean the desk', duration: 4, points: 30 },
-  { id: 'journal', name: 'Write in the journal', prompt: 'Write in the journal', duration: 5, points: 50 },
+  { id: 'work', name: 'Answer emails', prompt: 'Work at desk', duration: 8, points: 80 },
+  { id: 'tidy-desk', name: 'Clean desk', prompt: 'Clean desk', duration: 4, points: 30 },
+  { id: 'journal', name: 'Write in journal', prompt: 'Write in journal', duration: 5, points: 50 },
   // No cooldown (issue 068): the menu is always open to you. It pays only for a change of
   // record, at most once per MUSIC.payoutEveryMinutes (activities/record-player.ts).
   { id: 'record-play', name: 'Choose a record', prompt: 'Choose a record', duration: 2, points: 25, cooldown: 0 },
@@ -60,7 +60,7 @@ const CONTENT: Task[] = [
   // The stove's version is only offered while a pot is on the stove (`heldSlot`); pay, time and effects are the same.
   { id: 'coffee', name: 'Make pour-over coffee', prompt: 'Make pour-over coffee', duration: 6, points: 70, itemWord: 'pour-over', heldSlot: 'coffee-table' },
   { id: 'coffee-stove', name: 'Make stovetop coffee', prompt: 'Make stovetop coffee', duration: 6, points: 70, itemWord: 'stovetop', heldSlot: 'coffee-stove' },
-  { id: 'drink-coffee', name: 'Drink the coffee', prompt: 'Drink the coffee', duration: 3, points: 30 },
+  { id: 'drink-coffee', name: 'Drink coffee', prompt: 'Drink coffee', duration: 3, points: 30 },
   { id: 'reheat', name: 'Reheat leftovers', prompt: 'Reheat leftovers', duration: 3, points: 25 },
   { id: 'eat-dinner', name: 'Eat dinner', prompt: 'Eat dinner', duration: 7, points: 60 },
 
@@ -70,22 +70,22 @@ const CONTENT: Task[] = [
   // when a session runs to its end; no mood change, no streak, no count anywhere.
   { id: 'scroll-photos', name: 'Scroll through photos', prompt: 'Scroll through photos', duration: 0, points: 5,
     requires: [{ var: 'hasPhotos', min: 1, reason: 'NO PICTURES' }] },
-  { id: 'work-sofa', name: 'Code from the couch', prompt: 'Work from the couch', duration: 8, points: 60 },
+  { id: 'work-sofa', name: 'Code from couch', prompt: 'Work from couch', duration: 8, points: 60 },
   { id: 'nap', name: 'Take a nap', prompt: 'Take a nap', duration: 5, points: 30 }, // duration = SLEEP.nap total
-  { id: 'admire-art', name: 'Admire the art', prompt: 'Admire the art', duration: 0, points: 25 },
+  { id: 'admire-art', name: 'Admire art', prompt: 'Admire art', duration: 0, points: 25 },
   { id: 'work-bed', name: 'Work in bed', prompt: 'Work in bed', duration: 8, points: 50 },
   { id: 'guitar', name: 'Play three chords', prompt: 'Play guitar', duration: 5, points: 55 },
 
   // Kitchen
-  { id: 'fridge-stare', name: 'Stare into the fridge', prompt: 'Open the fridge', duration: 3, points: 30 },
-  { id: 'humidifier', name: 'Refill the humidifier', prompt: 'Refill the humidifier', duration: 4, points: 45 },
-  { id: 'take-trash', name: 'Take out the trash', prompt: 'Take out the trash', duration: 4, points: 50 },
+  { id: 'fridge-stare', name: 'Stare into fridge', prompt: 'Open fridge', duration: 3, points: 30 },
+  { id: 'humidifier', name: 'Refill humidifier', prompt: 'Refill humidifier', duration: 4, points: 45 },
+  { id: 'take-trash', name: 'Take out trash', prompt: 'Take out trash', duration: 4, points: 50 },
   // Issues 070 and 071: done at the boxes, and only offered there when they are flat.
-  { id: 'recycle-boxes', name: 'Take out the recycling', prompt: 'Take out the recycling', duration: 5, points: 55 },
+  { id: 'recycle-boxes', name: 'Take out recycling', prompt: 'Take out recycling', duration: 5, points: 55 },
   { id: 'cook', name: 'Cook dinner', prompt: 'Cook dinner', duration: 8, points: 90 },
-  { id: 'eat-takeout', name: 'Eat the takeout', prompt: 'Eat the takeout', duration: 5, points: 40 },
-  { id: 'dishes', name: 'Do the dishes', prompt: 'Do the dishes', duration: 7, points: 80 },
-  { id: 'flatten-boxes', name: 'Flatten the boxes', prompt: 'Flatten boxes', duration: 5, points: 45 },
+  { id: 'eat-takeout', name: 'Eat takeout', prompt: 'Eat takeout', duration: 5, points: 40 },
+  { id: 'dishes', name: 'Do dishes', prompt: 'Do dishes', duration: 7, points: 80 },
+  { id: 'flatten-boxes', name: 'Flatten boxes', prompt: 'Flatten boxes', duration: 5, points: 45 },
 
   // Bath
   { id: 'brush-teeth', name: 'Brush teeth', prompt: 'Brush teeth', duration: 3, points: 30 },
@@ -366,14 +366,14 @@ const GOOD_HOURS: Record<string, HourWindow[]> = {
 // slot has something else to put in it. It pays nothing, changes no mood and has
 // no cooldown: arranging your things is not a chore to score.
 export const SWAP_PROMPT: Partial<Record<DecorKind, string>> = {
-  art: "Change the painting",
-  plant: "Change the plant",
-  lamp: "Change the lamp",
+  art: "Change painting",
+  plant: "Change plant",
+  lamp: "Change lamp",
   rug: "Change rug",
-  trinket: "Change the trinket",
-  coffee: "Change the coffee gear",
+  trinket: "Change trinket",
+  coffee: "Change coffee gear",
   outfit: "Change clothes",
-  furniture: "Change the furniture",
+  furniture: "Change furniture",
 };
 export const swapTaskId = (slotId: string) => `swap-${slotId}`;
 // A slot whose kind's prompt would be the same as another slot's at a neighbouring object says more (the rug under the bed).
@@ -384,7 +384,7 @@ const SWAPS: Task[] = DECOR_SLOTS.filter((s) => s.object).map((s) => {
 });
 
 // Opening a delivered package (issue 062 stage 3a): no points, no cooldown, a quiet end.
-const COLLECT: Task = { id: "collect-delivery", name: "Open the package", prompt: "Open the package", duration: 0, points: 0, cooldown: 0, delivery: true, activity: { type: "collect-delivery" } };
+const COLLECT: Task = { id: "collect-delivery", name: "Open package", prompt: "Open package", duration: 0, points: 0, cooldown: 0, delivery: true, activity: { type: "collect-delivery" } };
 
 // Tasks that need the state or a dialog, so they are not in the content list above.
 const EXTRA: Task[] = [

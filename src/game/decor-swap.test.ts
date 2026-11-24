@@ -50,7 +50,7 @@ describe("the swap tasks", () => {
   it("exist for each slot with an object, have no points, no cooldown and are named plainly", () => {
     const swaps = TASKS.filter((t) => t.decorSlot);
     expect(swaps.map((t) => t.id).sort()).toEqual(DECOR_SLOTS.filter((s) => s.object).map((s) => swapTaskId(s.id)).sort());
-    expect(swaps.map((t) => t.prompt)).toContain("Change the painting");
+    expect(swaps.map((t) => t.prompt)).toContain("Change painting");
     for (const t of swaps) {
       expect(t.points).toBe(0);
       expect(t.cooldown).toBe(0);

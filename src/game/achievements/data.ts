@@ -31,10 +31,10 @@ export const ACHIEVEMENTS: Achievement[] = [
   // The same task, again and again.
   { id: "doomscroll-3", name: "One More Scroll", description: "Doomscroll three times.", when: { task: "doomscroll", atLeast: 3 } },
   { id: "coffee-3", name: "Regular Order", description: "Make coffee three times.", when: { anyOf: ["coffee", "coffee-stove"], atLeast: 3 } },
-  { id: "dishes-3", name: "Sink Duty", description: "Do the dishes three times.", when: { task: "dishes", atLeast: 3 } },
+  { id: "dishes-3", name: "Sink Duty", description: "Do dishes three times.", when: { task: "dishes", atLeast: 3 } },
   { id: "guitar-3", name: "Same Three Chords", description: "Play guitar three times.", when: { task: "guitar", atLeast: 3 } },
-  { id: "bed-3", name: "Hospital Corners", description: "Make the bed three times.", when: { task: "make-bed", atLeast: 3 } },
-  { id: "plant-3", name: "Green Thumb", description: "Water the plant three times.", when: { anyOf: ["water-plant", "water-plant-droop"], atLeast: 3 } },
+  { id: "bed-3", name: "Hospital Corners", description: "Make bed three times.", when: { task: "make-bed", atLeast: 3 } },
+  { id: "plant-3", name: "Green Thumb", description: "Water plant three times.", when: { anyOf: ["water-plant", "water-plant-droop"], atLeast: 3 } },
   { id: "contemplate-3", name: "Deep Thoughts", description: "Contemplate three times.", when: { task: "contemplate", atLeast: 3 } },
   { id: "sleep-3", name: "Asleep Again", description: "Go to sleep three times.", when: { task: "sleep", atLeast: 3 } },
 

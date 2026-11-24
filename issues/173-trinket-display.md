@@ -1,0 +1,64 @@
+---
+id: "173"
+title: "Trinkets: how small things are shown and examined"
+short: "Trinket display design"
+status: todo
+owner: marc + claude
+depends_on: ["151"]
+summary: "Design how small things are shown in the room and examined up close: sizes, places, and a bookshelf cubby view."
+kind: design
+decisions:
+  - id: d1
+    who: marc
+    q: "How are small things shown in the room?"
+    options:
+      - "a small version in the room (about 8x8 to 10x10 pixels, as big as the real object would be next to the furniture) with an Examine action that opens a large, detailed close-up"
+      - "the room shows only a small marker for each thing, all the detail is in the close-up"
+      - "keep 16x16 sprites but redraw them smaller inside the cell"
+    recommendation: "a small version in the room (about 8x8 to 10x10 pixels, as big as the real object would be next to the furniture) with an Examine action that opens a large, detailed close-up"
+    status: open
+  - id: d2
+    who: marc
+    q: "Where can trinkets live besides the desk corner?"
+    options:
+      - "several small places, each examinable: the desk's right corner, the nightstand, the lamp table next to the lamp, the window sill by the bed, and a bookshelf cubby"
+      - "only the desk corner and a bookshelf cubby"
+      - "only the bookshelf"
+    recommendation: "several small places, each examinable: the desk's right corner, the nightstand, the lamp table next to the lamp, the window sill by the bed, and a bookshelf cubby"
+    status: open
+  - id: d3
+    who: marc
+    q: "How does the bookshelf examine work?"
+    options:
+      - "Examine the bookshelf opens a composed close-up (like the sofa and side-project scenes) showing its four cubbies with books, each able to hold a trinket; you move between cubbies and can place or take one there"
+      - "Examine the bookshelf shows one cubby at a time with books and an optional trinket"
+      - "no bookshelf scene for now"
+    recommendation: "Examine the bookshelf opens a composed close-up showing its four cubbies with books, each able to hold a trinket; you move between cubbies and can place or take one there"
+    status: open
+  - id: d4
+    who: marc
+    q: "Should every displayed trinket have an Examine action?"
+    options:
+      - "yes: one generic Examine at any place that holds a trinket opens its close-up card with the large sprite and its deadpan note"
+      - "only on the bookshelf scene"
+      - "no examine at all"
+    recommendation: "yes: one generic Examine at any place that holds a trinket opens its close-up card with the large sprite and its deadpan note"
+    status: open
+  - id: d5
+    who: marc
+    q: "Reference photos for the real objects (alebrije, telescope, finger skateboard, goose egg, worry doll, raccoon in a can)?"
+    options:
+      - "yes, I will add photos to reference-photos/ before the art pass; the agent looks read-only and draws its own stylized sprites"
+      - "no photos: draw from the kind of thing"
+    recommendation: "yes, I will add photos to reference-photos/ before the art pass; the agent looks read-only and draws its own stylized sprites"
+    status: open
+---
+
+## Goal
+Marc (2026-11-24), after trying the first trinkets (issue 167, ten 16x16 things on the desk's right corner): they look too big, some do not look right, and small things need a different way to be displayed. His ideas: show a small version with an option to examine; on the bookshelf, an option to examine the bookshelf with a cutscene that shows one of the cubbies with some books and optionally a trinket; trinkets in various places such as the window sills by the bed, the nightstand or next to the lamp, all able to be examined. He can provide photos. Issue 167's branch (issue/167-trinkets, worktree ~/Dev/repos/mcordova47/sim-worktrees/167-trinkets) has a working slot, swap task and ten items to learn from; it stays unmerged until this design says what to keep.
+
+## Acceptance criteria
+A DESIGN issue: `docs/trinket-display-design.md` (plus mockups, rendered with the game's own font, palette and sprites at 320x192 and the phone layout 224x208, that the agent looks at itself) covering: a size policy (how many pixels each kind of object should be in the room next to the furniture and the player, with the real objects' relative sizes; the player is 16x16 and about a foot per tile), the Examine action and its close-up card (the large sprite, the note, how it closes, quiet and calm, no points) and where it appears; an audit of every candidate place against the real maps and sprites (the desk's right corner, the nightstand top, the lamp table beside the lamp, the window sills by the bed on the east wall, the cube bookshelf's cubbies, the new wall shelf of issue 169) with pixel positions that overlap nothing, block no task spot and fit the draw order, saying plainly where there is no good place; the bookshelf cubby scene as a composed view (how it opens, what it shows, how you move between cubbies, how a trinket is placed and taken, books drawn, the phone layout), reusing the composed-view precedents (issues 111 and 117); how the existing slot, swap task and ten items of 167 are reused or changed (`DecorSlot`, `trinket` kind, the empty-slot option of 151), the engine each piece needs, art counts and sizes, the text ('Display trinket' for adding or changing, see issue 174), the quiet-collecting risks, and a size and staged build plan with each stage independently releasable. Open questions beyond d1 to d5 go in this file as `decisions` with a recommended default. No code and no art in this issue. If Marc has added photos to `reference-photos/` the agent may look at them read-only to judge the real objects' proportions, but must never copy, trace, name a file from, or describe a photo in the repo.
+
+## Progress log
+- 2026-11-24 (planner): filed on main with its open decisions (the issue file is born on main); Marc's request after merging the outfit work.

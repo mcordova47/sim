@@ -214,7 +214,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 146 | [Drop task flavor lines](issues/146-drop-task-flavor.md) | claude | done | 145 |
 | 147 | [More plants](issues/147-more-plants.md) | claude | done | |
 | 148 | [Decor expansion design](issues/148-decor-expansion-design.md) | claude | done | |
-| 149 | [More plant stages](issues/149-plant-growth-stages.md) | marc + claude | todo | 147 |
+| 149 | [More plant stages](issues/149-plant-growth-stages.md) | marc + claude | done | 147 |
 | 150 | [Poses ignore outfit](issues/150-poses-ignore-outfit.md) | claude | todo | |
 | 151 | [Empty decor slots](issues/151-empty-decor-slot.md) | claude | done | |
 | 152 | [Worn outfits](issues/152-worn-outfits.md) | claude | done | 151 |
@@ -224,7 +224,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 156 | [Many outfits per style](issues/156-many-outfits.md) | claude | done | |
 | 157 | [Bag viewpoint](issues/157-takeout-bag-perspective.md) | claude | done | 155 |
 | 158 | [Outfit generator](issues/158-outfit-generator.md) | claude | done | 156 |
-| 159 | [Draw the outfits](issues/159-draw-the-outfits.md) | marc + claude | todo | 158 |
+| 159 | [Draw the outfits](issues/159-draw-the-outfits.md) | marc + claude | done | 158 |
 | 160 | [Release changelog](issues/160-release-changelog.md) | marc + claude | done | |
 <!-- issues:table:end -->
 

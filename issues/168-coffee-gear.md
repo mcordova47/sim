@@ -2,7 +2,7 @@
 id: "168"
 title: "Coffee gear: more ways to make coffee"
 short: "Coffee gear"
-status: review
+status: done
 owner: marc + claude
 depends_on: []
 summary: "A coffee slot on the table and one on the stove, more apparatus, and task names that follow the apparatus."
@@ -88,3 +88,9 @@ Build steps G and G2 of `docs/decor-expansion-design.md` (section 6), with Marc'
   - PLAN.md table needs updating by the planner (done for 168).
 
 - 2026-11-24 (agent, round 2 after Marc's try): coffee looks good; two art changes only, no wording or prompt changes. (1) `coffee-french-press` redrawn smaller: 7 px wide and 10 tall with a small handle, shorter than the kettle and no wider than the mug. (2) `coffee-pod-machine` redrawn as a compact teal single-cup machine: pale pod lid with a yellow lever, a dark spout over a tangerine cup on a light drip tray, and a sky-and-denim water tank standing up at the back right (it reads as a pod machine at 16x16, so no replacement apparatus is proposed). Looked at on the table with the plate and mug at 8x, and at 1x (very small, the blue tank and orange cup are what stand out).
+
+- 2026-11-24 (reviewer, round 2): Review of the last commit (6b435d4) and this entry. Verdict: APPROVE (art only; one soft note).
+  - Scope (pass): the commit touches only the two sprites, their two PNGs and this file; no source, task wording, prompt or doc changed. npm test (178 files, 4267 passed), npx tsc --noEmit and npm run sprites all pass; git status is clean after sprites. The sprites hold only palette letters, no text or brand; the notes name no brand.
+  - Looked at (table and table-plate sprites with each item at (46, 2) and the mug prop at (38, 11), 1x and 8x, my own composite): the plate variant is identical in that region.
+  - Measured (opaque pixels): kettle about 10 wide, 11 to 12 tall; mug 8 x 6; cone 10 x 14; drip machine 10 x 14; pod machine 10 x 11; french press 9 x 10 (the body is 7 wide, the 9th column is the handle; the old one was about 11 x 14). The press is now the smallest of the apparatus, narrower and shorter than the kettle, shorter than the cone and the drip machine, wider than the mug only by its handle. It is no longer the tallest or widest thing on the table. Honest note: at this size it reads as a glass jar with a handle and a small knob; the plunger is one pixel, so it says "glass carafe" more than "press". Fine for the table, but Marc may want a longer plunger knob.
+  - Pod machine (8x): a teal box with a pale pod lid and yellow lever, a dark spout over an orange cup on a light tray, and a tall blue water tank at the back right. It reads as a small single-cup appliance and is clearly different from the drip machine (slate frame, glass pot, no tank). The cup sits inside the body rather than under a gap, so the "spout over a cup" is the weakest part. At 1x the whole thing is a few pixels: the blue tank and the orange cup are what you see; it is readable as a small colourful machine, not as a precise pod machine. Marc's look in the game is the final judge, so `try` stays his.

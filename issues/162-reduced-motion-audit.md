@@ -42,7 +42,7 @@ decisions:
     answer: "no"
     by: marc
     on: 2026-11-24
-needs: []
+needs: [{who: marc, kind: decide, why: "Say 'merge 162' when ready (the reduced-motion audit; reviewed three times; d1 to d3 answered; branch issue/162-reduced-motion-audit)", since: 2026-11-24}]
 ---
 
 ## Goal

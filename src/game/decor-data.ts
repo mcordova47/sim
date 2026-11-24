@@ -19,6 +19,7 @@ export interface GlowFlicker {
 // as many rows as it needs, and the grid has three rows so there is room) or a `from`.
 export const NOTE_MAX = 80;
 export const FROM_MAX = 30;
+export const TASK_NAME_MAX = 20;
 
 // `trinket`, `coffee`, `outfit` and `furniture` are for the decor expansion (docs/decor-expansion-design.md, issue 151):
 // no item has one yet, so they only need their swap prompt (tasks.ts SWAP_PROMPT).
@@ -66,6 +67,9 @@ export interface DecorItem {
   // A set of sprites chosen by rules from state: `<family>-0..` for the stage and
   // `<family>-wilted` for drooping, as the family's rules say (FAMILIES).
   family?: string;
+  // What a task about this item calls it, lowercase ("snake plant"): it replaces the task's `itemWord` in the
+  // task's name (Interactable.itemWord, issue 149). Letters the font can draw, at most TASK_NAME_MAX characters.
+  taskName?: string;
   // If set, the item only fits these slots (even if another has its size). The
   // barn drawing and the gold abstract fit the table and the desk wall (issue 073,
   // so they can trade places); the silkscreen is wider and fits only the bed wall.
@@ -100,6 +104,16 @@ export interface DecorItem {
 export interface FamilyRules {
   stages: number;
   droops: boolean;
+  // Waterings that count to grow out of stage 0, 1, 2 and so on (one fewer than `stages`). Left out, the
+  // family uses PLANT.wateringsToGrow, the snake plant's (issue 149).
+  wateringsToGrow?: number[];
+  // Stages whose sprite is bigger than the 16x16 slot (issue 149): stage -> how many pixels it reaches `up` above
+  // the slot's top and `down` below its bottom, so the sprite is `up + 16 + down` high and the slot's 16 rows are the
+  // ones in the middle. It is drawn as an overlay over what is around the slot: the monstera's crown reaches up over
+  // the bookshelf's top, the pothos's vines hang down over the bookshelf's south face. Sprites are whole tiles, so
+  // each is 0 or a multiple of 16. Such a stage also has its own drooping sprite, `<family>-wilted-<stage>`, the same
+  // size. The slot and the swap still compare the 16x16 footprint.
+  overhang?: Record<number, { up?: number; down?: number }>;
 }
 
 export const FAMILIES: Record<string, FamilyRules> = {
@@ -108,8 +122,10 @@ export const FAMILIES: Record<string, FamilyRules> = {
   // TEST: a plant that never grows or droops (like dried flowers will), drawn with its own sprite.
   "plant-test": { stages: 0, droops: false },
   // The other live houseplants (issue 147): the same four stages and the same drooping as the snake plant.
-  pothos: { stages: 4, droops: true },
-  monstera: { stages: 4, droops: true },
+  // Issue 149: the pothos keeps growing, long after the others stop, and its vines hang down over the shelf's south
+  // face; the monstera gets one more stage, a taller crown with bigger leaves. These stages are 16x32: sprites are whole tiles.
+  pothos: { stages: 6, droops: true, wateringsToGrow: [2, 3, 4, 6, 8], overhang: { 4: { down: 16 }, 5: { up: 16, down: 16 } } },
+  monstera: { stages: 5, droops: true, wateringsToGrow: [2, 3, 4, 7], overhang: { 4: { up: 16 } } },
   spider: { stages: 4, droops: true },
 };
 
@@ -130,7 +146,7 @@ export const DECOR_ITEMS: DecorItem[] = [
   { id: "art-barn", name: "BARN DRAWING", kind: "art", sprite: "painting", w: 32, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "A RUSTIC-LOOKING BARN. YOUR UNCLE PAINTED IT. YOU WONDER WHERE IT IS...", slots: ["art-table", "art-desk"] },
   { id: "art-abstract", name: "GOLD ABSTRACT", kind: "art", sprite: "painting-desk", w: 32, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "DEUS EX MESSINA.", slots: ["art-table", "art-desk"] },
   { id: "art-silkscreen", name: "SILKSCREEN", kind: "art", sprite: "painting-wide", w: 48, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "A SILKSCREEN PRINT. NUM. 1/12, WHICH YOU FEEL A STRANGE SENSE OF PRIDE ABOUT.", slots: ["art-bed"] },
-  { id: "plant-snake", name: "SNAKE PLANT", kind: "plant", sprite: "plant-1", family: "plant", w: 16, h: 16, color: "leaf", how: "start", from: "ALREADY HERE", note: "A SNAKE PLANT. IT ASKS FOR VERY LITTLE." },
+  { id: "plant-snake", name: "SNAKE PLANT", kind: "plant", sprite: "plant-1", family: "plant", taskName: "snake plant", w: 16, h: 16, color: "leaf", how: "start", from: "ALREADY HERE", note: "A SNAKE PLANT. IT ASKS FOR VERY LITTLE." },
   { id: "lamp-table", name: "LAMP", kind: "lamp", sprite: "lamp-table", w: 16, h: 16, color: "butter", how: "start", from: "ALREADY HERE", note: "A LAMP. IT'S A GOOD LAMP, YOU THINK.", glow: { radius: 40, alpha: 0.2 } },
   { id: "outfit-home", name: "EVERYDAY CLOTHES", kind: "outfit", sprite: "player-idle-down", w: 16, h: 16, color: "dusk", how: "start", from: "ALREADY HERE", note: "THE USUAL. IT HAS WORKED SO FAR." },
   { id: "pantry-bins", name: "CLEAR BINS", kind: "pantry", sprite: "pantry", w: 16, h: 32, color: "mist", how: "start", from: "ALREADY HERE", note: "YOU GUESS THESE WILL DO AS A PANTRY, FOR NOW." },
@@ -159,11 +175,11 @@ export const GIFT_ITEMS: DecorItem[] = [
   { id: "art-sunflowers", name: "SUNFLOWERS", kind: "art", sprite: "art-sunflowers", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "SUNFLOWERS IN A VASE. JUST LOOK AT THOSE BRUSH STROKES.", slots: WALL },
   // Plants for the shelf (issue 147). The live ones grow and droop like the snake plant; the dried ones are still items.
   // In the order the checkpoints give them, alternating live and dried.
-  { id: "plant-pothos", name: "POTHOS", kind: "plant", sprite: "pothos-1", family: "pothos", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "ITS LEAVES HAVE STARTED FOR THE FLOOR. YOU ADMIRE THE AMBITION." },
+  { id: "plant-pothos", name: "POTHOS", kind: "plant", sprite: "pothos-1", family: "pothos", taskName: "pothos", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "ITS LEAVES HAVE STARTED FOR THE FLOOR. YOU ADMIRE THE AMBITION." },
   { id: "plant-pampas", name: "PAMPAS PLUMES", kind: "plant", sprite: "plant-pampas", w: 16, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "THEY SHED A LITTLE. THAT IS THE WHOLE COMMITMENT." },
-  { id: "plant-monstera", name: "MONSTERA", kind: "plant", sprite: "monstera-1", family: "monstera", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "THE HOLES ARE ON PURPOSE. YOU CHECKED." },
+  { id: "plant-monstera", name: "MONSTERA", kind: "plant", sprite: "monstera-1", family: "monstera", taskName: "monstera", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "THE HOLES ARE ON PURPOSE. YOU CHECKED." },
   { id: "plant-lavender", name: "LAVENDER BUNDLE", kind: "plant", sprite: "plant-lavender", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "SMELLS LIKE A DRAWER THAT HAS NEVER HAD A BAD DAY." },
-  { id: "plant-spider", name: "SPIDER PLANT", kind: "plant", sprite: "spider-1", family: "spider", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "IT KEEPS MAKING SMALLER ONES. NOBODY ASKED." },
+  { id: "plant-spider", name: "SPIDER PLANT", kind: "plant", sprite: "spider-1", family: "spider", taskName: "spider plant", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "IT KEEPS MAKING SMALLER ONES. NOBODY ASKED." },
   { id: "plant-eucalyptus", name: "EUCALYPTUS JAR", kind: "plant", sprite: "plant-eucalyptus", w: 16, h: 16, color: "mist", how: "gift", from: "A PACKAGE", note: "STEMS IN A JAR. THE ROOM SMELLS LIKE A SPA THAT GAVE UP." },
   // Clothes (issue 152): worn from the `worn` slot, drawn as the player's idle-down sprite. The player's own outfit list is outfits.ts.
   { id: "outfit-casual", name: "CASUAL CLOTHES", kind: "outfit", sprite: "player-casual-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "SOFT PANTS. THE OTHER PANTS HAVE LOST." },
@@ -203,6 +219,7 @@ export function itemSprites(item: DecorItem, families: DecorData["families"] = F
   const names = new Set<string>();
   for (let i = 0; i < rules.stages; i++) names.add(`${item.family}-${i}`);
   if (rules.droops) names.add(`${item.family}-wilted`);
+  for (const stage of Object.keys(rules.overhang ?? {})) if (rules.droops) names.add(`${item.family}-wilted-${stage}`);
   if (rules.stages === 0) names.add(item.sprite);
   return [...names];
 }

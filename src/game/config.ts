@@ -107,6 +107,8 @@ export const CLOCK = {
 export const PLANT = {
   // Stages are plantStage 0 sprout, 1 small, 2 full, 3 flowering (see plant.ts).
   lastStage: 3,
+  // These (lastStage and wateringsToGrow below) are the snake plant's, and the default for a family that
+  // names none: the pothos and monstera have their own in FAMILIES (decor-data.ts, issue 149).
   // A watering only counts (and only moves it toward the next stage) when the
   // soil has had this long to dry out. Sooner than that it is "still damp".
   dampHours: 6,

@@ -34,19 +34,25 @@ export const REVIVE_REQUIRES: Requirement[] = [{ ...DROOPING, reason: "NOT DROOP
 // Moves the plant up a stage when it has had enough waterings. Returns true if
 // it grew. At the last stage the count is simply cleared. Call it whenever
 // plantGrowth changes (the game does).
-export function settlePlant(state: ApartmentState): boolean {
+// `rules` are the held plant's (Decor.growth): the pothos and monstera go further than the snake plant,
+// which is the default (issue 149). A stage above the plant's last (a hand-edited save) is cut down to it.
+export function settlePlant(
+  state: ApartmentState,
+  rules: { lastStage: number; wateringsToGrow: number[] } = PLANT,
+): boolean {
   const stage = state.get("plantStage");
   const growth = state.get("plantGrowth");
+  if (stage > rules.lastStage) state.applyEffects([{ var: "plantStage", set: rules.lastStage }]);
   if (growth <= 0) return false;
-  if (stage >= PLANT.lastStage) {
+  if (stage >= rules.lastStage) {
     state.applyEffects([{ var: "plantGrowth", set: 0 }]);
     return false;
   }
-  if (growth < PLANT.wateringsToGrow[stage]) return false;
+  if (growth < rules.wateringsToGrow[stage]) return false;
   // Growth carries over, so a second watering in the same moment is not lost.
   state.applyEffects([
     { var: "plantStage", set: stage + 1 },
-    { var: "plantGrowth", set: growth - PLANT.wateringsToGrow[stage] },
+    { var: "plantGrowth", set: growth - rules.wateringsToGrow[stage] },
   ]);
   return true;
 }

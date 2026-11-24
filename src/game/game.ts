@@ -529,7 +529,7 @@ export class Game {
       this.deliveries.deliverMeal(DELIVERIES.mealDelayHours);
       this.syncParcel();
     }
-    if (change.id === "plantGrowth" && this.state.has("plantStage")) settlePlant(this.state);
+    if (change.id === "plantGrowth" && this.state.has("plantStage")) settlePlant(this.state, this.decor.growth("plant-shelf"));
     // Doors, piles and the like may now block or not.
     if (this.level.solids.some((s) => s.blockedWhen)) this.grid.setSolids(this.activeSolids());
     this.events.emit("stateChanged", change);
@@ -1047,10 +1047,12 @@ export class Game {
       if (!variant && this.decor.hasSlot(prop.slot)) continue;
       const sprite = variant?.sprite ?? prop.sprite;
       const { x, y, w, h } = prop.area;
+      // A tall late stage (issue 149) reaches up over what is behind the slot; its bottom 16 rows are the slot.
+      const up = variant && "up" in variant ? variant.up ?? 0 : 0;
       drawables.push({
         bottom: prop.on.bounds.y + prop.on.bounds.h,
         draw: () => {
-          if (sprite && painter.draw(ctx, sprite, x, y)) return;
+          if (sprite && painter.draw(ctx, sprite, x, y - up)) return;
           ctx.fillStyle = COLOR[variant?.color ?? prop.color ?? "leaf"];
           ctx.fillRect(x + 4, y + 4, w - 8, h - 8);
         },
@@ -1147,13 +1149,15 @@ export class Game {
         if (interaction.active.item.decorSlot === undefined && !interaction.active.item.encounter) {
           // The banner fades while asleep, so it is not over the sleeper's head (issue 078).
           const alpha = this.sleepScene?.bannerAlpha ?? 1;
+          // The name follows the item the task is about (issue 149): "Water the pothos".
+          const shown = { ...interaction.active.item, name: this.decor.taskName(interaction.active.item) };
           // In a pose (issue 100) the banner sits above the whole pose picture, not over its top half:
           // at the desk the player stands a tile south of where they are drawn seated.
           const anchor = this.currentPose() && !this.sleepScene ? this.playerScreenRect(cam) : actor;
-          if (alpha >= 1) drawProgress(ctx, anchor, interaction.active.item, interaction.progress, VIEW, popupBoxes);
+          if (alpha >= 1) drawProgress(ctx, anchor, shown, interaction.progress, VIEW, popupBoxes);
           else if (alpha > 0.01) {
             ctx.globalAlpha = alpha;
-            drawProgress(ctx, anchor, interaction.active.item, interaction.progress, VIEW, popupBoxes);
+            drawProgress(ctx, anchor, shown, interaction.progress, VIEW, popupBoxes);
             ctx.globalAlpha = 1;
           }
         }

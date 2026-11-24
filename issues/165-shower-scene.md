@@ -113,6 +113,14 @@ decisions:
       - "yes, and the towel is what you wear after a shower until you own a robe"
     recommendation: "not now: with no robe the empty slot falls back to your everyday clothes; a towel is filed as a later outfit idea (new art through the outfit generator, and a style decision under the strict slots)"
     status: open
+  - id: d10
+    who: marc
+    q: "Where does the player appear after the shower?"
+    options:
+      - "on the tile they stood on beside the tub (where they pressed E), facing the tub: no relocation, nothing to check"
+      - "always on one fixed tile on the walkway, whichever tile they stood on"
+    recommendation: "on the tile they stood on beside the tub (where they pressed E), facing the tub: no relocation, nothing to check"
+    status: open
 needs: [{who: marc, kind: decide, why: "Look at the shower scene mockups (~/Dev/repos/mcordova47/sim-worktrees/165-shower-scene/docs/shower-scene-mockups/) and answer d1 to d8; then say 'merge 165' (design only; reviewed; the build follows 164)", since: 2026-11-24}]
 ---
 

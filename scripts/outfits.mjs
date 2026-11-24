@@ -25,7 +25,52 @@ export const RULES = {
   },
   // One solid colour.
   solid: () => "outer",
+  // Hoodie (issue 159): the hood is a shade band at the neck, the pouch a shade edge across the belly (front only).
+  hoodie: ({ dir, x, x0, x1, k, r, n }) => {
+    const d = Math.abs(x - (x0 + x1) / 2);
+    if (r === 0) return dir === "down" ? (d <= 2.5 ? "shade" : "outer") : dir === "up" ? (d <= 3.5 ? "shade" : "outer") : k === 0 ? "outer" : "shade";
+    if (dir === "up" && r === 1) return d <= 1.5 ? "shade" : "outer";
+    if (dir === "down" && r === n - 2) return d <= 3.5 ? "shade" : "outer";
+    if (dir === "down" && r === n - 1) return d <= 2.5 ? "shade" : "outer";
+    return "outer";
+  },
+  // A jacket with a scarf (`trim`): a band at the neck, and two ends hanging down the front.
+  scarf: ({ dir, x, x0, x1, k, r }) => {
+    const d = Math.abs(x - (x0 + x1) / 2);
+    if (r === 0) return "trim";
+    if (r === 1 && ((dir === "down" && d <= 1.5) || ((dir === "left" || dir === "right") && k <= 1))) return "trim";
+    return "outer";
+  },
+  // The scarf seen from the front with one tail only, hanging on the wearer's right (the left of the picture),
+  // two rows long: the knot at the neck, a tail of four columns, then two (the art/options OUT A drawing).
+  "scarf-tail": ({ x, x0, r }) => (r === 0 || (r === 1 && x - x0 >= 2 && x - x0 <= 5) || (r === 2 && x - x0 >= 2 && x - x0 <= 3) ? "trim" : "outer"),
+  // A button-up shirt: a collar in `shade` at the neck (down: a V of `inner`), a placket of `inner` down the front.
+  placket: ({ dir, x, x0, x1, r }) => {
+    const d = Math.abs(x - (x0 + x1) / 2);
+    if (dir === "down") return r === 0 ? (d <= 1.5 ? "inner" : "shade") : d <= 0.5 ? "inner" : "outer";
+    return r === 0 ? "shade" : "outer";
+  },
+  // A double-breasted coat: a shade overlap down the middle, two button columns (`trim`) on rows 1 and 3 (front only).
+  buttoned: ({ dir, x, x0, x1, r }) => {
+    const d = Math.abs(x - (x0 + x1) / 2);
+    if (dir !== "down") return "outer";
+    if (d <= 0.5) return "shade";
+    return d === 1.5 && (r === 1 || r === 3) ? "trim" : "outer";
+  },
+  // A bathrobe: a V of `inner` (skin) at the neck, a belt (`trim`) one row above the last torso row.
+  robe: ({ dir, x, x0, x1, r, n }) => {
+    const d = Math.abs(x - (x0 + x1) / 2);
+    if (r === n - 2) return "trim";
+    if (dir === "down" && r === 0) return d <= 1.5 ? "inner" : "outer";
+    if (dir === "down" && r === 1) return d <= 0.5 ? "inner" : "outer";
+    return "outer";
+  },
+  // Vertical stripes: `outer` and `inner` alternate by column.
+  "stripes-v": ({ x }) => (x % 2 === 0 ? "outer" : "inner"),
 };
+
+const CAN_OVERLAY = new Set(FILES_LIST());
+function FILES_LIST() { return ["down", "up", "left", "right"].flatMap((d) => [`idle-${d}`, `walk-${d}-1`, `walk-${d}-2`]); }
 
 const dirOf = (file) => DIRS.find((d) => file.includes(d));
 const bodyRows = (text) => text.split("\n").filter((l) => l && !l.startsWith("#") && !l.startsWith("size"));
@@ -42,20 +87,36 @@ export function generateOutfit(def, read) {
     const rule = RULES[ruleName];
     if (!rule) throw new Error(`${def.id}: unknown torso rule ${ruleName}`);
     const pal = def.torso;
+    const n = torsoRows.length;
     const made = rows.map((row, i) => {
       const chars = [...row];
       if (torsoRows.includes(i)) {
         const cols = chars.map((c, x) => (c === "e" || c === "f" ? x : -1)).filter((x) => x >= 0);
         const x0 = cols[0], x1 = cols[cols.length - 1];
+        const r = torsoRows.indexOf(i);
         for (const x of cols) {
           const k = dir === "right" ? x1 - x : x - x0;
-          chars[x] = pal[rule({ dir, x, x0, x1, k, last: i === lastTorso })];
+          chars[x] = pal[rule({ dir, x, x0, x1, k, last: i === lastTorso, r, n })];
+          if (pal.collar && r === 0 && dir !== "down") chars[x] = pal.collar; // a collar at the nape separates the top from the hair
+        }
+        // Long sleeves: an arm pixel (skin) that has more arm below it becomes `sleeves`; the lowest stays a hand.
+        if (def.sleeves && i !== lastTorso) {
+          for (const [x, c] of chars.entries()) {
+            const below = [...rows[i + 1]];
+            if (c === "a" && (below[x] === "a" || below[x - 1] === "a" || below[x + 1] === "a")) chars[x] = def.sleeves;
+          }
         }
       } else if (i > lastTorso) {
-        for (const [x, c] of chars.entries()) if (def.legs?.[c]) chars[x] = def.legs[c];
+        const hem = def.hem?.[i - lastTorso - 1]; // letter maps for the rows just below the torso (a long coat, a robe)
+        for (const [x, c] of chars.entries()) {
+          if (hem?.[c]) chars[x] = hem[c];
+          else if (def.legs?.[c]) chars[x] = def.legs[c];
+        }
+        if (def.legStripes) for (const [x, c] of chars.entries()) if (c === def.legStripes.from) chars[x] = def.legStripes.keys[x % 2];
       }
       return chars.join("");
     });
+    for (const file of Object.keys(def.overlays ?? {})) if (!CAN_OVERLAY.has(file)) throw new Error(`${def.id}: overlay for unknown file ${file}`);
     for (const [row, text] of Object.entries(def.overlays?.[f] ?? {})) {
       if ([...text].length !== 16) throw new Error(`${def.id} ${f} row ${row}: overlay is not 16 wide`);
       made[Number(row)] = text;

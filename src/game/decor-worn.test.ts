@@ -50,7 +50,7 @@ describe("worn outfits", () => {
     expect((APARTMENT.rooms.main.appearances ?? []).some((a) => a.slot === "worn")).toBe(false);
   });
 
-  it("offer Change clothes at the nightstand only when another outfit is owned", () => {
+  it("offer Change clothes at the cube bookshelf only when another outfit is owned", () => {
     const standAt = (game: Game) => {
       const spot = taskSpots(APARTMENT.rooms.main).find((s) => s.id === "swap-worn")!;
       game.player.placeAt(spot.stand.col, spot.stand.row, spot.face);

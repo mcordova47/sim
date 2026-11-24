@@ -36,6 +36,14 @@ export const CHECKPOINTS: readonly Milestone[] = [
   { id: "gift-day-42", stat: "days", atLeast: 42, item: "outfit-out", delayHours: SOON },
   { id: "gift-day-45", stat: "days", atLeast: 45, item: "outfit-pajamas", delayHours: SOON },
   { id: "gift-day-48", stat: "days", atLeast: 48, item: "outfit-casual-cardigan", delayHours: SOON },
+  { id: "gift-day-51", stat: "days", atLeast: 51, item: "outfit-casual-hoodie", delayHours: SOON },
+  { id: "gift-day-54", stat: "days", atLeast: 54, item: "outfit-casual-denim-jacket", delayHours: SOON },
+  { id: "gift-day-57", stat: "days", atLeast: 57, item: "outfit-out-jacket-scarf", delayHours: SOON },
+  { id: "gift-day-60", stat: "days", atLeast: 60, item: "outfit-out-button-up", delayHours: SOON },
+  { id: "gift-day-63", stat: "days", atLeast: 63, item: "outfit-out-blazer", delayHours: SOON },
+  { id: "gift-day-66", stat: "days", atLeast: 66, item: "outfit-out-peacoat", delayHours: SOON },
+  { id: "gift-day-69", stat: "days", atLeast: 69, item: "outfit-pajamas-striped", delayHours: SOON },
+  { id: "gift-day-72", stat: "days", atLeast: 72, item: "outfit-pajamas-robe", delayHours: SOON },
 ];
 
 // For trying it in the dev server only (`?deliver=test`, decor-dev.ts): the TEST items.

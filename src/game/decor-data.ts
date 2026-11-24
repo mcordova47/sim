@@ -137,8 +137,8 @@ export const DECOR_SLOTS: DecorSlot[] = [
   { id: "lamp-sofa", where: "BY THE SOFA", room: "main", name: "LAMP BY THE SOFA", area: { x: 128, y: 96, w: 16, h: 16 }, kinds: ["lamp"], default: "lamp-table", object: "lamp table" },
   // The pantry in the kitchen (issue 072): a 16x32 stack of bins down the east wall. Nothing to swap yet (no `object`, one item); stage 4 can add upgrade items.
   { id: "pantry", where: "IN THE PANTRY", room: "kitchen", name: "PANTRY", area: { x: 176, y: 16, w: 16, h: 32 }, kinds: ["pantry"], default: "pantry-bins" },
-  // What you wear (issue 152). Not drawn on the map: the player's sprites follow it (`Game.syncOutfit`). Changed from the nightstand drawer.
-  { id: "worn", where: "WORN", room: "main", name: "CLOTHES", area: { x: 0, y: 0, w: 16, h: 16 }, kinds: ["outfit"], default: "outfit-home", object: "nightstand", offMap: true },
+  // What you wear (issue 152). Not drawn on the map: the player's sprites follow it (`Game.syncOutfit`). Changed at the cube bookshelf (Marc, 2026-11-24).
+  { id: "worn", where: "WORN", room: "main", name: "CLOTHES", area: { x: 0, y: 0, w: 16, h: 16 }, kinds: ["outfit"], default: "outfit-home", object: "cube bookshelf", offMap: true },
 ];
 
 // Today's room, as items. These are the starting set: owned from the first run.
@@ -186,6 +186,14 @@ export const GIFT_ITEMS: DecorItem[] = [
   { id: "outfit-out", name: "GOING OUT CLOTHES", kind: "outfit", sprite: "player-out-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "FOR WHEN THE PLAN INVOLVES A DOOR." },
   { id: "outfit-pajamas", name: "PAJAMAS", kind: "outfit", sprite: "player-pajamas-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "THE DAY ENDS WHEN YOU SAY SO." },
   { id: "outfit-casual-cardigan", name: "CARDIGAN AND TEE", kind: "outfit", sprite: "player-casual-cardigan-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "IT DOES UP. YOU HAVE DECIDED IT DOESN'T." },
+  { id: "outfit-casual-hoodie", name: "GREY HOODIE", kind: "outfit", sprite: "player-casual-hoodie-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "A POCKET FOR EVERYTHING EXCEPT THE KEYS." },
+  { id: "outfit-casual-denim-jacket", name: "DENIM JACKET AND TEE", kind: "outfit", sprite: "player-casual-denim-jacket-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "IT GOES WITH EVERYTHING. YOU HAVE CHECKED." },
+  { id: "outfit-out-jacket-scarf", name: "JACKET AND SCARF", kind: "outfit", sprite: "player-out-jacket-scarf-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "A SCARF MAKES ANY ERRAND LOOK PLANNED." },
+  { id: "outfit-out-button-up", name: "BUTTON-UP SHIRT", kind: "outfit", sprite: "player-out-button-up-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "EVERY BUTTON IS IN THE RIGHT HOLE. THIS TIME." },
+  { id: "outfit-out-blazer", name: "BLAZER AND TEE", kind: "outfit", sprite: "player-out-blazer-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "IT MAKES A TEE LOOK LIKE A DECISION." },
+  { id: "outfit-out-peacoat", name: "PEACOAT", kind: "outfit", sprite: "player-out-peacoat-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "WARM, AND NOBODY ASKS WHERE YOU ARE GOING." },
+  { id: "outfit-pajamas-striped", name: "STRIPED PAJAMAS", kind: "outfit", sprite: "player-pajamas-striped-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "NOTHING ABOUT THESE IS URGENT." },
+  { id: "outfit-pajamas-robe", name: "BATHROBE", kind: "outfit", sprite: "player-pajamas-robe-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "THE SHOWER WENT WELL. THE ROBE AGREES." },
 ];
 
 // TEST items (issue 062 stage 2): borrowed sprites, so the swap can be tried and

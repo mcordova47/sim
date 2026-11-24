@@ -26,7 +26,7 @@ Marc (2026-10-26): the same painting in several places makes no sense. Things yo
 - Proof that nothing changed: `src/game/main-room-frames.golden.test.ts` renders the main room headless over the recorded states (start, the plant at each stage and drooping, night with the lamp glow, dusk with the blinds open, morning) for four frames each, and compares every drawing call, in order, with a record made on `main` before the change.
 
 ## What stage 2 built
-- **The swap task.** One task per slot that names an `object` (`swap-art-table`, `swap-art-desk`, `swap-art-bed`, `swap-plant-shelf`, `swap-lamp-sofa`), on the dining table, standing desk, nightstand, cube bookshelf and lamp table. The prompts are "Change the painting", "Change the plant" and "Change the lamp". It is last in the choice cycle (Tab or Q). `DecorSlot.object` is the map piece's name; `Decor.swapProblems(level)` (checked by a test) says if the task is not on exactly that object.
+- **The swap task.** One task per slot that names an `object` (`swap-art-table`, `swap-art-desk`, `swap-art-bed`, `swap-plant-shelf`, `swap-lamp-sofa`, and `swap-worn` since issue 159), on the dining table, standing desk, nightstand, cube bookshelf and lamp table. The prompts are "Change the painting", "Change the plant" and "Change the lamp". It is last in the choice cycle (Tab or Q). `DecorSlot.object` is the map piece's name; `Decor.swapProblems(level)` (checked by a test) says if the task is not on exactly that object.
 - **Only offered when there is something spare.** `Interactable.decorSlot` marks the task and `InteractionSystem.hidden` (set by `Game`) hides it, with no prompt and no cycle entry, unless `Decor.canChange(slot)`: an owned item that fits the slot is in the inventory. So a fresh game (everything owned is on show) shows nothing new.
 - **The list** (`activities/swap-decor.ts`, kind `swap-decor`): a box at 320x192 in the pixel font, slot name and `2/3` on top, up to 4 rows (it scrolls and wraps), `(IN PLACE)` beside the item that is there, the place in small text (`ON THE DESK WALL`) beside an item shown in another slot, a line above the keys saying what E does (`SWAPS WITH <ITEM>`, `<ITEM> GOES TO THE INVENTORY`, or why it is refused), and the keys at the bottom. Up and Down move and show that item in the room, E puts it up, Escape (or X) leaves. The box is at the bottom, or at the top for the lamp slot (so it never covers the thing being changed). The usual "ESC TO STOP" and the task label are not drawn for it.
 - **The preview is only a view.** `Decor.preview(slot, item)` shows an owned item that fits without placing it; `toJSON` never contains it, it is not a change (`onChange` does not fire), and `clearPreview`, `place`, `reset`, `load` and the game (on the next frame, if no task is running) all clear it. So Escape, a thrown error, a reset or any other way out leaves the room as it was. For a swap the preview shows both slots.
@@ -391,10 +391,10 @@ Step A of [decor-expansion-design.md](decor-expansion-design.md) (engine pieces 
 
 ## What issue 152 built
 Step B of [decor-expansion-design.md](decor-expansion-design.md) (engine piece P6): worn outfits.
-- **The slot.** `worn` (room main, kind `outfit`, default `outfit-home`, area 16x16, object `nightstand`) has `DecorSlot.offMap: true`: it is not a place on the map, nothing is drawn at its area, and the area is only the size items must match. `checkLevel` already ignores slots no map object names; the real-room test in `decor.test.ts` now skips `offMap` slots (and pins the slot list with `worn` last).
+- **The slot.** `worn` (room main, kind `outfit`, default `outfit-home`, area 16x16, object `cube bookshelf`, moved there from the nightstand at Marc's instruction in issue 159) has `DecorSlot.offMap: true`: it is not a place on the map, nothing is drawn at its area, and the area is only the size items must match. `checkLevel` already ignores slots no map object names; the real-room test in `decor.test.ts` now skips `offMap` slots (and pins the slot list with `worn` last).
 - **The items.** `outfit-home` (a starting thing, FROM: ALREADY HERE), and the gifts `outfit-casual`, `outfit-out`, `outfit-pajamas` (FROM: A PACKAGE). Each is 16x16 and shown by its `idle-down` sprite (`player-idle-down`, `player-casual-idle-down`, ...), so the THINGS page needs no new art (a fresh game now lists seven things, the everyday clothes among them). Ids are `outfit-<id>` for each id in `outfits.ts`; `outfitFromItem` turns the item into the `outfit` number.
 - **Derived state.** `Game.syncOutfit` sets `outfit` from `decor.shownIn("worn")` every frame, like `parcel` and `guitarOut`. No task writes it (a test checks); a stray write is put back next frame; sleeping does not change clothes. It reads what the room shows, so while the clothes list is open the highlighted outfit is on you. A game with no `worn` slot (a test's own decor) leaves `outfit` alone.
-- **The task.** `swap-worn`, "Change clothes", on the nightstand beside `swap-art-bed`. Like every swap it is offered only when an owned outfit is not already worn, so a fresh game is unchanged.
+- **The task.** `swap-worn`, "Change clothes", on the cube bookshelf beside `swap-plant-shelf` (it was on the nightstand until issue 159, Marc's instruction). Like every swap it is offered only when an owned outfit is not already worn, so a fresh game is unchanged.
 - **The gifts.** Delivery checkpoints at day 39 (casual), day 42 (out) and day 45 (pajamas), after the plants (day 36). They are the planner's default days; change the number in `delivery-checkpoints.ts` to move one.
 - **Known and not fixed here.** The doing poses (sitting, typing, eating, sleeping) are drawn in the everyday clothes, so another outfit flips to the home look during them (issue 150).
 
@@ -418,3 +418,20 @@ When an idea is picked, it becomes an item line in `decor-data.ts` plus a sprite
 
 ## What issue 158 built
 The first generated outfit: CARDIGAN AND TEE (`outfit-casual-cardigan`, style casual, fern cardigan with walnut shading as Marc chose). Its 12 sprites come from `art/outfits.json` through `scripts/outfits.mjs` (see 'Generated outfits' in [art-style.md](art-style.md)). It is the fifth line of `OUTFITS` (index 4), a gift on day 48 (`gift-day-48`) with the note "IT DOES UP. YOU HAVE DECIDED IT DOESN'T." The hand-drawn casual, out and pajamas outfits are unchanged.
+
+## What issue 159 built
+Eight more generated outfits, all from `art/outfits.json` (see 'Generated outfits' in [art-style.md](art-style.md)), each an item `outfit-<id>` that arrives as a gift (the planner's default days; change the number in `delivery-checkpoints.ts` to move one). Names are plain, notes deadpan, and no outfit is for one gender. The list is a spread of casual, going out and pajamas, so no one look is the default.
+
+| Day | Item | Name | Style |
+|---|---|---|---|
+| 51 | `outfit-casual-hoodie` | GREY HOODIE | casual |
+| 54 | `outfit-casual-denim-jacket` | DENIM JACKET AND TEE | casual |
+| 57 | `outfit-out-jacket-scarf` | JACKET AND SCARF | out |
+| 60 | `outfit-out-button-up` | BUTTON-UP SHIRT | out |
+| 63 | `outfit-out-blazer` | BLAZER AND TEE | out |
+| 66 | `outfit-out-peacoat` | PEACOAT | out |
+| 69 | `outfit-pajamas-striped` | STRIPED PAJAMAS | pajamas |
+| 72 | `outfit-pajamas-robe` | BATHROBE | pajamas |
+
+Colours were chosen to separate from the brown hair (tan and oak) and from each other: the blazer is taupe (a camel one merged with the hair and the wooden floor), and the blazer's back has a paper collar line at the neck. The robe's shower hook is still a later idea ([ideas.md](ideas.md)). Not drawn: the dress and the red jacket (ideas).
+

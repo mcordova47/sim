@@ -11,7 +11,7 @@ unverified:
   - "Not seen in a real browser with the operating system setting (only headless Chrome with the setting emulated), and not judged by eye whether the steady glow looks right."
   - "Old browsers whose MediaQueryList has only addListener (no addEventListener): the setting is read once and then not followed (checked by a scratch test; the criteria do not ask for it)."
 changelog: "The candle's glow holds steady if your device asks for reduced motion."
-needs: [{who: marc, kind: try, why: "Look at the steady candle: cd ~/Dev/repos/mcordova47/sim-worktrees/162b-steady-candle && npm run dev, open /?hour=21&own=lamp-candle, place the candle from the lamp swap, turn Reduce motion on; then say 'merge 162b'", since: 2026-11-24}]
+needs: []
 ---
 
 ## Goal

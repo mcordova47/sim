@@ -40,7 +40,10 @@ decisions:
       - "one flat list of all outfits as today, plus a second page of slots"
       - "two separate tasks at the bookshelf: Change clothes (wear a slot now) and Pick outfits (equip slots)"
     recommendation: "a two-level list: first the slots (each shows the outfit equipped there); E on a slot wears that slot now; a second key (or a submenu) chooses which outfit is equipped in the slot"
-    status: open
+    status: answered
+    answer: "a two-level list: first the slots (each shows the outfit equipped there); E on a slot wears that slot now; a second key (or a submenu) chooses which outfit is equipped in the slot"
+    by: marc
+    on: 2026-11-24
   - id: d4
     who: marc
     q: "What does an empty slot do, and does owning an outfit fill it?"

@@ -95,6 +95,15 @@ decisions:
       - "64x64 art shown at 2x (more detail, the same screen size, more to draw)"
     recommendation: "48x48 art shown at 3x (144x144) on both views"
     status: open
+  - id: d11
+    who: marc
+    q: "How are the real bookshelf's four cubbies arranged? The mockups assume a row of four."
+    options:
+      - "a row of four (as the floor plan's 1 tile by 4 suggests)"
+      - "two by two"
+      - "a column of four"
+    recommendation: "a row of four"
+    status: open
 ---
 
 ## Goal

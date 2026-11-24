@@ -98,7 +98,10 @@ decisions:
       - "no: a nap changes nothing (you nap in what you have on)"
       - "yes: it puts you in the PAJAMAS slot like sleeping does"
     recommendation: "no: a nap changes nothing (you nap in what you have on)"
-    status: open
+    status: answered
+    answer: "no: a nap changes nothing (you nap in what you have on)"
+    by: marc
+    on: 2026-11-24
 needs: [{who: marc, kind: decide, why: "Answer d1 to d8 of the outfit slots design (docs/outfit-slots-design.md on branch issue/164-outfit-slots), then say 'merge 164'; the design is reviewed; the build and the shower scene (165) follow", since: 2026-11-24}]
 ---
 

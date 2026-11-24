@@ -24,12 +24,12 @@ describe("rug layouts (options page)", () => {
 
   it("Marc picked C and D: the shipped designs are marked (built into the game; main and bed are different designs); A, B and E are out", () => {
     const by = (L: string) => group.layouts.find((l) => l.letter === L)! as (typeof group.layouts)[number] & { out?: boolean; designs: { id: string; shipped?: boolean }[] };
-    const chosen = { C: ["C1", "C2", "C4", "C8", "C10"], D: ["D3", "D5", "D7", "D9", "D11"] };
+    const chosen = { C: ["C1", "C4", "C5", "C8", "C10"], D: ["D2", "D3", "D7", "D9", "D11"] };
     for (const L of ["C", "D"] as const) {
       expect(by(L).out).toBeUndefined();
       expect(by(L).designs.filter((d) => d.shipped).map((d) => d.id)).toEqual(chosen[L]);
       // The rest are candidates that are not in the game.
-      const candidates = { C: ["C3", "C5", "C6", "C9", "C11", "C12"], D: ["D1", "D2", "D4", "D6", "D8", "D10", "D12"] };
+      const candidates = { C: ["C2", "C3", "C6", "C9", "C11", "C12"], D: ["D1", "D4", "D5", "D6", "D8", "D10", "D12"] };
       expect(by(L).designs.filter((d) => !d.shipped).map((d) => d.id)).toEqual(candidates[L]);
     }
     for (const L of ["A", "B", "E"]) expect(by(L).out).toBe(true);

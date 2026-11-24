@@ -21,8 +21,8 @@ const main = APARTMENT.rooms.main;
 const spriteFiles = import.meta.glob("/public/sprites/*.png", { query: "?url" });
 const sources = import.meta.glob("/art/src/*.sprite", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
 const SETS = {
-  "rug-floor": { area: { x: 32, y: 48, w: 128, h: 64 }, object: "sofa", ids: ["rug-striped", "rug-geometric", "rug-kilim", "rug-jute", "rug-medallion"] },
-  "rug-bed": { area: { x: 176, y: 96, w: 112, h: 48 }, object: "queen bed", ids: ["rug-bed-field", "rug-bed-shag", "rug-bed-braid", "rug-bed-cotton", "rug-bed-vintage"] },
+  "rug-floor": { area: { x: 32, y: 48, w: 128, h: 64 }, object: "sofa", ids: ["rug-striped", "rug-kilim", "rug-shag", "rug-jute", "rug-medallion"] },
+  "rug-bed": { area: { x: 176, y: 96, w: 112, h: 48 }, object: "queen bed", ids: ["rug-bed-field", "rug-bed-braid", "rug-bed-geometric", "rug-bed-cotton", "rug-bed-vintage"] },
 } as const;
 const ALL: string[] = [...SETS["rug-floor"].ids, ...SETS["rug-bed"].ids];
 const slotOf = (id: string) => (id.startsWith("rug-bed-") ? "rug-bed" : "rug-floor");
@@ -221,10 +221,10 @@ describe("changing the rugs", () => {
   });
 
   it("keeps both rugs through a save and a load, and refuses a rug in any other slot", () => {
-    const d = withRugs("rug-geometric", "rug-bed-braid");
+    const d = withRugs("rug-shag", "rug-bed-braid");
     const copy = new Decor();
     copy.load(JSON.parse(JSON.stringify(d)));
-    expect(copy.shownIn("rug-floor")?.id).toBe("rug-geometric");
+    expect(copy.shownIn("rug-floor")?.id).toBe("rug-shag");
     expect(copy.shownIn("rug-bed")?.id).toBe("rug-bed-braid");
     for (const other of DECOR_SLOTS.filter((s) => !s.id.startsWith("rug-"))) expect(d.choices(other.id).some((i) => i.kind === "rug")).toBe(false);
   });

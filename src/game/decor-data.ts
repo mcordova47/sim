@@ -197,13 +197,13 @@ export const GIFT_ITEMS: DecorItem[] = [
   // are items with no source yet and come through the random-encounter pool (issue 163) when it is built. An item nobody gives is simply
   // never owned; nothing needs it.
   { id: "rug-striped", name: "STRIPED RUG", kind: "rug", sprite: "rug-striped", w: 128, h: 64, color: "dusk", how: "gift", from: "A PACKAGE", note: "ONE LONG OPINION ABOUT THE FLOOR, IN BLUE AND CREAM." },
-  { id: "rug-geometric", name: "DIAMOND RUG", kind: "rug", sprite: "rug-geometric", w: 128, h: 64, color: "butter", how: "gift", from: "A PACKAGE", note: "THE DIAMONDS ARE EVENLY SPACED. YOU HAVE CHECKED TWICE." },
   { id: "rug-kilim", name: "KILIM RUG", kind: "rug", sprite: "rug-kilim", w: 128, h: 64, color: "brick", how: "gift", from: "A PACKAGE", note: "EVERY ZIGZAG WAS A DECISION. YOU RESPECT THE COMMITMENT." },
+  { id: "rug-shag", name: "SHAG RUG", kind: "rug", sprite: "rug-shag", w: 128, h: 64, color: "tangerine", how: "gift", from: "A PACKAGE", note: "YOUR FEET HAVE OPINIONS ABOUT IT. THEY ARE GOOD ONES." },
   { id: "rug-jute", name: "JUTE RUG", kind: "rug", sprite: "rug-jute", w: 128, h: 64, color: "mist", how: "gift", from: "A PACKAGE", note: "IT SCRATCHES A LITTLE. THAT IS ITS HONESTY." },
   { id: "rug-medallion", name: "MEDALLION RUG", kind: "rug", sprite: "rug-medallion", w: 128, h: 64, color: "tangerine", how: "gift", from: "A PACKAGE", note: "THE MEDALLION IS CENTERED. YOU MEASURED, THEN FELT BETTER." },
   { id: "rug-bed-field", name: "GREEN BED RUG", kind: "rug", sprite: "rug-bed-field", w: 112, h: 48, color: "leaf", how: "gift", from: "A PACKAGE", note: "A SOFT PLACE TO START A HARD DAY, ONE FOOT AT A TIME." },
-  { id: "rug-bed-shag", name: "SHAG BED RUG", kind: "rug", sprite: "rug-bed-shag", w: 112, h: 48, color: "tangerine", how: "gift", from: "A PACKAGE", note: "THE MORNING STARTS WARMER. THE ALARM STAYS THE SAME." },
   { id: "rug-bed-braid", name: "BRAIDED BED RUG", kind: "rug", sprite: "rug-bed-braid", w: 112, h: 48, color: "brick", how: "gift", from: "A PACKAGE", note: "SOMEONE BRAIDED THIS BY HAND. YOU SLEEP NEAR IT." },
+  { id: "rug-bed-geometric", name: "DIAMOND BED RUG", kind: "rug", sprite: "rug-bed-geometric", w: 112, h: 48, color: "butter", how: "gift", from: "A PACKAGE", note: "THE DIAMONDS POINT AT THE BED. THE BED ACCEPTS THIS." },
   { id: "rug-bed-cotton", name: "COTTON BED RUG", kind: "rug", sprite: "rug-bed-cotton", w: 112, h: 48, color: "paper", how: "gift", from: "A PACKAGE", note: "WASHABLE, SOFT, AND IT NEVER ASKS ABOUT YOUR PLANS." },
   { id: "rug-bed-vintage", name: "VINTAGE BED RUG", kind: "rug", sprite: "rug-bed-vintage", w: 112, h: 48, color: "mist", how: "gift", from: "A PACKAGE", note: "WORN IN THE RIGHT PLACES. YOU TRUST IT WITH YOUR FEET." },
   // Clothes (issue 152): worn from the `worn` slot, drawn as the player's idle-down sprite. The player's own outfit list is outfits.ts.

@@ -2,11 +2,20 @@
 id: "164"
 title: "Outfit slots that change by occasion"
 short: "Outfit slots"
-status: todo
+status: review
 owner: marc + claude
 depends_on: []
 summary: "Equip outfits into slots (everyday, pajamas, robe, going out) and change into any slot from the bookshelf; occasions change clothes automatically."
 kind: design
+unverified:
+  - "The mockups use a flat stand-in for the room and were not looked at inside the running game; real glyphs, palette, sprites and layout constants were used."
+  - "Nothing was run in a browser: the touch layer, the left and right keys on a phone pad and the narrow two-row layout are designed from the code, not tried."
+  - "The save field was designed against parseDecor and sync/merge.ts by reading them; no code was written, so no test exercised the repair or the sync round trip."
+needs:
+  - who: marc
+    kind: decide
+    why: "Answer d1 to d8 (or accept the recommended defaults) before the build stages are filed."
+    since: 2026-11-24
 decisions:
   - id: d1
     who: marc
@@ -44,6 +53,40 @@ decisions:
       - "slots always hold something (a default for each)"
     recommendation: "an empty slot falls back to your everyday clothes; the first owned outfit that suits a slot fills it by itself"
     status: open
+  - id: d5
+    who: marc
+    q: "Which outfits may go in which slot (the new `fits` list on an outfit)?"
+    options:
+      - "explicit `fits` list, natural slot first (used only for auto-fill): EVERYDAY takes home, casual and out outfits; GOING OUT takes casual and out; PAJAMAS takes pajamas; ROBE takes the bathrobe and pajamas"
+      - "strict by style: each slot takes only its own style (a blazer cannot go in EVERYDAY)"
+      - "no limit: any outfit in any slot"
+    recommendation: "explicit `fits` list, natural slot first (used only for auto-fill): EVERYDAY takes home, casual and out outfits; GOING OUT takes casual and out; PAJAMAS takes pajamas; ROBE takes the bathrobe and pajamas"
+    status: open
+  - id: d6
+    who: marc
+    q: "Does an automatic change of clothes say or sound anything?"
+    options:
+      - "nothing: no text and no sound; the new sprite is the news"
+      - "a one-time line the first time it happens, then nothing"
+      - "a short line every time (for example YOU PUT ON THE ROBE.)"
+    recommendation: "nothing: no text and no sound; the new sprite is the news"
+    status: open
+  - id: d7
+    who: marc
+    q: "Does a change you make by hand stick, and does it stop the timed return to everyday?"
+    options:
+      - "yes: it sticks until the next occasion (sleep or a shower), and only an occasion arms the timed return"
+      - "it sticks, but the timed return still happens after two awake hours"
+    recommendation: "yes: it sticks until the next occasion (sleep or a shower), and only an occasion arms the timed return"
+    status: open
+  - id: d8
+    who: marc
+    q: "Does a nap change your clothes?"
+    options:
+      - "no: a nap changes nothing (you nap in what you have on)"
+      - "yes: it puts you in the PAJAMAS slot like sleeping does"
+    recommendation: "no: a nap changes nothing (you nap in what you have on)"
+    status: open
 ---
 
 ## Goal
@@ -55,3 +98,5 @@ This issue is a DESIGN issue first: the agent writes `docs/outfit-slots-design.m
 
 ## Progress log
 - 2026-11-24 (planner): filed on main with its open decisions (the issue file is born on main); Marc's request after merging the outfit work.
+- 2026-11-24 (agent): started. Plan: read the outfit, decor, game, task and sleep code, render real mockups with the game's font, and write docs/outfit-slots-design.md. Docs only; no code or art.
+- 2026-11-24 (agent): wrote docs/outfit-slots-design.md and four mockups in docs/outfit-slots-mockups/ (rendered with the game's font, palette and sprites by a throwaway script kept outside the repo). Design: four slots as a preference list over the existing `worn` decor slot; the Change clothes list becomes a list of slots (up/down slot, left/right outfit, E wears); occasions are `taskComplete` for `sleep` (PAJAMAS) and `shower` (ROBE) through a small data table, applied only when no task runs, plus a timed return to EVERYDAY after about two game hours; the save is an optional `outfits` field in the decor save (and the three hand-copied places in `sync/merge.ts`, which would otherwise drop it). Added decisions d5 to d8 (fits, text on automatic change, manual sticks, nap). Build plan 1a, 1b, 2 (about 560 lines of code plus tests). Files: docs/outfit-slots-design.md, docs/outfit-slots-mockups/*.png, this file. Not checked: see `unverified`.

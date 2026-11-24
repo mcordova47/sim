@@ -10,7 +10,7 @@ kind: fix
 unverified:
   - "How the reworded achievement line looks in the browser pause screen."
 changelog: none
-needs: [{who: marc, kind: decide, why: "Say 'merge 161' when ready (the Green Thumb text no longer names a plant; reviewed; branch issue/161-plant-wording)", since: 2026-11-24}]
+needs: []
 ---
 
 ## Goal

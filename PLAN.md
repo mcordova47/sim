@@ -226,7 +226,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 158 | [Outfit generator](issues/158-outfit-generator.md) | claude | done | 156 |
 | 159 | [Draw the outfits](issues/159-draw-the-outfits.md) | marc + claude | done | 158 |
 | 160 | [Release changelog](issues/160-release-changelog.md) | marc + claude | done | |
-| 161 | [Plant wording](issues/161-plant-wording-not-snake.md) | claude | todo | |
+| 161 | [Plant wording](issues/161-plant-wording-not-snake.md) | claude | done | |
 <!-- issues:table:end -->
 
 ## Order of work

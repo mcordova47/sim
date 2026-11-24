@@ -2,11 +2,19 @@
 id: "149"
 title: "More growth stages for some plants (a pothos that trails over the bookshelf)"
 short: "More plant stages"
-status: todo
+status: review
 owner: marc + claude
 depends_on: ["147"]
 summary: "Some plants get more stages; the pothos eventually trails down over the bookshelf."
 kind: design
+unverified:
+  - "How the tall stages feel when played for real (the 1x frame was looked at, not a long play session)."
+  - "Whether the watering pace to reach the last stages feels right; the thresholds are a proposal."
+needs:
+  - who: marc
+    kind: decide
+    why: "Optional: d3, whether the swap list should warn that a grown plant restarts small (default: no)."
+    since: 2026-11-24
 decisions:
   - id: d1
     who: marc
@@ -31,6 +39,14 @@ decisions:
     answer: "a taller overlay sprite for the late stages, drawn over the bookshelf's top cubes (the plant is already an overlay piece), not hiding any task spot"
     by: marc
     on: 2026-11-23
+  - id: d3
+    who: marc
+    q: "A swapped-in live plant starts small, so a fully grown pothos is lost if you swap it out and back in. Should the swap list or the item's note say so?"
+    options:
+      - "no change: the swap list stays as it is (a swapped-in plant has always started small, and nothing is punished)"
+      - "add a short warning line to the swap list for a plant that has grown past stage 3"
+    recommendation: "no change: it matches the existing rule, and a warning would add the pressure the quiet-collecting rule avoids"
+    status: open
 ---
 
 ## Goal
@@ -53,3 +69,5 @@ Decided by Marc (d1 and d2, 2026-11-23): only the pothos and monstera get extra 
 
 ## Progress log
 - 2026-11-23 (planner): filed on main with its open decisions (the issue file is born on main).
+- 2026-11-24 (claude): started on branch issue/149-plant-stages (worktree ../sim-worktrees/149-plant-stages). Plan: per-family `wateringsToGrow` and `overhang` (extra pixels above the slot, per stage) in `FamilyRules`; pothos 6 stages (two new, the last two taller, 24 and 32 px high), monstera 5 (one new, 24 px high); a tall wilted sprite for each tall stage; `settlePlant` takes the held family's rules; stage var max 5; art in art/src.
+- 2026-11-24 (claude): built. `FamilyRules` gained `wateringsToGrow` and `overhang`; `Decor.growth`, `DecorLook.up`, `settlePlant(state, rules)`; game.ts draws a prop at `y - up`. Pothos 6 stages, thresholds [2,3,4,6,8]; monstera 5, [2,3,4,7]; snake and spider unchanged. New sprites (all 16x32, the top 16 rows reach over the shelf; sprites must be whole tiles): pothos-4, pothos-5, monstera-4 and wilted versions pothos-wilted-4/5, monstera-wilted-4. `plantStage` max 3 to 5. Tests: decor-plants-149.test.ts (13) and decor-plants-147.test.ts adjusted for the new families. Golden frames unchanged (no re-record). Docs: decor.md 'What issue 149 built', art-style.md. Looked at every stage in the real room (dev server, Chrome, save seeded with the plant placed): pothos 0 to 5 and monstera 0 to 4 at 6x crops and 1x full frame, wilted at pothos 2 to 5 and monstera 2 to 4. Seen: 0 to 3 as before; pothos 4 shows a few vines starting over the books, pothos 5 a green trail up over the books and the bowl's edge, monstera 4 a bigger dense crown over the books; wilted: yellow-tan limp leaves, and for the tall stages a few faint tan vines lying over the shelf top. Decision d3 added (swap note, default no change).

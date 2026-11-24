@@ -27,6 +27,9 @@ export interface DecorLook {
   color?: DecorItem["color"];
   // The item's name, for the placeholder box when the art is missing.
   label: string;
+  // Pixels the sprite reaches above the slot's top (a tall late stage, issue 149); 0 or left out for a
+  // sprite the size of the slot.
+  up?: number;
 }
 
 // What putting an item in a slot changes: each slot and the item it will show,
@@ -377,12 +380,25 @@ export class Decor {
     const base: DecorLook = { sprite: item.sprite, color: item.color, label: item.name };
     if (!item.family || !rules) return base;
     const dry = slot?.dryVar && state.has(slot.dryVar) ? state.get(slot.dryVar) : 0;
-    if (rules.droops && dry >= PLANT.droopAfterHours) return { ...base, sprite: `${item.family}-wilted`, color: "butter" };
-    if (rules.stages > 0) {
-      const stage = slot?.stageVar && state.has(slot.stageVar) ? Math.floor(state.get(slot.stageVar)) : 0;
-      return { ...base, sprite: `${item.family}-${Math.min(Math.max(stage, 0), rules.stages - 1)}` };
+    const raw = slot?.stageVar && state.has(slot.stageVar) ? Math.floor(state.get(slot.stageVar)) : 0;
+    // A stage above the family's last (a hand-edited save) shows the last one.
+    const stage = Math.min(Math.max(raw, 0), Math.max(rules.stages - 1, 0));
+    const up = rules.overhang?.[stage];
+    if (rules.droops && dry >= PLANT.droopAfterHours) {
+      const sprite = up && rules.stages > 0 ? `${item.family}-wilted-${stage}` : `${item.family}-wilted`;
+      return { ...base, sprite, color: "butter", ...(up && rules.stages > 0 && { up }) };
     }
+    if (rules.stages > 0) return { ...base, sprite: `${item.family}-${stage}`, ...(up && { up }) };
     return base;
+  }
+
+  // The growth rules of the plant in the slot: the last stage it can reach and the waterings for each step.
+  // The snake plant's (PLANT) when the item has no family or no stages (nothing is growing then anyway).
+  growth(slotId: string): { lastStage: number; wateringsToGrow: number[] } {
+    const family = this.heldIn(slotId)?.family;
+    const rules = family ? this.data.families[family] : undefined;
+    if (!rules || rules.stages < 1) return { lastStage: PLANT.lastStage, wateringsToGrow: PLANT.wateringsToGrow };
+    return { lastStage: rules.stages - 1, wateringsToGrow: rules.wateringsToGrow ?? PLANT.wateringsToGrow };
   }
 
   // Every sprite name the items can ask for (to load them).

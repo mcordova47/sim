@@ -100,6 +100,14 @@ export interface DecorItem {
 export interface FamilyRules {
   stages: number;
   droops: boolean;
+  // Waterings that count to grow out of stage 0, 1, 2 and so on (one fewer than `stages`). Left out, the
+  // family uses PLANT.wateringsToGrow, the snake plant's (issue 149).
+  wateringsToGrow?: number[];
+  // Stages whose sprite is taller than the 16x16 slot (issue 149): stage -> how many pixels it reaches up
+  // above the slot's top, so the sprite is `16 + up` high and its bottom 16 rows sit on the slot. It is drawn
+  // as an overlay over what is behind the slot (the bookshelf's top). Such a stage also has its own drooping
+  // sprite, `<family>-wilted-<stage>`, the same size. The slot and the swap still compare the 16x16 footprint.
+  overhang?: Record<number, number>;
 }
 
 export const FAMILIES: Record<string, FamilyRules> = {
@@ -108,8 +116,10 @@ export const FAMILIES: Record<string, FamilyRules> = {
   // TEST: a plant that never grows or droops (like dried flowers will), drawn with its own sprite.
   "plant-test": { stages: 0, droops: false },
   // The other live houseplants (issue 147): the same four stages and the same drooping as the snake plant.
-  pothos: { stages: 4, droops: true },
-  monstera: { stages: 4, droops: true },
+  // Issue 149: the pothos keeps growing, long after the others stop, and trails over the shelf's top; the
+  // monstera gets one more stage with bigger leaves. Stages 4 and 5 (pothos) and 4 (monstera) are 16x32: sprites are whole tiles, so they reach 16 up.
+  pothos: { stages: 6, droops: true, wateringsToGrow: [2, 3, 4, 6, 8], overhang: { 4: 16, 5: 16 } },
+  monstera: { stages: 5, droops: true, wateringsToGrow: [2, 3, 4, 7], overhang: { 4: 16 } },
   spider: { stages: 4, droops: true },
 };
 
@@ -203,6 +213,7 @@ export function itemSprites(item: DecorItem, families: DecorData["families"] = F
   const names = new Set<string>();
   for (let i = 0; i < rules.stages; i++) names.add(`${item.family}-${i}`);
   if (rules.droops) names.add(`${item.family}-wilted`);
+  for (const stage of Object.keys(rules.overhang ?? {})) if (rules.droops) names.add(`${item.family}-wilted-${stage}`);
   if (rules.stages === 0) names.add(item.sprite);
   return [...names];
 }

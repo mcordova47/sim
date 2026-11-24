@@ -76,12 +76,12 @@ describe("the new plant items (data)", () => {
     }
   });
 
-  it("live ones are new families with four stages and drooping; dried ones have no family", () => {
+  it("live ones are new families that droop (the spider plant has four stages; the pothos and monstera more, issue 149); dried ones have no family", () => {
     for (const { id, family } of LIVE) {
       const item = DECOR_DATA.items.find((i) => i.id === id)!;
       expect(item.family).toBe(family);
-      expect(FAMILIES[family]).toEqual({ stages: 4, droops: true });
-      expect(itemSprites(item).sort()).toEqual([0, 1, 2, 3].map((n) => `${family}-${n}`).concat(`${family}-wilted`).sort());
+      expect(FAMILIES[family].droops).toBe(true);
+      for (const n of [0, 1, 2, 3]) expect(itemSprites(item)).toContain(`${family}-${n}`);
     }
     expect(new Set(LIVE.map((l) => l.family)).size).toBe(3);
     for (const { id } of STILL) {

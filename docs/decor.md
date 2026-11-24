@@ -63,6 +63,17 @@ Six more items for the `plant-shelf` slot, with no new engine: the slot, the swa
 - **Not changed:** the task names still say "snake plant" (`water-plant`, `water-plant-droop`, `check-plant`), the same as they did for the test plant; the object's name in `apartment.ts` and the state variable meanings too. Making them say "plant" is a separate small issue.
 - Tests: `src/game/decor-plants-147.test.ts`. The golden frames of the main room are unchanged (nobody owns the new items at the start).
 
+## What issue 149 built: more growth stages for the pothos and monstera
+
+Marc's decisions (2026-11-23): only the pothos and monstera get more stages (snake plant and spider plant stay at four), and the late stages are taller sprites drawn over the bookshelf's top.
+- **Stages per family.** `FamilyRules` (`decor-data.ts`) got two optional fields. `wateringsToGrow` is the waterings that count for each step out of stage 0, 1, 2 and so on (one fewer than `stages`); left out, the family uses `PLANT.wateringsToGrow`, the snake plant's `[2, 3, 4]`. `Decor.growth(slotId)` gives the held plant's last stage and thresholds, and `settlePlant(state, rules)` uses them (the default is still the snake plant's). `plantStage`'s maximum is 5, the longest family. A stage above a family's last (a hand-edited save) is drawn as the last and cut down at the next watering, never an error.
+- **Counts and thresholds (the agent's proposal; Marc can change any number in `FAMILIES`).** Pothos: 6 stages (`pothos-0` to `pothos-5`), thresholds `[2, 3, 4, 6, 8]`, so 23 waterings in all (the old 9 to the flowering look, then 6 and 8 more). Monstera: 5 stages, thresholds `[2, 3, 4, 7]`, 16 waterings. A watering needs the soil dry for 6 game hours, so the fastest possible pothos is nearly six game days of waterings (about 70 minutes of play) and a relaxed player takes weeks; the pothos arrives on day 21 and nothing is lost, punished or required by waiting. The first stages are exactly the snake plant's, so nothing earlier changes.
+- **Taller sprites.** `overhang` is `{ stage: pixels above the slot }`. The sprite is `16 + up` high and its bottom 16 rows sit on the slot (`DecorLook.up`; `game.ts` draws a prop at `y - up`). Sprites are whole tiles, so `up` is 16: pothos stages 4 and 5 and monstera stage 4 are 16x32. Each such stage also has its own drooping sprite, `<family>-wilted-<stage>`, the same size. The slot, `fits` and the swap still use the 16x16 footprint. A later plant (or a later stage) uses the same field.
+- **What it covers.** The extra 16 rows are rows 20 to 35 of the bookshelf: the books on their tray and the edge of the bowl, which are only drawn, with no task zone (tasks sit on the shelf's own tiles, which the prop never changes). A test checks no other prop or task outside the shelf is under those rows.
+- **Art.** `pothos-4`, `pothos-5` (vines across the shelf, the last one flowing up over the books), `monstera-4` (a bigger crown of split leaves), and the three drooping ones; palette only, top-front view.
+- **Swap.** A swapped-in live plant still starts small, so a grown pothos is lost on swap, as before. No note or swap-list text changed (see decision d3 in the issue file).
+- Tests: `src/game/decor-plants-149.test.ts`. The golden frames are unchanged.
+
 ## The rule that shapes everything
 Marc's decision (2026-10-23, in PLAN.md Decisions): collecting is a **quiet side effect**, a zen garden. It is not a goal, a ladder or a shop you grind for. So:
 

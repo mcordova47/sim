@@ -529,7 +529,7 @@ export class Game {
       this.deliveries.deliverMeal(DELIVERIES.mealDelayHours);
       this.syncParcel();
     }
-    if (change.id === "plantGrowth" && this.state.has("plantStage")) settlePlant(this.state);
+    if (change.id === "plantGrowth" && this.state.has("plantStage")) settlePlant(this.state, this.decor.growth("plant-shelf"));
     // Doors, piles and the like may now block or not.
     if (this.level.solids.some((s) => s.blockedWhen)) this.grid.setSolids(this.activeSolids());
     this.events.emit("stateChanged", change);
@@ -1047,10 +1047,12 @@ export class Game {
       if (!variant && this.decor.hasSlot(prop.slot)) continue;
       const sprite = variant?.sprite ?? prop.sprite;
       const { x, y, w, h } = prop.area;
+      // A tall late stage (issue 149) reaches up over what is behind the slot; its bottom 16 rows are the slot.
+      const up = variant && "up" in variant ? variant.up ?? 0 : 0;
       drawables.push({
         bottom: prop.on.bounds.y + prop.on.bounds.h,
         draw: () => {
-          if (sprite && painter.draw(ctx, sprite, x, y)) return;
+          if (sprite && painter.draw(ctx, sprite, x, y - up)) return;
           ctx.fillStyle = COLOR[variant?.color ?? prop.color ?? "leaf"];
           ctx.fillRect(x + 4, y + 4, w - 8, h - 8);
         },

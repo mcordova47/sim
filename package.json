@@ -15,6 +15,7 @@
     "lab": "node scripts/tools.mjs lab",
     "issues": "node scripts/issues.mjs",
     "issues:check": "node scripts/issues.mjs --check",
+    "changelog": "node scripts/changelog.mjs",
     "issues:site": "node scripts/issues-site.mjs",
     "issues:serve": "node scripts/issues-serve.mjs",
     "pixel": "node scripts/tools.mjs pixel"

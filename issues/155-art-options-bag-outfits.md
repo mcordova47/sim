@@ -7,6 +7,7 @@ owner: marc + claude
 depends_on: []
 summary: "Candidate art for the takeout bag and the three outfits, to browse and choose from before anything ships."
 kind: design
+changelog: none
 unverified:
   - "Review: how the page feels opened by hand in a real browser (double-click) and how any candidate looks in the real game; only headless Chrome screenshots and my own 8x/1x renders were seen."
   - "The page was only seen as a headless Chrome screenshot, not opened by hand, and the sprites were judged by looking at 8x renders and a 3x scene; how they feel in the game at 1x on the real room was not seen."

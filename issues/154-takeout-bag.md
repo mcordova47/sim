@@ -7,6 +7,7 @@ owner: claude
 depends_on: ["153"]
 summary: "The takeout meal waiting at the door is drawn as a bag, not the package box."
 kind: build
+changelog: "The takeout meal waiting at the door is drawn as a bag instead of a package box."
 unverified:
   - "The bag was only viewed in a composed strip and at 8x, not in the running game in a browser."
   - "How the bag looks and feels at 1x/scale in a real browser (reviewer had no browser either)."

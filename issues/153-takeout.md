@@ -7,6 +7,7 @@ owner: claude
 depends_on: []
 summary: "Order takeout at the nightstand phone; it arrives at the door box and you can eat it."
 kind: build
+changelog: "Order takeout from the nightstand phone; it arrives at the door and you can eat it at the table."
 unverified:
   - "How ordering, the arrival and eating feel in a browser (timing of the two-minute wait, the one-line popups, the table with the plate) was not played; only tests and the build were run."
   - "The takeout shows the existing table-plate sprite and the existing delivery-box sprite; whether a plate for a takeout meal reads right was not looked at."

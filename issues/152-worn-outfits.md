@@ -7,6 +7,7 @@ owner: claude
 depends_on: ["151"]
 summary: "Outfits become decor items worn from a non-map slot, changed at the nightstand."
 kind: build
+changelog: "Outfits are decor you can wear: change what you have on at the nightstand."
 unverified:
   - "How the clothes list and the preview look in a browser, and how the THINGS page looks with the outfit sprites, were not seen."
   - "Review 2026-11-23: also not seen in a browser: the on-player outfit preview while the clothes list is open (and that it snaps back on Escape), the clothes list rows (player sprites as list icons), the seventh THINGS entry (everyday clothes) and its where line (WORN)."

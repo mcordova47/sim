@@ -40,7 +40,10 @@ decisions:
       - "no sound beyond the existing music"
       - "a short jingle"
     recommendation: "a soft shower hiss (filtered noise on the effects bus) with a quiet click when it stops; the existing music keeps playing underneath"
-    status: open
+    status: answered
+    answer: "a soft shower hiss (filtered noise on the effects bus) with a quiet click when it stops; the existing music keeps playing underneath"
+    by: marc
+    on: 2026-11-24
   - id: d4
     who: marc
     q: "Reduced motion (the browser setting, docs/reduced-motion.md)?"

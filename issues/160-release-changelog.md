@@ -17,7 +17,10 @@ decisions:
       - "a draft in the deploy workflow's summary or a GitHub release created on deploy"
       - "an in-game 'what's new' page as well (a later idea)"
     recommendation: "a command that prints a draft: nothing committed, nothing to forget, and you can edit before using it"
-    status: open
+    status: answered
+    answer: "the command (npm run changelog) printing a draft from what is on main and not on production; and the deploy workflow also runs it (Marc suggested it commits the result: see d2)"
+    by: marc
+    on: 2026-11-24
 ---
 
 ## Goal

@@ -52,6 +52,7 @@ decisions:
       - "yes, I will add a photo to reference-photos/ and it gets redrawn"
     recommendation: "leave it stylized"
     status: open
+needs: [{who: marc, kind: try, why: "Look at the ten desk things: cd ~/Dev/repos/mcordova47/sim-worktrees/167-trinkets && npm run dev, open /?own=trinket-alebrije,trinket-telescope,instrument-kalimba (ids in the issue), Tab to Change the trinket at the standing desk; answer d1 to d5; then say 'merge 167'", since: 2026-11-24}]
 ---
 
 ## Goal

@@ -68,3 +68,4 @@ Build steps C and H of `docs/decor-expansion-design.md` (section 3 and 4). Marc 
 
 ## Progress log
 - 2026-11-24 (planner): filed on main with its open decisions (the issue file is born on main); Marc's request after merging the outfit work.
+- 2026-11-24 (planner): a first version was built and reviewed on branch issue/167-trinkets (ten 16x16 things in the desk's right corner). Marc tried the coffee gear and looked at the trinkets: they look too big and some do not look right; small things need a different way to be shown (see issue 173, which designs how trinkets are displayed and examined). The branch stays unmerged until 173 says what to keep (the slot, the swap task and the items are likely reusable); the open decisions d1 to d5 wait for that design.

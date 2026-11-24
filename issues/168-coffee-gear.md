@@ -2,7 +2,7 @@
 id: "168"
 title: "Coffee gear: more ways to make coffee"
 short: "Coffee gear"
-status: done
+status: review
 owner: marc + claude
 depends_on: []
 summary: "A coffee slot on the table and one on the stove, more apparatus, and task names that follow the apparatus."
@@ -87,3 +87,4 @@ Build steps G and G2 of `docs/decor-expansion-design.md` (section 6), with Marc'
   - Could not verify: the running game in a real browser (looks, motion, the prompt text on screen), and whether Make french press coffee fits the prompt box on a narrow phone view. Both are listed under `unverified`. Marc's `try` need stays open.
   - PLAN.md table needs updating by the planner (done for 168).
 
+- 2026-11-24 (agent, round 2 after Marc's try): coffee looks good; two art changes only, no wording or prompt changes. (1) `coffee-french-press` redrawn smaller: 7 px wide and 10 tall with a small handle, shorter than the kettle and no wider than the mug. (2) `coffee-pod-machine` redrawn as a compact teal single-cup machine: pale pod lid with a yellow lever, a dark spout over a tangerine cup on a light drip tray, and a sky-and-denim water tank standing up at the back right (it reads as a pod machine at 16x16, so no replacement apparatus is proposed). Looked at on the table with the plate and mug at 8x, and at 1x (very small, the blue tank and orange cup are what stand out).

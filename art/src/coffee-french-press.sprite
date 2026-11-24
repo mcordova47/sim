@@ -1,18 +1,18 @@
-# French press for the table's coffee slot (issue 168): a glass carafe of coffee in a steel frame with a black handle and a plunger knob, in the table's diagonal class (a band of lid on top, the front below). 16x16, drawn at table (46, 2); x 0-3 stay clear for the kettle behind. Light from the top left. No text.
+# French press for the table's coffee slot (issue 168, redrawn smaller after Marc's try): a small glass carafe of coffee in a steel frame with a black handle and a plunger knob, 7 px wide and 10 px tall, no taller than the kettle. 16x16, drawn at table (46, 2); x 0-3 stay clear for the kettle behind. Light from the top left. No text.
 size: 16x16
 ................
-..........11....
-.........1661...
-..........11....
-.....111111111..
-.....165555541..
-.....144444431..
-.....1i7777771..
-.....1i77777711.
-.....1i77777771.
-.....1i77777771.
-.....1i72222711.
-.....1i22222711.
-.....144444431..
-.....111111111..
+................
+................
+................
+................
+..........1.....
+.......1111111..
+.......1655541..
+.......1i77771..
+.......1i777711.
+.......1i77771.1
+.......1i72271.1
+.......1i722711.
+.......1444441..
+.......1111111..
 ................

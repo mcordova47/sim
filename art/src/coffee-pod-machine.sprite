@@ -1,18 +1,18 @@
-# Pod machine for the table's coffee slot (issue 168): a small upright teal machine with a lever on top, a cup on the drip tray, a slate water tank on the back. 16x16, drawn at table (46, 2); x 0-3 stay clear for the kettle behind. Light from the top left. No text.
+# Pod machine for the table's coffee slot (issue 168, redrawn after Marc's try): a small upright teal single-cup machine with a pale pod lid and a yellow lever on top, a dark spout over a tangerine cup on the drip tray, and a sky-and-denim water tank standing up at the back right. 16x16, drawn at table (46, 2); x 0-3 stay clear for the kettle behind. Light from the top left. No text.
 size: 16x16
 ................
-.....11111111...
-.....1666655411.
-.....1555544411.
-.....1111111111.
-.....1gggggg1331
-.....1gihgggg131
-.....1gggggg1131
-.....1gg11gg1131
-.....1gg11gg1131
-.....1ggggggg131
-.....1111111111.
-.....1555cc5541.
-.....1444444441.
+................
+................
+................
+...........1111.
+.....1111111ii1.
+.....1666661ii1.
+.....155dd51ii1.
+.....1111111hh1.
+.....1ggggg1hh1.
+.....1g11gg1hh1.
+.....1gcccg1hh1.
+.....1gcccg1111.
+.....1555555541.
 .....1111111111.
 ................

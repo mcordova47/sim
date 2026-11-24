@@ -1007,6 +1007,7 @@ export class Game {
   private drawWorld(ctx: CanvasRenderingContext2D, actor: Actor): void {
     const { painter, level } = this;
     drawFloorAndWalls(ctx, level, painter);
+    this.drawFloorProps(ctx);
 
     const walled = painter.active && level.walls !== undefined;
     const drawables: { bottom: number; draw: () => void }[] = [];
@@ -1132,6 +1133,24 @@ export class Game {
       for (const item of this.level.interactables) {
         for (const z of item.zones) ctx.strokeRect(z.x + 0.5, z.y + 0.5, z.w - 1, z.h - 1);
       }
+    }
+  }
+
+  // Things that lie on the floor (the rug, issue 166), right after the floor and walls and before anything sorted, so
+  // the player and every piece draw over them. They block nothing (they are not solids). An empty slot draws nothing.
+  private drawFloorProps(ctx: CanvasRenderingContext2D): void {
+    const { painter } = this;
+    for (const prop of this.level.floorProps ?? []) {
+      if (prop.when && !this.state.matchesAll(prop.when)) continue;
+      const variant = this.decor.hasSlot(prop.slot)
+        ? this.decor.lookAt(prop.slot, this.state)
+        : pickVariant(prop.variants ?? [], this.state);
+      if (!variant && this.decor.hasSlot(prop.slot)) continue;
+      const sprite = variant?.sprite ?? prop.sprite;
+      const { x, y, w, h } = prop.area;
+      if (sprite && painter.draw(ctx, sprite, x, y)) continue;
+      ctx.fillStyle = COLOR[variant?.color ?? prop.color ?? "mist"];
+      ctx.fillRect(x, y, w, h);
     }
   }
 

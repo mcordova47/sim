@@ -135,6 +135,12 @@ export const DECOR_SLOTS: DecorSlot[] = [
   { id: "art-bed", where: "ON THE BED WALL", room: "main", name: "ART OVER THE BED", area: { x: 224, y: 0, w: 48, h: 16 }, kinds: ["art"], default: "art-silkscreen", object: "nightstand" },
   { id: "plant-shelf", where: "ON THE SHELF", room: "main", name: "PLANT ON THE SHELF", area: { x: 160, y: 52, w: 16, h: 16 }, kinds: ["plant"], default: "plant-snake", stageVar: "plantStage", dryVar: "plantDry", growthVar: "plantGrowth", object: "cube bookshelf" },
   { id: "lamp-sofa", where: "BY THE SOFA", room: "main", name: "LAMP BY THE SOFA", area: { x: 128, y: 96, w: 16, h: 16 }, kinds: ["lamp"], default: "lamp-table", object: "lamp table" },
+  // The rugs (issue 166, step E of decor-expansion-design.md): floor props, drawn under every piece and the player. No default, so a
+  // fresh game has no rug and looks the same. `rug-floor` is the living-area rug, 128x64 at tile cols 2-9, rows 3-6: it runs under
+  // the front of the sofa, the desk chair and the lamp table. `rug-bed` is the bed rug, 112x48 at cols 11-17, rows 6-8: the bed lies
+  // over most of it, so a band at the bed's foot and the strips beside it show. Two sizes, so each has its own slot and items.
+  { id: "rug-floor", where: "ON THE FLOOR", room: "main", name: "RUG", area: { x: 32, y: 48, w: 128, h: 64 }, kinds: ["rug"], object: "sofa" },
+  { id: "rug-bed", where: "UNDER THE BED", room: "main", name: "BED RUG", area: { x: 176, y: 96, w: 112, h: 48 }, kinds: ["rug"], object: "queen bed" },
   // The pantry in the kitchen (issue 072): a 16x32 stack of bins down the east wall. Nothing to swap yet (no `object`, one item); stage 4 can add upgrade items.
   { id: "pantry", where: "IN THE PANTRY", room: "kitchen", name: "PANTRY", area: { x: 176, y: 16, w: 16, h: 32 }, kinds: ["pantry"], default: "pantry-bins" },
   // What you wear (issue 152). Not drawn on the map: the player's sprites follow it (`Game.syncOutfit`). Changed at the cube bookshelf (Marc, 2026-11-24).
@@ -186,6 +192,20 @@ export const GIFT_ITEMS: DecorItem[] = [
   { id: "plant-lavender", name: "LAVENDER BUNDLE", kind: "plant", sprite: "plant-lavender", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "SMELLS LIKE A DRAWER THAT HAS NEVER HAD A BAD DAY." },
   { id: "plant-spider", name: "SPIDER PLANT", kind: "plant", sprite: "spider-1", family: "spider", taskName: "spider plant", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "IT KEEPS MAKING SMALLER ONES. NOBODY ASKED." },
   { id: "plant-eucalyptus", name: "EUCALYPTUS JAR", kind: "plant", sprite: "plant-eucalyptus", w: 16, h: 16, color: "mist", how: "gift", from: "A PACKAGE", note: "STEMS IN A JAR. THE ROOM SMELLS LIKE A SPA THAT GAVE UP." },
+  // Rugs (issue 166): the main set (128x64, the `rug-floor` slot) then the bed set (112x48, the `rug-bed` slot). The two sets are different
+  // designs (Marc: a design is an item for one slot only). Only the first of each set has a checkpoint (delivery-checkpoints.ts); the rest
+  // are items with no source yet and come through the random-encounter pool (issue 163) when it is built. An item nobody gives is simply
+  // never owned; nothing needs it.
+  { id: "rug-striped", name: "STRIPED RUG", kind: "rug", sprite: "rug-striped", w: 128, h: 64, color: "dusk", how: "gift", from: "A PACKAGE", note: "ONE LONG OPINION ABOUT THE FLOOR, IN BLUE AND CREAM." },
+  { id: "rug-kilim", name: "KILIM RUG", kind: "rug", sprite: "rug-kilim", w: 128, h: 64, color: "brick", how: "gift", from: "A PACKAGE", note: "EVERY ZIGZAG WAS A DECISION. YOU RESPECT THE COMMITMENT." },
+  { id: "rug-shag", name: "SHAG RUG", kind: "rug", sprite: "rug-shag", w: 128, h: 64, color: "tangerine", how: "gift", from: "A PACKAGE", note: "YOUR FEET HAVE OPINIONS ABOUT IT. THEY ARE GOOD ONES." },
+  { id: "rug-jute", name: "JUTE RUG", kind: "rug", sprite: "rug-jute", w: 128, h: 64, color: "mist", how: "gift", from: "A PACKAGE", note: "IT SCRATCHES A LITTLE. THAT IS ITS HONESTY." },
+  { id: "rug-medallion", name: "MEDALLION RUG", kind: "rug", sprite: "rug-medallion", w: 128, h: 64, color: "tangerine", how: "gift", from: "A PACKAGE", note: "THE MEDALLION IS CENTERED. YOU MEASURED, THEN FELT BETTER." },
+  { id: "rug-bed-field", name: "GREEN BED RUG", kind: "rug", sprite: "rug-bed-field", w: 112, h: 48, color: "leaf", how: "gift", from: "A PACKAGE", note: "A SOFT PLACE TO START A HARD DAY, ONE FOOT AT A TIME." },
+  { id: "rug-bed-braid", name: "BRAIDED BED RUG", kind: "rug", sprite: "rug-bed-braid", w: 112, h: 48, color: "brick", how: "gift", from: "A PACKAGE", note: "SOMEONE BRAIDED THIS BY HAND. YOU SLEEP NEAR IT." },
+  { id: "rug-bed-geometric", name: "DIAMOND BED RUG", kind: "rug", sprite: "rug-bed-geometric", w: 112, h: 48, color: "butter", how: "gift", from: "A PACKAGE", note: "THE DIAMONDS POINT AT THE BED. THE BED ACCEPTS THIS." },
+  { id: "rug-bed-cotton", name: "COTTON BED RUG", kind: "rug", sprite: "rug-bed-cotton", w: 112, h: 48, color: "paper", how: "gift", from: "A PACKAGE", note: "WASHABLE, SOFT, AND IT NEVER ASKS ABOUT YOUR PLANS." },
+  { id: "rug-bed-vintage", name: "VINTAGE BED RUG", kind: "rug", sprite: "rug-bed-vintage", w: 112, h: 48, color: "mist", how: "gift", from: "A PACKAGE", note: "WORN IN THE RIGHT PLACES. YOU TRUST IT WITH YOUR FEET." },
   // Clothes (issue 152): worn from the `worn` slot, drawn as the player's idle-down sprite. The player's own outfit list is outfits.ts.
   { id: "outfit-casual", name: "CASUAL CLOTHES", kind: "outfit", sprite: "player-casual-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "SOFT PANTS. THE OTHER PANTS HAVE LOST." },
   { id: "outfit-out", name: "GOING OUT CLOTHES", kind: "outfit", sprite: "player-out-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "FOR WHEN THE PLAN INVOLVES A DOOR." },

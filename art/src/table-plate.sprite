@@ -1,4 +1,4 @@
-# Dining table (issue 034, 047): the teal microwave with its pile of mail at the west end (as in the photos), bean jar, walnut box, grinder, kettle, and at the east end a white dripper cone over a mug on its black scale with a red light. 4x2 tiles. Issue 065: this is the version with the dinner plate on the front edge (`table-plate`, shown when the plate state is 1); `table` is the same table without it.
+# Dining table (issue 034, 047): the teal microwave with its pile of mail at the west end (as in the photos), bean jar, walnut box, grinder, kettle, and at the east end a bare oak patch where the coffee slot's apparatus sits (issue 168: the default pour-over cone is the sprite `coffee-pourover`, drawn over it). 4x2 tiles. Issue 065: this is the version with the dinner plate on the front edge (`table-plate`, shown when the plate state is 1); `table` is the same table without it.
 size: 64x32
 1111111111111111111111111111111111111111111111111111111111111111
 1999999999999999999999999999999999999999999999999999999999999971

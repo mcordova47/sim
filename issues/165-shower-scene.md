@@ -64,7 +64,10 @@ decisions:
       - "a towel wrapped round the player (one more picture to draw)"
       - "no last picture: the scene ends on the bubbles and the room comes back"
     recommendation: "the outfit that will be worn after the shower (usually the everyday one), standing where the robe would"
-    status: open
+    status: answered
+    answer: "i think n/a? because there isn't really a \"cutscene\" per se. it's more like the player appears in the shower and then outside of it with either the robe or everyday clothes (maybe a towel is another robe option, maybe even the default?)"
+    by: marc
+    on: 2026-11-24
   - id: d6
     who: marc
     q: "Besides Escape (stop, no points, no robe), should there be a way to skip to the end of the shower scene and still be paid?"

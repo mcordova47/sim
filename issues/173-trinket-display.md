@@ -86,6 +86,15 @@ decisions:
       - "no: keep x 160, 176 and 192 (the first slot can only be reached through a list)"
     recommendation: "yes: the three slots at x 176, 192 and 208"
     status: open
+  - id: d10
+    who: marc
+    q: "How large is the examine close-up?"
+    options:
+      - "48x48 art shown at 3x (144x144) on both views, the same pixel size as the zoomed art"
+      - "32x32 art shown at 4x (less detail, the same screen size)"
+      - "64x64 art shown at 2x (more detail, the same screen size, more to draw)"
+    recommendation: "48x48 art shown at 3x (144x144) on both views"
+    status: open
 ---
 
 ## Goal

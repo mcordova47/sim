@@ -9,7 +9,7 @@ import { TILE } from "./config";
 
 const main = APARTMENT.rooms.main;
 const group = options.groups.find((g) => g.id === "rugs")! as unknown as {
-  layouts: { letter: string; tile: { col: number; row: number; w: number; h: number }; designs: { id: string; src: string; chosen?: boolean }[] }[];
+  layouts: { letter: string; tile: { col: number; row: number; w: number; h: number }; designs: { id: string; src: string; shipped?: boolean }[] }[];
 };
 const sources = import.meta.glob("/art/options/rugs/*.sprite", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
 const real = import.meta.glob("/art/src/rug-*.sprite", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
@@ -22,14 +22,15 @@ describe("rug layouts (options page)", () => {
     expect(group.layouts.every((l) => l.designs.length >= 2)).toBe(true);
   });
 
-  it("Marc picked C and D: the chosen designs are marked (built into the game), the redrawn and new ones are not; A, B and E are out", () => {
-    const by = (L: string) => group.layouts.find((l) => l.letter === L)! as (typeof group.layouts)[number] & { out?: boolean; designs: { id: string; chosen?: boolean }[] };
-    const chosen = { C: ["C1", "C2", "C3", "C5", "C8"], D: ["D1", "D2", "D3", "D5", "D7", "D8"] };
+  it("Marc picked C and D: the shipped designs are marked (built into the game; main and bed are different designs); A, B and E are out", () => {
+    const by = (L: string) => group.layouts.find((l) => l.letter === L)! as (typeof group.layouts)[number] & { out?: boolean; designs: { id: string; shipped?: boolean }[] };
+    const chosen = { C: ["C1", "C2", "C4", "C8", "C10"], D: ["D3", "D5", "D7", "D9", "D11"] };
     for (const L of ["C", "D"] as const) {
       expect(by(L).out).toBeUndefined();
-      expect(by(L).designs.filter((d) => d.chosen).map((d) => d.id)).toEqual(chosen[L]);
-      // Redrawn or new, for another look: 4 (medallion), 6, 12 (plaids), 9 (vintage), 10 (jute) and 11 (cotton).
-      expect(by(L).designs.filter((d) => !d.chosen).map((d) => d.id)).toEqual(["4", "6", "9", "10", "11", "12"].map((n) => `${L}${n}`));
+      expect(by(L).designs.filter((d) => d.shipped).map((d) => d.id)).toEqual(chosen[L]);
+      // The rest are candidates that are not in the game.
+      const candidates = { C: ["C3", "C5", "C6", "C9", "C11", "C12"], D: ["D1", "D2", "D4", "D6", "D8", "D10", "D12"] };
+      expect(by(L).designs.filter((d) => !d.shipped).map((d) => d.id)).toEqual(candidates[L]);
     }
     for (const L of ["A", "B", "E"]) expect(by(L).out).toBe(true);
   });

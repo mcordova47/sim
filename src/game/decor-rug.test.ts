@@ -21,8 +21,8 @@ const main = APARTMENT.rooms.main;
 const spriteFiles = import.meta.glob("/public/sprites/*.png", { query: "?url" });
 const sources = import.meta.glob("/art/src/*.sprite", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
 const SETS = {
-  "rug-floor": { area: { x: 32, y: 48, w: 128, h: 64 }, object: "sofa", ids: ["rug-striped", "rug-geometric", "rug-field", "rug-shag", "rug-kilim"] },
-  "rug-bed": { area: { x: 176, y: 96, w: 112, h: 48 }, object: "queen bed", ids: ["rug-bed-striped", "rug-bed-geometric", "rug-bed-field", "rug-bed-shag", "rug-bed-braid", "rug-bed-kilim"] },
+  "rug-floor": { area: { x: 32, y: 48, w: 128, h: 64 }, object: "sofa", ids: ["rug-striped", "rug-geometric", "rug-kilim", "rug-jute", "rug-medallion"] },
+  "rug-bed": { area: { x: 176, y: 96, w: 112, h: 48 }, object: "queen bed", ids: ["rug-bed-field", "rug-bed-shag", "rug-bed-braid", "rug-bed-cotton", "rug-bed-vintage"] },
 } as const;
 const ALL: string[] = [...SETS["rug-floor"].ids, ...SETS["rug-bed"].ids];
 const slotOf = (id: string) => (id.startsWith("rug-bed-") ? "rug-bed" : "rug-floor");
@@ -62,11 +62,11 @@ describe("the rug slots and items", () => {
       expect(main.interactables.some((i) => i.id === `swap-${id}`), id).toBe(true);
     }
     expect(new Decor().swapProblems(main)).toEqual([]);
-    expect(TASKS.find((t) => t.id === "swap-rug-floor")!.prompt).toBe("Change the rug");
-    expect(TASKS.find((t) => t.id === "swap-rug-bed")!.prompt).toBe("Change the bed rug");
+    expect(TASKS.find((t) => t.id === "swap-rug-floor")!.prompt).toBe("Change rug");
+    expect(TASKS.find((t) => t.id === "swap-rug-bed")!.prompt).toBe("Change bed rug");
   });
 
-  it("are 11 items (5 main, 6 bed), each with a note and a source, the font's letters only, art that exists and the right size", () => {
+  it("are 10 items (5 main, 5 bed, different designs in each), each with a note and a source, the font's letters only, art that exists and the right size", () => {
     const rugs = DECOR_DATA.items.filter((i) => i.kind === "rug");
     expect(rugs.map((r) => r.id)).toEqual(ALL);
     expect(new Set(rugs.map((r) => r.name)).size).toBe(rugs.length);
@@ -90,14 +90,31 @@ describe("the rug slots and items", () => {
     }
   });
 
-  it("arrive as a starter pair of checkpoint gifts after the last outfit (day 72): a living-area rug on day 75 and a bed rug on day 78; the other nine have no checkpoint yet", () => {
+  it("are different designs in the two sets: no sprite is used by both slots, and no design name repeats between them", () => {
+    const main = SETS["rug-floor"].ids.map((id) => id.replace(/^rug-/, ""));
+    const bed = SETS["rug-bed"].ids.map((id) => id.replace(/^rug-bed-/, ""));
+    expect(main.filter((d) => bed.includes(d))).toEqual([]);
+    const sprites = DECOR_DATA.items.filter((i) => i.kind === "rug").map((i) => i.sprite);
+    expect(new Set(sprites).size).toBe(sprites.length);
+  });
+
+  it("the medallion and the vintage rug are exactly symmetrical, left to right and top to bottom, fringe included", () => {
+    for (const name of ["rug-medallion", "rug-bed-vintage"]) {
+      const rows = sources[`/art/src/${name}.sprite`].split("\n").filter((r) => /^[.1-9a-m]+$/.test(r));
+      expect(rows.length, name).toBeGreaterThan(40);
+      expect(rows, `${name} top to bottom`).toEqual([...rows].reverse());
+      expect(rows.map((r) => [...r].reverse().join("")), `${name} left to right`).toEqual(rows);
+    }
+  });
+
+  it("arrive as a starter pair of checkpoint gifts after the last outfit (day 72): a living-area rug on day 75 and a bed rug on day 78; the other eight have no checkpoint yet", () => {
     const rugGifts = CHECKPOINTS.filter((c) => [c.item].flat().some((i) => i.startsWith("rug-")));
-    expect(rugGifts.map((c) => [c.item, c.atLeast])).toEqual([["rug-striped", 75], ["rug-bed-striped", 78]]);
+    expect(rugGifts.map((c) => [c.item, c.atLeast])).toEqual([["rug-striped", 75], ["rug-bed-field", 78]]);
     const lastOutfit = Math.max(...CHECKPOINTS.filter((c) => String(c.item).startsWith("outfit-")).map((c) => Number(c.atLeast)));
     expect(lastOutfit).toBe(72);
     // An item with no source is just never owned: it is not a problem for the store, a save or the lists.
     const unsourced = ALL.filter((id) => !rugGifts.some((c) => c.item === id));
-    expect(unsourced).toHaveLength(9);
+    expect(unsourced).toHaveLength(8);
     const d = new Decor();
     for (const id of unsourced) expect(d.owns(id)).toBe(false);
     expect(d.entries().some((e) => unsourced.includes(e.item.id))).toBe(false);
@@ -132,18 +149,18 @@ describe("the floor layer", () => {
   });
 
   it("draws both rugs together, and the bed and its pictures over the bed rug", () => {
-    const names = draws(withRugs("rug-striped", "rug-bed-kilim")).map((l) => l.name);
+    const names = draws(withRugs("rug-striped", "rug-bed-braid")).map((l) => l.name);
     expect(names).toContain("rug-striped");
-    expect(names).toContain("rug-bed-kilim");
+    expect(names).toContain("rug-bed-braid");
     const bed = names.findIndex((n) => n === "bed-made" || n === "bed-unmade");
-    expect(bed).toBeGreaterThan(names.indexOf("rug-bed-kilim"));
+    expect(bed).toBeGreaterThan(names.indexOf("rug-bed-braid"));
     // The bed's own pictures (the made and unmade bed and the sleeping poses) are fully opaque, so the rug never shows through them.
     const opaque = (name: string) => !sources[`/art/src/${name}.sprite`].split("\n").filter((r) => /^[.1-9a-m]{80}$/.test(r)).some((r) => r.includes("."));
     for (const name of ["bed-made", "bed-unmade", "player-sleep-bed", "player-sleep-bed-unmade", "sp-bed-top"]) expect(opaque(name), name).toBe(true);
   });
 
   it("draws the player over the rug even when they stand on it", () => {
-    for (const [stand, id] of [[[4, 3], "rug-striped"], [[12, 8], "rug-bed-striped"]] as const) {
+    for (const [stand, id] of [[[4, 3], "rug-striped"], [[12, 8], "rug-bed-field"]] as const) {
       const log = draws(withRugs(id), (g) => g.loadLevel(main, stand[0], stand[1], "down"));
       const names = log.map((l) => l.name);
       expect(names.indexOf("player-idle-down")).toBeGreaterThan(names.indexOf(id));
@@ -151,7 +168,7 @@ describe("the floor layer", () => {
   });
 
   it("are not solids: nothing blocks any tile of them, they keep off walls, the package tile and the door, and walking over them is the same", () => {
-    const game = new Game(main, { rooms: APARTMENT.rooms, decor: withRugs("rug-striped", "rug-bed-striped"), random: () => 0.5 });
+    const game = new Game(main, { rooms: APARTMENT.rooms, decor: withRugs("rug-striped", "rug-bed-field"), random: () => 0.5 });
     const bare = new Game(main, { rooms: APARTMENT.rooms, random: () => 0.5 });
     expect((main.floorProps ?? []).map((p) => p.slot)).toEqual(["rug-floor", "rug-bed"]);
     expect((main.props ?? []).some((p) => p.slot.startsWith("rug-"))).toBe(false);
@@ -175,7 +192,7 @@ describe("the floor layer", () => {
   it("hide no task prompt or standing tile: every stand tile of the sofa and the bed is still reachable and drawn under the player", () => {
     const spots = taskSpots(main).filter((s) => ["swap-rug-floor", "swap-rug-bed", "sleep", "make-bed", "nap", "doomscroll"].includes(s.id));
     expect(spots.length).toBeGreaterThan(0);
-    const game = new Game(main, { rooms: APARTMENT.rooms, decor: withRugs("rug-striped", "rug-bed-striped"), random: () => 0.5 });
+    const game = new Game(main, { rooms: APARTMENT.rooms, decor: withRugs("rug-striped", "rug-bed-field"), random: () => 0.5 });
     for (const s of spots) {
       game.loadLevel(main, s.stand.col, s.stand.row, s.face);
       expect(game.player.x).toBe(s.stand.col * 16);
@@ -188,16 +205,16 @@ describe("changing the rugs", () => {
   it("offers each swap only when a rug is owned and not on show, and NOTHING takes it up again", () => {
     const d = new Decor();
     for (const slot of ["rug-floor", "rug-bed"]) expect(d.canBeEmpty(slot)).toBe(true);
-    d.own("rug-field");
+    d.own("rug-jute");
     d.own("rug-bed-field");
-    expect(d.choices("rug-floor").map((i) => i.id)).toEqual(["rug-field"]);
+    expect(d.choices("rug-floor").map((i) => i.id)).toEqual(["rug-jute"]);
     expect(d.choices("rug-bed").map((i) => i.id)).toEqual(["rug-bed-field"]);
-    d.place("rug-floor", "rug-field");
+    d.place("rug-floor", "rug-jute");
     d.own("rug-kilim");
     expect(d.canChange("rug-floor")).toBe(true);
     d.place("rug-floor", "rug-kilim");
     expect(d.shownIn("rug-floor")?.id).toBe("rug-kilim");
-    expect(d.inventory().map((i) => i.id).sort()).toEqual(["rug-bed-field", "rug-field"]);
+    expect(d.inventory().map((i) => i.id).sort()).toEqual(["rug-bed-field", "rug-jute"]);
     d.place("rug-floor", null);
     expect(d.shownIn("rug-floor")).toBeUndefined();
     expect(d.toJSON().placed["rug-floor"]).toBeUndefined();

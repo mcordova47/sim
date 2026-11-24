@@ -44,11 +44,11 @@ export const CHECKPOINTS: readonly Milestone[] = [
   { id: "gift-day-66", stat: "days", atLeast: 66, item: "outfit-out-peacoat", delayHours: SOON },
   { id: "gift-day-69", stat: "days", atLeast: 69, item: "outfit-pajamas-striped", delayHours: SOON },
   { id: "gift-day-72", stat: "days", atLeast: 72, item: "outfit-pajamas-robe", delayHours: SOON },
-  // Rugs (issue 166, decision d4's default): only a starter pair is a checkpoint gift, a living-area rug on day 75 and a bed rug on day 78,
-  // after the last outfit (day 72). The other nine rugs are items with no checkpoint yet; they come through the random-encounter
+  // Rugs (issue 166, decision d4's default): only a starter pair is a checkpoint gift, the striped living-area rug on day 75 and the green bed rug on day 78,
+  // after the last outfit (day 72). The other eight rugs are items with no checkpoint yet; they come through the random-encounter
   // pool when issue 163 is built. Change the number to move a gift.
   { id: "gift-day-75", stat: "days", atLeast: 75, item: "rug-striped", delayHours: SOON },
-  { id: "gift-day-78", stat: "days", atLeast: 78, item: "rug-bed-striped", delayHours: SOON },
+  { id: "gift-day-78", stat: "days", atLeast: 78, item: "rug-bed-field", delayHours: SOON },
   // Coffee gear (issue 168), after the outfits (day 72), the rugs (75, 78) and the trinkets (from 81): table apparatus first, then the stove's.
   // Planner's default days (three apart): change the number to move a gift.
   { id: "gift-day-85", stat: "days", atLeast: 85, item: "coffee-french-press", delayHours: SOON },

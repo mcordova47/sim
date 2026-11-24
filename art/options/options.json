@@ -163,7 +163,7 @@
       "id": "rugs",
       "title": "Rug layouts (issue 166)",
       "kind": "rugs",
-      "blurb": "Marc picked layouts C (wide living area) and D (under the bed). The designs marked CHOSEN are the ones he kept; they are built into the game (the main set for C, the bed set for D). The others are redrawn or new for another look and are not in the game. Each design is drawn over the real room in the game's order: floor, walls, rug, then furniture and the player, at 1x and as an 8x crop. The designs are my own stylized pixels.",
+      "blurb": "Marc picked layouts C (wide living area) and D (under the bed), and wants the main and the bed rugs to be different designs. The designs marked IN THE GAME are built (main: striped, geometric, kilim, jute, medallion; bed: green field, shag, braided, cotton, vintage); the others are candidates and are not in the game. Each design is drawn over the real room in the game's order: floor, walls, rug, then furniture and the player, at 1x and as an 8x crop. The designs are my own stylized pixels.",
       "layouts": [
         {
           "letter": "A",
@@ -228,30 +228,29 @@
               "id": "C1",
               "label": "C1 Striped flatweave",
               "src": "art/options/rugs/c-wide-striped.sprite",
-              "chosen": true
+              "shipped": true
             },
             {
               "id": "C2",
               "label": "C2 Geometric",
               "src": "art/options/rugs/c-wide-geometric.sprite",
-              "chosen": true
+              "shipped": true
             },
             {
               "id": "C3",
               "label": "C3 Plain field: one fern green with a leaf border and a thin cream line, fringe on the short ends.",
-              "src": "art/options/rugs/c3-field.sprite",
-              "chosen": true
+              "src": "art/options/rugs/c3-field.sprite"
             },
             {
               "id": "C4",
               "label": "C4 Medallion, symmetrical: walnut-brown field, a diamond medallion in tan, cream, walnut and tangerine, mirrored top to bottom and left to right, a walnut border with a tan line, fringe. (redrawn, for another look)",
-              "src": "art/options/rugs/c4-medallion.sprite"
+              "src": "art/options/rugs/c4-medallion.sprite",
+              "shipped": true
             },
             {
               "id": "C5",
               "label": "C5 Shag: tangerine pile flecked with butter and brick, a wide cream two-tone edge, no fringe.",
-              "src": "art/options/rugs/c5-shag.sprite",
-              "chosen": true
+              "src": "art/options/rugs/c5-shag.sprite"
             },
             {
               "id": "C6",
@@ -262,7 +261,7 @@
               "id": "C8",
               "label": "C8 Kilim: horizontal bands of zigzags in brick, cream, slate and mustard, a slate border, fringe.",
               "src": "art/options/rugs/c8-kilim.sprite",
-              "chosen": true
+              "shipped": true
             },
             {
               "id": "C9",
@@ -272,7 +271,8 @@
             {
               "id": "C10",
               "label": "C10 Jute: natural oat with a visible basket weave in putty, a plain darker tan border, no fringe. (new)",
-              "src": "art/options/rugs/c10-jute.sprite"
+              "src": "art/options/rugs/c10-jute.sprite",
+              "shipped": true
             },
             {
               "id": "C11",
@@ -301,20 +301,18 @@
             {
               "id": "D1",
               "label": "D1 Striped flatweave",
-              "src": "art/options/rugs/d-bed-striped.sprite",
-              "chosen": true
+              "src": "art/options/rugs/d-bed-striped.sprite"
             },
             {
               "id": "D2",
               "label": "D2 Geometric",
-              "src": "art/options/rugs/d-bed-geometric.sprite",
-              "chosen": true
+              "src": "art/options/rugs/d-bed-geometric.sprite"
             },
             {
               "id": "D3",
               "label": "D3 Plain field: one fern green with a leaf border and a thin cream line, fringe on the short ends.",
               "src": "art/options/rugs/d3-field.sprite",
-              "chosen": true
+              "shipped": true
             },
             {
               "id": "D4",
@@ -325,7 +323,7 @@
               "id": "D5",
               "label": "D5 Shag: tangerine pile flecked with butter and brick, a wide cream two-tone edge, no fringe.",
               "src": "art/options/rugs/d5-shag.sprite",
-              "chosen": true
+              "shipped": true
             },
             {
               "id": "D6",
@@ -336,18 +334,18 @@
               "id": "D7",
               "label": "D7 Braided oval: rag-rug rings of brick, cream, denim and mustard around a brick centre; an oval, so the corners show the floor.",
               "src": "art/options/rugs/d7-braid.sprite",
-              "chosen": true
+              "shipped": true
             },
             {
               "id": "D8",
               "label": "D8 Kilim: horizontal bands of zigzags in brick, cream, slate and mustard, a slate border, fringe.",
-              "src": "art/options/rugs/d8-kilim.sprite",
-              "chosen": true
+              "src": "art/options/rugs/d8-kilim.sprite"
             },
             {
               "id": "D9",
               "label": "D9 Faded vintage, symmetrical: putty field, a worn taupe and dusk medallion mirrored top to bottom and left to right, pale border, worn flecks that mirror too, fringe. (redrawn, for another look)",
-              "src": "art/options/rugs/d9-vintage.sprite"
+              "src": "art/options/rugs/d9-vintage.sprite",
+              "shipped": true
             },
             {
               "id": "D10",
@@ -357,7 +355,8 @@
             {
               "id": "D11",
               "label": "D11 Cotton flatweave: cream with fine pinstripes, a rope-twist border in putty and cream, short cream fringe. (new)",
-              "src": "art/options/rugs/d11-cotton.sprite"
+              "src": "art/options/rugs/d11-cotton.sprite",
+              "shipped": true
             },
             {
               "id": "D12",

@@ -17,7 +17,10 @@ decisions:
       - "a repeat turns into a small different thing (a postcard or sticker) instead"
       - "a repeat just arrives silently and is ignored"
     recommendation: "prefer items you do not own; if everything in the pool is owned, the repeat arrives and a deadpan line says you already have one, and nothing is added"
-    status: open
+    status: dropped
+    note: "misread: a repeat is an ad for something you already own, which already shows the YOU ALREADY HAVE ONE card (nothing is reversed); the real question is how rare those are (d4)"
+    by: marc
+    on: 2026-11-24
   - id: d2
     who: marc
     q: "How do items split between milestone gifts (days and achievements) and random encounters?"

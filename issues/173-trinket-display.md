@@ -69,6 +69,15 @@ decisions:
       - "drop the sill"
     recommendation: "later and optional: build the desk, nightstand, shelf and cubbies first, then decide the sill"
     status: open
+  - id: d8
+    who: marc
+    q: "The lamp table has no free pixel (the lamp fills it). Drop it from the places?"
+    options:
+      - "drop it; the cubbies, desk, nightstand and shelf are enough"
+      - "redraw the four lamps with a smaller lamp to leave a corner (large)"
+      - "widen the lamp table to two tiles (large; every lamp is redrawn)"
+    recommendation: "drop it; the cubbies, desk, nightstand and shelf are enough"
+    status: open
 ---
 
 ## Goal

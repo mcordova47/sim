@@ -6,7 +6,7 @@ status: todo
 owner: marc + claude
 depends_on: []
 summary: "Let random encounters draw from a growing pool of items, allow repeats, and keep repeats rare as the pool grows."
-kind: design
+kind: build
 decisions:
   - id: d1
     who: marc
@@ -68,7 +68,14 @@ Marc (2026-11-24): the new plants and outfits all arrive as checkpoint gifts (ga
 - The random-encounter machinery (`docs/random-encounters.md`, sections 4, 6 and 9) and the delivery pipe (`docs/decor.md`) already exist.
 
 ## Acceptance criteria
-To be written once d2 to d4 are answered. Likely scope: a design note section in `docs/random-encounters.md`, a pool and weighting in data, repeat handling in the delivery pipe, ad concepts by product line, tests, and the text-review lines.
+Decided by Marc (d2 to d4, 2026-11-24): milestone gifts keep a fixed core set and trickle, and every new item from now on joins the random pool (and may also be a milestone gift); an ad is a product line (a frame shop, a plant shop, a clothing shop, a lamp shop, a rug shop and so on) that draws a random item of its kind from the pool, and the seven current ads stay as special one-offs; the draw weights items you do not own about ten times higher than ones you do, so repeats (an ad for something you already own, which keeps showing the `YOU ALREADY HAVE ONE.` card) stay rare while the pool is large. Nothing about delivery or the already-own card is reversed.
+- **The pool in data.** Items get a way to be in the pool (a field or a derived rule: every real decor item that is not a starting item, not a TEST item and not a kind the ads cannot sell); the checkpoint list and the seven current ads are unchanged. A test lists which items are in the pool so a new item is not forgotten, and a test fails if an item in the pool has no art the ad card can draw.
+- **Product-line ads.** A small data list of product lines, each with an invented generic shop name (no real brand; a line may reuse the style of the existing ad concepts in `src/game/encounter-ads.ts` and `docs/random-encounters.md` section 6), the kind or kinds it sells, its copy lines and its card style, so a line draws an item of its kind through the weighted draw; adding a line or an item is data. Kinds that need it: art, plant, lamp, rug, outfit, coffee, trinket, instrument (read the items in `decor-data.ts`; the unmerged branches add rugs, trinkets and coffee gear, so make it work from the item kinds, not from a hard-coded id list).
+- **The draw.** A pure, seeded function (takes the random function and the owned and queued sets) picks the line then the item with the 10:1 weights; when every item of the kind is owned the weights are equal and the repeat arrives as the already-own card; the existing gates (cooldown, per-day maximum, mood, the ignore, unsubscribe and look-closer choices, the music and reduced motion paths) are unchanged; the delivery pipe still refuses an owned, queued or waiting item.
+- **The card.** The product picture is the item's own sprite scaled 3x (see the note in random-encounters.md); large sprites (rugs 128x64 and 112x48, tall plants, 16x32 or 16x48) need a fit-in-the-card rule (scale down or crop to the picture area): say what you did and look at one of each size.
+- **Tests.** The weighted draw with a seeded random over a pool of several items (statistics: unowned items are chosen about ten times as often, within a tolerance), the all-owned case, an item with no art skipped or rejected, save compatibility (the encounter save format is unchanged or tolerant), the existing encounter tests unchanged.
+- **Docs and text.** Update `docs/random-encounters.md` (sections 5, 6 and 9 and a 'What issue 163 built'), add the new shop names and lines to `docs/text-review.md`, a `changelog:` line (at most 140 characters), and the standard checks (`npm test`, `npx tsc --noEmit`, `npm run build`, `npm run check:dist`, `npm run issues:check -- --validate`, `npm run sprites` leaves git clean; golden frames unchanged).
+- Look at one ad of each product line in the running game yourself (dev shortcut `?encounter=random`; see docs/random-encounters.md) and say what you saw; the reviewer must too.
 
 ## Progress log
 - 2026-11-24 (planner): filed on main with its open decisions (the issue file is born on main); Marc's request after merging the outfit work.

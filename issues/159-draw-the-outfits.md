@@ -7,6 +7,16 @@ owner: marc + claude
 depends_on: ["158"]
 summary: "Add the outfits Marc chose from the options with the generator: casual, going out and pajamas."
 kind: build
+decisions:
+  - id: d1
+    who: marc
+    q: "Outfits (159, d1): the blazer came out taupe, not the camel you chose, because camel merged with the tan hair from behind and the wood floor. Keep taupe?"
+    options:
+      - "keep taupe with a white collar line at the nape"
+      - "go back to camel"
+      - "another colour"
+    recommendation: "keep taupe with a white collar line at the nape"
+    status: open
 ---
 
 ## Goal

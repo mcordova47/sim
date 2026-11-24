@@ -466,7 +466,16 @@ Eight more generated outfits, all from `art/outfits.json` (see 'Generated outfit
 | 63 | `outfit-out-blazer` | BLAZER AND TEE | out |
 | 66 | `outfit-out-peacoat` | PEACOAT | out |
 | 69 | `outfit-pajamas-striped` | STRIPED PAJAMAS | pajamas |
-| 72 | `outfit-pajamas-robe` | BATHROBE | pajamas |
+| 72 | `outfit-pajamas-robe` | BATHROBE | robe (issue 175; was pajamas) |
 
 Colours were chosen to separate from the brown hair (tan and oak) and from each other: the blazer is taupe (a camel one merged with the hair and the wooden floor), and the blazer's back has a paper collar line at the neck. The robe's shower hook is still a later idea ([ideas.md](ideas.md)). Not drawn: the dress and the red jacket (ideas).
 
+
+## What issue 175 built
+Outfit slots, from [outfit-slots-design.md](outfit-slots-design.md) and Marc's answers d1 to d9 in issue 164.
+- **Slots are a preference list over `worn`.** Four slots in `OUTFIT_SLOTS` (`outfits.ts`): EVERYDAY (styles home, casual), PAJAMAS (pajamas), ROBE (the new style `robe`, only the bathrobe) and GOING OUT (out), strict by style (`SLOT_STYLES`; a test fails if a style has no slot). What you wear is still the decor slot `worn`; `outfit` is still derived each frame by `syncOutfit` and nothing else writes it.
+- **Pure helpers** are in `outfit-slots.ts` (`resolveSlot`, `slotChoices`, `autoFill`, `parseEquipped`); the store is `Decor` (`equippedIn`, `equip`, `wearSlot`, `wornSlot`, `slotChoices`). An empty slot falls back to the EVERYDAY outfit, then the home clothes. Auto-fill gives each empty slot the first owned outfit of its styles in `OUTFITS` order, after a load and whenever something is owned; it never replaces anything. Equipping the slot you have on moves `worn` with it.
+- **Save.** `decor.outfits.equipped` (slot to item id), optional and left out while it is only what auto-fill would pick, so a fresh game saves exactly what it did. `parseDecor` keeps only known slots with an owned outfit of the slot's style. A save with no `outfits` field seeds EVERYDAY with the outfit worn when its style fits. The device sync keeps it in all three places in `sync/merge.ts` (`normaliseProgress`, `worldText`, `mergeSaves`: the winner's, limited to what the union owns), with a round-trip test.
+- **The list** (`activities/outfit-slots.ts`, the activity of the `swap-worn` task; every other swap still uses `swap-decor`): up and down choose a slot, left and right change its equipped outfit (shown on you at once), E wears the slot, Escape leaves what you wear (equipment changes stay). All four slots always show; WORN marks the slot you have on. On the phone view each slot takes two rows and the box goes to the top when the player is low on the screen.
+- **Occasions** (`OUTFIT_OCCASIONS` in `config.ts`): finishing `sleep` puts you in PAJAMAS and finishing `shower` in ROBE, with no text or sound. `Game.occasion` only sets a pending slot; `applyOccasion` wears it when no task, dialog or input lock is active. There is no timer; a nap, Escape out of a task and a manual change fire nothing. GOING OUT has no occasion yet.
+- **Try it (dev server).** `?own=outfit-casual-hoodie,outfit-casual-cardigan,outfit-pajamas,outfit-pajamas-striped,outfit-pajamas-robe,outfit-out` owns a spread; the cube bookshelf's Change clothes (Tab cycles the choice at the shelf). `?set=energy:10` makes Go to sleep available at the bed.

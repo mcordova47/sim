@@ -462,3 +462,14 @@ New names and notes for the coffee apparatus, and the make-coffee wording that f
 - MOKA POT: IT SPUTTERS WHEN IT'S DONE. YOU HAVE LEARNED TO TRUST THE SPUTTER. - 
 - BRIKI: A TINY POT WITH A LONG HANDLE. THE FOAM IS NOT OPTIONAL. - 
 - Slot names (swap list): COFFEE ON THE TABLE, COFFEE ON THE STOVE; where: ON THE TABLE, ON THE STOVE; prompt: Change the coffee gear - 
+
+## Outfit slots (issue 175)
+New lines in the Change clothes list at the bookshelf, in the game's capitals, no text or sound when your clothes change by themselves. Wired in `src/game/outfits.ts` (`OUTFIT_SLOTS`) and `src/game/activities/outfit-slots.ts`. Marc to mark: keep / soften / rewrite.
+- List title: CLOTHES - 
+- Slot names: EVERYDAY / PAJAMAS / ROBE / GOING OUT - 
+- Tag on the slot you have on: WORN - 
+- Outfit shown for an empty slot (it falls back to everyday clothes): (EVERYDAY) - 
+- Line under the list, by slot: WHAT YOU WEAR BY DAY / YOU WAKE UP IN THESE / WHAT YOU WEAR AFTER A SHOWER / NOTHING PUTS THESE ON: BY HAND - 
+- The same line when the slot is empty: EMPTY: EVERYDAY CLOTHES - 
+- Added after it on the desktop when the slot is not the one you have on and there is room: . E PUTS IT ON NOW. - 
+- Keys line: ARROWS: PICK   E: WEAR   ESC: BACK (touch: PAD: PICK   A: WEAR   B: BACK) - 

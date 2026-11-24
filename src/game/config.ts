@@ -134,6 +134,11 @@ export const DECOR = {
   maxSeen: 100,
 };
 
+// Outfit occasions (issue 175, docs/outfit-slots-design.md): finishing the task with this id puts you in that
+// outfit slot, once nothing is running. There is no timer and nothing else changes your clothes by itself; a
+// nap and Escape out of a task change nothing. Going out has no occasion yet (it is worn by hand).
+export const OUTFIT_OCCASIONS: Readonly<Record<string, import("./outfits").OutfitSlotId>> = { sleep: "pajamas", shower: "robe" };
+
 // Deliveries (issue 062 stage 3a, docs/decor.md). Times are game hours.
 export const DELIVERIES = {
   // Most items waiting to arrive plus waiting at the door; `deliver` refuses more.

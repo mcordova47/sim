@@ -55,7 +55,7 @@ describe("the swap tasks", () => {
       expect(t.points).toBe(0);
       expect(t.cooldown).toBe(0);
       expect(t.effects).toBeUndefined();
-      expect(t.activity).toEqual({ type: "swap-decor" });
+      expect(t.activity).toEqual({ type: t.decorSlot === "worn" ? "outfit-slots" : "swap-decor" });
     }
   });
 

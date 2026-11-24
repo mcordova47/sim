@@ -4,6 +4,8 @@ import { DECOR_DATA, FROM_MAX, NOTE_MAX, TASK_NAME_MAX, isTestItem, itemSprites,
 import type { Level } from "./level";
 import type { ApartmentState } from "./state";
 import type { Rect } from "./world";
+import { slotOfItem, slotTakes, type OutfitSlotId } from "./outfits";
+import { autoFill, parseEquipped, resolveSlot, slotChoices, type Equipped } from "./outfit-slots";
 
 // The decor store (issue 062, docs/decor.md): which items you own and which one
 // is in each slot. How you came to own something is not recorded here, and
@@ -19,6 +21,9 @@ export interface DecorSave {
   // Item ids an ad showed you and you did not take (issue 109c). Optional: left out when empty, so
   // older saves read the same. Never lists an owned item.
   seen?: string[];
+  // Which outfit is equipped in each outfit slot (issue 175). Optional: left out when nothing is equipped, so an
+  // older save reads as before. Only known slots, and owned outfits of a style the slot takes.
+  outfits?: { equipped: Equipped };
 }
 
 // What to draw for a slot right now.
@@ -114,6 +119,8 @@ export function validateDecorData(data: DecorData): void {
 // What a task needs to be worded after the item it is about (issues 149 and 168).
 export type TaskWording = { name: string; itemWord?: string; liveSlot?: string; heldSlot?: string };
 
+const sortedSlots = (e: Equipped) => Object.entries(e).sort((a, b) => (a[0] < b[0] ? -1 : 1));
+
 export class Decor {
   // Called after what is owned or placed changes.
   onChange?: () => void;
@@ -125,6 +132,8 @@ export class Decor {
   private seen = new Set<string>();
   // Slot to item, only for slots that differ from their default (an empty slot, which has none, is absent). At most one slot shows an item.
   private placed = new Map<string, string>();
+  // The outfit equipped in each outfit slot (issue 175). A preference list over `worn`; what you wear is `worn`.
+  private equipped: Equipped = {};
   // What the room shows while you look at the swap list (never saved): the slot
   // and the item moved into it, and (for a swap) the other slot and its new item.
   private previewed: Map<string, string | null> | null = null;
@@ -141,8 +150,53 @@ export class Decor {
     this.owned = new Set(this.starting());
     this.seen = new Set();
     this.placed = new Map();
+    this.equipped = {};
+    this.fillSlots();
     this.previewed = null;
     if (announce) this.onChange?.();
+  }
+
+  // Outfit slots (issue 175). Each empty slot takes the first owned outfit it fits; runs after anything is owned or loaded.
+  private fillSlots(): boolean {
+    return autoFill(this.equipped, this.owned);
+  }
+
+  // The outfit item equipped in a slot (undefined when empty).
+  equippedIn(slot: OutfitSlotId): string | undefined {
+    return this.equipped[slot];
+  }
+
+  // The item that wearing the slot puts on: its own, else the EVERYDAY slot's (an empty slot falls back to everyday).
+  resolveOutfit(slot: OutfitSlotId): string {
+    return resolveSlot(this.equipped, slot);
+  }
+
+  // The owned outfits a slot takes, as items, in OUTFITS order.
+  slotChoices(slot: OutfitSlotId): DecorItem[] {
+    return slotChoices(slot, this.owned).flatMap((id) => this.items.get(id) ?? []);
+  }
+
+  // The slot of the outfit really worn now (by its style), if it is an outfit.
+  wornSlot(): OutfitSlotId | undefined {
+    return slotOfItem(this.heldBy("worn"));
+  }
+
+  // Equips an owned outfit in the slot, when the slot takes its style. When the slot is the one worn, `worn` follows
+  // (what you see in the slot is what you have on). False and nothing changes otherwise.
+  equip(slot: OutfitSlotId, itemId: string): boolean {
+    if (!this.owned.has(itemId) || !this.items.has(itemId) || !slotTakes(slot, itemId)) return false;
+    const wasWorn = this.wornSlot() === slot;
+    if (this.equipped[slot] !== itemId) {
+      this.equipped[slot] = itemId;
+      if (wasWorn && this.slots.has("worn")) this.place("worn", itemId);
+      else this.onChange?.();
+    }
+    return true;
+  }
+
+  // Puts on what a slot holds (EVERYDAY's when it is empty): the one function for E in the list and an occasion.
+  wearSlot(slot: OutfitSlotId): boolean {
+    return this.slots.has("worn") && this.place("worn", this.resolveOutfit(slot));
   }
 
   // Owned from the first run: every slot's default, and anything marked "start".
@@ -333,6 +387,7 @@ export class Decor {
   own(itemId: string): boolean {
     if (!this.items.has(itemId) || this.owned.has(itemId) || this.owned.size >= DECOR.maxOwned) return false;
     this.owned.add(itemId);
+    this.fillSlots();
     // If it was a silhouette, it simply becomes the item.
     this.seen.delete(itemId);
     this.onChange?.();
@@ -489,6 +544,8 @@ export class Decor {
     this.owned = new Set(parsed.owned);
     this.seen = new Set(parsed.seen ?? []);
     this.placed = new Map(Object.entries(parsed.placed));
+    this.equipped = { ...(parsed.outfits?.equipped ?? {}) };
+    this.fillSlots();
     this.previewed = null;
     this.onChange?.();
   }
@@ -496,6 +553,10 @@ export class Decor {
   toJSON(): DecorSave {
     const save: DecorSave = { owned: [...this.owned], placed: Object.fromEntries(this.placed) };
     if (this.seen.size > 0) save.seen = [...this.seen];
+    // Left out while it is only what auto-fill would pick anyway, so a fresh game saves what it always did.
+    const plain: Equipped = {};
+    autoFill(plain, this.owned);
+    if (JSON.stringify(sortedSlots(this.equipped)) !== JSON.stringify(sortedSlots(plain))) save.outfits = { equipped: { ...this.equipped } };
     return save;
   }
 }
@@ -555,5 +616,15 @@ export function parseDecor(raw: unknown, data: DecorData = DECOR_DATA): DecorSav
       if (typeof id === "string" && id.length > 0 && id.length <= DECOR.maxIdLength && !owned.has(id) && !seen.includes(id)) seen.push(id);
     }
   }
-  return seen.length > 0 ? { owned: [...owned], placed, seen } : { owned: [...owned], placed };
+  const save: DecorSave = { owned: [...owned], placed };
+  if (seen.length > 0) save.seen = seen;
+  // Equipped outfits (issue 175): repaired against what is owned. A save with no such field is an older one:
+  // EVERYDAY is seeded with the outfit worn now when its style fits it, so a player in a hoodie stays in it.
+  const equipped = parseEquipped(isRecord(raw) && isRecord(raw.outfits) ? raw.outfits.equipped : undefined, owned);
+  if (!(isRecord(raw) && isRecord(raw.outfits))) {
+    const worn = placed.worn;
+    if (worn !== undefined && owned.has(worn) && slotTakes("everyday", worn)) equipped.everyday = worn;
+  }
+  if (Object.keys(equipped).length > 0) save.outfits = { equipped };
+  return save;
 }

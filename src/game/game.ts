@@ -19,7 +19,7 @@ import type { Ad } from "./encounter-ads";
 import { drawAd, drawLineAd, itemPool, type ItemPool } from "./encounter-draw";
 import { lineById } from "./encounter-lines";
 import { Encounters } from "./encounters";
-import { CLOCK, DEBUG, DELIVERIES, DIALOG, ENERGY, MOOD, TILE, VIEW } from "./config";
+import { CLOCK, DEBUG, DELIVERIES, DIALOG, ENERGY, MOOD, OUTFIT_OCCASIONS, TILE, VIEW } from "./config";
 import type { Activity, ActivityHost, RecordState } from "./activity";
 import { openReelStore, type ReelPic, type ReelStoreHandle } from "./reel/reel-store";
 import type { Interactable } from "./interactable";
@@ -29,7 +29,7 @@ import { Emitter, type GameEvents } from "./events";
 import { Grid } from "./grid";
 import { InteractionSystem } from "./interaction";
 import { validateLevel, type Door, type Level, type Piece } from "./level";
-import { outfitFromItem, outfitPoseSprite, outfitPrefix } from "./outfits";
+import { outfitFromItem, outfitPoseSprite, outfitPrefix, type OutfitSlotId } from "./outfits";
 import { Player } from "./player";
 import { settlePlant } from "./plant";
 import { CARRIED, POSES, breathBand, heldSprite, type PoseDef } from "./poses";
@@ -229,6 +229,7 @@ export class Game {
       const zone = boundsOf(item.zones);
       this.popups.add(zone.x + zone.w / 2, zone.y, lines);
       this.events.emit("taskComplete", { item, award });
+      this.occasion(item.id);
       this.maybeEncounter(item);
     }, this.state);
     this.interaction.onStart = (item) => {
@@ -262,6 +263,24 @@ export class Game {
     });
     this.interaction.onBlocked = (item, reason, message) =>
       this.events.emit("taskBlocked", { item, reason, ...(message && { message }) });
+  }
+
+  // An outfit occasion (issue 175): the task that just finished may put you in an outfit slot. It never changes
+  // clothes at once; `applyOccasion` does it when no task, dialog or pose is active (so a pose never flips).
+  private pendingOccasion: OutfitSlotId | null = null;
+  occasion(taskId: string): void {
+    const slot = OUTFIT_OCCASIONS[taskId];
+    if (slot !== undefined) this.pendingOccasion = slot;
+  }
+  // For tests: the occasion waiting for a free moment.
+  pendingOccasionForTest(): OutfitSlotId | null {
+    return this.pendingOccasion;
+  }
+  private applyOccasion(): void {
+    if (this.pendingOccasion === null || this.interaction.active || this.dialog.open || this.inputLocked) return;
+    const slot = this.pendingOccasion;
+    this.pendingOccasion = null;
+    this.decor.wearSlot(slot);
   }
 
   // After a completed task: may an ad appear (issue 043 stage B)? Only when nothing else is open.
@@ -804,6 +823,7 @@ export class Game {
       if (!heldClock) this.tickClock(dt);
       this.interaction.update(dt, this.player, this.inputLocked ? NO_INPUT : controls);
     }
+    this.applyOccasion();
     this.syncGuitar();
     this.syncOutfit();
     this.syncPhotos();

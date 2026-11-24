@@ -41,7 +41,10 @@ decisions:
       - "keep one ad per item and write many more ads"
       - "both"
     recommendation: "an ad is a product line and draws a random item of its kind from the pool; the seven current ads stay as special one-offs"
-    status: open
+    status: answered
+    answer: "an ad is a product line (a frame shop, a plant shop, a clothing shop, a lamp shop, a rug shop) and draws a random item of its kind from the pool; the seven current ads stay as special one-offs"
+    by: marc
+    on: 2026-11-24
   - id: d4
     who: marc
     q: "How strongly should the draw avoid repeats?"

@@ -53,6 +53,15 @@ decisions:
       - "no last picture: the scene ends on the bubbles and the room comes back"
     recommendation: "the outfit that will be worn after the shower (usually the everyday one), standing where the robe would"
     status: open
+  - id: d6
+    who: marc
+    q: "Besides Escape (stop, no points, no robe), should there be a way to skip to the end of the shower scene and still be paid?"
+    options:
+      - "no: Escape is the one back-out and pays nothing, as in every other scene"
+      - "yes: pressing E skips to the last picture and pays the usual points"
+      - "yes, but only after the player has seen the whole scene once"
+    recommendation: "no: Escape is the one back-out and pays nothing, as in every other scene"
+    status: open
 ---
 
 ## Goal

@@ -53,7 +53,10 @@ decisions:
       - "strictly unowned first, repeats only when everything is owned"
       - "uniform: no avoidance"
     recommendation: "weight items you do not own about ten times more than ones you do, so repeats stay rare while the pool is large"
-    status: open
+    status: answered
+    answer: "weight items you do not own about ten times more than ones you do, so repeats stay rare while the pool is large"
+    by: marc
+    on: 2026-11-24
 ---
 
 ## Goal

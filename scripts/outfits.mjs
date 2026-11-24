@@ -41,6 +41,9 @@ export const RULES = {
     if (r === 1 && ((dir === "down" && d <= 1.5) || ((dir === "left" || dir === "right") && k <= 1))) return "trim";
     return "outer";
   },
+  // The scarf seen from the front with one tail only, hanging on the wearer's right (the left of the picture),
+  // two rows long: the knot at the neck, a tail of four columns, then two (the art/options OUT A drawing).
+  "scarf-tail": ({ x, x0, r }) => (r === 0 || (r === 1 && x - x0 >= 2 && x - x0 <= 5) || (r === 2 && x - x0 >= 2 && x - x0 <= 3) ? "trim" : "outer"),
   // A button-up shirt: a collar in `shade` at the neck (down: a V of `inner`), a placket of `inner` down the front.
   placket: ({ dir, x, x0, x1, r }) => {
     const d = Math.abs(x - (x0 + x1) / 2);

@@ -2,7 +2,7 @@
 id: "159"
 title: "Draw the chosen outfits"
 short: "Draw the outfits"
-status: done
+status: review
 owner: marc + claude
 depends_on: ["158"]
 summary: "Add the outfits Marc chose from the options with the generator: casual, going out and pajamas."
@@ -14,18 +14,17 @@ unverified:
 decisions:
   - id: d1
     who: marc
-    q: "Blazer colour (159): the camel blazer you chose merged with the tan hair and the wooden floor (the back looked like hair continuing), so it is taupe with a white collar line. Keep taupe?"
+    q: "Outfits (159, d1): the blazer came out taupe, not the camel you chose, because camel merged with the tan hair from behind and the wood floor. Keep taupe?"
     options:
-      - "keep taupe"
-      - "camel after all (tan, with the collar line)"
+      - "keep taupe with a white collar line at the nape"
+      - "go back to camel"
       - "another colour"
-    recommendation: "keep taupe"
-    status: open
-needs:
-  - who: marc
-    kind: decide
-    why: "Blazer colour: taupe (reads against hair and floor) or the camel you chose (merges with them)?"
-    since: 2026-11-24
+    recommendation: "keep taupe with a white collar line at the nape"
+    status: answered
+    answer: "keep taupe (taken by the planner: Marc said everything else is perfect; change it if not)"
+    by: planner
+    on: 2026-11-24
+needs: [{who: marc, kind: try, why: "Look at the eight new outfits: cd ../sim-worktrees/159-draw-the-outfits && npm run sprites -- --sheet=player and open art/contact-sheet.png, or npm run dev with ?own=outfit-<id>; then answer d1 and say 'merge 159'", since: 2026-11-24}]
 ---
 
 ## Goal
@@ -77,3 +76,8 @@ Candidates are in `art/options/`.
   - Scope: only art/outfits.json, generator and its test, sprites, the four src files, the two count tests, three docs and this issue. No other issue or PLAN.md edits. No `reference-photos` content.
   - Criteria: each outfit a data entry, looked at walking in four directions and in the room, said what I saw: pass (1x on a real display by hand: can't verify). Distinguishable from hair and each other: pass. Items, notes, gift days stated, strings in docs/text-review.md: pass (gift days in a long play: can't verify). Standard checks, fresh game unchanged: pass (golden frames unchanged, 8 new entries are gifts only).
   - Left for Marc: d1 (keep the taupe blazer, which I agree reads better than camel would). The rest is approved.
+- 2026-11-24 (claude, after Marc looked): Marc said the outfits look good, with two changes.
+  - (1) Jacket and scarf is asymmetric from the front: a new `scarf-tail` rule (used for the `down` facing only in `art/outfits.json`) draws the knot across the neck and one tail, four columns wide then two, hanging on the left of the picture, the drawing in art/options/out OUT A. The up and side views are unchanged (the same band). Compared at 8x (all 12 frames, symmetric above, tail below) and at 1x: the tail version looks like a knotted scarf with a loose end; the symmetric one looked like a wide red bib. At 1x it is a small off-centre red notch. A test pins the tail to one side.
+  - (2) Marc's instruction: Change clothes is now offered at the cube bookshelf, not the nightstand. `swap-worn` moved from the nightstand's `tasks` to the cube bookshelf's (after `swap-plant-shelf`) in `src/game/apartment.ts`; the `worn` slot's `object` is `cube bookshelf` (`decor-data.ts`, its comment no longer says drawer); the test title says the bookshelf (its spot lookup is by task id, so it follows). `swapProblems` and the choice-cycle tests pass; the bookshelf cycle now ends with the plant swap and the clothes swap. docs/decor.md (the 152 section, the swap task list) says so and notes the move. docs/decor-expansion-design.md is design history and was left alone. No item note or string says drawer for clothes (the only "drawer" is the lavender note about its smell, unrelated), and the text-review strings do not name the nightstand.
+  - d1 (blazer) is closed as on main: taupe, answered by the planner.
+  - Checks: `npm test` 4100 pass; `npm run sprites` clean second run; `npm run build` passes.

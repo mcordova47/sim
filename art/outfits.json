@@ -35,7 +35,7 @@
       "prefix": "player-out-jacket-scarf",
       "template": "player-casual",
       "describe": "going out option A: a dusk-blue jacket with a red scarf, dark trousers",
-      "torso": { "rule": "scarf", "outer": "4", "trim": "b" },
+      "torso": { "rule": "scarf", "facing": { "down": "scarf-tail" }, "outer": "4", "trim": "b" },
       "legs": { "h": "2" },
       "overlays": {},
       "sleeves": "4"

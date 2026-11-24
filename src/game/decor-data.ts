@@ -121,8 +121,8 @@ export const DECOR_SLOTS: DecorSlot[] = [
   { id: "lamp-sofa", where: "BY THE SOFA", room: "main", name: "LAMP BY THE SOFA", area: { x: 128, y: 96, w: 16, h: 16 }, kinds: ["lamp"], default: "lamp-table", object: "lamp table" },
   // The pantry in the kitchen (issue 072): a 16x32 stack of bins down the east wall. Nothing to swap yet (no `object`, one item); stage 4 can add upgrade items.
   { id: "pantry", where: "IN THE PANTRY", room: "kitchen", name: "PANTRY", area: { x: 176, y: 16, w: 16, h: 32 }, kinds: ["pantry"], default: "pantry-bins" },
-  // What you wear (issue 152). Not drawn on the map: the player's sprites follow it (`Game.syncOutfit`). Changed from the nightstand drawer.
-  { id: "worn", where: "WORN", room: "main", name: "CLOTHES", area: { x: 0, y: 0, w: 16, h: 16 }, kinds: ["outfit"], default: "outfit-home", object: "nightstand", offMap: true },
+  // What you wear (issue 152). Not drawn on the map: the player's sprites follow it (`Game.syncOutfit`). Changed at the cube bookshelf (Marc, 2026-11-24).
+  { id: "worn", where: "WORN", room: "main", name: "CLOTHES", area: { x: 0, y: 0, w: 16, h: 16 }, kinds: ["outfit"], default: "outfit-home", object: "cube bookshelf", offMap: true },
 ];
 
 // Today's room, as items. These are the starting set: owned from the first run.

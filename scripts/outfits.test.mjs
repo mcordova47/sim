@@ -53,6 +53,17 @@ describe("generated outfits", () => {
     expect(stripes[8]).toMatch(/(i6|6i){3}/); // alternating columns, not rows
     expect(stripes[8].slice(4, 12)).toBe(stripes[9].slice(4, 12)); // the body columns line up row to row
   });
+  it("draws the jacket's scarf with one tail from the front and as a plain band from behind and the side", () => {
+    const def = loadOutfits().find((d) => d.id === "out-jacket-scarf");
+    const rows = (f) => generateOutfit(def, read)[`${def.prefix}-${f}`].split("\n").filter((l) => /^[.0-9a-m]{16}$/.test(l));
+    const down = rows("idle-down");
+    const cols = (r) => [...r].map((c, x) => (c === "b" ? x : -1)).filter((x) => x >= 0);
+    expect(cols(down[8]).length).toBeGreaterThan(0);
+    expect(cols(down[9]).length).toBeGreaterThan(0);
+    expect(Math.min(...cols(down[9]))).toBeLessThan(7); // the tail is left of the middle (x 7 and 8 are the middle)
+    expect(cols(down[9]).every((x) => x < 8)).toBe(true); // and not mirrored
+    expect(rows("idle-up").flatMap(cols).length).toBe(cols(rows("idle-up")[7]).length); // behind: the neck band only
+  });
   it("applies hand-drawn overlay rows and rejects a bad one", () => {
     const def = { ...loadOutfits()[0], overlays: { "idle-down": { 6: "dddddddddddddddd" } } };
     expect(generateOutfit(def, read)[`${def.prefix}-idle-down`]).toContain("\ndddddddddddddddd\n");

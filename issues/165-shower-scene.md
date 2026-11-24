@@ -138,7 +138,7 @@ decisions:
     answer: "keep the droplets (Marc deferred to the planner: they are what says the water is on)"
     by: planner
     on: 2026-11-24
-needs: []
+needs: [{who: marc, kind: decide, why: "Say 'merge 165' when ready (the in-room shower scene design; updated to your answers d9 to d11; reviewed; the build follows the outfit slots build)", since: 2026-11-24}]
 ---
 
 ## Goal

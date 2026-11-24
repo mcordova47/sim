@@ -53,6 +53,15 @@ decisions:
       - "no limit: any outfit in any slot"
     recommendation: "explicit `fits` list, natural slot first (used only for auto-fill): EVERYDAY takes home, casual and out outfits; GOING OUT takes casual and out; PAJAMAS takes pajamas; ROBE takes the bathrobe and pajamas"
     status: open
+  - id: d6
+    who: marc
+    q: "Does an automatic change of clothes say or sound anything?"
+    options:
+      - "nothing: no text and no sound; the new sprite is the news"
+      - "a one-time line the first time it happens, then nothing"
+      - "a short line every time (for example YOU PUT ON THE ROBE.)"
+    recommendation: "nothing: no text and no sound; the new sprite is the news"
+    status: open
 ---
 
 ## Goal

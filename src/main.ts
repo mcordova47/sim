@@ -5,7 +5,7 @@ import { attachFeatures } from "./game/features";
 import { deliverFromSearch, encounterOnFirstKey, ownFromSearch, skipDaysFromSearch } from "./game/decor-dev";
 import { Game } from "./game/game";
 import { startLoop } from "./game/loop";
-import { reducedMotionAsked } from "./game/reduced-motion";
+import { liveReducedMotion } from "./game/reduced-motion";
 import { readControls } from "./input/controls";
 import { Keyboard } from "./input/keyboard";
 import { mountTouchUi } from "./input/touch-ui";
@@ -22,7 +22,7 @@ const sprites = new Sprites();
 const game = new Game(APARTMENT.rooms[APARTMENT.start], {
   rooms: APARTMENT.rooms,
   sprites,
-  reducedMotion: () => reducedMotionAsked(),
+  reducedMotion: liveReducedMotion(),
 });
 const features = attachFeatures(game);
 

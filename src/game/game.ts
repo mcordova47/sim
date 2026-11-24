@@ -151,6 +151,10 @@ export class Game {
   private reelHandle: ReelStoreHandle | null;
   private reelPics: readonly ReelPic[] = [];
   private readonly reducedMotion: () => boolean;
+  // Whether the browser asks for less motion (read-only; the candle holds steady when it does).
+  get reducedMotionAsked(): boolean {
+    return this.reducedMotion();
+  }
   private readonly painter: RoomPainter;
   private readonly spriteDrawer: SpriteDrawer | undefined;
   // For layers that draw sprites of their own (the achievements legend).

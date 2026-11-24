@@ -78,6 +78,14 @@ decisions:
       - "widen the lamp table to two tiles (large; every lamp is redrawn)"
     recommendation: "drop it; the cubbies, desk, nightstand and shelf are enough"
     status: open
+  - id: d9
+    who: marc
+    q: "Issue 169's wall shelf: its first slot (x 160) is above the bookshelf, where nobody can stand to face it. Move the three slots one tile east, to x 176, 192 and 208?"
+    options:
+      - "yes: the three slots at x 176, 192 and 208, each with a standing tile (11, 1), (12, 1) and (13, 1)"
+      - "no: keep x 160, 176 and 192 (the first slot can only be reached through a list)"
+    recommendation: "yes: the three slots at x 176, 192 and 208"
+    status: open
 ---
 
 ## Goal

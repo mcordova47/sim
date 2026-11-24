@@ -43,6 +43,7 @@ decisions:
     answer: "as recommended"
     by: planner
     on: 2026-11-24
+needs: [{who: marc, kind: try, why: "Look at the tall pothos and monstera stages: cd ../sim-worktrees/149-plant-stages && npm run dev, with ?own=plant-pothos,plant-monstera&set=plantStage:5; then say 'merge 149'", since: 2026-11-24}]
 ---
 
 ## Goal

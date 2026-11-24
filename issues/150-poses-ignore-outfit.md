@@ -7,6 +7,7 @@ owner: claude
 depends_on: []
 summary: "Sitting, typing, eating and sleeping poses are drawn in everyday clothes only, so a worn outfit flips back."
 kind: fix
+needs: [{who: marc, kind: try, why: "Wear an outfit via Change clothes at the cube bookshelf, then sit, type, eat and play guitar: cd ~/Dev/repos/mcordova47/sim-worktrees/150-poses-outfit && npm run dev, open /?own=outfit-out-peacoat,outfit-pajamas-robe,outfit-casual-hoodie; then say 'merge 150'", since: 2026-11-24}]
 ---
 
 ## Goal

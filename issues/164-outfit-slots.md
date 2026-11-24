@@ -2,21 +2,11 @@
 id: "164"
 title: "Outfit slots that change by occasion"
 short: "Outfit slots"
-status: done
+status: review
 owner: marc + claude
 depends_on: []
 summary: "Equip outfits into slots (everyday, pajamas, robe, going out) and change into any slot from the bookshelf; occasions change clothes automatically."
 kind: design
-unverified:
-  - "Reviewer: how the UI feels in a browser, the touch layer on a real phone, and the mockups inside the running game (flat stand-in room) were not checked; the mockup PNGs were viewed and match the note's text and constants."
-  - "The mockups use a flat stand-in for the room and were not looked at inside the running game; real glyphs, palette, sprites and layout constants were used."
-  - "Nothing was run in a browser: the touch layer, the left and right keys on a phone pad and the narrow two-row layout are designed from the code, not tried."
-  - "The save field was designed against parseDecor and sync/merge.ts by reading them; no code was written, so no test exercised the repair or the sync round trip."
-needs:
-  - who: marc
-    kind: decide
-    why: "Answer d1 to d8 (or accept the recommended defaults) before the build stages are filed."
-    since: 2026-11-24
 decisions:
   - id: d1
     who: marc
@@ -26,7 +16,10 @@ decisions:
       - "one slot per style: home, casual, going out, pajamas, plus the robe in pajamas"
       - "something else"
     recommendation: "EVERYDAY (home or casual outfits), PAJAMAS, ROBE (worn after a shower), GOING OUT (reserved: nothing triggers it yet)"
-    status: open
+    status: answered
+    answer: "EVERYDAY (home or casual outfits), PAJAMAS, ROBE (worn after a shower), GOING OUT (reserved: nothing triggers it yet)"
+    by: marc
+    on: 2026-11-24
   - id: d2
     who: marc
     q: "Which occasions change your clothes automatically, and what brings you back to everyday?"
@@ -35,7 +28,10 @@ decisions:
       - "waking up and a shower change clothes automatically; returning to everyday is only by hand (nothing is automatic)"
       - "waking up, a shower and a nap change clothes; everyday returns when you start your first real task of the day"
     recommendation: "waking up puts you in the PAJAMAS slot; a shower puts you in the ROBE slot; you return to EVERYDAY by hand at the bookshelf, or automatically after about two game hours awake"
-    status: open
+    status: answered
+    answer: "waking up and a shower change clothes automatically; returning to everyday is only by hand (nothing is automatic)"
+    by: marc
+    on: 2026-11-24
   - id: d3
     who: marc
     q: "How does the Change clothes list at the bookshelf work?"
@@ -44,7 +40,10 @@ decisions:
       - "one flat list of all outfits as today, plus a second page of slots"
       - "two separate tasks at the bookshelf: Change clothes (wear a slot now) and Pick outfits (equip slots)"
     recommendation: "a two-level list: first the slots (each shows the outfit equipped there); E on a slot wears that slot now; a second key (or a submenu) chooses which outfit is equipped in the slot"
-    status: open
+    status: answered
+    answer: "a two-level list: first the slots (each shows the outfit equipped there); E on a slot wears that slot now; a second key (or a submenu) chooses which outfit is equipped in the slot"
+    by: marc
+    on: 2026-11-24
   - id: d4
     who: marc
     q: "What does an empty slot do, and does owning an outfit fill it?"
@@ -53,7 +52,10 @@ decisions:
       - "an empty slot falls back to everyday and you always fill slots by hand"
       - "slots always hold something (a default for each)"
     recommendation: "an empty slot falls back to your everyday clothes; the first owned outfit that suits a slot fills it by itself"
-    status: open
+    status: answered
+    answer: "an empty slot falls back to your everyday clothes; the first owned outfit that suits a slot fills it by itself"
+    by: marc
+    on: 2026-11-24
   - id: d5
     who: marc
     q: "Which outfits may go in which slot (the new `fits` list on an outfit)?"
@@ -62,7 +64,10 @@ decisions:
       - "strict by style: each slot takes only its own style (a blazer cannot go in EVERYDAY)"
       - "no limit: any outfit in any slot"
     recommendation: "explicit `fits` list, natural slot first (used only for auto-fill): EVERYDAY takes home, casual and out outfits; GOING OUT takes casual and out; PAJAMAS takes pajamas; ROBE takes the bathrobe and pajamas"
-    status: open
+    status: answered
+    answer: "strict by style: each slot takes only its own style (a blazer cannot go in EVERYDAY)"
+    by: marc
+    on: 2026-11-24
   - id: d6
     who: marc
     q: "Does an automatic change of clothes say or sound anything?"
@@ -71,7 +76,10 @@ decisions:
       - "a one-time line the first time it happens, then nothing"
       - "a short line every time (for example YOU PUT ON THE ROBE.)"
     recommendation: "nothing: no text and no sound; the new sprite is the news"
-    status: open
+    status: answered
+    answer: "nothing: no text and no sound; the new sprite is the news"
+    by: marc
+    on: 2026-11-24
   - id: d7
     who: marc
     q: "Does a change you make by hand stick, and does it stop the timed return to everyday?"
@@ -79,7 +87,10 @@ decisions:
       - "yes: it sticks until the next occasion (sleep or a shower), and only an occasion arms the timed return"
       - "it sticks, but the timed return still happens after two awake hours"
     recommendation: "yes: it sticks until the next occasion (sleep or a shower), and only an occasion arms the timed return"
-    status: open
+    status: answered
+    answer: "yes: it sticks until the next occasion (sleep or a shower), and only an occasion arms the timed return"
+    by: marc
+    on: 2026-11-24
   - id: d8
     who: marc
     q: "Does a nap change your clothes?"
@@ -87,7 +98,27 @@ decisions:
       - "no: a nap changes nothing (you nap in what you have on)"
       - "yes: it puts you in the PAJAMAS slot like sleeping does"
     recommendation: "no: a nap changes nothing (you nap in what you have on)"
+    status: answered
+    answer: "no: a nap changes nothing (you nap in what you have on)"
+    by: marc
+    on: 2026-11-24
+  - id: d9
+    who: marc
+    q: "Does the Change clothes list always show all four slots, even a slot you cannot fill yet?"
+    options:
+      - "yes, all four always: an empty slot reads (EVERYDAY) and GOING OUT reads BY HAND, so nothing is hidden or a surprise later"
+      - "only slots you can fill (an outfit of the slot's style is owned): the list grows as gifts arrive"
+    recommendation: "yes, all four always: an empty slot reads (EVERYDAY) and GOING OUT reads BY HAND, so nothing is hidden or a surprise later"
     status: open
+unverified:
+  - "The mockups use a flat stand-in for the room and were not looked at inside the running game; real glyphs, palette, sprites and layout constants were used."
+  - "Nothing was run in a browser: the touch layer, the left and right keys on a phone pad and the narrow two-row layout are designed from the code, not tried."
+  - "The save field was designed against parseDecor and sync/merge.ts by reading them; no code was written, so no test exercised the repair or the sync round trip."
+needs:
+  - who: marc
+    kind: decide
+    why: "Answer d9 (all four slots always shown); then say 'merge 164' (design only, reviewed)."
+    since: 2026-11-24
 ---
 
 ## Goal
@@ -110,3 +141,4 @@ This issue is a DESIGN issue first: the agent writes `docs/outfit-slots-design.m
   Not checked (added to `unverified`): behaviour in a browser, touch layer on a phone, mockups in the running game. Nothing else out of scope; only docs/ and this file differ from main.
 - 2026-11-24 (agent): round 2: fixed all four review items in the design note (165 hook now says occasion() is deferred and the scene draws its own robe, with the empty-ROBE case; a nap shifts an armed returnAt; the award path noted; line references corrected). Status back to review.
 - 2026-11-24 (reviewer, round 2): independent re-review at 752c9e0. Verdict: APPROVE. The four round 1 items are truly fixed: (1) the 165 hook now says `occasion()` is deferred behind the busy gate, so the scene draws its own robe from the robe's sprites and the real change follows when the task ends; it also covers the empty-ROBE case (`outfitSlots.resolve("robe")`); sections 5 and 8 agree, and 165's file (shower task, robe via 164's occasion, Escape skips) can use it; (2) the nap shifts an armed `returnAt` by the skipped hour (NAP.hours 1; `applyEffects` runs `onClockSkip` before `onComplete`, so the listener sees the advanced hours); (3) `award` (interaction.ts:253-263) is noted; (4) line refs match: cancel return 309-313, swap task tasks.ts:372, effects 321, onComplete 346, syncOutfit 486 (called 740/787/822), decor.ts:175/352, feature.ts:186, merge.ts 148/197/238 (hand-copied fields confirmed), worn slot decor-data.ts:141, gift days 45/69/72. Also checked: after `finish` the active task is null, so the pose (derived from `interaction.active`) is gone before `onComplete`; cancel returns before effects and `onComplete`; the clock is held by `holdsClock` activities. All criteria pass by reading; `npm run issues:check -- --validate`: 207 valid (summary-length warnings only); `git diff main --stat`: only docs/outfit-slots-design.md, four mockup PNGs and this file. Not checked (in `unverified`): browser feel, touch layer on a phone, mockups in the running game. Planner: PLAN.md table needs updating; decisions d1 to d8 stay open for Marc.
+- 2026-11-24 (agent): round 3, Marc's answers (d1 to d8 on main; taken into this file's front matter). Updated docs/outfit-slots-design.md: no timed return (nothing automatic except the two occasions; no `returnAt`, no `wearing`, the slot worn is derived), strict by style (a new `robe` style for the bathrobe, `SLOT_STYLES`, no `fits` list; the pajamas outfits stay pajamas; nothing saved or drawn reads style), a nap changes nothing, no text or sound, the shower scene of 165 is in-room and the robe is put on by the occasion when the task ends (the player appears outside the tub in it), simpler build plan (about 420 lines of code and 450 of tests, was 560 and 550), mockup 2 redrawn (ROBE has one outfit, so no arrows). New decision d9 (show all four slots always). Status review for a fresh reviewer.

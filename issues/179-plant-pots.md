@@ -76,6 +76,15 @@ decisions:
       - "a separate keepsake: the fresh bunch is replaced by a dried item you keep, and a new bunch can arrive again"
     recommendation: "the same item changes its look to dried, in place, as d1 says (issue 171 as written); a new bunch replaces it"
     status: open
+  - id: d8
+    who: marc
+    q: "The floor trees: the shut-in square at col 8, row 7 (abs 128,112), with 16x16 small trees whose crown stays inside the tile?"
+    options:
+      - "yes: 16x16 small trees (potted palm, rubber plant, fiddle-leaf fig); a swap task on the record stand"
+      - "a tall 16x32 tree (it hides the lamp, or sits behind it and shows only a trunk)"
+      - "another square (the walk beside the lamp, which a tree would partly block)"
+    recommendation: "yes: 16x16 small trees (potted palm, rubber plant, fiddle-leaf fig); a swap task on the record stand"
+    status: open
 ---
 
 ## Goal

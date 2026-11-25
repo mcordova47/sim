@@ -40,7 +40,10 @@ decisions:
       - "Examine the bookshelf shows one cubby at a time with books and an optional trinket"
       - "no bookshelf scene for now"
     recommendation: "Examine the bookshelf opens a composed close-up showing its four cubbies with books, each able to hold a trinket; you move between cubbies and can place or take one there"
-    status: open
+    status: answered
+    answer: "Examine the bookshelf opens a composed close-up (like the sofa and side-project scenes) showing its four cubbies with books, each able to hold a trinket; you move between cubbies and can place or take one there"
+    by: marc
+    on: 2026-11-24
   - id: d4
     who: marc
     q: "Should every displayed trinket have an Examine action?"

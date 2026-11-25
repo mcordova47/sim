@@ -925,9 +925,29 @@ export class AchievementsFeature implements Layer {
   }
 }
 
+// Dev shortcut (issue 178): `?extraAchievements=N` (dev server only) adds N locked "TEST n" entries to the list, so a
+// list longer than today's can be looked at (27 or more). Nothing real is added and they can never unlock.
+function devExtraList(): readonly Achievement[] | undefined {
+  try {
+    if (!import.meta.env.DEV || typeof location === "undefined") return undefined;
+    const n = Math.min(60, Math.floor(Number(new URLSearchParams(location.search).get("extraAchievements"))));
+    if (!(n > 0)) return undefined;
+    const extra: Achievement[] = Array.from({ length: n }, (_, i) => ({
+      id: `dev-extra-${i + 1}`,
+      name: `TEST ${i + 1}`,
+      description: "A TEST ENTRY FOR A LONG LIST.",
+      when: { tasks: ["dev-never"] },
+    }));
+    return [...ACHIEVEMENTS, ...extra];
+  } catch {
+    return undefined;
+  }
+}
+
 // Switches the feature on for a game: the one call in features.ts.
 export function attachAchievements(game: Game, options?: AchievementOptions): AchievementsFeature {
   return new AchievementsFeature(game, {
+    list: devExtraList(),
     keys: typeof window === "undefined" ? undefined : window,
     visibility: typeof document === "undefined" ? undefined : document,
     ...options,

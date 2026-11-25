@@ -235,9 +235,9 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 166 | [A rug](issues/166-rug.md) | marc + claude | done | |
 | 167 | [Trinkets](issues/167-trinkets.md) | marc + claude | done | |
 | 168 | [Coffee gear](issues/168-coffee-gear.md) | marc + claude | done | |
-| 169 | [Shelf and sill](issues/169-wall-shelf-and-sill.md) | marc + claude | todo | 167 |
+| 169 | [Shelf and sill](issues/169-wall-shelf-and-sill.md) | marc + claude | todo | 185 |
 | 170 | [Empty pot](issues/170-empty-pot.md) | marc + claude | todo | |
-| 171 | [Cut flowers](issues/171-cut-flowers.md) | marc + claude | todo | |
+| 171 | [Cut flowers](issues/171-cut-flowers.md) | marc + claude | todo | 182 |
 | 172 | [Record stand](issues/172-record-stand.md) | marc + claude | done | |
 | 173 | [Trinket display design](issues/173-trinket-display.md) | marc + claude | done | 151 |
 | 174 | [Shorter swap prompts](issues/174-swap-prompt-wording.md) | marc + claude | done | 166, 168 |
@@ -252,6 +252,17 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 183 | [Window, repeats, failures](issues/183-encounter-window.md) | marc + claude | done | 163 |
 | 184 | [Starting towel](issues/184-starting-towel.md) | marc + claude | done | |
 | 185 | [Examine card](issues/185-examine-card.md) | marc + claude | todo | 167 |
+| 186 | [Nightstand trinkets](issues/186-trinket-nightstand.md) | marc + claude | todo | 185 |
+| 187 | [Cubby scene](issues/187-trinket-cubbies.md) | marc + claude | todo | 185, 182 |
+| 188 | [Low plants](issues/188-low-plants.md) | marc + claude | todo | 182 |
+| 189 | [Floor trees](issues/189-floor-trees.md) | marc + claude | todo | 172, 182 |
+| 190 | [Live low plants](issues/190-live-low-plants.md) | marc + claude | todo | 188, 171 |
+| 191 | [Coffee second batch](issues/191-coffee-second-batch.md) | marc + claude | todo | 168 |
+| 192 | [Furniture pieces](issues/192-furniture-pieces.md) | marc + claude | todo | 172 |
+| 193 | [Item looks by state](issues/193-item-looks-by-state.md) | marc + claude | todo | |
+| 194 | [Table and bed](issues/194-furniture-table-bed.md) | marc + claude | todo | 193, 192 |
+| 195 | [Swappable guitars](issues/195-guitar-swap.md) | marc + claude | todo | 193 |
+| 196 | [Playable instruments design](issues/196-playable-instruments.md) | marc + claude | todo | |
 <!-- issues:table:end -->
 
 ## Order of work

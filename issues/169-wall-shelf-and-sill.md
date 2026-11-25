@@ -4,7 +4,7 @@ title: "A wall shelf and a window sill for small things"
 short: "Shelf and sill"
 status: todo
 owner: marc + claude
-depends_on: ["167"]
+depends_on: ["185"]
 summary: "Three shelf slots on the wall above the bookshelf and a still-only window sill slot."
 kind: build
 decisions:
@@ -42,3 +42,4 @@ Build steps I and J of `docs/decor-expansion-design.md` (sections 3 and 9): a wa
 
 ## Progress log
 - 2026-11-24 (planner): filed on main with its open decisions (the issue file is born on main); Marc's request after merging the outfit work.
+- 2026-11-25 (planner): trinkets are merged (issue 167) and the Examine card is being built (issue 185); the shelf slots are trinket places, so each gets a Display trinket task and an Examine task like the desk's (design: docs/trinket-display-design.md stage D; Marc's d9 of issue 173: still not sure about the wall shelf, he wants to see how it looks: put the shelf's look on the options page first and ask). The window sill is stage F, optional (d7 of issue 173: later and optional, needs two new window sprites). Not started.

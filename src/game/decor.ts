@@ -72,9 +72,13 @@ const FROM_BY_HOW: Record<NonNullable<DecorItem["how"]>, string> = {
 export const sameSize = (a: Rect, b: { w: number; h: number }) => a.w === b.w && a.h === b.h;
 
 // An item fits a slot when its kind is allowed there, its sprite is the slot's
-// size, and (if it names slots) this is one of them.
+// size, and (if it names slots) this is one of them. A slot that lists `plantKinds` (issue 182) takes a plant item only
+// of one of those kinds: a plant item with no `plantKind` fits no such slot. Items that are not plants are not affected.
 export const fits = (slot: DecorSlot, item: DecorItem): boolean =>
-  slot.kinds.includes(item.kind) && sameSize(slot.area, item) && (!item.slots || item.slots.includes(slot.id));
+  slot.kinds.includes(item.kind) &&
+  sameSize(slot.area, item) &&
+  (!item.slots || item.slots.includes(slot.id)) &&
+  (!slot.plantKinds || item.kind !== "plant" || (item.plantKind !== undefined && slot.plantKinds.includes(item.plantKind)));
 
 // Throws, naming the problem, if the tables could not work: a repeated id, an
 // id that does not start with its kind, a slot whose default is unknown or does
@@ -89,6 +93,9 @@ export function validateDecorData(data: DecorData): void {
     if (!item.sprite) bad.push(`item "${item.id}" has no sprite`);
     if (!(item.w > 0 && item.h > 0)) bad.push(`item "${item.id}" has no size`);
     for (const id of item.slots ?? []) if (!data.slots.some((s) => s.id === id)) bad.push(`item "${item.id}" names the unknown slot "${id}"`);
+    if (item.plantKind !== undefined && item.kind !== "plant") bad.push(`item "${item.id}" has a plantKind but is not a plant`);
+    if (item.empty && item.kind !== "plant") bad.push(`item "${item.id}" is marked empty but is not a plant`);
+    if (item.kind === "plant" && item.plantKind === undefined && data.slots.some((s) => s.plantKinds)) bad.push(`plant item "${item.id}" has no plantKind`);
     if (item.family && !data.families[item.family]) bad.push(`item "${item.id}" uses the unknown family "${item.family}"`);
     if (unsupportedChars(item.name).length) bad.push(`item "${item.id}" name has letters the font cannot draw`);
     if (item.taskName !== undefined && (unsupportedChars(item.taskName).length || item.taskName.length === 0 || item.taskName.length > TASK_NAME_MAX)) {
@@ -108,6 +115,12 @@ export function validateDecorData(data: DecorData): void {
     const item = slot.default === undefined ? undefined : items.get(slot.default);
     if (slot.default !== undefined && !item) bad.push(`slot "${slot.id}" has the unknown default "${slot.default}"`);
     else if (item && !fits(slot, item)) bad.push(`slot "${slot.id}": the default "${item.id}" does not fit (kind or size)`);
+    if (slot.plantKinds && !slot.kinds.includes("plant")) bad.push(`slot "${slot.id}" has plantKinds but does not take plants`);
+    if (slot.via !== undefined) {
+      const owner = data.slots.find((o) => o.id === slot.via);
+      if (!owner) bad.push(`slot "${slot.id}" is changed via the unknown slot "${slot.via}"`);
+      else if (!slot.object || slot.object !== owner.object) bad.push(`slot "${slot.id}" must be on the same object as the slot it is changed via ("${slot.via}")`);
+    }
     if (unsupportedChars(slot.name).length) bad.push(`slot "${slot.id}" name has letters the font cannot draw`);
     if (slot.where && unsupportedChars(slot.where).length) bad.push(`slot "${slot.id}" "where" has letters the font cannot draw`);
     const other = slot.default === undefined ? undefined : data.slots.find((o) => o !== slot && o.default === slot.default);
@@ -411,9 +424,29 @@ export class Decor {
   // is in the inventory (not shown anywhere), or an emptiable slot that shows something (so it
   // can be cleared again). The swap task is only offered then,
   // so a fresh game, where every owned item is on show, has no new prompts. (Once
-  // the list is open it also shows items displayed elsewhere, which swap.)
+  // the list is open it also shows items displayed elsewhere, which swap.) An empty pot (`empty`, issue 182) is not
+  // a spare: it is always owned, so it would put a prompt on a fresh game. It is in the list once the list is open.
+  // A slot that other slots are changed via (`via`) answers for all of them: the bookshelf's Change plants is offered
+  // when any of its three pots has a spare.
   canChange(slotId: string): boolean {
-    return this.choices(slotId).some((i) => !this.displayedAt(i.id)) || (this.canBeEmpty(slotId) && this.heldBy(slotId) !== undefined);
+    return this.groupOf(slotId).some((id) => this.choices(id).some((i) => !i.empty && !this.displayedAt(i.id)) || (this.canBeEmpty(id) && this.heldBy(id) !== undefined));
+  }
+
+  // The slots one task changes: the slot itself, then those that name it in `via` (issue 182), in table order.
+  groupOf(slotId: string): string[] {
+    return this.data.slots.filter((s) => s.id === slotId || s.via === slotId).map((s) => s.id);
+  }
+
+  // Shows several slots at once while a list is open (the pots list, issue 182): each slot with the item it would hold.
+  // Not saved. Anything that is not an owned, fitting item is left out. Returns whether anything is shown.
+  previewMany(picks: Record<string, string>): boolean {
+    const shown = new Map<string, string | null>();
+    for (const [slot, id] of Object.entries(picks)) {
+      const plan = this.plan(slot, id);
+      if (plan.ok) for (const c of plan.changes) shown.set(c.slot, c.item);
+    }
+    this.previewed = shown.size ? shown : null;
+    return shown.size > 0;
   }
 
   // Puts an owned item that fits into the slot, by `plan` (`null` empties an emptiable slot). False (and nothing
@@ -528,7 +561,8 @@ export class Decor {
         bad.push(`slot "${slot.id}" names the object "${slot.object}", which is not in the room`);
         continue;
       }
-      const task = level.interactables.find((i) => i.decorSlot === slot.id);
+      // A slot changed via another has no task of its own (the pots list, issue 182): the other slot's task covers it.
+      const task = level.interactables.find((i) => i.decorSlot === (slot.via ?? slot.id));
       const tiles = new Set(piece.tiles.map((t) => `${t.col * TILE},${t.row * TILE}`));
       const zones = task?.zones.map((z) => `${z.x},${z.y}`) ?? [];
       if (!task || zones.length !== tiles.size || !zones.every((z) => tiles.has(z))) {
@@ -581,6 +615,16 @@ export function parseDecor(raw: unknown, data: DecorData = DECOR_DATA): DecorSav
     }
   }
   const asked = new Map<string, unknown>(isRecord(raw) && isRecord(raw.placed) ? Object.entries(raw.placed).slice(0, DECOR.maxPlaced) : []);
+  // Issue 182: before the pots, the plant pot took dried items too. An item placed in a slot it no longer fits moves to the
+  // sibling pot (one changed via this slot) that takes it, if that pot has nothing asked for. Anything else falls out as
+  // before (the slot shows its default and the item is in the inventory).
+  for (const [slotId, id] of [...asked]) {
+    const slot = data.slots.find((s) => s.id === slotId);
+    const item = typeof id === "string" ? items.get(id) : undefined;
+    if (!slot || !item || fits(slot, item)) continue;
+    const sibling = data.slots.find((s) => s.via === slotId && fits(s, item) && !asked.has(s.id));
+    if (sibling) asked.set(sibling.id, id);
+  }
   const shows = new Map<string, string>();
   const used = new Set<string>();
   for (const slot of data.slots) {

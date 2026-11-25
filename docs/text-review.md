@@ -461,3 +461,15 @@ The page that fills the outfit slots, in the game's capitals ([outfit-equip-scre
 - Tag on the slot you have on, and the dash for an empty slot: WORN / - - 
 - Keys line: ARROWS: PICK   E: EQUIP   TAB: TURN   ESC: BACK (touch: PAD: PICK   A: EQUIP   CHOICE: TURN   B: BACK, and without B: BACK on the phone view) - 
 - Touch button at the top right: BACK - 
+
+## Plant pots (issue 182)
+Lines for the three pots on the bookshelf ([plant-pots-design.md](plant-pots-design.md)). The Change plants list has no help text, like the clothes list: pot names, plants and the keys line.
+- Task prompt at the bookshelf: Change plants - 
+- List title: PLANTS - 
+- Pot names in the list: VASE / BOWL / PLANT POT - 
+- Keys line: ARROWS: PICK   E: SET   ESC: BACK (touch: PAD: PICK   A: SET   B: BACK) - 
+- Slot names and where lines: VASE ON THE SHELF / IN THE VASE, BOWL ON THE SHELF / IN THE BOWL (the plant pot keeps PLANT ON THE SHELF / ON THE SHELF) - 
+- VASE ARRANGEMENT (FROM: ALREADY HERE): PASTEL SPRAYS IN A WHITE VASE. THEY WERE ALREADY HERE AND ALREADY DRY. - 
+- EMPTY VASE (FROM: ALREADY HERE): A VASE, MAKING ITS POINT. - 
+- EMPTY BOWL (FROM: ALREADY HERE): A WHITE BOWL. IT HAS NOTHING TO SAY YET. - 
+- EMPTY POT (FROM: ALREADY HERE): SOIL AND HOPE. MOSTLY SOIL. - 

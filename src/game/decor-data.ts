@@ -25,6 +25,11 @@ export const TASK_NAME_MAX = 20;
 // no item has one yet, so they only need their swap prompt (tasks.ts SWAP_PROMPT).
 export type DecorKind = "art" | "plant" | "lamp" | "prop" | "rug" | "instrument" | "plugin" | "pantry" | "trinket" | "coffee" | "outfit" | "furniture";
 
+// What a plant item is, so a pot takes only its own kind (issue 182, docs/plant-pots-design.md section 3): `house` for the plants
+// that grow and are watered (and the empty pot), `dried` for dried arrangements (and later cut flowers) and the empty vase,
+// `low` for the bowl's low plants and the empty bowl. Later kinds (a tree, a window plant) are one more word here.
+export type PlantKind = "house" | "dried" | "low";
+
 // A place that holds one item. `area` is where the item's sprite is drawn, in
 // pixels from the room's top left; an item fits only if its size is the same.
 export interface DecorSlot {
@@ -36,6 +41,15 @@ export interface DecorSlot {
   where?: string;
   area: Rect;
   kinds: DecorKind[];
+  // For a slot that takes plants (issue 182): the kinds of plant it takes. Items of other kinds are not affected.
+  // Left out, a slot that takes `plant` items takes any plant item (no slot is like that once every plant has a `plantKind`).
+  plantKinds?: PlantKind[];
+  // A short name for a row in a list of slots (the pots list, issue 182): "VASE", "BOWL", "PLANT POT". Falls back to `name`.
+  label?: string;
+  // A slot that is changed from another slot's task (issue 182): the bookshelf's one Change plants list covers the vase,
+  // the bowl and the plant pot, so the vase and the bowl name `via: "plant-shelf"` and have no task of their own.
+  // It needs `object` (where it is changed, for the inventory) and the other slot must exist.
+  via?: string;
   // The item shown on a fresh game, and the fallback when a saved one is gone. Left out, the slot starts
   // EMPTY: it draws nothing, can hold nothing, and its swap list has a NOTHING row at the top (issue 151).
   // Only a slot without a default can be emptied.
@@ -74,6 +88,11 @@ export interface DecorItem {
   // barn drawing and the gold abstract fit the table and the desk wall (issue 073,
   // so they can trade places); the silkscreen is wider and fits only the bed wall.
   slots?: string[];
+  // For an item of kind `plant` (issue 182): which pots take it. Required on every plant item.
+  plantKind?: PlantKind;
+  // An empty pot, vase or bowl (issue 182): an ordinary still item owned from the start that shows the pot with nothing in it.
+  // It does not count as a spare (`Decor.canChange`), so a fresh game has no new prompt.
+  empty?: boolean;
   // Pixels. Must equal the slot's area size to fit.
   w: number;
   h: number;
@@ -133,7 +152,13 @@ export const DECOR_SLOTS: DecorSlot[] = [
   { id: "art-table", where: "ON THE TABLE WALL", room: "main", name: "ART OVER THE TABLE", area: { x: 32, y: 0, w: 32, h: 16 }, kinds: ["art"], default: "art-barn", object: "dining table" },
   { id: "art-desk", where: "ON THE DESK WALL", room: "main", name: "ART OVER THE DESK", area: { x: 112, y: 0, w: 32, h: 16 }, kinds: ["art"], default: "art-abstract", object: "standing desk" },
   { id: "art-bed", where: "ON THE BED WALL", room: "main", name: "ART OVER THE BED", area: { x: 224, y: 0, w: 48, h: 16 }, kinds: ["art"], default: "art-silkscreen", object: "nightstand" },
-  { id: "plant-shelf", where: "ON THE SHELF", room: "main", name: "PLANT ON THE SHELF", area: { x: 160, y: 52, w: 16, h: 16 }, kinds: ["plant"], default: "plant-snake", stageVar: "plantStage", dryVar: "plantDry", growthVar: "plantGrowth", object: "cube bookshelf" },
+  // The three pots on the cube bookshelf (issue 182, docs/plant-pots-design.md), north to south: the vase, the bowl and the plant pot.
+  // Each takes one kind of plant. The vase and the bowl used to be baked into the bookshelf sprite; the plant pot is `plant-shelf` still
+  // (so saves stay valid) and the only one that is live (the care tasks and the three variables stay on it). One Change plants list
+  // (the task on `plant-shelf`) changes all three.
+  { id: "pot-vase", label: "VASE", where: "IN THE VASE", room: "main", name: "VASE ON THE SHELF", area: { x: 160, y: 16, w: 16, h: 16 }, kinds: ["plant"], plantKinds: ["dried"], default: "plant-vase-dried", object: "cube bookshelf", via: "plant-shelf" },
+  { id: "pot-bowl", label: "BOWL", where: "IN THE BOWL", room: "main", name: "BOWL ON THE SHELF", area: { x: 160, y: 32, w: 16, h: 16 }, kinds: ["plant"], plantKinds: ["low"], default: "plant-bowl-empty", object: "cube bookshelf", via: "plant-shelf" },
+  { id: "plant-shelf", label: "PLANT POT", where: "ON THE SHELF", room: "main", name: "PLANT ON THE SHELF", area: { x: 160, y: 52, w: 16, h: 16 }, kinds: ["plant"], plantKinds: ["house"], default: "plant-snake", stageVar: "plantStage", dryVar: "plantDry", growthVar: "plantGrowth", object: "cube bookshelf" },
   { id: "lamp-sofa", where: "BY THE SOFA", room: "main", name: "LAMP BY THE SOFA", area: { x: 128, y: 96, w: 16, h: 16 }, kinds: ["lamp"], default: "lamp-table", object: "lamp table" },
   // The rugs (issue 166, step E of decor-expansion-design.md): floor props, drawn under every piece and the player. No default, so a
   // fresh game has no rug and looks the same. `rug-floor` is the living-area rug, 128x64 at tile cols 2-9, rows 3-6: it runs under
@@ -158,7 +183,13 @@ export const DECOR_ITEMS: DecorItem[] = [
   { id: "art-barn", name: "BARN DRAWING", kind: "art", sprite: "painting", w: 32, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "A RUSTIC-LOOKING BARN. YOUR UNCLE PAINTED IT. YOU WONDER WHERE IT IS...", slots: ["art-table", "art-desk"] },
   { id: "art-abstract", name: "GOLD ABSTRACT", kind: "art", sprite: "painting-desk", w: 32, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "DEUS EX MESSINA.", slots: ["art-table", "art-desk"] },
   { id: "art-silkscreen", name: "SILKSCREEN", kind: "art", sprite: "painting-wide", w: 48, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "A SILKSCREEN PRINT. NUM. 1/12, WHICH YOU FEEL A STRANGE SENSE OF PRIDE ABOUT.", slots: ["art-bed"] },
-  { id: "plant-snake", name: "SNAKE PLANT", kind: "plant", sprite: "plant-1", family: "plant", taskName: "snake plant", w: 16, h: 16, color: "leaf", how: "start", from: "ALREADY HERE", note: "A SNAKE PLANT. IT ASKS FOR VERY LITTLE." },
+  { id: "plant-snake", name: "SNAKE PLANT", kind: "plant", plantKind: "house", sprite: "plant-1", family: "plant", taskName: "snake plant", w: 16, h: 16, color: "leaf", how: "start", from: "ALREADY HERE", note: "A SNAKE PLANT. IT ASKS FOR VERY LITTLE." },
+  // The three empty pots (issue 182): ordinary still items, owned from the start, that show a pot with nothing in it. `empty` keeps them
+  // from counting as spares. The vase arrangement is the vase's default: the dried arrangement the bookshelf used to have baked in.
+  { id: "plant-pot-empty", name: "EMPTY POT", kind: "plant", plantKind: "house", empty: true, sprite: "plant-pot-empty", w: 16, h: 16, color: "mist", how: "start", from: "ALREADY HERE", note: "SOIL AND HOPE. MOSTLY SOIL." },
+  { id: "plant-vase-dried", name: "VASE ARRANGEMENT", kind: "plant", plantKind: "dried", sprite: "plant-vase-dried", w: 16, h: 16, color: "dusk", how: "start", from: "ALREADY HERE", note: "PASTEL SPRAYS IN A WHITE VASE. THEY WERE ALREADY HERE AND ALREADY DRY." },
+  { id: "plant-vase-empty", name: "EMPTY VASE", kind: "plant", plantKind: "dried", empty: true, sprite: "plant-vase-empty", w: 16, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "A VASE, MAKING ITS POINT." },
+  { id: "plant-bowl-empty", name: "EMPTY BOWL", kind: "plant", plantKind: "low", empty: true, sprite: "plant-bowl-empty", w: 16, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "A WHITE BOWL. IT HAS NOTHING TO SAY YET." },
   { id: "lamp-table", name: "LAMP", kind: "lamp", sprite: "lamp-table", w: 16, h: 16, color: "butter", how: "start", from: "ALREADY HERE", note: "A LAMP. IT'S A GOOD LAMP, YOU THINK.", glow: { radius: 40, alpha: 0.2 } },
   { id: "outfit-home", name: "EVERYDAY CLOTHES", kind: "outfit", sprite: "player-idle-down", w: 16, h: 16, color: "dusk", how: "start", from: "ALREADY HERE", note: "THE USUAL. IT HAS WORKED SO FAR." },
   { id: "pantry-bins", name: "CLEAR BINS", kind: "pantry", sprite: "pantry", w: 16, h: 32, color: "mist", how: "start", from: "ALREADY HERE", note: "YOU GUESS THESE WILL DO AS A PANTRY, FOR NOW." },
@@ -174,7 +205,7 @@ export const GIFT_ITEMS: DecorItem[] = [
   { id: "art-robin", name: "ROBIN PRINT", kind: "art", sprite: "art-robin", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "WHERE ARE YOU, ROBIN?", slots: WALL },
   { id: "art-concert-poster", name: "CONCERT POSTER", kind: "art", sprite: "art-concert-poster", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "A POSTER FROM THAT SHOW YOU JUST WENT TO.", slots: WALL },
   { id: "lamp-warm", name: "WARM LAMP", kind: "lamp", sprite: "lamp-warm", w: 16, h: 16, color: "tangerine", how: "gift", from: "A PACKAGE", note: "A LAMP, BUT WARMER.", glow: { radius: 40, alpha: 0.2 } },
-  { id: "plant-dried", name: "DRIED FLOWERS", kind: "plant", sprite: "plant-dried", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "THEY LAST SO LONG IT FEELS ILLEGAL." },
+  { id: "plant-dried", name: "DRIED FLOWERS", kind: "plant", plantKind: "dried", sprite: "plant-dried", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "THEY LAST SO LONG IT FEELS ILLEGAL." },
   { id: "art-snow-wagon", name: "SNOW WAGON", kind: "art", sprite: "art-snow-wagon", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "A LANDSCAPE OF YOUR AUNT'S YARD. +5 NOSTALGIA.", slots: WALL },
   { id: "lamp-stool-lamp", name: "STOOL LAMP", kind: "lamp", sprite: "stool-lamp", w: 16, h: 16, color: "butter", how: "gift", from: "A PACKAGE", note: "A SMALL LAMP ON A STOOL. A GOOD ARRANGEMENT.", glow: { radius: 24, alpha: 0.2 } },
   { id: "art-serenity-now", name: "SERENITY NOW", kind: "art", sprite: "art-serenity-now", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "YOU DON'T MAKE A HABIT OF BUYING JOKE ART, BUT THE ARTIST SEEMED COOL.", slots: WALL },
@@ -188,12 +219,12 @@ export const GIFT_ITEMS: DecorItem[] = [
   { id: "art-sunflowers", name: "SUNFLOWERS", kind: "art", sprite: "art-sunflowers", w: 32, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "SUNFLOWERS IN A VASE. JUST LOOK AT THOSE BRUSH STROKES.", slots: WALL },
   // Plants for the shelf (issue 147). The live ones grow and droop like the snake plant; the dried ones are still items.
   // In the order the checkpoints give them, alternating live and dried.
-  { id: "plant-pothos", name: "POTHOS", kind: "plant", sprite: "pothos-1", family: "pothos", taskName: "pothos", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "ITS LEAVES HAVE STARTED FOR THE FLOOR. YOU ADMIRE THE AMBITION." },
-  { id: "plant-pampas", name: "PAMPAS PLUMES", kind: "plant", sprite: "plant-pampas", w: 16, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "THEY SHED A LITTLE. THAT IS THE WHOLE COMMITMENT." },
-  { id: "plant-monstera", name: "MONSTERA", kind: "plant", sprite: "monstera-1", family: "monstera", taskName: "monstera", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "THE HOLES ARE ON PURPOSE. YOU CHECKED." },
-  { id: "plant-lavender", name: "LAVENDER BUNDLE", kind: "plant", sprite: "plant-lavender", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "SMELLS LIKE A DRAWER THAT HAS NEVER HAD A BAD DAY." },
-  { id: "plant-spider", name: "SPIDER PLANT", kind: "plant", sprite: "spider-1", family: "spider", taskName: "spider plant", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "IT KEEPS MAKING SMALLER ONES. NOBODY ASKED." },
-  { id: "plant-eucalyptus", name: "EUCALYPTUS JAR", kind: "plant", sprite: "plant-eucalyptus", w: 16, h: 16, color: "mist", how: "gift", from: "A PACKAGE", note: "STEMS IN A JAR. THE ROOM SMELLS LIKE A SPA THAT GAVE UP." },
+  { id: "plant-pothos", name: "POTHOS", kind: "plant", plantKind: "house", sprite: "pothos-1", family: "pothos", taskName: "pothos", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "ITS LEAVES HAVE STARTED FOR THE FLOOR. YOU ADMIRE THE AMBITION." },
+  { id: "plant-pampas", name: "PAMPAS PLUMES", kind: "plant", plantKind: "dried", sprite: "plant-pampas", w: 16, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "THEY SHED A LITTLE. THAT IS THE WHOLE COMMITMENT." },
+  { id: "plant-monstera", name: "MONSTERA", kind: "plant", plantKind: "house", sprite: "monstera-1", family: "monstera", taskName: "monstera", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "THE HOLES ARE ON PURPOSE. YOU CHECKED." },
+  { id: "plant-lavender", name: "LAVENDER BUNDLE", kind: "plant", plantKind: "dried", sprite: "plant-lavender", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "SMELLS LIKE A DRAWER THAT HAS NEVER HAD A BAD DAY." },
+  { id: "plant-spider", name: "SPIDER PLANT", kind: "plant", plantKind: "house", sprite: "spider-1", family: "spider", taskName: "spider plant", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "IT KEEPS MAKING SMALLER ONES. NOBODY ASKED." },
+  { id: "plant-eucalyptus", name: "EUCALYPTUS JAR", kind: "plant", plantKind: "dried", sprite: "plant-eucalyptus", w: 16, h: 16, color: "mist", how: "gift", from: "A PACKAGE", note: "STEMS IN A JAR. THE ROOM SMELLS LIKE A SPA THAT GAVE UP." },
   // Rugs (issue 166): the main set (128x64, the `rug-floor` slot) then the bed set (112x48, the `rug-bed` slot). The two sets are different
   // designs (Marc: a design is an item for one slot only). Only the first of each set has a checkpoint (delivery-checkpoints.ts); the rest
   // are items with no source yet and come through the random-encounter pool (issue 163) when it is built. An item nobody gives is simply
@@ -249,7 +280,7 @@ export const GIFT_ITEMS: DecorItem[] = [
 export const TEST_ITEMS: DecorItem[] = [
   { id: "art-test-desk", name: "TEST GOLD ABSTRACT", kind: "art", sprite: "painting-desk", w: 32, h: 16, color: "paper", tags: ["test"] },
   { id: "art-test-barn", name: "TEST BARN DRAWING", kind: "art", sprite: "painting", w: 32, h: 16, color: "paper", tags: ["test"] },
-  { id: "plant-test-grown", name: "TEST GROWN PLANT", kind: "plant", sprite: "plant-3", family: "plant-test", w: 16, h: 16, color: "leaf", tags: ["test"] },
+  { id: "plant-test-grown", name: "TEST GROWN PLANT", kind: "plant", plantKind: "house", sprite: "plant-3", family: "plant-test", w: 16, h: 16, color: "leaf", tags: ["test"] },
   // The bare stool gives no light; the same stool with a small lamp on it does (issue 069).
   { id: "lamp-test-stool", name: "TEST STOOL", kind: "lamp", sprite: "stool", w: 16, h: 16, color: "butter", tags: ["test"] },
   { id: "lamp-test-stool-lamp", name: "TEST STOOL AND LAMP", kind: "lamp", sprite: "stool-lamp", w: 16, h: 16, color: "butter", tags: ["test"], glow: { radius: 24, alpha: 0.2 } },

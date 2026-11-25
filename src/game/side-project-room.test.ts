@@ -136,7 +136,8 @@ describe("each command changes exactly one thing", () => {
 
   it("hide removes the piece and what sits on it", () => {
     const after = compose([{ kind: "hide", id: "cube-bookshelf" }]);
-    expect(after).toHaveLength(base.length - 2);
+    // The piece, the vase, the bowl and the plant (issue 182).
+    expect(after).toHaveLength(base.length - 4);
     expect(after.find((o) => o.id === "cube-bookshelf")).toBeUndefined();
     expect(after.find((o) => o.id === "snake-plant")).toBeUndefined();
   });

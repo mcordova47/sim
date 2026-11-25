@@ -50,6 +50,10 @@ const MAIN_PROPS: PropDef[] = [
   // row 8 and the door.
   { name: "rug", slot: "rug-floor", at: { x: 32, y: 48 }, size: { w: 128, h: 64 } },
   { name: "bed rug", slot: "rug-bed", at: { x: 176, y: 96 }, size: { w: 112, h: 48 } },
+  // The vase and the bowl on the cube bookshelf (issue 182), drawn before the plant (same piece, so same bottom: the order here is the
+  // draw order) so the plant and its overhang are on top. They were baked into the bookshelf sprite until then.
+  { name: "vase", slot: "pot-vase", on: "H", at: { x: 0, y: 0 }, size: { w: 16, h: 16 }, sprite: "plant-vase-dried", color: "dusk" },
+  { name: "bowl", slot: "pot-bowl", on: "H", at: { x: 0, y: 16 }, size: { w: 16, h: 16 }, sprite: "plant-bowl-empty", color: "paper" },
   {
     name: "snake plant",
     slot: "plant-shelf",

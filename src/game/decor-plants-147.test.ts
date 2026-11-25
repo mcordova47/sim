@@ -17,6 +17,7 @@ const dt = 1 / 60;
 const press: Controls = { ...NO_INPUT, interactPressed: true };
 const key = (code: string): Controls => ({ ...NO_INPUT, keys: [code] });
 const down: Controls = { ...NO_INPUT, dirPressed: "down", dir: "down", keys: ["KeyS"], keysDown: ["KeyS"] };
+const right: Controls = { ...NO_INPUT, dirPressed: "right", dir: "right", keys: ["KeyD"], keysDown: ["KeyD"] };
 const TAB = key("Tab");
 
 const LIVE = [
@@ -30,7 +31,16 @@ const STILL = [
   { id: "plant-eucalyptus", day: 36 },
 ];
 const NEW = [...LIVE, ...STILL].map((x) => x.id);
-const shelf = DECOR_SLOTS.find((s) => s.id === "plant-shelf")!;
+
+// Presses left or right in the open Change plants list until the highlighted pot would hold `id`, then E (issue 182).
+function pickInList(game: Game, decor: Decor, slot: string, id: string) {
+  const pots = decor.groupOf("plant-shelf");
+  for (let i = 0; i < pots.indexOf(slot); i++) game.update(dt, down);
+  const choices = decor.choices(slot).map((c) => c.id);
+  const from = choices.indexOf(decor.heldIn(slot)!.id);
+  for (let i = 0; i < (choices.indexOf(id) - from + choices.length) % choices.length; i++) game.update(dt, right);
+  game.update(dt, press);
+}
 
 const spriteFiles = import.meta.glob("/public/sprites/*.png", { query: "?url" });
 const spriteExists = (name: string) => `/public/sprites/${name}.png` in spriteFiles;
@@ -48,12 +58,12 @@ describe("the new plant items (data)", () => {
     }
   });
 
-  it("fit the plant shelf and nothing else", () => {
+  it("fit their own pot and nothing else (issue 182: the live ones the plant pot, the dried ones the vase)", () => {
     for (const id of NEW) {
       const item = DECOR_DATA.items.find((i) => i.id === id)!;
       expect(item.kind).toBe("plant");
-      expect(fits(shelf, item)).toBe(true);
-      expect(DECOR_SLOTS.filter((s) => fits(s, item)).map((s) => s.id)).toEqual(["plant-shelf"]);
+      expect(item.plantKind).toBe(LIVE.some((l) => l.id === id) ? "house" : "dried");
+      expect(DECOR_SLOTS.filter((s) => fits(s, item)).map((s) => s.id)).toEqual([LIVE.some((l) => l.id === id) ? "plant-shelf" : "pot-vase"]);
     }
   });
 
@@ -121,8 +131,7 @@ describe("how they look and behave in the shelf slot", () => {
       game.update(dt, NO_INPUT);
       for (let i = 0; i < 6 && game.interaction.nearby?.id !== "swap-plant-shelf"; i++) game.update(dt, TAB);
       game.update(dt, press);
-      game.update(dt, down);
-      game.update(dt, press);
+      pickInList(game, decor, "plant-shelf", id);
       expect(decor.placedIn("plant-shelf").id).toBe(id);
       expect([game.state.get("plantStage"), game.state.get("plantGrowth"), game.state.get("plantDry")]).toEqual([0, 0, 0]);
       game.state.tick(3600);
@@ -132,7 +141,7 @@ describe("how they look and behave in the shelf slot", () => {
   }
 
   for (const { id } of STILL) {
-    it(`${id}: never grows or droops, hides the watering tasks and freezes the plant`, () => {
+    it(`${id}: stands in the vase, never grows or droops, and leaves the snake plant and its tasks alone (issue 182)`, () => {
       const decor = new Decor();
       decor.own(id);
       const game = new Game(APARTMENT.rooms.main, { rooms: APARTMENT.rooms, decor, random: () => 0.5 });
@@ -142,19 +151,17 @@ describe("how they look and behave in the shelf slot", () => {
       game.update(dt, NO_INPUT);
       for (let i = 0; i < 6 && game.interaction.nearby?.id !== "swap-plant-shelf"; i++) game.update(dt, TAB);
       game.update(dt, press);
-      game.update(dt, down);
-      game.update(dt, press);
-      expect(decor.placedIn("plant-shelf").id).toBe(id);
-      expect(decor.isLive("plant-shelf")).toBe(false);
-      const frozen = () => [game.state.get("plantStage"), game.state.get("plantGrowth"), game.state.get("plantDry")];
-      const was = frozen();
-      expect(was.slice(0, 2)).toEqual([2, 1]);
+      pickInList(game, decor, "pot-vase", id);
+      expect(decor.placedIn("pot-vase").id).toBe(id);
+      expect(decor.placedIn("plant-shelf").id).toBe("plant-snake");
+      expect(decor.isLive("pot-vase")).toBe(false);
+      // The snake plant carries on as before: it dries, and its tasks are still offered.
       game.state.tick(3600);
-      game.state.applyEffects([{ var: "clock", add: 3 }, { var: "plantDry", add: 3 }]);
-      expect(frozen()).toEqual(was);
-      for (const t of APARTMENT.rooms.main.interactables.filter((i) => i.liveSlot)) expect(game.interaction.hidden?.(t)).toBe(true);
+      expect(game.state.get("plantDry")).toBeGreaterThan(5);
+      expect([game.state.get("plantStage"), game.state.get("plantGrowth")]).toEqual([2, 1]);
+      for (const t of APARTMENT.rooms.main.interactables.filter((i) => i.liveSlot)) expect(game.interaction.hidden?.(t)).toBe(false);
       // The same sprite whatever the plant's state: it never droops.
-      for (const [stage, dry] of [[0, 0], [3, 200]]) expect(decor.look("plant-shelf", stateWith(stage, dry)).sprite).toBe(decor.item(id)!.sprite);
+      for (const [stage, dry] of [[0, 0], [3, 200]]) expect(decor.look("pot-vase", stateWith(stage, dry)).sprite).toBe(decor.item(id)!.sprite);
     });
   }
 
@@ -162,8 +169,11 @@ describe("how they look and behave in the shelf slot", () => {
     const d = new Decor();
     for (const id of NEW) d.own(id);
     for (const id of NEW) {
-      expect(d.place("plant-shelf", id)).toBe(true);
-      expect(d.placedIn("plant-shelf").id).toBe(id);
+      const slot = LIVE.some((l) => l.id === id) ? "plant-shelf" : "pot-vase";
+      expect(d.place(slot, id)).toBe(true);
+      expect(d.placedIn(slot).id).toBe(id);
+      // Each fits only its own pot (issue 182).
+      expect(d.place(slot === "plant-shelf" ? "pot-vase" : "plant-shelf", id)).toBe(false);
     }
     expect(d.displayedAt("plant-snake")).toBeUndefined();
     expect(d.inventory().map((i) => i.id)).toContain("plant-snake");
@@ -180,8 +190,9 @@ describe("the THINGS inventory", () => {
       expect(entry.from).toBe("FROM: A PACKAGE");
       expect(entry.where).toBe("IN THE INVENTORY");
       expect(entry.changeAt).toBe("CHANGE IT AT THE CUBE BOOKSHELF");
-      d.place("plant-shelf", id);
-      expect(d.entries().find((e) => e.item.id === id)!.where).toBe("ON THE SHELF");
+      const live = LIVE.some((l) => l.id === id);
+      d.place(live ? "plant-shelf" : "pot-vase", id);
+      expect(d.entries().find((e) => e.item.id === id)!.where).toBe(live ? "ON THE SHELF" : "IN THE VASE");
     }
     expect(new Decor().entries().map((e) => e.item.id).filter((i) => NEW.includes(i))).toEqual([]);
   });

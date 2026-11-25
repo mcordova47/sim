@@ -12,6 +12,9 @@ import { TASKS } from "./tasks";
 import { taskSpots } from "./plan-checks";
 import { overlaps } from "./world";
 
+// What waits in the inventory apart from the empty pots, which are always owned (issue 182).
+const spares = (d: { inventory(): { id: string; empty?: boolean }[] }) => d.inventory().filter((i) => !i.empty);
+
 // Issue 166: rugs on the floor. The living-area rug (slot `rug-floor`, 128x64 at cols 2-9, rows 3-6) and the bed rug (slot `rug-bed`,
 // 112x48 at cols 11-17, rows 6-8), both floor props drawn under every piece and the player.
 
@@ -214,7 +217,7 @@ describe("changing the rugs", () => {
     expect(d.canChange("rug-floor")).toBe(true);
     d.place("rug-floor", "rug-kilim");
     expect(d.shownIn("rug-floor")?.id).toBe("rug-kilim");
-    expect(d.inventory().map((i) => i.id).sort()).toEqual(["rug-bed-field", "rug-jute"]);
+    expect(spares(d).map((i) => i.id).sort()).toEqual(["rug-bed-field", "rug-jute"]);
     d.place("rug-floor", null);
     expect(d.shownIn("rug-floor")).toBeUndefined();
     expect(d.toJSON().placed["rug-floor"]).toBeUndefined();

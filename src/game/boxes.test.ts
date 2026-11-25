@@ -263,7 +263,7 @@ describe("Take out the recycling (issue 070)", () => {
 
   it("has its own points and leaves the trash task alone", () => {
     const t = TASKS.find((x) => x.id === "recycle-boxes")!;
-    expect(t.prompt).toBe("Take out the recycling");
+    expect(t.prompt).toBe("Take out recycling");
     expect(t.points).toBe(55);
     expect(TASKS.find((x) => x.id === "take-trash")!.points).toBe(50);
   });

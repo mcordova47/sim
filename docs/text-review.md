@@ -14,7 +14,7 @@ The product name is Simagotchi (Marc, 2026-10-29). The pause screen's header use
 - 3/26 - keep
 
 ## Side-project picture (issue 101)
-"Work on the side project" view, the four lines (Marc rewrote the last three on 2026-10-28; the glitch line calls out the deliberate picture glitch: the tiny figure stands on the desk, facing out). Wired in `src/game/side-projects.ts`. Marc to mark: keep / soften / rewrite.
+"Work on side project" view, the four lines (Marc rewrote the last three on 2026-10-28; the glitch line calls out the deliberate picture glitch: the tiny figure stands on the desk, facing out). Wired in `src/game/side-projects.ts`. Marc to mark: keep / soften / rewrite.
 - A small version of this room, on a small screen. Someone is at the desk. - keep
 - It looks like the tiny person is... standing on top of the desk? Gotta remember to fix that. - keep
 - Their screen shows another little room with another little guy. - keep
@@ -44,29 +44,31 @@ The pause-screen page where pictures are added and removed. The first five lines
 
 One row per task that has something to review: its id, name (the menu and the award popup), prompt (the short line at the object), the reasons it can be unmet (the blocked message, which the game does show) and the mark. Tasks that are only plain commands with no blocked message were removed from the table (Marc, 2026-11-21). The one-line flavor jokes the tasks used to carry were never drawn and were dropped (issue 146); the ones marked keep below are parked in `docs/ideas.md`.
 
+Issue 174 (2026-11-24): the word "the" is gone from every task name and prompt and from the swap prompts ("Make bed", "Do dishes", "Change coffee gear"). Rows already marked keep kept their marks, because only the article changed and the meaning did not; the rows that changed are make-bed, open-blinds, close-blinds, sort-records, sort-records-fav, work, drink-coffee, work-sofa, fridge-stare, recycle-boxes, dishes, flatten-boxes and the Takeout line "Eat takeout". Marc: say if any of them now reads badly ("Work from couch", "Stare into fridge" and "Open fridge" are the likeliest).
+
 | id | name | prompt | unmet reasons | mark |
 |---|---|---|---|---|
-| make-bed | Make the bed | Make the bed | BED IS MADE | keep |
-| open-blinds | Open the blinds | Open the blinds | BLINDS ARE OPEN | keep |
-| close-blinds | Close the blinds | Close the blinds | BLINDS ARE CLOSED | keep |
-| sort-records | Alphabetize the records | Alphabetize records | TRY ANOTHER ORDER | keep |
+| make-bed | Make bed | Make bed | BED IS MADE | keep |
+| open-blinds | Open blinds | Open blinds | BLINDS ARE OPEN | keep |
+| close-blinds | Close blinds | Close blinds | BLINDS ARE CLOSED | keep |
+| sort-records | Alphabetize records | Alphabetize records | TRY ANOTHER ORDER | keep |
 | sort-records-year | Arrange records by year | Records by year | TRY ANOTHER ORDER | keep |
-| sort-records-fav | Rank the records by favorites | Records by favorites | TRY ANOTHER ORDER | keep |
+| sort-records-fav | Rank records by favorites | Records by favorites | TRY ANOTHER ORDER | keep |
 | sort-records-color | Arrange records by color | Records by color | TRY ANOTHER ORDER | keep |
-| work | Answer emails | Work at the desk | TOO TIRED TO WORK | keep |
+| work | Answer emails | Work at desk | TOO TIRED TO WORK | keep |
 | coffee | Make pour-over coffee | Make coffee | NO CLEAN PLATES; COFFEE IS WAITING | keep |
-| drink-coffee | Drink the coffee | Drink the coffee | NO COFFEE MADE | keep |
+| drink-coffee | Drink coffee | Drink coffee | NO COFFEE MADE | keep |
 | reheat | Reheat leftovers | Reheat leftovers | NO CLEAN PLATES | keep |
 | eat-dinner | Eat dinner | Eat dinner | NO CLEAN PLATES | keep |
-| work-sofa | Code from the couch | Work from the couch | TOO TIRED TO WORK | keep |
+| work-sofa | Code from couch | Work from couch | TOO TIRED TO WORK | keep |
 | nap | Take a nap | Take a nap | NOT SLEEPY ENOUGH | keep |
 | work-bed | Work in bed | Work in bed | TOO TIRED TO WORK | keep |
 | guitar | Play three chords | Play guitar |  |  |
-| fridge-stare | Stare into the fridge | Open the fridge |  | keep |
-| recycle-boxes | Take out the recycling | Take out the recycling | FLATTEN THE BOXES FIRST, NO BOXES TO TAKE OUT | keep |
+| fridge-stare | Stare into fridge | Open fridge |  | keep |
+| recycle-boxes | Take out recycling | Take out recycling | FLATTEN THE BOXES FIRST, NO BOXES TO TAKE OUT | keep |
 | cook | Cook dinner | Cook dinner | NO CLEAN PLATES | keep |
-| dishes | Do the dishes | Do the dishes | NO DIRTY DISHES | keep |
-| flatten-boxes | Flatten the boxes | Flatten boxes | NO BOXES TO FLATTEN | keep |
+| dishes | Do dishes | Do dishes | NO DIRTY DISHES | keep |
+| flatten-boxes | Flatten boxes | Flatten boxes | NO BOXES TO FLATTEN | keep |
 | sit | Take a moment | Take a moment |  | keep |
 | sleep | Go to sleep | Go to sleep | NOT TIRED YET | keep |
 | contemplate | Contemplate | Contemplate |  | keep |
@@ -443,7 +445,7 @@ New lines for the LOOK switch on the PHOTOS page. None mentions pixels, resoluti
 
 ## Takeout (issue 153)
 New lines for ordering and eating takeout. The restaurant and the app are never named, so no brand appears. Wired in `src/game/tasks.ts` and `src/game/game.ts`. Marc to mark: keep / soften / rewrite.
-- Task names and prompts: Order takeout / Eat the takeout - keep
+- Task names and prompts: Order takeout / Eat takeout - keep
 - Order refused while one is coming: THE TAKEOUT IS ON ITS WAY - 
 - Order, Cook, Reheat and Eat dinner refused while the meal is on the table: TAKEOUT IS WAITING - 
 - Eat refused with no meal: NO TAKEOUT - 
@@ -461,4 +463,4 @@ New names and notes for the coffee apparatus, and the make-coffee wording that f
 - PERCOLATOR: IT BUBBLES IN THE LITTLE GLASS KNOB. WATCHING IS THE POINT. - 
 - MOKA POT: IT SPUTTERS WHEN IT'S DONE. YOU HAVE LEARNED TO TRUST THE SPUTTER. - 
 - BRIKI: A TINY POT WITH A LONG HANDLE. THE FOAM IS NOT OPTIONAL. - 
-- Slot names (swap list): COFFEE ON THE TABLE, COFFEE ON THE STOVE; where: ON THE TABLE, ON THE STOVE; prompt: Change the coffee gear - 
+- Slot names (swap list): COFFEE ON THE TABLE, COFFEE ON THE STOVE; where: ON THE TABLE, ON THE STOVE; prompt: Change coffee gear - 

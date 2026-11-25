@@ -102,7 +102,7 @@ describe("task text follows the apparatus", () => {
 
   it("leaves other tasks alone", () => {
     const d = holding("coffee-french-press");
-    expect(d.taskName(task("drink-coffee"))).toBe("Drink the coffee");
+    expect(d.taskName(task("drink-coffee"))).toBe("Drink coffee");
     expect(d.taskPrompt(task("dishes"))).toBe(task("dishes").prompt);
   });
 });
@@ -149,7 +149,7 @@ describe("in the kitchen", () => {
     const game = kitchenGame(d);
     stand(game, "swap-coffee-stove");
     expect(game.interaction.choices.map((c) => c.id)).toContain("swap-coffee-stove");
-    expect(task("swap-coffee-stove").prompt).toBe("Change the coffee gear");
+    expect(task("swap-coffee-stove").prompt).toBe("Change coffee gear");
   });
 });
 

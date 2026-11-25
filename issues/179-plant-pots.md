@@ -93,6 +93,14 @@ decisions:
       - "one 'Change plants' that asks which pot first"
     recommendation: "one per pot (Change plant, Change vase, Change bowl), each only when there is a spare"
     status: open
+  - id: d10
+    who: marc
+    q: "Does the window sill share the vase's and bowl's stock (dried and low plants and trinkets) rather than have a kind of its own?"
+    options:
+      - "share it (still low plants fit both bowl and sill; live ones fit the bowl only), until live sill plants exist"
+      - "its own kind of plant for the sill from the start"
+    recommendation: "share it (still low plants fit both bowl and sill; live ones fit the bowl only), until live sill plants exist"
+    status: open
 ---
 
 ## Goal

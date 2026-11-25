@@ -96,7 +96,10 @@ decisions:
       - "a tall 16x32 tree (it hides the lamp, or sits behind it and shows only a trunk)"
       - "another square (the walk beside the lamp, which a tree would partly block)"
     recommendation: "yes: 16x16 small trees (potted palm, rubber plant, fiddle-leaf fig); a swap task on the record stand"
-    status: open
+    status: answered
+    answer: "yes: 16x16 small trees (potted palm, rubber plant, fiddle-leaf fig); a swap task on the record stand"
+    by: marc
+    on: 2026-11-24
   - id: d9
     who: marc
     q: "Swap tasks for the three pots: one each, or one that asks which pot?"

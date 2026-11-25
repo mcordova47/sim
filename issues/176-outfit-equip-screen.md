@@ -40,7 +40,10 @@ decisions:
       - "inside the THINGS page as a second tab"
       - "somewhere else"
     recommendation: "a new pause page (for example OUTFITS) next to THINGS"
-    status: open
+    status: answered
+    answer: "as recommended"
+    by: marc
+    on: 2026-11-24
   - id: d4
     who: marc
     q: "What is the bookshelf's Change clothes list for once the pause screen can equip?"

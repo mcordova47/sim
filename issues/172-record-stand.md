@@ -27,7 +27,10 @@ decisions:
       - "as a delivery like other decor (later from a random encounter); the old stand goes to the inventory"
       - "only through the random-encounter pool"
     recommendation: "as a delivery like other decor (later from a random encounter); the old stand goes to the inventory"
-    status: open
+    status: answered
+    answer: "as a delivery like other decor (later from a random encounter); the old stand goes to the inventory"
+    by: marc
+    on: 2026-11-24
 ---
 
 ## Goal

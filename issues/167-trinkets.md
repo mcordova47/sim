@@ -2,7 +2,7 @@
 id: "167"
 title: "Trinkets and display instruments on the desk"
 short: "Trinkets"
-status: in-progress
+status: review
 owner: marc + claude
 depends_on: []
 summary: "A trinket slot on the desk's right corner with the first trinkets and small display instruments."
@@ -125,3 +125,4 @@ Build steps C and H of `docs/decor-expansion-design.md` (section 3 and 4). Marc 
 Measured every trinket-*/instrument-* sprite. docs/decor.md sizes all match (doll 5x5, jaw harp 6x7, owl 8x7, egg 8x8, telescope 9x7, skateboard 9x5, raccoon 6x8). Header comments match except one. issues:check --validate, tsc, npm test pass; `npm run sprites` leaves git clean.
 - [ ] art/src/instrument-jaw-harp.sprite header says "Box 5x6"; the pixels measure 6x7 (cols 5-10, rows 6-12), as docs/decor.md says. Fix the comment.
 Verdict: changes needed (one stale comment).
+- 2026-11-24 (claude): round 5 fix: every trinket and instrument sprite header now states its measured box (jaw harp 6x7 was 5x6).

@@ -90,5 +90,8 @@ Marc (2026-11-25), after playing the item pool of issue 163: (1) when you get th
 - The encounter flow's tests keep passing (update the ones that script the random); new tests for the window, the ladder's order, the repeat share, and failure; docs/random-encounters.md ('What issue 183 built' and the ladder); new strings in docs/text-review.md; `changelog:` line stays; standard checks: `npm test`, `npx tsc --noEmit`, `npm run build`, `npm run check:dist`, `npm run issues:check -- --validate`, `npm run sprites` leaves git clean; golden frames unchanged.
 - Look at several ads in the running game (`?encounter=random`, `?encounter=line-...`; see docs/random-encounters.md) including a failure and a repeat (add a tiny dev shortcut to force them only if needed and dev-only) and say what you saw; the reviewer must too.
 
+- **Item difficulty** (d6, Marc 2026-11-25: failures could depend on the item; some items more difficult to get): each item in the ladder list carries a difficulty tier (easy about 1 in 10 fails, normal about 1 in 5, hard about 2 in 5; the default for every item is normal); the build proposes tiers in the ladder list for Marc to edit; the failure roll uses the chosen item's tier; tests per tier with a seeded roll; failure lines may differ for a hard item; a failure never costs anything.
+
 ## Progress log
 - 2026-11-25 (planner): filed on main from Marc's message with its open decisions; not started.
+- 2026-11-25 (planner): Marc answered d1 to d5 as recommended and added the idea that failure can depend on the item (d6).

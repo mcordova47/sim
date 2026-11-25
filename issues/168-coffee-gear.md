@@ -22,7 +22,10 @@ decisions:
       - "a fake brand name such as PUSHPRESSO"
       - "something else"
     recommendation: "AIR PRESS"
-    status: open
+    status: answered
+    answer: "AIR PRESS"
+    by: marc
+    on: 2026-11-24
   - id: d2
     who: marc
     q: "Which apparatus in the first batch? (the pour-over cone is the default on the table today)"

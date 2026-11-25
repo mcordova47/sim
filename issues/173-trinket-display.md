@@ -52,7 +52,10 @@ decisions:
       - "only on the bookshelf scene"
       - "no examine at all"
     recommendation: "yes: one generic Examine at any place that holds a trinket opens its close-up card with the large sprite and its deadpan note"
-    status: open
+    status: answered
+    answer: "yes: one generic Examine at any place that holds a trinket opens its close-up card with the large sprite and its deadpan note"
+    by: marc
+    on: 2026-11-24
   - id: d5
     who: marc
     q: "Reference photos for the real objects (alebrije, telescope, finger skateboard, goose egg, worry doll, raccoon in a can)?"

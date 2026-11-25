@@ -98,7 +98,10 @@ decisions:
       - "redraw the four lamps with a smaller lamp to leave a corner (large)"
       - "widen the lamp table to two tiles (large; every lamp is redrawn)"
     recommendation: "drop it; the cubbies, desk, nightstand and shelf are enough"
-    status: open
+    status: answered
+    answer: "drop it; the cubbies, desk, nightstand and shelf are enough"
+    by: marc
+    on: 2026-11-24
   - id: d9
     who: marc
     q: "Issue 169's wall shelf: its first slot (x 160) is above the bookshelf, where nobody can stand to face it. Move the three slots one tile east, to x 176, 192 and 208?"

@@ -75,7 +75,7 @@ decisions:
       - "use the profile view (a wider, less clear picture)"
     recommendation: "keep the front view"
     status: open
-needs: []
+needs: [{who: marc, kind: try, why: "Look at the four tweaks (owl smaller, charcoal skateboard, egg on a metal stand, raccoon kept front view): cd ~/Dev/repos/mcordova47/sim-worktrees/167-trinkets && npm run dev, /?own=trinket-alebrije,trinket-finger-skateboard,trinket-goose-egg,trinket-raccoon-can, Tab to Display trinket at the standing desk; answer d6; then say 'merge 167'", since: 2026-11-24}]
 ---
 
 ## Goal

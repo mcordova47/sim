@@ -34,7 +34,10 @@ decisions:
       - "B, the wrap and a turban"
       - "C, the cape"
     recommendation: "A, the wrap"
-    status: open
+    status: answered
+    answer: "A, the wrap"
+    by: marc
+    on: 2026-11-25
   - id: d4
     who: marc
     q: "Starting towel (184, d4): since you now own two outfits from the start (the everyday clothes and the towel), should a fresh game offer Change clothes at the bookshelf?"

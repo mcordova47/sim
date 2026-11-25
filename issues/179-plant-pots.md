@@ -73,7 +73,10 @@ decisions:
       - "yes: a fresh game differs from today by those 2 pixels"
       - "no: the fresh room stays pixel for pixel the same and low plants are 2 rows tall"
     recommendation: "yes: a fresh game differs from today by those 2 pixels"
-    status: open
+    status: answered
+    answer: "yes: a fresh game differs from today by those 2 pixels"
+    by: marc
+    on: 2026-11-24
   - id: d7
     who: marc
     q: "When cut flowers dry, do they become a separate keepsake item (DRIED TULIPS) or does the same item change its look?"

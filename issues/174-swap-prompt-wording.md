@@ -32,7 +32,10 @@ decisions:
       - "'Change trinket'"
       - "'Display trinkets'"
     recommendation: "'Display trinket' for adding and for changing"
-    status: open
+    status: answered
+    answer: "'Display trinket' for adding and for changing"
+    by: marc
+    on: 2026-11-24
   - id: d3
     who: marc
     q: "Other prompts and task names that contain 'the' ('Water the plant', 'Take out the trash', 'Do the dishes' and so on)?"

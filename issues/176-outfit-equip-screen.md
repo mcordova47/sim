@@ -28,7 +28,10 @@ decisions:
       - "a higher-resolution character set for the preview (a new sprite set per outfit: much more work)"
       - "both: start with the scaled one"
     recommendation: "the existing 16x16 art drawn larger (for example 4x or 6x, pixels kept crisp), with the four facings you can turn through; a higher-resolution character set is a later, separate step"
-    status: open
+    status: answered
+    answer: "as recommended"
+    by: marc
+    on: 2026-11-24
   - id: d3
     who: marc
     q: "Where does the equip screen live?"

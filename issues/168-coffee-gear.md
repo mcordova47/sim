@@ -45,7 +45,10 @@ decisions:
       - "no: only the task name and prompt follow it; pay, energy, mood and duration stay equal (Marc's answer to Q5)"
       - "yes: duration follows too, pay stays equal"
     recommendation: "no: only the task name and prompt follow it; pay, energy, mood and duration stay equal"
-    status: open
+    status: answered
+    answer: "no: only the task name and prompt follow it; pay, energy, mood and duration stay equal (Marc's answer to Q5)"
+    by: marc
+    on: 2026-11-24
   - id: d4
     who: marc
     q: "How do they arrive?"

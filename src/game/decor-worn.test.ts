@@ -37,7 +37,9 @@ describe("worn outfits", () => {
 
   it("arrive as gifts on days after every earlier gift, casual then out then pajamas", () => {
     const days = (id: string) => Number(CHECKPOINTS.find((c) => c.item === id)!.atLeast);
-    const last = Math.max(...CHECKPOINTS.filter((c) => c.stat === "days" && !/^(outfit|trinket|instrument)-/.test(String(c.item))).map((c) => Number(c.atLeast)));
+    // The gifts listed before the clothes (later lists, such as the coffee gear of issue 168, come after them).
+    const earlier = CHECKPOINTS.slice(0, CHECKPOINTS.findIndex((c) => c.item === "outfit-casual"));
+    const last = Math.max(...earlier.filter((c) => c.stat === "days").map((c) => Number(c.atLeast)));
     expect([days("outfit-casual"), days("outfit-out"), days("outfit-pajamas")]).toEqual([39, 42, 45]);
     expect(days("outfit-casual")).toBeGreaterThan(last);
   });

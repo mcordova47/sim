@@ -16,8 +16,10 @@ import { Decor } from "./decor";
 import { Deliveries } from "./deliveries";
 import { EncounterActivity } from "./activities/encounter";
 import type { Ad } from "./encounter-ads";
+import { drawAd, drawLineAd, itemPool, type ItemPool } from "./encounter-draw";
+import { lineById } from "./encounter-lines";
 import { Encounters } from "./encounters";
-import { CLOCK, DEBUG, DELIVERIES, DIALOG, ENERGY, MOOD, TILE, VIEW } from "./config";
+import { CLOCK, DEBUG, DELIVERIES, DIALOG, ENERGY, MOOD, OUTFIT_OCCASIONS, TILE, VIEW } from "./config";
 import type { Activity, ActivityHost, RecordState } from "./activity";
 import { openReelStore, type ReelPic, type ReelStoreHandle } from "./reel/reel-store";
 import type { Interactable } from "./interactable";
@@ -27,7 +29,7 @@ import { Emitter, type GameEvents } from "./events";
 import { Grid } from "./grid";
 import { InteractionSystem } from "./interaction";
 import { validateLevel, type Door, type Level, type Piece } from "./level";
-import { outfitFromItem, outfitPoseSprite, outfitPrefix } from "./outfits";
+import { outfitFromItem, outfitPoseSprite, outfitPrefix, type OutfitSlotId } from "./outfits";
 import { Player } from "./player";
 import { settlePlant } from "./plant";
 import { CARRIED, POSES, breathBand, heldSprite, type PoseDef } from "./poses";
@@ -227,6 +229,7 @@ export class Game {
       const zone = boundsOf(item.zones);
       this.popups.add(zone.x + zone.w / 2, zone.y, lines);
       this.events.emit("taskComplete", { item, award });
+      this.occasion(item.id);
       this.maybeEncounter(item);
     }, this.state);
     this.interaction.onStart = (item) => {
@@ -241,7 +244,7 @@ export class Game {
     this.interaction.host = this.activityHost();
     // A swap with nothing to swap to is not offered (no prompt, not in the choice cycle).
     this.interaction.hidden = (item) =>
-      (item.decorSlot !== undefined && !this.decor.canChange(item.decorSlot)) || (item.liveSlot !== undefined && !this.decor.isLive(item.liveSlot)) || (item.delivery === true && !this.deliveries.waiting) ||
+      (item.decorSlot !== undefined && !this.decor.canChange(item.decorSlot)) || (item.liveSlot !== undefined && !this.decor.isLive(item.liveSlot)) || (item.heldSlot !== undefined && !this.decor.heldIn(item.heldSlot)) || (item.delivery === true && !this.deliveries.waiting) ||
       // Taking out the recycling is only offered at the boxes when they are flat (issues 070 and 071); otherwise Flatten the boxes is what shows.
       (item.id === "recycle-boxes" && this.state.has("boxes") && this.state.get("boxes") !== 0);
     this.dialog = new DialogRunner({
@@ -262,6 +265,24 @@ export class Game {
       this.events.emit("taskBlocked", { item, reason, ...(message && { message }) });
   }
 
+  // An outfit occasion (issue 175): the task that just finished may put you in an outfit slot. It never changes
+  // clothes at once; `applyOccasion` does it when no task, dialog or pose is active (so a pose never flips).
+  private pendingOccasion: OutfitSlotId | null = null;
+  occasion(taskId: string): void {
+    const slot = OUTFIT_OCCASIONS[taskId];
+    if (slot !== undefined) this.pendingOccasion = slot;
+  }
+  // For tests: the occasion waiting for a free moment.
+  pendingOccasionForTest(): OutfitSlotId | null {
+    return this.pendingOccasion;
+  }
+  private applyOccasion(): void {
+    if (this.pendingOccasion === null || this.interaction.active || this.dialog.open || this.inputLocked) return;
+    const slot = this.pendingOccasion;
+    this.pendingOccasion = null;
+    this.decor.wearSlot(slot);
+  }
+
   // After a completed task: may an ad appear (issue 043 stage B)? Only when nothing else is open.
   private maybeEncounter(item: Interactable): void {
     const ad = this.encounters.roll({
@@ -271,8 +292,26 @@ export class Game {
       blocked: this.adBlockerOn,
       busy: this.dialog.open || this.inputLocked || this.interaction.busy,
       usable: (a) => this.decor.item(a.item) !== undefined,
+      pool: this.itemPool(),
     });
     if (ad) this.startEncounter(ad);
+  }
+
+  // What the ad draw sees (issue 163): the pool of items the product-line ads may sell, and whether you own one or
+  // have it on its way.
+  itemPool(): ItemPool {
+    return {
+      items: itemPool(this.decor.allItems()),
+      has: (id) => this.decor.owns(id) || this.deliveries.pendingItems.some((p) => p.id === id) || this.deliveries.waitingItems.includes(id),
+    };
+  }
+
+  // An ad drawn now with the real weights and none of the gates, or one product line's (dev shortcut). Null if none.
+  drawAd(lineId?: string): Ad | null {
+    const pool = this.itemPool();
+    const line = lineId === undefined ? undefined : lineById(lineId);
+    if (line) return drawLineAd(line, pool, () => this.random());
+    return drawAd({ ads: this.encounters.ads, lines: this.encounters.lines, pool, random: () => this.random(), usable: (a) => this.decor.item(a.item) !== undefined });
   }
 
   // Shows `ad` as an encounter now (the roll does, and so does the dev shortcut). False if something
@@ -320,6 +359,7 @@ export class Game {
       blocked: this.adBlockerOn,
       busy: this.dialog.open || this.inputLocked,
       usable: (a) => this.decor.item(a.item) !== undefined,
+      pool: this.itemPool(),
     });
     return ad ? this.buildEncounter(ad) : null;
   }
@@ -783,6 +823,7 @@ export class Game {
       if (!heldClock) this.tickClock(dt);
       this.interaction.update(dt, this.player, this.inputLocked ? NO_INPUT : controls);
     }
+    this.applyOccasion();
     this.syncGuitar();
     this.syncOutfit();
     this.syncPhotos();
@@ -986,6 +1027,7 @@ export class Game {
   private drawWorld(ctx: CanvasRenderingContext2D, actor: Actor): void {
     const { painter, level } = this;
     drawFloorAndWalls(ctx, level, painter);
+    this.drawFloorProps(ctx);
 
     const walled = painter.active && level.walls !== undefined;
     const drawables: { bottom: number; draw: () => void }[] = [];
@@ -1114,6 +1156,24 @@ export class Game {
     }
   }
 
+  // Things that lie on the floor (the rug, issue 166), right after the floor and walls and before anything sorted, so
+  // the player and every piece draw over them. They block nothing (they are not solids). An empty slot draws nothing.
+  private drawFloorProps(ctx: CanvasRenderingContext2D): void {
+    const { painter } = this;
+    for (const prop of this.level.floorProps ?? []) {
+      if (prop.when && !this.state.matchesAll(prop.when)) continue;
+      const variant = this.decor.hasSlot(prop.slot)
+        ? this.decor.lookAt(prop.slot, this.state)
+        : pickVariant(prop.variants ?? [], this.state);
+      if (!variant && this.decor.hasSlot(prop.slot)) continue;
+      const sprite = variant?.sprite ?? prop.sprite;
+      const { x, y, w, h } = prop.area;
+      if (sprite && painter.draw(ctx, sprite, x, y)) continue;
+      ctx.fillStyle = COLOR[variant?.color ?? prop.color ?? "mist"];
+      ctx.fillRect(x, y, w, h);
+    }
+  }
+
   // The player's idle or walking frame for the way they face; without it, a
   // rectangle with a small mark on the side it is facing.
   private drawPlayer(ctx: CanvasRenderingContext2D, actor: Actor): void {
@@ -1171,7 +1231,7 @@ export class Game {
         const cooldown = interaction.cooldownRemaining(interaction.nearby);
         const unavailable = interaction.unavailableReason(interaction.nearby);
         const goodTime = unavailable === null && cooldown === 0 && interaction.isGoodTime(interaction.nearby);
-        drawPrompt(ctx, actor, interaction.nearby, cooldown, VIEW, popupBoxes, unavailable, goodTime, this.spriteDrawer, interaction.choices.length > 1 ? { index: interaction.choiceIndex, count: interaction.choices.length } : null);
+        drawPrompt(ctx, actor, { ...interaction.nearby, prompt: this.decor.taskPrompt(interaction.nearby) }, cooldown, VIEW, popupBoxes, unavailable, goodTime, this.spriteDrawer, interaction.choices.length > 1 ? { index: interaction.choiceIndex, count: interaction.choices.length } : null);
       }
     }
     this.popups.draw(ctx, VIEW, cam);

@@ -30,8 +30,8 @@ export const PLACEHOLDER_LEVEL: Level = parseTileMap(MAP, {
     tasks: [
       {
         id: "make-bed",
-        name: "Make the bed",
-        prompt: "Make the bed",
+        name: "Make bed",
+        prompt: "Make bed",
         duration: 3,
         points: 30,
         cooldown: 30,
@@ -90,8 +90,8 @@ export const PLACEHOLDER_LEVEL: Level = parseTileMap(MAP, {
     ],
     task: {
       id: "dishes",
-      name: "Do the dishes",
-      prompt: "Do the dishes",
+      name: "Do dishes",
+      prompt: "Do dishes",
       duration: 3,
       points: 20,
       cooldown: 45,
@@ -106,7 +106,7 @@ export const PLACEHOLDER_LEVEL: Level = parseTileMap(MAP, {
     task: {
       id: "work",
       name: "Answer emails",
-      prompt: "Work at the desk",
+      prompt: "Work at desk",
       duration: 5,
       points: 60,
       cooldown: 30,

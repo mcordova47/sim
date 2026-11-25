@@ -1,5 +1,5 @@
 {
-  "title": "Art options: the takeout bag and the outfits",
+  "title": "Art options: the takeout bag, the outfits and the rugs",
   "groups": [
     {
       "id": "bag",
@@ -156,6 +156,239 @@
           "letter": "C",
           "file": "pajamas/pajamas-c-robe",
           "label": "White terry bathrobe with an orange belt, bare legs, slippers."
+        }
+      ]
+    },
+    {
+      "id": "rugs",
+      "title": "Rug layouts (issue 166)",
+      "kind": "rugs",
+      "blurb": "Marc picked layouts C (wide living area) and D (under the bed), and wants the main and the bed rugs to be different designs. The designs marked IN THE GAME are built (main: striped, kilim, shag, jute, medallion; bed: green field, braided, diamond, cotton, vintage); the others are candidates and are not in the game. Each design is drawn over the real room in the game's order: floor, walls, rug, then furniture and the player, at 1x and as an 8x crop. The designs are my own stylized pixels.",
+      "layouts": [
+        {
+          "letter": "A",
+          "label": "As first built (out): one small rug between the table and the sofa, replaced by C and D",
+          "tile": {
+            "col": 3,
+            "row": 3,
+            "w": 4,
+            "h": 2
+          },
+          "slots": "One slot, rug-floor, 64x32 (built and reviewed). One size, so every rug item is 64x32.",
+          "designs": [
+            {
+              "id": "A1",
+              "label": "A1 Striped flatweave (as built)",
+              "src": "art/src/rug-striped.sprite"
+            },
+            {
+              "id": "A2",
+              "label": "A2 Geometric (as built)",
+              "src": "art/src/rug-geometric.sprite"
+            }
+          ],
+          "out": true
+        },
+        {
+          "letter": "B",
+          "label": "Living-area rug, tucked under the front of the table, the desk and the back of the sofa",
+          "tile": {
+            "col": 2,
+            "row": 2,
+            "w": 6,
+            "h": 4
+          },
+          "slots": "One slot, rug-floor, 96x64, in place of A (a rug item fits only a slot of its own size, so the two sizes cannot share one slot).",
+          "designs": [
+            {
+              "id": "B1",
+              "label": "B1 Striped flatweave, wider bands",
+              "src": "art/options/rugs/b-living-striped.sprite"
+            },
+            {
+              "id": "B2",
+              "label": "B2 Geometric, a grid of diamonds",
+              "src": "art/options/rugs/b-living-geometric.sprite"
+            }
+          ],
+          "out": true
+        },
+        {
+          "letter": "C",
+          "label": "Wide living-area rug, under the whole sofa and out to the lamp table and the desk chair",
+          "tile": {
+            "col": 2,
+            "row": 3,
+            "w": 8,
+            "h": 4
+          },
+          "slots": "One slot, rug-floor, 128x64, in place of A.",
+          "designs": [
+            {
+              "id": "C1",
+              "label": "C1 Striped flatweave",
+              "src": "art/options/rugs/c-wide-striped.sprite",
+              "shipped": true
+            },
+            {
+              "id": "C2",
+              "label": "C2 Geometric",
+              "src": "art/options/rugs/c-wide-geometric.sprite"
+            },
+            {
+              "id": "C3",
+              "label": "C3 Plain field: one fern green with a leaf border and a thin cream line, fringe on the short ends.",
+              "src": "art/options/rugs/c3-field.sprite"
+            },
+            {
+              "id": "C4",
+              "label": "C4 Medallion, symmetrical: walnut-brown field, a diamond medallion in tan, cream, walnut and tangerine, mirrored top to bottom and left to right, a walnut border with a tan line, fringe. (redrawn, for another look)",
+              "src": "art/options/rugs/c4-medallion.sprite",
+              "shipped": true
+            },
+            {
+              "id": "C5",
+              "label": "C5 Shag: tangerine pile flecked with butter and brick, a wide cream two-tone edge, no fringe.",
+              "src": "art/options/rugs/c5-shag.sprite",
+              "shipped": true
+            },
+            {
+              "id": "C6",
+              "label": "C6 Plaid flatweave, mustard: cream ground, wide mustard bands both ways with thin walnut lines, tan where they cross, walnut border, fringe. (redrawn, for another look)",
+              "src": "art/options/rugs/c6-plaid-mustard.sprite"
+            },
+            {
+              "id": "C8",
+              "label": "C8 Kilim: horizontal bands of zigzags in brick, cream, slate and mustard, a slate border, fringe.",
+              "src": "art/options/rugs/c8-kilim.sprite",
+              "shipped": true
+            },
+            {
+              "id": "C9",
+              "label": "C9 Faded vintage, symmetrical: putty field, a worn taupe and dusk medallion mirrored top to bottom and left to right, pale border, worn flecks that mirror too, fringe. (redrawn, for another look)",
+              "src": "art/options/rugs/c9-vintage.sprite"
+            },
+            {
+              "id": "C10",
+              "label": "C10 Jute: natural oat with a visible basket weave in putty, a plain darker tan border, no fringe. (new)",
+              "src": "art/options/rugs/c10-jute.sprite",
+              "shipped": true
+            },
+            {
+              "id": "C11",
+              "label": "C11 Cotton flatweave: cream with fine pinstripes, a rope-twist border in putty and cream, short cream fringe. (new)",
+              "src": "art/options/rugs/c11-cotton.sprite"
+            },
+            {
+              "id": "C12",
+              "label": "C12 Plaid flatweave, grey: putty ground, wide dusk-blue bands both ways with thin slate lines, slate where they cross, dusk border, fringe. (new)",
+              "src": "art/options/rugs/c12-plaid-grey.sprite"
+            }
+          ]
+        },
+        {
+          "letter": "D",
+          "label": "A rug under the foot and west side of the bed (the bed lies over most of it)",
+          "tile": {
+            "col": 11,
+            "row": 6,
+            "w": 7,
+            "h": 3
+          },
+          "slots": "A second slot, rug-bed, 112x48, changed at the nightstand or the bed; rugs for it are their own items (a different size from A to C).",
+          "sleep": true,
+          "designs": [
+            {
+              "id": "D1",
+              "label": "D1 Striped flatweave",
+              "src": "art/options/rugs/d-bed-striped.sprite"
+            },
+            {
+              "id": "D2",
+              "label": "D2 Geometric",
+              "src": "art/options/rugs/d-bed-geometric.sprite",
+              "shipped": true
+            },
+            {
+              "id": "D3",
+              "label": "D3 Plain field: one fern green with a leaf border and a thin cream line, fringe on the short ends.",
+              "src": "art/options/rugs/d3-field.sprite",
+              "shipped": true
+            },
+            {
+              "id": "D4",
+              "label": "D4 Medallion, symmetrical: walnut-brown field, a diamond medallion in tan, cream, walnut and tangerine, mirrored top to bottom and left to right, a walnut border with a tan line, fringe. (redrawn, for another look)",
+              "src": "art/options/rugs/d4-medallion.sprite"
+            },
+            {
+              "id": "D5",
+              "label": "D5 Shag: tangerine pile flecked with butter and brick, a wide cream two-tone edge, no fringe.",
+              "src": "art/options/rugs/d5-shag.sprite"
+            },
+            {
+              "id": "D6",
+              "label": "D6 Plaid flatweave, mustard: cream ground, wide mustard bands both ways with thin walnut lines, tan where they cross, walnut border, fringe. (redrawn, for another look)",
+              "src": "art/options/rugs/d6-plaid-mustard.sprite"
+            },
+            {
+              "id": "D7",
+              "label": "D7 Braided oval: rag-rug rings of brick, cream, denim and mustard around a brick centre; an oval, so the corners show the floor.",
+              "src": "art/options/rugs/d7-braid.sprite",
+              "shipped": true
+            },
+            {
+              "id": "D8",
+              "label": "D8 Kilim: horizontal bands of zigzags in brick, cream, slate and mustard, a slate border, fringe.",
+              "src": "art/options/rugs/d8-kilim.sprite"
+            },
+            {
+              "id": "D9",
+              "label": "D9 Faded vintage, symmetrical: putty field, a worn taupe and dusk medallion mirrored top to bottom and left to right, pale border, worn flecks that mirror too, fringe. (redrawn, for another look)",
+              "src": "art/options/rugs/d9-vintage.sprite",
+              "shipped": true
+            },
+            {
+              "id": "D10",
+              "label": "D10 Jute: natural oat with a visible basket weave in putty, a plain darker tan border, no fringe. (new)",
+              "src": "art/options/rugs/d10-jute.sprite"
+            },
+            {
+              "id": "D11",
+              "label": "D11 Cotton flatweave: cream with fine pinstripes, a rope-twist border in putty and cream, short cream fringe. (new)",
+              "src": "art/options/rugs/d11-cotton.sprite",
+              "shipped": true
+            },
+            {
+              "id": "D12",
+              "label": "D12 Plaid flatweave, grey: putty ground, wide dusk-blue bands both ways with thin slate lines, slate where they cross, dusk border, fringe. (new)",
+              "src": "art/options/rugs/d12-plaid-grey.sprite"
+            }
+          ]
+        },
+        {
+          "letter": "E",
+          "label": "A small mat just inside the front door, beside the package tile",
+          "tile": {
+            "col": 11,
+            "row": 8,
+            "w": 2,
+            "h": 1
+          },
+          "slots": "A third slot, rug-door, 32x16, changed at the front door (a new object to stand at) or at the sofa.",
+          "box": true,
+          "designs": [
+            {
+              "id": "E1",
+              "label": "E1 Striped door mat",
+              "src": "art/options/rugs/e-door-striped.sprite"
+            },
+            {
+              "id": "E2",
+              "label": "E2 Geometric door mat",
+              "src": "art/options/rugs/e-door-geometric.sprite"
+            }
+          ],
+          "out": true
         }
       ]
     }

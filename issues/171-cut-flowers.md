@@ -16,7 +16,10 @@ decisions:
       - "one bunch to start (tulips)"
       - "something else"
     recommendation: "two bunches: tulips in a glass vase and daisies in a jar"
-    status: open
+    status: answered
+    answer: "two bunches: tulips in a glass vase and daisies in a jar"
+    by: marc
+    on: 2026-11-24
   - id: d2
     who: marc
     q: "How does a bunch arrive?"
@@ -24,7 +27,10 @@ decisions:
       - "as a gift (and later from a random encounter) like the plants; you may receive several over time"
       - "only from random encounters"
     recommendation: "as a gift (and later from a random encounter) like the plants; you may receive several over time"
-    status: open
+    status: answered
+    answer: "as a gift (and later from a random encounter) like the plants; you may receive several over time"
+    by: marc
+    on: 2026-11-24
 ---
 
 ## Goal

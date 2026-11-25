@@ -2,7 +2,7 @@
 id: "167"
 title: "Trinkets and display instruments on the desk"
 short: "Trinkets"
-status: done
+status: in-progress
 owner: marc + claude
 depends_on: []
 summary: "A trinket slot on the desk's right corner with the first trinkets and small display instruments."
@@ -13,11 +13,6 @@ unverified:
   - "The THINGS page and the swap list rows were checked by tests (font, fit, note length) but not looked at as pictures for these ten items."
   - "Reviewer (2026-11-24) also could not do a real interactive session; checked headless screenshots at about 2x and 8x, not a true 1x, and did not view the THINGS page or swap-list rows as pictures."
   - "How the trinket picture feels at the real play size on a phone screen."
-needs:
-  - who: marc
-    kind: try
-    why: "Look at the ten new things on the desk and say which read well; decisions d1 to d4 are still open and were assumed at their recommended defaults."
-    since: 2026-11-24
 decisions:
   - id: d1
     who: marc
@@ -27,7 +22,10 @@ decisions:
       - "the first three (alebrije, telescope, finger skateboard)"
       - "a different set"
     recommendation: "all six Marc listed: an alebrije, a little decorative telescope, a finger skateboard (tech deck), a painted goose egg, a worry doll, a raccoon in a can"
-    status: open
+    status: answered
+    answer: "all six Marc listed: an alebrije, a little decorative telescope, a finger skateboard (tech deck), a painted goose egg, a worry doll, a raccoon in a can"
+    by: marc
+    on: 2026-11-24
   - id: d2
     who: marc
     q: "Which display instruments go with them (display only, not playable)?"
@@ -36,7 +34,10 @@ decisions:
       - "only the harmonica and kalimba now"
       - "none for now"
     recommendation: "a harmonica, a kalimba, a jaw harp and a mini keyboard, as trinket-slot items in a second batch"
-    status: open
+    status: answered
+    answer: "could do the harmonica, kalimba, and jaw harp (keyboard is maybe too big compared to the other trinkets)"
+    by: marc
+    on: 2026-11-24
   - id: d3
     who: marc
     q: "May the agent look at your private reference photos (read-only, never copied or captioned) for the real objects?"
@@ -45,7 +46,10 @@ decisions:
       - "no: draw from the kind of thing; revise later after you add photos"
       - "wait until you have added the photos you want to use"
     recommendation: "yes, where photos exist in reference-photos/ (the raccoon in a can is in reference-photos/toys); draw a stylized version"
-    status: open
+    status: answered
+    answer: "yes, where photos exist in reference-photos/ (the raccoon in a can is in reference-photos/toys); draw a stylized version"
+    by: marc
+    on: 2026-11-24
   - id: d4
     who: marc
     q: "How do they arrive?"
@@ -54,15 +58,22 @@ decisions:
       - "only through the random-encounter pool"
       - "both, at once"
     recommendation: "checkpoint gifts spaced three days apart after the rugs (from about day 81) and in the random-encounter pool when issue 163 lands"
-    status: open
+    status: answered
+    answer: "a is fine for now — i want to separately think about how to space things out in a way that feels right, i don't want things to arrive too quickly"
+    by: marc
+    on: 2026-11-24
   - id: d5
     who: marc
-    q: "The real raccoon in a can has no photo in reference-photos/toys yet (only finger-skateboard photos). Add one so it can be redrawn to match?"
+    q: "Trinkets (167, d5): the raccoon in a can has no photo in reference-photos yet, so it was drawn from the kind of thing. Add a photo so it can be redrawn?"
     options:
-      - "leave the stylized raccoon as it is until you add a photo"
-      - "add a photo and have it redrawn"
-    recommendation: "leave the stylized raccoon as it is until you add a photo"
-    status: open
+      - "leave it stylized"
+      - "yes, I will add a photo to reference-photos/ and it gets redrawn"
+    recommendation: "leave it stylized"
+    status: answered
+    answer: "it's in trinkets (canned-raccoon.jpeg)"
+    by: marc
+    on: 2026-11-24
+needs: []
 ---
 
 ## Goal
@@ -78,6 +89,7 @@ Build steps C and H of `docs/decor-expansion-design.md` (section 3 and 4). Marc 
 
 ## Progress log
 - 2026-11-24 (planner): filed on main with its open decisions (the issue file is born on main); Marc's request after merging the outfit work.
+- 2026-11-24 (planner): a first version was built and reviewed on branch issue/167-trinkets (ten 16x16 things in the desk's right corner). Marc tried the coffee gear and looked at the trinkets: they look too big and some do not look right; small things need a different way to be shown (see issue 173, which designs how trinkets are displayed and examined). The branch stays unmerged until 173 says what to keep (the slot, the swap task and the items are likely reusable); the open decisions d1 to d5 wait for that design.
 - 2026-11-24 (claude): started. Working assumptions, because d1 to d4 are still open and I may not answer them: d1 all six trinkets, d2 harmonica, kalimba, jaw harp and mini keyboard as a second batch, d3 yes (looked at the real objects, read-only; nothing copied, traced or named in the repo), d4 checkpoint gifts three days apart from day 81. Only the recommended defaults were followed; if Marc picks otherwise the items and days are one line each in `decor-data.ts` and `delivery-checkpoints.ts`.
 - 2026-11-24 (claude): built. Slot `trinket-desk` (no default), a sprite-less prop on the desk `D` at local (44, 1), `swap-trinket-desk` ("Change the trinket") on the desk's tasks. Ten items (6 `trinket-*`, 4 `instrument-*`), 16x16 each, palette only, drawn in rows 1 to 14 so they never meet the typing pose (`type-desk`) or a task spot. Gift days: alebrije 81, telescope 84, finger skateboard 87, goose egg 90, worry doll 93, raccoon in a can 96, harmonica 99, kalimba 102, jaw harp 105, mini keyboard 108. Rug (166) uses 75 and 78 and coffee gear (168) starts at 85: mine are all multiples of 3 and the later issue's days at 85, 88... are not, so they cannot clash whatever 168 adds. The worry doll is plainly WORRY DOLL, no Spanish name (d9). Raccoon: there was no raccoon photo in `reference-photos/toys` (only finger-skateboard photos), so it is drawn from the kind of thing.
 - 2026-11-24 (claude): art seen. Sprites checked on the desk tan at 8x, then the real room (dev server, headless Chrome) at 4x and 8x with each item placed: every item sits in the desk's right corner, clear of the laptop and the stand; at 1 tile the fox, egg, doll, raccoon and keyboard read at once, the telescope reads as a tube on a tripod, the finger skateboard is the smallest and reads as a little deck with wheels, the kalimba and jaw harp are the least obvious. The golden frames for a fresh game are unchanged (the slot is empty).

@@ -44,6 +44,12 @@ export const MAIN_MAP = [
 // Which sprite it shows comes from the plant in the slot (decor.ts `look`):
 // drooping wins over the stage, and the stage is the growth so far.
 const MAIN_PROPS: PropDef[] = [
+  // The rugs (issue 166): floor props (no `on`), so `at` is in the room. The living-area rug is 128x64 at cols 2-9, rows 3-6 (under the
+  // front of the sofa, the desk chair and the lamp table); the bed rug is 112x48 at cols 11-17, rows 6-8 (under the bed, whose picture
+  // is drawn over it). Nothing is there on a fresh game (the slots have no default). Both stay off the walls, the package tile at col 10,
+  // row 8 and the door.
+  { name: "rug", slot: "rug-floor", at: { x: 32, y: 48 }, size: { w: 128, h: 64 } },
+  { name: "bed rug", slot: "rug-bed", at: { x: 176, y: 96 }, size: { w: 112, h: 48 } },
   {
     name: "snake plant",
     slot: "plant-shelf",
@@ -65,6 +71,16 @@ const MAIN_PROPS: PropDef[] = [
   // The mug waiting on the dining table (issue 065): there while nobody is
   // carrying coffee (`mug` 0), gone when a full mug is made (held-mug overlay) and
   // back after drinking it. Its own piece, so it could become a decor prop later.
+  // The coffee gear on the table (issue 168): the slot `coffee-table`, today's pour-over cone unless something else is placed.
+  {
+    name: "coffee maker",
+    slot: "coffee-table",
+    on: "T",
+    at: { x: 46, y: 2 },
+    size: { w: 16, h: 16 },
+    sprite: "coffee-pourover",
+    color: "paper",
+  },
   {
     name: "coffee mug",
     slot: "prop-table",
@@ -105,7 +121,7 @@ const MAIN: Record<string, ObjectDef> = {
     name: "dining table",
     sprite: "table",
     color: "tangerine",
-    tasks: ["coffee", "drink-coffee", "reheat", "eat-dinner", "eat-takeout", "swap-art-table"],
+    tasks: ["coffee", "drink-coffee", "reheat", "eat-dinner", "eat-takeout", "swap-art-table", "swap-coffee-table"],
     // The dinner plate is there only after reheating or cooking, until you eat (issue 065).
     variants: [
       { sprite: "table-plate", when: [{ var: "plate", min: 1 }], color: "tangerine" },
@@ -120,7 +136,7 @@ const MAIN: Record<string, ObjectDef> = {
     name: "queen bed",
     sprite: "bed-made",
     color: "mist",
-    tasks: ["make-bed", "sleep", "work-bed", "doomscroll"],
+    tasks: ["make-bed", "sleep", "work-bed", "doomscroll", "swap-rug-bed"],
     // Shows whether it is made.
     variants: [
       { sprite: "bed-made", when: [{ var: "bedMade", min: 1 }], color: "leaf" },
@@ -132,7 +148,7 @@ const MAIN: Record<string, ObjectDef> = {
   // so either window's task changes both. The plain `window` sprite was deleted in issue 101.
   w: WINDOW_BLINDS,
   W: WINDOW_BLINDS,
-  S: { name: "sofa", sprite: "sofa-td", color: "brick", tasks: ["doomscroll", "scroll-photos", "contemplate", "work-sofa", "nap", "admire-art"] },
+  S: { name: "sofa", sprite: "sofa-td", color: "brick", tasks: ["doomscroll", "scroll-photos", "contemplate", "work-sofa", "nap", "admire-art", "swap-rug-floor"] },
   G: {
     name: "guitar",
     sprite: "guitar",
@@ -194,6 +210,12 @@ export const KITCHEN_MAP = [
   "#############",
 ];
 
+// The coffee pot on the stove's top-right burner (issue 168): the slot starts empty, so nothing is drawn until a pot is placed.
+// Its sprite is the placeholder only; the item decides what shows.
+const KITCHEN_PROPS: PropDef[] = [
+  { name: "coffee pot", slot: "coffee-stove", on: "V", at: { x: 29, y: 8 }, size: { w: 16, h: 16 }, color: "mist" },
+];
+
 const KITCHEN: Record<string, ObjectDef> = {
   C: {
     name: "sink and counter",
@@ -208,7 +230,7 @@ const KITCHEN: Record<string, ObjectDef> = {
       { sprite: "dishes-0", color: "butter" },
     ],
   },
-  V: { name: "stove", sprite: "stove", color: "ink", tasks: ["cook"] },
+  V: { name: "stove", sprite: "stove", color: "ink", tasks: ["cook", "coffee-stove", "swap-coffee-stove"] },
   h: { name: "range hood", sprite: "hood", color: "paper" },
   N: { name: "trash bin", sprite: "bin", color: "slate", tasks: ["take-trash"] },
   // The boxes follow the state variable `boxes` (issue 066): a stack, or flattened
@@ -275,7 +297,7 @@ export const APARTMENT: Apartment = {
       id: "main", tasks: TASKS, facing: "down", floor: "floor-wood", wallPieces: WALL_PIECES.main, props: MAIN_PROPS,
     }),
     kitchen: parseTileMap(KITCHEN_MAP, KITCHEN, {
-      id: "kitchen", tasks: TASKS, facing: "left", floor: "floor-kitchen", wallPieces: WALL_PIECES.kitchen,
+      id: "kitchen", tasks: TASKS, facing: "left", floor: "floor-kitchen", wallPieces: WALL_PIECES.kitchen, props: KITCHEN_PROPS,
     }),
     bath: parseTileMap(BATH_MAP, BATH, {
       id: "bath", tasks: TASKS, facing: "left", floor: "floor-bath", wallPieces: WALL_PIECES.bath,

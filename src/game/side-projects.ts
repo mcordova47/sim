@@ -25,7 +25,7 @@ export interface SideProject {
 export const SIDE_PROJECTS: SideProject[] = [
   {
     id: "side-project-game",
-    name: "Work on the side project",
+    name: "Work on side project",
     prompt: "Work on side project",
     points: 45,
     cooldown: 90,

@@ -7,6 +7,7 @@ owner: marc + claude
 depends_on: []
 summary: "An empty pot as a plant item, and a way to fill it."
 kind: build
+superseded_by: "179"
 decisions:
   - id: d1
     who: marc
@@ -16,7 +17,10 @@ decisions:
       - "a Plant a seed task turns the empty pot into a live plant at its smallest stage"
       - "a plant gift arrives potted into the empty pot if the pot is the one on the shelf"
     recommendation: "the empty pot is a still item in the plant slot; swapping a plant in fills it (simplest)"
-    status: open
+    status: answered
+    answer: "this sounds fine, but i'll check how it feels"
+    by: marc
+    on: 2026-11-24
   - id: d2
     who: marc
     q: "There is already an empty pot on top of the bookshelf; is it the same pot?"
@@ -37,3 +41,4 @@ Build step F of `docs/decor-expansion-design.md` (section 1). Marc (2026-11-24) 
 
 ## Progress log
 - 2026-11-24 (planner): filed on main with its open decisions (the issue file is born on main); Marc's request after merging the outfit work.
+- 2026-11-24 (planner): superseded by issue 179: Marc clarified that the bookshelf has three pots (one empty, one dried arrangement, one snake plant) and each pot should hold its own kind of plant; the design is in 179.

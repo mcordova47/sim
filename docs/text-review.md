@@ -14,7 +14,7 @@ The product name is Simagotchi (Marc, 2026-10-29). The pause screen's header use
 - 3/26 - keep
 
 ## Side-project picture (issue 101)
-"Work on the side project" view, the four lines (Marc rewrote the last three on 2026-10-28; the glitch line calls out the deliberate picture glitch: the tiny figure stands on the desk, facing out). Wired in `src/game/side-projects.ts`. Marc to mark: keep / soften / rewrite.
+"Work on side project" view, the four lines (Marc rewrote the last three on 2026-10-28; the glitch line calls out the deliberate picture glitch: the tiny figure stands on the desk, facing out). Wired in `src/game/side-projects.ts`. Marc to mark: keep / soften / rewrite.
 - A small version of this room, on a small screen. Someone is at the desk. - keep
 - It looks like the tiny person is... standing on top of the desk? Gotta remember to fix that. - keep
 - Their screen shows another little room with another little guy. - keep
@@ -44,29 +44,31 @@ The pause-screen page where pictures are added and removed. The first five lines
 
 One row per task that has something to review: its id, name (the menu and the award popup), prompt (the short line at the object), the reasons it can be unmet (the blocked message, which the game does show) and the mark. Tasks that are only plain commands with no blocked message were removed from the table (Marc, 2026-11-21). The one-line flavor jokes the tasks used to carry were never drawn and were dropped (issue 146); the ones marked keep below are parked in `docs/ideas.md`.
 
+Issue 174 (2026-11-24): the word "the" is gone from every task name and prompt and from the swap prompts ("Make bed", "Do dishes", "Change coffee gear"). Rows already marked keep kept their marks, because only the article changed and the meaning did not; the rows that changed are make-bed, open-blinds, close-blinds, sort-records, sort-records-fav, work, drink-coffee, work-sofa, fridge-stare, recycle-boxes, dishes, flatten-boxes and the Takeout line "Eat takeout". Marc: say if any of them now reads badly ("Work from couch", "Stare into fridge" and "Open fridge" are the likeliest).
+
 | id | name | prompt | unmet reasons | mark |
 |---|---|---|---|---|
-| make-bed | Make the bed | Make the bed | BED IS MADE | keep |
-| open-blinds | Open the blinds | Open the blinds | BLINDS ARE OPEN | keep |
-| close-blinds | Close the blinds | Close the blinds | BLINDS ARE CLOSED | keep |
-| sort-records | Alphabetize the records | Alphabetize records | TRY ANOTHER ORDER | keep |
+| make-bed | Make bed | Make bed | BED IS MADE | keep |
+| open-blinds | Open blinds | Open blinds | BLINDS ARE OPEN | keep |
+| close-blinds | Close blinds | Close blinds | BLINDS ARE CLOSED | keep |
+| sort-records | Alphabetize records | Alphabetize records | TRY ANOTHER ORDER | keep |
 | sort-records-year | Arrange records by year | Records by year | TRY ANOTHER ORDER | keep |
-| sort-records-fav | Rank the records by favorites | Records by favorites | TRY ANOTHER ORDER | keep |
+| sort-records-fav | Rank records by favorites | Records by favorites | TRY ANOTHER ORDER | keep |
 | sort-records-color | Arrange records by color | Records by color | TRY ANOTHER ORDER | keep |
-| work | Answer emails | Work at the desk | TOO TIRED TO WORK | keep |
+| work | Answer emails | Work at desk | TOO TIRED TO WORK | keep |
 | coffee | Make pour-over coffee | Make coffee | NO CLEAN PLATES; COFFEE IS WAITING | keep |
-| drink-coffee | Drink the coffee | Drink the coffee | NO COFFEE MADE | keep |
+| drink-coffee | Drink coffee | Drink coffee | NO COFFEE MADE | keep |
 | reheat | Reheat leftovers | Reheat leftovers | NO CLEAN PLATES | keep |
 | eat-dinner | Eat dinner | Eat dinner | NO CLEAN PLATES | keep |
-| work-sofa | Code from the couch | Work from the couch | TOO TIRED TO WORK | keep |
+| work-sofa | Code from couch | Work from couch | TOO TIRED TO WORK | keep |
 | nap | Take a nap | Take a nap | NOT SLEEPY ENOUGH | keep |
 | work-bed | Work in bed | Work in bed | TOO TIRED TO WORK | keep |
 | guitar | Play three chords | Play guitar |  |  |
-| fridge-stare | Stare into the fridge | Open the fridge |  | keep |
-| recycle-boxes | Take out the recycling | Take out the recycling | FLATTEN THE BOXES FIRST, NO BOXES TO TAKE OUT | keep |
+| fridge-stare | Stare into fridge | Open fridge |  | keep |
+| recycle-boxes | Take out recycling | Take out recycling | FLATTEN THE BOXES FIRST, NO BOXES TO TAKE OUT | keep |
 | cook | Cook dinner | Cook dinner | NO CLEAN PLATES | keep |
-| dishes | Do the dishes | Do the dishes | NO DIRTY DISHES | keep |
-| flatten-boxes | Flatten the boxes | Flatten boxes | NO BOXES TO FLATTEN | keep |
+| dishes | Do dishes | Do dishes | NO DIRTY DISHES | keep |
+| flatten-boxes | Flatten boxes | Flatten boxes | NO BOXES TO FLATTEN | keep |
 | sit | Take a moment | Take a moment |  | keep |
 | sleep | Go to sleep | Go to sleep | NOT TIRED YET | keep |
 | contemplate | Contemplate | Contemplate |  | keep |
@@ -268,6 +270,22 @@ Each ad: where it appears, the invented brand, the item it sells (an item from t
 - Hint line with the voice key as well (shorter so it fits): B: AD BLOCK OFF  D: VOICE  L: CLOSE  SHIFT+R: RESET - keep
 - Shown for a moment after the key: AD BLOCKER: ON / AD BLOCKER: OFF - keep
 
+## Product-line ads (issue 163)
+
+Shops that sell a kind of thing and show whichever item of that kind the draw gives them (`src/game/encounter-lines.ts`). `{name}` is the item's name in capitals (for example ROBIN PRINT, PEACOAT, MOKA POT). Rules: shops invented and generic, no real brand or platform (the platform line is just MAIL, FEED or MESSAGES); every line at most 46 letters with a 22 letter name; prices only where they cannot clash with an item. Mark each line `keep`, `soften` or `rewrite` after a dash.
+
+**To check once:** the shop names do not point at a real small business: Birchwood Frame Co., Penny Press Gallery, Fernhill Plant Shop, Dimwell Lighting, Linden Row Clothing, Slow Pour Supply, Underfoot Rug Co., Odds and Ends Shop, Reedbed Music.
+
+**Frames** (social; sells art; hide-ad difficulty 0; arrives in 12 hours): FEED / SPONSORED; @BIRCHWOODFRAMES; "New on the wall: {name}"; "Printed on thick paper. Ready to hang."; "Free shipping on orders this week."; SHOP NOW; look closer: "{name}", "Framed, 12 X 16 IN. 4.7 stars."
+**Gallery** (email; art; 1; 24 hours): MAIL / PROMOTIONS; PENNY PRESS GALLERY; "This week's pick: {name}"; "A small run, signed on the back."; "Only a few left in this size."; "Order by Friday for free delivery."; VIEW PRINT; look closer: "{name}", "Unframed, 12 X 16 IN. Ships in a tube."
+**Plants** (social; plant; 0; 12): FEED / SPONSORED; @FERNHILLPLANTS; "{name} is back in the shop"; "Packed with care. Care card in the box."; "Ships Tuesday, in a box with air holes."; SHOP NOW; look closer: "{name}", "Care card in the box. Free returns."
+**Lamps** (text message; lamp; 1; 8): MESSAGES / DIMWELL; "Dimwell: {name} is in stock."; "Bulb included. Returns for 30 days."; "Msg & data rates may apply. STOP to opt out."; SHOP NOW; look closer: "{name}", "Warm light, soft shadows. Ships in 2 days."
+**Clothing** (email; outfit; 2; 24): MAIL / PROMOTIONS; LINDEN ROW CLOTHING; "Just in: {name}"; "Soft, sturdy and made to be worn a lot."; "Free returns within 30 days."; "Sizes run true. Mostly."; SHOP NEW; look closer: "{name}", "Machine washable. Ships in 2 days."
+**Coffee gear** (email; coffee; 1; 24): MAIL / PROMOTIONS; SLOW POUR SUPPLY; "Morning upgrade: {name}"; "Makes a cup worth getting up for."; "Beans sold separately. Opinions included."; "Free shipping this week."; SHOP BREWERS; look closer: "{name}", "Makes one to four cups. Ships in 2 days."
+**Rugs** (email; rug; 1; 24): MAIL / PROMOTIONS; UNDERFOOT RUG CO.; "The {name} is in stock"; "Flat woven. Rolls up for easy storage."; "Ties the room together."; "Free shipping over $35."; SHOP RUGS; look closer: "{name}", "Spot clean only. Ships rolled, in 3 days."
+**Trinkets** (social; trinket; 0; 12): FEED / SPONSORED; @ODDSANDENDSSHOP; "{name}. You did not need this."; "Small, strange and good on a shelf."; "Each one is a little different."; SHOP NOW; look closer: "{name}", "About 3 IN tall. Gift wrap on request."
+**Instruments** (text message; instrument; 1; 24): MESSAGES / REEDBED; "Reedbed: {name} just came in."; "Come try it. Nobody is watching."; "Msg & data rates may apply. STOP to opt out."; SEE IT; look closer: "{name}", "Tuned and ready. Layaway available."
+
 ## Flashcards progress page (issue 082)
 Shown at the desk when no cards are left to review. The pixel font is capitals only, so these draw in capitals.
 - Title: Study Spanish - keep
@@ -388,6 +406,19 @@ The entry also shows the where-now line (the slot's "where" text, or IN THE INVE
   - PEACOAT: WARM, AND NOBODY ASKS WHERE YOU ARE GOING. -
   - STRIPED PAJAMAS: NOTHING ABOUT THESE IS URGENT. -
   - BATHROBE: THE SHOWER WENT WELL. THE ROBE AGREES. -
+- Rugs (issue 166; each FROM: A PACKAGE). Living area:
+  - STRIPED RUG: ONE LONG OPINION ABOUT THE FLOOR, IN BLUE AND CREAM. -
+  - KILIM RUG: EVERY ZIGZAG WAS A DECISION. YOU RESPECT THE COMMITMENT. -
+  - SHAG RUG: YOUR FEET HAVE OPINIONS ABOUT IT. THEY ARE GOOD ONES. -
+  - JUTE RUG: IT SCRATCHES A LITTLE. THAT IS ITS HONESTY. -
+  - MEDALLION RUG: THE MEDALLION IS CENTERED. YOU MEASURED, THEN FELT BETTER. -
+- Rugs, under the bed (each FROM: A PACKAGE):
+  - GREEN BED RUG: A SOFT PLACE TO START A HARD DAY, ONE FOOT AT A TIME. -
+  - BRAIDED BED RUG: SOMEONE BRAIDED THIS BY HAND. YOU SLEEP NEAR IT. -
+  - DIAMOND BED RUG: THE DIAMONDS POINT AT THE BED. THE BED ACCEPTS THIS. -
+  - COTTON BED RUG: WASHABLE, SOFT, AND IT NEVER ASKS ABOUT YOUR PLANS. -
+  - VINTAGE BED RUG: WORN IN THE RIGHT PLACES. YOU TRUST IT WITH YOUR FEET. -
+- Slot names in the swap list header: RUG (where line: ON THE FLOOR) and BED RUG (where line: UNDER THE BED); the swap task names and prompts: Change rug (at the sofa) and Change bed rug (at the bed) (issue 166)
 - Slot name in the swap list header: CLOTHES; where line: WORN; the swap task name and prompt: Change clothes (issue 152; it replaces the placeholder "Change the outfit") -
 
 ## THINGS page: the silhouette (issue 109c)
@@ -414,7 +445,7 @@ New lines for the LOOK switch on the PHOTOS page. None mentions pixels, resoluti
 
 ## Takeout (issue 153)
 New lines for ordering and eating takeout. The restaurant and the app are never named, so no brand appears. Wired in `src/game/tasks.ts` and `src/game/game.ts`. Marc to mark: keep / soften / rewrite.
-- Task names and prompts: Order takeout / Eat the takeout - keep
+- Task names and prompts: Order takeout / Eat takeout - keep
 - Order refused while one is coming: THE TAKEOUT IS ON ITS WAY - 
 - Order, Cook, Reheat and Eat dinner refused while the meal is on the table: TAKEOUT IS WAITING - 
 - Eat refused with no meal: NO TAKEOUT - 
@@ -436,3 +467,23 @@ New items for the desk's right corner (slot `trinket-desk`, swap task "Change th
 - KALIMBA: EVERY TINE IS A NICE NOTE. IT IS HARD TO PLAY WRONG. -
 - JAW HARP: A SPRING IN A FRAME. THE SOUND IS A SMALL BOING. -
 - MINI KEYBOARD: TWO OCTAVES. ENOUGH KEYS FOR ONE GOOD IDEA. -
+
+## Coffee gear (issue 168)
+New names and notes for the coffee apparatus, and the make-coffee wording that follows them ("Make french press coffee", "Make moka coffee"). No brand is named. Wired in `src/game/decor-data.ts` and `src/game/tasks.ts`. Marc to mark: keep / soften / rewrite.
+- Task names and prompts (the word in the middle follows the apparatus): Make pour-over coffee / Make french press coffee / Make drip coffee / Make pod coffee / Make percolator coffee / Make moka coffee / Make briki coffee / Make stovetop coffee (the plain wording) - 
+- POUR-OVER CONE: THE SLOW WAY. YOU SAY IT'S FOR THE FLAVOR. - 
+- FRENCH PRESS: YOU PRESS IT SLOWLY, LIKE SOMEONE WITH NOTHING SCHEDULED. - 
+- DRIP MACHINE: IT DOES THE WAITING FOR YOU. YOU WAIT ANYWAY. - 
+- POD MACHINE: EVERY CUP COMES IN A LITTLE CAPSULE. THE CAPSULES ADD UP. - 
+- PERCOLATOR: IT BUBBLES IN THE LITTLE GLASS KNOB. WATCHING IS THE POINT. - 
+- MOKA POT: IT SPUTTERS WHEN IT'S DONE. YOU HAVE LEARNED TO TRUST THE SPUTTER. - 
+- BRIKI: A TINY POT WITH A LONG HANDLE. THE FOAM IS NOT OPTIONAL. - 
+- Slot names (swap list): COFFEE ON THE TABLE, COFFEE ON THE STOVE; where: ON THE TABLE, ON THE STOVE; prompt: Change coffee gear - 
+
+## Outfit slots (issue 175)
+Lines in the Change clothes list at the bookshelf, in the game's capitals. Marc asked for no explanatory text: the list is only names, WORN and the keys; no text or sound when your clothes change by themselves. Wired in `src/game/outfits.ts` (`OUTFIT_SLOTS`) and `src/game/activities/outfit-slots.ts`. Marc to mark: keep / soften / rewrite.
+- List title: CLOTHES - 
+- Slot names: EVERYDAY / PAJAMAS / ROBE / GOING OUT - 
+- Tag on the slot you have on: WORN - 
+- Outfit shown for an empty slot: a dash (-) - 
+- Keys line: ARROWS: PICK   E: WEAR   ESC: BACK (touch: PAD: PICK   A: WEAR   B: BACK) - 

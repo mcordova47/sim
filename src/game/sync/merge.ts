@@ -145,7 +145,7 @@ export function normaliseProgress(raw: unknown, env: SyncEnv = {}): SyncProgress
     unlocked,
     stats: normaliseStats(r.stats),
     world,
-    decor: { owned: capOwned(decorParsed.owned), placed: decorParsed.placed, ...seenField(decorParsed.seen ?? [], owned) },
+    decor: { owned: capOwned(decorParsed.owned), placed: decorParsed.placed, ...seenField(decorParsed.seen ?? [], owned), ...outfitsField(decorParsed.outfits, owned) },
     deliveries,
     encounters: parseEncounters(r.encounters, deliveries.hours),
   };
@@ -165,6 +165,13 @@ function capOwned(ids: Iterable<string>): string[] {
 function seenField(ids: Iterable<string>, owned: ReadonlySet<string>): { seen?: string[] } {
   const seen = sortedUnique([...ids].filter((id) => !owned.has(id))).slice(0, DECOR.maxSeen);
   return seen.length > 0 ? { seen } : {};
+}
+
+// The equipped outfits (issue 175) travel whole with the apartment, like `placed`: the winner's, keeping only
+// what the union owns. Left out when empty. Sorted by slot, so the text is the same however it was built.
+function outfitsField(outfits: DecorSave["outfits"], owned: ReadonlySet<string>): { outfits?: NonNullable<DecorSave["outfits"]> } {
+  const kept = Object.entries(outfits?.equipped ?? {}).filter(([, id]) => owned.has(id)).sort((x, y) => byText(x[0], y[0]));
+  return kept.length > 0 ? { outfits: { equipped: Object.fromEntries(kept) } } : {};
 }
 
 export type SyncError = "notASave" | "newer" | "damaged";
@@ -194,7 +201,7 @@ export function normaliseDoc(raw: unknown, env: SyncEnv = {}): { ok: true; doc: 
 
 // The part of the progress group the winner keeps whole, as text, with and without the delivery queues
 // (the only part the merge repairs, so a tie is decided before the repair is looked at).
-const worldText = (p: SyncProgress) => canon({ world: p.world, placed: p.decor.placed, hours: p.deliveries.hours, fired: p.deliveries.fired, encounters: p.encounters });
+const worldText = (p: SyncProgress) => canon({ world: p.world, placed: p.decor.placed, outfits: p.decor.outfits, hours: p.deliveries.hours, fired: p.deliveries.fired, encounters: p.encounters });
 const queueText = (p: SyncProgress) => canon({ pending: p.deliveries.pending, waiting: p.deliveries.waiting });
 
 // Positive when `a` is the side that was played more recently: larger activeAt (clamped), then more game
@@ -235,7 +242,7 @@ export function mergeSaves(a: SyncDoc, b: SyncDoc, now: number): SyncDoc {
       unlocked: sortedUnique([...a.progress.unlocked, ...b.progress.unlocked]),
       stats: maxStats(a.progress.stats, b.progress.stats),
       world: w.world,
-      decor: { owned, placed: { ...w.decor.placed }, ...seenField([...(a.progress.decor.seen ?? []), ...(b.progress.decor.seen ?? [])], has) },
+      decor: { owned, placed: { ...w.decor.placed }, ...seenField([...(a.progress.decor.seen ?? []), ...(b.progress.decor.seen ?? [])], has), ...outfitsField(w.decor.outfits, has) },
       deliveries: {
         hours: w.deliveries.hours,
         pending: w.deliveries.pending.filter((p) => !has.has(p.id)),

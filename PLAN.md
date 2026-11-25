@@ -229,16 +229,23 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 161 | [Plant wording](issues/161-plant-wording-not-snake.md) | claude | done | |
 | 162 | [Reduced motion audit](issues/162-reduced-motion-audit.md) | claude | done | |
 | 162b | [Steady candle](issues/162b-steady-candle.md) | claude | done | 162 |
-| 163 | [Item pool and repeats](issues/163-encounter-item-pool.md) | marc + claude | todo | |
-| 164 | [Outfit slots](issues/164-outfit-slots.md) | marc + claude | todo | |
-| 165 | [Shower scene](issues/165-shower-scene.md) | marc + claude | todo | 164 |
-| 166 | [A rug](issues/166-rug.md) | marc + claude | todo | |
+| 163 | [Item pool and repeats](issues/163-encounter-item-pool.md) | marc + claude | done | |
+| 164 | [Outfit slots](issues/164-outfit-slots.md) | marc + claude | done | |
+| 165 | [Shower scene](issues/165-shower-scene.md) | marc + claude | done | 164 |
+| 166 | [A rug](issues/166-rug.md) | marc + claude | done | |
 | 167 | [Trinkets](issues/167-trinkets.md) | marc + claude | todo | |
-| 168 | [Coffee gear](issues/168-coffee-gear.md) | marc + claude | todo | |
+| 168 | [Coffee gear](issues/168-coffee-gear.md) | marc + claude | done | |
 | 169 | [Shelf and sill](issues/169-wall-shelf-and-sill.md) | marc + claude | todo | 167 |
 | 170 | [Empty pot](issues/170-empty-pot.md) | marc + claude | todo | |
 | 171 | [Cut flowers](issues/171-cut-flowers.md) | marc + claude | todo | |
 | 172 | [Record stand](issues/172-record-stand.md) | marc + claude | todo | |
+| 173 | [Trinket display design](issues/173-trinket-display.md) | marc + claude | todo | 151 |
+| 174 | [Shorter swap prompts](issues/174-swap-prompt-wording.md) | marc + claude | done | 166, 168 |
+| 175 | [Outfit slots build](issues/175-outfit-slots-build.md) | marc + claude | done | 164 |
+| 176 | [Outfit equip screen](issues/176-outfit-equip-screen.md) | marc + claude | todo | 175 |
+| 177 | [Shower scene build](issues/177-build-shower-scene.md) | marc + claude | todo | 175 |
+| 178 | [Pause hint line hides](issues/178-pause-hint-line-hides.md) | claude | todo | |
+| 179 | [Plant pots design](issues/179-plant-pots.md) | marc + claude | todo | |
 <!-- issues:table:end -->
 
 ## Order of work

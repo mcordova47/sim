@@ -315,28 +315,28 @@ describe("the plant tasks follow the plant on the shelf", () => {
 
   it("the three plant tasks say which plant, and the snake plant's wording is exactly as it was", () => {
     expect(tasks.map((t) => t.id).sort()).toEqual(["check-plant", "water-plant", "water-plant-droop"]);
-    expect(new Decor().taskName(tasks.find((t) => t.id === "water-plant")!)).toBe("Water the snake plant");
-    expect(new Decor().taskName(tasks.find((t) => t.id === "water-plant-droop")!)).toBe("Water the drooping snake plant");
-    expect(new Decor().taskName(tasks.find((t) => t.id === "check-plant")!)).toBe("Check the snake plant");
-    expect(nameOf("plant-pothos", "water-plant")).toBe("Water the pothos");
-    expect(nameOf("plant-pothos", "water-plant-droop")).toBe("Water the drooping pothos");
-    expect(nameOf("plant-monstera", "check-plant")).toBe("Check the monstera");
-    expect(nameOf("plant-spider", "water-plant")).toBe("Water the spider plant");
+    expect(new Decor().taskName(tasks.find((t) => t.id === "water-plant")!)).toBe("Water snake plant");
+    expect(new Decor().taskName(tasks.find((t) => t.id === "water-plant-droop")!)).toBe("Water drooping snake plant");
+    expect(new Decor().taskName(tasks.find((t) => t.id === "check-plant")!)).toBe("Check snake plant");
+    expect(nameOf("plant-pothos", "water-plant")).toBe("Water pothos");
+    expect(nameOf("plant-pothos", "water-plant-droop")).toBe("Water drooping pothos");
+    expect(nameOf("plant-monstera", "check-plant")).toBe("Check monstera");
+    expect(nameOf("plant-spider", "water-plant")).toBe("Water spider plant");
   });
 
   it("the prompts are untouched, and an item with no task name leaves the plain wording", () => {
     const water = tasks.find((t) => t.id === "water-plant")!;
-    expect(water.prompt).toBe("Water the plant");
-    expect(tasks.find((t) => t.id === "water-plant-droop")!.prompt).toBe("Water the drooping plant");
-    expect(tasks.find((t) => t.id === "check-plant")!.prompt).toBe("Check the plant");
+    expect(water.prompt).toBe("Water plant");
+    expect(tasks.find((t) => t.id === "water-plant-droop")!.prompt).toBe("Water plant");
+    expect(tasks.find((t) => t.id === "check-plant")!.prompt).toBe("Check plant");
     const d = new Decor();
     d.own("plant-test-grown");
     d.place("plant-shelf", "plant-test-grown");
     expect(d.heldIn("plant-shelf")!.taskName).toBeUndefined();
-    expect(d.taskName(water)).toBe("Water the plant");
+    expect(d.taskName(water)).toBe("Water plant");
     // A task with no word to replace, or no slot, is as written.
-    expect(new Decor().taskName({ name: "Make the bed" })).toBe("Make the bed");
-    expect(new Decor().taskName({ name: "Water the plant", itemWord: "plant" })).toBe("Water the plant");
+    expect(new Decor().taskName({ name: "Make bed" })).toBe("Make bed");
+    expect(new Decor().taskName({ name: "Water plant", itemWord: "plant" })).toBe("Water plant");
   });
 
   it("every live plant item has a task name, and every plant item's name draws in the font in every task", () => {
@@ -374,7 +374,7 @@ describe("the plant tasks follow the plant on the shelf", () => {
     const task = tasks.find((t) => t.id === "water-plant")!;
     // What drawWorldUi hands the progress label.
     draws.push(decor.taskName(task));
-    expect(draws).toEqual(["Water the monstera"]);
-    expect(game.decor.taskName(task)).toBe("Water the monstera");
+    expect(draws).toEqual(["Water monstera"]);
+    expect(game.decor.taskName(task)).toBe("Water monstera");
   });
 });

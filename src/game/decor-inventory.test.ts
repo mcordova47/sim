@@ -22,8 +22,9 @@ const esc: Controls = { ...NO_INPUT, keys: ["Escape"], cancelPressed: true };
 const TAB: Controls = { ...NO_INPUT, keys: ["Tab"] };
 const dir = (d: "up" | "down"): Controls => ({ ...NO_INPUT, dirPressed: d, dir: d });
 
-const shownIds = (d: Decor) => DECOR_SLOTS.map((s) => d.shownIn(s.id)?.id).filter((id): id is string => !!id);
-const realShownIds = (d: Decor) => DECOR_SLOTS.map((s) => d.heldIn(s.id)?.id).filter((id): id is string => !!id);
+// Empty slots (the rug, issue 166; the coffee stove, issue 168) show nothing and are left out.
+const shownIds = (d: Decor) => DECOR_SLOTS.flatMap((s) => d.shownIn(s.id)?.id ?? []);
+const realShownIds = (d: Decor) => DECOR_SLOTS.flatMap((s) => d.heldIn(s.id)?.id ?? []);
 const distinct = (ids: string[]) => new Set(ids).size === ids.length;
 
 describe("the inventory", () => {

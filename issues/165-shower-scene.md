@@ -2,7 +2,7 @@
 id: "165"
 title: "A Sims-like shower scene that ends in the bathrobe"
 short: "Shower scene"
-status: todo
+status: done
 owner: marc + claude
 depends_on: ["164"]
 summary: "A short comic shower scene (bubbles, steam, a hiss) when you take a shower, ending with the player in the bathrobe."
@@ -16,7 +16,10 @@ decisions:
       - "in the bath room itself: the player stays in the tub with effects drawn over it"
       - "both: the in-room version while it runs, a close-up for the finish"
     recommendation: "a composed close-up like the sofa and side-project scenes: the player in the shower, bubbles and steam, then out in the robe"
-    status: open
+    status: answered
+    answer: "in the bath room itself: the player stays in the tub with effects drawn over it"
+    by: marc
+    on: 2026-11-24
   - id: d2
     who: marc
     q: "How should the effects look?"
@@ -25,7 +28,10 @@ decisions:
       - "steam only, no bubbles"
       - "something sillier: more bubbles, bubbles that float away"
     recommendation: "soap bubbles cover the body with the head showing; steam and fog drift up; droplets fall from the showerhead; all calm and slow"
-    status: open
+    status: answered
+    answer: "soap bubbles cover the body with the head showing (a nod to the censor blur); steam and fog drift up; droplets fall from the showerhead; all calm and slow"
+    by: marc
+    on: 2026-11-24
   - id: d3
     who: marc
     q: "Sound for the scene?"
@@ -34,7 +40,10 @@ decisions:
       - "no sound beyond the existing music"
       - "a short jingle"
     recommendation: "a soft shower hiss (filtered noise on the effects bus) with a quiet click when it stops; the existing music keeps playing underneath"
-    status: open
+    status: answered
+    answer: "a soft shower hiss (filtered noise on the effects bus) with a quiet click when it stops; the existing music keeps playing underneath"
+    by: marc
+    on: 2026-11-24
   - id: d4
     who: marc
     q: "Reduced motion (the browser setting, docs/reduced-motion.md)?"
@@ -43,7 +52,95 @@ decisions:
       - "with it on, skip the scene and just play the old shower"
       - "ignore the setting for this scene"
     recommendation: "with it on, the steam is still and the bubbles do not move; the scene is otherwise the same"
-    status: open
+    status: answered
+    answer: "with it on, the steam is still and the bubbles do not move; the scene is otherwise the same"
+    by: marc
+    on: 2026-11-24
+  - id: d5
+    who: marc
+    q: "When no bathrobe will be worn (none owned or the ROBE slot is empty), what does the last picture of the shower scene show?"
+    options:
+      - "the outfit that will be worn after the shower (usually the everyday one), standing where the robe would"
+      - "a towel wrapped round the player (one more picture to draw)"
+      - "no last picture: the scene ends on the bubbles and the room comes back"
+    recommendation: "the outfit that will be worn after the shower (usually the everyday one), standing where the robe would"
+    status: answered
+    answer: "i think n/a? because there isn't really a \"cutscene\" per se. it's more like the player appears in the shower and then outside of it with either the robe or everyday clothes (maybe a towel is another robe option, maybe even the default?)"
+    by: marc
+    on: 2026-11-24
+  - id: d6
+    who: marc
+    q: "Besides Escape (stop, no points, no robe), should there be a way to skip to the end of the shower scene and still be paid?"
+    options:
+      - "no: Escape is the one back-out and pays nothing, as in every other scene"
+      - "yes: pressing E skips to the last picture and pays the usual points"
+      - "yes, but only after the player has seen the whole scene once"
+    recommendation: "no: Escape is the one back-out and pays nothing, as in every other scene"
+    status: answered
+    answer: "no: Escape is the one back-out and pays nothing, as in every other scene"
+    by: marc
+    on: 2026-11-24
+  - id: d7
+    who: marc
+    q: "A shower can be repeated every 16 seconds (a 10 second cooldown and the 6 second scene). Should every shower play the whole scene?"
+    options:
+      - "yes: it is only 6 seconds; look again after playing it"
+      - "the whole scene the first time each game day, a shorter one (just the water and the robe) after that"
+      - "only the first shower ever plays the scene"
+    recommendation: "yes: it is only 6 seconds; look again after playing it"
+    status: answered
+    answer: "yes: it is only 6 seconds; look again after playing it"
+    by: marc
+    on: 2026-11-24
+  - id: d8
+    who: marc
+    q: "What colour is the shower stall's tile in the close-up? The real bath is white glossy tile, but a heap of white bubbles cannot be seen against white."
+    options:
+      - "teal tile, for readability (a departure from the apartment)"
+      - "the real bath's white tile, with the bubbles outlined in dusk (hard to read in the mockup)"
+      - "a pale blue (sky) tile, between the two"
+    recommendation: "teal tile, for readability (a departure from the apartment)"
+    status: answered
+    answer: "no closeup"
+    by: marc
+    on: 2026-11-24
+  - id: d9
+    who: marc
+    q: "Marc suggested a towel might be another ROBE-slot option, even the default. Should a towel be drawn as an outfit for the ROBE slot, and be what you wear after a shower when you own no robe?"
+    options:
+      - "not now: with no robe the empty slot falls back to your everyday clothes; a towel is filed as a later outfit idea (new art through the outfit generator, and a style decision under the strict slots)"
+      - "yes, as a second ROBE-slot outfit you can equip, but the default stays everyday clothes"
+      - "yes, and the towel is what you wear after a shower until you own a robe"
+    recommendation: "not now: with no robe the empty slot falls back to your everyday clothes; a towel is filed as a later outfit idea (new art through the outfit generator, and a style decision under the strict slots)"
+    status: answered
+    answer: "as recommended"
+    by: marc
+    on: 2026-11-24
+  - id: d10
+    who: marc
+    q: "Where does the player appear after the shower?"
+    options:
+      - "on the tile they stood on beside the tub (where they pressed E), facing the tub: no relocation, nothing to check"
+      - "always on one fixed tile on the walkway, whichever tile they stood on"
+    recommendation: "on the tile they stood on beside the tub (where they pressed E), facing the tub: no relocation, nothing to check"
+    status: answered
+    answer: "on the tile they stood on, but facing away from the tub"
+    by: marc
+    on: 2026-11-24
+  - id: d11
+    who: marc
+    q: "With reduced motion on, should the falling droplets (1 x 2 pixels, a few pixels of travel) stay, while the steam and fog go still and the floating bubbles stop?"
+    options:
+      - "keep the droplets: they are the signal that the water is on, and they are tiny and short"
+      - "make the droplets still too (a few fixed short strokes under the tap)"
+    recommendation: "keep the droplets: they are the signal that the water is on, and they are tiny and short"
+    status: answered
+    answer: "keep the droplets (Marc deferred to the planner: they are what says the water is on)"
+    by: planner
+    on: 2026-11-24
+unverified:
+  - "Update review: nothing was run in a browser; how the turned-away player and the whole in-room scene look and feel at real size and speed, the hiss and click by ear, the real camera placement and whether the 16 x 48 pose sorts in front of the tub in the running game were read from code and mockups only."
+  - "The turn on taskComplete (TURN_AWAY_AFTER) is a design: no code exists, so its behaviour with an ad encounter or with 164's occasion was reasoned from game.ts and interaction.ts, not run."
 ---
 
 ## Goal
@@ -54,3 +151,10 @@ A DESIGN issue first: `docs/shower-scene-design.md` with the scene as mockups at
 
 ## Progress log
 - 2026-11-24 (planner): filed on main with its open decisions (the issue file is born on main); Marc's request after merging the outfit work.
+- 2026-11-24 (claude): started on a worktree `~/Dev/repos/mcordova47/sim-worktrees/165-shower-scene` (branch `issue/165-shower-scene`, from main `b1db29a`). Plan: read the code the scene touches, render mockups with the game's own palette, sprites and font, and write `docs/shower-scene-design.md`. Note: `depends_on` 164 is `done` on its own unmerged branch, a design only; I read its note read-only and did not change it.
+- 2026-11-24 (claude): wrote `docs/shower-scene-design.md` and nine mockup PNGs in `docs/shower-scene-mockups/` (desktop 320 x 192 and phone 224 x 208, four pictures each, plus the no-robe picture 4 and the white-tile comparison). The design: a new activity drawing a front-on shower stall at 4x in a 192 x 192 stage centred on both views (no view switch); four pictures over the 6 second task (curtain closed, on with foam, steam, droplets and fog, off with a click, out in the robe or the outfit that will be worn); the player is a real head over an opaque heap of foam, so there is no clothes-free body art; the activity owns a second particle pool because the game's pool is under the scene; the hiss needs a `shower` bus and a looping noise voice with hold (about 25 lines in the synth); reduced motion freezes steam and bubbles and cuts the curtain; Escape pays nothing and fires no occasion; the robe is drawn by `outfitSlots.resolve("robe")` and never written by the scene. Seven sprites (five 48 x 48, two 32 x 16), three particle kinds, four build stages. Added d5 to d8 as open decisions (each with a recommended default) and a `needs` entry. Files: `docs/shower-scene-design.md`, `docs/shower-scene-mockups/*.png`, this file. Not checked: see `unverified`.
+- 2026-11-24 (reviewer): independent review at 86d5c5d. Verdict: APPROVE (status done; PLAN.md table needs updating by the planner; d1 to d8 stay open for Marc). Evidence: `git diff main...HEAD` touches only docs/shower-scene-design.md, ten PNGs and this file (no src, art or reference-photos); d1 to d4 are unchanged (the only front matter deletion is `status: todo`); `npm run issues:check -- --validate`: 207 valid, warnings only for other files; every decision has a recommendation and status open. Engine claims checked against the code: true or within a few lines: tasks.ts:90,189,349 (exact), apartment.ts bath map and `U` (228-245), activity.ts registerActivity and draw signature, game.ts draw order (world UI, HUD, activity, dialog, stop hint at 857-863; the hint is skipped for encounters), reducedMotionAsked at 155 and encounter dependency at 306, ActivityHost (339-377) has no reducedMotion member, interaction.ts Escape (159-160) and finish (302-347: cancel returns before effects, score, cooldown, onComplete), pool.draw uses the context's coordinates, ParticlesFeature.drawWorld is the only draw and taskEmitters is by task id and anchored in world pixels (1546), shapes and kinds throw when unknown, steam and bubble are `dot2`, synth NOISE_SECONDS 0.5, envelope is peak then exponential ramp to silence, `hold` only for formants (synth.ts:159), no loop in BufferSourceLike (audio-types 48-53), lazily made `sleep` and `encounter` buses with rampBus, SleepSound pattern, image smoothing off, drawScaled has no production caller (only a test), sprite sizes must be multiples of 16 except icon-*, HUD_ICON_NAMES is in spriteNames, the head is rows 0 to 6 and the shirt starts at row 7 of player-idle-down, bed pose is clothed false. Wrong or imprecise (all minor): (a) "the snore's 0.04, the quietest sound": the snore's main voice is 0.07 (noise layer 0.04) and a 0.035 sound exists; (b) "about 14,000 pixels" of art is 12,544 (5 x 2304 + 2 x 512); (c) the In short line says the robe falls back to "the outfit already worn" but 164 resolves an empty ROBE to EVERYDAY (section 5 and mockup 4b say it correctly); (d) section 9 item 9 says the desktop hint sits "in the strip above the stage's arm", but the stage fills the full 192 px height so there is no strip: the hint is drawn over the tile (it does not touch the arm) and is low contrast on teal in the mockups. Consistency with 164: the scene keeps task id shower, never writes worn, does not assume the robe is owned (`resolve("robe")`, with a worn-outfit stand-in until 164 stage 2), knows the occasion is deferred and draws its own last frame, and relies on cancel firing nothing. It departs from 164's suggestion of a `clothed: false` picture by using head over foam; that is within the 150 style and argued in section 2 and 4. Arithmetic: 48 x 4 = 192; desktop stage x 64 to 256, y 0 to 192; phone x 16 to 208, y 8 to 200; beats 0.117, 0.142, 0.167, 0.767, 0.883 of 6 s = 0.70, 0.85, 1.00, 4.60, 5.30 s, matching the timeline; sprite sizes 48 x 48 and 32 x 16 are multiples of 16; particle alive estimates (drops about 8 to 15, steam about 9, bubbles about 3, 25 in all, pool 60) hold. Mockups (viewed): 320 x 192 and 224 x 208 at 3x with caption strips outside the game picture, 4 stages plus the no-robe and white-tile comparisons; the head shows over an opaque heap, droplets, faint steam and the robe frame are present; legible, gender-neutral, no text in the picture (only the game's own stop hint); steam is faint in the mockups. Criteria: mockups pass; art list pass; particles reuse pool pass; sound cues pass; robe via slots pass; reduced motion pass; duration and points unchanged pass; end and Escape pass; clothes-free approach pass; size and build plan pass; open questions kept open pass; no code or art pass. Could not check: browser look and feel, audio, touch layer, how the bright scene reads after a dark night room, 164 outfitSlots code (unmerged), the foam geometry (see unverified). Optional tidy for the author, not blocking: fix (a) to (d) above.
+- 2026-11-24 (claude): REVISED after Marc answered d1 to d8: he chose the in-room version (no close-up), no cutscene (the player appears in the tub and then beside it), no skip, every shower plays the whole scene. Rewrote `docs/shower-scene-design.md` and replaced the mockups in `docs/shower-scene-mockups/` (17 PNGs: the real bath room as the game draws it, small and bottom-centred, desktop 320 x 192 and phone 224 x 208, five pictures each, a 6x detail of the tub, the no-robe picture and the reduced-motion picture). The scene is now a pose (`shower-tub`, `clothed: false`, like `sleep-bed`) over the tub, one new 16 x 48 sprite, the game's own particle pool with four new kinds, task phases from data, a hiss on a new bus with a looping noise voice, and no robe handling of its own (164's occasion does it). The earlier review entry above applies to the superseded close-up design. Added d9 (towel), d10 (where the player appears), d11 (droplets under reduced motion), each open with a recommendation, and replaced the `needs` entry. Not checked: see `unverified`.
+- 2026-11-24 (reviewer): second, independent review of the REVISED in-room design at e429bf8 (the earlier review entry covers the superseded close-up; its conclusions were ignored). Verdict: APPROVE (status done; PLAN.md table needs updating by the planner; d9 to d11 stay open for Marc, as designed). Evidence: `git diff main...HEAD` touches only docs/shower-scene-design.md, 17 PNGs and this file (no src, art or reference-photos); d1 to d8 match main's answered entries exactly (diff of the decisions block: the only differences are the added d9 to d11, the status and the needs line); d9 to d11 are open, each with options and a recommendation; `npm run issues:check -- --validate`: 207 valid, warnings only for other files. Marc's answers respected: in-room (pose over the tub, real bath room), no close-up, no cutscene (appears in the tub, then beside it), no skip (Escape pays nothing), every shower plays the whole scene, d3 hiss and click with the music left alone, d4 still steam and bubbles. Engine claims checked in the worktree and true or within a few lines: shower task 6 s / 70 points (tasks.ts:90), mood +6 (189), good hours (349), cooldown default 10 (config.ts:69); bath map and `U` tub (apartment.ts:228-245), tub 2 x 4 tiles at col 1-2 rows 1-4 so a 32 x 64 piece at (16, 16), faced from col 3 (a floor tile in rows 1 to 4); PoseDef semantics and `clothed: false` (poses.ts); pose pushed after the pieces and sorted stable by bottom edge (game.ts:1081-1104); arithmetic: piece y 16 + at.y 16 + 48 = 80 = tub bottom (16 + 64), so a tie and the pose, added last, is in front; camera clampX/clampY centres a smaller world sideways and sits it at the bottom: 144 x 96 gives (320-144)/2 = 88 and 192-96 = 96 on the desktop, (224-144)/2 = 40 and 208-96 = 112 on the phone; particle layer drawn in the world pass after drawWorld (game.ts:836-850); `phases` typed "fall"|"asleep"|"wake" and read only from game.sleepScene (config.ts:1455, feature.ts:143-146), an emitter that stops applying forgets its timer (feature.ts:150); interaction Escape (159-160) and finish (active = null first; cancel returns before the effects, score, cooldown and onComplete); `Game.reducedMotionAsked` (game.ts:155) reachable from ParticlesFeature via `this.game`; synth NOISE_SECONDS 0.5, `hold` only for formants (synth.ts:159), no loop on BufferSourceLike (audio-types 48-53), buses and `ramps` (synth.ts:73), rampBus (102); mug steam ambient emitter has `free: true` (config.ts:1567); record-stand anchor is not in the bath; the pool is cleared (feature.ts:112). Tub water is 13 px wide (art/src/tub.sprite, 'i' columns 8 to 20), the 16 x 48 pose at x 22 to 38 is centred on it within a pixel. Particle estimates (rate x life) hold: drops 2 per 0.055 s x 0.145 s = about 5, steam 10, fog 5, bubbles 2: about 22 alive against a pool of 200. 164 consistency: task id `shower` kept, never writes `worn`, does not assume a robe is owned, the occasion deferred until no task, dialog or pose is active so the pose draws no clothes; an empty ROBE falls back to EVERYDAY; return to everyday by hand only; strict slot styles; no contradiction with 164's note (its section 8 point on `resolve("robe")` applies only if a last frame is drawn, which this design does not do). Criteria: stages in mockups at 320 x 192 and 224 x 208 pass; art count and size (one 16 x 48 sprite, palette only, no text) pass; particles reuse the game's pool pass; sound cues pass; robe via outfit slots pass; reduced motion pass; duration and points unchanged pass; end and Escape pass; clothes-free picture pass; size and staged build plan pass; open questions kept as decisions pass; no code or art pass. Mockups viewed (desktop 3, 5, 5b, details 3, 3-still, 5, phone 3): the real bath drawn small and bottom-centred with ink above, a head over a bubble heap in the tub, droplets, faint steam, the robe and everyday pictures after, gender-neutral, no text inside the game picture (captions are in a strip outside it). Minor, not blocking, optional tidy: (a) section 5 and edge case 9 say steam climbs "about 10 px", but vy -9 over a 2.2 s life can reach about 20 px, which from over the tub reaches the north wall tile row (still inside the room, but the claim is understated); (b) the detail mockups' captions are cut off ("AFTER, IN TH", "REDUCED MOTIO"); (c) the hiss is two layers (0.05 and 0.04) yet is described as about the snore's 0.04 noise layer, so it may be louder than said, to be tuned by ear; (d) the fog puffs on the floor in the 3x mockups read a little like grey smudges or puddles, worth a look when the real art is built. Could not check: see `unverified`.
+- 2026-11-24 (claude): UPDATED for Marc's answers to d9 to d11 (copied from main as answered). d9: no towel, empty ROBE slot falls back to everyday. d10: the player appears on the tile they stood on, facing AWAY from the tub: the tub is on the west wall, so that is `right` (east); `player-idle-right` and `player-pajamas-robe-idle-right` exist; the turn is a data entry and a few lines on `taskComplete` (Escape does not turn the player). d11: droplets stay under reduced motion. Changed `docs/shower-scene-design.md` (sections 6, 3, 9, 11, 12) and re-rendered the four picture-5 mockups (desktop 5 and 5b, phone 5, detail 5) with the right-facing sprites. Dropped the branch's `needs` entry. Not checked: as before, see `unverified`.
+- 2026-11-24 (reviewer): third, independent review of the UPDATE for d9 to d11, made on the working tree on top of 3c54327 (the update itself was NOT committed when reviewed: docs/shower-scene-design.md and the four picture-5 PNGs were modified but uncommitted; only this issue file is committed by this review). Verdict: APPROVE (status done; PLAN.md table needs updating by the planner). Evidence: (1) d9 to d11 decision blocks are identical to main's answered entries (diff of the blocks from d9 to the end of the front matter differs only by main's `needs:` line, which the branch has dropped); `npm run issues:check -- --validate` passes. (2) Code facts true: BATH_MAP (apartment.ts:231) has the tub as `U` at cols 1-2 rows 1-4, so it is only faced from col 3 rows 1 to 4 looking left, and away is `right`; art/src has player-idle-right and player-pajamas-robe-idle-right and every outfit has idle-right; `player.facing` is a plain field and the host's `face` writes it (game.ts:358); the turn on taskComplete (game.ts:229 emits it) is sound, and Escape does not turn the player because interaction.finish returns on `!result.completed` before onComplete. The note is consistent in In short, section 3 table, section 6, section 9 item 5, section 11 stage 2 and section 12, and no text says the player faces the tub afterwards except the correct Escape case. (3) Mockups viewed (desktop-5, desktop-5b, phone-5, detail-5): the player stands on the tile beside the tub facing right (east), robe in 5, phone 5 and detail 5, everyday blue in 5b. (4) Versus the merge base only docs, mockups and this file differ (no src or art; main has since moved on so a plain diff against main shows unrelated src changes, which are main's). Minor, optional tidy, not blocking: (a) section 6 cites `outfits.ts` `framesFor`; it is in `render/player-sprite.ts:14`; (b) section 8 table row for droplets still says `(d11 asks)` and the Towel bullet in section 6 calls it `a new question (d9)`; both are answered now; (c) the status paragraph at the top lists d1 to d8 only; (d) the update's uncommitted docs and PNGs must be committed with the issue file before merging, else the branch contradicts its log; (e) the earlier `unverified` list was dropped in the update, so a short one is re-added here; (f) detail-5 caption is still cut off (AFTER, IN TH). Could not check: see `unverified`.

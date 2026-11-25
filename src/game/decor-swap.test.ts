@@ -50,12 +50,12 @@ describe("the swap tasks", () => {
   it("exist for each slot with an object, have no points, no cooldown and are named plainly", () => {
     const swaps = TASKS.filter((t) => t.decorSlot);
     expect(swaps.map((t) => t.id).sort()).toEqual(DECOR_SLOTS.filter((s) => s.object).map((s) => swapTaskId(s.id)).sort());
-    expect(swaps.map((t) => t.prompt)).toContain("Change the painting");
+    expect(swaps.map((t) => t.prompt)).toContain("Change painting");
     for (const t of swaps) {
       expect(t.points).toBe(0);
       expect(t.cooldown).toBe(0);
       expect(t.effects).toBeUndefined();
-      expect(t.activity).toEqual({ type: "swap-decor" });
+      expect(t.activity).toEqual({ type: t.decorSlot === "worn" ? "outfit-slots" : "swap-decor" });
     }
   });
 
@@ -72,7 +72,8 @@ describe("the swap tasks", () => {
 
   it("are not offered in a fresh game: no prompt, not in the cycle", () => {
     const { game } = setup();
-    for (const t of TASKS.filter((x) => x.decorSlot)) {
+    // The stove's swap is in the kitchen (issue 168; decor-coffee-168.test.ts checks it there).
+    for (const t of TASKS.filter((x) => x.decorSlot && x.decorSlot !== "coffee-stove")) {
       standAt(game, t.id);
       expect(game.interaction.choices.map((c) => c.id)).not.toContain(t.id);
       expect(game.interaction.nearby?.id).not.toBe(t.id);
@@ -308,7 +309,8 @@ describe("Escape always leaves the room as it was (fuzz)", () => {
       for (const id of TEST) decor.own(id);
       const game = new Game(APARTMENT.rooms.main, { rooms: APARTMENT.rooms, decor, random: rand });
       const feature = new AchievementsFeature(game, { storage, keys: undefined });
-      const swaps = TASKS.filter((t) => t.decorSlot).map((t) => t.id);
+      // Only the main room: the stove's swap (issue 168) is in the kitchen, where this fuzz does not walk.
+      const swaps = TASKS.filter((t) => t.decorSlot && DECOR_SLOTS.find((s) => s.id === t.decorSlot)?.room === "main").map((t) => t.id);
       let releaseLock: (() => void) | null = null;
       for (let step = 0; step < 400; step++) {
         const roll = rand();

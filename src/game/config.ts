@@ -134,6 +134,11 @@ export const DECOR = {
   maxSeen: 100,
 };
 
+// Outfit occasions (issue 175, docs/outfit-slots-design.md): finishing the task with this id puts you in that
+// outfit slot, once nothing is running. There is no timer and nothing else changes your clothes by itself; a
+// nap and Escape out of a task change nothing. Going out has no occasion yet (it is worn by hand).
+export const OUTFIT_OCCASIONS: Readonly<Record<string, import("./outfits").OutfitSlotId>> = { sleep: "pajamas", shower: "robe" };
+
 // Deliveries (issue 062 stage 3a, docs/decor.md). Times are game hours.
 export const DELIVERIES = {
   // Most items waiting to arrive plus waiting at the door; `deliver` refuses more.
@@ -255,6 +260,16 @@ export const ENCOUNTERS = {
   // The last ads shown that are not shown again if another is possible, and the most kept in the save.
   recent: 3,
   maxSeen: 20,
+  // The pool the product-line ads draw from (issue 163): every real item of these kinds that is not a starting item
+  // and not a TEST item. A draw weights an item (or an ad whose item is) you do not own `unowned` times as high as one
+  // you own or have ordered (`owned`), so an ad for something you have stays rare while the pool is large and is only
+  // the usual one when everything is owned. The kinds are the ones an ad can sell (not props, plug-ins, the pantry
+  // or furniture); a kind with no items yet simply gives its shop nothing to sell.
+  pool: {
+    kinds: ["art", "plant", "lamp", "rug", "outfit", "coffee", "trinket", "instrument"] as readonly string[],
+    unowned: 10,
+    owned: 1,
+  },
 };
 
 // Energy runs from 0 to 100 (see state-vars.ts).

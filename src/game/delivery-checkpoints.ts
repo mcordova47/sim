@@ -8,7 +8,7 @@ import type { Milestone } from "./deliveries";
 // time played (24 game hours each, sleeping included), or lifetime `tasks` done.
 
 // What a built game uses (issue 043 stage A, docs/random-encounters.md section 3):
-// the first ten gifts, in order, then the plants of issue 147. A day gift arrives 2 game hours after the day is
+// the first ten gifts, in order, then the plants of issue 147, the clothes (152) and the coffee gear (168). A day gift arrives 2 game hours after the day is
 // reached; an achievement gift 2 game hours after it unlocks. An owned item gives
 // nothing (still fired). A test checks every item exists and none repeats.
 const SOON = 2;
@@ -44,7 +44,7 @@ export const CHECKPOINTS: readonly Milestone[] = [
   { id: "gift-day-66", stat: "days", atLeast: 66, item: "outfit-out-peacoat", delayHours: SOON },
   { id: "gift-day-69", stat: "days", atLeast: 69, item: "outfit-pajamas-striped", delayHours: SOON },
   { id: "gift-day-72", stat: "days", atLeast: 72, item: "outfit-pajamas-robe", delayHours: SOON },
-  // Trinkets (issue 167), then the display instruments, from day 81 every third day: after the rugs (days 75, 78, issue 166), on days that never meet the coffee gear's (from 85, issue 168).
+  // Trinkets (issue 167), then the display instruments, from day 81 every third day: after the rugs (days 75, 78, issue 166), on days that never meet the coffee gear's (85, 88, ..., issue 168). Marc (167 d4): keep these days but do not tighten them; he wants to think separately about spacing so things do not arrive too quickly.
   { id: "gift-day-81", stat: "days", atLeast: 81, item: "trinket-alebrije", delayHours: SOON },
   { id: "gift-day-84", stat: "days", atLeast: 84, item: "trinket-telescope", delayHours: SOON },
   { id: "gift-day-87", stat: "days", atLeast: 87, item: "trinket-finger-skateboard", delayHours: SOON },
@@ -54,7 +54,19 @@ export const CHECKPOINTS: readonly Milestone[] = [
   { id: "gift-day-99", stat: "days", atLeast: 99, item: "instrument-harmonica", delayHours: SOON },
   { id: "gift-day-102", stat: "days", atLeast: 102, item: "instrument-kalimba", delayHours: SOON },
   { id: "gift-day-105", stat: "days", atLeast: 105, item: "instrument-jaw-harp", delayHours: SOON },
-  { id: "gift-day-108", stat: "days", atLeast: 108, item: "instrument-mini-keyboard", delayHours: SOON },
+  // Rugs (issue 166, decision d4's default): only a starter pair is a checkpoint gift, the striped living-area rug on day 75 and the green bed rug on day 78,
+  // after the last outfit (day 72). The other eight rugs are items with no checkpoint yet; they come through the random-encounter
+  // pool when issue 163 is built. Change the number to move a gift.
+  { id: "gift-day-75", stat: "days", atLeast: 75, item: "rug-striped", delayHours: SOON },
+  { id: "gift-day-78", stat: "days", atLeast: 78, item: "rug-bed-field", delayHours: SOON },
+  // Coffee gear (issue 168), after the outfits (day 72), the rugs (75, 78) and the trinkets (from 81): table apparatus first, then the stove's.
+  // Planner's default days (three apart): change the number to move a gift.
+  { id: "gift-day-85", stat: "days", atLeast: 85, item: "coffee-french-press", delayHours: SOON },
+  { id: "gift-day-88", stat: "days", atLeast: 88, item: "coffee-drip-machine", delayHours: SOON },
+  { id: "gift-day-91", stat: "days", atLeast: 91, item: "coffee-pod-machine", delayHours: SOON },
+  { id: "gift-day-94", stat: "days", atLeast: 94, item: "coffee-percolator", delayHours: SOON },
+  { id: "gift-day-97", stat: "days", atLeast: 97, item: "coffee-moka-pot", delayHours: SOON },
+  { id: "gift-day-100", stat: "days", atLeast: 100, item: "coffee-briki", delayHours: SOON },
 ];
 
 // For trying it in the dev server only (`?deliver=test`, decor-dev.ts): the TEST items.

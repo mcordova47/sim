@@ -117,6 +117,24 @@ export function productScale(w: number, h: number, area: Box): number {
   return Math.max(1, Math.min(PRODUCT_SCALE, fit));
 }
 
+// How the product picture fits its box (issue 163): magnified by `productScale`, and when even the plain size is
+// too big (a 128x64 rug in a 100x52 box) only the middle `w` by `h` source pixels are shown, so the picture stays
+// crisp and never spills over the text. `x`/`y` is where that region starts in the sprite.
+export interface ProductFit {
+  scale: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+export function productFit(w: number, h: number, area: Box): ProductFit {
+  const scale = productScale(w, h, area);
+  const cw = Math.max(1, Math.min(w, Math.floor(area.w / scale)));
+  const ch = Math.max(1, Math.min(h, Math.floor(area.h / scale)));
+  return { scale, x: Math.floor((w - cw) / 2), y: Math.floor((h - ch) / 2), w: cw, h: ch };
+}
+
 export interface CardView {
   ad: Ad;
   details: boolean;
@@ -167,19 +185,20 @@ function drawProduct(ctx: CanvasRenderingContext2D, view: CardView, layout: Card
     ctx.fillStyle = paletteColor("cream");
     ctx.fillRect(area.x, area.y, area.w, area.h);
   }
-  const scale = productScale(w, h, area);
-  const x = Math.round(area.x + (area.w - w * scale) / 2);
-  const y = Math.round(area.y + (area.h - h * scale) / 2);
+  const fit = productFit(w, h, area);
+  const { scale } = fit;
+  const x = Math.round(area.x + (area.w - fit.w * scale) / 2);
+  const y = Math.round(area.y + (area.h - fit.h * scale) / 2);
   const { sprites } = view;
   if (sprites?.has(sprite) && sprites.drawRegion) {
     ctx.save();
     ctx.translate(x, y);
-    sprites.drawRegion(ctx, sprite, { x: 0, y: 0, w, h }, { width: w * scale, height: h * scale });
+    sprites.drawRegion(ctx, sprite, { x: fit.x, y: fit.y, w: fit.w, h: fit.h }, { width: fit.w * scale, height: fit.h * scale });
     ctx.restore();
   } else if (sprites?.has(sprite)) {
     sprites.draw(ctx, sprite, x, y);
   } else {
     ctx.fillStyle = paletteColor("mist");
-    ctx.fillRect(x, y, w * scale, h * scale);
+    ctx.fillRect(x, y, fit.w * scale, fit.h * scale);
   }
 }

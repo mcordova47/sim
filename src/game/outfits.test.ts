@@ -15,7 +15,7 @@ const MANY: OutfitDef[] = STYLES.map((style, i) => ({ id: `t${i}`, name: `TEST O
 describe("outfit data", () => {
   it("has a unique id, name and prefix for each outfit, a known style, and the first four in their old places", () => {
     for (const k of ["id", "name", "prefix"] as const) expect(new Set(OUTFITS.map((o) => o[k])).size).toBe(OUTFITS.length);
-    for (const o of OUTFITS) expect(["home", "casual", "out", "pajamas"]).toContain(o.style);
+    for (const o of OUTFITS) expect(["home", "casual", "out", "pajamas", "robe"]).toContain(o.style);
     expect(OUTFITS.slice(0, 4).map((o) => [o.id, o.style, o.prefix])).toEqual([
       ["home", "home", "player"],
       ["casual", "casual", "player-casual"],

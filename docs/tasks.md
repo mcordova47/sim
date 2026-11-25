@@ -5,28 +5,28 @@ Where the original task list is in `src/game/tasks.ts`; this lists what issue 03
 ## Alternating, by state
 | State | Tasks | How it alternates |
 |---|---|---|
-| `blinds` (0 closed, 1 open) | Open the blinds, Close the blinds | each requires the other state; both east windows (issue 065) follow `blinds` and offer the task that applies, so either one changes both |
+| `blinds` (0 closed, 1 open) | Open blinds, Close blinds | each requires the other state; both east windows (issue 065) follow `blinds` and offer the task that applies, so either one changes both |
 | `plate` (0 none, 1 on the table) | Reheat leftovers, Cook dinner (set it), Eat dinner (clears it) | not an alternation: Eat dinner is still allowed with no plate out (it just leaves it at 0). Sleeping does not clear it. The table draws `table-plate` at 1, `table` (bare wood) at 0 |
-| `takeout` (0 none, 1 on the table), `takeoutOrdered` (derived) | Order takeout, Eat the takeout; Reheat, Cook and Eat dinner wait while `takeout` is 1 | issue 153. Ordering (nightstand) sets `takeoutOrdered`, which the game turns into a meal in the delivery queue (about 2 game hours, `DELIVERIES.mealDelayHours`) and then keeps in step with it (1 from the order until the box is opened). Order takeout is refused with THE TAKEOUT IS ON ITS WAY, or TAKEOUT IS WAITING while one is on the table. Opening the box puts the meal and the plate on the table (`takeout` 1, `plate` 1; a plate already there keeps the meal in the box); Eat the takeout clears both and sets `boxes` to 1. Cook, Reheat and Eat dinner are refused with TAKEOUT IS WAITING |
-| `mug` (0 empty, 1 full) | Make pour-over coffee, Drink the coffee | making needs an empty mug, drinking a full one |
+| `takeout` (0 none, 1 on the table), `takeoutOrdered` (derived) | Order takeout, Eat takeout; Reheat, Cook and Eat dinner wait while `takeout` is 1 | issue 153. Ordering (nightstand) sets `takeoutOrdered`, which the game turns into a meal in the delivery queue (about 2 game hours, `DELIVERIES.mealDelayHours`) and then keeps in step with it (1 from the order until the box is opened). Order takeout is refused with THE TAKEOUT IS ON ITS WAY, or TAKEOUT IS WAITING while one is on the table. Opening the box puts the meal and the plate on the table (`takeout` 1, `plate` 1; a plate already there keeps the meal in the box); Eat takeout clears both and sets `boxes` to 1. Cook, Reheat and Eat dinner are refused with TAKEOUT IS WAITING |
+| `mug` (0 empty, 1 full) | Make pour-over coffee (or stovetop, issue 168), Drink coffee | making needs an empty mug, drinking a full one |
 | `recordSort` (0 to 3, wraps) | Alphabetize, Arrange by year, Rank by favorites, Arrange by color | automatic: each ordering needs its turn, finishing moves it on; after color it is alphabetical again. No menu |
 
 ## What you type
 | Task | Where | Lines |
 |---|---|---|
 | Answer emails (`work`) | desk | email lines |
-| Code from the couch (`work-sofa`) | sofa | code lines |
+| Code from couch (`work-sofa`) | sofa | code lines |
 | Work in bed (`work-bed`) | bed | a mix |
 
 Lists: `src/game/typing-text.ts`.
 
 ## New
-- **Clean the desk** (`tidy-desk`, desk): points only; changes nothing; cooldown 90 s.
-- **Order takeout** (`order-takeout`, nightstand beside Charge your phone; issue 153): 8 points, 3 seconds, no cooldown (the state gates it). The meal arrives at the door box in about 2 game hours with the line THE TAKEOUT HAS ARRIVED. **Eat the takeout** (`eat-takeout`, dining table): 40 points, 5 seconds, +15 energy, +5 mood, no dishes, no cold timer, no money; it sets `boxes` to 1, so there is a container to flatten and recycle. Ordering plus eating pays about 48, cooking plus eating about 150: the lazy path with no extra reward.
+- **Clean desk** (`tidy-desk`, desk): points only; changes nothing; cooldown 90 s.
+- **Order takeout** (`order-takeout`, nightstand beside Charge your phone; issue 153): 8 points, 3 seconds, no cooldown (the state gates it). The meal arrives at the door box in about 2 game hours with the line THE TAKEOUT HAS ARRIVED. **Eat takeout** (`eat-takeout`, dining table): 40 points, 5 seconds, +15 energy, +5 mood, no dishes, no cold timer, no money; it sets `boxes` to 1, so there is a container to flatten and recycle. Ordering plus eating pays about 48, cooking plus eating about 150: the lazy path with no extra reward.
 - **Charge your phone** (`charge-phone`, nightstand, with the phone-on-charger prop `phone-charger`; issue 088): sets the state variable `battery` (0 to 100, shown in the ribbon as a phone and a bar) to 100; 8 points, 3 seconds, 60 s cooldown (nothing in the state stops repeats, so it keeps one). The battery now drains (1 point per game hour, half that asleep, 6 per completed Doomscroll; issue 094), but no task reads it or is refused by it. The ribbon draws a four-segment battery and a small bolt over it for 4 seconds after the level rises; it is brick under 20. Phone tasks that care about a flat phone are a postponed idea.
 - **Take a nap** (`nap`, sofa): needs energy under `NAP.below`; adds `NAP.energy` and an hour; leaves the bed alone. A 5 second smaller version of the sleep sequence (`docs/sleep.md`): a gentler dark, a breath, a z, no lullaby, no snore, the record plays on.
 - **Go to sleep** (`sleep`, bed; issue 078): a 9 second sequence (`docs/sleep.md`), not a plain wait. When it finishes the clock moves on to the **wake hour**: at least 7 hours later and never before 06:30 (`SLEEP_WAKE`: `clock` has `wake: { atLeast: 7, notBefore: 6.5 }`). A 22:00 bedtime wakes at 06:30 (8.5 hours), a 02:00 one at 09:00 (7 hours), a sleep at 14:00 at 21:00 (7 hours). Plant dryness, the deliveries and every listener get the real hours (`plantDry` has `addSkipped: true`: it adds however many hours the `clock` effect moved). Energy goes to 100, the bed is unmade, mood +10. Escape applies none of it.
-- **Admire the art** (`admire-art`, sofa): a scene that shows a full-screen picture of the south gallery wall (`view-gallery-wall`), then pushes in on one of the ten pieces (2x, 4x, 8x, scaled from the same picture, so the last is big square pixels) with a serious line at each level, and takes it away. A different piece each time, in the order of `src/game/art-pieces.ts` (the `artPiece` state variable, which wraps); that file holds all the text. Nobody walks; the map is unchanged.
+- **Admire art** (`admire-art`, sofa): a scene that shows a full-screen picture of the south gallery wall (`view-gallery-wall`), then pushes in on one of the ten pieces (2x, 4x, 8x, scaled from the same picture, so the last is big square pixels) with a serious line at each level, and takes it away. A different piece each time, in the order of `src/game/art-pieces.ts` (the `artPiece` state variable, which wraps); that file holds all the text. Nobody walks; the map is unchanged.
 
 ## Notes
 - The blinds use `window-blinds-open` and `window-blinds-closed`, on both east windows. The plain `window` sprite was deleted in issue 101.
@@ -35,9 +35,9 @@ Lists: `src/game/typing-text.ts`.
 - `view-gallery-wall` is a labelled placeholder (320x192) until an art issue draws it from Marc's photos.
 
 ## Side projects (issue 051)
-Side projects are data: `SIDE_PROJECTS` in `src/game/side-projects.ts`, each with its own points, cooldown, mood and energy change, good hours, picture and lines; `sideProjectTask` turns an entry into a task. To add one, add an entry and its id to the standing desk's tasks in `apartment.ts`. The desk offers every task that can start, so Work on the side project is a choice beside Answer emails (issue 039).
+Side projects are data: `SIDE_PROJECTS` in `src/game/side-projects.ts`, each with its own points, cooldown, mood and energy change, good hours, picture and lines; `sideProjectTask` turns an entry into a task. To add one, add an entry and its id to the standing desk's tasks in `apartment.ts`. The desk offers every task that can start, so Work on side project is a choice beside Answer emails (issue 039).
 
-Only one is written: **Work on the side project** (`side-project-game`, desk). A cutscene that shows `view-side-project` (a lower-res picture of this game's own main room, with the small player at the desk, inside a monitor frame), three quiet lines, and puts the picture away. 45 points, 90 s cooldown, mood +4, energy -5, needs energy 10, best 20:00 to midnight. The wording is a draft for the text pass (037).
+Only one is written: **Work on side project** (`side-project-game`, desk). A cutscene that shows `view-side-project` (a lower-res picture of this game's own main room, with the small player at the desk, inside a monitor frame), three quiet lines, and puts the picture away. 45 points, 90 s cooldown, mood +4, energy -5, needs energy 10, best 20:00 to midnight. The wording is a draft for the text pass (037).
 
 `view-side-project` is the real game rendered once at 320x192 in a browser, shrunk 2x by averaging 2x2 blocks and snapped to the palette (160x96), then set in the frame. To refresh it after the art changes, render a frame of the game with the player at the desk, redo the shrink and compose into `art/src/view-side-project.sprite`.
 
@@ -65,17 +65,17 @@ The small yellow clock icon (`icon-good-hour`, 9x9) means "this pays extra now".
 |---|---|
 | Take a nap +3, Go to sleep +10 | rest |
 | Play three chords +10 | music (also pays +0.3 points per mood point) |
-| Eat dinner +6, Eat the takeout +5, Cook dinner +4, Drink the coffee +4, Make coffee +2, Reheat +2 | food |
-| Open the blinds +5 (Close the blinds -5 takes it back, so toggling is a wash) | light |
-| Admire the art +8, Flip the record +5 (only for a different record, at most once per 10 game minutes; no cooldown) | art and music |
-| Write in the journal +6 (pays +0.2 per mood point), Take a shower +6 | small rituals |
-| Water the plant +3, Make the bed +3, Brush teeth +2, Take out the trash +2, Take a moment +2 | |
+| Eat dinner +6, Eat takeout +5, Cook dinner +4, Drink coffee +4, Make coffee +2, Reheat +2 | food |
+| Open blinds +5 (Close blinds -5 takes it back, so toggling is a wash) | light |
+| Admire art +8, Flip the record +5 (only for a different record, at most once per 10 game minutes; no cooldown) | art and music |
+| Write in journal +6 (pays +0.2 per mood point), Take a shower +6 | small rituals |
+| Water plant +3, Make bed +3, Brush teeth +2, Take out trash +2, Take a moment +2 | |
 
 | Lowers mood | |
 |---|---|
 | Doomscroll -8 | |
 | Work (emails, couch, bed) -5 each | |
-| Do the dishes -2 | |
+| Do dishes -2 | |
 
 Low mood: crossing below `MOOD.lowBelow` (25) shows a "SIGH..." popup over the player. A slumped walk or different idle line is left for later. Mood changes go through `stateChanged` like any variable.
 
@@ -90,8 +90,8 @@ No per-object setting. An object offers the tasks that **can start right now** (
 - The key is read from the pressed-key list (`Controls.keys`, with Shift from `keysDown`) inside `InteractionSystem.update`. It does nothing while a task runs (and not the frame one ends, so a Tab typed in the typing game cannot cycle), while a dialog is open, or while input is locked: all of those hand the system `NO_INPUT` or return before the check.
 - Code: `InteractionSystem.choices` (the offered tasks when two or more), `nearby` (the shown one), `choiceIndex`; the prompt count is drawn by `drawPrompt` in `src/render/world-ui.ts`. Tests: `src/game/task-choice.test.ts`, `src/render/choice-prompt.test.ts`.
 
-## Flatten the boxes and opening packages (issue 066)
-The boxes in the kitchen are the state variable `boxes`: 1 is the stack, 0 is flat, 2 is gone (issue 070; the 066 numbers keep their meaning, 2 is new). Flatten the boxes (45 points, no cooldown since issue 071) is only offered with a stack, says `NO BOXES TO FLATTEN` otherwise, and sets it to 0. Opening a package at the front door (`collect-delivery`) sets it back to 1, so there is always something to flatten after a delivery. Several waiting packages give the same single stack. Take out the recycling (`recycle-boxes`, 55 points) is done from the boxes themselves (issue 071; there is no recycling bin in the apartment, only the garbage bin, so the kitchen has none and its old tile is plain floor). It takes flat boxes out and sets 2. At the boxes a stack offers Flatten the boxes, flat boxes offer Take out the recycling, and gone boxes offer neither (the prompt shows Flatten greyed with `NO BOXES TO FLATTEN`), so the two never overlap and there is no choice to make. The recycling is hidden unless the boxes are flat (issue 070); the reasons `FLATTEN THE BOXES FIRST` and `NO BOXES TO TAKE OUT` stay on the task as a safety net. Take out the trash is only at the trash bin, always available, and no longer shares an `exclusive` name with anything. Sprites: `boxes` (the stack), `boxes-flat` and `boxes-gone` (empty floor, nothing drawn), all 16x16 (issue 072: the pantry is its own piece, `pantry`, 16x32).
+## Flatten boxes and opening packages (issue 066)
+The boxes in the kitchen are the state variable `boxes`: 1 is the stack, 0 is flat, 2 is gone (issue 070; the 066 numbers keep their meaning, 2 is new). Flatten boxes (45 points, no cooldown since issue 071) is only offered with a stack, says `NO BOXES TO FLATTEN` otherwise, and sets it to 0. Opening a package at the front door (`collect-delivery`) sets it back to 1, so there is always something to flatten after a delivery. Several waiting packages give the same single stack. Take out recycling (`recycle-boxes`, 55 points) is done from the boxes themselves (issue 071; there is no recycling bin in the apartment, only the garbage bin, so the kitchen has none and its old tile is plain floor). It takes flat boxes out and sets 2. At the boxes a stack offers Flatten boxes, flat boxes offer Take out recycling, and gone boxes offer neither (the prompt shows Flatten greyed with `NO BOXES TO FLATTEN`), so the two never overlap and there is no choice to make. The recycling is hidden unless the boxes are flat (issue 070); the reasons `FLATTEN THE BOXES FIRST` and `NO BOXES TO TAKE OUT` stay on the task as a safety net. Take out trash is only at the trash bin, always available, and no longer shares an `exclusive` name with anything. Sprites: `boxes` (the stack), `boxes-flat` and `boxes-gone` (empty floor, nothing drawn), all 16x16 (issue 072: the pantry is its own piece, `pantry`, 16x32).
 
 ## Variants of one task (`exclusive`)
 Tasks that are variants of one thing share an `exclusive` name on the task (the four mirror tasks use `"mirror"`). When more than one could start, only the first is offered, so the choice cycle never lists the same thing twice. Order in the task list decides which wins (worn out beats the hour).
@@ -104,7 +104,8 @@ A time cooldown is only there where nothing else stops you doing a task again at
 | `make-bed` | `bedMade` is 0 (sleeping unmakes it) | 0 | state gate; was 30 |
 | `open-blinds` | `blinds` is 0 | 0 | state gate; was 15 |
 | `close-blinds` | `blinds` is 1 | 0 | state gate; was 15 |
-| `coffee` | `mug` is 0, and clean plates | 0 | needs an empty mug, so it alternates with drinking |
+| `coffee` | `mug` is 0, and clean plates | 0 | needs an empty mug, so it alternates with drinking; named for the apparatus on the table (issue 168) |
+| `coffee-stove` | the same as `coffee`, and a pot on the stove | 0 | the stove's coffee, hidden while the stove is empty; named for the pot |
 | `drink-coffee` | `mug` is 1 | 0 | state gate |
 | `flatten-boxes` | `boxes` is 1 | 0 | state gate; a package puts the stack back |
 | `recycle-boxes` | `boxes` is 0 (hidden otherwise) | 0 | state gate |

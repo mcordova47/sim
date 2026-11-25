@@ -83,7 +83,10 @@ decisions:
       - "the whole rug scaled down"
       - "a close-up detail of the rug's pattern"
     recommendation: "the middle of the rug at real size, cropped to the box"
-    status: open
+    status: answered
+    answer: "if easy to do, maybe the edge/corner? otherwise center is fine"
+    by: marc
+    on: 2026-11-24
 ---
 
 ## Goal

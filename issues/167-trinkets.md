@@ -28,7 +28,10 @@ decisions:
       - "only the harmonica and kalimba now"
       - "none for now"
     recommendation: "a harmonica, a kalimba, a jaw harp and a mini keyboard, as trinket-slot items in a second batch"
-    status: open
+    status: answered
+    answer: "could do the harmonica, kalimba, and jaw harp (keyboard is maybe too big compared to the other trinkets)"
+    by: marc
+    on: 2026-11-24
   - id: d3
     who: marc
     q: "May the agent look at your private reference photos (read-only, never copied or captioned) for the real objects?"

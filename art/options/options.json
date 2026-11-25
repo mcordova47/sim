@@ -477,6 +477,21 @@
           "letter": "D",
           "file": "record-stand/stand-d-lid-cabinet",
           "label": "A turntable cabinet with the lid closed: a pale dust cover with a glint over the platter, a dark walnut front with a grille and two knobs. Lowest contrast of the four."
+        },
+        {
+          "letter": "E",
+          "file": "record-stand/stand-e-suitcase-pink",
+          "label": "A novelty suitcase record player in pink, open: the lid stands up behind with a speaker grille, a cream deck with a round platter and tonearm, butter latches, small feet."
+        },
+        {
+          "letter": "E2",
+          "file": "record-stand/stand-e2-suitcase-cream-teal",
+          "label": "The same suitcase in retro cream with a teal deck and tangerine latches."
+        },
+        {
+          "letter": "F",
+          "file": "record-stand/stand-f-gramophone",
+          "label": "An old gramophone: a short brass horn at the back (a compromise: a real horn does not fit 16x16, so it is a short wide flare that reads more as a brass bell), an oak box top with a round platter and a hand crank on the right, short feet."
         }
       ]
     }

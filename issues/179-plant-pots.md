@@ -60,6 +60,14 @@ decisions:
       - "empty slots with a bare-pot picture: needs engine work (a slot with a default that can also be empty)"
     recommendation: "items: no new engine beyond an `empty` flag so they do not count as spares (a fresh game shows no new prompt; an empty pot is reachable once the first real spare arrives); three more 'ALREADY HERE' lines on the THINGS page"
     status: open
+  - id: d6
+    who: marc
+    q: "May the bowl be drawn 2 px lower than the baked bowl, so low plants get 4 clear rows above the rim instead of 2?"
+    options:
+      - "yes: a fresh game differs from today by those 2 pixels"
+      - "no: the fresh room stays pixel for pixel the same and low plants are 2 rows tall"
+    recommendation: "yes: a fresh game differs from today by those 2 pixels"
+    status: open
 ---
 
 ## Goal

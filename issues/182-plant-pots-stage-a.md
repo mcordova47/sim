@@ -21,6 +21,7 @@ decisions:
     answer: "a slot-list menu like the outfit slots: one Change plants task at the bookshelf opens a list of the three pots (vase, bowl, plant pot) with the plant in each; left and right pick the plant for the selected pot, E confirms (the same look as the outfit slots)"
     by: marc
     on: 2026-11-24
+needs: [{who: marc, kind: try, why: "Look at the three bookshelf pots: cd ~/Dev/repos/mcordova47/sim-worktrees/182-plant-pots-a && npm run dev, open /?own=plant-pampas,plant-lavender,plant-dried,plant-pothos,plant-spider, stand at col 9 by the cube bookshelf facing east, Tab to Change plants, E; &touch=1 for the narrow layout; then say 'merge 182'", since: 2026-11-25}]
 ---
 
 ## Goal

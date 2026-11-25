@@ -74,7 +74,10 @@ decisions:
       - "yes: a slot task's zone is the piece tile that contains the item (the desk's col 9, the nightstand's col 14, each shelf slot's own column)"
       - "no: keep every tile of the piece (Examine shows anywhere along the 4-tile desk)"
     recommendation: "yes: a slot task's zone is the piece tile that contains the item"
-    status: open
+    status: answered
+    answer: "yes: a slot task's zone is the piece tile that contains the item (the desk's col 9, the nightstand's col 14, each shelf slot's own column)"
+    by: marc
+    on: 2026-11-24
   - id: d7
     who: marc
     q: "The window sill: the east windows are drawn edge-on with no ledge, so small things only sit on it if the lower window is redrawn with a ledge. Build it?"

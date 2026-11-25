@@ -60,7 +60,10 @@ decisions:
       - "leave it stylized"
       - "yes, I will add a photo to reference-photos/ and it gets redrawn"
     recommendation: "leave it stylized"
-    status: open
+    status: answered
+    answer: "it's in trinkets (canned-raccoon.jpeg)"
+    by: marc
+    on: 2026-11-24
 needs: []
 ---
 

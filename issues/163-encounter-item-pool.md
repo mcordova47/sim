@@ -71,7 +71,10 @@ decisions:
       - "shops more often than the specials (as the pool grows)"
       - "specials more often"
     recommendation: "equal chance: each shop and each special ad is one entry in the draw (weighted 10:1 toward what you lack)"
-    status: open
+    status: answered
+    answer: "equal chance: each shop and each special ad is one entry in the draw (weighted 10:1 toward what you lack)"
+    by: marc
+    on: 2026-11-24
   - id: d6
     who: marc
     q: "Item pool (163, d6): what should a rug ad show, since a rug is wider than the ad's picture box?"

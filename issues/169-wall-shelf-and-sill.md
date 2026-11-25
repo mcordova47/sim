@@ -26,7 +26,10 @@ decisions:
       - "still items only (dried arrangements, an empty pot, trinkets), no live plants yet (Marc's answer to Q10 of issue 148)"
       - "anything that fits, live plants included (a much larger change)"
     recommendation: "still items only (dried arrangements, an empty pot, trinkets), no live plants yet"
-    status: open
+    status: answered
+    answer: "still items only (dried arrangements, an empty pot, trinkets), no live plants yet (Marc's answer to Q10 of issue 148)"
+    by: marc
+    on: 2026-11-24
 ---
 
 ## Goal

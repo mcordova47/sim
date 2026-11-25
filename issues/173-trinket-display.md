@@ -16,7 +16,10 @@ decisions:
       - "the room shows only a small marker for each thing, all the detail is in the close-up"
       - "keep 16x16 sprites but redraw them smaller inside the cell"
     recommendation: "a small version in the room (about 8x8 to 10x10 pixels, as big as the real object would be next to the furniture) with an Examine action that opens a large, detailed close-up"
-    status: open
+    status: answered
+    answer: "a small version in the room (about 8x8 to 10x10 pixels, as big as the real object would be next to the furniture) with an Examine action that opens a large, detailed close-up"
+    by: marc
+    on: 2026-11-24
   - id: d2
     who: marc
     q: "Where can trinkets live besides the desk corner?"

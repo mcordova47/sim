@@ -122,16 +122,37 @@ export function touchPageSize(): number {
   return rows * LIST_LAYOUT.columns;
 }
 
-// Which achievements show and where: a rectangle per row. Desktop shows all of them in two
-// columns; touch shows the page the cursor is on.
+// The desktop list keeps the line above the footer for the page hints (issue 178): the rows may not run below
+// it, so a column holds at most this many rows and the list pages (as touch does) once there are more than two
+// columns of them. 13 rows a column, 26 achievements a page, on 320x192; the rows of 26 end at y 148.
+export function desktopRowsPerColumn(): number {
+  return Math.floor((LIST_LAYOUT.footerTop - 9 - LIST_LAYOUT.top) / LIST_LAYOUT.rowHeight);
+}
+
+// How many achievements one page of the list shows: the touch page, or the desktop page.
+function pageSize(view: ListView): number {
+  return view.touch ? touchPageSize() : LIST_LAYOUT.columns * desktopRowsPerColumn();
+}
+
+// The desktop's "PAGE 1/2" label, or null when everything fits one page (so up to 26 achievements draw as always).
+export function desktopPageLabel(view: ListView): string | null {
+  if (view.touch) return null;
+  const size = pageSize(view);
+  const pages = Math.ceil(view.achievements.length / size);
+  return pages < 2 ? null : `PAGE ${Math.floor(view.cursor / size) + 1}/${pages}`;
+}
+
+// Which achievements show and where: a rectangle per row. Both layouts show the page the cursor is on;
+// the desktop has one page until the list outgrows the space above the hint line.
 export function listRows(view: ListView): Array<{ index: number; rect: Rect }> {
   const n = view.achievements.length;
   const columnWidth = Math.floor((VIEW.width - 12) / LIST_LAYOUT.columns);
   const touch = !!view.touch;
-  const perPage = touch ? touchPageSize() : n;
-  const start = touch ? Math.floor(view.cursor / perPage) * perPage : 0;
+  const size = pageSize(view);
+  const perPage = touch ? size : Math.min(n, size);
+  const start = Math.floor(view.cursor / size) * size;
   const end = Math.min(n, start + perPage);
-  const perColumn = touch ? perPage / LIST_LAYOUT.columns : Math.ceil(n / LIST_LAYOUT.columns);
+  const perColumn = touch ? perPage / LIST_LAYOUT.columns : Math.ceil(perPage / LIST_LAYOUT.columns);
   const top = touch ? PAUSE_TOUCH.rowsTop : LIST_LAYOUT.top;
   const rows: Array<{ index: number; rect: Rect }> = [];
   for (let i = start; i < end; i++) {
@@ -201,6 +222,9 @@ export function drawList(ctx: CanvasRenderingContext2D, view: ListView): void {
   drawText(ctx, PRODUCT_NAME, 6, 5, { color: COLOR.butter });
   drawText(ctx, `${done}/${view.achievements.length}`, 6 + textWidth(PRODUCT_NAME) + 8, 5, { color: COLOR.mist, shadow: null });
 
+  const pageLabel = desktopPageLabel(view);
+  if (pageLabel) drawText(ctx, pageLabel, 6 + textWidth(PRODUCT_NAME) + 8 + textWidth(`${done}/${view.achievements.length}`) + 8, 5, { color: COLOR.butter, shadow: null });
+
   // Legend for the clock icon the prompt and the award popup use.
   if (view.sprites?.has(GOOD_HOUR_ICON)) {
     const x = VIEW.width - 6 - textWidth(LEGEND_TEXT);
@@ -226,8 +250,8 @@ export function drawList(ctx: CanvasRenderingContext2D, view: ListView): void {
   }
 
   // The desktop's way into the transfer page, in the free line above the footer when the list leaves it free.
-  const rowsBottom = LIST_LAYOUT.top + Math.ceil(view.achievements.length / LIST_LAYOUT.columns) * LIST_LAYOUT.rowHeight;
-  if (!view.touch && rowsBottom <= LIST_LAYOUT.footerTop - 9) {
+  // Always drawn (issue 178): the list pages instead of growing down over it.
+  if (!view.touch) {
     // Four hints spread across the line, the first at the left edge and the last at the right.
     const hints = [SYNC_HINT, THINGS_HINT, OUTFITS_HINT, TRANSFER_HINT];
     const gap = (VIEW.width - 12 - hints.reduce((sum, h) => sum + textWidth(h), 0)) / (hints.length - 1);

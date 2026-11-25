@@ -1,18 +1,18 @@
 # Plant pots: three on the bookshelf, each for its own kind of plant (design, issue 179)
 
-Status: design for Marc to confirm (2026-11-24). Nothing is built; `src/` and `art/` are untouched. The only new files are this note and `plant-pots-mockups/` (the pictures and the small script that draws them). It supersedes issue 170 (the empty pot) and shapes issue 171 (cut flowers), issue 169 (the wall shelf and the sill) and issue 163 (the item pool). It follows [decor.md](decor.md), [decor-expansion-design.md](decor-expansion-design.md) (sections 1, 2 and 9), [art-style.md](art-style.md) and [floor-plan.md](floor-plan.md).
+Status: design for Marc to confirm (2026-11-24). Marc has answered d1 (the recommended split), d2 (sill and floor as recommended, both later) and d3 (houseplants live, dried arrangements still, the bowl's low plants live but very slow and easy, a mist now and then, never punished); this note follows those answers and asks d4 to d10. Nothing is built; `src/` and `art/` are untouched. The only new files are this note and `plant-pots-mockups/` (the pictures and the small script that draws them). It supersedes issue 170 (the empty pot) and shapes issue 171 (cut flowers), issue 169 (the wall shelf and the sill) and issue 163 (the item pool). It follows [decor.md](decor.md), [decor-expansion-design.md](decor-expansion-design.md) (sections 1, 2 and 9), [art-style.md](art-style.md) and [floor-plan.md](floor-plan.md).
 
 ## The design in a few lines
 - **Three pots on the cube bookshelf, north to south: a vase, a bowl and the plant pot.** The first two are already drawn into the bookshelf sprite (the vase with its pastel sprays, the white bowl); only the plant pot is a slot today. They become slots. A fresh game looks the same as today (a dried arrangement in the vase, an empty bowl, the snake plant), which is exactly the default Marc described.
 - **Each pot holds one kind of plant** (a new `plantKind` on items and `plantKinds` on slots): the vase holds **dried arrangements and cut flowers**, the bowl holds **low plants** (moss, succulent, cactus, small bonsai), the plant pot holds **houseplants**. This is d1's recommended split; if Marc picks another, only the data below changes.
 - **"Empty" is an item, not a new mechanism:** each pot has an empty-pot item (EMPTY VASE, EMPTY BOWL, EMPTY POT), owned from the start, so no engine for empty slots is needed.
-- **Only the plant pot is live** (d3's recommendation). The vase and the bowl hold still items. Cut flowers (171) are the one thing that needs a clock in the vase; that clock is also the first step toward live low plants later.
+- **Live and still (Marc's d3):** the plant pot is live, the vase holds still items (cut flowers are the one thing that needs a clock there), and the bowl's low plants are live but very slow and easy: a mist now and then, never punished. The bowl ships still first (stage B), becomes live in stage F, and the clock built for cut flowers (stage C) is what makes that cheap.
 - **The window sill** takes still dried and low items first (issue 169), live trailing plants and herbs much later. **Floor trees** go in the one real empty square (col 8, row 7, abs 128,112): it is shut in by the lamp table, the record stand and two walls, so a tree there needs no task spot and no walkable change, only a floor slot, a swap task on the record stand and a decision about how tall it is.
-- **Build in five releasable stages** (section 10): A the three pots (M), B low plants (S), C cut flowers with the shared clock (M), D sill (issue 169, S) and E the tree square (S). A live bowl is not planned (L).
+- **Build in five releasable stages** (section 10): A the three pots (M), B low plants (S), C cut flowers with the shared clock (M), D sill (issue 169, S) and E the tree square (S). F makes the bowl's low plants live, the slow and easy way (M). A fully general live pot with growth stages is not planned (L).
 
 ## 1. What is there today (checked against the code and the sprites)
 
-I looked at the real room and at `art/src/bookshelf.sprite` at 8x (mockup 1 and 2) and read `apartment.ts`, `decor-data.ts`, `decor.ts`, `plant.ts`, `state.ts`, `game.ts` and `tasks.ts`. I also looked at the reference photos; nothing from them is copied, named or described here.
+I looked at the real room and at `art/src/bookshelf.sprite` at 8x (mockup 1 and 2) and read `apartment.ts`, `decor-data.ts`, `decor.ts`, `plant.ts`, `state.ts`, `game.ts` and `tasks.ts`. I also looked at the reference photos; nothing from them is used, copied, named or described here.
 
 ![the room today](plant-pots-mockups/01-room-today-320x192.png)
 
@@ -33,7 +33,7 @@ So of the three pots Marc describes, the plant pot is a slot today and the vase 
 **What the engine does today** (so the design does not claim more than exists):
 - A slot has one `area`, a list of `kinds` and optionally a `default`; an item fits if its kind is in the slot's kinds, its sprite is the slot's size and (if it names slots) this is one of them (`fits` in `decor.ts`). Item ids must start with their kind (`validateDecorData`), so the many `plant-...` ids cannot be renamed to split kinds without breaking saves: that is why this design adds a field rather than new kinds.
 - The one plant slot is `plant-shelf` with `stageVar: "plantStage"`, `growthVar: "plantGrowth"` and `dryVar: "plantDry"`. It holds eight items: four live (snake plant, pothos, monstera, spider plant; `FAMILIES` with stages and `droops`) and four still (`plant-dried`, `plant-pampas`, `plant-lavender`, `plant-eucalyptus`). A still item hides the three plant tasks (`liveSlot`) and freezes the three vars (`Decor.frozenVars`); a live plant swapped for a live plant starts small.
-- Late stages overhang the slot (`overhang` in `FAMILIES`, issue 149): the pothos stage 4 hangs 16 px down over the south face (y 69 to 79 is the face, the vines fill 12 of the 16 rows below the slot) and stage 5 also has 16 px above (a thin vine across y 36 to 51); the monstera stage 4 has 16 px above (its leaves start at y 44). They are overlays: props are sorted by the bottom of their piece (`bottom: prop.on.bounds.y + prop.on.bounds.h` in `drawWorld`) and drawn after it, in the order of `MAIN_PROPS`.
+- Late stages overhang the slot (`overhang` in `FAMILIES`, issue 149): the pothos stage 4 hangs down over the south face (the face is y 69 to 79; the vines' last ink is at y 72, 5 rows below the slot) and stage 5 hangs further (last ink y 78) and also has 16 px above (a thin vine across y 36 to 51); the monstera stage 4 has 16 px above (its leaves start at y 44). They are overlays: props are sorted by the bottom of their piece (`bottom: prop.on.bounds.y + prop.on.bounds.h` in `drawWorld`) and drawn after it, in the order of `MAIN_PROPS`.
 - The care tasks are hard-wired to one plant (section 5). The swap task is one per slot that names an `object` (`swap-plant-shelf` on the cube bookshelf, shown only when something spare fits); `SWAP_PROMPT_SLOT` in `tasks.ts` already lets a slot have its own prompt.
 - A slot may have no default (issue 151: it starts empty, with a NOTHING row in the swap list) but a slot with a default cannot be emptied.
 
@@ -47,7 +47,7 @@ So of the three pots Marc describes, the plant pot is a slot today and the vase 
 | 2. bowl (middle) | `pot-bowl` | 160, 30, 16x16 | 14 to 29 | low plants |
 | 3. plant pot (south) | `plant-shelf` (id kept, so saves stay valid) | 160, 52, 16x16 | 36 to 51 | houseplants |
 
-The vase and bowl slots share two rows (y 30 and 31): nothing is drawn there by either, and nothing in the engine forbids touching areas (only a prop's own area must equal its slot's, `checkLevel`). The books (rows 27 to 34) stay baked into the bookshelf; the bowl slot's last rows lie over them, but items are transparent there, so the books show. The bowl slot cannot start lower to clear the vase slot: rows 1 to 52 are the room for three 16-row slots (48 rows) and the books (8 rows), which fit only by overlapping.
+The vase and bowl slots share two rows (y 30 and 31): nothing is drawn there by either, and nothing in the engine forbids touching areas (only a prop's own area must equal its slot's, `checkLevel`). The books (rows 27 to 34) stay baked into the bookshelf; the bowl slot's last rows lie over them, but items are transparent there, so the books show. A bowl slot at y 32 (rows 16 to 31) would not touch the vase slot, but the baked bowl (rows 18 to 23) would then leave only 2 rows above its rim; y 30 with the bowl 2 px lower (d6) gives 4 rows, at the price of the two touching rows.
 
 Which pot is which, and why: the vase is tall and narrow, so it takes the arrangement that stands tall (dried stems, tulips). The bowl is wide and low, so it takes things that sit low (moss, succulents, a bonsai). The plant pot is the one that already grows and is watered. North to south is also the order the room already reads, and it is the order of d1's recommendation.
 
@@ -63,8 +63,8 @@ Which pot is which, and why: the vase is tall and narrow, so it takes the arrang
 
 All three pots are on the one object, the cube bookshelf, so all their tasks come from the same place; you can face it from any of its tiles: col 9 rows 3 and 4 (facing east), col 11 rows 1 to 4 (facing west) or col 10 row 5 (facing north). I checked these on the map; the other sides are the desk and walls. Pothos vines (stage 5) reach y 79 and the floor tile at col 10, row 5 stays clear, as issue 149 checked.
 
-- Tasks: `swap-plant-shelf` (exists), `swap-pot-vase` and `swap-pot-bowl` (new), each offered only when a spare item fits that pot (`Decor.canChange`), so a fresh game shows nothing new. Prompts "Change plant", "Change vase" and "Change bowl" come from `SWAP_PROMPT_SLOT`, which already exists for the bed rug. The slots name `object: "cube bookshelf"` and `swapProblems` checks it.
-- Crowding: the bookshelf today offers at most 7 things at once (one care task, four record sorts, two swaps: the plant and the clothes); with three pots it is at most 9 (the vase and bowl swaps show only with spares). I recommend one swap task per pot (d9 asks if one "Change plants" that picks the pot first is better).
+- Tasks: `swap-plant-shelf` (exists), `swap-pot-vase` and `swap-pot-bowl` (new), each offered only when a spare item fits that pot (`Decor.canChange`). **Careful:** the empty pot, empty vase and empty bowl are owned from the start, so by the existing rule a spare empty pot makes `canChange` true on a fresh game and the bookshelf would show "Change plant" and "Change vase" from day one (not the bowl, whose empty item is the one on show). Fix, S, in stage A: items flagged `empty: true` do not count as spares in `canChange` (they still appear in the list once it is open). Without it the fresh-game swap tests change. Prompts "Change plant", "Change vase" and "Change bowl" come from `SWAP_PROMPT_SLOT`, which already exists for the bed rug. The slots name `object: "cube bookshelf"` and `swapProblems` checks it.
+- Crowding: the bookshelf today offers at most 7 things at once (one care task, four record sorts, two swaps: the plant and the clothes); with three pots it is at most 9 (the vase and bowl swaps show only with a real spare, see above). I recommend one swap task per pot (d9 asks if one "Change plants" that picks the pot first is better).
 - Task words follow the item (`taskName`): "Water the snake plant" as today.
 
 ### Draw order and the tall plants
@@ -85,7 +85,7 @@ A new optional `DecorItem.plantKind` (`"house" | "dried" | "low"`, later `"tree"
 | VASE ARRANGEMENT (the default), EMPTY VASE | `dried` | vase | still | no | 2 sprites (cut from the bookshelf) |
 | TULIPS, DAISIES (issue 171, fresh then wilting then dried) | `dried` while dried, see section 4 | vase | clocked | no | 3 looks each |
 | EMPTY BOWL | `low` | bowl | still | no | 1 sprite (cut from the bookshelf) |
-| MOSS, SUCCULENTS, CACTUS, BONSAI | `low` | bowl (and the sill) | still first | no | 4 sprites |
+| MOSS, SUCCULENTS, CACTUS, BONSAI | `low` | bowl (and the sill) | still first, live and slow in stage F (Marc's d3) | no | 4 sprites (and one wilted look each for stage F) |
 | FLOOR TREES: potted palm, rubber plant, fiddle-leaf fig | `tree` | floor | still first | no | 3 sprites |
 
 Notes:
@@ -99,6 +99,10 @@ Notes:
 
 ![all the pots at once](plant-pots-mockups/04-room-default-320x192.png)
 
+The whole plan at once, stand-ins included (vase arrangement, a bonsai in the bowl, the pothos hanging, lavender on the sill, a tree in the square):
+
+![everything](plant-pots-mockups/14-room-everything-320x192.png)
+
 ## 4. Cut flowers drying into the vase (issue 171)
 
 Issue 171 wants a family with fresh, wilting and dried looks: fresh until 3 game days, wilting, dried at 5, a free task to freshen them, nothing lost. In this design they live in the vase pot.
@@ -108,9 +112,9 @@ Issue 171 wants a family with fresh, wilting and dried looks: fresh until 3 game
 (Panels 5 to 7 of mockup 3 are the three looks, stand-ins drawn in code; the vase is the real one.)
 
 - **What the vase needs.** The vase slot gets `stageVar` and `dryVar` of its own (`vaseStage`, `vaseAge`), like the plant pot's, and the flowers family advances `vaseAge` with the clock. This is the "per-slot clock" in section 5, and it is the one new engine piece cut flowers need beyond issue 171's own list (`driesAfter`, state-aware `isLive` and `frozenVars`, a task gate that is not `liveSlot`).
-- **How a bunch becomes a dried arrangement.** Two ways; I recommend the second (d7).
+- **How a bunch becomes a dried arrangement.** Two ways; I recommend the first, in place, as Marc's d1 answer says; the second is the alternative (d7).
   1. In place (171 as written): the item stays `plant-tulips`, its look turns to dried after 5 days. A new bunch arriving resets it, so the dried arrangement goes away.
-  2. **It turns into a keepsake:** when the bunch dries, the fresh item is replaced by a separate still item (DRIED TULIPS, `dried`, same slot, same place on the shelf) that you keep, and the fresh item is no longer owned, so a new bunch can arrive again (deliveries refuse owned ids, so this is also what makes "several bunches over time" work). Dried arrangements are then collected by drying flowers, or delivered the regular way, as Marc described. It needs a small `Decor.become(slot, from, to)` that swaps an owned id for another in place: S. Nothing is lost: the keepsake is an owned item and can be swapped out like any other.
+  2. **It turns into a keepsake:** when the bunch dries, the fresh item is replaced by a separate still item (DRIED TULIPS, `dried`, same slot, same place on the shelf) that you keep, and the fresh item is no longer owned, so a new bunch can arrive again (deliveries refuse owned ids, so this is also what makes "several bunches over time" work). Dried arrangements are then collected by drying flowers, or delivered the regular way, as Marc described. It needs a small `Decor.become(slot, from, to)` that swaps an owned id for another in place: S. The keepsake must not join the shop pool (the pool excludes only `how: "start"` and TEST items, so a florist could otherwise sell you a keepsake you made): give keepsakes a `tags: ["keepsake"]` that `itemPool` skips (S). Note Marc's d1 answer says flowers "wilt and dry in place", which is the first way, so the default of d7 follows his words and the keepsake is the alternative. Nothing is lost: the keepsake is an owned item and can be swapped out like any other.
 - **Cut flowers in a pot other than the vase?** No: a fresh bunch fits only the vase (it is a `dried`-kind item while it dries). A fresh bunch in the plant pot would need that pot's clock, which is the live work in section 5.
 
 ![fresh tulips in the vase, a cactus in the bowl](plant-pots-mockups/06-room-flowers-320x192.png)
@@ -133,9 +137,9 @@ What is already general: `Decor.look`, `growth(slot)`, `isLive(slot)`, `frozenVa
 | A per-slot clock (`ages: true` on a state variable in `state-vars.ts`; `tick`, `nap` and `sleep` advance every such variable instead of `plantDry` by name) | replaces points 1 and 2 above; the snake plant's behaviour stays the same and a test proves it | S to M |
 | Cut flowers on the vase (needs the clock) | issue 171, plus `Decor.become` | M |
 | A **live** second pot: its own three vars, its tasks (a `water-bowl` set or one task per slot generated from the slot's vars), `settlePlant` per slot, particles per slot, golden frames, text | points 3 to 6 above, generalised over a table of live slots | L |
-| A live low plant that is "very slow and easy" with no stages (one clock variable and one "mist" task, never punished) | the clock above, one task, one sprite pair; no settle, no growth | M |
+| **A live low plant, the slow and easy kind Marc chose in d3** (one clock variable, one "mist" task, never punished, no growth stages) | the clock above, one task offered only when the bowl holds a live item, one extra look per plant; no settle, no growth, no tasks per stage | M |
 
-**What to do first with one live pot and two still pots:** ship the three pots with only the plant pot live (stage A) and change none of the care code. Everything the player sees is new swap lists, new items and the empty pots. The vase and bowl hold still items, which the engine already knows (no tasks, nothing frozen that matters). Then add the clock (stage C, together with cut flowers) because it is needed anyway and it makes a live low plant cheap later. A fully general live second pot is the L piece; I do not recommend building it until Marc has lived with the first stages (this is d3's recommendation too). If he later wants the low pot live, the "slow and easy, no stages" version is M and fits "never punished".
+**What to do first with one live pot and two still pots:** ship the three pots with only the plant pot live (stage A) and change none of the care code. Everything the player sees is new swap lists, new items and the empty pots. The vase and bowl hold still items, which the engine already knows (no tasks, nothing frozen that matters). Then add the clock (stage C, with cut flowers) because it is needed anyway. Then the bowl's slow and easy live plants (stage F, M) cost one variable and one task on top of the clock. A fully general live pot with growth stages (the L piece) stays out: Marc asked for "very slow and easy", and that does not need it.
 
 ## 6. The window sill
 
@@ -177,7 +181,7 @@ The four panels are real sprites placed on the slot (lavender and eucalyptus are
 
 - A save with the snake plant in the plant pot is unchanged: `plant-shelf` keeps its id, stage, growth and dryness are untouched, nothing in it is read differently.
 - `parseDecor` already seeds `owned` with every slot default and every `how: "start"` item, so an old save simply gains the vase arrangement, the empty vase, the empty bowl and the empty pot. Nobody loses anything and nobody pays.
-- A save with a dried item in the plant pot (`placed["plant-shelf"]` is `plant-pampas` and so on): after the split that item no longer fits the plant pot. Without a rule `parseDecor` would drop the placement and the item would go to the inventory. So one rule is added, a small `MOVED` table in the decor data (`from slot`, `plantKind`, `to slot`): if the asked placement for `plant-shelf` is a `dried` item, it is read as a placement for `pot-vase`. The plant pot then shows the snake plant (the default) with the stage it had when the dried item was put there (the variables were frozen). A test covers it. Size S.
+- A save with a dried item in the plant pot (`placed["plant-shelf"]` is `plant-pampas` and so on): after the split that item no longer fits the plant pot. Without a rule `parseDecor` would drop the placement and the item would go to the inventory. So one rule is added, a small `MOVED` table in the decor data (`from slot`, `plantKind`, `to slot`): if the asked placement for `plant-shelf` is a `dried` item, it is read as a placement for `pot-vase`. The plant pot then shows the snake plant (the default). **Edge:** the three plant variables were frozen while the dried item stood there, at the values of whatever live plant was swapped out. If that was the snake plant, it comes back as it was. If it was a pothos that had grown to stage 5 (the swap resets the variables only when a live plant replaces a live plant, `swap-decor.ts`), the snake plant would show stage 3 (the last stage it has, `look` clamps) and the old dryness. Rule: the migration also resets the three variables to a small plant when the placement it moves was the only reason they were frozen, which cannot be known for an old save; so I recommend simply accepting the clamp (a calm, never-lost outcome) and testing both cases. Size S.
 - A save in which both a dried item sat in the plant pot and another was asked for the vase cannot happen (the vase did not exist), but the rule yields to an existing `pot-vase` placement anyway.
 - `placed` stores only slots that differ from their default, so the new slots add nothing to a fresh save. The new vars (`vaseStage`, `vaseAge`, stage C) have initial values in `state-vars.ts`, so an old save loads them at their initial values.
 - The save has no version bump (as for every decor change so far).
@@ -203,9 +207,10 @@ Sizes in the convention of the other design notes: S under a day of work, M a fe
 | C. Cut flowers (issue 171) | the per-slot clock (`ages`), `vaseStage`/`vaseAge`, the flowers family, `Decor.become`, the free task | S to M | 6 sprites (two bunches, three looks) | M | flowers wilt and dry into keepsakes |
 | D. The sill (issue 169) | `sill-window` takes `dried` and `low` plants and trinkets (169's own slot and piece name) | none beyond 169 | none | S (inside 169) | a second place for the same stock |
 | E. The tree square | `tree-floor` slot and prop on the record stand, a swap task on the stand, trees as items | S | 3 sprites | S | a tree beside the lamp |
-| Later: live bowl or sill | per-slot care tasks, settle and particles; or the slow "mist" version | table of live slots | pairs of sprites | L (M for the slow version) | only if wanted |
+| F. Live low plants (Marc's d3) | the slow "mist" version on the bowl's clock: one variable, one task, a wilted look, never punished | S to M, uses C's clock | one wilted look per low plant | M | low plants need a mist now and then |
+| Later: live sill | the same slow version on the sill, plus trailing and herb sprites (d2) | per-slot variables | new sprites | M to L | when wanted |
 
-Dependencies: 169 depends on 167 (the trinket kind); stage D waits for it, but A, B, C and E do not. Stage A does not need 171. Stage C needs A (the vase slot). Nothing here needs the desk slot (167) or the shower scene (177). Files likely to conflict with other branches: `decor-data.ts`, `apartment.ts` (`MAIN_PROPS`, the `H` and `R` entries), `tasks.ts` (`SWAP_PROMPT_SLOT`), `bookshelf.sprite`; 169 and 167 edit the same tables.
+Stage F needs stage C's clock and stage B's plants. Dependencies: 169 depends on 167 (the trinket kind); stage D waits for it, but A, B, C and E do not. Stage A does not need 171. Stage C needs A (the vase slot). Nothing here needs the desk slot (167) or the shower scene (177). Files likely to conflict with other branches: `decor-data.ts`, `apartment.ts` (`MAIN_PROPS`, the `H` and `R` entries), `tasks.ts` (`SWAP_PROMPT_SLOT`), `bookshelf.sprite`; 169 and 167 edit the same tables.
 
 ## 11. Questions for Marc beyond d1 to d3 (each also an open decision on issue 179)
 
@@ -213,7 +218,7 @@ Defaults are my recommendations; the split in d1 is assumed throughout.
 - **d4.** Is the plant pot strictly for houseplants? The existing dried items would move to the vase, and you could no longer park a dried item in the plant pot to pause the snake plant (the empty pot does it). Default: yes, strict.
 - **d5.** Are the empty pots real items (EMPTY VASE, EMPTY BOWL, EMPTY POT, owned from the start, three more lines on the THINGS page) or empty slots? Default: items; it needs no engine, and an empty pot is a thing you own, like Marc's real one.
 - **d6.** May the bowl sit 2 px lower than the baked bowl (so a fresh game differs from today in 2 pixels, in return for 4 clear rows for low plants instead of 2)? Default: yes.
-- **d7.** When cut flowers dry, do they become a separate keepsake item (DRIED TULIPS), which also lets a new bunch come, or does the same item just change its look? Default: a separate keepsake.
+- **d7.** When cut flowers dry, does the same item just change its look (Marc's d1 wording: they "wilt and dry in place"), or do they become a separate keepsake item (DRIED TULIPS) that you keep, which also lets a new bunch come? Default: in place, as Marc said; the keepsake is the alternative.
 - **d8.** The tree square: the shut-in tile at col 8, row 7, and 16x16 small trees (the crown stays inside the tile), rather than a tall tree that hides or sits behind the lamp? Default: yes, 16x16.
 - **d9.** One swap task per pot (Change plant, Change vase, Change bowl; each only when there is a spare) or one "Change plants" that asks which pot? Default: one per pot.
 - **d10.** Does the sill share the vase's and bowl's stock (it takes `dried` and `low` plants) rather than have a kind of its own? Default: yes, until live sill plants exist.
@@ -228,7 +233,7 @@ Not checked or only approximated:
 - Nothing ran in a browser. The mockups are composed by a script (`plant-pots-mockups/make.mjs`, using `scripts/room-compose.mjs` and the game's glyph table), not by the game; the draw order is the code's rule re-implemented, the camera placement is taken from `render/camera.ts`, and the HUD strip is not drawn.
 - The stand-in art (low plants, tulip looks, the tree) is drawn in code only to judge height and placement; none of it is proposed art.
 - How three plants feel to look at in a play session, and whether 4 clear rows is enough for a bonsai.
-- The reference photos were looked at; none shows the three pots in a way I used, and nothing in the repo depends on them.
+- The reference photos were looked at; nothing from them is used or described here.
 - The first reference to "pot 1, 2, 3" in d1 is read as north to south here. If Marc means another order, the slot ids and the default stay but the swap list order changes.
 
 How to re-draw the pictures: `cd ~/Dev/repos/mcordova47/sim-worktrees/179-plant-pots && node docs/plant-pots-mockups/make.mjs`.

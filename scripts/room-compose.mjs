@@ -88,3 +88,40 @@ export function cropScale(img, x, y, w, h, scale) {
   }
   return { width: w * scale, height: h * scale, rgba: out };
 }
+
+// The bath (issue 184 options page): the real BATH_MAP of src/game/apartment.ts with the real floor, walls, door, tub, toilet and vanity,
+// at 1x. `figures`: [{ img, c, r }] drawn on those tiles, sorted with the pieces by their bottom edge (the game's order).
+export function composeBath({ figures = [] } = {}) {
+  const rows = src.match(/export const BATH_MAP = \[([\s\S]*?)\];/)[1].match(/"([^"]*)"/g).map((x) => x.slice(1, -1));
+  const R = rows.length, C = rows[0].length, W = C * T, H = R * T;
+  const rgba = Buffer.alloc(W * H * 4);
+  const blit = (img, ox, oy) => {
+    for (let y = 0; y < img.height; y++) for (let x = 0; x < img.width; x++) {
+      const i = (y * img.width + x) * 4, px = ox + x, py = oy + y;
+      if (img.rgba[i + 3] && px >= 0 && py >= 0 && px < W && py < H) img.rgba.copy(rgba, (py * W + px) * 4, i, i + 4);
+    }
+  };
+  const at = (c, r) => (rows[r] ?? "")[c] ?? "#";
+  const legend = { U: "tub", Q: "toilet", V: "vanity" };
+  const things = [], seen = new Set();
+  for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) if (!"#123".includes(at(c, r))) blit(load("floor-bath"), c * T, r * T);
+  for (let r = 0; r < R; r++) for (let c = 0; c < C; c++) {
+    const ch = at(c, r);
+    if (ch === "#") {
+      const open = (cc, rr) => at(cc, rr) !== "#";
+      if (open(c, r + 1) && !open(c, r - 1)) blit(load("wall-back-bath"), c * T, r * T);
+      else if (open(c + 1, r)) blit(load("wall-side-left-bath"), c * T, r * T);
+      else if (open(c - 1, r)) blit(load("wall-side-right-bath"), c * T, r * T);
+      else if (open(c, r - 1)) blit(load("wall-front-bath"), c * T, r * T);
+    } else if (/[123]/.test(ch)) blit(load("doorway-right-bath"), c * T, r * T);
+    else if (legend[ch] && !seen.has(`${c},${r}`)) {
+      const img = load(legend[ch]);
+      for (let j = 0; j < Math.round(img.height / T); j++) for (let i = 0; i < img.width / T; i++) seen.add(`${c + i},${r + j}`);
+      things.push({ img, x: c * T, y: r * T, bottom: r * T + img.height });
+    }
+  }
+  for (const f of figures) things.push({ img: f.img, x: f.c * T, y: f.r * T, bottom: (f.r + 1) * T + 0.5 });
+  things.sort((a, b) => a.bottom - b.bottom);
+  for (const t of things) blit(t.img, t.x, t.y);
+  return { width: W, height: H, rgba };
+}

@@ -104,6 +104,16 @@
       "overlays": {},
       "sleeves": "6",
       "hem": [{ "h": "6" }, { "h": "6" }, { "h": "a" }]
+    },
+    {
+      "id": "towel",
+      "prefix": "player-towel",
+      "template": "player-casual",
+      "describe": "towel look A: a sky-blue bath towel wrapped from the chest to above the knees, bare arms and lower legs",
+      "torso": { "rule": "wrap", "outer": "i", "shade": "6", "inner": "a" },
+      "legs": {},
+      "overlays": {},
+      "hem": [{ "h": "i" }, { "h": "5" }, { "h": "a" }]
     }
   ]
 }

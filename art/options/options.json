@@ -1,5 +1,5 @@
 {
-  "title": "Art options: the takeout bag, the outfits, the rugs, the alebrije and the record stand",
+  "title": "Art options: the takeout bag, the outfits, the rugs, the alebrije the record stand and the starting towel",
   "groups": [
     {
       "id": "bag",
@@ -522,6 +522,29 @@
           "letter": "F6",
           "file": "record-stand/stand-f6-bell-up",
           "label": "Gramophone, a big bell across the top like a horn rising from the back. Reads as a bowl. NOT SHIPPING."
+        }
+      ]
+    },
+    {
+      "id": "towel",
+      "title": "Starting towel (issue 184)",
+      "kind": "towel",
+      "blurb": "What the player wears after a shower until the bathrobe arrives. Look A is what the game ships for now; tell the planner a letter and that look replaces it (same item, same file names). Each look is the 12 walking frames, the 5 poses, and the player in the real bath at 1x and 8x beside the bathrobe. Gender-neutral, palette only, no text. Sprites are generated into art/options/towel/ by scripts/outfit-options.mjs.",
+      "candidates": [
+        {
+          "letter": "A",
+          "prefix": "towel-a",
+          "label": "A wrap: a big sky-blue bath towel wrapped from the chest to above the knees, bare shoulders, arms and lower legs."
+        },
+        {
+          "letter": "B",
+          "prefix": "towel-b",
+          "label": "B wrap and turban: the same wrap, and a small sky-blue towel wound round the head over the hair."
+        },
+        {
+          "letter": "C",
+          "prefix": "towel-c",
+          "label": "C cape: a sky-blue towel draped over the shoulders like a cape, bare chest between its ends, over the everyday jeans, a white edge."
         }
       ]
     }

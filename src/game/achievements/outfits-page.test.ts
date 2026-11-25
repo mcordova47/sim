@@ -76,7 +76,7 @@ describe("the OUTFITS cursor", () => {
     expect(p.slot).toBe(0);
     expect(seen[0]).toEqual(["outfit-home", CASUAL, CARDIGAN, HOODIE, DENIM]);
     expect(seen[1]).toEqual([PJ, STRIPED]);
-    expect(seen[2]).toEqual([ROBE]);
+    expect(seen[2]).toEqual([ROBE, "outfit-towel"]);
     expect(seen[3].slice(0, 2)).toEqual([OUT, "outfit-out-jacket-scarf"]);
     p.key("ArrowUp");
     expect(p.slotDef.id).toBe("out");
@@ -89,7 +89,7 @@ describe("the OUTFITS cursor", () => {
   it("a slot with nothing owned for it has an empty list you cannot enter, and its preview is what it would put on you", () => {
     const d = decorWith(PJ);
     const p = page(d);
-    p.pickSlot(2);
+    p.pickSlot(3); // GOING OUT (ROBE is never empty: it starts with the towel, issue 184)
     expect(p.choices()).toEqual([]);
     expect(p.key("ArrowRight")).toBe("handled");
     expect(p.focus).toBe("slots");

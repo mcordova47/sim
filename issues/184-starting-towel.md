@@ -2,7 +2,7 @@
 id: "184"
 title: "A towel to start with: the default outfit in the robe slot"
 short: "Starting towel"
-status: todo
+status: review
 owner: marc + claude
 depends_on: []
 summary: "Own a bath towel from the start so a shower ends in a towel until the bathrobe arrives."
@@ -17,7 +17,10 @@ decisions:
       - "the same wrap plus a small towel turban on the head"
       - "a towel draped over the shoulders like a cape over the everyday clothes' trousers"
     recommendation: "a big bath towel wrapped around from the chest to above the knees, in a soft colour, with bare arms and lower legs (works for anyone)"
-    status: open
+    status: answered
+    answer: "try all three looks and let me choose"
+    by: marc
+    on: 2026-11-25
   - id: d2
     who: marc
     q: "Once the bathrobe arrives (day 72), does the towel stay a choice for the ROBE slot?"
@@ -25,7 +28,35 @@ decisions:
       - "yes: both are robe-style outfits you can equip into the ROBE slot; the slot starts with the towel and the first bathrobe does not replace it unless you equip it"
       - "the bathrobe replaces the towel in the ROBE slot when it arrives (the towel stays owned)"
     recommendation: "yes: both are robe-style outfits you can equip into the ROBE slot; the slot starts with the towel and the first bathrobe does not replace it unless you equip it"
+    status: answered
+    answer: "yes: both are robe-style outfits you can equip into the ROBE slot; the slot starts with the towel and the first bathrobe does not replace it unless you equip it"
+    by: marc
+    on: 2026-11-25
+  - id: d3
+    who: marc
+    q: "Which towel look? Open the options page (group Starting towel): A wrap, B wrap and turban, C cape over the everyday jeans. A is in the game for now."
+    options:
+      - "A: a sky-blue bath towel wrapped from the chest to above the knees, bare arms and lower legs"
+      - "B: the same wrap and a small towel turban on the head"
+      - "C: a towel draped over the shoulders like a cape over the everyday jeans (bare chest between its ends)"
+    recommendation: "A: a sky-blue bath towel wrapped from the chest to above the knees, bare arms and lower legs"
     status: open
+  - id: d4
+    who: marc
+    q: "A fresh game now owns two outfits (the everyday clothes and the towel). Should the bookshelf offer Change clothes right away?"
+    options:
+      - "no: the towel is not a spare, so a fresh game has no new prompt; you wear it by showering, or pick it on the OUTFITS page (as built)"
+      - "yes: the towel counts as a spare, so Change clothes is offered from the start"
+    recommendation: "no: the towel is not a spare, so a fresh game has no new prompt; you wear it by showering, or pick it on the OUTFITS page (as built)"
+    status: open
+unverified:
+  - "The towel in the running game in a browser (the sprites in the live canvas, the shower ending in the towel on screen): checked in the unit tests and in composed pictures of the real bath only."
+  - "How the three looks feel on the options page in a browser: looked at composed PNGs of the same pictures, not the page itself."
+needs:
+  - who: marc
+    kind: decide
+    why: "Pick the towel look on the options page (A wrap, B wrap and turban, C cape); A is in the game until you say."
+    since: 2026-11-25
 ---
 
 ## Goal
@@ -39,3 +70,13 @@ Marc (2026-11-25): owning a towel (kind of a robe) by default. Today the ROBE sl
 
 ## Progress log
 - 2026-11-25 (planner): filed on main from Marc's message with its open decisions; not started.
+- 2026-11-25 (claude): started. Plan: build the mechanism with look A as the working default (item `outfit-towel`, a starting item in the ROBE slot, the generator's new `wrap` rule), generate all three looks under `art/options/towel/` for the options page so Marc can choose (d1), keep the towel a ROBE choice after the bathrobe (d2).
+- 2026-11-25 (claude): built. What changed:
+  - Art and generator: `scripts/outfits.mjs` gained the rules `wrap` and `drape` and the `turban` option; `art/outfits.json` has the `towel` entry (look A) which makes the 12 walking sprites and the 5 poses as `art/src/player-towel-*` (and the rendered `public/sprites`). The candidates are `art/options/towel/outfits.json` made into `art/options/towel/towel-{a,b,c}-*.sprite` by the new `scripts/outfit-options.mjs`; the options page (`scripts/options.mjs`, `scripts/room-compose.mjs` gained `composeBath`, `art/options/options.json` group "Starting towel") draws each at the tub, 1x and 8x beside the bathrobe, plus strips of the 12 frames and the 5 poses.
+  - Game: `outfits.ts` (the towel is the last outfit, style robe, so the numbers saved for earlier outfits keep their meaning), `decor-data.ts` (`outfit-towel`, `how: "start"`, `empty: true` so a fresh game has no new bookshelf prompt; the flag is now allowed on an outfit, `decor.ts`). Nothing else: the ROBE slot, `starting()`, `parseDecor` and issue 177's occasion already did the rest.
+  - What I saw (my own look at 6x sheets of all 12 walking frames and 5 poses, and the bath at 1x and 8x): **A** reads as a sky-blue bath towel across the chest and hips: bare shoulders and arms, a white rolled edge across the top, a mist fold at the hem, one row of bare lower leg; in the four directions it reads the same from the sides and the back (a flat blue block). The bare-shoulder row merges a little with the face colour at 1x. **B** is A with a sky-blue cap of towel over the hair, a mist fold across the middle row; from the front and sides it reads as a headband or a snug cap more than a turban (only three rows), from behind a blue cap; the hair still shows below it. **C** is a sky-blue towel over the shoulders with a white neck roll and white edge, a two-pixel strip of bare chest between its ends in front, all towel behind, the front column bare from the side, and the everyday jeans untouched; it reads as a blue vest or short cape over jeans, less obviously a towel than A. In the poses (sofa, desk, table from behind; guitar from the front) the top takes the same colours; A and B show a white then blue band across the back of the shoulders. In the bath at 8x the towel next to the bathrobe is clearly different from it (blue against white and orange) and from the everyday clothes (denim).
+  - Old saves: `starting()` and `parseDecor` seed every start item, so an old save owns the towel; an old save with the bathrobe owned and nothing equipped in ROBE gets the bathrobe (auto-fill takes the first owned robe in `OUTFITS` order), an explicit `outfits.equipped.robe` is kept, and a fresh game saves exactly `owned` and `placed` as before.
+  - Tests: `outfit-towel-184.test.ts` new; `shower.test.ts` (the shower ends in the towel, the bathrobe does not replace it, other tests equip the bathrobe first), `outfit-slots.test.ts`, `outfits-page.test.ts` (ROBE lists the bathrobe then the towel; the empty slot test uses GOING OUT), `decor-entries.test.ts`, `decor.test.ts`, `decor-worn.test.ts` (items by id; the order of the outfit list is the saved order) and `inventory-page.test.ts` (fourteen starting things: one page on the wide view, two on the narrow) were updated.
+  - Docs: `docs/decor.md` "What issue 184 built", `docs/art-style.md` (the new rules and option), `docs/text-review.md` (the towel's note).
+  - Open: d3 (which look; the choice replaces the `towel` entry's `torso`, `hem` and `turban` in `art/outfits.json`, run `npm run sprites`, nothing else) and d4 (whether a fresh game offers Change clothes now; as built it does not).
+  - Not checked: the towel in a browser (the live canvas); the options page in a browser.

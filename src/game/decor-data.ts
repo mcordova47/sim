@@ -91,7 +91,8 @@ export interface DecorItem {
   // For an item of kind `plant` (issue 182): which pots take it. Required on every plant item.
   plantKind?: PlantKind;
   // An empty pot, vase or bowl (issue 182): an ordinary still item owned from the start that shows the pot with nothing in it.
-  // It does not count as a spare (`Decor.canChange`), so a fresh game has no new prompt.
+  // It does not count as a spare (`Decor.canChange`), so a fresh game has no new prompt. The starting bath towel (issue 184, an outfit)
+  // uses it for the same reason: an owned starting thing is not a reason to offer a change at the bookshelf.
   empty?: boolean;
   // Pixels. Must equal the slot's area size to fit.
   w: number;
@@ -195,6 +196,7 @@ export const DECOR_ITEMS: DecorItem[] = [
   { id: "plant-bowl-empty", name: "EMPTY BOWL", kind: "plant", plantKind: "low", empty: true, sprite: "plant-bowl-empty", w: 16, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "A WHITE BOWL. IT HAS NOTHING TO SAY YET." },
   { id: "lamp-table", name: "LAMP", kind: "lamp", sprite: "lamp-table", w: 16, h: 16, color: "butter", how: "start", from: "ALREADY HERE", note: "A LAMP. IT'S A GOOD LAMP, YOU THINK.", glow: { radius: 40, alpha: 0.2 } },
   { id: "outfit-home", name: "EVERYDAY CLOTHES", kind: "outfit", sprite: "player-idle-down", w: 16, h: 16, color: "dusk", how: "start", from: "ALREADY HERE", note: "THE USUAL. IT HAS WORKED SO FAR." },
+  { id: "outfit-towel", name: "BATH TOWEL", kind: "outfit", empty: true, sprite: "player-towel-idle-down", w: 16, h: 16, color: "mist", how: "start", from: "ALREADY HERE", note: "BIG, SOFT AND ONLY A LITTLE DAMP." },
   { id: "pantry-bins", name: "CLEAR BINS", kind: "pantry", sprite: "pantry", w: 16, h: 32, color: "mist", how: "start", from: "ALREADY HERE", note: "YOU GUESS THESE WILL DO AS A PANTRY, FOR NOW." },
   { id: "furniture-record-stand-old", name: "RECORD STAND", kind: "furniture", sprite: "record-stand", w: 16, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "IT HOLDS THE RECORDS. THE RECORDS HOLD YOU.", slots: ["furniture-record-stand"] },
   { id: "coffee-pourover", name: "POUR-OVER CONE", kind: "coffee", sprite: "coffee-pourover", taskName: "pour-over", slots: ["coffee-table"], w: 16, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "THE SLOW WAY. YOU SAY IT'S FOR THE FLAVOR." },

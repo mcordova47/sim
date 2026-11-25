@@ -22,6 +22,7 @@ const CARDIGAN = "outfit-casual-cardigan";
 const PJ = "outfit-pajamas";
 const STRIPED = "outfit-pajamas-striped";
 const ROBE = "outfit-pajamas-robe";
+const TOWEL = "outfit-towel";
 const OUT = "outfit-out";
 
 function decorWith(...ids: string[]): Decor {
@@ -38,9 +39,11 @@ describe("slot data", () => {
     expect(SLOT_STYLES).toEqual({ everyday: ["home", "casual"], pajamas: ["pajamas"], robe: ["robe"], out: ["out"] });
   });
 
-  it("the bathrobe is the only robe; the two pajamas stay pajamas and cannot go in ROBE", () => {
-    expect(OUTFITS.filter((o) => o.style === "robe").map((o) => o.id)).toEqual(["pajamas-robe"]);
+  it("the bathrobe and the starting towel are the robes; the two pajamas stay pajamas and cannot go in ROBE", () => {
+    expect(OUTFITS.filter((o) => o.style === "robe").map((o) => o.id)).toEqual(["pajamas-robe", "towel"]);
     expect(slotTakes("robe", ROBE)).toBe(true);
+    expect(slotTakes("robe", TOWEL)).toBe(true);
+    expect(slotTakes("everyday", TOWEL)).toBe(false);
     expect(slotTakes("robe", PJ)).toBe(false);
     expect(slotTakes("robe", STRIPED)).toBe(false);
     expect(slotTakes("pajamas", ROBE)).toBe(false);
@@ -89,8 +92,14 @@ describe("the decor store", () => {
     expect(d.equippedIn("pajamas")).toBe(PJ);
     d.own(STRIPED);
     expect(d.equippedIn("pajamas")).toBe(PJ);
+    // The ROBE slot starts with the towel (issue 184), so the bathrobe arriving does not replace it (d2); you equip it by hand.
+    expect(d.equippedIn("robe")).toBe(TOWEL);
     d.own(ROBE);
+    expect(d.equippedIn("robe")).toBe(TOWEL);
+    expect(d.slotChoices("robe").map((i) => i.id)).toEqual([ROBE, TOWEL]);
+    expect(d.equip("robe", ROBE)).toBe(true);
     expect(d.equippedIn("robe")).toBe(ROBE);
+    expect(d.equip("robe", TOWEL)).toBe(true);
     expect(d.equippedIn("out")).toBeUndefined();
   });
 
@@ -129,7 +138,7 @@ describe("the decor store", () => {
     d.load({ owned: [PJ], placed: {}, outfits: { equipped: { pajamas: STRIPED, out: OUT, robe: PJ, zzz: PJ } } });
     expect(d.equippedIn("pajamas")).toBe(PJ);
     expect(d.equippedIn("out")).toBeUndefined();
-    expect(d.equippedIn("robe")).toBeUndefined();
+    expect(d.equippedIn("robe")).toBe(TOWEL); // the bathrobe is not owned, the starting towel is
     for (const junk of [null, 5, "x", [], { equipped: 3 }, { equipped: [PJ] }]) {
       expect(() => d.load({ owned: [], placed: {}, outfits: junk })).not.toThrow();
       expect(d.equippedIn("everyday")).toBe("outfit-home");
@@ -143,7 +152,7 @@ describe("the decor store", () => {
     expect(worn(d)).toBe(PJ);
     expect(d.wornSlot()).toBe("pajamas");
     d.wearSlot("robe");
-    expect(worn(d)).toBe(HOODIE);
+    expect(worn(d)).toBe(TOWEL);
     d.wearSlot("out");
     expect(worn(d)).toBe(HOODIE);
   });
@@ -338,15 +347,16 @@ describe("the occasions", () => {
     const game = room(d, "shower");
     game.update(dt, press);
     finish(game);
-    expect(worn(d)).toBe(ROBE);
+    expect(worn(d)).toBe(TOWEL); // the bathrobe is owned but the towel was there first (d2)
 
-    const e = decorWith(HOODIE, PJ);
+    const e = decorWith(HOODIE, PJ, ROBE);
     e.equip("everyday", HOODIE);
+    e.equip("robe", ROBE);
     e.wearSlot("pajamas");
     const g2 = room(e, "shower");
     g2.update(dt, press);
     finish(g2);
-    expect(worn(e)).toBe(HOODIE);
+    expect(worn(e)).toBe(ROBE);
   });
 
   it("a manual change sticks, and the next occasion wins over it", () => {
@@ -355,7 +365,7 @@ describe("the occasions", () => {
     d.wearSlot("everyday");
     game.update(dt, press);
     finish(game);
-    expect(worn(d)).toBe(ROBE);
+    expect(worn(d)).toBe(TOWEL);
     d.wearSlot("everyday");
     for (let i = 0; i < 60 * 30; i++) game.update(dt, NO_INPUT);
     expect(worn(d)).toBe("outfit-home");
@@ -401,7 +411,7 @@ describe("the occasions", () => {
     expect(game.interaction.active).not.toBeNull();
     expect(worn(d)).toBe("outfit-home");
     finish(game);
-    expect(worn(d)).toBe(ROBE);
+    expect(worn(d)).toBe(TOWEL);
   });
 
   it("an unknown task id is no occasion", () => {

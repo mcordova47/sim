@@ -119,11 +119,11 @@ describe.each([
     }
   });
 
-  it("a fresh game (thirteen starting things, issue 172's old record stand included) reads fine: one page on the wide view, two on the narrow one (the pause screen draws the wide view)", () => {
+  it("a fresh game (fourteen starting things, issue 172's old record stand and issue 184's bath towel included) reads fine: one page on the wide view, two on the narrow one (the pause screen draws the wide view)", () => {
     setView(view);
     const entries = entriesOf(false);
-    expect(entries.length).toBe(13);
-    const wide = thingsGrid().perPage >= 13;
+    expect(entries.length).toBe(14);
+    const wide = thingsGrid().perPage >= 14;
     expect(thingsPages(entries.length)).toBe(wide ? 1 : 2);
     if (wide) {
       expect(thingsButtons({ entries, cursor: 0, touch: true }).map((b) => b.id)).toEqual(["back"]);

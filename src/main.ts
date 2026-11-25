@@ -4,6 +4,7 @@ import { APARTMENT } from "./game/apartment";
 import { attachFeatures } from "./game/features";
 import { deliverFromSearch, encounterOnFirstKey, ownFromSearch, skipDaysFromSearch } from "./game/decor-dev";
 import { Game } from "./game/game";
+import { removeOldPhotos } from "./game/photos-cleanup";
 import { startLoop } from "./game/loop";
 import { liveReducedMotion } from "./game/reduced-motion";
 import { readControls } from "./input/controls";
@@ -14,6 +15,9 @@ import { setTouchHints } from "./render/hints";
 import "./render/side-project-view"; // registers the composed side project picture (issue 111c)
 import { spriteNames } from "./render/sprite-names";
 import { Sprites } from "./render/sprites";
+
+// Photos were removed (issue 180): one quiet clean-up of what they left on this device.
+removeOldPhotos();
 
 const canvas = document.getElementById("game") as HTMLCanvasElement;
 const screen = createScreen(canvas);

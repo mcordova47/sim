@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { NO_INPUT } from "../../input/controls";
+import { DESKTOP_VIEW, NARROW_VIEW, setView } from "../config";
 import { drawText } from "../../render/font";
 import { setTouchHints } from "../../render/hints";
 import { APARTMENT } from "../apartment";
@@ -234,5 +235,51 @@ describe("the pause screen's text", () => {
     const texts = draw({ touch: false });
     expect(texts).toContain(listHint(true, false));
     expect(listHint(true, false)).toMatch(/^B: AD BLOCK(ER)? OFF {2,3}D: VOICE {2,3}L: CLOSE {2,3}SHIFT\+R: RESET$/);
+  });
+});
+
+describe("the pause screen without PHOTOS (issue 180)", () => {
+  const view = { achievements: ACHIEVEMENTS, unlocked: () => false, cursor: 0, message: null, adBlocker: false, voice: "DIALOG VOICE: BEEP", touch: true };
+
+  for (const [name, size] of [["320 x 192", DESKTOP_VIEW], ["224 x 208", NARROW_VIEW]] as const) {
+    it(`touch buttons at ${name}: seven, none overlapping, all above the page control, the cell PHOTOS had left free`, () => {
+      setView(size);
+      try {
+        const buttons = pauseButtons(view);
+        expect(buttons.map((b) => b.id)).toEqual(["adBlocker", "voice", "transfer", "sync", "things", "reset", "close"]);
+        for (const [i, a] of buttons.entries()) {
+          expect(a.rect.x + a.rect.w).toBeLessThanOrEqual(size.width);
+          expect(a.rect.y + a.rect.h).toBeLessThanOrEqual(pageButton(view)!.rect.y);
+          for (const b of buttons.slice(i + 1)) {
+            const apart = a.rect.x + a.rect.w <= b.rect.x || b.rect.x + b.rect.w <= a.rect.x || a.rect.y + a.rect.h <= b.rect.y || b.rect.y + b.rect.h <= a.rect.y;
+            expect(apart).toBe(true);
+          }
+        }
+        // THINGS is the last button of row 3's left cell; the right cell (where PHOTOS was) is empty.
+        const things = buttons.find((b) => b.id === "things")!.rect;
+        const reset = buttons.find((b) => b.id === "reset")!.rect;
+        expect(reset.y).toBeGreaterThan(things.y + things.h);
+      } finally {
+        setView(DESKTOP_VIEW);
+      }
+    });
+  }
+
+  it("the desktop hint line names three pages and no PHOTOS, and the O key opens nothing on the pause list", () => {
+    const ctx = { fillRect: () => {}, save: () => {}, restore: () => {} } as unknown as CanvasRenderingContext2D;
+    vi.mocked(drawText).mockClear();
+    drawList(ctx, { ...view, touch: false });
+    const texts = vi.mocked(drawText).mock.calls.map((c) => String(c[1]));
+    expect(texts).toContain("P: SYNC");
+    expect(texts).toContain("I: THINGS");
+    expect(texts).toContain("T: TRANSFER SAVE");
+    expect(texts.some((t) => /PHOTO/.test(t))).toBe(false);
+    const { feature, press } = setup();
+    press("KeyL");
+    expect(() => press("KeyO")).not.toThrow();
+    vi.mocked(drawText).mockClear();
+    feature.drawHud(ctx);
+    expect(vi.mocked(drawText).mock.calls.some((c) => /PHOTO/.test(String(c[1])))).toBe(false);
+    expect(vi.mocked(drawText).mock.calls.some((c) => c[1] === "SIMAGOTCHI")).toBe(true);
   });
 });

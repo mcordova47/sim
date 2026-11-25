@@ -2,7 +2,7 @@
 id: "180"
 title: "Remove the photo feature"
 short: "Remove photos"
-status: todo
+status: in-progress
 owner: marc + claude
 depends_on: ["176"]
 summary: "Remove the photo reel, the PHOTOS pause page and the sofa photo scene, to make room on the crowded pause screen."
@@ -36,3 +36,4 @@ Marc (2026-11-24): photos did not end up feeling natural and were too much frict
 
 ## Progress log
 - 2026-11-24 (planner): filed on main with its open decisions (the issue file is born on main).
+- 2026-11-24 (agent): status in-progress. Plan: delete in layers (the sofa scene and its hooks, the PHOTOS page, the reel store, then tests, then docs and lessons), run tsc and the tests after each layer, add the one-time quiet clean-up, mark the two photo design docs as history, rewrite lesson 02 and run its exercises in a scratch worktree.

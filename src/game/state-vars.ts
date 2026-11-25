@@ -32,8 +32,6 @@ export const STATE_VARS: StateVar[] = [
   { id: "takeoutBag", initial: 0, min: 0, max: 1, meaning: "1 while the only thing waiting by the front door is the takeout meal (no package), so the door tile draws a bag; 0 otherwise (the package box is drawn when parcel is 1 and this is 0). Follows the delivery queue (game.ts syncParcel); no task sets it." },
   // Derived, never set by a task (issue 107): the guitar piece shows an empty stand while this is 1.
   { id: "guitarOut", initial: 0, min: 0, max: 1, meaning: "1 while the guitar is off its stand (being played), 0 if it rests on it. Follows the running guitar task (game.ts syncGuitar); no task sets it." },
-  // Derived, never set by a task (issue 113d): 1 while the device holds at least one reel picture, which is what lets the sofa offer "Scroll through photos".
-  { id: "hasPhotos", initial: 0, min: 0, max: 1, meaning: "1 while at least one picture is kept on this device (the photo reel), 0 if none. Follows the reel's store (game.ts syncPhotos); no task sets it. Not part of the sync document." },
   {
     id: "recordSort",
     initial: 0,

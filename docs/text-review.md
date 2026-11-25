@@ -20,26 +20,6 @@ The product name is Simagotchi (Marc, 2026-10-29). The pause screen's header use
 - Their screen shows another little room with another little guy. - keep
 - You wonder if you're just a little guy on someone else's screen, and the silly notion gives you a good chuckle. - keep
 
-## PHOTOS page (issue 113c)
-The pause-screen page where pictures are added and removed. The first five lines are the design note's (`docs/photo-reel-design.md` section 7); the rest were written with the build. No line mentions resolution, size or pixels (Marc's rule). Wired in `src/game/achievements/photos-draw.ts` and `src/game/reel/photo-add.ts`. Marc to mark: keep / soften / rewrite.
-- Page text (one paragraph): Pick some pictures. They will be kept on this device. The originals are not kept. Nothing leaves this device. - keep
-- Nothing stored: No pictures yet. The sofa has nothing to scroll. (the sofa task is issue 113d; until it is built the line points at nothing) - keep
-- Count: 12 pictures on this device / 1 picture on this device - keep
-- Progress: Making picture 3 of 12 - keep
-- Added: 12 pictures added. / 1 picture added. / No pictures added. - keep
-- Already stored (new): 2 were already here. / 1 was already here. - keep
-- Not readable: 2 could not be read. - keep
-- Over the cap: Room for 60. The rest stayed where they were. - keep
-- Storage trouble (new): This browser could not keep them all. / This browser could not read the pictures. / This browser could not remove them all. - keep
-- No storage in this browser: This browser will not keep pictures. - keep
-- Buttons: ADD PHOTOS, REMOVE ALL, SURE? REMOVE ALL, BACK. Pause screen: PHOTOS (touch button), O: PHOTOS (desktop hint). - keep
-- After REMOVE ALL: The pictures are gone. The originals were never here. - keep
-- Sofa task (issue 113d, wired): name and prompt "Scroll through photos"; unmet reason NO PICTURES (never shown to the player in practice: with no pictures the task is not listed). The task has no flavor line. - keep
-- Sofa scene (issue 117e, replaces the 113d slideshow and its five captions; pools are `REEL.phoneLines` and `REEL.closeupLines` in `src/game/config.ts`, plain lists, so a "rewrite" or a deletion is a one-line change; no line mentions resolution, size or pixels or claims anything about what a picture shows, and a test checks that). Marc to mark each: keep / soften / rewrite.
-  - Fixed phone-view line (one is chosen when the scene starts and shown under the grid for the whole session): You scroll for a while. Why did you open your phone, again? - keep / There is a lot of it, and it is all yours. - / Mostly the same few places. - / You have taken a lot of pictures of this. - / You were there for most of these. - / Nothing here needs an answer. -
-  - Close-up caption (one is chosen each time a close-up opens): Ah, memories. - keep / You remember this. Mostly. - / Look at that. - / Good times, probably. - / You were there. - / Was it always like that? - / You could look at this all day. You do not. -
-  - Scene chrome: title PHOTOS; hints E: CONTINUE   ESC: LEAVE (wide), buttons CONTINUE and LEAVE (narrow), E: DONE in the close-up (A: DONE on the touch layer). - keep
-
 ## Tasks
 
 One row per task that has something to review: its id, name (the menu and the award popup), prompt (the short line at the object), the reasons it can be unmet (the blocked message, which the game does show) and the mark. Tasks that are only plain commands with no blocked message were removed from the table (Marc, 2026-11-21). The one-line flavor jokes the tasks used to carry were never drawn and were dropped (issue 146); the ones marked keep below are parked in `docs/ideas.md`.
@@ -425,23 +405,6 @@ The entry also shows the where-now line (the slot's "where" text, or IN THE INVE
 Capitals only. Shown for something an ad put in front of you that you did not take (ignored, hidden, or closed). The page draws a flat dark shape of it, and nothing else about it: no name, no source, no place, no hint how to get one, no count. If it later arrives, the shape simply becomes the item. Marc marks each: keep, soften or rewrite.
 - Name line: ??? - keep
 - Line under it: YOU HAVE SEEN ONE OF THESE. - keep
-
-## PHOTOS page: gallery and delete one (issue 117c)
-New lines on the PHOTOS page's grid and close-up. None mentions resolution, size or pixels. Wired in `src/game/achievements/photos-draw.ts` and `feature.ts`. Marc to mark: keep / soften / rewrite.
-- After a delete: Picture deleted. Like it never happened. - keep
-- A delete that failed: This browser could not remove it. - keep
-- Page number (top right, only with more than one page): PAGE 2 OF 10 - keep
-- Grid buttons: OPEN (new, beside ADD PHOTOS, REMOVE ALL, BACK) - keep
-- Close-up buttons (touch): DELETE / SURE? DELETE (turns orange after the first tap) / BACK, and < > for the other pictures - keep
-- Close-up keys line (keyboard): DEL: DELETE  < >: OTHERS  ESC: BACK - keep
-- Close-up question (keyboard): DEL: SURE? DELETE  OTHER KEY: CANCEL - keep
-
-## PHOTOS page: the LOOK switch (issue 117d)
-New lines for the LOOK switch on the PHOTOS page. None mentions pixels, resolution or the game. Wired in `src/game/achievements/photos-draw.ts` and `feature.ts`. Marc to mark: keep / soften / rewrite.
-- Switch label (button, and key S on the keyboard): LOOK: CRISP / LOOK: SOFT / LOOK: CHUNKY (Soft is the default; the order is Crisp, Soft, Chunky) - keep
-- Line under the grid (short, one row): New pictures only. - keep
-- Line on the empty page (long, wraps): New pictures only. The ones you have keep their look. - keep
-- If the browser cannot keep the choice (shown as a message, the choice lasts until the page is closed): This browser will not remember the look. - keep
 
 ## Takeout (issue 153)
 New lines for ordering and eating takeout. The restaurant and the app are never named, so no brand appears. Wired in `src/game/tasks.ts` and `src/game/game.ts`. Marc to mark: keep / soften / rewrite.

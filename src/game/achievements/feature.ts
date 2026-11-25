@@ -121,8 +121,8 @@ export class AchievementsFeature implements Layer {
     this.storage = options.storage === undefined ? browserStorage() : options.storage;
     this.store = new ProgressStore(this.storage, UI.storageKey);
     const ids = new Set<string>();
-    // Changing the decor ends quietly and is never a completion, so it is not part of "every task". Nor is coffee on the stove: it only exists with a pot on the stove (issue 168).
-    for (const level of Object.values(this.rooms)) for (const item of level.interactables) if (item.decorSlot === undefined && !item.delivery && item.id !== "coffee-stove") ids.add(item.id);
+    // Changing the decor ends quietly and is never a completion, so it is not part of "every task". Nor is Examine (issue 185): it ends quietly and could never be completed. Nor is coffee on the stove: it only exists with a pot on the stove (issue 168).
+    for (const level of Object.values(this.rooms)) for (const item of level.interactables) if (item.decorSlot === undefined && !item.delivery && !item.id.startsWith("examine-") && item.id !== "coffee-stove") ids.add(item.id);
     this.ctx = { allTaskIds: [...ids] };
     this.room = options.start ?? APARTMENT.start;
     this.now = options.now ?? Date.now;

@@ -61,6 +61,9 @@ export interface Interactable {
   // A task about the apparatus in a decor slot (issue 168, the coffee stations): only offered while the slot holds
   // an item, and its `itemWord` follows that item's `taskName` like `liveSlot`'s does. No growth is involved.
   heldSlot?: string;
+  // Narrows the task to the one tile of its object that holds this x (a decor slot's centre, issue 185): the prompt only
+  // appears where the item is, not along the whole desk.
+  zoneX?: number;
   // Item-aware task text (issue 149, P4 in docs/decor-expansion-design.md): `name` is written with the plain
   // word for the thing ("Water the plant"), and when the item in `liveSlot` has a `taskName` ("snake plant") that
   // word replaces `itemWord` ("plant") in the name shown while the task runs. An item without a `taskName` leaves

@@ -448,6 +448,11 @@ New items for the desk's right corner (slot `trinket-desk`, swap task "Display t
 - KALIMBA: EVERY TINE IS A NICE NOTE. IT IS HARD TO PLAY WRONG. -
 - JAW HARP: A SPRING IN A FRAME. THE SOUND IS A SMALL BOING. -
 
+## Examine a trinket (issue 185)
+The prompt at a displayed trinket and the close-up card. The card shows the item's own name, its `FROM:` line and its note (all reviewed above), so the only new words are the prompt and the `FROM:` label. Wired in `src/game/tasks.ts` (`EXAMINES`), `src/game/decor-data.ts` (`taskName`) and `src/game/activities/examine.ts`. Marc to mark: keep / soften / rewrite.
+- Prompt and name (the word follows the item, no "the"): Examine trinket, shown as Examine alebrije owl / Examine alebrije cat / Examine little telescope / Examine finger skateboard / Examine painted goose egg / Examine worry doll / Examine raccoon in a can / Examine harmonica / Examine kalimba / Examine jaw harp -
+- Card: the item name, FROM: A PACKAGE, the item's note; no title, no counts, no key hint -
+
 ## Coffee gear (issue 168)
 New names and notes for the coffee apparatus, and the make-coffee wording that follows them ("Make french press coffee", "Make moka coffee"). No brand is named. Wired in `src/game/decor-data.ts` and `src/game/tasks.ts`. Marc to mark: keep / soften / rewrite.
 - Task names and prompts (the word in the middle follows the apparatus): Make pour-over coffee / Make french press coffee / Make drip coffee / Make pod coffee / Make percolator coffee / Make moka coffee / Make briki coffee / Make stovetop coffee (the plain wording) - 

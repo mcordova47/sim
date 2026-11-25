@@ -1176,7 +1176,7 @@ export class Game {
     if (!this.dialog.open) {
       // (A decor swap draws its own list, which hides what it is changing otherwise.)
       if (interaction.active) {
-        if (interaction.active.item.decorSlot === undefined && !interaction.active.item.encounter) {
+        if (interaction.active.item.decorSlot === undefined && !interaction.active.item.encounter && interaction.active.item.activity?.type !== "examine") {
           // The banner fades while asleep, so it is not over the sleeper's head (issue 078).
           const alpha = this.sleepScene?.bannerAlpha ?? 1;
           // The name follows the item the task is about (issue 149): "Water the pothos".

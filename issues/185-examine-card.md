@@ -2,11 +2,14 @@
 id: "185"
 title: "Examine a trinket: the close-up card (stage B)"
 short: "Examine card"
-status: todo
+status: review
 owner: marc + claude
 depends_on: ["167"]
 summary: "An Examine task at the desk opens a close-up card with a large detailed picture, the name and the note."
 kind: build
+unverified:
+  - "How the card feels on a real phone (a tap to close, the 224 x 208 layout on real hardware): looked at in headless Chrome with ?touch=1 at 672x624 only."
+  - "The close-ups against the real objects by Marc: I looked at the real objects for judgement only; the eight new drawings are my reading of them and are for Marc to like or not."
 changelog: "You can examine a displayed trinket for a close-up, its name and a short note."
 ---
 
@@ -22,3 +25,5 @@ Build stage B of `docs/trinket-display-design.md` (issue 173, merged), following
 
 ## Progress log
 - 2026-11-25 (planner): filed on main from the merged trinket display design (issue 173) and started at Marc's request.
+- 2026-11-25 (agent): started in worktree sim-worktrees/185-examine-card on branch issue/185-examine-card. Plan: the examine tasks per slot (zoneX narrows the zone to the slot's tile, heldSlot hides it), the card activity with a pure layout for both views, ten 48x48 close-ups (the two alebrijes from options candidates A and B, eight new, looked at the real objects for judgement), tests, text-review, decor.md, then look at the card in the running game at both sizes.
+- 2026-11-25 (agent): built and set to review. Files: src/game/activities/examine.ts (new: card, `examineLayout`, `closeUp` fallback), activities/index.ts, tasks.ts (`EXAMINES`, `examineTaskId`), apartment.ts (`examine-trinket-desk` before `swap-trinket-desk` on the desk), interactable.ts + tilemap.ts (`zoneX`: narrows a task to the tile holding that x), decor.ts (`swapProblems` checks the examine zone), decor-data.ts (`taskName` on all ten items, `closeName`), sprite-names.ts (loads the close-ups), achievements/feature.ts (no `examine-*` in 'every task'), game.ts (no progress banner for the examine task), game-activities.test.ts (type list), examine-185.test.ts (new, 15 tests), docs/decor.md, docs/text-review.md, ten new art/src/*-close.sprite and their public/sprites PNGs. Already there from issue 168 and reused unchanged: `Interactable.heldSlot`, the `interaction.hidden` line, `Decor.taskName` and `taskPrompt` for heldSlot, so the design's engine items for those were done. Choices: the desk is two tiles deep so the examine zone is the two tiles of col 9 (stand at col 9, row 3 facing up); item `taskName`s are "alebrije owl" and "alebrije cat" (the design said "alebrije"; two items with one word would not tell them apart; trivially changed in decor-data.ts); the swap task keeps the whole desk. Art: owl and cat close-ups are options candidates A and B (art/options/alebrije) with a new header; the other eight were drawn for this issue (telescope, skateboard, goose egg, worry doll, raccoon in a can, harmonica, kalimba, jaw harp), after looking at the real objects; no photo is copied, traced, named or described. Checks: npm test (4292 pass, golden frames unchanged), tsc, build, check:dist, npm run sprites leaves only the new files. Looked at in the running game (vite dev server, headless Chrome, ?own=<id>, stand at the desk's col 9, Display trinket, Tab 6 to Examine, E): all ten items at 1x and 3x on the 320 x 192 view and on the phone view (?touch=1, 224 x 208 picture). Seen and fixed: the first telescope read as a cannon, the skateboard wheels as eyes, the egg's highlight as a hole, the jaw harp's tongue as a pencil. Seen and left: the owl is dark on the night field but readable; text fits both views with every note (tested by measurement too).

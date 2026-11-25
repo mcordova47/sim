@@ -62,7 +62,10 @@ decisions:
       - "yes, the page uses equip as it is"
       - "no, the page only edits the slots and your clothes change at the bookshelf or on an occasion"
     recommendation: "yes, the page uses equip as it is"
-    status: open
+    status: answered
+    answer: "yes, the page uses equip as it is"
+    by: marc
+    on: 2026-11-24
   - id: d6
     who: marc
     q: "Does the OUTFITS page also have a key to wear a slot now?"

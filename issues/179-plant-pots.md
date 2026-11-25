@@ -28,7 +28,10 @@ decisions:
       - "the window sill: still items only for now (dried things and trinkets, as decided for issue 169); floor trees later"
       - "something else"
     recommendation: "the window sill: trailing or hanging plants and small herbs; the floor: small trees (a fiddle-leaf fig, a rubber plant, a potted palm); both later, after the three pots"
-    status: open
+    status: answered
+    answer: "the window sill: trailing or hanging plants and small herbs; the floor: small trees (a fiddle-leaf fig, a rubber plant, a potted palm); both later, after the three pots"
+    by: marc
+    on: 2026-11-24
   - id: d3
     who: marc
     q: "Which pots are live (they need watering and can droop) and which are still?"

@@ -57,7 +57,10 @@ decisions:
       - "only through the random-encounter pool"
       - "both, at once"
     recommendation: "gifts from day 85 on (three days apart) and in the random-encounter pool when issue 163 lands"
-    status: open
+    status: answered
+    answer: "gifts from day 85 on (three days apart) and in the random-encounter pool when issue 163 lands"
+    by: marc
+    on: 2026-11-24
 ---
 
 ## Goal

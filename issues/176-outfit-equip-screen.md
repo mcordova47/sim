@@ -2,7 +2,7 @@
 id: "176"
 title: "A pause-screen outfit equip screen, and a character preview"
 short: "Outfit equip screen"
-status: todo
+status: review
 owner: marc + claude
 depends_on: ["175"]
 summary: "A pause-screen page for equipping outfit slots (in the spirit of a classic equipment screen) with a bigger character preview."
@@ -43,6 +43,47 @@ decisions:
       - "the bookshelf only wears a slot now; picking outfits for slots is only on the pause screen"
     recommendation: "keep it as built: wear a slot now and also pick the outfit in each slot"
     status: open
+  - id: d5
+    who: marc
+    q: "On the OUTFITS page, equipping an outfit into the slot you are wearing changes your clothes on the spot (this is what Decor.equip already does and what the bookshelf does). Keep that?"
+    options:
+      - "yes, the page uses equip as it is"
+      - "no, the page only edits the slots and your clothes change at the bookshelf or on an occasion"
+    recommendation: "yes, the page uses equip as it is"
+    status: open
+  - id: d6
+    who: marc
+    q: "Does the OUTFITS page also have a key to wear a slot now?"
+    options:
+      - "no, wearing a slot stays at the cube bookshelf (the page is for choosing what goes in the slots)"
+      - "yes, a key on the page wears the highlighted slot"
+    recommendation: "no, wearing a slot stays at the cube bookshelf (the page is for choosing what goes in the slots)"
+    status: open
+  - id: d7
+    who: marc
+    q: "Which keys: F opens OUTFITS from the pause list on desktop, and Tab or Q turns the character (the game's cycle keys; the touch layer's CHOICE button sends Tab)?"
+    options:
+      - "F to open, Tab or Q to turn"
+      - "other keys (say which)"
+    recommendation: "F to open, Tab or Q to turn"
+    status: open
+  - id: d8
+    who: marc
+    q: "If PHOTOS is removed later: what happens to the pictures already stored in the browser?"
+    options:
+      - "one quiet clean-up deletes the stored pictures and the look setting on the next load, so nothing invisible is left on a device"
+      - "leave them where they are"
+    recommendation: "one quiet clean-up deletes the stored pictures and the look setting on the next load, so nothing invisible is left on a device"
+    status: open
+unverified:
+  - "Everything was drawn with the game's own soft canvas in a script outside the repo and looked at as PNGs; nothing was run in a browser (feel, spacing and tap size on a real phone, the CHOICE button on the pause screen)."
+  - "How the load treats a saved task id that no longer exists (scroll-photos), which a later PHOTOS removal would need to test."
+  - "Whether the legend running into the achievement count and the voice button overflowing at 224 wide (seen in the render of the existing pause screen) also happens in the real game."
+needs:
+  - who: marc
+    kind: decide
+    why: "Look at the mockups in docs/outfit-equip-screen-mockups/ and answer d1 to d8 (d1 is the photos question)."
+    since: "2026-11-24"
 ---
 
 ## Goal
@@ -53,3 +94,5 @@ A DESIGN issue: `docs/outfit-equip-screen-design.md` with mockups rendered with 
 
 ## Progress log
 - 2026-11-24 (planner): filed on main with its open decisions (the issue file is born on main).
+- 2026-11-24 (agent): status in-progress. Plan: read the code and the earlier designs, render the pause screens with the real draw functions and the new page with the game's own font, palette and sprites at 320x192 and 224x208, write docs/outfit-equip-screen-design.md.
+- 2026-11-24 (agent): done, status review. Wrote docs/outfit-equip-screen-design.md and 16 mockups in docs/outfit-equip-screen-mockups/ (7 of the OUTFITS page: three desktop, two phone, two early-game; 9 of the pause screen: today, OUTFITS added with PHOTOS kept, OUTFITS in place of PHOTOS, each on desktop, touch 320x192 and phone 224x208). Rendered by a script outside the repo that uses the real drawList, pauseButtons, drawText, drawButton, hintLine, the palette and the real .sprite files; I looked at every image. Design: a new pause page OUTFITS (slots left with WORN, the owned outfits for the slot right, the highlighted outfit's own note on top, the character at 4x with the four facings, Tab or Q turns), built only on Decor.slotChoices, equippedIn, equip and wornSlot; no new state, no new art. Findings: the pause screen has one home and four pages; touch has eight buttons filling exactly four rows, so a ninth overlaps the page control; desktop fits five hints with 1.8 px gaps; the desktop hint line would vanish at the 27th achievement (a latent issue, not mine); every place PHOTOS touches is listed in section 4 with nothing removed; a higher-resolution preview is costed in section 6 and not recommended now. New decisions d5 to d8 added with recommended defaults; d1 to d4 left open and untouched. Only docs and images were added; no code, no art, nothing removed. Not checked: see `unverified`. Awaiting independent review.

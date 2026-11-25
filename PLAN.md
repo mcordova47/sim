@@ -249,7 +249,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 180 | [Remove photos](issues/180-remove-photos.md) | marc + claude | done | 176 |
 | 181 | [OUTFITS page build](issues/181-outfits-page-build.md) | marc + claude | done | 180 |
 | 182 | [Three pots (stage A)](issues/182-plant-pots-stage-a.md) | marc + claude | done | 179 |
-| 183 | [Window, repeats, failures](issues/183-encounter-window.md) | marc + claude | todo | 163 |
+| 183 | [Window, repeats, failures](issues/183-encounter-window.md) | marc + claude | done | 163 |
 <!-- issues:table:end -->
 
 ## Order of work

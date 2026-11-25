@@ -503,3 +503,7 @@ The first furniture slot. The strings are the stand's own entry (the stand you s
 - TEAL SUITCASE PLAYER: IT KEEPS A RECORD HANDY FOR A PARTY. THERE IS NO PARTY. - 
 - Source on all six: FROM: A PACKAGE - 
 - Furniture shop ad (invented, no real brand; `line-furniture` in `src/game/encounter-lines.ts`): Corner Post Furniture / CORNER POST FURNITURE; headline "Now in stock: {name}"; body "Solid, steady and built for the long haul." / "Some assembly. Some opinions." / "Free delivery to your door."; button SHOP FURNITURE; closer "{name}" / "Ships in a big box, in 5 days." - 
+
+## Bath towel (issue 184)
+The starting outfit in the ROBE slot. Only the item's own words are new. Wired in `src/game/decor-data.ts`. Marc to mark: keep / soften / rewrite.
+- BATH TOWEL (FROM: ALREADY HERE): BIG, SOFT AND ONLY A LITTLE DAMP. - 

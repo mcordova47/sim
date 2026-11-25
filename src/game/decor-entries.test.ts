@@ -5,8 +5,8 @@ import { DECOR_DATA, DECOR_ITEMS, FROM_MAX, GIFT_ITEMS, NOTE_MAX, isTestItem } f
 
 // Issue 109a: the entries behind the browsable inventory.
 
-// The starting things in the order they are owned: each slot's default, then the rest (the empty pots, issue 182).
-const START = ["art-barn", "art-abstract", "art-silkscreen", "plant-vase-dried", "plant-bowl-empty", "plant-snake", "lamp-table", "pantry-bins", "outfit-home", "furniture-record-stand-old", "coffee-pourover", "plant-pot-empty", "plant-vase-empty"];
+// The starting things in the order they are owned: each slot's default, then the rest (the empty pots, issue 182, and the bath towel, issue 184).
+const START = ["art-barn", "art-abstract", "art-silkscreen", "plant-vase-dried", "plant-bowl-empty", "plant-snake", "lamp-table", "pantry-bins", "outfit-home", "furniture-record-stand-old", "coffee-pourover", "plant-pot-empty", "plant-vase-empty", "outfit-towel"];
 
 const ids = (d: Decor) => d.entries().map((e) => e.item.id);
 

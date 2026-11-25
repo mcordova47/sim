@@ -22,9 +22,10 @@ function setup(owned: string[] = []) {
 }
 
 describe("worn outfits", () => {
-  it("have one item per outfit, each shown by its idle-down sprite, in outfits.ts order", () => {
-    const items = [...DECOR_ITEMS, ...GIFT_ITEMS].filter((i) => i.kind === "outfit");
-    expect(items.map((i) => i.id)).toEqual(OUTFITS.map(outfitItemId));
+  it("have one item per outfit, each shown by its idle-down sprite (the starting items come first in the data, the outfit list is the saved order)", () => {
+    const all = [...DECOR_ITEMS, ...GIFT_ITEMS].filter((i) => i.kind === "outfit");
+    expect(all.map((i) => i.id).sort()).toEqual(OUTFITS.map(outfitItemId).sort());
+    const items = OUTFITS.map((o) => all.find((i) => i.id === outfitItemId(o))!);
     for (const [i, o] of OUTFITS.entries()) {
       expect(items[i].sprite).toBe(`${o.prefix}-idle-down`);
       expect(items[i].name).toBe(o.name);

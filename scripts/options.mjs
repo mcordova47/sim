@@ -4,7 +4,8 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { root, parseSprite, rasterize, encodePng } from "./sprite-lib.mjs";
-import { composeMainRoom, cropScale, load as loadFile, MAP, COLS, ROWS, T, nameOf, hasTasks, spriteOf } from "./room-compose.mjs";
+import { writeCandidates } from "./outfit-options.mjs";
+import { composeMainRoom, composeBath, cropScale, load as loadFile, MAP, COLS, ROWS, T, nameOf, hasTasks, spriteOf } from "./room-compose.mjs";
 
 const config = JSON.parse(readFileSync(join(root, "art/options/options.json"), "utf8"));
 const errors = [];
@@ -160,7 +161,50 @@ function furnitureSection(g) {
   return `<section id="${g.id}"><h2>${esc(g.title)}</h2><p>${esc(g.blurb)}</p><div class="row">${all.map((c) => furnitureCard(g, c)).join("")}</div></section>`;
 }
 
+// Starting towel (issue 184): three looks. Each is shown as the 12 walking sprites and the 5 poses (4x), standing where the shower puts the
+// player (tile 3,2 facing east, issue 177) in the real bath at 1x, and as an 8x crop of the four-direction idle beside the bathrobe.
+writeCandidates();
+const walkNames = ["down", "up", "left", "right"].flatMap((d) => [`idle-${d}`, `walk-${d}-1`, `walk-${d}-2`]);
+const poseNames = ["sit-sofa", "type-desk", "eat-table", "guitar", "read-sofa"];
+function strip(imgs, gap = 1) {
+  const w = imgs.reduce((a, i) => a + i.width + gap, 0) - gap, h = Math.max(...imgs.map((i) => i.height));
+  const rgba = Buffer.alloc(w * h * 4);
+  let ox = 0;
+  for (const img of imgs) {
+    for (let y = 0; y < img.height; y++) for (let x = 0; x < img.width; x++) {
+      const i = (y * img.width + x) * 4;
+      if (img.rgba[i + 3]) img.rgba.copy(rgba, (y * w + ox + x) * 4, i, i + 4);
+    }
+    ox += img.width + gap;
+  }
+  return { width: w, height: h, rgba };
+}
+const bathrobe = (n) => load(`art/src/player-pajamas-robe-${n}.sprite`);
+function towelCard(g, c) {
+  const f = (n) => load(`art/options/towel/${c.prefix}-${n}.sprite`);
+  const idle = ["down", "up", "left", "right"].map((d) => f(`idle-${d}`));
+  const walk = walkNames.map(f);
+  const poses = poseNames.map(f);
+  if ([...idle, ...walk, ...poses].some((i) => !i)) return "";
+  const room = composeBath({ figures: [{ img: idle[3], c: 3, r: 2 }] });
+  const both = composeBath({ figures: [{ img: idle[3], c: 3, r: 2 }, { img: bathrobe("idle-right"), c: 3, r: 3 }] });
+  const crop = cropScale(both, 2 * T, 1 * T, 3 * T, 4 * T, 8);
+  const pair = strip([...idle, ...["down", "up", "left", "right"].map((d) => bathrobe(`idle-${d}`))], 2);
+  return `<figure class="card towel"><figcaption><b>${esc(c.letter)}</b> ${esc(c.label)}</figcaption>
+<img src="${png(strip(walk, 1))}" width="${strip(walk, 1).width * 4}"><small>the 12 walking frames (idle, step 1, step 2 for down, up, left, right) at 4x</small>
+<img src="${png(strip(poses, 2))}" width="${strip(poses, 2).width * 3}"><small>the five poses (sofa, desk, table, guitar, reading) at 3x</small>
+<div class="scroll"><img src="${png(pair)}" width="${pair.width * 6}"></div><small>the four idle directions, then the bathrobe's four, at 6x</small>
+<div class="scroll"><img src="${png(room)}" width="${room.width}" height="${room.height}"></div><small>the bath at 1x, where the shower leaves you (beside the tub, facing east)</small>
+<div class="scroll"><img src="${png(crop)}" width="${crop.width}" height="${crop.height}"></div><small>8x: this look at the tub, the bathrobe on the tile just below it</small></figure>`;
+}
+function towelSection(g) {
+  const robe = bathrobe("idle-right"), now = composeBath({ figures: [{ img: robe, c: 3, r: 2 }] });
+  const nowCard = `<figure class="card towel cur"><figcaption><b>NOW</b> The bathrobe, for comparison (the ROBE slot after day 72).</figcaption><div class="scroll"><img src="${png(now)}" width="${now.width}" height="${now.height}"></div><small>the bath at 1x</small><div class="scroll"><img src="${png(cropScale(now, 2 * T, 1 * T, 3 * T, 3 * T, 8))}" width="${3 * T * 8}"></div><small>8x</small></figure>`;
+  return `<section id="${g.id}"><h2>${esc(g.title)}</h2><p>${esc(g.blurb)}</p><div class="row">${nowCard}${g.candidates.map((c) => towelCard(g, c)).join("")}</div></section>`;
+}
+
 const sections = config.groups.map((g) => {
+  if (g.kind === "towel") return towelSection(g);
   if (g.kind === "furniture") return furnitureSection(g);
   if (g.kind === "rugs") return rugSection(g);
   if (g.kind === "alebrije") return alebrijeSection(g);
@@ -184,7 +228,7 @@ figcaption{margin-bottom:8px;min-height:3em}figcaption b{display:inline-block;ba
 .shots{display:flex;gap:16px;align-items:flex-end}.shots>div{display:flex;flex-direction:column;gap:2px}
 img{image-rendering:pixelated;display:block}.big,.small{background:repeating-conic-gradient(#242538 0 25%,#2b2d42 0 50%) 0 0/16px 16px}
 .card.furn{width:auto;max-width:100%}.card.furn img{margin-top:6px}.card.rug{width:auto;max-width:100%}.card.shipped{border:2px solid #5fae6b}.tag{background:#5fae6b;color:#1a1a2e;border-radius:4px;padding:0 6px;font-size:12px;font-weight:700}.card.rug img{margin-top:8px}.scroll{overflow-x:auto;max-width:100%}.layout{margin:24px 0;padding:12px;border:1px solid #3b3e5c;border-radius:8px}.layout h3{margin:0 0 6px}.L{background:#f2a7c0;color:#1a1a2e;border-radius:4px;padding:0 8px;margin-right:6px}.layout ul{color:#a9adc9;margin:6px 0;padding-left:20px;max-width:90ch}
-.small{background-size:2px 2px}.card.alebrije{width:auto;max-width:100%}.pair{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap}.night{background:#2b2d42;border:2px solid #1a1a2e;display:inline-block;padding:0}.night.sm{background:#b5835a}.card.alebrije img{margin-top:6px}.exam{display:flex;gap:12px;margin-top:10px;background:#edf2f4;color:#1a1a2e;border:2px solid #1a1a2e;padding:8px;max-width:520px}.exam-img{background:#2b2d42;border:2px solid #1a1a2e}.exam-txt{display:flex;flex-direction:column;gap:6px;font:12px/1.5 ui-monospace,monospace}.exam-txt span{color:#6b6f94}.exam-txt p{margin:0;color:#1a1a2e;max-width:22ch}.scene{margin-top:12px;max-width:100%;height:auto}small{color:#a9adc9;font-size:12px}
+.card.towel{width:auto;max-width:100%}.card.towel img{margin-top:8px}.small{background-size:2px 2px}.card.alebrije{width:auto;max-width:100%}.pair{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap}.night{background:#2b2d42;border:2px solid #1a1a2e;display:inline-block;padding:0}.night.sm{background:#b5835a}.card.alebrije img{margin-top:6px}.exam{display:flex;gap:12px;margin-top:10px;background:#edf2f4;color:#1a1a2e;border:2px solid #1a1a2e;padding:8px;max-width:520px}.exam-img{background:#2b2d42;border:2px solid #1a1a2e}.exam-txt{display:flex;flex-direction:column;gap:6px;font:12px/1.5 ui-monospace,monospace}.exam-txt span{color:#6b6f94}.exam-txt p{margin:0;color:#1a1a2e;max-width:22ch}.scene{margin-top:12px;max-width:100%;height:auto}small{color:#a9adc9;font-size:12px}
 </style><main><h1>${esc(config.title)}</h1>
 <p>Candidates only: nothing here is in the game. Each is shown large (8x) on a checkerboard, at its real size (1x), and in a small scene. For outfits only the standing-facing-down frame is drawn so far. Tell the planner the letters you like, for example "bag D, casual B, out A, pajamas C".</p>
 ${sections}</main>`;

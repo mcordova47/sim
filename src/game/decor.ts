@@ -94,7 +94,7 @@ export function validateDecorData(data: DecorData): void {
     if (!(item.w > 0 && item.h > 0)) bad.push(`item "${item.id}" has no size`);
     for (const id of item.slots ?? []) if (!data.slots.some((s) => s.id === id)) bad.push(`item "${item.id}" names the unknown slot "${id}"`);
     if (item.plantKind !== undefined && item.kind !== "plant") bad.push(`item "${item.id}" has a plantKind but is not a plant`);
-    if (item.empty && item.kind !== "plant") bad.push(`item "${item.id}" is marked empty but is not a plant`);
+    if (item.empty && item.kind !== "plant" && item.kind !== "outfit") bad.push(`item "${item.id}" is marked empty but is not a plant or an outfit`);
     if (item.kind === "plant" && item.plantKind === undefined && data.slots.some((s) => s.plantKinds)) bad.push(`plant item "${item.id}" has no plantKind`);
     if (item.family && !data.families[item.family]) bad.push(`item "${item.id}" uses the unknown family "${item.family}"`);
     if (unsupportedChars(item.name).length) bad.push(`item "${item.id}" name has letters the font cannot draw`);

@@ -26,6 +26,7 @@ const dt = 1 / 60;
 const press: Controls = { ...NO_INPUT, interactPressed: true };
 const esc: Controls = { ...NO_INPUT, keys: ["Escape"], cancelPressed: true };
 const ROBE = "outfit-pajamas-robe";
+const TOWEL = "outfit-towel";
 const HOODIE = "outfit-casual-hoodie";
 
 class Recorder implements SpriteDrawer {
@@ -124,7 +125,8 @@ describe("the pose (stage 1)", () => {
     finish(game);
     frame(game, sprites);
     expect(sprites.names()).not.toContain("player-shower-tub");
-    expect(sprites.names().some((n) => /^player-(idle|walk)/.test(n))).toBe(true);
+    // A fresh game's shower ends in the starting towel (issue 184), so the player is drawn in its sprites.
+    expect(sprites.names().some((n) => /^player-(towel-)?(idle|walk)/.test(n))).toBe(true);
   });
 
   it("draws the same pose for every outfit (no clothes in it)", () => {
@@ -322,18 +324,34 @@ describe("reduced motion (d4 and d11)", () => {
 describe("the robe, Escape and the edge cases", () => {
   it("ends in the robe when the ROBE slot has one", () => {
     const d = owning(HOODIE, ROBE);
+    d.equip("robe", ROBE);
     const { game } = begin({ decor: d });
     expect(wornId(d)).toBe("outfit-home");
     finish(game);
     expect(wornId(d)).toBe(ROBE);
   });
-  it("ends in the everyday outfit when the ROBE slot is empty", () => {
+  it("a fresh game's shower ends in the starting towel (issue 184), and the bathrobe does not replace it when it arrives", () => {
+    const d = new Decor();
+    expect(d.equippedIn("robe")).toBe(TOWEL);
+    const { game } = begin({ decor: d });
+    expect(wornId(d)).toBe("outfit-home");
+    finish(game);
+    expect(wornId(d)).toBe(TOWEL);
+    expect(game.state.get("outfit")).toBe(OUTFITS.findIndex((o) => outfitItemId(o) === TOWEL));
+    expect(game.player.facing).toBe("right");
+    const e = owning(ROBE);
+    expect(e.equippedIn("robe")).toBe(TOWEL);
+    const b = begin({ decor: e });
+    finish(b.game);
+    expect(wornId(e)).toBe(TOWEL);
+  });
+  it("ends in the everyday outfit only when nothing is equipped in ROBE, which a game with the towel never is", () => {
     const d = owning(HOODIE);
     d.equip("everyday", HOODIE);
     d.wearSlot("pajamas");
     const { game } = begin({ decor: d });
     finish(game);
-    expect(wornId(d)).toBe(HOODIE);
+    expect(wornId(d)).toBe(TOWEL);
   });
   it("never writes `worn` itself: it is unchanged during the scene, and Escape changes nothing", () => {
     const d = owning(HOODIE, ROBE);
@@ -377,6 +395,7 @@ describe("the robe, Escape and the edge cases", () => {
   });
   it("an ad right after: the turn happens first and the clothes wait for the card", () => {
     const d = owning(HOODIE, ROBE);
+    d.equip("robe", ROBE);
     const { game } = begin({ decor: d });
     finish(game);
     expect(game.player.facing).toBe("right");

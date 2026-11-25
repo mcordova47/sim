@@ -37,6 +37,8 @@ export const OUTFITS: readonly OutfitDef[] = [
   { id: "out-peacoat", name: "PEACOAT", style: "out", prefix: "player-out-peacoat" },
   { id: "pajamas-striped", name: "STRIPED PAJAMAS", style: "pajamas", prefix: "player-pajamas-striped" },
   { id: "pajamas-robe", name: "BATHROBE", style: "robe", prefix: "player-pajamas-robe" },
+  // Issue 184: the bath towel, owned from the start, so the ROBE slot is never empty (and a shower ends in a towel).
+  { id: "towel", name: "BATH TOWEL", style: "robe", prefix: "player-towel" },
 ];
 
 // Outfit slots (issue 175, docs/outfit-slots-design.md): a preference list over the worn outfit. Each slot takes

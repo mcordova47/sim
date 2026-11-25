@@ -65,6 +65,18 @@ export const RULES = {
     if (dir === "down" && r === 1) return d <= 0.5 ? "inner" : "outer";
     return "outer";
   },
+  // A bath towel wrapped under the arms (issue 184): bare shoulders on the first row (`inner`, skin), a rolled top edge in `shade`
+  // on the second, then `outer` down to the hem. The back is the same wrap. The towel carries on over the legs by `hem`.
+  wrap: ({ r }) => (r === 0 ? "inner" : r === 1 ? "shade" : "outer"),
+  // A bath towel draped over the shoulders like a cape (issue 184, look C): from the front two ends hang either side of a narrow
+  // gap of bare chest (`inner`); from behind it is all towel; from the side the front column is the chest. The first row (the rolled
+  // neck) and the lowest row (the edge) are `trim`.
+  drape: ({ dir, x, x0, x1, k, last, r, n }) => {
+    if (r === 0 || r === n - 1) return "trim";
+    if (dir === "down") return Math.abs(x - 7.5) <= 0.5 ? "inner" : "outer"; // the centre of the body: the arm pixels move the run's edges
+    if (dir === "up") return "outer";
+    return k === 0 ? "inner" : "outer";
+  },
   // A two-colour check (poses of the hand-drawn flannel, issue 150): `inner` lines every fourth column and every fourth row.
   check: ({ x, r }) => (x % 4 === 0 || r % 4 === 1 ? "inner" : "outer"),
   // Vertical stripes: `outer` and `inner` alternate by column.
@@ -73,6 +85,17 @@ export const RULES = {
 
 const CAN_OVERLAY = new Set(FILES_LIST());
 function FILES_LIST() { return ["down", "up", "left", "right"].flatMap((d) => [`idle-${d}`, `walk-${d}-1`, `walk-${d}-2`]); }
+
+// A towel wound round the head (issue 184, look B): the hair pixels of the first three rows of the head become `turban.color`,
+// the middle row has a `turban.shade` fold every third pixel. The outline and the face stay. `rows` are strings.
+function applyTurban(rows, turban) {
+  const top = rows.findIndex((r) => /9/.test(r) && r.includes(".")); // the first row with hair and some air around it (a pose's furniture, opaque edge to edge, can be above the head)
+  return rows.map((row, i) => {
+    const j = i - top;
+    if (top < 0 || j < 0 || j > 2) return row;
+    return [...row].map((c, x) => (c === "8" || c === "9" ? (j === 1 && (x + j) % 3 === 0 ? turban.shade : turban.color) : c)).join("");
+  });
+}
 
 const dirOf = (file) => DIRS.find((d) => file.includes(d));
 const bodyRows = (text) => text.split("\n").filter((l) => l && !l.startsWith("#") && !l.startsWith("size"));
@@ -118,6 +141,7 @@ export function generateOutfit(def, read) {
       }
       return chars.join("");
     });
+    if (def.turban) made.splice(0, made.length, ...applyTurban(made, def.turban));
     for (const file of Object.keys(def.overlays ?? {})) if (!CAN_OVERLAY.has(file)) throw new Error(`${def.id}: overlay for unknown file ${file}`);
     for (const [row, text] of Object.entries(def.overlays?.[f] ?? {})) {
       if ([...text].length !== 16) throw new Error(`${def.id} ${f} row ${row}: overlay is not 16 wide`);
@@ -174,6 +198,7 @@ export function generatePoses(def, poses, read) {
       }
       return chars.join("");
     });
+    if (def.turban) made.splice(0, made.length, ...applyTurban(made, def.turban));
     for (const [row, text] of Object.entries(def.poseOverlays?.[sprite] ?? {})) {
       if ([...text].length !== width) throw new Error(`${def.id} ${sprite} row ${row}: overlay is not ${width} wide`);
       made[Number(row)] = text;

@@ -153,8 +153,8 @@ describe("the store", () => {
     expect(d.choices("art-bed").map((i) => i.id)).toEqual(["art-silkscreen"]);
     expect(d.place("art-bed", "art-barn")).toBe(false);
     expect(d.place("art-table", "art-silkscreen")).toBe(false);
-    // Only the empty pots wait in the inventory (issue 182), and they are no reason to offer a change.
-    expect(d.inventory().map((i) => i.id)).toEqual(["plant-pot-empty", "plant-vase-empty"]);
+    // Only the empty pots and the starting bath towel wait in the inventory (issues 182 and 184), and they are no reason to offer a change.
+    expect(d.inventory().map((i) => i.id)).toEqual(["plant-pot-empty", "plant-vase-empty", "outfit-towel"]);
     for (const s of DECOR_SLOTS) expect(d.canChange(s.id), s.id).toBe(false);
   });
 

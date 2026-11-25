@@ -8,6 +8,15 @@ depends_on: ["180"]
 summary: "A pause page for choosing what goes in each outfit slot, with a larger character preview."
 kind: build
 changelog: "A new OUTFITS page on the pause screen lets you choose what goes in each outfit slot and preview it."
+decisions:
+  - id: d1
+    who: marc
+    q: "On a real phone the pause screen is drawn at 320 x 192, not 224 x 208 (issue 090: pause pages are full pictures), so the phone layout the design and the mockups showed (slots as rows, the preview beside the list) is built and tested but never appears. Keep it, or remove it?"
+    options:
+      - "keep it (it costs nothing at run time, THINGS does the same, and it is ready if the pause screen ever stays narrow)"
+      - "remove the narrow layout and draw the page only at 320 x 192"
+    recommendation: "keep it (it costs nothing at run time, THINGS does the same, and it is ready if the pause screen ever stays narrow)"
+    status: open
 ---
 
 ## Goal

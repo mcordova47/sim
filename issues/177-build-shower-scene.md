@@ -2,11 +2,20 @@
 id: "177"
 title: "Build the in-room shower scene"
 short: "Shower scene build"
-status: todo
+status: review
 owner: marc + claude
 depends_on: ["175"]
 summary: "Build the in-room shower scene: the player in the tub under bubbles, steam and a hiss, then out in the robe."
 kind: build
+unverified:
+  - "Nobody has heard the shower hiss or the click: the loudness (layers 0.03 and 0.025) and whether the looped 0.5 s noise shows its repeat are untuned and unheard."
+  - "Only seen in a headless Chrome at real speed through a handful of screenshots, not played by a person, so how the timing and the effects feel is unchecked."
+  - "The touch layer and the narrow phone view were not looked at with the scene."
+needs:
+  - who: marc
+    kind: try
+    why: "Play the shower in the bath and tune the hiss by ear (SHOWER_SOUND in config.ts)."
+    since: "2026-11-24"
 changelog: "Taking a shower is now a short comic scene with bubbles, steam and a hiss, ending in the bathrobe."
 ---
 
@@ -23,3 +32,8 @@ Build what `docs/shower-scene-design.md` (issue 165, merged) designs, following 
 
 ## Progress log
 - 2026-11-24 (planner): filed on main with its open decisions (the issue file is born on main).
+- 2026-11-24 (claude): started in the worktree. Plan: stage 1 the pose and sprite and the turn away, stage 2 the phases and particle effects, stage 3 the shower sound bus and ShowerSound, then the integration test, docs and a look at frames.
+- 2026-11-24 (claude): built all three stages. Stage 1: `player-shower-tub` (16x48, palette only, head over bubbles from the chin down), `POSES["shower-tub"]`, `shower: { pose }` in tasks.ts, `TURN_AWAY_AFTER` (config) applied in `Game` on completion. Stage 2: `TASK_PHASES` and `Game.taskPhase`; string phases and a `motion` flag on emitters; four kinds and shapes, `taskEmitters.shower`, `PARTICLES.finish.shower`; reduced motion read live. Stage 3: `shower` bus, noise `loop` and `hold` and a returned stop handle in the synth, `ShowerSound`, `showerClick`, `SHOWER_SOUND` in config. Tests in `src/game/shower.test.ts` (35, real bath room: pose in front of the tub, fall back with missing art, turn, phases, particles, reduced motion, robe with and without ROBE, Escape, mug, record, sync, ad, sound). Docs: tasks.md 'What issue 177 built', reduced-motion.md row 57, art-style.md, ideas.md. Strings: none, so nothing for text-review.md.
+- 2026-11-24 (claude): looked at it in a headless Chrome on the dev server (a temporary `?bathdemo` hook in main.ts, reverted, not committed), screenshots at 0.4, 1.6, 3.0, 5.3 and 6.5 s: the head over foam in the tub, drops from the tap, mist steam and fog drifting, a ring bubble floating, then the player on the tile facing east in the robe with a pop of bubbles over the tub. With `prefers-reduced-motion` emulated: still clouds, drops, no rings. Fixes after looking: bubble heap redrawn with fewer outlines; fog uses paper (mist read as grey blobs on the floor); the still steam keeps off the face.
+- Tuning of the hiss: the design's 0.05 and 0.04 gains were halved to 0.03 and 0.025 because white noise high-passed at 2400 Hz is far louder than the snore's 300 Hz low-passed layer at the same gain. Untuned, unheard.
+- Notes for the planner: no dev shortcut to open the bath exists (`?set=` sets state only); walk there (the bath is east of the kitchen). The progress popup ("TAKE A SHOWER" and its bar) sits over the tub's top for the whole task; that is the game's normal task popup and was left alone. Golden frames unchanged; `npm run sprites` leaves git clean after the commit.

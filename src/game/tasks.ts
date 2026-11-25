@@ -315,6 +315,7 @@ const LOOKS: Record<string, Pick<Task, "pose" | "held">> = {
   journal: { held: "book" },
   guitar: { pose: "guitar", held: "guitar" },
   sleep: { pose: "sleep-bed" },
+  shower: { pose: "shower-tub" },
   "drink-coffee": { pose: "eat-table", held: "mug" },
   "eat-dinner": { pose: "eat-table" },
   "eat-takeout": { pose: "eat-table" },

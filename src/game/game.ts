@@ -19,7 +19,7 @@ import type { Ad } from "./encounter-ads";
 import { drawAd, drawLineAd, itemPool, type ItemPool } from "./encounter-draw";
 import { lineById } from "./encounter-lines";
 import { Encounters } from "./encounters";
-import { CLOCK, DEBUG, DELIVERIES, DIALOG, ENERGY, MOOD, OUTFIT_OCCASIONS, TILE, VIEW } from "./config";
+import { CLOCK, DEBUG, DELIVERIES, DIALOG, ENERGY, MOOD, OUTFIT_OCCASIONS, TASK_PHASES, TILE, TURN_AWAY_AFTER, VIEW } from "./config";
 import type { Activity, ActivityHost, RecordState } from "./activity";
 import { openReelStore, type ReelPic, type ReelStoreHandle } from "./reel/reel-store";
 import type { Interactable } from "./interactable";
@@ -229,6 +229,8 @@ export class Game {
       const zone = boundsOf(item.zones);
       this.popups.add(zone.x + zone.w / 2, zone.y, lines);
       this.events.emit("taskComplete", { item, award });
+      const turn = TURN_AWAY_AFTER[item.id];
+      if (turn) this.player.facing = turn;
       this.occasion(item.id);
       this.maybeEncounter(item);
     }, this.state);
@@ -694,6 +696,20 @@ export class Game {
   // goes back to normal by itself).
   get sleepScene(): SleepScene | null {
     return this.interaction.active?.activity.scene ?? null;
+  }
+
+  // The phase of the running task this frame, or null when none runs or it has no phases (issue 177): the sleep
+  // sequence's own phase while it has one, otherwise the task's progress read through `TASK_PHASES`. The particles
+  // and the shower's sound follow it; once the task is gone for any reason it is null.
+  get taskPhase(): string | null {
+    const active = this.interaction.active;
+    if (!active) return null;
+    const scene = this.sleepScene;
+    if (scene) return scene.phase;
+    const phases = TASK_PHASES[active.item.id];
+    if (!phases?.length) return null;
+    const progress = this.interaction.progress;
+    return (phases.find((p) => progress < p.until) ?? phases[phases.length - 1]).phase;
   }
 
   // The ad encounter's phase this frame (what its sound follows), or null when none is showing.

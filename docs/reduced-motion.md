@@ -140,6 +140,7 @@ Columns: where it is; speed; size (game pixels; the picture is 320 x 192); loops
 | 54 | The card, its menus and the closing line | `render/encounter-card.ts`, `activities/encounter.ts` | Still after the entrance | | | Yes | No | Leave. |
 | 55 | Ad over the photo close-up (sofa) | `activities/reel.ts`, `interruptWithAd` | Builds the same encounter, so it takes the same setting (checked: `buildEncounter` passes `reducedMotion`) | | | | | Already done. |
 | 56 | The encounter's music | `ENCOUNTERS`, `encounter-music-design.md` | Not motion; off under the setting | | | | | Already decided. |
+| 57 | The shower scene (issue 177) | `config.ts` `PARTICLES.taskEmitters.shower`, `PARTICLES.finish`, `Game.reducedMotionAsked` | Drops fall 1 x 2 px over a few pixels in 0.15 s; steam and fog drift up 8 to 20 px and sway; floating bubbles rise; a burst of bubbles pops at the end | A few pixels each, about 25 alive | Ends with the 6 s task | Yes (the player starts it) | No (no flash, no screen change) | Done (Marc, d4 and d11): with the setting on, the steam and fog are a fixed set (6 and 3 clouds) standing still for the water phase, there are no floating bubbles and no pop, and the drops stay (they are what says the water is on). Read live each frame. |
 
 ### Other things looked for and not found
 

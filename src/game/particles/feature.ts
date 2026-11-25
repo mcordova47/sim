@@ -80,6 +80,12 @@ export class ParticlesFeature implements Layer {
     events.on("taskComplete", ({ item, award }) => {
       const zone = boundsOf(item.zones);
       burst(this.pool, this.random, burstPlan(award), zone);
+      // A task's own finish effect (the shower's bubbles pop), unless reduced motion is asked for.
+      const fin = PARTICLES.finish[item.id];
+      if (fin && (!fin.motion || (fin.motion === "still") === game.reducedMotionAsked)) {
+        const at = this.anchor(fin.at, item);
+        if (at) puff(this.pool, this.random, fin.kind, at.x, at.y, countIn(fin.count, this.random), fin.at.spread ?? 0);
+      }
       // The good hour clock in the popup: sparkles around it.
       if (award.timeFactor > 1) {
         const s = PARTICLES.sparkle;
@@ -140,10 +146,13 @@ export class ParticlesFeature implements Layer {
     const { game } = this;
     const active = game.interaction.active?.item ?? null;
     const running = new Set<EmitterDef>();
-    // The sleep sequence's emitters go only in some phases (the z, only while asleep).
-    const phase = game.sleepScene?.phase;
+    // Some emitters go only in some phases of the task (the z, only while asleep; the shower's water).
+    const phase = game.taskPhase;
+    const reduced = game.reducedMotionAsked;
     for (const def of (active && PARTICLES.taskEmitters[active.id]) || []) {
       if (def.phases && !(phase && def.phases.includes(phase))) continue;
+      // With reduced motion (read each frame): the drifting ones stop, the still ones run.
+      if (def.motion && (def.motion === "still") !== reduced) continue;
       running.add(def);
     }
     for (const { when, emitter } of PARTICLES.ambientEmitters) if (this.holds(when)) running.add(emitter);

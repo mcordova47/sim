@@ -317,8 +317,8 @@ describe("poses in outfits", () => {
     }
   });
 
-  it("shows no clothes only in the sleep pose, and that one is the same for every outfit", () => {
-    expect(Object.entries(POSES).filter(([, p]) => p.clothed === false).map(([k]) => k)).toEqual(["sleep-bed"]);
+  it("shows no clothes only in the sleep and shower poses, which are the same for every outfit", () => {
+    expect(Object.entries(POSES).filter(([, p]) => p.clothed === false).map(([k]) => k)).toEqual(["sleep-bed", "shower-tub"]);
     const sprites = new Recorder();
     const game = setup(sprites, { bedMade: 1, energy: 10 });
     wear(game, "pajamas-striped");

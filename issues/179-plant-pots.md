@@ -16,7 +16,10 @@ decisions:
       - "pot 1: houseplants; pot 2: dried arrangements; pot 3: flowering plants (orchid, African violet, a tulip pot), empty by default"
       - "something else (the design proposes its own split)"
     recommendation: "pot 1: houseplants (live, watered: snake plant, pothos, monstera, spider plant); pot 2: dried arrangements and cut flowers (flowers wilt and dry in place); pot 3: low and small plants (moss, succulents, a small bonsai), empty by default"
-    status: open
+    status: answered
+    answer: "pot 1: houseplants (live, watered: snake plant, pothos, monstera, spider plant); pot 2: dried arrangements and cut flowers (flowers wilt and dry in place); pot 3: low and small plants (moss, succulents, a small bonsai), empty by default"
+    by: marc
+    on: 2026-11-24
   - id: d2
     who: marc
     q: "Which kinds of plants should the window sill and the floor (the empty square next to the sofa, lamp and record player) hold, eventually?"

@@ -17,7 +17,10 @@ decisions:
       - "the same wrap plus a small towel turban on the head"
       - "a towel draped over the shoulders like a cape over the everyday clothes' trousers"
     recommendation: "a big bath towel wrapped around from the chest to above the knees, in a soft colour, with bare arms and lower legs (works for anyone)"
-    status: open
+    status: answered
+    answer: "try all three looks and let me choose (chosen: A, the wrap)"
+    by: marc
+    on: 2026-11-25
   - id: d2
     who: marc
     q: "Once the bathrobe arrives (day 72), does the towel stay a choice for the ROBE slot?"

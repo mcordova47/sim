@@ -20,7 +20,10 @@ decisions:
       - "a blocky pixelated blur on the player picture before and after"
       - "a combination of the steam cloud and the growing foam"
     recommendation: "a steam cloud over the tub that builds before the water starts and thins out after it stops (a dithered, drifting mist layer: particles and a pixel pattern, no new sprites), so the bubbles appear and disappear inside it"
-    status: open
+    status: answered
+    answer: "a steam cloud over the tub that builds before the water starts and thins out after it stops (a dithered, drifting mist layer: particles and a pixel pattern, no new sprites), so the bubbles appear and disappear inside it"
+    by: marc
+    on: 2026-11-24
 ---
 
 ## Goal

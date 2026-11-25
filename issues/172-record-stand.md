@@ -31,6 +31,15 @@ decisions:
     answer: "as a delivery like other decor (later from a random encounter); the old stand goes to the inventory"
     by: marc
     on: 2026-11-24
+  - id: d3
+    who: marc
+    q: "Which record stand? Open the options page (group Record stand): A crate, B wire rack, C low cabinet, D lid cabinet."
+    options:
+      - "A (a crate of records, no turntable drawn)"
+      - "C (a low wooden cabinet with a turntable on top)"
+      - "none of these: I will look up inspo"
+    recommendation: "C (a low wooden cabinet with a turntable on top)"
+    status: open
 ---
 
 ## Goal

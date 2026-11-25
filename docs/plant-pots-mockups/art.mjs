@@ -25,6 +25,7 @@ const vaseCut = (withSprays) => {
   }
   return g;
 };
+// bowlCut: slot rows are shelf rows minus 16 plus 2 (the nudge), i.e. the old baked row minus 14.
 const bowlMask = { 18: [4, 11], 19: [3, 12], 20: [3, 12], 21: [3, 12], 22: [4, 11], 23: [5, 10] };
 const bowlCut = () => {
   const g = grid(16, 16); // the bowl slot starts at shelf row 14: shelf row 18 is slot row 4
@@ -42,9 +43,9 @@ export const art = {};
 }
 art.vaseDefault = out(vaseCut(true));
 art.vaseEmpty = out(vaseCut(false));
-// The bowl item is drawn 2 px lower than the baked bowl (slot rows 6 to 11), so a low plant has 4 rows above its rim clear of the vase above.
+// The bowl slot is at abs y 32 (shelf rows 16 to 31); the bowl item is drawn 2 px lower than the baked bowl (slot rows 4 to 9, shelf rows 20 to 25), so a low plant has 4 rows (slot rows 0 to 3) above its rim, clear of the vase above.
 const shiftDown = (g, n) => [...Array.from({ length: n }, () => Array(16).fill(".")), ...g.slice(0, g.length - n)];
-art.bowlEmpty = out(shiftDown(bowlCut(), 2));
+art.bowlEmpty = out(bowlCut());
 
 // Fresh, wilting and dried cut flowers in the same vase (tulips). Stand-ins.
 const flowers = (look) => {
@@ -75,7 +76,7 @@ art.flowersWilt = flowers("wilt");
 art.flowersDried = flowers("dried");
 
 // Low plants in the bowl (slot rows 4 to 9 are the bowl; rows 0 to 3 are free above the rim).
-const inBowl = (fill) => { const g = bowlCut(); fill(g); return out(shiftDown(g, 2)); };
+const inBowl = (fill) => { const g = bowlCut(); fill(g); return out(g); };
 const fillInterior = (g, pattern) => { for (let y = 5; y <= 7; y++) for (let x = 4; x <= 11; x++) g[y][x] = pattern[(x + y) % pattern.length]; };
 art.moss = inBowl((g) => {
   fillInterior(g, "fefeffef");

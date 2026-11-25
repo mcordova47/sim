@@ -47,9 +47,9 @@ decisions:
     who: marc
     q: "Are the empty pots real items (EMPTY VASE, EMPTY BOWL, EMPTY POT, owned from the start) or empty slots?"
     options:
-      - "items: no new engine; three more 'ALREADY HERE' lines on the THINGS page"
+      - "items: no new engine beyond an `empty` flag so they do not count as spares (a fresh game shows no new prompt; an empty pot is reachable once the first real spare arrives); three more 'ALREADY HERE' lines on the THINGS page"
       - "empty slots with a bare-pot picture: needs engine work (a slot with a default that can also be empty)"
-    recommendation: "items: no new engine; three more 'ALREADY HERE' lines on the THINGS page"
+    recommendation: "items: no new engine beyond an `empty` flag so they do not count as spares (a fresh game shows no new prompt; an empty pot is reachable once the first real spare arrives); three more 'ALREADY HERE' lines on the THINGS page"
     status: open
   - id: d6
     who: marc
@@ -88,9 +88,9 @@ decisions:
     who: marc
     q: "Does the window sill share the vase's and bowl's stock (dried and low plants and trinkets) rather than have a kind of its own?"
     options:
-      - "share it, until live sill plants exist"
+      - "share it (still low plants fit both bowl and sill; live ones fit the bowl only), until live sill plants exist"
       - "its own kind of plant for the sill from the start"
-    recommendation: "share it, until live sill plants exist"
+    recommendation: "share it (still low plants fit both bowl and sill; live ones fit the bowl only), until live sill plants exist"
     status: open
 unverified:
   - "Nothing ran in a browser: the mockups are composed by a script from the real sprites and map, not by the game, and the HUD strip is not drawn."
@@ -134,3 +134,4 @@ A DESIGN issue: `docs/plant-pots-design.md` (with mockups of the bookshelf, rend
   - [ ] Size inconsistency: line 153 calls a live sill "an L piece ... the same work as a live bowl" while the live bowl is M (lines 140 and 210) and the "Later: live sill" row (211) says M to L. Make them agree.
   - [ ] Nit: line 41 and 72 say the stage 5 vine is "y 36 to 51"; the ink there starts at sprite row 2 (y 38). Say "within y 36 to 51" or give 38.
   Could not verify: anything in a browser; the reference photos (not opened); that a fresh game's swap tests are the only ones `empty` changes (the test files were not read).
+- 2026-11-24 (agent): review round 2 changes: the bowl slot is now at abs (160, 32) with no overlap (same picture; the nudge alone gives the 4 rows); stated that empty items are unreachable until a real spare exists (d5); live low plants fit the bowl only (d10); sill sizes made consistent; pothos vine start corrected to y 38. Two review rounds done; these last fixes are not re-reviewed.

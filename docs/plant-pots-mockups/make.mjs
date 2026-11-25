@@ -10,7 +10,7 @@ const save = (name, img) => writeFileSync(join(here, name), encodePng(img));
 const L = load;
 
 // Slot boxes (abs): vase (160,16), bowl (160,30), plant (160,52), each 16x16.
-const VASE = { x: 160, y: 16 }, BOWL = { x: 160, y: 30 }, PLANT = { x: 160, y: 52 };
+const VASE = { x: 160, y: 16 }, BOWL = { x: 160, y: 32 }, PLANT = { x: 160, y: 52 };
 const pots = ({ vase = art.vaseDefault, bowl = art.bowlEmpty }) => [
   ...(vase ? [{ img: vase, x: VASE.x, y: VASE.y, bottom: 80.05 }] : []),
   ...(bowl ? [{ img: bowl, x: BOWL.x, y: BOWL.y, bottom: 80.06 }] : []),

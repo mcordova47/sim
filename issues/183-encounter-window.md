@@ -89,7 +89,10 @@ decisions:
       - "about 30%"
       - "retire the special ads (shops only)"
     recommendation: "about 15% of ads (as built)"
-    status: open
+    status: answered
+    answer: "about 15% of ads (as built)"
+    by: marc
+    on: 2026-11-25
 needs: []
 ---
 

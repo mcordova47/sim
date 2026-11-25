@@ -103,7 +103,10 @@ decisions:
       - "yes: the three slots at x 176, 192 and 208, each with a standing tile (11, 1), (12, 1) and (13, 1)"
       - "no: keep x 160, 176 and 192 (the first slot can only be reached through a list)"
     recommendation: "yes: the three slots at x 176, 192 and 208"
-    status: open
+    status: answered
+    answer: "still not sure about the wall shelf, need to see how it looks"
+    by: marc
+    on: 2026-11-24
   - id: d10
     who: marc
     q: "How large is the examine close-up?"

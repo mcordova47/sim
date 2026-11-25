@@ -47,6 +47,7 @@ export interface BufferLike {
 
 export interface BufferSourceLike extends NodeLike {
   buffer: BufferLike | null;
+  loop: boolean;
   start(time?: number): void;
   stop(time?: number): void;
   onended: (() => void) | null;

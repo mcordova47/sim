@@ -72,6 +72,11 @@ export const POSES: Record<string, PoseDef> = {
     on: "bed-made",
     at: { x: 0, y: 0 },
   },
+  // Standing in the tub under the shower (issue 177): the head over a heap of soap bubbles from the chin down,
+  // and no clothes drawn, so it is the same for every outfit and the bubbles do the covering. The picture is as
+  // tall as the tub (64 px) with its bottom edge on the tub's, so the stable draw sort puts it in front (the
+  // tub is at y 16 in the bath). The water is not in the art but in the particles (`PARTICLES.taskEmitters.shower`).
+  "shower-tub": { sprite: "player-shower-tub", size: { w: 16, h: 48 }, clothed: false, on: "tub", at: { x: 6, y: 16 } },
 };
 
 // The breath band to cut from `sprite` (the pose's own, or the variant's), or null

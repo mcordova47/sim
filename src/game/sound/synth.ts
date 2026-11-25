@@ -12,7 +12,7 @@ export interface PlayOptions {
 }
 
 // Which bus a voice goes to. Music voices are not counted against the effect voice cap.
-export type Bus = "effects" | "music" | "sleep" | "encounter";
+export type Bus = "effects" | "music" | "sleep" | "encounter" | "shower";
 
 const NOISE_SECONDS = 0.5;
 const FLOOR = 0.0001;
@@ -70,10 +70,10 @@ export class Synth {
     music.connect(this.master);
     this.buses = { effects, music };
     const rest = (to: number) => ({ from: to, to, t0: 0, t1: 0 });
-    this.ramps = { effects: rest(1), music: rest(SOUND.musicLevel), sleep: rest(0), encounter: rest(0) };
+    this.ramps = { effects: rest(1), music: rest(SOUND.musicLevel), sleep: rest(0), encounter: rest(0), shower: rest(0) };
   }
 
-  // A bus's gain node. The lullaby's `sleep` bus (issue 078) and the `encounter` bus (issue 091a) are made the first
+  // A bus's gain node. The lullaby's `sleep` bus (issue 078), the `encounter` bus (issue 091a) and the shower's (issue 177) are made the first
   // time it is used, silent until it is ramped up, so a game that never sleeps
   // makes exactly the nodes it always did.
   private bus(bus: Bus): GainLike {
@@ -148,7 +148,8 @@ export class Synth {
   }
 
   // Plays one voice at an absolute context time. Music uses this directly.
-  voice(voice: Voice, start: number, options: PlayOptions = {}, bus: Bus = "effects", length = voice.length * (options.stretch ?? 1)): void {
+  // Returns a handle to end it early (a looped hiss); the others finish by themselves.
+  voice(voice: Voice, start: number, options: PlayOptions = {}, bus: Bus = "effects", length = voice.length * (options.stretch ?? 1)): { stop(time: number): void } {
     const t0 = start + (voice.delay ?? 0) * (options.stretch ?? 1);
     const t1 = t0 + length;
     const peak = Math.max(FLOOR, voice.gain * (options.gain ?? 1));
@@ -156,7 +157,7 @@ export class Synth {
     env.gain.setValueAtTime(FLOOR, t0);
     env.gain.linearRampToValueAtTime(peak, t0 + Math.min(MUSIC.attack, length / 2));
     // A voice with `hold` stays at full level for that fraction of its length first.
-    if (isFormant(voice) && voice.hold !== undefined) env.gain.setValueAtTime(peak, t0 + voice.hold * length);
+    if ("hold" in voice && voice.hold !== undefined) env.gain.setValueAtTime(peak, t0 + voice.hold * length);
     env.gain.exponentialRampToValueAtTime(FLOOR, t1);
     env.connect(this.bus(bus));
 
@@ -193,6 +194,7 @@ export class Synth {
     } else if (isNoise(voice)) {
       const src = this.ctx.createBufferSource();
       src.buffer = this.noiseBuffer();
+      if (voice.loop) src.loop = true;
       const filter = this.ctx.createBiquadFilter();
       filter.type = voice.noise;
       filter.frequency.value = voice.freq * (options.pitch ?? 1);
@@ -219,6 +221,7 @@ export class Synth {
       env.disconnect();
     };
     if (bus === "effects") this.active.push(t1 + 0.02);
+    return { stop: (time) => source.stop(Math.max(time, this.ctx.currentTime)) };
   }
 
   private noiseBuffer(): BufferLike {

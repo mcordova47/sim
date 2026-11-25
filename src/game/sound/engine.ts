@@ -4,6 +4,7 @@ import { GuitarGroove } from "./guitar-groove";
 import { MusicPlayer } from "./music-player";
 import { EncounterSound } from "./encounter-sound";
 import type { EncounterScene } from "../encounter-scene";
+import { ShowerSound } from "./shower-sound";
 import { SleepSound } from "./sleep-sound";
 import type { SleepScene } from "../sleep";
 import { Synth, type Bus, type PlayOptions } from "./synth";
@@ -19,6 +20,8 @@ export class SoundEngine {
   readonly sleep = new SleepSound();
   // The ad encounter's battle loop and the record's ducking (issue 091a).
   readonly encounter = new EncounterSound();
+  // The shower's hiss and click (issue 177).
+  readonly shower = new ShowerSound();
   private ctx: AudioContextLike | null = null;
   // Readable (a type-level change only, no change in the build) so the dev music lab can reach the synth.
   synth: Synth | null = null;
@@ -119,6 +122,15 @@ export class SoundEngine {
   updateSleep(scene: SleepScene | null): void {
     try {
       this.sleep.update(scene, this.synth, (name) => this.play(name));
+    } catch {
+      // Same: no sound is worth an error.
+    }
+  }
+
+  // Call every frame with the running task's id and phase (null when none): the shower's hiss and click.
+  updateShower(taskId: string | null, phase: string | null): void {
+    try {
+      this.shower.update(taskId, phase, this.synth, (name) => this.play(name));
     } catch {
       // Same: no sound is worth an error.
     }

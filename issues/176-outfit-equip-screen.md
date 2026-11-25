@@ -79,6 +79,14 @@ decisions:
       - "other keys (say which)"
     recommendation: "F to open, Tab or Q to turn"
     status: open
+  - id: d8
+    who: marc
+    q: "If PHOTOS is removed later: what happens to the pictures already stored in the browser?"
+    options:
+      - "one quiet clean-up deletes the stored pictures and the look setting on the next load, so nothing invisible is left on a device"
+      - "leave them where they are"
+    recommendation: "one quiet clean-up deletes the stored pictures and the look setting on the next load, so nothing invisible is left on a device"
+    status: open
 ---
 
 ## Goal

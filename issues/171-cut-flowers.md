@@ -16,7 +16,10 @@ decisions:
       - "one bunch to start (tulips)"
       - "something else"
     recommendation: "two bunches: tulips in a glass vase and daisies in a jar"
-    status: open
+    status: answered
+    answer: "two bunches: tulips in a glass vase and daisies in a jar"
+    by: marc
+    on: 2026-11-24
   - id: d2
     who: marc
     q: "How does a bunch arrive?"

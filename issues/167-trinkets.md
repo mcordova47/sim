@@ -37,7 +37,10 @@ decisions:
       - "no: draw from the kind of thing; revise later after you add photos"
       - "wait until you have added the photos you want to use"
     recommendation: "yes, where photos exist in reference-photos/ (the raccoon in a can is in reference-photos/toys); draw a stylized version"
-    status: open
+    status: answered
+    answer: "yes, where photos exist in reference-photos/ (the raccoon in a can is in reference-photos/toys); draw a stylized version"
+    by: marc
+    on: 2026-11-24
   - id: d4
     who: marc
     q: "How do they arrive?"

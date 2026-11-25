@@ -65,7 +65,10 @@ decisions:
       - "a small mood dip"
       - "it also pushes the next ad back"
     recommendation: "nothing but the moment: a deadpan line (sold out, the page will not load, the cart forgot everything), no mood change, and the usual cooldown before the next ad"
-    status: open
+    status: answered
+    answer: "as recommended"
+    by: marc
+    on: 2026-11-25
 ---
 
 ## Goal

@@ -161,7 +161,9 @@ const MAIN: Record<string, ObjectDef> = {
     ],
   },
   L: { name: "lamp table", sprite: "lamp-table", color: "butter", slot: "lamp-sofa", tasks: ["swap-lamp-sofa"] },
-  R: { name: "record stand", sprite: "record-stand", color: "paper", tasks: ["record-play"] },
+  // A furniture slot (issue 172): a replacement stand is a new sprite of the same 16x16. The piece keeps its name and sprite
+  // name, so record-play, the notes emitter (config.ts, found by sprite name) and the solids still find it.
+  R: { name: "record stand", sprite: "record-stand", color: "paper", slot: "furniture-record-stand", tasks: ["record-play", "swap-furniture-record-stand"] },
   M: { name: "mic stand", sprite: "mic-stand", color: "ink" },
   // The paintings are decor slots (issue 062): what hangs there comes from the
   // decor store, and these are today's pictures.

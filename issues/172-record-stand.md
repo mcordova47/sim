@@ -2,7 +2,7 @@
 id: "172"
 title: "A new record stand"
 short: "Record stand"
-status: todo
+status: in-progress
 owner: marc + claude
 depends_on: []
 summary: "The first replacement furniture: a different record stand, as a delivery."
@@ -43,3 +43,4 @@ Build the first piece of replacement furniture from `docs/decor-expansion-design
 
 ## Progress log
 - 2026-11-24 (planner): filed on main with its open decisions (the issue file is born on main); Marc's request after merging the outfit work.
+- 2026-11-25 (claude): started in the worktree on branch issue/172-record-stand. Plan: stage 1 builds the `furniture-record-stand` slot and swap (the stand keeps its sprite and object name, the starting stand is an owned item, a non-obtainable test placeholder exercises the swap); stage 2 adds an options-page group with four candidates over the real room. Per d1 no candidate ships as an item until Marc picks.

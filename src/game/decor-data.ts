@@ -147,6 +147,9 @@ export const DECOR_SLOTS: DecorSlot[] = [
   { id: "trinket-desk", where: "ON THE DESK", room: "main", name: "TRINKET ON THE DESK", area: { x: 140, y: 17, w: 16, h: 16 }, kinds: ["trinket", "instrument"], object: "standing desk" },
   // What you wear (issue 152). Not drawn on the map: the player's sprites follow it (`Game.syncOutfit`). Changed at the cube bookshelf (Marc, 2026-11-24).
   { id: "worn", where: "WORN", room: "main", name: "CLOTHES", area: { x: 0, y: 0, w: 16, h: 16 }, kinds: ["outfit"], default: "outfit-home", object: "cube bookshelf", offMap: true },
+  // The record stand (issue 172, the first replacement furniture): the same 16x16 on the same piece, which keeps its sprite and object
+  // name so the record-play task and the notes emitter still find it. The old stand goes to the inventory when a new one is placed.
+  { id: "furniture-record-stand", where: "NEXT TO THE SOFA", room: "main", name: "RECORD STAND", area: { x: 144, y: 112, w: 16, h: 16 }, kinds: ["furniture"], default: "furniture-record-stand-old", object: "record stand" },
   // The two coffee stations (issue 168): the pour-over cone on the dining table (today's look), and a burner on the stove that starts empty.
   // Each apparatus fits one of them (its item's `slots`). The make-coffee task is offered where an apparatus sits.
   { id: "coffee-table", where: "ON THE TABLE", room: "main", name: "COFFEE ON THE TABLE", area: { x: 62, y: 18, w: 16, h: 16 }, kinds: ["coffee"], default: "coffee-pourover", object: "dining table" },
@@ -162,6 +165,7 @@ export const DECOR_ITEMS: DecorItem[] = [
   { id: "lamp-table", name: "LAMP", kind: "lamp", sprite: "lamp-table", w: 16, h: 16, color: "butter", how: "start", from: "ALREADY HERE", note: "A LAMP. IT'S A GOOD LAMP, YOU THINK.", glow: { radius: 40, alpha: 0.2 } },
   { id: "outfit-home", name: "EVERYDAY CLOTHES", kind: "outfit", sprite: "player-idle-down", w: 16, h: 16, color: "dusk", how: "start", from: "ALREADY HERE", note: "THE USUAL. IT HAS WORKED SO FAR." },
   { id: "pantry-bins", name: "CLEAR BINS", kind: "pantry", sprite: "pantry", w: 16, h: 32, color: "mist", how: "start", from: "ALREADY HERE", note: "YOU GUESS THESE WILL DO AS A PANTRY, FOR NOW." },
+  { id: "furniture-record-stand-old", name: "RECORD STAND", kind: "furniture", sprite: "record-stand", w: 16, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "IT HOLDS THE RECORDS. THE RECORDS HOLD YOU.", slots: ["furniture-record-stand"] },
   { id: "coffee-pourover", name: "POUR-OVER CONE", kind: "coffee", sprite: "coffee-pourover", taskName: "pour-over", slots: ["coffee-table"], w: 16, h: 16, color: "paper", how: "start", from: "ALREADY HERE", note: "THE SLOW WAY. YOU SAY IT'S FOR THE FLAVOR." },
 ];
 
@@ -254,6 +258,9 @@ export const TEST_ITEMS: DecorItem[] = [
   { id: "lamp-test-stool", name: "TEST STOOL", kind: "lamp", sprite: "stool", w: 16, h: 16, color: "butter", tags: ["test"] },
   { id: "lamp-test-stool-lamp", name: "TEST STOOL AND LAMP", kind: "lamp", sprite: "stool-lamp", w: 16, h: 16, color: "butter", tags: ["test"], glow: { radius: 24, alpha: 0.2 } },
 ];
+
+// A placeholder for the slot, not obtainable (issue 172): it only lets the swap be tried; it borrows the stool's sprite. Marc picks the real stand later.
+TEST_ITEMS.push({ id: "furniture-test-stand", name: "TEST RECORD STAND", kind: "furniture", sprite: "stool", w: 16, h: 16, color: "butter", tags: ["test"], slots: ["furniture-record-stand"] });
 
 export const isTestItem = (item: DecorItem): boolean => item.tags?.includes("test") === true;
 

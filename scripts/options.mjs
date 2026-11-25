@@ -143,7 +143,25 @@ function alebrijeSection(g) {
   return `<section id="alebrije"><h2>${esc(g.title)}</h2><p>${esc(g.blurb)}</p><div class="row">${g.candidates.map((c) => alebrijeCard(g, c)).join("")}</div></section>`;
 }
 
+// Replacement furniture (issue 172): each candidate drawn in the real room in place of the piece, at 1x, and an 8x crop of the piece
+// with its neighbours; the first card is the stand now, so the candidates can be judged beside it. The sprite name stays what the game finds.
+function furnitureCard(g, c, now) {
+  const img = load(c.src ?? `art/options/${c.file}.sprite`);
+  if (!img) return "";
+  const room = composeMainRoom({ swap: { [g.piece]: img } });
+  const crop = cropScale(room, g.crop.x, g.crop.y, g.crop.w, g.crop.h, 8);
+  return `<figure class="card furn${c.now ? " cur" : ""}"><figcaption><b>${esc(c.letter)}</b> ${esc(c.label)}</figcaption>
+<div class="shots"><div><img class="big" src="${png(img)}" width="128" height="128"><small>8x</small></div><div><img class="small" src="${png(img)}" width="16" height="16"><small>1x</small></div></div>
+<div class="scroll"><img src="${png(crop)}" width="${crop.width}" height="${crop.height}"></div><small>in the room, 8x (the sofa, the lamp table and the south wall around it)</small>
+<div class="scroll"><img src="${png(room)}" width="${room.width}" height="${room.height}"></div><small>the whole room at 1x</small></figure>`;
+}
+function furnitureSection(g) {
+  const all = [{ letter: "NOW", now: true, src: g.current.src, label: g.current.label }, ...g.candidates];
+  return `<section id="${g.id}"><h2>${esc(g.title)}</h2><p>${esc(g.blurb)}</p><div class="row">${all.map((c) => furnitureCard(g, c)).join("")}</div></section>`;
+}
+
 const sections = config.groups.map((g) => {
+  if (g.kind === "furniture") return furnitureSection(g);
   if (g.kind === "rugs") return rugSection(g);
   if (g.kind === "alebrije") return alebrijeSection(g);
   const current = g.current.map((c) => {
@@ -165,7 +183,7 @@ p{color:#a9adc9;max-width:70ch}.row{display:flex;flex-wrap:wrap;gap:16px;margin:
 figcaption{margin-bottom:8px;min-height:3em}figcaption b{display:inline-block;background:#f08a4b;color:#1a1a2e;border-radius:4px;padding:0 7px;margin-right:4px}
 .shots{display:flex;gap:16px;align-items:flex-end}.shots>div{display:flex;flex-direction:column;gap:2px}
 img{image-rendering:pixelated;display:block}.big,.small{background:repeating-conic-gradient(#242538 0 25%,#2b2d42 0 50%) 0 0/16px 16px}
-.card.rug{width:auto;max-width:100%}.card.shipped{border:2px solid #5fae6b}.tag{background:#5fae6b;color:#1a1a2e;border-radius:4px;padding:0 6px;font-size:12px;font-weight:700}.card.rug img{margin-top:8px}.scroll{overflow-x:auto;max-width:100%}.layout{margin:24px 0;padding:12px;border:1px solid #3b3e5c;border-radius:8px}.layout h3{margin:0 0 6px}.L{background:#f2a7c0;color:#1a1a2e;border-radius:4px;padding:0 8px;margin-right:6px}.layout ul{color:#a9adc9;margin:6px 0;padding-left:20px;max-width:90ch}
+.card.furn{width:auto;max-width:100%}.card.furn img{margin-top:6px}.card.rug{width:auto;max-width:100%}.card.shipped{border:2px solid #5fae6b}.tag{background:#5fae6b;color:#1a1a2e;border-radius:4px;padding:0 6px;font-size:12px;font-weight:700}.card.rug img{margin-top:8px}.scroll{overflow-x:auto;max-width:100%}.layout{margin:24px 0;padding:12px;border:1px solid #3b3e5c;border-radius:8px}.layout h3{margin:0 0 6px}.L{background:#f2a7c0;color:#1a1a2e;border-radius:4px;padding:0 8px;margin-right:6px}.layout ul{color:#a9adc9;margin:6px 0;padding-left:20px;max-width:90ch}
 .small{background-size:2px 2px}.card.alebrije{width:auto;max-width:100%}.pair{display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap}.night{background:#2b2d42;border:2px solid #1a1a2e;display:inline-block;padding:0}.night.sm{background:#b5835a}.card.alebrije img{margin-top:6px}.exam{display:flex;gap:12px;margin-top:10px;background:#edf2f4;color:#1a1a2e;border:2px solid #1a1a2e;padding:8px;max-width:520px}.exam-img{background:#2b2d42;border:2px solid #1a1a2e}.exam-txt{display:flex;flex-direction:column;gap:6px;font:12px/1.5 ui-monospace,monospace}.exam-txt span{color:#6b6f94}.exam-txt p{margin:0;color:#1a1a2e;max-width:22ch}.scene{margin-top:12px;max-width:100%;height:auto}small{color:#a9adc9;font-size:12px}
 </style><main><h1>${esc(config.title)}</h1>
 <p>Candidates only: nothing here is in the game. Each is shown large (8x) on a checkerboard, at its real size (1x), and in a small scene. For outfits only the standing-facing-down frame is drawn so far. Tell the planner the letters you like, for example "bag D, casual B, out A, pajamas C".</p>

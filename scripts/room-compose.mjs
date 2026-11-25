@@ -27,8 +27,8 @@ export const load = (name, path) => {
   return rasterize(parseSprite(`${name}.sprite`, readFileSync(f, "utf8")));
 };
 
-// `trinket`: { img } for the desk's right corner (slot trinket-desk, issue 167), drawn at (140, 17) over the desk. `rugs`: [{ img, x, y }] in pixels. `sleep`: draw the sleeping pose over the bed. `box`: a package waiting by the door.
-export function composeMainRoom({ rugs = [], sleep = false, box = false, player = true, trinket = null } = {}) {
+// `trinket`: { img } for the desk's right corner (slot trinket-desk, issue 167), drawn at (140, 17) over the desk. `swap`: { spriteName: img } draws that image in place of a piece's sprite (a replacement furniture, issue 172). `rugs`: [{ img, x, y }] in pixels. `sleep`: draw the sleeping pose over the bed. `box`: a package waiting by the door.
+export function composeMainRoom({ rugs = [], sleep = false, box = false, player = true, trinket = null, swap = {} } = {}) {
   const W = COLS * T, H = ROWS * T;
   const rgba = Buffer.alloc(W * H * 4);
   const blit = (img, ox, oy) => {
@@ -63,7 +63,7 @@ export function composeMainRoom({ rugs = [], sleep = false, box = false, player 
     let name = spriteOf[b.ch];
     if (name === "bed-made") name = sleep ? "player-sleep-bed" : "bed-made";
     if (name === "window-blinds") name = "window-blinds-open";
-    const img = load(name);
+    const img = swap[name] ?? load(name);
     if (!img) continue;
     things.push({ img, x: b.c * T, y: b.r * T, bottom: (b.r2 + 1) * T });
   }

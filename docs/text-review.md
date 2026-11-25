@@ -461,3 +461,10 @@ The page that fills the outfit slots, in the game's capitals ([outfit-equip-scre
 - Tag on the slot you have on, and the dash for an empty slot: WORN / - - 
 - Keys line: ARROWS: PICK   E: EQUIP   TAB: TURN   ESC: BACK (touch: PAD: PICK   A: EQUIP   CHOICE: TURN   B: BACK, and without B: BACK on the phone view) - 
 - Touch button at the top right: BACK - 
+
+## Record stand (issue 172)
+The first furniture slot. The only new player-visible strings are the stand's own entry (the stand you start with) and the swap wording; no replacement stand has a name or note yet (Marc picks the design first). The test placeholder (TEST RECORD STAND) is never owned in play. Wired in `src/game/decor-data.ts` and `src/game/tasks.ts`. Marc to mark: keep / soften / rewrite.
+- RECORD STAND: IT HOLDS THE RECORDS. THE RECORDS HOLD YOU. - 
+- Source: FROM: ALREADY HERE (the usual starting-thing line) - 
+- Slot name and where (swap list): RECORD STAND, NEXT TO THE SOFA - 
+- Prompt at the stand: Change record stand - 

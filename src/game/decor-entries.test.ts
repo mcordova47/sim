@@ -9,7 +9,7 @@ const ids = (d: Decor) => d.entries().map((e) => e.item.id);
 
 describe("Decor.entries", () => {
   it("lists the starting things in a fresh game, pantry and plant included", () => {
-    expect(ids(new Decor())).toEqual(["art-barn", "art-abstract", "art-silkscreen", "plant-snake", "lamp-table", "pantry-bins", "outfit-home", "coffee-pourover"]);
+    expect(ids(new Decor())).toEqual(["art-barn", "art-abstract", "art-silkscreen", "plant-snake", "lamp-table", "pantry-bins", "outfit-home", "furniture-record-stand-old", "coffee-pourover"]);
   });
 
   it("follows the order you got things, new things at the end", () => {
@@ -17,7 +17,7 @@ describe("Decor.entries", () => {
     d.own("art-snow-wagon");
     d.own("lamp-warm");
     d.own("art-robin");
-    expect(ids(d).slice(8)).toEqual(["art-snow-wagon", "lamp-warm", "art-robin"]);
+    expect(ids(d).slice(9)).toEqual(["art-snow-wagon", "lamp-warm", "art-robin"]);
   });
 
   it("keeps that order through a save and a load", () => {
@@ -35,7 +35,7 @@ describe("Decor.entries", () => {
     d.own("art-test-barn");
     d.own("lamp-test-stool-lamp");
     d.load({ owned: ["art-barn", "art-from-the-future", "plant-test-grown", "art-robin"], placed: {} });
-    expect(ids(d)).toEqual(["art-barn", "art-abstract", "art-silkscreen", "plant-snake", "lamp-table", "pantry-bins", "outfit-home", "coffee-pourover", "art-robin"]);
+    expect(ids(d)).toEqual(["art-barn", "art-abstract", "art-silkscreen", "plant-snake", "lamp-table", "pantry-bins", "outfit-home", "furniture-record-stand-old", "coffee-pourover", "art-robin"]);
     expect(d.entries().some((e) => isTestItem(e.item))).toBe(false);
   });
 

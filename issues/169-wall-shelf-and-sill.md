@@ -15,7 +15,10 @@ decisions:
       - "yes: it is a piece of furniture in the room from the start, empty until you own trinkets"
       - "no: it appears when you own your first trinket"
     recommendation: "yes: it is a piece of furniture in the room from the start, empty until you own trinkets"
-    status: open
+    status: answered
+    answer: "let me see what it looks like and i'll decide"
+    by: marc
+    on: 2026-11-24
   - id: d2
     who: marc
     q: "What goes on the window sill?"

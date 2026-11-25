@@ -17,6 +17,14 @@ decisions:
       - "remove the narrow layout and draw the page only at 320 x 192"
     recommendation: "keep it (it costs nothing at run time, THINGS does the same, and it is ready if the pause screen ever stays narrow)"
     status: open
+  - id: d2
+    who: marc
+    q: "At 320 x 192 on a phone the list rows are 10 game pixels tall (about 11 screen points), small for a finger; the slots are 32 tall and fine, and the pad with A also works. Leave the rows as they are until you have tried it, or give touch a taller row (12) with a four-row list?"
+    options:
+      - "leave them and try it on the phone first (the pad and A are the main controls; a tap on a row only highlights it, a second tap equips)"
+      - "touch gets 12 pixel rows and a four-row list"
+    recommendation: "leave them and try it on the phone first (the pad and A are the main controls; a tap on a row only highlights it, a second tap equips)"
+    status: open
 ---
 
 ## Goal

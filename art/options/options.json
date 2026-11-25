@@ -1,5 +1,5 @@
 {
-  "title": "Art options: the takeout bag, the outfits and the rugs",
+  "title": "Art options: the takeout bag, the outfits, the rugs, the alebrije and the record stand",
   "groups": [
     {
       "id": "bag",
@@ -438,6 +438,90 @@
           "label": "A cat with antlers and a dragon tail: butter antlers, a green tail with spikes, a pink chest flower.",
           "name": "ANTLERED ALEBRIJE",
           "note": "ANTLERS, A DRAGON TAIL AND THE CALM OF A CAT."
+        }
+      ]
+    },
+    {
+      "id": "record-stand",
+      "title": "Record stand (issue 172)",
+      "kind": "furniture",
+      "piece": "record-stand",
+      "crop": {
+        "x": 96,
+        "y": 80,
+        "w": 96,
+        "h": 48
+      },
+      "blurb": "The first replacement furniture. Each candidate is 16x16 in the room palette, the same footprint and the same near top-down view as the stand now (a back edge along the top, the top surface, a front, feet), drawn in the real room at the stand's place (col 9, row 7, against the south wall). The stand keeps its name and sprite name in the game, so the record player's task and its music notes still find it. None of these is in the game; the one you pick becomes the item that arrives as a delivery, and the stand you have now goes to the inventory. Say the letter, or say you want something else. Orientation (Marc, 2026-11-25): the stand is used from the north, so its front (records, doors, latches) faces north, the top of the sprite, like the stand now; the back toward the wall is plain. The gramophone (F to F6) did not read at 16x16 in this viewpoint and is not shipping.",
+      "current": {
+        "src": "art/src/record-stand.sprite",
+        "label": "The stand now: a back row of record spines and a turntable on a black top."
+      },
+      "candidates": [
+        {
+          "letter": "A",
+          "file": "record-stand/stand-a-crate",
+          "label": "A wooden crate on legs, the front facing north (the top of the sprite): record spines in the thin north strip, the open turntable deck on the tan top, the plain back toward the wall."
+        },
+        {
+          "letter": "B",
+          "file": "record-stand/stand-b-wire-rack",
+          "label": "A wire rack, front facing north: steel wires with records between them in the north strip, the turntable on the steel top, the plain back toward the wall. Reads more as a small metal unit than a wire rack."
+        },
+        {
+          "letter": "C",
+          "file": "record-stand/stand-c-low-cabinet",
+          "label": "A low wooden cabinet, front facing north: the two knobbed doors in the thin north strip, the turntable on the oak top, the plain back toward the wall."
+        },
+        {
+          "letter": "D",
+          "file": "record-stand/stand-d-lid-cabinet",
+          "label": "A turntable cabinet, front facing north: a thin walnut front with a grille and knobs, the pale dust cover lying over the platter and hinged at the back (the wall side)."
+        },
+        {
+          "letter": "E",
+          "file": "record-stand/stand-e-suitcase-pink",
+          "label": "A pink suitcase record player: latches on the north strip, the cream deck with platter and tonearm facing the player, the lid hinged at the wall side and open toward the wall (its grille faces north)."
+        },
+        {
+          "letter": "E2",
+          "file": "record-stand/stand-e2-suitcase-cream-teal",
+          "label": "The same suitcase in cream with a teal deck, the same way round."
+        },
+        {
+          "letter": "F",
+          "file": "record-stand/stand-f-gramophone",
+          "label": "NOT SHIPPING (old viewpoint, a side or front-facing horn that did not read). An old gramophone: a short brass horn at the back (a compromise: a real horn does not fit 16x16, so it is a short wide flare that reads more as a brass bell), an oak box top with a round platter and a hand crank on the right, short feet."
+        },
+        {
+          "letter": "F1",
+          "file": "record-stand/stand-f1-side-horn",
+          "label": "NOT SHIPPING (old viewpoint, a side or front-facing horn that did not read). Gramophone, horn in side view: a tall brass cone rising to the upper right from the back of a low oak box, platter on top, crank at the right. The horn's silhouette is the one people recognise."
+        },
+        {
+          "letter": "F2",
+          "file": "record-stand/stand-f2-wide-horn",
+          "label": "NOT SHIPPING (old viewpoint, a side or front-facing horn that did not read). Gramophone, big bright horn facing you from the back with a dark inner ring and throat. Reads as a brass bowl or pan on a box."
+        },
+        {
+          "letter": "F3",
+          "file": "record-stand/stand-f3-wind-up",
+          "label": "NOT SHIPPING (old viewpoint, a side or front-facing horn that did not read). A small table-top wind-up player: a small horn on the left, a cream box with a platter and a crank. The horn is too small to read."
+        },
+        {
+          "letter": "F4",
+          "file": "record-stand/stand-f4-horn-to-wall",
+          "label": "Gramophone in the stand's own viewpoint, the horn lying on the top and flaring toward the wall. Reads as an orange cone on a box. NOT SHIPPING."
+        },
+        {
+          "letter": "F5",
+          "file": "record-stand/stand-f5-horn-to-player",
+          "label": "Gramophone, the horn's mouth toward the player. Does not read. NOT SHIPPING."
+        },
+        {
+          "letter": "F6",
+          "file": "record-stand/stand-f6-bell-up",
+          "label": "Gramophone, a big bell across the top like a horn rising from the back. Reads as a bowl. NOT SHIPPING."
         }
       ]
     }

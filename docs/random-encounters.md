@@ -556,6 +556,9 @@ Marc (2026-11-25), after playing the pool of issue 163: (1) only a handful of it
 | 56 | VINTAGE BED RUG | rug | hard | not a gift |
 | 57 | ALEBRIJE CAT | trinket | hard | day 108 |
 
+## 16. Record stands in the pool (issue 172, for the ladder of issue 183)
+Six furniture items for the slot `furniture-record-stand` join the pool by existing (kind `furniture` is in `ENCOUNTERS.pool.kinds`; the shop is `line-furniture`, "Corner Post Furniture", an invented name). None has a checkpoint. The encounter ladder is untouched here; issue 183 needs to place them. Suggested tiers (easy to hard): easy: `furniture-record-stand-crate`, `furniture-record-stand-wire`; middle: `furniture-record-stand-cabinet`, `furniture-record-stand-lidded`; hard: `furniture-record-stand-suitcase-pink`, `furniture-record-stand-suitcase-teal` (the odder, more novel ones; furniture is a big thing to be handed, so keep the first one well after the early gifts).
+
 ## 14. Encounter ideas backlog (Marc)
 Not planned; each would be a card template plus copy in the deadpan voice (real platforms, fake brands for ad copy).
 - **Yet another single-sign-on login (2026-10-28):** an interruption that asks you to sign in again, for the nth time today, to something you were already signed in to. Use a made-up identity-provider brand (not a real one), a login card with grey lines instead of words, and a dismiss that is slightly too slow. Fits the mundane-is-the-joke rule; it should be an interruption, not a task.

@@ -119,15 +119,18 @@ describe.each([
     }
   });
 
-  it("a fresh game (twelve starting things) reads fine with no page button", () => {
+  it("a fresh game (thirteen starting things, issue 172's old record stand included) reads fine: one page on the wide view, two on the narrow one (the pause screen draws the wide view)", () => {
     setView(view);
     const entries = entriesOf(false);
-    expect(entries.length).toBe(12);
-    expect(thingsPages(entries.length)).toBe(1);
-    expect(thingsButtons({ entries, cursor: 0, touch: true }).map((b) => b.id)).toEqual(["back"]);
-    vi.mocked(drawText).mockClear();
-    drawThings(ctx, { entries, cursor: 0, touch: false });
-    expect(texts().some((t) => t.startsWith("PAGE"))).toBe(false);
+    expect(entries.length).toBe(13);
+    const wide = thingsGrid().perPage >= 13;
+    expect(thingsPages(entries.length)).toBe(wide ? 1 : 2);
+    if (wide) {
+      expect(thingsButtons({ entries, cursor: 0, touch: true }).map((b) => b.id)).toEqual(["back"]);
+      vi.mocked(drawText).mockClear();
+      drawThings(ctx, { entries, cursor: 0, touch: false });
+      expect(texts().some((t) => t.startsWith("PAGE"))).toBe(false);
+    }
   });
 });
 

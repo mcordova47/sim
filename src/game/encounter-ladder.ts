@@ -79,6 +79,13 @@ export const LADDER: readonly LadderEntry[] = [
   ["instrument-jaw-harp"],
   ["rug-bed-vintage", "hard"],
   ["trinket-alebrije-cat", "hard"],
+  // The record stands (issue 172, Marc: keep them all): no gift, they come through the furniture shop.
+  ["furniture-record-stand-crate", "easy"],
+  ["furniture-record-stand-wire", "easy"],
+  ["furniture-record-stand-cabinet"],
+  ["furniture-record-stand-lidded"],
+  ["furniture-record-stand-suitcase-pink", "hard"],
+  ["furniture-record-stand-suitcase-teal", "hard"],
 ];
 
 const rank = new Map(LADDER.map(([id], i) => [id, i]));

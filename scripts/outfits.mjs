@@ -89,7 +89,7 @@ function FILES_LIST() { return ["down", "up", "left", "right"].flatMap((d) => [`
 // A towel wound round the head (issue 184, look B): the hair pixels of the first three rows of the head become `turban.color`,
 // the middle row has a `turban.shade` fold every third pixel. The outline and the face stay. `rows` are strings.
 function applyTurban(rows, turban) {
-  const top = rows.findIndex((r) => /[^.]/.test(r));
+  const top = rows.findIndex((r) => /9/.test(r) && r.includes(".")); // the first row with hair and some air around it (a pose's furniture, opaque edge to edge, can be above the head)
   return rows.map((row, i) => {
     const j = i - top;
     if (top < 0 || j < 0 || j > 2) return row;

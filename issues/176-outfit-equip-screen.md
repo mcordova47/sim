@@ -2,7 +2,7 @@
 id: "176"
 title: "A pause-screen outfit equip screen, and a character preview"
 short: "Outfit equip screen"
-status: in-progress
+status: done
 owner: marc + claude
 depends_on: ["175"]
 summary: "A pause-screen page for equipping outfit slots (in the spirit of a classic equipment screen) with a bigger character preview."

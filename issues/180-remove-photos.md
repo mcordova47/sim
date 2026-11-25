@@ -20,6 +20,14 @@ decisions:
     answer: "yes, now: it frees PHOTOS' cell on the pause screen for OUTFITS and removes about 1,700 source lines and 3,000 test lines before the OUTFITS build"
     by: marc
     on: 2026-11-24
+  - id: d2
+    who: marc
+    q: "Remove photos (180, d2): also remove art/tools/pixel-looks.html (the page for choosing the photo looks), its entry in scripts/tools.mjs and its paragraph in docs/art-style.md, in a follow-up?"
+    options:
+      - "yes, in a follow-up"
+      - "keep the tool"
+    recommendation: "yes, in a follow-up"
+    status: open
 needs: []
 ---
 

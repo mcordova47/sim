@@ -20,7 +20,7 @@ decisions:
     answer: "yes, now: it frees PHOTOS' cell on the pause screen for OUTFITS and removes about 1,700 source lines and 3,000 test lines before the OUTFITS build"
     by: marc
     on: 2026-11-24
-needs: [{who: marc, kind: decide, why: "Answer d1 (remove photos now: the design recommends yes), then say 'start 180'; the OUTFITS build (181) follows it", since: 2026-11-24}]
+needs: []
 ---
 
 ## Goal

@@ -16,7 +16,10 @@ decisions:
       - "remove the photo reel and gallery (a separate issue, after Marc confirms exactly what goes)"
       - "keep photos and add the outfit page anyway"
     recommendation: "show the pause screen mockups with and without PHOTOS first, then decide"
-    status: open
+    status: answered
+    answer: "photos are going: the options are remove now or remove later, depending on the mockups (not keep); the design shows the pause screen without PHOTOS and what removal involves"
+    by: marc
+    on: 2026-11-24
   - id: d2
     who: marc
     q: "How is the character shown in the equip screen?"
@@ -25,7 +28,10 @@ decisions:
       - "a higher-resolution character set for the preview (a new sprite set per outfit: much more work)"
       - "both: start with the scaled one"
     recommendation: "the existing 16x16 art drawn larger (for example 4x or 6x, pixels kept crisp), with the four facings you can turn through; a higher-resolution character set is a later, separate step"
-    status: open
+    status: answered
+    answer: "as recommended"
+    by: marc
+    on: 2026-11-24
   - id: d3
     who: marc
     q: "Where does the equip screen live?"
@@ -34,7 +40,10 @@ decisions:
       - "inside the THINGS page as a second tab"
       - "somewhere else"
     recommendation: "a new pause page (for example OUTFITS) next to THINGS"
-    status: open
+    status: answered
+    answer: "as recommended"
+    by: marc
+    on: 2026-11-24
   - id: d4
     who: marc
     q: "What is the bookshelf's Change clothes list for once the pause screen can equip?"
@@ -42,7 +51,10 @@ decisions:
       - "keep it as built: wear a slot now and also pick the outfit in each slot"
       - "the bookshelf only wears a slot now; picking outfits for slots is only on the pause screen"
     recommendation: "keep it as built: wear a slot now and also pick the outfit in each slot"
-    status: open
+    status: answered
+    answer: "as recommended"
+    by: marc
+    on: 2026-11-24
   - id: d5
     who: marc
     q: "On the OUTFITS page, equipping an outfit into the slot you are wearing changes your clothes on the spot (this is what Decor.equip already does and what the bookshelf does). Keep that?"
@@ -83,7 +95,7 @@ unverified:
 needs:
   - who: marc
     kind: decide
-    why: "Look at the mockups in docs/outfit-equip-screen-mockups/ and answer d1 to d8 (d1 is the photos question)."
+    why: "Look at the mockups in docs/outfit-equip-screen-mockups/ and answer d5 to d8, and say whether PHOTOS is removed now or later (d1 left that to the mockups)."
     since: "2026-11-24"
 ---
 
@@ -99,3 +111,4 @@ A DESIGN issue: `docs/outfit-equip-screen-design.md` with mockups rendered with 
 - 2026-11-24 (agent): done, status review. Wrote docs/outfit-equip-screen-design.md and 16 mockups in docs/outfit-equip-screen-mockups/ (7 of the OUTFITS page: three desktop, two phone, two early-game; 9 of the pause screen: today, OUTFITS added with PHOTOS kept, OUTFITS in place of PHOTOS, each on desktop, touch 320x192 and phone 224x208). Rendered by a script outside the repo that uses the real drawList, pauseButtons, drawText, drawButton, hintLine, the palette and the real .sprite files; I looked at every image. Design: a new pause page OUTFITS (slots left with WORN, the owned outfits for the slot right, the highlighted outfit's own note on top, the character at 4x with the four facings, Tab or Q turns), built only on Decor.slotChoices, equippedIn, equip and wornSlot; no new state, no new art. Findings: the pause screen has one home and four pages; touch has eight buttons filling exactly four rows, so a ninth overlaps the page control; desktop fits five hints with 1.8 px gaps; the desktop hint line would vanish at the 27th achievement (a latent issue, not mine); every place PHOTOS touches is listed in section 4 with nothing removed; a higher-resolution preview is costed in section 6 and not recommended now. New decisions d5 to d8 added with recommended defaults; d1 to d4 left open and untouched. Only docs and images were added; no code, no art, nothing removed. Not checked: see `unverified`. Awaiting independent review.
 - 2026-11-24 (reviewer, independent): verdict CHANGES NEEDED (small, wording only); status left at review as asked. Checked: git diff main is docs/ (the design, 16 PNGs) plus this issue file only, with no code, no art, nothing removed and reference-photos untouched; the repo text names no other game and copies none of its text (only "classic role-playing game"); d1 to d4 are unchanged and open; d5 to d8 each carry a recommendation; `npm run issues:check -- --validate` passes (212 valid, the 125-char summary is a warning only); `npm test` passes (183 files, 4381 tests). I looked at all 16 PNGs: sizes are 320x192 and 224x208 at 3x, they use the game's pixel font, palette, borders, the butter triangle pointer and the real sprites, and they match the table in section 1 (note texts match decor-data.ts for hoodie, denim, blazer, pajamas, casual, robe; worn, dash and early-game states are right). Criteria: structure of the screen pass; pause-screen fit pass except the first item below; preview with four facings and turn key pass; higher-resolution cost pass (156 walk files, 223 player-* files, 13 outfits, 9 generated from player-casual, 3 poseOnly bases, ten rules in RULES; all confirmed); keys and touch pass (CYCLE_KEYS Tab/KeyQ, touch cycle sends Tab, A is KeyE, B is Escape, PREVENT_DEFAULT has Tab); shared equip logic pass (equippedIn, slotChoices, wornSlot, equip, item exist in decor.ts, equip moves `worn` when the slot is worn, onChange saves at once, game.ts update runs syncOutfit before the paused branch); quiet-collecting pass; staged plan pass; photos recommendation pass; PHOTOS touch list (section 4) pass: every line number checked (feature.ts:150, :389 is the comment above the exclusion, config.ts:164, :492, apartment.ts:142, state-vars.ts:36, activity.ts:94, tasks.ts:71-72, :267, :309, the reel dir is 9 source files and 1,036 lines, tests 1,166 + 1,846, feature.ts 105 matching lines) and my own search found nothing missing. Arithmetic checked: footerTop 164 (touch) and 180 (phone), 12 and 14 per page, 3 and 2 pages; a fifth row gives 8 and 10 per page, 4 and 3 pages; desktop rows end at y 148 with the limit at 155 and 27 achievements would end at 158, so the 27th does hide the hint line; four hints have 22 px gaps and five have 1.75 px.
 - Required changes (checklist): [ ] 1. docs/outfit-equip-screen-design.md section 3 ("With PHOTOS", first bullet) says five hints on the desktop line are "cramped, still readable", and the recommendation says "the desktop line still fits"; but pause-desktop-2-with-outfits-and-photos.png shows them touching ("SYNCI: THINGSO: PHOTOSF: OUTFITST: TRANSFER SAVE"), which is not readable, and the 'In short' paragraph already says it "reads as one run". Make the text agree with the image (the line does not work at five hints without a layout change, for example a second line or shorter hints) so d1 is not decided on a wrong claim. [ ] 2. Section 1 says the longest note is 44 characters (264 px); it is 45 (outfit-out-button-up, 269 px). It still fits the 308 px bar; fix the number. [ ] 3. Section 11 d7 and the d7 text say F and Tab/Q are "free in the pause screen"; F is the transfer page's save-file key (feature.ts:940), so say it is free on the pause list only (the pages are separate, so no clash). [ ] 4. Optional: on the slots the touch keys line says "A: EQUIP" but A there goes into the list (section 2); say so or label it. Could not verify (recorded in `unverified`): everything in a browser, feel and tap size on a phone, the CHOICE button on the pause screen, an old save with scroll-photos, whether the 224-wide legend overlap is in the real game. After these wording fixes it should be approved; the planner updates PLAN.md only on approval.
+- 2026-11-24 (agent): Marc answered d1 to d4 on main (photos are going, now or later; d2 to d4 as recommended); the branch copy now matches. The design is revised: the pause screen without PHOTOS is the primary mockup, the document says what removal involves and recommends removing now, as its own issue before the OUTFITS build. Reviewer's wording fixes made (desktop five-hint line, the 45-character note, F on the pause list only, A on the slots).

@@ -2,13 +2,13 @@
 
 Status: a design for Marc to read and decide on. Nothing is built and nothing is removed. Marc's idea (2026-11-24, after trying the slots of issue 175): a page on the pause screen for equipping the four outfit slots, in the spirit of a classic equipment screen (a list of slots on the left, what can go in the selected slot on the right, a description bar on top, a pointer), plus a bigger look at the character wearing it. It is inspiration for the structure only: the screens here use the game's own pixel font, palette, borders and pointer, and nothing from any other game is copied. Builds on issues 152 (worn outfit), 156/158/159 (outfits and the generator), 164/175 (slots; [outfit-slots-design.md](outfit-slots-design.md), 'What issue 175 built' in [decor.md](decor.md)), 109b (THINGS) and 113c/117 (PHOTOS).
 
-Open decisions d1 to d4 are in the issue file and are not answered here; new questions are d5 to d8 at the end, each with a recommended default.
+Marc answered d1 to d4 on 2026-11-24 (in the issue file): **photos are going** (remove now or later, depending on these mockups; not keep), the character is the existing 16x16 art drawn larger with the four facings (a higher-resolution set is a later step), OUTFITS is a new pause page next to THINGS, and the bookshelf list stays as built. This note is built on those answers. New questions are d5 to d8 at the end, each with a recommended default.
 
 ## In short
 - **OUTFITS is a new pause page** (d3's recommended default). Left: the four slots (EVERYDAY, PAJAMAS, ROBE, GOING OUT), each with the outfit equipped in it and WORN on the one you have on. Right, top: the owned outfits the selected slot takes. Right, bottom: the character wearing the highlighted outfit at 4x (crisp pixels), with the four facings shown small beside it; Tab (or Q, the game's cycle key) turns it. Top: a bar showing the highlighted outfit's own deadpan note, and nothing else; no help text.
 - **No new state and no new rules.** The page keeps only its cursor (which column, which slot, which row, which facing). Everything else is the issue 175 `Decor` API: `slotChoices`, `equippedIn`, `equip`, `item`, `wornSlot`. The preview is a pure draw of an existing sprite; nothing is written until E.
-- **The pause screen is crowded, but only on touch, and not by much.** Today it has eight buttons filling exactly the four rows there is room for; a ninth button lands on top of the page control and the first achievement. On desktop five key hints still fit the one line but their gaps shrink from 22 px to about 2 px. With PHOTOS removed OUTFITS takes its place and nothing else changes. Details and numbers in section 3.
-- **Photos (d1):** I show both, say what each costs, and list every place PHOTOS touches (section 4). I recommend what the issue already recommends: decide after looking at the mockups, and treat removal as its own issue after Marc confirms exactly what goes. Nothing is removed here.
+- **The pause screen is crowded, but only until PHOTOS goes.** Today it has eight buttons filling exactly the four rows there is room for; a ninth button lands on top of the page control and the first achievement. On desktop five key hints squeeze to a gap of about 2 px (they read as one run: unreadable). With PHOTOS removed OUTFITS takes its place and nothing else changes: the primary mockups are the pause screen without PHOTOS. Details and numbers in section 3.
+- **Photos (d1, answered: they are going):** section 4 lists every place PHOTOS touches; section 3 recommends removing it **now**, as its own issue that lands before the OUTFITS build, so the page never has to ship around a ninth button. Nothing is removed in this issue.
 - **Preview at higher resolution:** possible and not recommended now (section 6): 52 new sprites, 4 new hand-drawn bases, ten torso rules rewritten for a finer grid, and a different pixel density from the room.
 - **Build:** one issue of about the size of the THINGS page (section 9), art-free.
 
@@ -28,7 +28,7 @@ The mockups are rendered with the game's own `SoftCanvas`, `drawText`, `drawButt
 
 ### Structure (desktop, 320x192)
 - **Title** OUTFITS in butter at the top left (the pause pages' own title style, as THINGS and PHOTOS).
-- **Note bar** (y 14 to 29, ink border and slate fill, the box style of THINGS' entry box): the highlighted outfit's own note from `decor-data.ts` (`GREY HOODIE`: A POCKET FOR EVERYTHING EXCEPT THE KEYS.). One line; the longest note is 44 characters (264 px) and fits the 308 px bar. When the focus is on the slots it shows the note of the outfit equipped in that slot; an empty slot shows an empty bar. This is the only text beyond names, WORN and the keys line, which keeps Marc's rule for the bookshelf list ('no explanatory text beyond the outfit's own note').
+- **Note bar** (y 14 to 29, ink border and slate fill, the box style of THINGS' entry box): the highlighted outfit's own note from `decor-data.ts` (`GREY HOODIE`: A POCKET FOR EVERYTHING EXCEPT THE KEYS.). One line; the longest note is 45 characters (269 px, the button-up shirt's) and fits the 308 px bar. When the focus is on the slots it shows the note of the outfit equipped in that slot; an empty slot shows an empty bar. This is the only text beyond names, WORN and the keys line, which keeps Marc's rule for the bookshelf list ('no explanatory text beyond the outfit's own note').
 - **Left column, the slots** (x 6, 130 wide, four boxes of 32 with 4 between): slot name (butter when picked, mist otherwise), WORN in butter at the right of the one you have on, and below it the equipped outfit's name (paper) or a mist dash for an empty slot. 130 px is what the longest outfit name needs (`DENIM JACKET AND TEE`, 119 px) with no truncation.
 - **Right, top: the list** (x 140, 174 wide): five rows of 10 px, one per owned outfit the picked slot takes (`Decor.slotChoices`, in `OUTFITS` order). The equipped one has a small butter square before its name. More than five rows: the list scrolls and a small arrow shows at the foot; **there is no count** (no 3/5, no page number).
 - **Right, bottom: the preview** (y 96 to 176): the character at 4x (64x64) on a strip of floor, and the four facings at 2x in a 2x2 grid, the shown one in a butter border (down, left, up, right).
@@ -55,7 +55,7 @@ Desktop:
 - On the slots, **E** is also "go into the list"; there is no wear-now key on this page (d6).
 
 Touch (the layer sends the same keys; the page also takes taps):
-- PAD picks, A equips, B goes back, the CHOICE button (a quick tap is Tab) turns the character. A tap on a slot picks it, a tap on a list row highlights it (a second tap equips), a tap on the preview turns the character, BACK is a button. The keys line on touch reads `PAD: PICK  A: EQUIP  CHOICE: TURN` (197 px of 224; the full line with BACK is 251 px, which does not fit, and BACK is a button anyway).
+- PAD picks, A equips, B goes back, the CHOICE button (a quick tap is Tab) turns the character. A tap on a slot picks it, a tap on a list row highlights it (a second tap equips), a tap on the preview turns the character, BACK is a button. The keys line on touch reads `PAD: PICK  A: EQUIP  CHOICE: TURN` (197 px of 224; on the slots A goes into the list rather than equipping, so the line is the list focus's; the full line with BACK is 251 px, which does not fit, and BACK is a button anyway).
 
 ## 3. How it fits in the pause screen
 
@@ -65,9 +65,10 @@ The pause screen is one home screen plus **four pages**: TRANSFER SAVE, SYNC, TH
 - **Touch:** the PAUSE button opens the home screen, where eight buttons are in two columns (AD BLOCKER, DIALOG VOICE, TRANSFER SAVE, SYNC, THINGS, PHOTOS, RESET PROGRESS, CLOSE). They fill exactly the four rows there is room for (`PAUSE_TOUCH`: buttons from y 17, 16 high with 2 between, so four rows end at y 89, which is `pageTop`). The achievements are in pages below them: 12 per page on 320x192 (3 pages for 26), 14 per page on 224x208 (2 pages).
 
 ### What makes it crowded
-Only the touch layout. There is a fixed budget of eight buttons, and two of them are settings, two are leave/reset, and four are pages. A fifth page has nowhere to go: a ninth button goes in the first free cell and lands on the PAGE n/m control and the first achievement row (`pause-touch-2-...` and `pause-phone-2-...`). On the desktop the hint line has room for a fifth hint, but the gaps shrink from 22 px to under 2 px, which reads as one run (`pause-desktop-2-...`).
+Only the touch layout. There is a fixed budget of eight buttons, and two of them are settings, two are leave/reset, and four are pages. A fifth page has nowhere to go: a ninth button goes in the first free cell and lands on the PAGE n/m control and the first achievement row (`pause-touch-2-...` and `pause-phone-2-...`). On the desktop a fifth hint fits only by shrinking the gaps from 22 px to under 2 px, which reads as one run and is not readable (`pause-desktop-2-...`).
 
-### Mockups: the page list with and without PHOTOS
+### Mockups: the page list without PHOTOS (primary) and with it
+Since photos are going, the primary pictures are the third row (OUTFITS in place of PHOTOS); the others show what it would cost to keep PHOTOS and are here for the reasoning.
 The pause screens are drawn by the real `drawList` and `pauseButtons`; the new button and hint are added on top by the mockup script (so the overlap is what would happen with no layout change).
 
 | | Desktop 320x192 | Touch 320x192 | Phone 224x208 |
@@ -80,7 +81,7 @@ The pause screens are drawn by the real `drawList` and `pauseButtons`; the new b
 
 ### What each costs
 **With PHOTOS (nine things):**
-- Desktop: five hints on the line with 1.8 px gaps (cramped, still readable) and the same latent 27th-achievement problem.
+- Desktop: five hints on the line with 1.8 px gaps; in `pause-desktop-2-...` they run together (`SYNCI: THINGSO: PHOTOSF: OUTFITST:`) and are not readable, and the same latent 27th-achievement problem remains.
 - Touch: a fifth row of buttons, which moves the achievement list down 18 px and cuts it from 12 to 8 per page on 320x192 (3 pages become 4) and from 14 to 10 on 224x208 (2 pages become 3). That is arithmetic from `touchPageSize`, not a rendered screen. Or fold something into something else (for example the two settings buttons into one SETTINGS page), which is a design of its own.
 - OUTFITS and PHOTOS both exist; the pause screen has five pages.
 
@@ -90,8 +91,8 @@ The pause screens are drawn by the real `drawList` and `pauseButtons`; the new b
 
 **A third way (d3's other option), neither removing nor adding:** a second tab inside THINGS. It adds no button and keeps PHOTOS, but THINGS is today read-only by design ('changes nothing and saves nothing', `thingsKey` in `feature.ts`, and [inventory-design.md](inventory-design.md)); an equipping tab would be the first editing there and the equip function would be hidden one page deeper. I do not recommend it, but it is the cheapest way to keep everything.
 
-### Recommendation on d1
-Keep d1's default: look at these mockups, then decide. My own read: OUTFITS does not need PHOTOS gone to be built (a fifth button row costs the achievement list one page on each layout, and the desktop line still fits), but the touch screen cannot hold nine buttons as it is, and Marc has said photos did not feel natural and were friction, so removal is the cleaner fix. If Marc says yes, remove it in its own issue after confirming exactly what goes (section 4); if he says no, build OUTFITS with the fifth touch row and the tighter desktop line. Nothing in this design depends on the answer except one button's place.
+### Recommendation on d1 (photos are going: now or later)
+**Remove it now, as its own issue that lands before the OUTFITS build.** Reasons: (1) the touch pause screen cannot hold the ninth button, so building OUTFITS first would either overlap the page control or need the fifth row (which costs the achievement list a page on each layout) and then be undone; removing first gives OUTFITS PHOTOS' cell with no layout change at all; (2) the desktop line with five hints is unreadable, with four it is as today; (3) removal is mostly deletion and has a known list (section 4), while the OUTFITS page is new code, so the smaller, riskier-to-forget job goes first and the page then lands on a clean screen; (4) it keeps main releasable: no state where the page exists but the screen is broken. The one reason to wait is if Marc wants to try the sofa scene once more before it goes; nothing here depends on that. The removal issue should confirm exactly what goes with Marc first (section 4 is the list), decide d8, and test an old save with `scroll-photos`.
 
 ## 4. If PHOTOS were removed: every place it touches (checked by search, nothing removed)
 
@@ -172,10 +173,10 @@ There is no copy of the list, no second `equipped` and nothing saved by the page
 - Nothing about the page is a goal: the outfits are listed in `OUTFITS` order with no ranking, and no outfit is marked as better for a slot or an hour (the issue 156 rule). Outfits are a spread: nothing in the page, the names or the mockups takes a gender as the default.
 
 ## 9. Size and a staged build plan
-- **Stage A, the page (one issue, no art):** `achievements/outfits-draw.ts` (layout, draw, tap rectangles; about the size of `inventory-draw.ts`, 224 lines), the page in `feature.ts` (state, `openOutfits`, key routing, `outfitsTargets`, about 80 lines), a key in `ACHIEVEMENTS_UI`, one button and one hint in `draw.ts`, and tests: layout at both views (nothing off screen, the longest name fits), key walkthrough with a `Decor` (focus moves, E equips, Escape keeps, a wrong-style item is refused by `equip`), the preview names `<prefix>-idle-<facing>` for every outfit and facing that exists, taps, no count or silhouette drawn. Roughly 600 lines with tests; the same order as the THINGS page (109b).
-- **Stage B, the pause screen's room (depends on d1):** either the removal issue (section 4) or the fifth button row and the tighter hint line. Smallish either way; a removal is larger and mostly deletion.
+- **Stage A, the page (one issue, no art; after stage 0):** `achievements/outfits-draw.ts` (layout, draw, tap rectangles; about the size of `inventory-draw.ts`, 224 lines), the page in `feature.ts` (state, `openOutfits`, key routing, `outfitsTargets`, about 80 lines), a key in `ACHIEVEMENTS_UI`, one button and one hint in `draw.ts`, and tests: layout at both views (nothing off screen, the longest name fits), key walkthrough with a `Decor` (focus moves, E equips, Escape keeps, a wrong-style item is refused by `equip`), the preview names `<prefix>-idle-<facing>` for every outfit and facing that exists, taps, no count or silhouette drawn. Roughly 600 lines with tests; the same order as the THINGS page (109b).
+- **Stage 0, the room (recommended first):** the PHOTOS removal issue (section 4). Mostly deletion, about 1,700 source lines and 3,000 test lines go; OUTFITS then takes PHOTOS' touch cell and desktop hint.
 - **Stage C (later, optional):** walk-in-place; the higher-resolution set (section 6).
-- **Order:** A can be built before B, with OUTFITS temporarily in the ninth cell only on a feature branch (main must stay releasable: the touch overlap above is not shippable). So if A is built first it should wait for d1 or take PHOTOS' place behind the answer.
+- **Order:** stage 0, then A, then C if ever. If A were built before 0 it would have to stay on a feature branch (main must stay releasable; the ninth-button overlap is not shippable).
 
 ## 10. What I could not check
 - Everything on the page was drawn with the soft canvas in a script outside the repo and looked at as PNGs; none of it runs in a browser. Feel, spacing on a real phone, tap size and how the CHOICE button behaves on the pause screen are unverified.
@@ -186,5 +187,5 @@ There is no copy of the list, no second `equipped` and nothing saved by the page
 ## 11. New questions (also in the issue file, each with a recommended default)
 - **d5.** Equipping into the slot you are wearing changes your clothes on the spot (this is what `Decor.equip` does today and what the bookshelf already does). Recommended: yes, the page uses it as it is.
 - **d6.** Does the OUTFITS page also have a wear-now key? Recommended: no; wearing a slot stays at the cube bookshelf (d4's default keeps it there), and the page is for choosing what goes in the slots.
-- **d7.** Keys: F opens the page from the pause list on desktop and Tab or Q turns the character. Recommended: yes (both are free in the pause screen and Tab/Q is the game's cycle key).
+- **d7.** Keys: F opens the page from the pause list on desktop and Tab or Q turns the character. Recommended: yes (F is free on the pause list; it is the save-file key only on the TRANSFER page, a different page, so there is no clash; Tab/Q is the game's cycle key).
 - **d8.** If PHOTOS is later removed: what happens to the pictures already stored in the browser? Recommended: one quiet clean-up that deletes the stored pictures and the look key on the next load, so nothing invisible is left on a device; the alternative is to leave them where they are.

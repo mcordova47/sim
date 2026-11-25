@@ -233,7 +233,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 164 | [Outfit slots](issues/164-outfit-slots.md) | marc + claude | done | |
 | 165 | [Shower scene](issues/165-shower-scene.md) | marc + claude | done | 164 |
 | 166 | [A rug](issues/166-rug.md) | marc + claude | done | |
-| 167 | [Trinkets](issues/167-trinkets.md) | marc + claude | todo | |
+| 167 | [Trinkets](issues/167-trinkets.md) | marc + claude | done | |
 | 168 | [Coffee gear](issues/168-coffee-gear.md) | marc + claude | done | |
 | 169 | [Shelf and sill](issues/169-wall-shelf-and-sill.md) | marc + claude | todo | 167 |
 | 170 | [Empty pot](issues/170-empty-pot.md) | marc + claude | todo | |
@@ -245,7 +245,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 176 | [Outfit equip screen](issues/176-outfit-equip-screen.md) | marc + claude | done | 175 |
 | 177 | [Shower scene build](issues/177-build-shower-scene.md) | marc + claude | done | 175 |
 | 178 | [Pause hint line hides](issues/178-pause-hint-line-hides.md) | claude | todo | |
-| 179 | [Plant pots design](issues/179-plant-pots.md) | marc + claude | todo | |
+| 179 | [Plant pots design](issues/179-plant-pots.md) | marc + claude | done | |
 | 180 | [Remove photos](issues/180-remove-photos.md) | marc + claude | done | 176 |
 | 181 | [OUTFITS page build](issues/181-outfits-page-build.md) | marc + claude | todo | 180 |
 <!-- issues:table:end -->

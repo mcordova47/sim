@@ -107,7 +107,10 @@ decisions:
       - "one per pot (Change plant, Change vase, Change bowl), each only when there is a spare"
       - "one 'Change plants' that asks which pot first"
     recommendation: "one per pot (Change plant, Change vase, Change bowl), each only when there is a spare"
-    status: open
+    status: answered
+    answer: "maybe this could be a similar slot mechanism to outfits? then the menu would work the same way? another option is just one \"change plants\" option that just puts the plant in the appropriate place; i don't feel strongly, but it would be nice to avoid the top-level list growing too large"
+    by: marc
+    on: 2026-11-24
   - id: d10
     who: marc
     q: "Does the window sill share the vase's and bowl's stock (dried and low plants and trinkets) rather than have a kind of its own?"

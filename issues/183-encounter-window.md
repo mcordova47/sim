@@ -53,7 +53,10 @@ decisions:
       - "about one in ten"
       - "about one in three"
     recommendation: "about one try in five fails, after you choose to buy; you get nothing and the item stays where it was in the window"
-    status: open
+    status: answered
+    answer: "as recommended"
+    by: marc
+    on: 2026-11-25
   - id: d5
     who: marc
     q: "What does a failed purchase cost?"

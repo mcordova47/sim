@@ -16,7 +16,10 @@ decisions:
       - "pot 1: houseplants; pot 2: dried arrangements; pot 3: flowering plants (orchid, African violet, a tulip pot), empty by default"
       - "something else (the design proposes its own split)"
     recommendation: "pot 1: houseplants (live, watered: snake plant, pothos, monstera, spider plant); pot 2: dried arrangements and cut flowers (flowers wilt and dry in place); pot 3: low and small plants (moss, succulents, a small bonsai), empty by default"
-    status: open
+    status: answered
+    answer: "pot 1: houseplants (live, watered: snake plant, pothos, monstera, spider plant); pot 2: dried arrangements and cut flowers (flowers wilt and dry in place); pot 3: low and small plants (moss, succulents, a small bonsai), empty by default"
+    by: marc
+    on: 2026-11-24
   - id: d2
     who: marc
     q: "Which kinds of plants should the window sill and the floor (the empty square next to the sofa, lamp and record player) hold, eventually?"
@@ -25,7 +28,10 @@ decisions:
       - "the window sill: still items only for now (dried things and trinkets, as decided for issue 169); floor trees later"
       - "something else"
     recommendation: "the window sill: trailing or hanging plants and small herbs; the floor: small trees (a fiddle-leaf fig, a rubber plant, a potted palm); both later, after the three pots"
-    status: open
+    status: answered
+    answer: "the window sill: trailing or hanging plants and small herbs; the floor: small trees (a fiddle-leaf fig, a rubber plant, a potted palm); both later, after the three pots"
+    by: marc
+    on: 2026-11-24
   - id: d3
     who: marc
     q: "Which pots are live (they need watering and can droop) and which are still?"
@@ -34,7 +40,68 @@ decisions:
       - "only the houseplant pot is live; every other pot is still"
       - "everything live"
     recommendation: "only the houseplant pot is live; every other pot is still (a live second plant is the large piece of engine work in docs/decor-expansion-design.md section 9, so do it later)"
+    status: answered
+    answer: "houseplants live; dried arrangements still; the third pot's low plants live but very slow and easy (a mist now and then), never punished"
+    by: marc
+    on: 2026-11-24
+  - id: d4
+    who: marc
+    q: "Is the plant pot (the south one, today's plant slot) strictly for houseplants, so the existing dried items move to the vase?"
+    options:
+      - "strict: houseplants and the empty pot only; the four dried items (and the old saves that show one there) move to the vase; you can no longer park a dried item in the plant pot to pause the snake plant (the empty pot does it)"
+      - "lenient: the plant pot also takes dried items, as today"
+    recommendation: "strict: houseplants and the empty pot only; the four dried items (and the old saves that show one there) move to the vase; you can no longer park a dried item in the plant pot to pause the snake plant (the empty pot does it)"
     status: open
+  - id: d5
+    who: marc
+    q: "Are the empty pots real items (EMPTY VASE, EMPTY BOWL, EMPTY POT, owned from the start) or empty slots?"
+    options:
+      - "items: no new engine beyond an `empty` flag so they do not count as spares (a fresh game shows no new prompt; an empty pot is reachable once the first real spare arrives); three more 'ALREADY HERE' lines on the THINGS page"
+      - "empty slots with a bare-pot picture: needs engine work (a slot with a default that can also be empty)"
+    recommendation: "items: no new engine beyond an `empty` flag so they do not count as spares (a fresh game shows no new prompt; an empty pot is reachable once the first real spare arrives); three more 'ALREADY HERE' lines on the THINGS page"
+    status: open
+  - id: d6
+    who: marc
+    q: "May the bowl be drawn 2 px lower than the baked bowl, so low plants get 4 clear rows above the rim instead of 2?"
+    options:
+      - "yes: a fresh game differs from today by those 2 pixels"
+      - "no: the fresh room stays pixel for pixel the same and low plants are 2 rows tall"
+    recommendation: "yes: a fresh game differs from today by those 2 pixels"
+    status: open
+  - id: d7
+    who: marc
+    q: "When cut flowers dry, do they become a separate keepsake item (DRIED TULIPS) or does the same item change its look?"
+    options:
+      - "the same item changes its look to dried, in place, as d1 says (issue 171 as written); a new bunch replaces it"
+      - "a separate keepsake: the fresh bunch is replaced by a dried item you keep, and a new bunch can arrive again"
+    recommendation: "the same item changes its look to dried, in place, as d1 says (issue 171 as written); a new bunch replaces it"
+    status: open
+  - id: d8
+    who: marc
+    q: "The floor trees: the shut-in square at col 8, row 7 (abs 128,112), with 16x16 small trees whose crown stays inside the tile?"
+    options:
+      - "yes: 16x16 small trees (potted palm, rubber plant, fiddle-leaf fig); a swap task on the record stand"
+      - "a tall 16x32 tree (it hides the lamp, or sits behind it and shows only a trunk)"
+      - "another square (the walk beside the lamp, which a tree would partly block)"
+    recommendation: "yes: 16x16 small trees (potted palm, rubber plant, fiddle-leaf fig); a swap task on the record stand"
+    status: open
+  - id: d9
+    who: marc
+    q: "Swap tasks for the three pots: one each, or one that asks which pot?"
+    options:
+      - "one per pot (Change plant, Change vase, Change bowl), each only when there is a spare"
+      - "one 'Change plants' that asks which pot first"
+    recommendation: "one per pot (Change plant, Change vase, Change bowl), each only when there is a spare"
+    status: open
+  - id: d10
+    who: marc
+    q: "Does the window sill share the vase's and bowl's stock (dried and low plants and trinkets) rather than have a kind of its own?"
+    options:
+      - "share it (still low plants fit both bowl and sill; live ones fit the bowl only), until live sill plants exist"
+      - "its own kind of plant for the sill from the start"
+    recommendation: "share it (still low plants fit both bowl and sill; live ones fit the bowl only), until live sill plants exist"
+    status: open
+needs: [{who: marc, kind: decide, why: "Look at the plant pots mockups (~/Dev/repos/mcordova47/sim-worktrees/179-plant-pots/docs/plant-pots-mockups/), answer d1 to d10, then say 'merge 179' (design only; the third review is running)", since: 2026-11-24}]
 ---
 
 ## Goal

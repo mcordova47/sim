@@ -76,7 +76,7 @@ Graduated to [issue 133](../issues/133-issue-pages-theme.md) (2026-11-15).
 *Marc, 2026-11-23, from the outfit options (issue 155).* The plum dress candidate (out C) was set aside for now: nothing in the game should make the player conform to a gender, so a dress is fine as one option among several going-out outfits, once several outfits per category are allowed (issue 156). Come back to it with that in mind, alongside other silhouettes (a long coat, a jumpsuit, a kimono-style robe).
 
 ## Put on the robe after a shower (designed, issue 165)
-*Graduated 2026-11-24.* The robe occasion is built (issue 175); the in-room shower scene with bubbles and steam is designed in [shower-scene-design.md](shower-scene-design.md) (issue 165), to be built next.
+*Graduated 2026-11-24.* The robe occasion is built (issue 175); the in-room shower scene with bubbles and steam was designed in [shower-scene-design.md](shower-scene-design.md) (issue 165) and built in issue 177 ([tasks.md](tasks.md)).
 
 ## A red jacket outfit (idea)
 *Marc, 2026-11-23, from the cardigan colour comparison (issue 156 d3).* Brick red with walnut shading, as a jacket over a tee: a classic "rebel with a red jacket" look (a casual or going-out outfit; no real person is named in the repo). Not planned; add it to the list of outfits to draw once the outfit generator exists (see issue 156, d2).

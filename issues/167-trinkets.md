@@ -77,17 +77,16 @@ decisions:
     on: 2026-11-24
   - id: d6
     who: marc
-    q: "The raccoon in a can: front view or side view? A side view (a profile head, a ringed tail beside the can) was drawn and compared with the front view at 1x and 8x."
+    q: "Trinkets (167, d6): the raccoon in a can looks better as the front view than in profile at this size (the side view needs about 10 wide, the tail floated and the snout was one pixel). Keep the front view?"
     options:
-      - "keep the front view (white ears and a dark mask read at once at 6x8)"
-      - "use a side view (needs more width than the box allows, about 10x8, to read)"
+      - "keep the front view"
+      - "use the profile view (a wider, less clear picture)"
     recommendation: "keep the front view"
-    status: open
-needs:
-  - who: marc
-    kind: try
-    why: "Look at the nine small pictures on the desk and say which do not read as their object; the telescope, finger skateboard and jaw harp read least clearly."
-    since: 2026-11-24
+    status: answered
+    answer: "keep the front view"
+    by: marc
+    on: 2026-11-24
+needs: [{who: marc, kind: try, why: "Look at the four tweaks (owl smaller, charcoal skateboard, egg on a metal stand, raccoon kept front view): cd ~/Dev/repos/mcordova47/sim-worktrees/167-trinkets && npm run dev, /?own=trinket-alebrije,trinket-finger-skateboard,trinket-goose-egg,trinket-raccoon-can, Tab to Display trinket at the standing desk; answer d6; then say 'merge 167'", since: 2026-11-24}]
 ---
 
 ## Goal

@@ -15,20 +15,19 @@ src/main.ts              the glue: makes the canvas, keyboard, Game, features an
 src/game/
   loop.ts                fixed-timestep loop (you have read it)
   game.ts                the Game hub: owns the player, state, interaction, events, layers, dialogs
-  config.ts              nearly every tunable number and table (SOUND, MUSIC, REEL, TIME_OF_DAY, ...)
+  config.ts              nearly every tunable number and table (SOUND, MUSIC, TIME_OF_DAY, ...)
   state.ts, state-vars.ts   ApartmentState (named bounded numbers) and the list of variables
   tasks.ts               every task, as data (CONTENT, STATE_RULES, LOOKS, GOOD_HOURS, EXTRA)
   apartment.ts           the three room maps and which objects offer which tasks
   tilemap.ts, level.ts   turns a map plus a legend into a Level (pieces, props, doors, variants)
   interaction.ts         the system that finds what you face, starts a task, pays it
   activity.ts            the Activity interface, BaseActivity and the registry
-  activities/            wait, cutscene, typing, notes, sleep, make-track, flashcards, reel, ...
+  activities/            wait, cutscene, typing, notes, sleep, make-track, flashcards, record-player, ...
   events.ts, features.ts the event list and the one place features are switched on
   achievements/          the pause screen, saved progress, achievement data, toasts, stats
   sound/, music/         the synth, sound feature, `.track` parser; music/tracks/*.track are the records
   time-of-day/, particles/   two more features (light; sparkles)
   decor*.ts, deliveries.ts, encounters*.ts   decor items and gifts, packages, ad encounters
-  reel/                  the photo reel and gallery (never real photos in tests: synthetic-pic.ts)
   side-project*.ts/.txt  the side project: its config file, parser and composer
   sync/                  save merge and sync client
   golden/                recorded drawing logs for the golden frame tests

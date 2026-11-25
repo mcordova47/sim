@@ -73,6 +73,7 @@ export class FakeCompressor extends FakeNode implements CompressorLike {
 
 export class FakeBufferSource extends FakeNode implements BufferSourceLike {
   buffer: BufferLike | null = null;
+  loop = false;
   startedAt: number | null = null;
   stoppedAt: number | null = null;
   onended: (() => void) | null = null;

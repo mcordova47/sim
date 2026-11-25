@@ -139,6 +139,11 @@ export const DECOR = {
 // nap and Escape out of a task change nothing. Going out has no occasion yet (it is worn by hand).
 export const OUTFIT_OCCASIONS: Readonly<Record<string, import("./outfits").OutfitSlotId>> = { sleep: "pajamas", shower: "robe" };
 
+// After finishing one of these tasks the player stands facing this way (issue 177, Marc's answer d10): the shower
+// puts them back on the tile they pressed E on, with their back to the tub (the tub is on the west wall).
+// A cancelled task does not turn them.
+export const TURN_AWAY_AFTER: Readonly<Record<string, import("./direction").Direction>> = { shower: "right" };
+
 // Deliveries (issue 062 stage 3a, docs/decor.md). Times are game hours.
 export const DELIVERIES = {
   // Most items waiting to arrive plus waiting at the door; `deliver` refuses more.
@@ -159,9 +164,6 @@ export const DELIVERIES = {
 export const ENCOUNTERS = {
   // The tasks (ids) whose completion rolls. `work-sofa` and `work-bed` do not.
   tasks: ["doomscroll", "work"] as readonly string[],
-  // The tasks that can be interrupted by an ad while they run (issue 117f): the sofa scene rolls once per
-  // session, a while into its close-up. They never roll on completion, and `tasks` never roll mid-task.
-  interrupts: ["scroll-photos"] as readonly string[],
   // The roll per eligible completion, and the roll right after a failed unsubscribe.
   chance: 0.22,
   afterFailChance: 0.5,
@@ -416,6 +418,27 @@ export const SLEEP: { sleep: SleepSettings; nap: SleepSettings } = {
   },
 };
 
+// The sound of the shower (issue 177, docs/shower-scene-design.md section 7): a steady hiss on its own bus while the
+// water runs (the task's `water` phase), a click when it stops, the music and a playing record left alone. The
+// hiss is two looped noise layers, a high-passed one and a band-passed body. It is kept well under the snore's noise
+// layer (not heard by anyone yet): these numbers are the ones to tune by ear. Nothing is a file.
+export const SHOWER_SOUND = {
+  // The task and the phase of it that has the hiss.
+  taskId: "shower",
+  phase: "water",
+  // The effect played when the water stops by itself (not for Escape).
+  click: "showerClick",
+  // The shower bus level while the water runs, and the fade in and out, in seconds.
+  level: 1,
+  fadeIn: 0.25,
+  fadeOut: 0.12,
+  // The layers are looped noise made long enough that they end only when told to (`ShowerSound` stops them).
+  hiss: [
+    { noise: "highpass", freq: 2400, q: 0.5, length: 20, gain: 0.03, loop: true, hold: 1 },
+    { noise: "bandpass", freq: 900, q: 0.5, length: 20, gain: 0.025, loop: true, hold: 1 },
+  ] as NoiseVoice[],
+};
+
 // Activities (issue 022): what a task can be besides waiting.
 export const ACTIVITY = {
   // How well a mini-game went (quality 0 to 1) scales the task's points between
@@ -483,35 +506,6 @@ export const DIALOG = {
   textWidth: VIEW.width - 2 * 4 - 2 * 6,
 };
 
-// The photo reel's sofa scene (issue 117e, docs/photo-gallery-design.md sections 3.5 and 8). `pass`
-// pictures are picked at random and shown on the one phone-view screen. `phoneLines` holds the fixed line
-// under the grid (one is chosen when the scene starts and kept for the session); `closeupLines` holds the
-// close-up's caption (one is chosen each time a close-up opens). Marc's rule: no line ever mentions
-// resolution, size or pixels, and none claims anything about what a picture shows (a test checks both
-// pools). The pools are plain lists for the text review (docs/text-review.md): drop or change a line here.
-export const REEL = {
-  pass: 6,
-  // Seconds of close-up time before the scene's one ad roll (issue 117f). A player who leaves sooner gets none.
-  adAfter: 8,
-  phoneLines: [
-    "You scroll for a while. Why did you open your phone, again?",
-    "There is a lot of it, and it is all yours.",
-    "Mostly the same few places.",
-    "You have taken a lot of pictures of this.",
-    "You were there for most of these.",
-    "Nothing here needs an answer.",
-  ] as readonly string[],
-  closeupLines: [
-    "Ah, memories.",
-    "You remember this. Mostly.",
-    "Look at that.",
-    "Good times, probably.",
-    "You were there.",
-    "Was it always like that?",
-    "You could look at this all day. You do not.",
-  ] as readonly string[],
-} as const;
-
 // Making your own tracks (issue 059, docs/make-tracks.md). Marc's picks: the
 // piano roll editor, 12 saved tracks, 24-letter names, up to 32 steps, a reward
 // of 90 points and +6 mood once per 6 game hours for a track with real notes.
@@ -574,8 +568,6 @@ export const ACHIEVEMENTS_UI = {
   syncKey: "KeyP",
   // Opens the THINGS page (issue 109b), the browsable inventory.
   thingsKey: "KeyI",
-  // Opens the PHOTOS page (issue 113c).
-  photosKey: "KeyO",
   // How long "AD BLOCKER: ON" shows after the key is pressed, in seconds.
   flashSeconds: 1.5,
   // Progress is saved this often as well as when a task finishes, an achievement
@@ -679,6 +671,11 @@ export interface NoiseVoice {
   delay?: number;
   length: number;
   gain: number;
+  // Loops the noise buffer for as long as `length` (a steady hiss) instead of playing it once (issue 177).
+  loop?: boolean;
+  // Stays at full level for this fraction of its length before it falls (1: steady to the end), as a formant
+  // voice's `hold` does. Without it the noise falls from the start.
+  hold?: number;
 }
 
 // A voice made the way a throat does: a source at one pitch (`freq`) shaped by
@@ -1172,6 +1169,14 @@ export const SOUND = {
         { wave: "sine", freq: 1760, delay: 0.38, length: 0.2, gain: 0.14 },
       ],
     },
+    // The shower (issue 177): a quiet click when the water stops. The hiss is `SHOWER_SOUND.hiss`, not an effect.
+    showerClick: {
+      priority: "low",
+      voices: [
+        { wave: "square", freq: 150, length: 0.03, gain: 0.05 },
+        { noise: "bandpass", freq: 1400, q: 1, length: 0.03, gain: 0.05 },
+      ],
+    },
     taskCancelled: { voices: [{ wave: "triangle", freq: 330, endFreq: 247, length: 0.1, gain: 0.18 }] },
     // A low blip when something is not ready (cooldown or a missing requirement).
     taskBlocked: { voices: [{ wave: "square", freq: 110, length: 0.07, gain: 0.16 }] },
@@ -1436,22 +1441,30 @@ export const PARTICLE_SHAPES: Record<string, string[]> = {
   note: ["..#", "..##", "..#.#", "..#", "##", "##"],
   // A little four-point sparkle.
   sparkle: [".#.", "###", ".#."],
+  // The shower (issue 177): a falling drop, a puff of steam, a wide low fog bank and a floating soap bubble.
+  drop: ["#", "#"],
+  cloud: [".##.", "####", ".##."],
+  fog: ["..####..", ".######.", "########", ".######."],
+  ring: [".#.", "#.#", ".#."],
 };
+
+// How far from the anchor a particle may start: one number for both axes, or one for each.
+export type Spread = number | { x: number; y: number };
 
 export type EmitterAnchor =
   // The task's zone (its object's tiles), measured from the zone's top-left.
-  | { from: "zone"; dx: number; dy: number; spread?: number }
+  | { from: "zone"; dx: number; dy: number; spread?: Spread }
   // The pose sprite the task shows, from its top-left (needs the task's `pose`).
-  | { from: "pose"; dx: number; dy: number; spread?: number }
+  | { from: "pose"; dx: number; dy: number; spread?: Spread }
   // A piece of the room by sprite name, from its top-left (only in the room that has it).
-  | { from: "piece"; sprite: string; dx: number; dy: number; spread?: number }
+  | { from: "piece"; sprite: string; dx: number; dy: number; spread?: Spread }
   // The player's tile, from its top-left; `byFacing` gives another spot for a
   // direction (the held mug is in a different place each way they face).
   | {
       from: "player";
       dx: number;
       dy: number;
-      spread?: number;
+      spread?: Spread;
       byFacing?: Partial<Record<"up" | "down" | "left" | "right", [number, number]>>;
     };
 
@@ -1465,9 +1478,12 @@ export interface EmitterDef {
   // A palette name that replaces the kind's colors (the z is darker on the pale bed).
   color?: string;
   at: EmitterAnchor;
-  // Only while the sleep sequence is in one of these phases (issue 078); with no
-  // list it goes on as long as the task runs.
-  phases?: ("fall" | "asleep" | "wake")[];
+  // Only while the running task is in one of these phases (the sleep sequence's, issue 078, or the ones in
+  // `TASK_PHASES`, issue 177); with no list it goes on as long as the task runs.
+  phases?: string[];
+  // How it behaves when the browser asks for less motion (issue 177, Marc's d4 and d11): "moves" runs only
+  // without the setting, "still" only with it (a fixed set instead of drifting ones); with neither it always runs.
+  motion?: "moves" | "still";
 }
 
 // What an ambient emitter needs (all that are set must hold).
@@ -1479,6 +1495,19 @@ export interface AmbientWhen {
   // No task is running (the player is free to walk).
   free?: boolean;
 }
+
+// The phases of a timed task, as fractions of its duration (issue 177): what the particles and the sound follow
+// (`Game.taskPhase`). The sleep sequence has its own phases (`SLEEP`) and is not listed here. Each entry runs up
+// to `until`; the last must reach 1. The shower is 6 s: in 0 to 1.0 s, water 1.0 to 4.6 s, off 4.6 to 6.0 s.
+export const TASK_PHASES: Record<string, { until: number; phase: string }[]> = {
+  shower: [
+    { until: 1 / 6, phase: "in" },
+    { until: 4.6 / 6, phase: "water" },
+    { until: 1, phase: "off" },
+  ],
+};
+// How long the shower's water runs, in seconds (what the "still" steam and fog live for).
+const SHOWER_WATER_SECONDS = 3.6;
 
 export const PARTICLES = {
   // At most this many live at once. When full, a new one replaces the oldest.
@@ -1510,6 +1539,15 @@ export const PARTICLES = {
     leafGlint: { shape: "dot2", colors: ["leaf", "paper", "butter"], life: [0.8, 1.3], vx: [-6, 6], vy: [-16, -7], gravity: 0, drag: 0.2, sway: { amp: 1.2, hz: 1 }, fadeFrom: 0.4 },
     // A sigh over the head when mood drops low.
     sigh: { shape: "dot2", colors: ["mist"], life: [0.8, 1.1], vx: [3, 9], vy: [-7, -3], gravity: 0, drag: 0.3, sway: { amp: 1, hz: 1 }, fadeFrom: 0.4 },
+    // The shower (issue 177, docs/shower-scene-design.md section 5). Calm and slow. Mist leads because paper is
+    // invisible on the tub's white rim. A drop falls about 8 px from the tap to the bubbles, so the face stays clear.
+    showerDrop: { shape: "drop", colors: ["sky", "paper"], life: [0.12, 0.17], vx: [-1, 1], vy: [48, 62], gravity: 40, drag: 0, fadeFrom: 1 },
+    showerSteam: { shape: "cloud", colors: ["mist", "mist", "paper"], life: [1.6, 2.2], vx: [-2, 2], vy: [-9, -5], gravity: 0, drag: 0, sway: { amp: 1.6, hz: 0.6 }, fadeFrom: 0.4 },
+    showerFog: { shape: "fog", colors: ["paper", "paper", "mist"], life: [3, 4], vx: [-2, 2], vy: [-4, -2], gravity: 0, drag: 0, sway: { amp: 3, hz: 0.3 }, fadeFrom: 0.4 },
+    foamBubble: { shape: "ring", colors: ["sky", "paper"], life: [1.2, 1.8], vx: [-2, 2], vy: [-9, -5], gravity: 0, drag: 0, sway: { amp: 1.2, hz: 0.9 }, fadeFrom: 0.5 },
+    // With reduced motion (d4): the same clouds standing still for as long as the water runs, then gone.
+    showerSteamStill: { shape: "cloud", colors: ["mist", "mist", "paper"], life: [SHOWER_WATER_SECONDS, SHOWER_WATER_SECONDS], vx: [0, 0], vy: [0, 0], gravity: 0, drag: 0, fadeFrom: 1 },
+    showerFogStill: { shape: "fog", colors: ["mist", "paper"], life: [SHOWER_WATER_SECONDS, SHOWER_WATER_SECONDS], vx: [0, 0], vy: [0, 0], gravity: 0, drag: 0, fadeFrom: 1 },
   } as Record<string, ParticleKind>,
   // Walking. Which floor each room has is `SOUND.floors`; a floor with no
   // entry here (tile) makes no dust.
@@ -1574,7 +1612,54 @@ export const PARTICLES = {
     nap: [{ kind: "z", every: SLEEP.nap.zEvery, phases: ["asleep"], at: { from: "pose", dx: 13, dy: 0, spread: 1 } }],
     // Notes from the guitar.
     guitar: [{ kind: "note", every: [0.6, 1.1], at: { from: "pose", dx: 23, dy: 3, spread: 2 } }],
+    // The shower (issue 177): positions are from the tub's top-left (the tub is 32 x 64; the head is at x 14, y 16).
+    // `in`: one drip from the tap; `water`: drops fall from the tap onto the bubbles, steam, fog and a floating
+    // bubble; `off`: a few late drips and thinner steam and fog. The drops always run (d11: they are what says the
+    // water is on); the steam and fog are a fixed set with reduced motion (d4), and the bubbles are not made.
+    shower: [
+      { kind: "showerDrop", every: [0.5, 0.8], phases: ["in"], at: { from: "piece", sprite: "tub", dx: 14, dy: 7, spread: 1 } },
+      { kind: "showerDrop", every: [0.04, 0.07], count: [2, 2], phases: ["water"], at: { from: "piece", sprite: "tub", dx: 14, dy: 7, spread: 2 } },
+      { kind: "showerDrop", every: [0.35, 0.5], phases: ["off"], at: { from: "piece", sprite: "tub", dx: 14, dy: 7, spread: 1 } },
+      { kind: "showerSteam", every: [0.14, 0.24], phases: ["water"], motion: "moves", at: { from: "piece", sprite: "tub", dx: 14, dy: 16, spread: { x: 6, y: 3 } } },
+      { kind: "showerSteam", every: [0.4, 0.6], phases: ["off"], motion: "moves", at: { from: "piece", sprite: "tub", dx: 14, dy: 16, spread: { x: 6, y: 3 } } },
+      { kind: "showerFog", every: [0.5, 0.9], phases: ["water"], motion: "moves", at: { from: "piece", sprite: "tub", dx: 20, dy: 24, spread: { x: 14, y: 12 } } },
+      { kind: "showerFog", every: [1.2, 1.8], phases: ["off"], motion: "moves", at: { from: "piece", sprite: "tub", dx: 20, dy: 24, spread: { x: 14, y: 12 } } },
+      { kind: "foamBubble", every: [0.5, 0.9], phases: ["water"], motion: "moves", at: { from: "piece", sprite: "tub", dx: 14, dy: 20, spread: { x: 5, y: 2 } } },
+      // One batch when the water starts (a long `every`: an emitter that stops applying starts with a puff next time).
+      { kind: "showerSteamStill", every: [10, 10], count: [6, 6], phases: ["water"], motion: "still", at: { from: "piece", sprite: "tub", dx: 16, dy: 12, spread: { x: 12, y: 6 } } },
+      { kind: "showerFogStill", every: [10, 10], count: [3, 3], phases: ["water"], motion: "still", at: { from: "piece", sprite: "tub", dx: 20, dy: 24, spread: { x: 14, y: 12 } } },
+    ],
   } as Record<string, EmitterDef[]>,
+  // A dithered mist over the tub that hides the bubble-covered player before the water starts and after it stops
+  // (issue 177, Marc's d1 answer): dense at the first frame, thinning as the water starts, building again as it
+  // stops and clearing once the task is over. A pixel pattern (4 x 4 ordered dither in paper and mist) drawn over
+  // an ellipse, not particles, so it never uses the pool's budget. `levels` is density 0 to 1 by the task's
+  // progress (straight lines between the points). Reduced motion: the same density, no drift.
+  mist: {
+    task: "shower",
+    // The ellipse, from the tub's top-left: centre, then half width and half height, in pixels. It covers the pose
+    // (x 6 to 21, y 16 to 36) with a ragged edge.
+    piece: "tub",
+    cx: 14,
+    cy: 26,
+    rx: 14,
+    ry: 16,
+    // The density at the edge falls off over this fraction of the radius (smaller is harder edged).
+    edge: 0.3,
+    levels: [[0, 1], [1 / 6, 0.12], [4.6 / 6, 0.12], [1, 1]] as [number, number][],
+    // Seconds for what is left to clear after the task ends (a finish or Escape).
+    clearSeconds: 0.8,
+    // Drift of the pattern in pixels a second (not with reduced motion).
+    drift: { x: 3, y: -2 },
+    // Share of the covered pixels in the darker colour.
+    mistShare: 0.35,
+    colors: { light: "paper", dark: "mist" },
+  },
+  // A burst when a task completes, by task id, besides the confetti (issue 177): the shower's bubbles pop as the
+  // player appears beside the tub. Not made with reduced motion (d4) and not for Escape (not a completion).
+  finish: {
+    shower: { kind: "foamBubble", count: [8, 8], at: { from: "piece", sprite: "tub", dx: 14, dy: 20, spread: { x: 7, y: 5 } } as EmitterAnchor, motion: "moves" as const },
+  } as Record<string, { kind: string; count: Range; at: EmitterAnchor; motion?: "moves" | "still" }>,
   // Effects that go on whatever the player is doing, while their condition holds.
   ambientEmitters: [
     // Steam from the mug of coffee you carry.

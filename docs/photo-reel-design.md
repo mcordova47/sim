@@ -1,5 +1,7 @@
 # Photo reel: design (issue 113)
 
+> Removed in issue 180: the photo feature (the reel, the PHOTOS page and the sofa scene) was taken out of the game; this document stays as history.
+
 Status: design only, nothing is built. Read first: `docs/real-world.md` section 3, `issues/113-photo-reel-experiment.md`. Code read: `src/game/sync/io.ts` (the file-chooser pattern), `src/input/text-entry.ts`, `src/game/achievements/draw.ts` and `feature.ts` (the pause screen and its pages), `src/game/activities/make-track.ts` (a free-form activity), `src/render/colors.ts`, `art/palette.json`, `scripts/check-dist.mjs`.
 
 ## 1. Summary

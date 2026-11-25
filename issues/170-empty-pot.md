@@ -28,7 +28,10 @@ decisions:
       - "yes: reuse that pot as the item's art and make the slot show it when empty"
       - "no: draw a new empty pot item"
     recommendation: "yes: reuse that pot as the item's art and make the slot show it when empty"
-    status: open
+    status: answered
+    answer: "i think not relevant anymore?"
+    by: marc
+    on: 2026-11-24
 ---
 
 ## Goal

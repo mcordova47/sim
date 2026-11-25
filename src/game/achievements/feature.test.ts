@@ -169,6 +169,30 @@ describe("AchievementsFeature", () => {
     expect(game.state.has("gone")).toBe(false);
   });
 
+  it("loads a save from before photos were removed (issue 180): scroll-photos in its counts and hasPhotos in its variables", () => {
+    const storage = new FakeStorage();
+    storage.setItem(
+      KEY,
+      JSON.stringify({
+        version: 1,
+        unlocked: ["doomscroll-3"],
+        stats: { taskCounts: { "scroll-photos": 7, doomscroll: 3 }, rooms: ["main"] },
+        world: { vars: { dishes: 2, hasPhotos: 1 }, room: "main", col: 3, row: 4, facing: "left" },
+        activeAt: 5,
+      }),
+    );
+    const { game, feature } = setup(storage);
+    expect(game.state.get("dishes")).toBe(2);
+    expect(game.state.has("hasPhotos")).toBe(false);
+    expect(feature.unlocks.has("doomscroll-3")).toBe(true);
+    expect(feature.stats.taskCount("doomscroll")).toBe(3);
+    // The old task id is only a count now: nothing offers it, and playing on and saving again is fine.
+    expect(Object.values(APARTMENT.rooms).flatMap((r) => r.interactables).some((i) => i.id === "scroll-photos")).toBe(false);
+    complete(game, "coffee");
+    expect(() => feature.update(UI.saveEvery + 1)).not.toThrow();
+    expect(JSON.parse(storage.getItem(KEY)!).world.vars.hasPhotos).toBeUndefined();
+  });
+
   it("starts at the beginning when the saved room is unknown or the tile is blocked or a doorway", () => {
     const start = APARTMENT.rooms[APARTMENT.start];
     const world = (room: string, col: number, row: number) =>

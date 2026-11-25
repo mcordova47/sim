@@ -244,7 +244,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 175 | [Outfit slots build](issues/175-outfit-slots-build.md) | marc + claude | done | 164 |
 | 176 | [Outfit equip screen](issues/176-outfit-equip-screen.md) | marc + claude | done | 175 |
 | 177 | [Shower scene build](issues/177-build-shower-scene.md) | marc + claude | done | 175 |
-| 178 | [Pause hint line hides](issues/178-pause-hint-line-hides.md) | claude | todo | |
+| 178 | [Pause hint line hides](issues/178-pause-hint-line-hides.md) | claude | done | |
 | 179 | [Plant pots design](issues/179-plant-pots.md) | marc + claude | done | |
 | 180 | [Remove photos](issues/180-remove-photos.md) | marc + claude | done | 176 |
 | 181 | [OUTFITS page build](issues/181-outfits-page-build.md) | marc + claude | done | 180 |

@@ -222,7 +222,7 @@ export const GIFT_ITEMS: DecorItem[] = [
   { id: "outfit-pajamas-striped", name: "STRIPED PAJAMAS", kind: "outfit", sprite: "player-pajamas-striped-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "NOTHING ABOUT THESE IS URGENT." },
   { id: "outfit-pajamas-robe", name: "BATHROBE", kind: "outfit", sprite: "player-pajamas-robe-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "THE SHOWER WENT WELL. THE ROBE AGREES." },
   // Trinkets and display instruments for the desk's right corner (issue 167). Display only: nothing here is played or counted.
-  { id: "trinket-alebrije", name: "ALEBRIJE", kind: "trinket", sprite: "trinket-alebrije", w: 16, h: 16, color: "tangerine", how: "gift", from: "A PACKAGE", note: "A PAINTED WOODEN FOX WITH OPINIONS. IT KEEPS THEM TO ITSELF." },
+  { id: "trinket-alebrije", name: "ALEBRIJE", kind: "trinket", sprite: "trinket-alebrije", w: 16, h: 16, color: "tangerine", how: "gift", from: "A PACKAGE", note: "A PAINTED WOODEN OWL WITH OPINIONS. IT KEEPS THEM TO ITSELF." },
   { id: "trinket-telescope", name: "LITTLE TELESCOPE", kind: "trinket", sprite: "trinket-telescope", w: 16, h: 16, color: "butter", how: "gift", from: "A PACKAGE", note: "FOR SMALL STARS. IT IS ALSO GOOD AT THE CEILING." },
   { id: "trinket-finger-skateboard", name: "FINGER SKATEBOARD", kind: "trinket", sprite: "trinket-finger-skateboard", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "TWO FINGERS, ONE KICKFLIP, NO WITNESSES." },
   { id: "trinket-goose-egg", name: "PAINTED GOOSE EGG", kind: "trinket", sprite: "trinket-goose-egg", w: 16, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "SOMEONE PATIENT PAINTED IT. NOTHING IS HATCHING." },

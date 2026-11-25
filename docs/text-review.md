@@ -457,7 +457,7 @@ New lines for ordering and eating takeout. The restaurant and the app are never 
 New items for the desk's right corner (slot `trinket-desk`, swap task "Display trinket", Marc's answer to issue 174 d2). Names are plain (the worry doll is WORRY DOLL; its Spanish name is not used until the accent has been seen in the swap list), no brand appears, and every note is deadpan, capitals, 80 characters or fewer. Wired in `src/game/decor-data.ts`. Marc to mark: keep / soften / rewrite.
 - Slot name: TRINKET ON THE DESK (where: ON THE DESK) -
 - Task: Display trinket -
-- ALEBRIJE: A PAINTED WOODEN FOX WITH OPINIONS. IT KEEPS THEM TO ITSELF. -
+- ALEBRIJE: A PAINTED WOODEN OWL WITH OPINIONS. IT KEEPS THEM TO ITSELF. -
 - LITTLE TELESCOPE: FOR SMALL STARS. IT IS ALSO GOOD AT THE CEILING. -
 - FINGER SKATEBOARD: TWO FINGERS, ONE KICKFLIP, NO WITNESSES. -
 - PAINTED GOOSE EGG: SOMEONE PATIENT PAINTED IT. NOTHING IS HATCHING. -

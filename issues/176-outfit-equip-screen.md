@@ -63,6 +63,14 @@ decisions:
       - "no, the page only edits the slots and your clothes change at the bookshelf or on an occasion"
     recommendation: "yes, the page uses equip as it is"
     status: open
+  - id: d6
+    who: marc
+    q: "Does the OUTFITS page also have a key to wear a slot now?"
+    options:
+      - "no, wearing a slot stays at the cube bookshelf (the page is for choosing what goes in the slots)"
+      - "yes, a key on the page wears the highlighted slot"
+    recommendation: "no, wearing a slot stays at the cube bookshelf (the page is for choosing what goes in the slots)"
+    status: open
 ---
 
 ## Goal

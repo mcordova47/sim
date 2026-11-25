@@ -1,5 +1,5 @@
 import { APARTMENT } from "../apartment";
-import { ACHIEVEMENTS_UI as UI, SYNC, VIEW } from "../config";
+import { ACHIEVEMENTS_UI as UI, SYNC } from "../config";
 import type { Game, Layer } from "../game";
 import type { Level } from "../level";
 import { clearGuestCards } from "../flashcards/guest";
@@ -17,13 +17,6 @@ import { AutoSync } from "../sync/auto";
 import { STATUS_TEXT, SyncService } from "../sync/service";
 import type { TapTarget } from "../../input/tap";
 import { drawThings, moveThingsCursor, thingsButtons, thingsCells, thingsPage, thingsPages, thingsGrid, type ThingsView } from "./inventory-draw";
-import { drawPhotos, photosLayout, PHOTOS_DELETED, PHOTOS_LOOK_NOT_KEPT, PHOTOS_NOT_DELETED, PHOTOS_REMOVED, type PhotosButtonId, type PhotosView } from "./photos-draw";
-import { close as closeGallery, manageGallery, move as moveGallery, open as openGallery, others as otherPicture, pictureAt, tapCell, turnPage, withPics, type Dir, type Gallery } from "../reel/gallery";
-import { addPhotos, summaryLines } from "../reel/photo-add";
-import { DEFAULT_LOOK_ID, nextLookId } from "../reel/looks";
-import { loadLook, saveLook, type LookStorage } from "../reel/look-settings";
-import { browserPhotoIO, type PhotoIO } from "../reel/photo-io";
-import { type ReelPic, type ReelStore, type ReelStoreHandle } from "../reel/reel-store";
 import { drawList, drawSync, drawToasts, drawTransfer, listRows, pageButton, pauseButtons, syncButtons, touchPageSize, transferButtons, type ListView, type SyncView, type TransferView } from "./draw";
 import { ProgressStore, parseWorld, type KeyValueStorage, type WorldSave } from "./progress";
 import { Stats } from "./stats";
@@ -58,12 +51,6 @@ export interface AchievementOptions {
   now?: () => number;
   demos?: DemoStore;
   io?: TransferIO;
-  // The photo reel (issue 113c): its store (the default is the browser's IndexedDB, opened when first needed) and the
-  // browser parts of adding pictures.
-  reel?: ReelStoreHandle;
-  photoIO?: PhotoIO;
-  // Where the chosen look for new pictures is kept (issue 117d). The default is the browser's localStorage, in its own key.
-  lookStorage?: LookStorage | null;
   // The sync server (issue 103). The default is the real one on this origin.
   backend?: SyncBackend;
   // The origin the pairing link is made on. The default is this page's.
@@ -109,25 +96,8 @@ export class AchievementsFeature implements Layer {
   readonly sync: SyncLocal;
   private readonly demos: DemoStore;
   private readonly io: TransferIO;
-  private page: "list" | "transfer" | "sync" | "things" | "photos" = "list";
+  private page: "list" | "transfer" | "sync" | "things" = "list";
   private thingsCursor = 0;
-  // The PHOTOS page (issue 113c). The store is opened when first asked for, so a player who never opens the
-  // page never touches IndexedDB. Photos are not part of the save, the sync document or a reset.
-  private reelHandle: ReelStoreHandle | null;
-  private readonly photoIO: PhotoIO;
-  private photos: readonly ReelPic[] | null = null;
-  // The look new pictures are made in (issue 117d): read when the page opens, kept in its own storage key.
-  private readonly lookStorage: LookStorage | null | undefined;
-  private look = DEFAULT_LOOK_ID;
-  private lookRead = false;
-  private photoProgress: { done: number; total: number } | null = null;
-  private photoMessage: readonly string[] = [];
-  private confirmRemove = false;
-  // Manage mode (issue 117c): the gallery over `photos` (newest first), the DELETE question and a delete
-  // in flight (keys and taps wait for it).
-  private gallery: Gallery<ReelPic> | null = null;
-  private confirmDelete = false;
-  private deleting = false;
   readonly syncService: SyncService;
   private readonly auto: AutoSync;
   private readonly origin: string;
@@ -146,17 +116,14 @@ export class AchievementsFeature implements Layer {
     this.storage = options.storage === undefined ? browserStorage() : options.storage;
     this.store = new ProgressStore(this.storage, UI.storageKey);
     const ids = new Set<string>();
-    // Changing the decor ends quietly and is never a completion, so it is not part of "every task". Nor is the photo task: it only exists for someone who added pictures. Nor is coffee on the stove: it only exists with a pot on the stove (issue 168).
-    for (const level of Object.values(this.rooms)) for (const item of level.interactables) if (item.decorSlot === undefined && !item.delivery && item.id !== "scroll-photos" && item.id !== "coffee-stove") ids.add(item.id);
+    // Changing the decor ends quietly and is never a completion, so it is not part of "every task". Nor is coffee on the stove: it only exists with a pot on the stove (issue 168).
+    for (const level of Object.values(this.rooms)) for (const item of level.interactables) if (item.decorSlot === undefined && !item.delivery && item.id !== "coffee-stove") ids.add(item.id);
     this.ctx = { allTaskIds: [...ids] };
     this.room = options.start ?? APARTMENT.start;
     this.now = options.now ?? Date.now;
     this.sync = new SyncLocal(this.storage, { achievementIds: new Set(this.list.map((a) => a.id)) });
     this.demos = options.demos ?? demoStore();
     this.io = options.io ?? browserIO;
-    this.reelHandle = options.reel ?? null;
-    this.lookStorage = options.lookStorage;
-    this.photoIO = options.photoIO ?? browserPhotoIO;
     this.origin = options.origin ?? (typeof location === "undefined" ? "" : location.origin);
     this.syncService = new SyncService(options.backend ?? new HttpBackend(), this.sync, {
       doc: () => this.doc(),
@@ -386,8 +353,7 @@ export class AchievementsFeature implements Layer {
   // The state to save: the apartment's variables and where the player is.
   private snapshot(): WorldSave {
     const vars: Record<string, number> = {};
-    // `hasPhotos` is derived from the device's pictures and is never saved or synced (issue 113d).
-    for (const v of STATE_VARS) if (v.id !== "hasPhotos" && this.game.state.has(v.id)) vars[v.id] = this.game.state.get(v.id);
+    for (const v of STATE_VARS) if (this.game.state.has(v.id)) vars[v.id] = this.game.state.get(v.id);
     const { col, row, facing } = this.game.player;
     return { vars, room: this.room, col, row, facing };
   }
@@ -490,12 +456,10 @@ export class AchievementsFeature implements Layer {
     if (this.page === "transfer") return this.transferKey(e);
     if (this.page === "sync") return this.syncKeyPress(e);
     if (this.page === "things") return this.thingsKey(e);
-    if (this.page === "photos") return this.photosKey(e);
     if (e.code === "Escape") return this.closeList();
     if (e.code === UI.transferKey && !e.shiftKey) return this.openTransfer();
     if (e.code === UI.syncKey && !e.shiftKey) return this.openSync();
     if (e.code === UI.thingsKey && !e.shiftKey) return this.openThings();
-    if (e.code === UI.photosKey && !e.shiftKey) return this.openPhotos();
     if (e.code === UI.dialogVoiceKey && !e.shiftKey) return this.toggleVoice();
     if (e.code === UI.adBlockerKey && !e.shiftKey) return this.toggleAdBlocker();
     // The arrows, and W and S (the touch layer's pad sends those).
@@ -549,239 +513,6 @@ export class AchievementsFeature implements Layer {
     };
     for (const b of thingsButtons(view)) targets.push({ ...b.rect, run: actions[b.id] });
     return targets;
-  }
-
-  // -- The PHOTOS page (issue 113c) -------------------------------------------------------------
-
-  // The store for the reel, made on first use.
-  get reel(): ReelStoreHandle {
-    return (this.reelHandle ??= this.game.reel);
-  }
-
-  private openPhotos(): void {
-    this.page = "photos";
-    this.confirmReset = false;
-    this.confirmRemove = false;
-    this.confirmDelete = false;
-    this.gallery = null;
-    this.photoMessage = [];
-    this.photos = null;
-    // Read once; after that the session holds it (the browser may not have been able to keep it).
-    if (!this.lookRead) this.look = loadLook(this.lookStorage);
-    this.lookRead = true;
-    this.flash = null;
-    this.flashFor = 0;
-    void this.refreshPhotos();
-  }
-
-  // Reads the list again; a failing store shows as an empty list and a line, never a crash.
-  // `keep`: the same gallery over the new list (a delete), else a fresh one at the newest picture.
-  private async refreshPhotos(keep = false): Promise<void> {
-    try {
-      this.photos = await this.reel.store.list();
-      this.game.photosChanged(this.photos);
-      this.gallery = keep && this.gallery ? withPics(this.gallery, [...this.photos].reverse()) : manageGallery(this.photos);
-    } catch {
-      this.photos = [];
-      this.gallery = null;
-      this.photoMessage = ["This browser could not read the pictures."];
-    }
-  }
-
-  private photosKey(e: KeyEventLike): void {
-    if (e.ctrlKey || e.metaKey) return;
-    if (this.gallery?.view === "closeup" && pictureAt(this.gallery)) return this.closeupKey(e, this.gallery);
-    const wasArmed = this.confirmRemove;
-    this.confirmRemove = false;
-    if (e.code === "Escape") {
-      // Escape first puts away the question; with none asked it goes back.
-      if (!wasArmed) this.page = "list";
-      return;
-    }
-    if (e.code === UI.photosKey && !e.shiftKey && !wasArmed) {
-      this.page = "list";
-      return;
-    }
-    const g = this.gallery;
-    const dir: Dir | null = e.code === "ArrowLeft" ? "left" : e.code === "ArrowRight" ? "right" : e.code === "ArrowUp" ? "up" : e.code === "ArrowDown" ? "down" : null;
-    if (g && !this.photoProgress) {
-      if (dir) {
-        e.preventDefault?.();
-        this.gallery = moveGallery(g, dir);
-        return;
-      }
-      if (e.code === "PageUp" || e.code === "PageDown") return void (this.gallery = turnPage(g, e.code === "PageUp" ? -1 : 1));
-      if (e.code === "KeyE" || e.code === "Enter") return void (this.gallery = openGallery(g));
-    }
-    if (e.code === "KeyA") return this.addPictures();
-    if (e.code === "KeyS") return this.switchLook();
-    if (e.code === "KeyR" || (wasArmed && e.code === "KeyY")) return this.removePictures(wasArmed);
-  }
-
-  // The close-up: Left and Right the other pictures, E or Escape back to the grid, Delete or Backspace asks;
-  // a second Delete or Backspace (or Y) deletes this one, any other key only puts the question away.
-  private closeupKey(e: KeyEventLike, g: Gallery<ReelPic>): void {
-    if (this.deleting) return;
-    const armed = this.confirmDelete;
-    this.confirmDelete = false;
-    const del = e.code === "Delete" || e.code === "Backspace";
-    if (armed) {
-      if (del || e.code === "KeyY") this.deletePicture();
-      return;
-    }
-    if (e.code === "Escape" || e.code === "KeyE" || e.code === "Enter") return void (this.gallery = closeGallery(g));
-    if (e.code === "ArrowLeft" || e.code === "ArrowRight") {
-      e.preventDefault?.();
-      this.gallery = otherPicture(g, e.code === "ArrowRight" ? 1 : -1);
-      return;
-    }
-    if (del) {
-      e.preventDefault?.();
-      this.askDelete();
-    }
-  }
-
-  private askDelete(): void {
-    if (this.photoProgress || this.deleting || !this.reel.persistent || !this.gallery || !pictureAt(this.gallery)) return;
-    this.confirmDelete = true;
-  }
-
-  // Removes the picture in the close-up and nothing else. The list is read again afterwards, which is what
-  // tells the sofa task whether any picture is left; the highlight lands on the same cell (see `withPics`).
-  private deletePicture(): void {
-    const pic = this.gallery ? pictureAt(this.gallery) : null;
-    if (!pic || this.deleting || this.photoProgress || !this.reel.persistent) return;
-    this.deleting = true;
-    this.photoMessage = [];
-    void this.reel.store
-      .remove(pic.id)
-      .then(
-        () => (this.photoMessage = [PHOTOS_DELETED]),
-        () => (this.photoMessage = [PHOTOS_NOT_DELETED]),
-      )
-      .then(() => this.refreshPhotos(true))
-      .finally(() => (this.deleting = false));
-  }
-
-  // Cycles Crisp, Soft, Chunky for the next pictures made. Pictures already kept are not touched.
-  private switchLook(): void {
-    if (this.photoProgress || !this.reel.persistent) return;
-    this.look = nextLookId(this.look);
-    const kept = saveLook(this.look, this.lookStorage);
-    this.photoMessage = kept ? [] : [PHOTOS_LOOK_NOT_KEPT];
-  }
-
-  // Called straight from the tap or key press: the chooser has to open in this call (iOS).
-  private addPictures(): void {
-    if (this.photoProgress || !this.reel.persistent) return;
-    const chosen = this.photoIO.pickImages();
-    this.photoMessage = [];
-    void chosen.then(async (files) => {
-      if (!files || files.length === 0 || this.photoProgress) return;
-      this.photoProgress = { done: 0, total: files.length };
-      try {
-        const summary = await addPhotos(files, this.photoIO, this.reel.store, (done, total) => (this.photoProgress = { done, total }), this.look);
-        this.photoMessage = summaryLines(summary);
-      } catch {
-        this.photoMessage = ["This browser could not keep them all."];
-      } finally {
-        this.photoProgress = null;
-      }
-      await this.refreshPhotos();
-    });
-  }
-
-  // The first press asks; the second (R or the button again, or Y) does it.
-  private removePictures(confirmed: boolean): void {
-    if (this.photoProgress || !this.reel.persistent || !this.photos || this.photos.length === 0) return;
-    if (!confirmed) {
-      this.confirmRemove = true;
-      return;
-    }
-    const store: ReelStore = this.reel.store;
-    this.photoMessage = [];
-    void store.clear().then(
-      () => (this.photoMessage = [PHOTOS_REMOVED]),
-      () => (this.photoMessage = ["This browser could not remove them all."]),
-    ).then(() => this.refreshPhotos());
-  }
-
-  private photosView(): PhotosView {
-    return {
-      touch: touchHints(),
-      pics: this.photos,
-      persistent: this.reel.persistent,
-      progress: this.photoProgress,
-      message: this.photoMessage,
-      confirmRemove: this.confirmRemove,
-      gallery: this.gallery,
-      confirmDelete: this.confirmDelete,
-      look: this.look,
-    };
-  }
-
-  private photosTargets(): TapTarget[] {
-    const layout = photosLayout(this.photosView());
-    const g = this.gallery;
-    const full = { x: 0, y: 0, w: VIEW.width, h: VIEW.height };
-    if (this.deleting) return [{ ...full, run: () => {} }];
-    if (layout.mode === "closeup" && g) {
-      // The DELETE question: DELETE again deletes, a tap anywhere else only puts the question away.
-      const cancel: TapTarget = { ...full, run: () => (this.confirmDelete = false) };
-      const byId = (id: PhotosButtonId) => layout.buttons.find((b) => b.id === id);
-      if (this.confirmDelete) {
-        const del = byId("delete");
-        return del ? [cancel, { ...del.rect, run: () => this.deletePicture() }] : [cancel];
-      }
-      const run: Partial<Record<PhotosButtonId, () => void>> = {
-        delete: () => this.askDelete(),
-        back: () => (this.gallery = closeGallery(g)),
-        prev: () => (this.gallery = otherPicture(g, -1)),
-        next: () => (this.gallery = otherPicture(g, 1)),
-      };
-      return [{ ...layout.back!, run: () => (this.gallery = closeGallery(g)) }, ...layout.buttons.map((b) => ({ ...b.rect, run: run[b.id] ?? (() => {}) }))];
-    }
-    const cells: TapTarget[] = g
-      ? layout.thumbs.map((t, i) => ({
-          ...t.rect,
-          run: () => {
-            this.confirmRemove = false;
-            this.gallery = tapCell(g, i);
-          },
-        }))
-      : [];
-    const actions: Record<string, () => void> = {
-      add: () => {
-        this.confirmRemove = false;
-        this.addPictures();
-      },
-      look: () => {
-        this.confirmRemove = false;
-        this.switchLook();
-      },
-      open: () => {
-        this.confirmRemove = false;
-        if (g) this.gallery = openGallery(g);
-      },
-      pagePrev: () => {
-        this.confirmRemove = false;
-        if (g) this.gallery = turnPage(g, -1);
-      },
-      pageNext: () => {
-        this.confirmRemove = false;
-        if (g) this.gallery = turnPage(g, 1);
-      },
-      remove: () => {
-        const was = this.confirmRemove;
-        this.confirmRemove = false;
-        this.removePictures(was);
-      },
-      back: () => {
-        this.confirmRemove = false;
-        this.page = "list";
-      },
-    };
-    return [...layout.buttons.map((b) => ({ ...b.rect, run: actions[b.id] })), ...cells];
   }
 
   // -- The sync page (issue 103) --------------------------------------------------------------
@@ -1046,7 +777,6 @@ export class AchievementsFeature implements Layer {
     if (this.page === "transfer") return this.transferTargets();
     if (this.page === "sync") return this.syncTargets();
     if (this.page === "things") return this.thingsTargets();
-    if (this.page === "photos") return this.photosTargets();
     const view = this.view();
     const actions: Record<string, () => void> = {
       adBlocker: () => this.toggleAdBlocker(),
@@ -1054,7 +784,6 @@ export class AchievementsFeature implements Layer {
       transfer: () => this.openTransfer(),
       sync: () => this.openSync(),
       things: () => this.openThings(),
-      photos: () => this.openPhotos(),
       reset: () => {
         this.confirmReset = true;
       },
@@ -1128,7 +857,6 @@ export class AchievementsFeature implements Layer {
       if (this.page === "transfer") drawTransfer(ctx, this.transferView());
       else if (this.page === "sync") drawSync(ctx, this.syncView());
       else if (this.page === "things") drawThings(ctx, this.thingsView());
-      else if (this.page === "photos") drawPhotos(ctx, this.photosView());
       else drawList(ctx, this.view());
     }
   }

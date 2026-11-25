@@ -164,9 +164,6 @@ export const DELIVERIES = {
 export const ENCOUNTERS = {
   // The tasks (ids) whose completion rolls. `work-sofa` and `work-bed` do not.
   tasks: ["doomscroll", "work"] as readonly string[],
-  // The tasks that can be interrupted by an ad while they run (issue 117f): the sofa scene rolls once per
-  // session, a while into its close-up. They never roll on completion, and `tasks` never roll mid-task.
-  interrupts: ["scroll-photos"] as readonly string[],
   // The roll per eligible completion, and the roll right after a failed unsubscribe.
   chance: 0.22,
   afterFailChance: 0.5,
@@ -509,35 +506,6 @@ export const DIALOG = {
   textWidth: VIEW.width - 2 * 4 - 2 * 6,
 };
 
-// The photo reel's sofa scene (issue 117e, docs/photo-gallery-design.md sections 3.5 and 8). `pass`
-// pictures are picked at random and shown on the one phone-view screen. `phoneLines` holds the fixed line
-// under the grid (one is chosen when the scene starts and kept for the session); `closeupLines` holds the
-// close-up's caption (one is chosen each time a close-up opens). Marc's rule: no line ever mentions
-// resolution, size or pixels, and none claims anything about what a picture shows (a test checks both
-// pools). The pools are plain lists for the text review (docs/text-review.md): drop or change a line here.
-export const REEL = {
-  pass: 6,
-  // Seconds of close-up time before the scene's one ad roll (issue 117f). A player who leaves sooner gets none.
-  adAfter: 8,
-  phoneLines: [
-    "You scroll for a while. Why did you open your phone, again?",
-    "There is a lot of it, and it is all yours.",
-    "Mostly the same few places.",
-    "You have taken a lot of pictures of this.",
-    "You were there for most of these.",
-    "Nothing here needs an answer.",
-  ] as readonly string[],
-  closeupLines: [
-    "Ah, memories.",
-    "You remember this. Mostly.",
-    "Look at that.",
-    "Good times, probably.",
-    "You were there.",
-    "Was it always like that?",
-    "You could look at this all day. You do not.",
-  ] as readonly string[],
-} as const;
-
 // Making your own tracks (issue 059, docs/make-tracks.md). Marc's picks: the
 // piano roll editor, 12 saved tracks, 24-letter names, up to 32 steps, a reward
 // of 90 points and +6 mood once per 6 game hours for a track with real notes.
@@ -600,8 +568,6 @@ export const ACHIEVEMENTS_UI = {
   syncKey: "KeyP",
   // Opens the THINGS page (issue 109b), the browsable inventory.
   thingsKey: "KeyI",
-  // Opens the PHOTOS page (issue 113c).
-  photosKey: "KeyO",
   // How long "AD BLOCKER: ON" shows after the key is pressed, in seconds.
   flashSeconds: 1.5,
   // Progress is saved this often as well as when a task finishes, an achievement

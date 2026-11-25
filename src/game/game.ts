@@ -20,8 +20,7 @@ import { drawAd, drawLineAd, itemPool, type ItemPool } from "./encounter-draw";
 import { lineById } from "./encounter-lines";
 import { Encounters } from "./encounters";
 import { CLOCK, DEBUG, DELIVERIES, DIALOG, ENERGY, MOOD, OUTFIT_OCCASIONS, TASK_PHASES, TILE, TURN_AWAY_AFTER, VIEW } from "./config";
-import type { Activity, ActivityHost, RecordState } from "./activity";
-import { openReelStore, type ReelPic, type ReelStoreHandle } from "./reel/reel-store";
+import type { ActivityHost, RecordState } from "./activity";
 import type { Interactable } from "./interactable";
 import { DialogRunner, say, type DialogNode, type DialogResult, type DialogView } from "./dialog";
 import { DELTA, DIRECTIONS, type Direction } from "./direction";
@@ -83,8 +82,6 @@ export interface GameOptions {
   // What is on the walls and shelves (issue 062); today's room by default (a
   // saved one can be passed in).
   decor?: Decor;
-  // The photo reel's store (issue 113d). The browser's IndexedDB by default; tests pass a memory one.
-  reel?: ReelStoreHandle;
   // A random number from 0 up to 1, for the mini-games. Math.random by default;
   // tests pass a seeded one.
   random?: () => number;
@@ -148,10 +145,6 @@ export class Game {
   // The other levels the level's doorways lead to, by id.
   private readonly rooms: Readonly<Record<string, Level>>;
   private readonly random: () => number;
-  // The photo reel (issue 113d): the store, and the pictures it held when last read. The sofa offers
-  // "Scroll through photos" only while this list is not empty; the PHOTOS page tells the game when it changes.
-  private reelHandle: ReelStoreHandle | null;
-  private reelPics: readonly ReelPic[] = [];
   private readonly reducedMotion: () => boolean;
   // Whether the browser asks for less motion (read-only; the candle holds steady when it does).
   get reducedMotionAsked(): boolean {
@@ -178,8 +171,6 @@ export class Game {
     this.level = level;
     this.rooms = options.rooms ?? {};
     this.random = options.random ?? Math.random;
-    this.reelHandle = options.reel ?? null;
-    void this.loadReel();
     this.reducedMotion = options.reducedMotion ?? (() => false);
     this.spriteDrawer = options.sprites;
     this.popups = new Popups(options.sprites);
@@ -325,8 +316,7 @@ export class Game {
   }
 
   // The encounter for `ad`, ready to start, with everything it needs from the game; null if its item does
-  // not exist. It does not begin: `startEncounter` runs it as the active task, and an activity that an ad may
-  // interrupt (the sofa scene) runs it as its child.
+  // not exist. It does not begin: `startEncounter` runs it as the active task.
   private buildEncounter(ad: Ad): EncounterActivity | null {
     const product = this.decor.item(ad.item);
     if (!product) return null;
@@ -348,22 +338,6 @@ export class Game {
       afterKeyGame,
       product: { sprite: product.sprite, w: product.w, h: product.h },
     });
-  }
-
-  // The roll for an ad in the middle of a running task (the sofa scene's close-up, issue 117f). The running
-  // task is the scene itself, so `interaction.busy` is not a reason to wait; an open dialog or locked input is.
-  private interruptWithAd(): Activity | null {
-    const ad = this.encounters.roll({
-      taskId: this.interaction.active?.item.id ?? "",
-      interrupt: true,
-      hours: this.deliveries.hours,
-      random: () => this.random(),
-      blocked: this.adBlockerOn,
-      busy: this.dialog.open || this.inputLocked,
-      usable: (a) => this.decor.item(a.item) !== undefined,
-      pool: this.itemPool(),
-    });
-    return ad ? this.buildEncounter(ad) : null;
   }
 
   // Switches the ad blocker on or off (saved by the sound feature, which keeps the settings).
@@ -414,8 +388,6 @@ export class Game {
       sprites: this.spriteDrawer,
       getState: (id) => this.state.get(id),
       random: () => this.random(),
-      reelPictures: () => this.reelPics,
-      interruptWithAd: () => this.interruptWithAd(),
     };
   }
 
@@ -486,32 +458,6 @@ export class Game {
   private syncTakeout(): void {
     const ordered = this.deliveries.mealOrdered ? 1 : 0;
     if (this.state.has("takeoutOrdered") && this.state.get("takeoutOrdered") !== ordered) this.state.applyEffects([{ var: "takeoutOrdered", set: ordered }]);
-  }
-
-  // The store for the photo reel, made on first use.
-  get reel(): ReelStoreHandle {
-    return (this.reelHandle ??= openReelStore());
-  }
-
-  // Reads the pictures once at the start. A store that fails to read means no pictures, never a crash.
-  private async loadReel(): Promise<void> {
-    try {
-      this.photosChanged(await this.reel.store.list());
-    } catch {
-      this.reelPics = [];
-    }
-  }
-
-  // The reel changed (the PHOTOS page added or removed pictures): the sofa task follows at once.
-  photosChanged(pics: readonly ReelPic[]): void {
-    this.reelPics = pics;
-    this.syncPhotos();
-  }
-
-  // Derived like `parcel`: 1 while the reel holds a picture. It is what makes the sofa task appear.
-  private syncPhotos(): void {
-    const has = this.reelPics.length > 0 ? 1 : 0;
-    if (this.state.has("hasPhotos") && this.state.get("hasPhotos") !== has) this.state.applyEffects([{ var: "hasPhotos", set: has }]);
   }
 
   // The guitar is off its stand (issue 107) while the guitar task runs, so the piece shows the
@@ -794,7 +740,6 @@ export class Game {
     this.syncParcel();
     this.syncGuitar();
     this.syncOutfit();
-    this.syncPhotos();
     // A swap preview lasts only while the swap list is open, whatever closed it.
     if (this.decor.previewing && !this.interaction.active) this.decor.clearPreview();
     // Escape backs out of the running action even while its text or menu is up
@@ -842,7 +787,6 @@ export class Game {
     this.applyOccasion();
     this.syncGuitar();
     this.syncOutfit();
-    this.syncPhotos();
     this.player.stepTimeScale = this.state.get("energy") < ENERGY.lowBelow ? ENERGY.tiredStepFactor : 1;
     // Free to walk unless a task is running or something else has the controls.
     // A running activity may walk the player by script (a cutscene).
@@ -877,7 +821,6 @@ export class Game {
     this.syncParcel();
     this.syncGuitar();
     this.syncOutfit();
-    this.syncPhotos();
   }
 
   render(ctx: CanvasRenderingContext2D, alpha: number): void {

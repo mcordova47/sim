@@ -139,7 +139,7 @@ const MAIN: Record<string, ObjectDef> = {
   // so either window's task changes both. The plain `window` sprite was deleted in issue 101.
   w: WINDOW_BLINDS,
   W: WINDOW_BLINDS,
-  S: { name: "sofa", sprite: "sofa-td", color: "brick", tasks: ["doomscroll", "scroll-photos", "contemplate", "work-sofa", "nap", "admire-art", "swap-rug-floor"] },
+  S: { name: "sofa", sprite: "sofa-td", color: "brick", tasks: ["doomscroll", "contemplate", "work-sofa", "nap", "admire-art", "swap-rug-floor"] },
   G: {
     name: "guitar",
     sprite: "guitar",

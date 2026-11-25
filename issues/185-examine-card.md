@@ -8,6 +8,7 @@ depends_on: ["167"]
 summary: "An Examine task at the desk opens a close-up card with a large detailed picture, the name and the note."
 kind: build
 changelog: "You can examine a displayed trinket for a close-up, its name and a short note."
+needs: [{who: marc, kind: try, why: "Try the Examine card: cd ~/Dev/repos/mcordova47/sim-worktrees/185-examine-card && npm run dev, open /?own=trinket-alebrije,trinket-alebrije-cat,trinket-telescope,trinket-finger-skateboard,trinket-goose-egg,trinket-worry-doll,trinket-raccoon-can,instrument-harmonica,instrument-kalimba,instrument-jaw-harp, walk to the desk (col 9, row 3, face up), Tab to Display trinket, pick one, then Tab to Examine and press E; &touch=1 for the phone view; then say 'merge 185' and which close-ups to redraw", since: 2026-11-25}]
 ---
 
 ## Goal

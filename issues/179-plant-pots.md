@@ -44,6 +44,14 @@ decisions:
     answer: "houseplants live; dried arrangements still; the third pot's low plants live but very slow and easy (a mist now and then), never punished"
     by: marc
     on: 2026-11-24
+  - id: d4
+    who: marc
+    q: "Is the plant pot (the south one, today's plant slot) strictly for houseplants, so the existing dried items move to the vase?"
+    options:
+      - "strict: houseplants and the empty pot only; the four dried items (and the old saves that show one there) move to the vase; you can no longer park a dried item in the plant pot to pause the snake plant (the empty pot does it)"
+      - "lenient: the plant pot also takes dried items, as today"
+    recommendation: "strict: houseplants and the empty pot only; the four dried items (and the old saves that show one there) move to the vase; you can no longer park a dried item in the plant pot to pause the snake plant (the empty pot does it)"
+    status: open
 ---
 
 ## Goal

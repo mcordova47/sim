@@ -437,3 +437,12 @@ Lines in the Change clothes list at the bookshelf, in the game's capitals. Marc 
 - Tag on the slot you have on: WORN - 
 - Outfit shown for an empty slot: a dash (-) - 
 - Keys line: ARROWS: PICK   E: WEAR   ESC: BACK (touch: PAD: PICK   A: WEAR   B: BACK) - 
+
+## OUTFITS pause page (issue 181)
+The page that fills the outfit slots, in the game's capitals ([outfit-equip-screen-design.md](outfit-equip-screen-design.md)). Marc's rule: no help text, only the outfit's own note at the top. The outfit names and notes are the existing ones (the THINGS section above); only the page's own words are new. Wired in `src/game/achievements/outfits-draw.ts` and `draw.ts`. Marc to mark: keep / soften / rewrite.
+- Page title: OUTFITS - 
+- Pause screen button (touch) and desktop hint: OUTFITS / F: OUTFITS - 
+- Top bar: the highlighted outfit's own note, nothing else (a slot with no outfit leaves it empty) - 
+- Tag on the slot you have on, and the dash for an empty slot: WORN / - - 
+- Keys line: ARROWS: PICK   E: EQUIP   TAB: TURN   ESC: BACK (touch: PAD: PICK   A: EQUIP   CHOICE: TURN   B: BACK, and without B: BACK on the phone view) - 
+- Touch button at the top right: BACK - 

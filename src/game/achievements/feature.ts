@@ -17,6 +17,9 @@ import { AutoSync } from "../sync/auto";
 import { STATUS_TEXT, SyncService } from "../sync/service";
 import type { TapTarget } from "../../input/tap";
 import { drawThings, moveThingsCursor, thingsButtons, thingsCells, thingsPage, thingsPages, thingsGrid, type ThingsView } from "./inventory-draw";
+import { OUTFIT_SLOTS } from "../outfits";
+import { OutfitsPage } from "./outfits-page";
+import { drawOutfits, outfitsButtons, outfitsLayout, outfitsRows, type OutfitsView } from "./outfits-draw";
 import { drawList, drawSync, drawToasts, drawTransfer, listRows, pageButton, pauseButtons, syncButtons, touchPageSize, transferButtons, type ListView, type SyncView, type TransferView } from "./draw";
 import { ProgressStore, parseWorld, type KeyValueStorage, type WorldSave } from "./progress";
 import { Stats } from "./stats";
@@ -96,8 +99,9 @@ export class AchievementsFeature implements Layer {
   readonly sync: SyncLocal;
   private readonly demos: DemoStore;
   private readonly io: TransferIO;
-  private page: "list" | "transfer" | "sync" | "things" = "list";
+  private page: "list" | "transfer" | "sync" | "things" | "outfits" = "list";
   private thingsCursor = 0;
+  private readonly outfits: OutfitsPage;
   readonly syncService: SyncService;
   private readonly auto: AutoSync;
   private readonly origin: string;
@@ -110,6 +114,7 @@ export class AchievementsFeature implements Layer {
     game.fullPictureWhen.push(() => this.listOpen);
     // The pause screen holds the clock (issue 093): it is a pause, and the game has no pressure.
     game.pausedWhen.push(() => this.listOpen);
+    this.outfits = new OutfitsPage(game.decor);
     this.list = options.list ?? ACHIEVEMENTS;
     this.rooms = options.rooms ?? APARTMENT.rooms;
     this.unlocks = new Unlocks(this.list);
@@ -456,10 +461,12 @@ export class AchievementsFeature implements Layer {
     if (this.page === "transfer") return this.transferKey(e);
     if (this.page === "sync") return this.syncKeyPress(e);
     if (this.page === "things") return this.thingsKey(e);
+    if (this.page === "outfits") return this.outfitsKey(e);
     if (e.code === "Escape") return this.closeList();
     if (e.code === UI.transferKey && !e.shiftKey) return this.openTransfer();
     if (e.code === UI.syncKey && !e.shiftKey) return this.openSync();
     if (e.code === UI.thingsKey && !e.shiftKey) return this.openThings();
+    if (e.code === UI.outfitsKey && !e.shiftKey) return this.openOutfits();
     if (e.code === UI.dialogVoiceKey && !e.shiftKey) return this.toggleVoice();
     if (e.code === UI.adBlockerKey && !e.shiftKey) return this.toggleAdBlocker();
     // The arrows, and W and S (the touch layer's pad sends those).
@@ -512,6 +519,59 @@ export class AchievementsFeature implements Layer {
       page: () => void (this.thingsCursor = ((thingsPage(view) + 1) % thingsPages(view.entries.length)) * thingsGrid().perPage),
     };
     for (const b of thingsButtons(view)) targets.push({ ...b.rect, run: actions[b.id] });
+    return targets;
+  }
+
+  // -- The OUTFITS page (issue 181): the cursor is `OutfitsPage`; the only thing written is an equip, through Decor ------
+
+  private openOutfits(): void {
+    this.page = "outfits";
+    this.outfits.open();
+    this.confirmReset = false;
+    this.flash = null;
+    this.flashFor = 0;
+  }
+
+  private outfitsKey(e: KeyEventLike): void {
+    if (e.ctrlKey || e.metaKey) return;
+    if (e.code === UI.outfitsKey && !e.shiftKey) {
+      this.page = "list";
+      return;
+    }
+    const result = this.outfits.key(e.code, !!e.shiftKey);
+    if (result === "leave") this.page = "list";
+    if (result !== "ignored") e.preventDefault?.();
+  }
+
+  private outfitsView(): OutfitsView {
+    const o = this.outfits;
+    const worn = this.game.decor.wornSlot();
+    return {
+      focus: o.focus,
+      slot: o.slot,
+      row: o.row,
+      facing: o.facing,
+      slots: OUTFIT_SLOTS.map((s) => {
+        const id = this.game.decor.equippedIn(s.id);
+        return { name: s.name, outfit: id === undefined ? undefined : this.game.decor.item(id), worn: worn === s.id };
+      }),
+      choices: o.choices(),
+      equippedId: this.game.decor.equippedIn(o.slotDef.id),
+      note: o.noteItem()?.note,
+      previewId: o.previewId(),
+      touch: touchHints(),
+      sprites: this.game.sprites,
+    };
+  }
+
+  private outfitsTargets(): TapTarget[] {
+    const view = this.outfitsView();
+    const L = outfitsLayout();
+    const targets: TapTarget[] = [];
+    L.slots.forEach((rect, i) => targets.push({ ...rect, run: () => this.outfits.pickSlot(i) }));
+    for (const { index, rect } of outfitsRows(view)) targets.push({ ...rect, run: () => this.outfits.tapRow(index) });
+    targets.push({ ...L.preview, run: () => this.outfits.turn(1) });
+    for (const b of outfitsButtons(view.touch)) targets.push({ ...b.rect, run: () => void (this.page = "list") });
     return targets;
   }
 
@@ -777,6 +837,7 @@ export class AchievementsFeature implements Layer {
     if (this.page === "transfer") return this.transferTargets();
     if (this.page === "sync") return this.syncTargets();
     if (this.page === "things") return this.thingsTargets();
+    if (this.page === "outfits") return this.outfitsTargets();
     const view = this.view();
     const actions: Record<string, () => void> = {
       adBlocker: () => this.toggleAdBlocker(),
@@ -784,6 +845,7 @@ export class AchievementsFeature implements Layer {
       transfer: () => this.openTransfer(),
       sync: () => this.openSync(),
       things: () => this.openThings(),
+      outfits: () => this.openOutfits(),
       reset: () => {
         this.confirmReset = true;
       },
@@ -857,6 +919,7 @@ export class AchievementsFeature implements Layer {
       if (this.page === "transfer") drawTransfer(ctx, this.transferView());
       else if (this.page === "sync") drawSync(ctx, this.syncView());
       else if (this.page === "things") drawThings(ctx, this.thingsView());
+      else if (this.page === "outfits") drawOutfits(ctx, this.outfitsView());
       else drawList(ctx, this.view());
     }
   }

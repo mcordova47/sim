@@ -95,7 +95,10 @@ decisions:
       - "one quiet clean-up deletes the stored pictures and the look setting on the next load, so nothing invisible is left on a device"
       - "leave them where they are"
     recommendation: "one quiet clean-up deletes the stored pictures and the look setting on the next load, so nothing invisible is left on a device"
-    status: open
+    status: answered
+    answer: "one quiet clean-up deletes the stored pictures and the look setting on the next load, so nothing invisible is left on a device"
+    by: marc
+    on: 2026-11-24
 needs: [{who: marc, kind: decide, why: "Look at the outfit equip screen mockups (~/Dev/repos/mcordova47/sim-worktrees/176-outfit-equip-screen/docs/outfit-equip-screen-mockups/, the pause-*-3 files are without PHOTOS), answer d5 to d8, then say 'merge 176'; the design recommends removing PHOTOS now as its own issue", since: 2026-11-24}]
 ---
 

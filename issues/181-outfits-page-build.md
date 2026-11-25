@@ -25,6 +25,7 @@ decisions:
       - "touch gets 12 pixel rows and a four-row list"
     recommendation: "leave them and try it on the phone first (the pad and A are the main controls; a tap on a row only highlights it, a second tap equips)"
     status: open
+needs: [{who: marc, kind: try, why: "Try the OUTFITS page, ideally on your phone: cd ~/Dev/repos/mcordova47/sim-worktrees/181-outfits-page && npm run dev, open /?own=outfit-casual-hoodie,outfit-casual-cardigan,outfit-casual-denim-jacket,outfit-pajamas,outfit-pajamas-striped,outfit-pajamas-robe,outfit-out,outfit-out-blazer,outfit-out-peacoat (add &touch=1 for touch), press L to pause then F; answer d1 and d2; then say 'merge 181'", since: 2026-11-24}]
 ---
 
 ## Goal

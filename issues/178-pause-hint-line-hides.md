@@ -8,6 +8,7 @@ depends_on: []
 summary: "The desktop pause hint line, the only on-screen route to the pause pages, is hidden once a 27th achievement exists."
 kind: fix
 changelog: none
+needs: [{who: marc, kind: try, why: "Look at the pause screen with extra achievements: cd ~/Dev/repos/mcordova47/sim-worktrees/178-pause-hint && npm run dev, open /?extraAchievements=1 and press L (26 rows plus the hint line; Down 26 times for page 2; &touch=1 for the phone layout); then say 'merge 178'", since: 2026-11-25}]
 ---
 
 ## Goal

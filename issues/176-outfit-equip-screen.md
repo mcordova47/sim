@@ -55,6 +55,14 @@ decisions:
     answer: "as recommended"
     by: marc
     on: 2026-11-24
+  - id: d5
+    who: marc
+    q: "On the OUTFITS page, equipping an outfit into the slot you are wearing changes your clothes on the spot (this is what Decor.equip already does and what the bookshelf does). Keep that?"
+    options:
+      - "yes, the page uses equip as it is"
+      - "no, the page only edits the slots and your clothes change at the bookshelf or on an occasion"
+    recommendation: "yes, the page uses equip as it is"
+    status: open
 ---
 
 ## Goal

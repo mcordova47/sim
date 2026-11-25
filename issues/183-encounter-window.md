@@ -41,7 +41,10 @@ decisions:
       - "about one in two"
       - "about one in five"
     recommendation: "fairly common: about one ad in three is a repeat, so a new thing is a nice surprise"
-    status: open
+    status: answered
+    answer: "as recommended"
+    by: marc
+    on: 2026-11-25
   - id: d4
     who: marc
     q: "How often should buying fail (sold out, the site is broken)?"

@@ -84,7 +84,10 @@ decisions:
       - "the same item changes its look to dried, in place, as d1 says (issue 171 as written); a new bunch replaces it"
       - "a separate keepsake: the fresh bunch is replaced by a dried item you keep, and a new bunch can arrive again"
     recommendation: "the same item changes its look to dried, in place, as d1 says (issue 171 as written); a new bunch replaces it"
-    status: open
+    status: answered
+    answer: "for now that's fine; i have this idea for the future for the flowers to sit on the desk or something and drying the flowers is an active choice, which takes some time and then you collect the dried flowers and can put them in the pot; you can receive the same bunch again, but i guess you can't dry the same arrangement a second time"
+    by: marc
+    on: 2026-11-24
   - id: d8
     who: marc
     q: "The floor trees: the shut-in square at col 8, row 7 (abs 128,112), with 16x16 small trees whose crown stays inside the tile?"

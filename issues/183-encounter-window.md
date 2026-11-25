@@ -90,7 +90,7 @@ decisions:
       - "retire the special ads (shops only)"
     recommendation: "about 15% of ads (as built)"
     status: open
-needs: [{who: marc, kind: try, why: "Try repeats and failures: cd ~/Dev/repos/mcordova47/sim-worktrees/183-encounter-window && npm run dev, then /?own=art-robin&encounter=ad-robin (a repeat), /?fail=1&encounter=ad-robin and ADD TO CART (a failure), /?days=60&encounter=random (a mixed draw); read the ladder (docs/random-encounters.md section 16, src/game/encounter-ladder.ts); answer d7; then say 'merge 183'", since: 2026-11-25}]
+needs: []
 ---
 
 ## Goal

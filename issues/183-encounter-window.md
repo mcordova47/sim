@@ -81,6 +81,15 @@ decisions:
     answer: "a difficulty tier on each item in the ladder list: easy (about 1 try in 10 fails), normal (about 1 in 5, the default for everything), hard (about 2 in 5); the build proposes tiers (for example big or special things hard, common small things easy) for Marc to edit; a hard item's failure lines can say so; a failure never costs anything and the item stays in the window"
     by: marc
     on: 2026-11-25
+  - id: d7
+    who: marc
+    q: "Item window (183, d7): how often should one of the seven special ads come up compared with the shop ads while it still has an item you lack?"
+    options:
+      - "about 15% of ads (as built)"
+      - "about 30%"
+      - "retire the special ads (shops only)"
+    recommendation: "about 15% of ads (as built)"
+    status: open
 ---
 
 ## Goal

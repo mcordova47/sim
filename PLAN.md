@@ -251,7 +251,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 182 | [Three pots (stage A)](issues/182-plant-pots-stage-a.md) | marc + claude | done | 179 |
 | 183 | [Window, repeats, failures](issues/183-encounter-window.md) | marc + claude | done | 163 |
 | 184 | [Starting towel](issues/184-starting-towel.md) | marc + claude | done | |
-| 185 | [Examine card](issues/185-examine-card.md) | marc + claude | todo | 167 |
+| 185 | [Examine card](issues/185-examine-card.md) | marc + claude | done | 167 |
 | 186 | [Nightstand trinkets](issues/186-trinket-nightstand.md) | marc + claude | todo | 185 |
 | 187 | [Cubby scene](issues/187-trinket-cubbies.md) | marc + claude | todo | 185, 182 |
 | 188 | [Low plants](issues/188-low-plants.md) | marc + claude | todo | 182 |

@@ -67,6 +67,14 @@ decisions:
     answer: "it's in trinkets (canned-raccoon.jpeg)"
     by: marc
     on: 2026-11-24
+  - id: d6
+    who: marc
+    q: "Trinkets (167, d6): the raccoon in a can looks better as the front view than in profile at this size (the side view needs about 10 wide, the tail floated and the snout was one pixel). Keep the front view?"
+    options:
+      - "keep the front view"
+      - "use the profile view (a wider, less clear picture)"
+    recommendation: "keep the front view"
+    status: open
 needs: [{who: marc, kind: try, why: "Look at the nine small trinkets and instruments: cd ~/Dev/repos/mcordova47/sim-worktrees/167-trinkets && npm run dev, open /?own=trinket-alebrije,trinket-telescope,trinket-finger-skateboard,trinket-goose-egg,trinket-worry-doll,trinket-raccoon-can,instrument-harmonica,instrument-kalimba,instrument-jaw-harp, Tab to Display trinket at the standing desk; say which to redraw (the telescope can look like a small cannon, the goose egg and worry doll are weak); then say 'merge 167'", since: 2026-11-24}]
 ---
 

@@ -86,3 +86,6 @@ Graduated to [issue 133](../issues/133-issue-pages-theme.md) (2026-11-15).
 
 ## Drying flowers as an active choice (idea)
 *Marc, 2026-11-24, answering d7 of issue 179.* For the future: cut flowers sit on the desk (or somewhere else) and drying them is an active choice that takes some time; then you collect the dried flowers and put them in the vase pot, instead of the flowers wilting and drying in place. Today's plan (issue 179 and 171) is flowers that wilt after about three game days and dry in place in the vase; this idea would replace that, so settle it before building issue 171. Also from issue 179 (d10): the window sill should eventually get its own special kind of plant (herbs? flowers?) as a follow-up.
+
+## A towel turban as a robe-slot outfit (idea)
+*Marc, 2026-11-25, choosing the towel look (issue 184).* The towel with a turban (look B on the options page of issue 184) read more like a shower cap on the player, but a turban could be a good future robe-slot outfit (a bathrobe with a hair towel, or a spa look). The candidate sprites are under `art/options/towel/` (look B); the generator has a `turban` option (issue 184). Not planned.

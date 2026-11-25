@@ -92,7 +92,7 @@ decisions:
     answer: "both: an alebrije cat (B) and an alebrije owl (A) for now; the hybrids can come later"
     by: marc
     on: 2026-11-24
-needs: []
+needs: [{who: marc, kind: try, why: "Look at the alebrije cat and owl: cd ~/Dev/repos/mcordova47/sim-worktrees/167-trinkets && npm run dev, open /?own=trinket-alebrije,trinket-alebrije-cat, Display trinket at the standing desk; then say 'merge 167'", since: 2026-11-24}]
 ---
 
 ## Goal

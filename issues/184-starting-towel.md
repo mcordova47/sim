@@ -35,6 +35,14 @@ decisions:
       - "C, the cape"
     recommendation: "A, the wrap"
     status: open
+  - id: d4
+    who: marc
+    q: "Starting towel (184, d4): since you now own two outfits from the start (the everyday clothes and the towel), should a fresh game offer Change clothes at the bookshelf?"
+    options:
+      - "no: a fresh game shows no new prompt; it appears once you own an outfit that fits a slot you can change (as built)"
+      - "yes: offer Change clothes from the start"
+    recommendation: "no: a fresh game shows no new prompt; it appears once you own an outfit that fits a slot you can change (as built)"
+    status: open
 ---
 
 ## Goal

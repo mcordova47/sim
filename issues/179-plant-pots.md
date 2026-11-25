@@ -85,6 +85,14 @@ decisions:
       - "another square (the walk beside the lamp, which a tree would partly block)"
     recommendation: "yes: 16x16 small trees (potted palm, rubber plant, fiddle-leaf fig); a swap task on the record stand"
     status: open
+  - id: d9
+    who: marc
+    q: "Swap tasks for the three pots: one each, or one that asks which pot?"
+    options:
+      - "one per pot (Change plant, Change vase, Change bowl), each only when there is a spare"
+      - "one 'Change plants' that asks which pot first"
+    recommendation: "one per pot (Change plant, Change vase, Change bowl), each only when there is a spare"
+    status: open
 ---
 
 ## Goal

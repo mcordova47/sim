@@ -27,7 +27,10 @@ decisions:
       - "as a gift (and later from a random encounter) like the plants; you may receive several over time"
       - "only from random encounters"
     recommendation: "as a gift (and later from a random encounter) like the plants; you may receive several over time"
-    status: open
+    status: answered
+    answer: "as a gift (and later from a random encounter) like the plants; you may receive several over time"
+    by: marc
+    on: 2026-11-24
 ---
 
 ## Goal

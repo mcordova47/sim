@@ -1,5 +1,7 @@
 # Real-world effects: what is feasible (research, issue 112)
 
+Note (issue 180): idea 2 (pixelated photos) was built and then removed from the game in issue 180; it stays here as research, and its rows below are history.
+
 Status: research only, nothing is built, `src/` untouched. Facts were checked on 2026-10-28 against the pages cited in section 12. Anything not confirmed on a primary page is marked **(unverified)**.
 
 Context: a static Vite site on Netlify (https://sim.mcord.dev/, repo is **public**), one small Netlify Function plus Blobs for sync (`docs/sync.md`), Marc on an iPhone (often the installed home-screen app, `docs/mobile.md`). The one real-world effect today is flashcards progress.

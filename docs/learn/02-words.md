@@ -20,7 +20,7 @@
 4. Add the new lines to [`docs/text-review.md`](../../text-review.md) under the matching section (the `cutscene admire-art` part).
 5. Then deliberately break each guard once so you know what it says: put the word `screen` in one of your lines, and add enough choices to make the contemplate menu longer than 8. Remove them.
 
-**Checks.** `npm test -- src/game/dialog-data.test.ts src/game/art-zoom.test.ts` is green with your real lines. With the broken ones I got: `the narrator never mentions the medium: expected '…screen…' not to match /pixel|square|block|scale|zoom|resolution|closer|grid|bitmap|sprite|game|screen/i` and `Contemplate what?: expected 10 to be less than or equal to 8`. Visible: `npm run dev`, walk to the sofa and Contemplate or Admire art (Tab or Q cycles between the sofa's tasks).
+**Checks.** `npm test -- src/game/dialog-data.test.ts src/game/art-zoom.test.ts` is green with your real lines. With the broken ones I got: `the narrator never mentions the medium: expected 'Here is a screen that has nothing to …' not to match /pixel|square|block|scale|zoom|resolu…/i` and `Contemplate what?: expected 9 to be less than or equal to 8` (after adding four choices to the five it has). Visible: `npm run dev`, walk to the sofa and Contemplate or Admire art (Tab or Q cycles between the sofa's tasks).
 
 **Hints.** Use `say(text, next)` to chain a second page. Replies longer than four pages fail.
 

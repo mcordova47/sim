@@ -1,5 +1,7 @@
 # Photo gallery: browse, delete one, a close-up scene (design, issue 117)
 
+> Removed in issue 180: the photo feature (the reel, the PHOTOS page and the sofa scene) was taken out of the game; this document stays as history.
+
 Status: design for Marc to confirm. Nothing is built. `src/` is untouched. Read first: `docs/photo-reel-design.md` (the store, the look, the PHOTOS page, 113), `issues/117-photo-gallery.md` (all of Marc's answers and the planner decisions). Code read: `src/game/activities/reel.ts` (the 113d slideshow), `src/game/achievements/photos-draw.ts` and `feature.ts` (the PHOTOS page), `src/game/reel/*.ts` (store, pixelate, palette, add flow), `src/game/interaction.ts`, `game.ts`, `encounters.ts`, `activities/encounter.ts` (how an ad starts), `docs/activities.md`, `docs/random-encounters.md`, `docs/mobile.md` section 13, `docs/inventory-design.md` (the page this one copies the style of).
 
 ## 1. Summary

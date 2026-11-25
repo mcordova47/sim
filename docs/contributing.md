@@ -27,7 +27,7 @@ You never need to push for any of this. Releasing is separate (`docs/deploy.md`)
 ## Rules worth knowing (the full list is in PLAN.md)
 - `reference-photos/` is private and gitignored: never commit it, copy from it into the repo, or write a caption from it.
 - No readable text in sprites, no names of real artists, bands or other people who lived within the last hundred years or so (people who died long ago, like Van Gogh or Rimbaud, are fine to mention; Marc, 2026-11-16), no employer, full name or address in the repo.
-- Photos from the photo reel never leave the device and nothing about their content is in the repo, the save or sync.
+- Nothing from a real photo goes in the repo, the save or sync (photos were removed from the game in issue 180).
 - `main` should never make the live game worse than what is deployed (`docs/deploy.md`).
 - New player-visible words go into `docs/text-review.md` so they can be marked later (no rush).
 

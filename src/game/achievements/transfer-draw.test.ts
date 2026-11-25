@@ -60,7 +60,7 @@ describe("the transfer page's text", () => {
 
   it("the pause list shows TRANSFER SAVE as a touch button and the desktop's T key hint, and no button for the question", () => {
     const view = { achievements: ACHIEVEMENTS, unlocked: () => false, cursor: 0, message: null, adBlocker: false, voice: "DIALOG VOICE: BEEP" };
-    expect(pauseButtons({ ...view, touch: true }).map((b) => b.id)).toEqual(["adBlocker", "voice", "transfer", "sync", "things", "reset", "close"]);
+    expect(pauseButtons({ ...view, touch: true }).map((b) => b.id)).toEqual(["adBlocker", "voice", "transfer", "sync", "things", "outfits", "reset", "close"]);
     expect(pauseButtons({ ...view, touch: true, confirmReset: true }).map((b) => b.id)).toEqual(["yes", "no"]);
     for (const touch of [false, true]) {
       vi.mocked(drawText).mockClear();
@@ -68,7 +68,7 @@ describe("the transfer page's text", () => {
       const texts = vi.mocked(drawText).mock.calls.map((c) => c[1]);
       expect(texts.includes(TRANSFER_HINT)).toBe(!touch);
     }
-    // Seven buttons are four rows, and the achievements (and their page control) start below them.
+    // Eight buttons are four rows, and the achievements (and their page control) start below them.
     const rows = pauseButtons({ ...view, touch: true });
     expect(Math.max(...rows.map((b) => b.rect.y + b.rect.h))).toBeLessThan(PAUSE_TOUCH.pageTop);
   });

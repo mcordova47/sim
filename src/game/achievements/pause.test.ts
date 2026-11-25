@@ -238,15 +238,15 @@ describe("the pause screen's text", () => {
   });
 });
 
-describe("the pause screen without PHOTOS (issue 180)", () => {
+describe("the pause screen without PHOTOS (issue 180) and with OUTFITS (issue 181)", () => {
   const view = { achievements: ACHIEVEMENTS, unlocked: () => false, cursor: 0, message: null, adBlocker: false, voice: "DIALOG VOICE: BEEP", touch: true };
 
   for (const [name, size] of [["320 x 192", DESKTOP_VIEW], ["224 x 208", NARROW_VIEW]] as const) {
-    it(`touch buttons at ${name}: seven, none overlapping, all above the page control, the cell PHOTOS had left free`, () => {
+    it(`touch buttons at ${name}: eight, none overlapping, all above the page control, OUTFITS in the cell PHOTOS had left free`, () => {
       setView(size);
       try {
         const buttons = pauseButtons(view);
-        expect(buttons.map((b) => b.id)).toEqual(["adBlocker", "voice", "transfer", "sync", "things", "reset", "close"]);
+        expect(buttons.map((b) => b.id)).toEqual(["adBlocker", "voice", "transfer", "sync", "things", "outfits", "reset", "close"]);
         for (const [i, a] of buttons.entries()) {
           expect(a.rect.x + a.rect.w).toBeLessThanOrEqual(size.width);
           expect(a.rect.y + a.rect.h).toBeLessThanOrEqual(pageButton(view)!.rect.y);
@@ -255,7 +255,7 @@ describe("the pause screen without PHOTOS (issue 180)", () => {
             expect(apart).toBe(true);
           }
         }
-        // THINGS is the last button of row 3's left cell; the right cell (where PHOTOS was) is empty.
+        // THINGS is row 3's left cell and OUTFITS its right cell (where PHOTOS was); RESET and CLOSE are row 4.
         const things = buttons.find((b) => b.id === "things")!.rect;
         const reset = buttons.find((b) => b.id === "reset")!.rect;
         expect(reset.y).toBeGreaterThan(things.y + things.h);

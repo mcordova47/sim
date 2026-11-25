@@ -16,7 +16,10 @@ decisions:
       - "remove the photo reel and gallery (a separate issue, after Marc confirms exactly what goes)"
       - "keep photos and add the outfit page anyway"
     recommendation: "show the pause screen mockups with and without PHOTOS first, then decide"
-    status: open
+    status: answered
+    answer: "photos are going: the options are remove now or remove later, depending on the mockups (not keep); the design shows the pause screen without PHOTOS and what removal involves"
+    by: marc
+    on: 2026-11-24
   - id: d2
     who: marc
     q: "How is the character shown in the equip screen?"

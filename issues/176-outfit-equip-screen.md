@@ -84,7 +84,10 @@ decisions:
       - "F to open, Tab or Q to turn"
       - "other keys (say which)"
     recommendation: "F to open, Tab or Q to turn"
-    status: open
+    status: answered
+    answer: "F to open, Tab or Q to turn"
+    by: marc
+    on: 2026-11-24
   - id: d8
     who: marc
     q: "If PHOTOS is removed later: what happens to the pictures already stored in the browser?"

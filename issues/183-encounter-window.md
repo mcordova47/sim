@@ -29,7 +29,10 @@ decisions:
       - "3"
       - "8"
     recommendation: "5"
-    status: open
+    status: answered
+    answer: "as recommended"
+    by: marc
+    on: 2026-11-25
   - id: d3
     who: marc
     q: "How common should repeats (an ad for something you already own) be?"

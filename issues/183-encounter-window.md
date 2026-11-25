@@ -2,7 +2,7 @@
 id: "183"
 title: "Random encounters: a moving window of items, more repeats, and purchases that can fail"
 short: "Window, repeats, failures"
-status: todo
+status: review
 owner: marc + claude
 depends_on: ["163"]
 summary: "Only a handful of items are in the random pool at a time, repeats are fairly common, and buying can fail."
@@ -81,6 +81,20 @@ decisions:
     answer: "a difficulty tier on each item in the ladder list: easy (about 1 try in 10 fails), normal (about 1 in 5, the default for everything), hard (about 2 in 5); the build proposes tiers (for example big or special things hard, common small things easy) for Marc to edit; a hard item's failure lines can say so; a failure never costs anything and the item stays in the window"
     by: marc
     on: 2026-11-25
+  - id: d7
+    who: marc
+    q: "Random encounters (183, d7): the seven special ads (a fixed item each, outside the window) need a share of all ads. How often should an ad be one of them while one still has an item you lack?"
+    options:
+      - "about 15 percent of ads (built); once you own their items they are gone and only repeats come through the shops"
+      - "about 30 percent"
+      - "none: retire the seven special ads and let the shops sell everything"
+    recommendation: "about 15 percent of ads (built)"
+    status: open
+unverified:
+  - "How the window, the repeat share (one in three) and the failure rates (1 in 10, 1 in 5, 2 in 5) feel over a long game: they are checked by seeded statistics only, never played for hours."
+  - "The ladder order and the proposed difficulty tiers are my proposal; nobody has judged them by playing."
+  - "The sound of a failure (the plain exit echo, no jingle) was not heard."
+needs: [{who: marc, kind: review, why: "Read the proposed ladder and difficulty tiers in docs/random-encounters.md (section 16) and edit LADDER in src/game/encounter-ladder.ts if you want another order; answer d7 (the share of special ads, 15 percent built)", since: 2026-11-25}]
 ---
 
 ## Goal
@@ -98,3 +112,5 @@ Marc (2026-11-25), after playing the item pool of issue 163: (1) when you get th
 ## Progress log
 - 2026-11-25 (planner): filed on main from Marc's message with its open decisions; not started.
 - 2026-11-25 (planner): Marc answered d1 to d5 as recommended and added the idea that failure can depend on the item (d6).
+- 2026-11-25 (claude): started in ~/Dev/repos/mcordova47/sim-worktrees/183-encounter-window. Plan: a data ladder of every real item with tiers, a window of the next 5 items not owned, a repeat chance of about a third (rising as the window runs short), a failure roll after choosing to buy with the item's tier, failure lines in config, docs and tests.
+- 2026-11-25 (claude): built, in review. New `src/game/encounter-ladder.ts` (`LADDER`, 57 items as `[id]` or `[id, tier]`, `ladderOrder`, `tierOf`, `failChanceOf`; unlisted items go last and `encounter-ladder.test.ts` fails with their ids). `encounter-draw.ts`: `windowOf`, `repeatChance`, `drawItem`; `drawAd` rewritten (special ads with `ENCOUNTERS.window.specialShare` while their item is not yet yours; otherwise an item from the window or a repeat, then a shop of its kind; the 10:1 weights, `itemWeight` and `weightedIndex` are gone); `itemPool` skips an `empty` item (issue 182's flag; read without adding the field to the type, so the two branches do not conflict; empty pots are `how: start` anyway). Config: `ENCOUNTERS.window` (size 5, repeatShare 1/3, specialShare 0.15), `ENCOUNTERS.failure` (chance easy/normal/hard 0.1/0.2/0.4, six lines, four hard lines), `pool.unowned/owned` removed. `activities/encounter.ts`: `buy` refuses first (own, queued), then rolls the failure with the item's tier (`deps.difficulty`, `deps.failChance` override), one line, outcome `refused` (so the sound is unchanged), no mood, nothing queued. `game.ts` passes the tier; dev shortcut `?fail=1` (`failFromSearch` in decor-dev.ts, `main.ts`). Tests: new window, repeat-share (2, 10, 20, 34 of 40 and 3 of 12 owned; nearly complete mostly repeats), special-ad, recent, ladder and failure tests (tiers at the boundary, seeded rates over 1500 runs per tier, impulse buy, dev shortcut); existing scripted-random tests updated for the new draw order (roll, special share, repeat roll, item). Docs: `docs/random-encounters.md` section 16 (what was built, how to see a repeat and a failure, the whole ladder with tiers and gift days; section 4 and 15 pointers updated), `docs/text-review.md` (the ten failure lines, unmarked). Ladder proposal: gift-day order, with the three famous paintings among the plants and the eight other rugs woven into the trinkets and coffee gear; 12 easy, 9 hard, 36 normal. Checks: `npx tsc --noEmit`, `npm test` (4185 pass), `npm run build`, `npm run check:dist`, `npm run sprites` (clean), `npm run issues:check -- --validate`. Looked at it in headless Chrome against the dev server: `?own=art-robin&encounter=ad-robin` shows the already-own card; `?fail=1&encounter=ad-robin` then Add to cart shows `SOMETHING WENT WRONG. TRY AGAIN LATE...` (mid-typing) and ends; the entrance wipe plays. Not changed: the golden frames (no art or map change). Question for Marc: d7 (open). Notes for the planner: d7 is on this branch, copy it to main's file before asking; 172 (record stand, kind furniture, not a sellable kind) and 182 (plant pots, `empty`, `how: start`) need no ladder lines, but any new sellable item they add will fail the ladder test until placed (expected, small textual conflicts in `decor-data.ts` are not caused by this branch). Could not check: see `unverified`.

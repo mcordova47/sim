@@ -16,6 +16,7 @@ import { Decor } from "./decor";
 import { Deliveries } from "./deliveries";
 import { EncounterActivity } from "./activities/encounter";
 import type { Ad } from "./encounter-ads";
+import { tierOf } from "./encounter-ladder";
 import { drawAd, drawLineAd, itemPool, type ItemPool } from "./encounter-draw";
 import { lineById } from "./encounter-lines";
 import { Encounters } from "./encounters";
@@ -145,6 +146,8 @@ export class Game {
   // The other levels the level's doorways lead to, by id.
   private readonly rooms: Readonly<Record<string, Level>>;
   private readonly random: () => number;
+  // Dev server only (`?fail=`, decor-dev.ts): the chance buying fails, in place of the item's tier. Never set in the built game.
+  devFailChance: number | undefined;
   private readonly reducedMotion: () => boolean;
   // Whether the browser asks for less motion (read-only; the candle holds steady when it does).
   get reducedMotionAsked(): boolean {
@@ -334,6 +337,8 @@ export class Game {
       },
       failedUnsubscribe: () => this.encounters.failedUnsubscribe(),
       random: () => this.random(),
+      difficulty: tierOf(ad.item),
+      ...(this.devFailChance !== undefined && { failChance: this.devFailChance }),
       reducedMotion: () => this.reducedMotion(),
       afterKeyGame,
       product: { sprite: product.sprite, w: product.w, h: product.h },

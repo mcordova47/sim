@@ -8,7 +8,7 @@ import { ENCOUNTERS } from "./config";
 import { DECOR_DATA, itemSprites, type DecorItem } from "./decor-data";
 import { CHECKPOINTS } from "./delivery-checkpoints";
 import { ADS, CARD_WORDS, ENCOUNTER_WORDS, MAX_BODY_LINES, MAX_LINE, type Ad } from "./encounter-ads";
-import { drawAd, drawLineAd, itemPool, weightedIndex, type ItemPool, type PoolItem } from "./encounter-draw";
+import { drawAd, drawLineAd, itemPool, repeatChance, windowOf, type ItemPool, type PoolItem } from "./encounter-draw";
 import { LINES, lineAd, lineById, type ProductLine } from "./encounter-lines";
 import { Encounters, parseEncounters } from "./encounters";
 
@@ -82,6 +82,8 @@ describe("the pool is data", () => {
     expect(itemPool([fake({ kind: "rug", how: "start" })])).toHaveLength(0);
     expect(itemPool([fake({ kind: "pantry" })])).toHaveLength(0);
     expect(itemPool([fake({ kind: "rug", tags: ["test"] })])).toHaveLength(0);
+    // An empty pot, vase or bowl (the `empty` flag of issue 182, not on this branch's type yet) is never obtainable, so never in the pool.
+    expect(itemPool([fake({ kind: "plant", ...({ empty: true } as object) })])).toHaveLength(0);
   });
 });
 
@@ -162,66 +164,112 @@ describe("the product lines", () => {
   });
 });
 
-describe("the weighted draw", () => {
-  it("weightedIndex follows the weights, never lands on a zero weight, and copes with bad numbers", () => {
-    expect(weightedIndex([1, 1], 0)).toBe(0);
-    expect(weightedIndex([1, 1], 0.99)).toBe(1);
-    expect(weightedIndex([1, 10], 0.05)).toBe(0);
-    expect(weightedIndex([1, 10], 0.1)).toBe(1);
-    expect(weightedIndex([0, 5], 0)).toBe(1);
-    expect(weightedIndex([3, 0], 0.999999)).toBe(0);
-    expect(weightedIndex([0, 0, 0], 0.5)).toBe(1);
-    expect(weightedIndex([2, 2], NaN)).toBe(0);
-    expect(weightedIndex([2, 2], 5)).toBe(1);
-    expect(weightedIndex([2, 2], -5)).toBe(0);
+describe("the window and the draw (issue 183)", () => {
+  // A ladder of art ids a0 to a19 (the real ladder is tested in encounter-ladder.test.ts); unlisted ids go last in the given order.
+  const many = (n: number) => Array.from({ length: n }, (_, i) => item(`art-x${String(i).padStart(2, "0")}`));
+  const ownedFirst = (items: PoolItem[], count: number) => items.slice(0, count).map((i) => i.id);
+
+  it("the window is the next five items that are not owned, in ladder order, and it slides as items are owned", () => {
+    const items = [item("plant-pothos", "plant"), item("art-robin"), item("lamp-warm", "lamp"), item("plant-dried", "plant"), item("art-snow-wagon"), item("lamp-stool-lamp", "lamp"), item("art-serenity-now")];
+    // The ladder order is robin, warm lamp, dried flowers, snow wagon, stool lamp, serenity, pothos (whatever order the pool lists them in).
+    const w0 = windowOf(poolOf(items), undefined);
+    expect(w0.window.map((i) => i.id)).toEqual(["art-robin", "lamp-warm", "plant-dried", "art-snow-wagon", "lamp-stool-lamp"]);
+    expect(w0.owned).toEqual([]);
+    const w1 = windowOf(poolOf(items, ["art-robin", "plant-dried"]), undefined);
+    expect(w1.window.map((i) => i.id)).toEqual(["lamp-warm", "art-snow-wagon", "lamp-stool-lamp", "art-serenity-now", "plant-pothos"]);
+    expect(w1.owned.map((i) => i.id)).toEqual(["art-robin", "plant-dried"]);
+    // An item owned out of order (a later one) is skipped too, and a window near the end is short.
+    const w2 = windowOf(poolOf(items, ["art-robin", "lamp-warm", "plant-dried", "art-snow-wagon", "lamp-stool-lamp", "plant-pothos"]), undefined);
+    expect(w2.window.map((i) => i.id)).toEqual(["art-serenity-now"]);
+    // An item with no art is in neither side.
+    expect(windowOf(poolOf(items), (i) => i.id !== "art-robin").window[0].id).toBe("lamp-warm");
   });
 
-  it("items you do not own come up about ten times as often as ones you do (seeded statistics)", () => {
-    // A pool of 12 art items, 4 owned: per item the unowned should be ~10x the owned.
-    const items = Array.from({ length: 12 }, (_, i) => item(`art-${i}`));
-    const owned = items.slice(0, 4).map((i) => i.id);
-    const pool = poolOf(items, owned);
-    const random = seeded(99);
-    const counts = new Map<string, number>();
-    const N = 60000;
-    for (let i = 0; i < N; i++) {
-      const ad = drawLineAd(frames, pool, random)!;
-      counts.set(ad.item, (counts.get(ad.item) ?? 0) + 1);
+  it("an item the ladder does not list goes after the ones it does", () => {
+    const items = [item("art-brand-new"), item("art-robin"), item("plant-other", "plant")];
+    expect(windowOf(poolOf(items)).window.map((i) => i.id)).toEqual(["art-robin", "art-brand-new", "plant-other"]);
+  });
+
+  it("an ad never sells an unowned item outside the window (seeded)", () => {
+    const items = many(20);
+    const pool = poolOf(items, ownedFirst(items, 4));
+    const random = seeded(11);
+    const allowed = new Set(windowOf(pool).window.map((i) => i.id));
+    expect([...allowed]).toEqual(items.slice(4, 9).map((i) => i.id));
+    for (let i = 0; i < 3000; i++) {
+      const ad = drawAd({ ads: [], lines: LINES, pool, random })!;
+      if (!pool.has(ad.item)) expect(allowed.has(ad.item), ad.item).toBe(true);
     }
-    const sum = (ids: string[]) => ids.reduce((a, id) => a + (counts.get(id) ?? 0), 0);
-    const perOwned = sum(owned) / 4;
-    const perUnowned = sum(items.slice(4).map((i) => i.id)) / 8;
-    expect(perUnowned / perOwned).toBeGreaterThan(9);
-    expect(perUnowned / perOwned).toBeLessThan(11);
-    // And so a repeat is rare: 4 weights of 1 against 8 of 10 is 4 in 84.
-    expect(sum(owned) / N).toBeGreaterThan(0.04);
-    expect(sum(owned) / N).toBeLessThan(0.055);
   });
 
-  it("the repeats get rarer as the pool grows", () => {
-    const rate = (size: number) => {
-      const items = Array.from({ length: size }, (_, i) => item(`art-${i}`));
-      const pool = poolOf(items, items.slice(0, 3).map((i) => i.id));
-      const random = seeded(5);
-      let repeats = 0;
-      for (let i = 0; i < 20000; i++) if (pool.has(drawLineAd(frames, pool, random)!.item)) repeats++;
-      return repeats / 20000;
-    };
-    expect(rate(6)).toBeGreaterThan(rate(12));
-    expect(rate(12)).toBeGreaterThan(rate(40));
-  });
-
-  it("when everything is owned the weights are equal and every item can still come up (a repeat is the already-own card)", () => {
-    const items = Array.from({ length: 5 }, (_, i) => item(`art-${i}`));
-    const pool = poolOf(items, items.map((i) => i.id));
-    const random = seeded(3);
-    const counts = new Map<string, number>();
-    for (let i = 0; i < 10000; i++) {
-      const ad = drawLineAd(frames, pool, random)!;
-      counts.set(ad.item, (counts.get(ad.item) ?? 0) + 1);
+  it("every item in the window comes up, and no other unowned item does", () => {
+    const items = many(20);
+    const pool = poolOf(items, ownedFirst(items, 2));
+    const random = seeded(12);
+    const seen = new Set<string>();
+    for (let i = 0; i < 3000; i++) {
+      const ad = drawAd({ ads: [], lines: LINES, pool, random })!;
+      if (!pool.has(ad.item)) seen.add(ad.item);
     }
-    expect(counts.size).toBe(5);
-    for (const c of counts.values()) expect(c).toBeGreaterThan(1700);
+    expect([...seen].sort()).toEqual(items.slice(2, 7).map((i) => i.id));
+  });
+
+  it("a shop is only drawn if the window or your things hold an item of its kind", () => {
+    // The window is five art items; a plant you lack past the window cannot be offered, a plant you own can be (a repeat).
+    const items = [...many(6), item("plant-zzz", "plant"), item("lamp-warm", "lamp")];
+    const pool = poolOf(items, ["lamp-warm"]);
+    const random = seeded(13);
+    const lines = new Set<string>();
+    for (let i = 0; i < 2000; i++) lines.add(drawAd({ ads: [], lines: LINES, pool, random })!.id);
+    expect([...lines].sort()).toEqual(["line-frames", "line-gallery", "line-lamps"]);
+  });
+
+  // The share of repeats among many ads at a given ownership (seeded).
+  const repeatShare = (total: number, owned: number, seed: number) => {
+    const items = many(total);
+    const pool = poolOf(items, ownedFirst(items, owned));
+    const random = seeded(seed);
+    let repeats = 0;
+    const N = 20000;
+    for (let i = 0; i < N; i++) if (pool.has(drawAd({ ads: [], lines: LINES, pool, random })!.item)) repeats++;
+    return repeats / N;
+  };
+
+  it("about a third of ads are repeats at several ownership levels (few owned, half, a full window left)", () => {
+    for (const [total, owned] of [[40, 2], [40, 10], [40, 20], [40, 34], [12, 3]]) {
+      const share = repeatShare(total, owned, 31 + owned);
+      expect(share, `${owned} of ${total} owned`).toBeGreaterThan(ENCOUNTERS.window.repeatShare - 0.025);
+      expect(share, `${owned} of ${total} owned`).toBeLessThan(ENCOUNTERS.window.repeatShare + 0.025);
+    }
+  });
+
+  it("with nothing owned there is nothing to repeat, and a nearly complete collection still shows mostly repeats", () => {
+    expect(repeatShare(30, 0, 41)).toBe(0);
+    // Two or one items left in the window of five: the empty places count as repeats.
+    expect(repeatShare(30, 28, 42)).toBeGreaterThan(0.7);
+    expect(repeatShare(30, 29, 43)).toBeGreaterThan(0.8);
+    // Everything owned: always a repeat (the already-own card), and every item can come up.
+    expect(repeatShare(30, 30, 44)).toBe(1);
+  });
+
+  it("the repeats are items you own, drawn from all of them", () => {
+    const items = many(20);
+    const pool = poolOf(items, ownedFirst(items, 10));
+    const random = seeded(51);
+    const repeats = new Set<string>();
+    for (let i = 0; i < 4000; i++) {
+      const ad = drawAd({ ads: [], lines: LINES, pool, random })!;
+      if (pool.has(ad.item)) repeats.add(ad.item);
+    }
+    expect(repeats.size).toBe(10);
+  });
+
+  it("repeatChance: the share while the window is full, more as it runs short, none with nothing owned", () => {
+    expect(repeatChance(5, 3)).toBeCloseTo(1 / 3);
+    expect(repeatChance(5, 0)).toBe(0);
+    expect(repeatChance(0, 3)).toBe(1);
+    expect(repeatChance(1, 30)).toBeCloseTo(1 - (2 / 3) * 0.2);
+    expect(repeatChance(2, 30)).toBeGreaterThan(repeatChance(3, 30));
   });
 
   it("an item with no art is skipped", () => {
@@ -234,18 +282,30 @@ describe("the weighted draw", () => {
     expect(drawAd({ ads: [], lines: [frames], pool, random, drawable: () => false })).toBeNull();
   });
 
-  it("a line with no item of its kind in the pool is never drawn; with no pool only the fixed ads are", () => {
+  it("a line with no item of its kind is never drawn; with no pool only the fixed ads are", () => {
     const random = seeded(8);
     const pool = poolOf([item("lamp-a", "lamp")]);
-    for (let i = 0; i < 200; i++) {
-      const ad = drawAd({ ads: [], lines: LINES, pool, random })!;
-      expect(ad.id).toBe("line-lamps");
-    }
+    for (let i = 0; i < 200; i++) expect(drawAd({ ads: [], lines: LINES, pool, random })!.id).toBe("line-lamps");
     for (let i = 0; i < 200; i++) expect(ADS.map((a) => a.id)).toContain(drawAd({ ads: ADS, lines: LINES, random })!.id);
     expect(drawAd({ ads: [], lines: LINES, random })).toBeNull();
   });
 
-  it("the whole draw over the real pool: a shop shows an item of its own kind, and owned things are rare", () => {
+  it("the special ads stay outside the window: a fixed ad for an item you lack can come up, one for an item you own does not", () => {
+    // The pool is five art items you lack; the special ad's item is far past the window, so it is the only way to get it.
+    const items = [...many(8), item("lamp-candle", "lamp")];
+    const pool = poolOf(items, ["art-x00"]);
+    const candle = ADS.find((a) => a.item === "lamp-candle")!;
+    const random = seeded(61);
+    let specials = 0;
+    const N = 20000;
+    for (let i = 0; i < N; i++) if (drawAd({ ads: [candle], lines: LINES, pool, random })!.id === candle.id) specials++;
+    expect(specials / N).toBeGreaterThan(ENCOUNTERS.window.specialShare - 0.02);
+    expect(specials / N).toBeLessThan(ENCOUNTERS.window.specialShare + 0.02);
+    const owned = poolOf(items, ["art-x00", "lamp-candle"]);
+    for (let i = 0; i < 2000; i++) expect(drawAd({ ads: [candle], lines: LINES, pool: owned, random })!.id).not.toBe(candle.id);
+  });
+
+  it("the whole draw over the real pool: a shop shows an item of its own kind, and the share of repeats holds", () => {
     const pool: ItemPool = { items: itemPool(DECOR_DATA.items), has: (id) => id.startsWith("art-") || id === "lamp-warm" };
     const random = seeded(21);
     let repeats = 0;
@@ -257,8 +317,8 @@ describe("the weighted draw", () => {
       const line = lineById(ad.id);
       if (line) expect(line.kinds, `${ad.id} sold ${ad.item}`).toContain(kinds.get(ad.item));
     }
-    // Ten art items and a lamp are owned out of about forty: repeats are well under a fifth of the draws.
-    expect(repeats / N).toBeLessThan(0.2);
+    expect(repeats / N).toBeGreaterThan(0.2);
+    expect(repeats / N).toBeLessThan(0.5);
   });
 
   it("is repeatable: the same seed gives the same ads, and the recent ads are skipped while others exist", () => {
@@ -269,20 +329,16 @@ describe("the weighted draw", () => {
       return a.map(() => drawAd({ ads: ADS, lines: LINES, pool, random: r })!.id);
     };
     expect(run()).toEqual(run());
+    // The recent special ads are skipped (the pool has a shop for art).
     const random = seeded(1);
-    for (let i = 0; i < 100; i++) {
-      const recent = ADS.slice(0, 3).map((x) => x.id);
-      expect(recent).not.toContain(drawAd({ ads: ADS, lines: [], recent, random })!.id);
-    }
-  });
-
-  it("a fixed ad for an item you own is the lighter choice when a pool is given", () => {
-    const pool = poolOf(ADS.map((a) => item(a.item)), [ADS[0].item]);
-    const random = seeded(2);
-    let first = 0;
-    for (let i = 0; i < 7000; i++) if (drawAd({ ads: ADS, lines: [], pool, random })!.id === ADS[0].id) first++;
-    // One weight of 1 in 61: about 115 of 7000.
-    expect(first).toBeLessThan(200);
+    const recent = ADS.slice(0, 3).map((x) => x.id);
+    const withSpecials = poolOf(ADS.map((x) => item(x.item, x.item.split("-")[0])));
+    for (let i = 0; i < 300; i++) expect(recent).not.toContain(drawAd({ ads: ADS, lines: [], recent, random, pool: withSpecials })?.id ?? "none");
+    // The recent shop is skipped while another shop can sell something.
+    const two = poolOf([item("art-a"), item("plant-a", "plant")]);
+    for (let i = 0; i < 300; i++) expect(drawAd({ ads: [], lines: LINES, pool: two, recent: ["line-frames", "line-gallery"], random })!.id).toBe("line-plants");
+    // With only one shop for it, a recent shop still sells.
+    for (let i = 0; i < 50; i++) expect(drawAd({ ads: [], lines: LINES, pool: poolOf([item("art-a")]), recent: ["line-frames", "line-gallery"], random })!.id).toMatch(/^line-(frames|gallery)$/);
   });
 });
 

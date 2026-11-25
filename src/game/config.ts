@@ -263,14 +263,42 @@ export const ENCOUNTERS = {
   recent: 3,
   maxSeen: 20,
   // The pool the product-line ads draw from (issue 163): every real item of these kinds that is not a starting item
-  // and not a TEST item. A draw weights an item (or an ad whose item is) you do not own `unowned` times as high as one
-  // you own or have ordered (`owned`), so an ad for something you have stays rare while the pool is large and is only
-  // the usual one when everything is owned. The kinds are the ones an ad can sell (not props, plug-ins, the pantry
-  // or furniture); a kind with no items yet simply gives its shop nothing to sell.
+  // and not a TEST item (and not an empty pot, issue 182). The kinds are the ones an ad can sell (not props, plug-ins,
+  // the pantry or furniture); a kind with no items yet simply gives its shop nothing to sell.
   pool: {
     kinds: ["art", "plant", "lamp", "rug", "outfit", "coffee", "trinket", "instrument"] as readonly string[],
-    unowned: 10,
-    owned: 1,
+  },
+  // The window and the repeats (issue 183, docs/random-encounters.md section 16). The items are in the order of
+  // `LADDER` (encounter-ladder.ts); an ad sells one of the next `size` items along it that you do not own yet, or, with
+  // the chance below, something you already own (a repeat, the YOU ALREADY HAVE ONE card). `repeatShare` is the share
+  // of repeats while the window is full; as the window runs short (you own nearly everything) the missing places count
+  // as repeats too, so a nearly complete collection sees mostly repeats and a complete one only repeats.
+  // `specialShare`: the chance an ad is one of the seven special ads (encounter-ads.ts, each a fixed item outside the
+  // window) while one of them still has an item you lack.
+  window: {
+    size: 5,
+    repeatShare: 1 / 3,
+    specialShare: 0.15,
+  },
+  // A purchase that falls through (issue 183): after you choose to buy, with the chance of the item's tier (`LADDER`)
+  // nothing is ordered and a deadpan line is shown instead. It costs nothing but the moment: no mood change, the
+  // usual cooldown, and the item stays in the window. A hard item may have its own lines (`hardLines`).
+  failure: {
+    chance: { easy: 0.1, normal: 0.2, hard: 0.4 },
+    lines: [
+      "SOLD OUT. IT WAS THERE A SECOND AGO.",
+      "THE PAGE WILL NOT LOAD.",
+      "THE CART FORGOT EVERYTHING.",
+      "PAYMENT FAILED. NO REASON GIVEN.",
+      "THE SITE IS DOWN FOR MAINTENANCE.",
+      "SOMETHING WENT WRONG. TRY AGAIN LATER.",
+    ] as readonly string[],
+    hardLines: [
+      "SOLD OUT. THEY ARE NOT MAKING MORE.",
+      "SOMEONE ELSE GOT THE LAST ONE.",
+      "WAITLIST ONLY. THE WAITLIST IS FULL.",
+      "IT SOLD OUT WHILE YOU WERE TYPING.",
+    ] as readonly string[],
   },
 };
 

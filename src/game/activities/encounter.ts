@@ -6,6 +6,8 @@ import { choice, menu, say } from "../dialog";
 import { CARD_WORDS, ENCOUNTER_WORDS, type Ad } from "../encounter-ads";
 import type { EncounterOutcome, EncounterPhase, EncounterScene } from "../encounter-scene";
 import { drawTransition, entranceFrames, exitFrames, transitionFrame } from "../encounter-transition";
+import { failChanceOfTier } from "../encounter-ladder";
+import type { Tier } from "../encounter-ladder";
 import { arrivesWord, impulseChance, unsubscribeChance } from "../encounters";
 
 // An ad encounter (issue 043 stage B, docs/random-encounters.md section 4): a full-screen
@@ -36,6 +38,10 @@ export interface EncounterDeps {
   reducedMotion?(): boolean;
   // It starts right after a typing or notes game, so its first dialog ignores keys for a moment (issue 081).
   afterKeyGame?: boolean;
+  // How hard the item is to get (issue 183, the ladder's tier); missing: normal.
+  difficulty?: Tier;
+  // The chance buying fails, overriding the tier's (the dev shortcut `?fail=`, tests). Missing: the tier's.
+  failChance?: number;
   // The item's own picture for the card.
   product: { sprite: string; w: number; h: number };
 }
@@ -193,8 +199,20 @@ export class EncounterActivity extends BaseActivity {
     }
   }
 
+  // One deadpan line when the purchase falls through (issue 183): the item's own list for a hard one. Costs nothing.
+  private failureLine(): string {
+    const F = ENCOUNTERS.failure;
+    const list = (this.deps.difficulty ?? "normal") === "hard" && F.hardLines.length > 0 ? F.hardLines : F.lines;
+    return list[Math.min(list.length - 1, Math.floor(this.deps.random() * list.length))];
+  }
+
   // Queues the delivery. A refused one (the item was bought some other way meanwhile, or the cart is full) is just a line.
+  // After the refusals that need no roll, the purchase may fall through (the item's tier): nothing is ordered or queued, no
+  // mood changes, and the item stays where it was in the window.
   private buy(impulse: boolean): void {
+    const refusal = this.refusal();
+    if (refusal !== null) return this.speak(refusal, "refused");
+    if (this.deps.random() < (this.deps.failChance ?? failChanceOfTier(this.deps.difficulty ?? "normal"))) return this.speak(this.failureLine(), "refused");
     if (!this.deps.deliver(this.ad.item, this.ad.delayHours)) {
       const why = this.refusal() ?? ENCOUNTER_WORDS.cartFull;
       return this.speak(why, "refused");

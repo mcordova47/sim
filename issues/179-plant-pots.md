@@ -2,7 +2,7 @@
 id: "179"
 title: "Plant pots: three on the bookshelf, each for its own kind of plant"
 short: "Plant pots design"
-status: todo
+status: review
 owner: marc + claude
 depends_on: []
 summary: "Design the three bookshelf pots (empty, dried arrangement, snake plant) as slots for different plant kinds, plus the window sill and floor trees."
@@ -35,6 +35,69 @@ decisions:
       - "everything live"
     recommendation: "only the houseplant pot is live; every other pot is still (a live second plant is the large piece of engine work in docs/decor-expansion-design.md section 9, so do it later)"
     status: open
+  - id: d4
+    who: marc
+    q: "Is the plant pot (the south one, today's plant slot) strictly for houseplants, so the existing dried items move to the vase?"
+    options:
+      - "strict: houseplants and the empty pot only; the four dried items (and the old saves that show one there) move to the vase; you can no longer park a dried item in the plant pot to pause the snake plant (the empty pot does it)"
+      - "lenient: the plant pot also takes dried items, as today"
+    recommendation: "strict: houseplants and the empty pot only; the four dried items (and the old saves that show one there) move to the vase; you can no longer park a dried item in the plant pot to pause the snake plant (the empty pot does it)"
+    status: open
+  - id: d5
+    who: marc
+    q: "Are the empty pots real items (EMPTY VASE, EMPTY BOWL, EMPTY POT, owned from the start) or empty slots?"
+    options:
+      - "items: no new engine; three more 'ALREADY HERE' lines on the THINGS page"
+      - "empty slots with a bare-pot picture: needs engine work (a slot with a default that can also be empty)"
+    recommendation: "items: no new engine; three more 'ALREADY HERE' lines on the THINGS page"
+    status: open
+  - id: d6
+    who: marc
+    q: "May the bowl be drawn 2 px lower than the baked bowl, so low plants get 4 clear rows above the rim instead of 2?"
+    options:
+      - "yes: a fresh game differs from today by those 2 pixels"
+      - "no: the fresh room stays pixel for pixel the same and low plants are 2 rows tall"
+    recommendation: "yes: a fresh game differs from today by those 2 pixels"
+    status: open
+  - id: d7
+    who: marc
+    q: "When cut flowers dry, do they become a separate keepsake item (DRIED TULIPS) or does the same item change its look?"
+    options:
+      - "a separate keepsake: the fresh bunch is replaced by a dried item you keep, and a new bunch can arrive again"
+      - "the same item changes its look to dried, and a new bunch replaces it (issue 171 as written)"
+    recommendation: "a separate keepsake: the fresh bunch is replaced by a dried item you keep, and a new bunch can arrive again"
+    status: open
+  - id: d8
+    who: marc
+    q: "The floor trees: the shut-in square at col 8, row 7 (abs 128,112), with 16x16 small trees whose crown stays inside the tile?"
+    options:
+      - "yes: 16x16 small trees (potted palm, rubber plant, fiddle-leaf fig); a swap task on the record stand"
+      - "a tall 16x32 tree (it hides the lamp, or sits behind it and shows only a trunk)"
+      - "another square (the walk beside the lamp, which a tree would partly block)"
+    recommendation: "yes: 16x16 small trees (potted palm, rubber plant, fiddle-leaf fig); a swap task on the record stand"
+    status: open
+  - id: d9
+    who: marc
+    q: "Swap tasks for the three pots: one each, or one that asks which pot?"
+    options:
+      - "one per pot (Change plant, Change vase, Change bowl), each only when there is a spare"
+      - "one 'Change plants' that asks which pot first"
+    recommendation: "one per pot (Change plant, Change vase, Change bowl), each only when there is a spare"
+    status: open
+  - id: d10
+    who: marc
+    q: "Does the window sill share the vase's and bowl's stock (dried and low plants and trinkets) rather than have a kind of its own?"
+    options:
+      - "share it, until live sill plants exist"
+      - "its own kind of plant for the sill from the start"
+    recommendation: "share it, until live sill plants exist"
+    status: open
+unverified:
+  - "Nothing ran in a browser: the mockups are composed by a script from the real sprites and map, not by the game, and the HUD strip is not drawn."
+  - "The low plants, the tulip looks and the tree in the mockups are stand-in art drawn in code, only to judge height and placement."
+  - "Whether 4 clear rows above the bowl's rim is enough for a bonsai, and how three plants feel to look at, needs the real art."
+  - "The reference photos were looked at but none shows the three pots, so the north-to-south order of vase, bowl and plant pot is read from the bookshelf sprite and Marc's description."
+needs: [{who: marc, kind: decide, why: "Read docs/plant-pots-design.md and answer d1 to d10 (each has a recommended default)", since: 2026-11-24}]
 ---
 
 ## Goal
@@ -45,3 +108,5 @@ A DESIGN issue: `docs/plant-pots-design.md` (with mockups of the bookshelf, rend
 
 ## Progress log
 - 2026-11-24 (planner): filed on main from Marc's clarification of the empty pot idea; issue 170 is superseded by it.
+- 2026-11-24 (agent): started. Plan: read the decor notes and code, compose the real room at 8x, find the unreachable floor tile, write docs/plant-pots-design.md with mockups, add the questions as decisions d4 to d10, status review. No code or art in the game.
+- 2026-11-24 (agent): done, in review. Files: `docs/plant-pots-design.md`, `docs/plant-pots-mockups/` (14 images, `make.mjs`, `lib.mjs`, `art.mjs`) and this file. Design: the bookshelf's baked vase and bowl become two slots (`pot-vase` at abs 160,16 and `pot-bowl` at 160,30) beside the existing plant pot (`plant-shelf`, 160,52); each holds one `plantKind` (dried and cut flowers, low plants, houseplants); each pot has an empty-pot item; only the plant pot is live; the fresh room is the same picture (the bowl 2 px lower, d6). The one unreachable floor tile (col 8, row 7, abs 128,112) is the tree square. Staged plan A to E in section 10. Engine claims (care code hard-wired to `plantDry` in `state.ts`, `tasks.ts`, `plant.ts`, `game.ts` line 578, particles) are in section 5. Looked at the reference photos only; nothing from them is in the repo. Not checked: anything in a browser; the stand-in art is not game art. Questions beyond d1 to d3 are d4 to d10 above (defaults recommended); the planner should record them on main.

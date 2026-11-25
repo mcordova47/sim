@@ -118,7 +118,10 @@ decisions:
       - "share it (still low plants fit both bowl and sill; live ones fit the bowl only), until live sill plants exist"
       - "its own kind of plant for the sill from the start"
     recommendation: "share it (still low plants fit both bowl and sill; live ones fit the bowl only), until live sill plants exist"
-    status: open
+    status: answered
+    answer: "that sounds fine, with a follow-up to give it a special kind (herbs or flowers or something?)"
+    by: marc
+    on: 2026-11-24
 needs: [{who: marc, kind: decide, why: "Look at the plant pots mockups (~/Dev/repos/mcordova47/sim-worktrees/179-plant-pots/docs/plant-pots-mockups/), answer d1 to d10, then say 'merge 179' (design only; the third review is running)", since: 2026-11-24}]
 ---
 

@@ -30,7 +30,10 @@ decisions:
       - "leave them and try it on the phone first (the pad and A are the main controls; a tap on a row only highlights it, a second tap equips)"
       - "touch gets 12 pixel rows and a four-row list"
     recommendation: "leave them and try it on the phone first (the pad and A are the main controls; a tap on a row only highlights it, a second tap equips)"
-    status: open
+    status: answered
+    answer: "leave them and try it on the phone first (the pad and A are the main controls; a tap on a row only highlights it, a second tap equips)"
+    by: marc
+    on: 2026-11-25
 changelog: "A new OUTFITS page on the pause screen lets you choose what goes in each outfit slot and preview it."
 ---
 

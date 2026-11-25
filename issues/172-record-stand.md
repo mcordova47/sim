@@ -43,7 +43,7 @@ decisions:
     answer: "keep them all: ship every candidate (A, B, C, D, E, E2, F) as an item, so there are always more things to get"
     by: marc
     on: 2026-11-25
-needs: [{who: marc, kind: try, why: "Browse the record stand options: cd ~/Dev/repos/mcordova47/sim-worktrees/172-record-stand && npm run tools -- options (Record stand group); answer d3 (a letter, C recommended, or look up inspo); the mechanism (Change record stand) can merge now: say 'merge 172'", since: 2026-11-25}]
+needs: []
 ---
 
 ## Goal

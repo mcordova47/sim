@@ -71,6 +71,14 @@ decisions:
       - "yes, a key on the page wears the highlighted slot"
     recommendation: "no, wearing a slot stays at the cube bookshelf (the page is for choosing what goes in the slots)"
     status: open
+  - id: d7
+    who: marc
+    q: "Which keys: F opens OUTFITS from the pause list on desktop, and Tab or Q turns the character (the game's cycle keys; the touch layer's CHOICE button sends Tab)?"
+    options:
+      - "F to open, Tab or Q to turn"
+      - "other keys (say which)"
+    recommendation: "F to open, Tab or Q to turn"
+    status: open
 ---
 
 ## Goal

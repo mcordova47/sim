@@ -17,7 +17,10 @@ decisions:
       - "one swap task per pot (Change plant, Change vase, Change bowl), each offered only when there is a spare"
       - "one Change plants option that just puts the plant in the appropriate pot"
     recommendation: "a slot-list menu like the outfit slots: one Change plants task at the bookshelf opens a list of the three pots (vase, bowl, plant pot) with the plant in each; left and right pick the plant for the selected pot, E confirms (the same look as the outfit slots)"
-    status: open
+    status: answered
+    answer: "a slot-list menu like the outfit slots: one Change plants task at the bookshelf opens a list of the three pots (vase, bowl, plant pot) with the plant in each; left and right pick the plant for the selected pot, E confirms (the same look as the outfit slots)"
+    by: marc
+    on: 2026-11-24
 ---
 
 ## Goal

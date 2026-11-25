@@ -43,7 +43,7 @@ decisions:
     answer: "keep them all: ship every candidate (A, B, C, D, E, E2, F) as an item, so there are always more things to get"
     by: marc
     on: 2026-11-25
-needs: []
+needs: [{who: marc, kind: try, why: "Try the six record stands facing north: cd ~/Dev/repos/mcordova47/sim-worktrees/172-record-stand && npm run dev, add ?own=furniture-record-stand-crate,furniture-record-stand-wire,furniture-record-stand-cabinet,furniture-record-stand-lidded,furniture-record-stand-suitcase-pink,furniture-record-stand-suitcase-teal, Change record stand at the stand; the gramophone was dropped (nothing read as one); then say 'merge 172'", since: 2026-11-25}]
 ---
 
 ## Goal

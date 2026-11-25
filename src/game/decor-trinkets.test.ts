@@ -7,10 +7,9 @@ import { DECOR_DATA, DECOR_SLOTS, NOTE_MAX, itemSprites } from "./decor-data";
 import { CHECKPOINTS } from "./delivery-checkpoints";
 import { Game } from "./game";
 import { taskSpots } from "./plan-checks";
-import { POSES } from "./poses";
 import { TASKS } from "./tasks";
 
-// Issue 167: the trinket slot on the desk's right corner, six trinkets and four display instruments.
+// Issue 167: the trinket slot on the desk's right corner, six trinkets and three display instruments.
 
 const dt = 1 / 60;
 const press: Controls = { ...NO_INPUT, interactPressed: true };
@@ -18,7 +17,7 @@ const down: Controls = { ...NO_INPUT, dirPressed: "down", dir: "down", keys: ["K
 const TAB: Controls = { ...NO_INPUT, keys: ["Tab"] };
 
 const TRINKETS = ["trinket-alebrije", "trinket-telescope", "trinket-finger-skateboard", "trinket-goose-egg", "trinket-worry-doll", "trinket-raccoon-can"];
-const INSTRUMENTS = ["instrument-harmonica", "instrument-kalimba", "instrument-jaw-harp", "instrument-mini-keyboard"];
+const INSTRUMENTS = ["instrument-harmonica", "instrument-kalimba", "instrument-jaw-harp"];
 const ALL = [...TRINKETS, ...INSTRUMENTS];
 const sprites = import.meta.glob("/art/src/*.sprite", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
 const readSprite = (name: string) => sprites[`/art/src/${name}.sprite`];
@@ -46,15 +45,18 @@ describe("the trinket-desk slot", () => {
     expect(a.x + a.w).toBeLessThanOrEqual(desk.bounds.x + desk.bounds.w);
     expect(a.y).toBeGreaterThanOrEqual(desk.bounds.y);
     expect(a.y + a.h).toBeLessThanOrEqual(desk.bounds.y + desk.bounds.h);
-    // The typing pose is drawn from desk-local (32, 16) down; the last row of the cell is desk-local y 16, so the art leaves it empty.
-    const pose = POSES["type-desk"];
-    const poseTop = desk.bounds.y + pose.at.y;
+    // The size policy (docs/trinket-display-design.md section 3): the art is inside cell cols 3 to 12 and rows 5 to 12
+    // (at most 10 wide by 8 tall, ink included) and its foot is row 12, so it never reaches the typing pose, which is
+    // drawn from desk-local (32, 16) down, and never the laptop.
     for (const name of ALL) {
       const rows = readSprite(name).split("\n").filter((l: string) => /^[.0-9a-m]{16}$/.test(l));
       expect(rows.length, name).toBe(16);
-      for (let r = 0; r < 16; r++) if (a.y + r >= poseTop) expect(rows[r], `${name} row ${r}`).toBe(".".repeat(16));
-      // and its first row too, so the art stays on the desk top and not the wall.
-      expect(rows[0], name).toBe(".".repeat(16));
+      const opaque = rows.flatMap((r: string, y: number) => [...r].flatMap((c, x) => (c === "." ? [] : [{ x, y }])));
+      expect(Math.min(...opaque.map((o: { x: number }) => o.x)), name).toBeGreaterThanOrEqual(3);
+      expect(Math.max(...opaque.map((o: { x: number }) => o.x)), name).toBeLessThanOrEqual(12);
+      expect(Math.min(...opaque.map((o: { y: number }) => o.y)), name).toBeGreaterThanOrEqual(5);
+      expect(Math.max(...opaque.map((o: { y: number }) => o.y)), name).toBe(12);
+      expect(Math.max(...opaque.map((o: { x: number }) => o.x)) - Math.min(...opaque.map((o: { x: number }) => o.x)) + 1, name).toBeGreaterThanOrEqual(5);
     }
     for (const spot of taskSpots(main)) {
       const tile = { x: spot.stand.col * 16, y: spot.stand.row * 16 };
@@ -63,13 +65,13 @@ describe("the trinket-desk slot", () => {
     }
   });
 
-  it("has its swap task on the standing desk, named Change the trinket", () => {
-    expect(TASKS.find((t) => t.id === "swap-trinket-desk")).toMatchObject({ name: "Change the trinket", prompt: "Change the trinket", points: 0 });
+  it("has its swap task on the standing desk, named Display trinket", () => {
+    expect(TASKS.find((t) => t.id === "swap-trinket-desk")).toMatchObject({ name: "Display trinket", prompt: "Display trinket", points: 0 });
     expect(taskSpots(main).some((s) => s.id === "swap-trinket-desk")).toBe(true);
   });
 });
 
-describe("the ten items", () => {
+describe("the nine items", () => {
   it("validate, are gifts from a package, fit the slot, and nothing is owned at the start", () => {
     expect(() => validateDecorData(DECOR_DATA)).not.toThrow();
     const fresh = new Decor();
@@ -107,7 +109,7 @@ describe("the ten items", () => {
 describe("the gifts", () => {
   it("come every third day from day 81, trinkets first, after the outfits, and never on a day another list uses", () => {
     const mine = ALL.map((id) => CHECKPOINTS.find((c) => c.item === id)!);
-    expect(mine.map((m) => m.atLeast)).toEqual([81, 84, 87, 90, 93, 96, 99, 102, 105, 108]);
+    expect(mine.map((m) => m.atLeast)).toEqual([81, 84, 87, 90, 93, 96, 99, 102, 105]);
     for (const m of mine) expect(m).toMatchObject({ stat: "days", delayHours: 2 });
     const others = CHECKPOINTS.filter((c) => !ALL.includes(c.item as string) && c.stat === "days").map((c) => c.atLeast);
     for (const m of mine) expect(others).not.toContain(m.atLeast);

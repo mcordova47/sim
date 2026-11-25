@@ -454,9 +454,9 @@ New lines for ordering and eating takeout. The restaurant and the app are never 
 - Opening the box with a plate still on the table (one page; the takeout stays in the box): THERE IS A PLATE ON THE TABLE. THE TAKEOUT CAN WAIT. - 
 
 ## Trinkets and display instruments (issue 167)
-New items for the desk's right corner (slot `trinket-desk`, swap task "Change the trinket"). Names are plain (the worry doll is WORRY DOLL; its Spanish name is not used until the accent has been seen in the swap list), no brand appears, and every note is deadpan, capitals, 80 characters or fewer. Wired in `src/game/decor-data.ts`. Marc to mark: keep / soften / rewrite.
+New items for the desk's right corner (slot `trinket-desk`, swap task "Display trinket", Marc's answer to issue 174 d2). Names are plain (the worry doll is WORRY DOLL; its Spanish name is not used until the accent has been seen in the swap list), no brand appears, and every note is deadpan, capitals, 80 characters or fewer. Wired in `src/game/decor-data.ts`. Marc to mark: keep / soften / rewrite.
 - Slot name: TRINKET ON THE DESK (where: ON THE DESK) -
-- Task: Change the trinket -
+- Task: Display trinket -
 - ALEBRIJE: A PAINTED WOODEN FOX WITH OPINIONS. IT KEEPS THEM TO ITSELF. -
 - LITTLE TELESCOPE: FOR SMALL STARS. IT IS ALSO GOOD AT THE CEILING. -
 - FINGER SKATEBOARD: TWO FINGERS, ONE KICKFLIP, NO WITNESSES. -
@@ -466,7 +466,6 @@ New items for the desk's right corner (slot `trinket-desk`, swap task "Change th
 - HARMONICA: FOR LOOKING AT. THE BLUES CAN WAIT. -
 - KALIMBA: EVERY TINE IS A NICE NOTE. IT IS HARD TO PLAY WRONG. -
 - JAW HARP: A SPRING IN A FRAME. THE SOUND IS A SMALL BOING. -
-- MINI KEYBOARD: TWO OCTAVES. ENOUGH KEYS FOR ONE GOOD IDEA. -
 
 ## Coffee gear (issue 168)
 New names and notes for the coffee apparatus, and the make-coffee wording that follows them ("Make french press coffee", "Make moka coffee"). No brand is named. Wired in `src/game/decor-data.ts` and `src/game/tasks.ts`. Marc to mark: keep / soften / rewrite.

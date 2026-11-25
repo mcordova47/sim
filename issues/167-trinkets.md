@@ -2,17 +2,17 @@
 id: "167"
 title: "Trinkets and display instruments on the desk"
 short: "Trinkets"
-status: in-progress
+status: review
 owner: marc + claude
 depends_on: []
 summary: "A trinket slot on the desk's right corner with the first trinkets and small display instruments."
 kind: build
-changelog: "Six small trinkets and four display instruments can arrive as gifts and sit on the desk's right corner."
+changelog: "Six small trinkets and three display instruments can arrive as gifts and sit on the desk's right corner."
 unverified:
-  - "Not seen in a real, interactive browser session by a person: the art was looked at in headless Chrome screenshots of the room at 4x and 8x."
-  - "The THINGS page and the swap list rows were checked by tests (font, fit, note length) but not looked at as pictures for these ten items."
-  - "Reviewer (2026-11-24) also could not do a real interactive session; checked headless screenshots at about 2x and 8x, not a true 1x, and did not view the THINGS page or swap-list rows as pictures."
-  - "How the trinket picture feels at the real play size on a phone screen."
+  - "Not seen in a real, interactive browser session by a person: the art was looked at in headless Chrome screenshots of the room at 2x, 4x and 8x."
+  - "The THINGS page and the swap-list rows were checked by tests (font, fit, note length) but not looked at as pictures for these nine items."
+  - "Reference photos exist for the alebrije, telescope, finger skateboard, goose egg and raccoon only; none was found for the worry doll, harmonica, kalimba or jaw harp, so those are drawn from the kind of thing."
+  - "How the small pictures feel at the real play size on a phone screen."
 decisions:
   - id: d1
     who: marc
@@ -73,7 +73,11 @@ decisions:
     answer: "it's in trinkets (canned-raccoon.jpeg)"
     by: marc
     on: 2026-11-24
-needs: []
+needs:
+  - who: marc
+    kind: try
+    why: "Look at the nine small pictures on the desk and say which do not read as their object; the telescope, finger skateboard and jaw harp read least clearly."
+    since: 2026-11-24
 ---
 
 ## Goal
@@ -95,3 +99,6 @@ Build steps C and H of `docs/decor-expansion-design.md` (section 3 and 4). Marc 
 - 2026-11-24 (claude): art seen. Sprites checked on the desk tan at 8x, then the real room (dev server, headless Chrome) at 4x and 8x with each item placed: every item sits in the desk's right corner, clear of the laptop and the stand; at 1 tile the fox, egg, doll, raccoon and keyboard read at once, the telescope reads as a tube on a tripod, the finger skateboard is the smallest and reads as a little deck with wheels, the kalimba and jaw harp are the least obvious. The golden frames for a fresh game are unchanged (the slot is empty).
 - 2026-11-24 (claude): checks. `npm test`, `npx tsc --noEmit` pass; new `src/game/decor-trinkets.test.ts` (slot, prop, clear of pose and task spots, items, gift days, swap in and NOTHING out in the real Game). Existing tests that assumed every real slot holds an item now skip the empty one (decor.test.ts, decor-inventory.test.ts); gift counts moved (deliveries.test.ts, checkpoints-stage-a.test.ts, decor-worn.test.ts). docs/decor.md has "What issue 167 built"; the strings are in docs/text-review.md. Files likely to conflict with main: `decor-data.ts` (slot and GIFT_ITEMS tail), `delivery-checkpoints.ts` (tail), `apartment.ts` (desk task line, MAIN_PROPS) and the gift-count tests, since 166 and 168 touch the same lists.
 - 2026-11-24 (reviewer, independent): approve. Checks: `npm test` (4256 pass), `npx tsc --noEmit`, `npm run build`, `npm run check:dist`, `npm run issues:check -- --validate` (valid), `npm run sprites` leaves git status clean. Own throwaway tests (deleted, not committed): a filled slot round-trips through toJSON/load/parseDecor; hand-edited saves (item not owned, trinket in the art slot or the worn slot, art item in the trinket slot, null, number, array, unknown id, junk, null, whole-save garbage) all repair to an empty slot or one shown place with no duplicates; the swap list offers all ten items and no other slot offers any of them; gift days are unique across every checkpoint stat (72 then 81 to 108, 75 and 78 left for 166; 166's branch uses only 75 and 78); ids and items unique. Art: with each item set as the slot default (temporary edit, reverted) I looked at the room in headless Chrome at 8x and about 2x: fox, telescope on a tripod, finger skateboard, egg, worry doll, raccoon in a can, harmonica, kalimba, jaw harp and mini keyboard all sit inside the desk's right corner on bare wood, clear of the laptop and keyboard, no text, palette only. At 8x all ten read; the kalimba and jaw harp are the least obvious, the finger skateboard is the smallest. Typing pose and task spots: checked by the author's test (art in rows 1 to 14) and by eye in the empty-slot and filled room. Scope: only trinket files, tests that assumed every slot has a default, docs and this issue file; no PLAN.md or other issues touched; nothing from reference-photos is named or copied in the diff. Unverified: see front matter. Planner: update the PLAN.md table; expect conflicts in decor-data.ts, delivery-checkpoints.ts, apartment.ts and gift-count tests with 166 and 168.
+- 2026-11-24 (claude): resumed as stage A of the trinket display design (issue 173 d12; Marc's answers in d1 to d5 above). Merged main into the branch (conflicts in decor-data.ts, delivery-checkpoints.ts, the docs, this file and the gift-count tests resolved by keeping both sides' items and gifts and main's test helpers; the slot list test now has `trinket-desk` between the pantry and `worn`). Marc's answers applied: all six trinkets; instruments only harmonica, kalimba and jaw harp, so the mini keyboard is removed everywhere (item, sprite, gift on day 108, note, text); gift days kept (81 to 105, every third day) and not tightened, with a line in docs/decor.md that Marc wants to think separately about spacing. The swap prompt for trinkets is "Display trinket" (issue 174 d2): `SWAP_PROMPT.trinket` in tasks.ts.
+- 2026-11-24 (claude): redraw to the size policy. All nine sprites were redrawn under the same file names inside cell columns 3 to 12, rows 5 to 12, foot on row 12 (measured: alebrije 10x8, telescope 9x8, finger skateboard 7x3, goose egg 5x6, worry doll 5x5, raccoon 6x8, harmonica 8x4, kalimba 9x6, jaw harp 5x6). I looked at the real objects (read-only) for the alebrije, telescope, finger skateboard, goose egg and raccoon, and used only palette colours and my own shapes: the alebrije is now an owl (dark body, big eyes, pink beak, a flower), the telescope a brass tube with a lighter collar on a red cradle, the raccoon a grey head with a dark mask and white ears over a steel-rimmed can with a plain label, the goose egg cream with a butter patch on a brass stand, the finger skateboard a deck with two cream wheels. What I saw at 1x, 4x and 8x on the desk next to the laptop: all nine sit on bare wood in the right corner, clearly smaller than before (about the mug's scale), and read by colour first. Clear at once: raccoon in a can, owl, harmonica, kalimba. Readable with a second look: goose egg, worry doll. Least clear: the telescope (a brass tube with a red stand, it can look like a small cannon), the finger skateboard (a thin deck with two wheels, only 7x3) and the jaw harp (a steel U with a gold tongue). Marc to say which to redraw.
+- 2026-11-24 (claude): shops and ad card. The item pool derives from kinds, so the new items joined the pool by existing: the Odds and Ends Shop line (`line-trinkets`) shows a trinket and the Reedbed Music line (`line-music`) an instrument. I looked at both ad cards in headless Chrome: the small picture is drawn at the room's scale in the middle of the frame (the raccoon in the feed card, the kalimba in the messages card), small but clear against the pale box; no change needed. Tests: `decor-trinkets.test.ts` now checks the box, the foot row, nine items, the gift days and "Display trinket"; counts moved to 56 gift items and 45 checkpoints. `npm test`, tsc, build, check:dist, issues check and sprites pass.

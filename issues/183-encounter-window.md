@@ -69,6 +69,15 @@ decisions:
     answer: "as recommended"
     by: marc
     on: 2026-11-25
+  - id: d6
+    who: marc
+    q: "Random encounters (183, d6): failures can depend on the item: some items are more difficult to get. How is difficulty assigned?"
+    options:
+      - "a difficulty tier on each item in the ladder list: easy (about 1 try in 10 fails), normal (about 1 in 5, the default for everything), hard (about 2 in 5); the build proposes tiers (for example big or special things hard, common small things easy) for Marc to edit; a hard item's failure lines can say so; a failure never costs anything and the item stays in the window"
+      - "difficulty follows the ladder position (later items fail more often)"
+      - "no per-item difficulty, one failure rate for all"
+    recommendation: "a difficulty tier on each item in the ladder list: easy (about 1 try in 10 fails), normal (about 1 in 5, the default for everything), hard (about 2 in 5); the build proposes tiers (for example big or special things hard, common small things easy) for Marc to edit; a hard item's failure lines can say so; a failure never costs anything and the item stays in the window"
+    status: open
 ---
 
 ## Goal

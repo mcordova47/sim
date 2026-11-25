@@ -34,7 +34,10 @@ decisions:
       - "table and stove with every apparatus at once"
       - "only three: french press, moka pot, drip machine"
     recommendation: "table: french press, drip machine, pod machine; stove: percolator, moka pot, briki; the espresso machine, siphon and air press in a second batch"
-    status: open
+    status: answered
+    answer: "table: french press, drip machine, pod machine; stove: percolator, moka pot, briki (a small long-handled pot); the espresso machine, siphon and air press in a second batch"
+    by: marc
+    on: 2026-11-24
   - id: d3
     who: marc
     q: "Does the make-coffee duration follow the apparatus (a drip machine quicker than a siphon)?"

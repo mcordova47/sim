@@ -272,7 +272,7 @@ describe("drawing the list", () => {
     const a = new OutfitSlotsActivity(d);
     for (let i = 0; i < cursorDowns; i++) a.update(dt, dir("down"));
     a.draw(ctx, view, avoid);
-    return { box: rects[0], note: a.note(view.width - 44 - 10), a };
+    return { box: rects[0], a };
   }
 
   it("the box stays inside the screen on the desktop view and the phone view", () => {
@@ -287,28 +287,22 @@ describe("drawing the list", () => {
     }
   });
 
-  it("the phone's box is 115 px high (two rows per slot) and goes to the top when the player is low", () => {
+  it("the phone's box is 105 px high (two rows per slot) and goes to the top when the player is low", () => {
     const low = render(NARROW_VIEW, { x: 100, y: 150, w: 16, h: 16 });
     const high = render(NARROW_VIEW, { x: 100, y: 40, w: 16, h: 16 });
-    expect(low.box.h).toBe(115);
+    expect(low.box.h).toBe(105);
     expect(low.box.y).toBe(4);
-    expect(high.box.y).toBe(NARROW_VIEW.height - 4 - 115);
+    expect(high.box.y).toBe(NARROW_VIEW.height - 4 - 105);
     // Never over the player.
     expect(low.box.y + low.box.h).toBeLessThan(150);
     expect(high.box.y).toBeGreaterThan(56);
   });
 
-  it("every slot's line fits the phone's inner width (180 px) without being cut", () => {
-    const a = new OutfitSlotsActivity(decorWith(HOODIE));
-    for (let i = 0; i < OUTFIT_SLOTS.length; i++) {
-      expect(a.note(180).length, a.slot.id).toBeGreaterThan(0);
-      expect(textLength(a.note(180)), a.slot.id).toBeLessThanOrEqual(180);
-      for (const line of [a.slot.note, a.slot.empty]) expect(textLength(line), line).toBeLessThanOrEqual(180);
-      a.update(dt, dir("down"));
-    }
+  it("an outfit row fits the phone's inner width (180 px) for the longest outfit name, with its arrows", () => {
+    const longest = Math.max(...OUTFITS.map((o) => o.name.length));
+    expect((longest + 4) * 6 - 1 + 12).toBeLessThanOrEqual(180);
   });
 });
-const textLength = (t: string) => t.length * 6 - 1;
 
 // A one-room game with one task in front of the player, started by a press.
 function room(decor: Decor, task: "sleep" | "shower" | "nap") {

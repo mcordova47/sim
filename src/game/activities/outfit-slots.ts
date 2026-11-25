@@ -12,18 +12,16 @@ import { OUTFIT_SLOTS, type OutfitSlotDef } from "../outfits";
 // list of outfits. Up and down choose a slot; left and right change the outfit equipped there (you see it on
 // yourself at once); E wears that slot now; Escape leaves what you wear as it was (equipment changes already made
 // stay: they are tidying, not a purchase). Like every swap it holds the clock, pays nothing and ends quietly.
-// All four slots always show (Marc, 164 d9); an empty slot reads (EVERYDAY), the clothes it falls back to.
+// All four slots always show (Marc, 164 d9); an empty slot reads a dash (it wears the EVERYDAY outfit). No help text: the list is slot names, outfits, WORN and the keys line.
 // On the narrow phone view each slot takes two rows (the slot and WORN, then the outfit).
 
 const ROW = GLYPH_H + 2;
 const MARGIN = 17;
 const PAD = 5;
 const HEAD = ROW + 3;
-const NOTE = ROW + 1;
 const FOOT = ROW + 2;
-const EMPTY_NAME = "(EVERYDAY)";
+const EMPTY_NAME = "-";
 const WORN = "WORN";
-const PUT_ON = ". E PUTS IT ON NOW.";
 
 // The line of keys at the foot; on the touch layer it names the pad and the buttons.
 export const footer = (): string =>
@@ -100,19 +98,11 @@ export class OutfitSlotsActivity extends BaseActivity {
     this.finish({ completed: false, quiet: true });
   }
 
-  // The outfit name in a slot's row, and whether the slot is empty (so it shows the fallback).
+  // The outfit name in a slot's row (a dash when the slot is empty).
   private label(slot: OutfitSlotDef): { text: string; empty: boolean } {
     const id = this.decor.equippedIn(slot.id);
     const item = id === undefined ? undefined : this.decor.item(id);
     return item ? { text: item.name, empty: false } : { text: EMPTY_NAME, empty: true };
-  }
-
-  // The line above the keys: what the slot is for; what E does on the desktop when it fits.
-  note(width: number): string {
-    const s = this.slot;
-    const base = this.label(s).empty ? s.empty : s.note;
-    const worn = this.decor.wornSlot() === s.id;
-    return !worn && textWidth(base + PUT_ON) <= width ? base + PUT_ON : fitLabel(base, width);
   }
 
   draw(ctx: CanvasRenderingContext2D, screen: { width: number; height: number }, avoid?: { x: number; y: number; w: number; h: number }): void {
@@ -120,7 +110,7 @@ export class OutfitSlotsActivity extends BaseActivity {
     const narrow = screen.width <= NARROW_VIEW.width;
     const slots = OUTFIT_SLOTS.length;
     const w = screen.width - 2 * MARGIN;
-    const h = PAD * 2 + HEAD + slots * ROW * (narrow ? 2 : 1) + NOTE + FOOT;
+    const h = PAD * 2 + HEAD + slots * ROW * (narrow ? 2 : 1) + FOOT;
     // Along the bottom, or along the top when the player is in the lower half of the screen (never over them).
     const x = MARGIN;
     const low = avoid !== undefined && avoid.y + avoid.h / 2 > screen.height / 2;
@@ -155,7 +145,6 @@ export class OutfitSlotsActivity extends BaseActivity {
       const room = (tag && !narrow ? right - textWidth(tag) - 6 : right) - nx;
       drawText(ctx, fitLabel(text, room), nx, narrow ? top + ROW : top, opts);
     });
-    drawText(ctx, this.note(right - left), left, y + PAD + HEAD + slots * ROW * (narrow ? 2 : 1) + 1, opts);
     drawText(ctx, footer(), left, y + h - PAD - GLYPH_H, opts);
   }
 }

@@ -40,21 +40,18 @@ export const OUTFITS: readonly OutfitDef[] = [
 ];
 
 // Outfit slots (issue 175, docs/outfit-slots-design.md): a preference list over the worn outfit. Each slot takes
-// only outfits of its own styles, so every style belongs to exactly one slot (a test checks it). `note` is the line
-// the clothes list shows for the slot; `empty` is the line when nothing is equipped there.
+// only outfits of its own styles, so every style belongs to exactly one slot (a test checks it).
 export type OutfitSlotId = "everyday" | "pajamas" | "robe" | "out";
 export interface OutfitSlotDef {
   id: OutfitSlotId;
   name: string;
   styles: readonly OutfitStyle[];
-  note: string;
-  empty: string;
 }
 export const OUTFIT_SLOTS: readonly OutfitSlotDef[] = [
-  { id: "everyday", name: "EVERYDAY", styles: ["home", "casual"], note: "WHAT YOU WEAR BY DAY", empty: "EMPTY: EVERYDAY CLOTHES" },
-  { id: "pajamas", name: "PAJAMAS", styles: ["pajamas"], note: "YOU WAKE UP IN THESE", empty: "EMPTY: EVERYDAY CLOTHES" },
-  { id: "robe", name: "ROBE", styles: ["robe"], note: "WHAT YOU WEAR AFTER A SHOWER", empty: "EMPTY: EVERYDAY CLOTHES" },
-  { id: "out", name: "GOING OUT", styles: ["out"], note: "NOTHING PUTS THESE ON: BY HAND", empty: "EMPTY: EVERYDAY CLOTHES" },
+  { id: "everyday", name: "EVERYDAY", styles: ["home", "casual"] },
+  { id: "pajamas", name: "PAJAMAS", styles: ["pajamas"] },
+  { id: "robe", name: "ROBE", styles: ["robe"] },
+  { id: "out", name: "GOING OUT", styles: ["out"] },
 ];
 export const SLOT_STYLES: Record<OutfitSlotId, readonly OutfitStyle[]> = Object.fromEntries(OUTFIT_SLOTS.map((s) => [s.id, s.styles])) as Record<OutfitSlotId, readonly OutfitStyle[]>;
 export const isOutfitSlot = (id: unknown): id is OutfitSlotId => typeof id === "string" && OUTFIT_SLOTS.some((s) => s.id === id);

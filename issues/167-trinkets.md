@@ -2,7 +2,7 @@
 id: "167"
 title: "Trinkets and display instruments on the desk"
 short: "Trinkets"
-status: review
+status: in-progress
 owner: marc + claude
 depends_on: []
 summary: "A trinket slot on the desk's right corner with the first trinkets and small display instruments."
@@ -120,3 +120,8 @@ Build steps C and H of `docs/decor-expansion-design.md` (section 3 and 4). Marc 
 - 2026-11-24 (claude): round 3 fix: docs/decor.md size-policy line had stale sizes (egg 5x6, owl 10x8); now owl 8x7, egg with stand 8x8, jaw harp 6x7, telescope 9x7.
 - 2026-11-24 (reviewer, independent, round 4 on 84e90ac): changes needed (one docs word). Measured the sprites: owl 8x7, egg and stand 8x8, raccoon 6x8, jaw harp 6x7, finger skateboard 9x5, worry doll 5x5 all match docs/decor.md line 476, and all are inside cols 3-12, rows 5-12 with the foot on row 12. The telescope does not: `art/src/trinket-telescope.sprite` is cols 4-12, rows 6-12, so 9 wide by 7 tall, but the line says "the telescope is 9 by 8" (also its file comment says box 10x8). Fix: "9 by 7". No other stale size in docs/decor.md (the 10x8 and 5x6 figures are gone). `npm run issues:check -- --validate` (214 valid), `npm test` (4403 pass), `npx tsc --noEmit` pass; `npm run sprites` leaves git status clean. Status stays review.
 - 2026-11-24 (claude): round 4 fix: the telescope is 9x7 (not 9x8) in docs/decor.md and its sprite header comment.
+
+### 2026-11-24 Review, round 5
+Measured every trinket-*/instrument-* sprite. docs/decor.md sizes all match (doll 5x5, jaw harp 6x7, owl 8x7, egg 8x8, telescope 9x7, skateboard 9x5, raccoon 6x8). Header comments match except one. issues:check --validate, tsc, npm test pass; `npm run sprites` leaves git clean.
+- [ ] art/src/instrument-jaw-harp.sprite header says "Box 5x6"; the pixels measure 6x7 (cols 5-10, rows 6-12), as docs/decor.md says. Fix the comment.
+Verdict: changes needed (one stale comment).

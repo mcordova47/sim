@@ -51,7 +51,10 @@ decisions:
       - "strict: houseplants and the empty pot only; the four dried items (and the old saves that show one there) move to the vase; you can no longer park a dried item in the plant pot to pause the snake plant (the empty pot does it)"
       - "lenient: the plant pot also takes dried items, as today"
     recommendation: "strict: houseplants and the empty pot only; the four dried items (and the old saves that show one there) move to the vase; you can no longer park a dried item in the plant pot to pause the snake plant (the empty pot does it)"
-    status: open
+    status: answered
+    answer: "strict: houseplants and the empty pot only; the four dried items (and the old saves that show one there) move to the vase; you can no longer park a dried item in the plant pot to pause the snake plant (the empty pot does it)"
+    by: marc
+    on: 2026-11-24
   - id: d5
     who: marc
     q: "Are the empty pots real items (EMPTY VASE, EMPTY BOWL, EMPTY POT, owned from the start) or empty slots?"
@@ -59,7 +62,10 @@ decisions:
       - "items: no new engine beyond an `empty` flag so they do not count as spares (a fresh game shows no new prompt; an empty pot is reachable once the first real spare arrives); three more 'ALREADY HERE' lines on the THINGS page"
       - "empty slots with a bare-pot picture: needs engine work (a slot with a default that can also be empty)"
     recommendation: "items: no new engine beyond an `empty` flag so they do not count as spares (a fresh game shows no new prompt; an empty pot is reachable once the first real spare arrives); three more 'ALREADY HERE' lines on the THINGS page"
-    status: open
+    status: answered
+    answer: "items: no new engine beyond an `empty` flag so they do not count as spares (a fresh game shows no new prompt; an empty pot is reachable once the first real spare arrives); three more 'ALREADY HERE' lines on the THINGS page"
+    by: marc
+    on: 2026-11-24
   - id: d6
     who: marc
     q: "May the bowl be drawn 2 px lower than the baked bowl, so low plants get 4 clear rows above the rim instead of 2?"
@@ -67,7 +73,10 @@ decisions:
       - "yes: a fresh game differs from today by those 2 pixels"
       - "no: the fresh room stays pixel for pixel the same and low plants are 2 rows tall"
     recommendation: "yes: a fresh game differs from today by those 2 pixels"
-    status: open
+    status: answered
+    answer: "yes: a fresh game differs from today by those 2 pixels"
+    by: marc
+    on: 2026-11-24
   - id: d7
     who: marc
     q: "When cut flowers dry, do they become a separate keepsake item (DRIED TULIPS) or does the same item change its look?"
@@ -75,7 +84,10 @@ decisions:
       - "the same item changes its look to dried, in place, as d1 says (issue 171 as written); a new bunch replaces it"
       - "a separate keepsake: the fresh bunch is replaced by a dried item you keep, and a new bunch can arrive again"
     recommendation: "the same item changes its look to dried, in place, as d1 says (issue 171 as written); a new bunch replaces it"
-    status: open
+    status: answered
+    answer: "for now that's fine; i have this idea for the future for the flowers to sit on the desk or something and drying the flowers is an active choice, which takes some time and then you collect the dried flowers and can put them in the pot; you can receive the same bunch again, but i guess you can't dry the same arrangement a second time"
+    by: marc
+    on: 2026-11-24
   - id: d8
     who: marc
     q: "The floor trees: the shut-in square at col 8, row 7 (abs 128,112), with 16x16 small trees whose crown stays inside the tile?"
@@ -84,7 +96,10 @@ decisions:
       - "a tall 16x32 tree (it hides the lamp, or sits behind it and shows only a trunk)"
       - "another square (the walk beside the lamp, which a tree would partly block)"
     recommendation: "yes: 16x16 small trees (potted palm, rubber plant, fiddle-leaf fig); a swap task on the record stand"
-    status: open
+    status: answered
+    answer: "yes: 16x16 small trees (potted palm, rubber plant, fiddle-leaf fig); a swap task on the record stand"
+    by: marc
+    on: 2026-11-24
   - id: d9
     who: marc
     q: "Swap tasks for the three pots: one each, or one that asks which pot?"
@@ -92,7 +107,10 @@ decisions:
       - "one per pot (Change plant, Change vase, Change bowl), each only when there is a spare"
       - "one 'Change plants' that asks which pot first"
     recommendation: "one per pot (Change plant, Change vase, Change bowl), each only when there is a spare"
-    status: open
+    status: answered
+    answer: "maybe this could be a similar slot mechanism to outfits? then the menu would work the same way? another option is just one \"change plants\" option that just puts the plant in the appropriate place; i don't feel strongly, but it would be nice to avoid the top-level list growing too large"
+    by: marc
+    on: 2026-11-24
   - id: d10
     who: marc
     q: "Does the window sill share the vase's and bowl's stock (dried and low plants and trinkets) rather than have a kind of its own?"
@@ -100,7 +118,10 @@ decisions:
       - "share it (still low plants fit both bowl and sill; live ones fit the bowl only), until live sill plants exist"
       - "its own kind of plant for the sill from the start"
     recommendation: "share it (still low plants fit both bowl and sill; live ones fit the bowl only), until live sill plants exist"
-    status: open
+    status: answered
+    answer: "that sounds fine, with a follow-up to give it a special kind (herbs or flowers or something?)"
+    by: marc
+    on: 2026-11-24
 needs: [{who: marc, kind: decide, why: "Look at the plant pots mockups (~/Dev/repos/mcordova47/sim-worktrees/179-plant-pots/docs/plant-pots-mockups/), answer d1 to d10, then say 'merge 179' (design only; the third review is running)", since: 2026-11-24}]
 ---
 

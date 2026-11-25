@@ -9,7 +9,7 @@ import { Game } from "./game";
 import { taskSpots } from "./plan-checks";
 import { TASKS } from "./tasks";
 
-// Issue 167: the trinket slot on the desk's right corner, six trinkets and three display instruments.
+// Issue 167: the trinket slot on the desk's right corner, six trinkets, three display instruments and a second alebrije.
 
 const dt = 1 / 60;
 const press: Controls = { ...NO_INPUT, interactPressed: true };
@@ -18,7 +18,9 @@ const TAB: Controls = { ...NO_INPUT, keys: ["Tab"] };
 
 const TRINKETS = ["trinket-alebrije", "trinket-telescope", "trinket-finger-skateboard", "trinket-goose-egg", "trinket-worry-doll", "trinket-raccoon-can"];
 const INSTRUMENTS = ["instrument-harmonica", "instrument-kalimba", "instrument-jaw-harp"];
-const ALL = [...TRINKETS, ...INSTRUMENTS];
+// The second alebrije, the cat, is the last gift (day 108); the instruments come before it.
+const CAT = "trinket-alebrije-cat";
+const ALL = [...TRINKETS, ...INSTRUMENTS, CAT];
 const sprites = import.meta.glob("/art/src/*.sprite", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
 const readSprite = (name: string) => sprites[`/art/src/${name}.sprite`];
 const slot = DECOR_SLOTS.find((s) => s.id === "trinket-desk")!;
@@ -71,7 +73,7 @@ describe("the trinket-desk slot", () => {
   });
 });
 
-describe("the nine items", () => {
+describe("the ten items", () => {
   it("validate, are gifts from a package, fit the slot, and nothing is owned at the start", () => {
     expect(() => validateDecorData(DECOR_DATA)).not.toThrow();
     const fresh = new Decor();
@@ -109,7 +111,7 @@ describe("the nine items", () => {
 describe("the gifts", () => {
   it("come every third day from day 81, trinkets first, after the outfits, and never on a day another list uses", () => {
     const mine = ALL.map((id) => CHECKPOINTS.find((c) => c.item === id)!);
-    expect(mine.map((m) => m.atLeast)).toEqual([81, 84, 87, 90, 93, 96, 99, 102, 105]);
+    expect(mine.map((m) => m.atLeast)).toEqual([81, 84, 87, 90, 93, 96, 99, 102, 105, 108]);
     for (const m of mine) expect(m).toMatchObject({ stat: "days", delayHours: 2 });
     const others = CHECKPOINTS.filter((c) => !ALL.includes(c.item as string) && c.stat === "days").map((c) => c.atLeast);
     for (const m of mine) expect(others).not.toContain(m.atLeast);

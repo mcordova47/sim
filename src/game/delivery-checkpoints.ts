@@ -54,6 +54,7 @@ export const CHECKPOINTS: readonly Milestone[] = [
   { id: "gift-day-99", stat: "days", atLeast: 99, item: "instrument-harmonica", delayHours: SOON },
   { id: "gift-day-102", stat: "days", atLeast: 102, item: "instrument-kalimba", delayHours: SOON },
   { id: "gift-day-105", stat: "days", atLeast: 105, item: "instrument-jaw-harp", delayHours: SOON },
+  { id: "gift-day-108", stat: "days", atLeast: 108, item: "trinket-alebrije-cat", delayHours: SOON },
   // Rugs (issue 166, decision d4's default): only a starter pair is a checkpoint gift, the striped living-area rug on day 75 and the green bed rug on day 78,
   // after the last outfit (day 72). The other eight rugs are items with no checkpoint yet; they come through the random-encounter
   // pool when issue 163 is built. Change the number to move a gift.

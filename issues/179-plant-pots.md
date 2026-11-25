@@ -62,7 +62,10 @@ decisions:
       - "items: no new engine beyond an `empty` flag so they do not count as spares (a fresh game shows no new prompt; an empty pot is reachable once the first real spare arrives); three more 'ALREADY HERE' lines on the THINGS page"
       - "empty slots with a bare-pot picture: needs engine work (a slot with a default that can also be empty)"
     recommendation: "items: no new engine beyond an `empty` flag so they do not count as spares (a fresh game shows no new prompt; an empty pot is reachable once the first real spare arrives); three more 'ALREADY HERE' lines on the THINGS page"
-    status: open
+    status: answered
+    answer: "items: no new engine beyond an `empty` flag so they do not count as spares (a fresh game shows no new prompt; an empty pot is reachable once the first real spare arrives); three more 'ALREADY HERE' lines on the THINGS page"
+    by: marc
+    on: 2026-11-24
   - id: d6
     who: marc
     q: "May the bowl be drawn 2 px lower than the baked bowl, so low plants get 4 clear rows above the rim instead of 2?"

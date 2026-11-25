@@ -250,6 +250,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 181 | [OUTFITS page build](issues/181-outfits-page-build.md) | marc + claude | done | 180 |
 | 182 | [Three pots (stage A)](issues/182-plant-pots-stage-a.md) | marc + claude | done | 179 |
 | 183 | [Window, repeats, failures](issues/183-encounter-window.md) | marc + claude | done | 163 |
+| 184 | [Starting towel](issues/184-starting-towel.md) | marc + claude | todo | |
 <!-- issues:table:end -->
 
 ## Order of work

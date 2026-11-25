@@ -94,7 +94,7 @@ describe("the production checkpoint list", () => {
     }
     d.own("plant-dried");
     expect(d.choices("plant-shelf").map((i) => i.id)).toContain("plant-dried");
-    expect(GIFT_ITEMS.length).toBe(47);
+    expect(GIFT_ITEMS.length).toBe(57);
     expect(DECOR_DATA.items.some((i) => i.id === "lamp-test-stool-lamp")).toBe(true); // TEST items stay until stage 4
   });
 });

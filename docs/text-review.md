@@ -418,6 +418,21 @@ New lines for ordering and eating takeout. The restaurant and the app are never 
 - Opening the box (one page): OPENED: TAKEOUT. IT IS ON THE TABLE. - 
 - Opening the box with a plate still on the table (one page; the takeout stays in the box): THERE IS A PLATE ON THE TABLE. THE TAKEOUT CAN WAIT. - 
 
+## Trinkets and display instruments (issue 167)
+New items for the desk's right corner (slot `trinket-desk`, swap task "Display trinket", Marc's answer to issue 174 d2). Names are plain (the worry doll is WORRY DOLL; its Spanish name is not used until the accent has been seen in the swap list), no brand appears, and every note is deadpan, capitals, 80 characters or fewer. Wired in `src/game/decor-data.ts`. Marc to mark: keep / soften / rewrite.
+- Slot name: TRINKET ON THE DESK (where: ON THE DESK) -
+- Task: Display trinket -
+- ALEBRIJE OWL: A PAINTED WOODEN OWL WITH OPINIONS. IT KEEPS THEM TO ITSELF. -
+- ALEBRIJE CAT: IT SITS LIKE IT OWNS THE FLOWER. IT DOES. -
+- LITTLE TELESCOPE: FOR SMALL STARS. IT IS ALSO GOOD AT THE CEILING. -
+- FINGER SKATEBOARD: TWO FINGERS, ONE KICKFLIP, NO WITNESSES. -
+- PAINTED GOOSE EGG: SOMEONE PATIENT PAINTED IT. NOTHING IS HATCHING. -
+- WORRY DOLL: IT TAKES THE WORRIES. YOU KEEP THE NAP. -
+- RACCOON IN A CAN: NOBODY EXPLAINED THE CAN. THE RACCOON SEEMS FINE. -
+- HARMONICA: FOR LOOKING AT. THE BLUES CAN WAIT. -
+- KALIMBA: EVERY TINE IS A NICE NOTE. IT IS HARD TO PLAY WRONG. -
+- JAW HARP: A SPRING IN A FRAME. THE SOUND IS A SMALL BOING. -
+
 ## Coffee gear (issue 168)
 New names and notes for the coffee apparatus, and the make-coffee wording that follows them ("Make french press coffee", "Make moka coffee"). No brand is named. Wired in `src/game/decor-data.ts` and `src/game/tasks.ts`. Marc to mark: keep / soften / rewrite.
 - Task names and prompts (the word in the middle follows the apparatus): Make pour-over coffee / Make french press coffee / Make drip coffee / Make pod coffee / Make percolator coffee / Make moka coffee / Make briki coffee / Make stovetop coffee (the plain wording) - 

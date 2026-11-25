@@ -391,6 +391,55 @@
           "out": true
         }
       ]
+    },
+    {
+      "id": "alebrije",
+      "title": "Alebrije (issue 167)",
+      "kind": "alebrije",
+      "blurb": "Alebrijes are fantastical painted creatures, so any of these could be the one on the desk. Each shows the SMALL in-room sprite (at most 10 wide by 8 tall, foot on row 12, the desk's right corner) and the 48x48 CLOSE-UP the Examine card (issue 173, a later stage) will show. The close-up is candidate-only art; the small one is the simplified version of it. Palette only, no text. Pick a letter and the chosen small sprite replaces the owl (same file name and id trinket-alebrije, with the name and note below).",
+      "candidates": [
+        {
+          "letter": "A",
+          "current": true,
+          "file": "alebrije/alebrije-a-owl",
+          "close": "alebrije/alebrije-a-owl-close",
+          "label": "The owl now in the game: a dark body with white dots, big eyes, a pink beak, a plum flower and teal wing tips.",
+          "name": "ALEBRIJE",
+          "note": "A PAINTED WOODEN OWL WITH OPINIONS. IT KEEPS THEM TO ITSELF."
+        },
+        {
+          "letter": "B",
+          "file": "alebrije/alebrije-b-cat",
+          "close": "alebrije/alebrije-b-cat-close",
+          "label": "A plain cat: a sitting tangerine cat, a green-masked face with yellow eyes, a pink flower on its chest, white dots and a ringed tail.",
+          "name": "ALEBRIJE CAT",
+          "note": "IT SITS LIKE IT OWNS THE FLOWER. IT DOES."
+        },
+        {
+          "letter": "C",
+          "file": "alebrije/alebrije-c-winged-cat",
+          "close": "alebrije/alebrije-c-winged-cat-close",
+          "label": "A cat with wings: the same cat with a teal wing and a plum wing, feathered in sky and pink.",
+          "name": "WINGED ALEBRIJE",
+          "note": "IT HAS WINGS. IT HAS NEVER USED THEM IN FRONT OF YOU."
+        },
+        {
+          "letter": "D",
+          "file": "alebrije/alebrije-d-cat-fish",
+          "close": "alebrije/alebrije-d-cat-fish-close",
+          "label": "A cat-fish: the cat's head over a scaled teal body with pink side fins and a plum tail fin.",
+          "name": "CAT FISH ALEBRIJE",
+          "note": "HALF CAT, HALF FISH, ALL OPINION ABOUT THE BATH."
+        },
+        {
+          "letter": "E",
+          "file": "alebrije/alebrije-e-antlered-cat",
+          "close": "alebrije/alebrije-e-antlered-cat-close",
+          "label": "A cat with antlers and a dragon tail: butter antlers, a green tail with spikes, a pink chest flower.",
+          "name": "ANTLERED ALEBRIJE",
+          "note": "ANTLERS, A DRAGON TAIL AND THE CALM OF A CAT."
+        }
+      ]
     }
   ]
 }

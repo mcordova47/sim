@@ -143,6 +143,8 @@ export const DECOR_SLOTS: DecorSlot[] = [
   { id: "rug-bed", where: "UNDER THE BED", room: "main", name: "BED RUG", area: { x: 176, y: 96, w: 112, h: 48 }, kinds: ["rug"], object: "queen bed" },
   // The pantry in the kitchen (issue 072): a 16x32 stack of bins down the east wall. Nothing to swap yet (no `object`, one item); stage 4 can add upgrade items.
   { id: "pantry", where: "IN THE PANTRY", room: "kitchen", name: "PANTRY", area: { x: 176, y: 16, w: 16, h: 32 }, kinds: ["pantry"], default: "pantry-bins" },
+  // The desk's right corner (issue 167): starts EMPTY (no default), so a fresh game looks the same. The left corner is kept for desk clutter (issue 042).
+  { id: "trinket-desk", where: "ON THE DESK", room: "main", name: "TRINKET ON THE DESK", area: { x: 140, y: 17, w: 16, h: 16 }, kinds: ["trinket", "instrument"], object: "standing desk" },
   // What you wear (issue 152). Not drawn on the map: the player's sprites follow it (`Game.syncOutfit`). Changed at the cube bookshelf (Marc, 2026-11-24).
   { id: "worn", where: "WORN", room: "main", name: "CLOTHES", area: { x: 0, y: 0, w: 16, h: 16 }, kinds: ["outfit"], default: "outfit-home", object: "cube bookshelf", offMap: true },
   // The two coffee stations (issue 168): the pour-over cone on the dining table (today's look), and a burner on the stove that starts empty.
@@ -219,6 +221,17 @@ export const GIFT_ITEMS: DecorItem[] = [
   { id: "outfit-out-peacoat", name: "PEACOAT", kind: "outfit", sprite: "player-out-peacoat-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "WARM, AND NOBODY ASKS WHERE YOU ARE GOING." },
   { id: "outfit-pajamas-striped", name: "STRIPED PAJAMAS", kind: "outfit", sprite: "player-pajamas-striped-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "NOTHING ABOUT THESE IS URGENT." },
   { id: "outfit-pajamas-robe", name: "BATHROBE", kind: "outfit", sprite: "player-pajamas-robe-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "THE SHOWER WENT WELL. THE ROBE AGREES." },
+  // Trinkets and display instruments for the desk's right corner (issue 167). Display only: nothing here is played or counted.
+  { id: "trinket-alebrije", name: "ALEBRIJE OWL", kind: "trinket", sprite: "trinket-alebrije", w: 16, h: 16, color: "tangerine", how: "gift", from: "A PACKAGE", note: "A PAINTED WOODEN OWL WITH OPINIONS. IT KEEPS THEM TO ITSELF." },
+  { id: "trinket-telescope", name: "LITTLE TELESCOPE", kind: "trinket", sprite: "trinket-telescope", w: 16, h: 16, color: "butter", how: "gift", from: "A PACKAGE", note: "FOR SMALL STARS. IT IS ALSO GOOD AT THE CEILING." },
+  { id: "trinket-finger-skateboard", name: "FINGER SKATEBOARD", kind: "trinket", sprite: "trinket-finger-skateboard", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "TWO FINGERS, ONE KICKFLIP, NO WITNESSES." },
+  { id: "trinket-goose-egg", name: "PAINTED GOOSE EGG", kind: "trinket", sprite: "trinket-goose-egg", w: 16, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "SOMEONE PATIENT PAINTED IT. NOTHING IS HATCHING." },
+  { id: "trinket-worry-doll", name: "WORRY DOLL", kind: "trinket", sprite: "trinket-worry-doll", w: 16, h: 16, color: "brick", how: "gift", from: "A PACKAGE", note: "IT TAKES THE WORRIES. YOU KEEP THE NAP." },
+  { id: "trinket-raccoon-can", name: "RACCOON IN A CAN", kind: "trinket", sprite: "trinket-raccoon-can", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "NOBODY EXPLAINED THE CAN. THE RACCOON SEEMS FINE." },
+  { id: "instrument-harmonica", name: "HARMONICA", kind: "instrument", sprite: "instrument-harmonica", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "FOR LOOKING AT. THE BLUES CAN WAIT." },
+  { id: "instrument-kalimba", name: "KALIMBA", kind: "instrument", sprite: "instrument-kalimba", w: 16, h: 16, color: "butter", how: "gift", from: "A PACKAGE", note: "EVERY TINE IS A NICE NOTE. IT IS HARD TO PLAY WRONG." },
+  { id: "instrument-jaw-harp", name: "JAW HARP", kind: "instrument", sprite: "instrument-jaw-harp", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "A SPRING IN A FRAME. THE SOUND IS A SMALL BOING." },
+  { id: "trinket-alebrije-cat", name: "ALEBRIJE CAT", kind: "trinket", sprite: "trinket-alebrije-cat", w: 16, h: 16, color: "tangerine", how: "gift", from: "A PACKAGE", note: "IT SITS LIKE IT OWNS THE FLOWER. IT DOES." },
   // Coffee gear (issue 168): equal pay, only the picture and the task's name follow the apparatus. The table takes the first three, the stove the rest.
   { id: "coffee-french-press", name: "FRENCH PRESS", kind: "coffee", sprite: "coffee-french-press", taskName: "french press", slots: ["coffee-table"], w: 16, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "YOU PRESS IT SLOWLY, LIKE SOMEONE WITH NOTHING SCHEDULED." },
   { id: "coffee-drip-machine", name: "DRIP MACHINE", kind: "coffee", sprite: "coffee-drip-machine", taskName: "drip", slots: ["coffee-table"], w: 16, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "IT DOES THE WAITING FOR YOU. YOU WAIT ANYWAY." },

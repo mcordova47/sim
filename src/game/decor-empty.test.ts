@@ -208,7 +208,7 @@ describe("a map object for an empty slot", () => {
 
 describe("the new kinds", () => {
   it("each has a plain swap prompt and a slot of that kind validates", () => {
-    expect(SWAP_PROMPT).toMatchObject({ trinket: "Change trinket", coffee: "Change coffee gear", outfit: "Change clothes", furniture: "Change furniture" });
+    expect(SWAP_PROMPT).toMatchObject({ trinket: "Display trinket", coffee: "Change coffee gear", outfit: "Change clothes", furniture: "Change furniture" });
     for (const kind of ["trinket", "coffee", "outfit", "furniture"] as const) {
       const slot: DecorSlot = { id: `${kind}-test`, room: "main", name: "TEST", area: { x: 0, y: 0, w: 16, h: 16 }, kinds: [kind] };
       const item: DecorItem = { id: `${kind}-one`, name: "ONE", kind, sprite: "one", w: 16, h: 16 };

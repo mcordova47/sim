@@ -27,8 +27,8 @@ export const load = (name, path) => {
   return rasterize(parseSprite(`${name}.sprite`, readFileSync(f, "utf8")));
 };
 
-// `rugs`: [{ img, x, y }] in pixels. `sleep`: draw the sleeping pose over the bed. `box`: a package waiting by the door.
-export function composeMainRoom({ rugs = [], sleep = false, box = false, player = true } = {}) {
+// `trinket`: { img } for the desk's right corner (slot trinket-desk, issue 167), drawn at (140, 17) over the desk. `rugs`: [{ img, x, y }] in pixels. `sleep`: draw the sleeping pose over the bed. `box`: a package waiting by the door.
+export function composeMainRoom({ rugs = [], sleep = false, box = false, player = true, trinket = null } = {}) {
   const W = COLS * T, H = ROWS * T;
   const rgba = Buffer.alloc(W * H * 4);
   const blit = (img, ox, oy) => {
@@ -67,6 +67,7 @@ export function composeMainRoom({ rugs = [], sleep = false, box = false, player 
     if (!img) continue;
     things.push({ img, x: b.c * T, y: b.r * T, bottom: (b.r2 + 1) * T });
   }
+  if (trinket) things.push({ img: trinket.img, x: 140, y: 17, bottom: 48 });
   if (box) things.push({ img: load("delivery-box"), x: 10 * T, y: 8 * T, bottom: 9 * T });
   const start = MAP.flatMap((row, r) => [...row].map((ch, c) => (ch === "@" ? { c, r } : null))).find(Boolean);
   const pl = load("player-idle-down");

@@ -2,13 +2,14 @@
 id: "167"
 title: "Trinkets and display instruments on the desk"
 short: "Trinkets"
-status: done
+status: review
 owner: marc + claude
 depends_on: []
 summary: "A trinket slot on the desk's right corner with the first trinkets and small display instruments."
 kind: build
 changelog: "Six small trinkets and three display instruments can arrive as gifts and sit on the desk's right corner."
 unverified:
+  - "The alebrije options page was looked at as a screenshot of its own section in headless Chrome, not in an interactive browser."
   - "Not seen in a real, interactive browser session by a person: the art was looked at in headless Chrome screenshots of the room at 2x, 4x and 8x."
   - "The THINGS page and the swap-list rows were checked by tests (font, fit, note length) but not looked at as pictures for these nine items."
   - "How the small pictures feel at the real play size on a phone screen."
@@ -86,7 +87,18 @@ decisions:
     answer: "keep the front view"
     by: marc
     on: 2026-11-24
-needs: [{who: marc, kind: try, why: "Look at the four tweaks (owl smaller, charcoal skateboard, egg on a metal stand, raccoon kept front view): cd ~/Dev/repos/mcordova47/sim-worktrees/167-trinkets && npm run dev, /?own=trinket-alebrije,trinket-finger-skateboard,trinket-goose-egg,trinket-raccoon-can, Tab to Display trinket at the standing desk; answer d6; then say 'merge 167'", since: 2026-11-24}]
+  - id: d7
+    who: marc
+    q: "Which alebrije goes on the desk? See the options page: A the owl now in the game, B a plain cat, C a cat with wings, D a cat-fish, E a cat with antlers and a dragon tail."
+    options:
+      - "B, the plain cat (his real one is a cat)"
+      - "C, the cat with wings"
+      - "D, the cat-fish"
+      - "E, the cat with antlers and a dragon tail"
+      - "A, keep the owl"
+    recommendation: "B, the plain cat; hybrids can come later as more alebrijes"
+    status: open
+needs: [{who: marc, kind: decide, why: "Pick the alebrije from the options page (d7): cd ~/Dev/repos/mcordova47/sim-worktrees/167-trinkets && npm run tools -- options", since: 2026-11-24}]
 ---
 
 ## Goal
@@ -126,3 +138,4 @@ Measured every trinket-*/instrument-* sprite. docs/decor.md sizes all match (dol
 Verdict: changes needed (one stale comment).
 - 2026-11-24 (claude): round 5 fix: every trinket and instrument sprite header now states its measured box (jaw harp 6x7 was 5x6).
 - 2026-11-24 (claude): Review, round 6: approve. Measured all nine sprites (8x7, 9x5, 8x8, 6x8, 9x7, 5x5, 8x4, 6x7, 9x6): headers and docs/decor.md agree, all inside cols 3-12 rows 5-12 with foot on row 12; issues:check, tsc, npm test pass; sprites leaves git clean.
+- 2026-11-24 (claude): alebrije options for Marc, before merging (nothing that ships changed: `trinket-alebrije` is still the owl). I added an `alebrije` group to the art options page (`art/options/options.json`, `scripts/options.mjs`; `scripts/room-compose.mjs` got an optional `trinket` for the desk's right corner). Five candidates, each with a small in-room sprite (16x16 cell, foot on row 12) and a 48x48 close-up of the kind the Examine card (issue 173, a later stage) will show: A the owl now in the game (8x7), B a plain cat (9x8), C a cat with wings (10x8), D a cat-fish (8x8), E a cat with antlers and a dragon tail (10x8). The files are `art/options/alebrije/alebrije-<letter>-*.sprite` and `-close.sprite`. The page shows, for each: the close-up at 3x, the small one at 8x, the desk corner at 8x beside the laptop, the whole room at 1x, and the close-up on a mock of the Examine card with the name and note I would use. What I saw: the close-ups all read as bright painted creatures (the cat's green mask, pink chest flower, white dots and ringed tail; the teal and plum wings; the scaled fish body with fins; the antlers and the green spiked tail). The small ones read as bright cat faces first: B reads as a cat by the ears and green eye patches, C by the two coloured wings, D by the teal body and the plum tail fin under the face, E by the antlers and the green tail, which is the faintest. They are simplifications of the close-ups, not scaled copies. I dropped none. If Marc picks a cat, I suggest the name ALEBRIJE CAT (B), WINGED ALEBRIJE (C), CAT FISH ALEBRIJE (D) or ANTLERED ALEBRIJE (E) with the notes on the page; the chosen small sprite then replaces the owl under the same file name and id. Open decision d7 asks which.

@@ -290,7 +290,8 @@ describe("the taller stages", () => {
       }
     }
     for (const p of main.props ?? []) {
-      if (p.slot === "plant-shelf") continue;
+      // The vase and the bowl sit on the same shelf, under the plant (issue 182): a pothos vine across the bowl is accepted.
+      if (p.slot === "plant-shelf" || p.slot === "pot-vase" || p.slot === "pot-bowl") continue;
       const grown = { x: shelf.area.x, y: shelf.area.y - 16, w: 16, h: 48 };
       expect(p.area.x < grown.x + grown.w && p.area.x + p.area.w > grown.x && p.area.y < grown.y + grown.h && p.area.y + p.area.h > grown.y, `prop ${p.slot}`).toBe(false);
     }

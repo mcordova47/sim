@@ -260,7 +260,7 @@ describe("how it looks", () => {
   });
 
   it("is its own piece on the bookshelf in the `plant-shelf` slot, not part of its sprite", () => {
-    const prop = rooms.main.props![0];
+    const prop = rooms.main.props!.find((p) => p.slot === "plant-shelf")!;
     expect(prop.slot).toBe("plant-shelf");
     expect(prop.on.sprite).toBe("bookshelf");
     expect(prop.area).toMatchObject({ w: 16, h: 16 });

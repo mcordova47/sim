@@ -12,6 +12,9 @@ import { seeded } from "./particles/seeded";
 import { taskSpots } from "./plan-checks";
 import { TASKS, swapTaskId } from "./tasks";
 
+// What waits in the inventory apart from the empty pots, which are always owned (issue 182).
+const spares = (d: { inventory(): { id: string; empty?: boolean }[] }) => d.inventory().filter((i) => !i.empty);
+
 // Issue 062 stage 2: the swap task. Real main room, real tasks.
 
 const dt = 1 / 60;
@@ -19,6 +22,8 @@ const press: Controls = { ...NO_INPUT, interactPressed: true };
 const key = (code: string): Controls => ({ ...NO_INPUT, keys: [code], cancelPressed: code === "Escape" || code === "KeyX" });
 const esc = key("Escape");
 const down: Controls = { ...NO_INPUT, dirPressed: "down", dir: "down", keys: ["KeyS"], keysDown: ["KeyS"] };
+const left: Controls = { ...NO_INPUT, dirPressed: "left", dir: "left", keys: ["KeyA"], keysDown: ["KeyA"] };
+const right: Controls = { ...NO_INPUT, dirPressed: "right", dir: "right", keys: ["KeyD"], keysDown: ["KeyD"] };
 const up: Controls = { ...NO_INPUT, dirPressed: "up", dir: "up", keys: ["KeyW"], keysDown: ["KeyW"] };
 const TAB = key("Tab");
 
@@ -49,13 +54,13 @@ function log(game: Game) {
 describe("the swap tasks", () => {
   it("exist for each slot with an object, have no points, no cooldown and are named plainly", () => {
     const swaps = TASKS.filter((t) => t.decorSlot);
-    expect(swaps.map((t) => t.id).sort()).toEqual(DECOR_SLOTS.filter((s) => s.object).map((s) => swapTaskId(s.id)).sort());
+    expect(swaps.map((t) => t.id).sort()).toEqual(DECOR_SLOTS.filter((s) => s.object && !s.via).map((s) => swapTaskId(s.id)).sort());
     expect(swaps.map((t) => t.prompt)).toContain("Change painting");
     for (const t of swaps) {
       expect(t.points).toBe(0);
       expect(t.cooldown).toBe(0);
       expect(t.effects).toBeUndefined();
-      expect(t.activity).toEqual({ type: t.decorSlot === "worn" ? "outfit-slots" : "swap-decor" });
+      expect(t.activity).toEqual({ type: t.decorSlot === "worn" ? "outfit-slots" : t.decorSlot === "plant-shelf" ? "pot-slots" : "swap-decor" });
     }
   });
 
@@ -151,7 +156,7 @@ describe("the swap list", () => {
     expect(game.state.get("mood")).toBe(mood);
     expect(events).toEqual(["taskStart"]);
     expect(JSON.parse(JSON.stringify(decor)).placed).toEqual({ "art-table": shown });
-    expect(decor.inventory().map((i) => i.id)).toContain("art-barn");
+    expect(spares(decor).map((i) => i.id)).toContain("art-barn");
     // The same E must not start it again, and there is no cooldown to wait out.
     for (let i = 0; i < 5; i++) game.update(dt, NO_INPUT);
     expect(game.interaction.busy).toBe(false);
@@ -217,12 +222,15 @@ describe("the swap list", () => {
     expect(game.state.get("clock")).toBe(clock);
   });
 
-  it("a still item standing in the plant slot keeps the live plant's state, and it freezes (issue 105)", () => {
+  it("the empty pot standing in the plant slot keeps the live plant's state, and it freezes (issues 105 and 182)", () => {
     const { game, decor } = start(["plant-dried"], "swap-plant-shelf");
     game.state.applyEffects([{ var: "plantStage", set: 2 }, { var: "plantDry", set: 5 }, { var: "plantGrowth", set: 1 }]);
+    // The list opens on the vase; down twice is the plant pot, right picks the empty pot (the only other plant it takes).
     game.update(dt, down);
+    game.update(dt, down);
+    game.update(dt, right);
     game.update(dt, press);
-    expect(decor.placedIn("plant-shelf").id).toBe("plant-dried");
+    expect(decor.placedIn("plant-shelf").id).toBe("plant-pot-empty");
     expect([game.state.get("plantStage"), game.state.get("plantDry"), game.state.get("plantGrowth")]).toEqual([2, 5, 1]);
     // Time, a nap and a night's sleep do not dry it, and the plant tasks are not offered.
     game.state.tick(3600);
@@ -236,7 +244,9 @@ describe("the swap list", () => {
     for (let i = 0; i < 6 && game.interaction.nearby?.id !== "swap-plant-shelf"; i++) game.update(dt, TAB);
     expect(game.interaction.nearby?.id).toBe("swap-plant-shelf");
     game.update(dt, press);
-    game.update(dt, up);
+    game.update(dt, down);
+    game.update(dt, down);
+    game.update(dt, left);
     game.update(dt, press);
     expect(decor.placedIn("plant-shelf").id).toBe("plant-snake");
     expect(game.state.get("plantStage")).toBe(2);
@@ -411,7 +421,7 @@ describe("TEST items and ?own=", () => {
   it("are not owned by default, so a fresh game has no swap offered", () => {
     const decor = new Decor();
     for (const slot of DECOR_SLOTS) expect(decor.canChange(slot.id), slot.id).toBe(false);
-    expect(decor.inventory()).toEqual([]);
+    expect(spares(decor)).toEqual([]);
   });
 
   it("?own=test owns every test item; ids work; junk and repeats are ignored", () => {

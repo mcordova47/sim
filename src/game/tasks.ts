@@ -372,10 +372,11 @@ export const SWAP_PROMPT: Partial<Record<DecorKind, string>> = {
 };
 export const swapTaskId = (slotId: string) => `swap-${slotId}`;
 // A slot whose kind's prompt would be the same as another slot's at a neighbouring object says more (the rug under the bed).
-const SWAP_PROMPT_SLOT: Record<string, string> = { "rug-bed": "Change bed rug" };
-const SWAPS: Task[] = DECOR_SLOTS.filter((s) => s.object).map((s) => {
+// The bookshelf's plant task covers the vase, the bowl and the plant pot (issue 182): one list, so it is plural.
+const SWAP_PROMPT_SLOT: Record<string, string> = { "rug-bed": "Change bed rug", "plant-shelf": "Change plants" };
+const SWAPS: Task[] = DECOR_SLOTS.filter((s) => s.object && !s.via).map((s) => {
   const prompt = SWAP_PROMPT_SLOT[s.id] ?? SWAP_PROMPT[s.kinds[0]] ?? "Change it";
-  return { id: swapTaskId(s.id), name: prompt, prompt, duration: 0, points: 0, cooldown: 0, decorSlot: s.id, activity: { type: s.kinds[0] === "outfit" ? "outfit-slots" : "swap-decor" } };
+  return { id: swapTaskId(s.id), name: prompt, prompt, duration: 0, points: 0, cooldown: 0, decorSlot: s.id, activity: { type: s.kinds[0] === "outfit" ? "outfit-slots" : DECOR_SLOTS.some((o) => o.via === s.id) ? "pot-slots" : "swap-decor" } };
 });
 
 // Opening a delivered package (issue 062 stage 3a): no points, no cooldown, a quiet end.

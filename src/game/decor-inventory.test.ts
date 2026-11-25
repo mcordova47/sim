@@ -13,6 +13,9 @@ import { seeded } from "./particles/seeded";
 import { taskSpots } from "./plan-checks";
 import { TASKS } from "./tasks";
 
+// What waits in the inventory apart from the empty pots, which are always owned (issue 182).
+const spares = (d: { inventory(): { id: string; empty?: boolean }[] }) => d.inventory().filter((i) => !i.empty);
+
 // Issue 073: an item is displayed in one place at a time; what you own and do
 // not show is the inventory.
 
@@ -30,10 +33,10 @@ const distinct = (ids: string[]) => new Set(ids).size === ids.length;
 describe("the inventory", () => {
   it("is empty in a fresh game and is owned minus shown", () => {
     const d = new Decor();
-    expect(d.inventory()).toEqual([]);
+    expect(spares(d)).toEqual([]);
     d.own("art-test-barn");
     d.own("lamp-test-stool");
-    expect(d.inventory().map((i) => i.id)).toEqual(["art-test-barn", "lamp-test-stool"]);
+    expect(spares(d).map((i) => i.id)).toEqual(["art-test-barn", "lamp-test-stool"]);
     expect(d.displayedAt("art-barn")?.id).toBe("art-table");
     expect(d.displayedAt("art-test-barn")).toBeUndefined();
   });
@@ -43,14 +46,14 @@ describe("the inventory", () => {
     d.own("art-test-desk"); // the new painting arrives
     expect(d.place("art-table", "art-test-desk")).toBe(true);
     expect(d.itemIn("art-table").id).toBe("art-test-desk");
-    expect(d.inventory().map((i) => i.id)).toEqual(["art-barn"]); // the replaced one is in the inventory
+    expect(spares(d).map((i) => i.id)).toEqual(["art-barn"]); // the replaced one is in the inventory
     expect(d.place("art-desk", "art-barn")).toBe(true);
     expect(d.itemIn("art-desk").id).toBe("art-barn");
-    expect(d.inventory().map((i) => i.id)).toEqual(["art-abstract"]);
+    expect(spares(d).map((i) => i.id)).toEqual(["art-abstract"]);
     expect(d.toJSON().placed).toEqual({ "art-table": "art-test-desk", "art-desk": "art-barn" });
     // The default is no longer always available: the barn drawing is just an owned item now, and the table can take the abstract.
     expect(d.place("art-table", "art-abstract")).toBe(true);
-    expect(d.inventory().map((i) => i.id)).toEqual(["art-test-desk"]);
+    expect(spares(d).map((i) => i.id)).toEqual(["art-test-desk"]);
     expect(distinct(realShownIds(d))).toBe(true);
   });
 
@@ -63,7 +66,7 @@ describe("the inventory", () => {
     expect(d.place("art-table", "art-abstract")).toBe(true);
     expect(d.itemIn("art-table").id).toBe("art-abstract");
     expect(d.itemIn("art-desk").id).toBe("art-barn");
-    expect(d.inventory()).toEqual([]);
+    expect(spares(d)).toEqual([]);
     expect(d.toJSON().placed).toEqual({ "art-table": "art-abstract", "art-desk": "art-barn" });
     // Swapping back is the default room again.
     expect(d.place("art-table", "art-barn")).toBe(true);
@@ -121,7 +124,7 @@ describe("the inventory", () => {
     d.place("art-desk", "art-barn");
     // The table's default (the barn drawing) is on the desk wall now, and the desk's default (gold abstract) is in the inventory.
     expect(d.displayedAt("art-barn")?.id).toBe("art-desk");
-    expect(d.inventory().map((i) => i.id)).toEqual(["art-abstract"]);
+    expect(spares(d).map((i) => i.id)).toEqual(["art-abstract"]);
     expect(distinct(realShownIds(d))).toBe(true);
   });
 
@@ -133,7 +136,7 @@ describe("the inventory", () => {
     const copy = new Decor();
     copy.load(JSON.parse(JSON.stringify(d)));
     expect(copy.toJSON()).toEqual(d.toJSON());
-    expect(copy.inventory().map((i) => i.id)).toEqual(["art-abstract"]);
+    expect(spares(copy).map((i) => i.id)).toEqual(["art-abstract"]);
   });
 
   it("deliveries never give an item you already own", () => {

@@ -5,11 +5,14 @@ import { DECOR_DATA, DECOR_ITEMS, FROM_MAX, GIFT_ITEMS, NOTE_MAX, isTestItem } f
 
 // Issue 109a: the entries behind the browsable inventory.
 
+// The starting things in the order they are owned: each slot's default, then the rest (the empty pots, issue 182).
+const START = ["art-barn", "art-abstract", "art-silkscreen", "plant-vase-dried", "plant-bowl-empty", "plant-snake", "lamp-table", "pantry-bins", "outfit-home", "coffee-pourover", "plant-pot-empty", "plant-vase-empty"];
+
 const ids = (d: Decor) => d.entries().map((e) => e.item.id);
 
 describe("Decor.entries", () => {
   it("lists the starting things in a fresh game, pantry and plant included", () => {
-    expect(ids(new Decor())).toEqual(["art-barn", "art-abstract", "art-silkscreen", "plant-snake", "lamp-table", "pantry-bins", "outfit-home", "coffee-pourover"]);
+    expect(ids(new Decor())).toEqual(START);
   });
 
   it("follows the order you got things, new things at the end", () => {
@@ -17,7 +20,7 @@ describe("Decor.entries", () => {
     d.own("art-snow-wagon");
     d.own("lamp-warm");
     d.own("art-robin");
-    expect(ids(d).slice(8)).toEqual(["art-snow-wagon", "lamp-warm", "art-robin"]);
+    expect(ids(d).slice(START.length)).toEqual(["art-snow-wagon", "lamp-warm", "art-robin"]);
   });
 
   it("keeps that order through a save and a load", () => {
@@ -35,7 +38,7 @@ describe("Decor.entries", () => {
     d.own("art-test-barn");
     d.own("lamp-test-stool-lamp");
     d.load({ owned: ["art-barn", "art-from-the-future", "plant-test-grown", "art-robin"], placed: {} });
-    expect(ids(d)).toEqual(["art-barn", "art-abstract", "art-silkscreen", "plant-snake", "lamp-table", "pantry-bins", "outfit-home", "coffee-pourover", "art-robin"]);
+    expect(ids(d)).toEqual([...START, "art-robin"]);
     expect(d.entries().some((e) => isTestItem(e.item))).toBe(false);
   });
 
@@ -47,6 +50,14 @@ describe("Decor.entries", () => {
     expect(by("plant-snake").where).toBe("ON THE SHELF");
     expect(by("plant-snake").changeAt).toBe("CHANGE IT AT THE CUBE BOOKSHELF");
     expect(by("lamp-table").changeAt).toBe("CHANGE IT AT THE LAMP TABLE");
+    // The three pots and their empties (issue 182): all ALREADY HERE, all changed at the one bookshelf.
+    for (const id of ["plant-vase-dried", "plant-vase-empty", "plant-bowl-empty", "plant-pot-empty"]) {
+      expect(by(id).from, id).toBe("FROM: ALREADY HERE");
+      expect(by(id).changeAt, id).toBe("CHANGE IT AT THE CUBE BOOKSHELF");
+    }
+    expect(by("plant-vase-dried").where).toBe("IN THE VASE");
+    expect(by("plant-bowl-empty").where).toBe("IN THE BOWL");
+    expect(by("plant-vase-empty").where).toBe("IN THE INVENTORY");
   });
 
   it("says IN THE INVENTORY for an item shown nowhere, and where to change it", () => {

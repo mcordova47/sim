@@ -23,8 +23,8 @@ const set = (s: ApartmentState, id: string, value: number) => s.applyEffects([{ 
 const SPARE: DecorItem[] = [
   { id: "art-spare", name: "SPARE PAINTING", kind: "art", sprite: "painting-spare", w: 32, h: 16, color: "mist" },
   { id: "art-small", name: "SMALL PRINT", kind: "art", sprite: "print-small", w: 16, h: 16 },
-  { id: "plant-dried", name: "DRIED FLOWERS", kind: "plant", sprite: "dried-flowers", family: "dried", w: 16, h: 16, color: "butter" },
-  { id: "plant-fern", name: "FERN", kind: "plant", sprite: "fern-1", family: "fern", w: 16, h: 16, color: "leaf" },
+  { id: "plant-dried", name: "DRIED FLOWERS", kind: "plant", plantKind: "house", sprite: "dried-flowers", family: "dried", w: 16, h: 16, color: "butter" },
+  { id: "plant-fern", name: "FERN", kind: "plant", plantKind: "house", sprite: "fern-1", family: "fern", w: 16, h: 16, color: "leaf" },
   { id: "lamp-warm", name: "WARM LAMP", kind: "lamp", sprite: "lamp-warm", w: 16, h: 16 },
 ];
 const data = (): DecorData => ({
@@ -36,6 +36,8 @@ const withSpare = () => new Decor(data());
 
 // The items shown on a fresh game: every slot's default (the coffee stove starts empty, issue 168).
 const DEFAULTS = DECOR_SLOTS.flatMap((s) => (s.default ? [s.default] : []));
+// What is owned on a fresh game: the defaults, then the other starting things (the empty pots, issue 182).
+const STARTING = new Decor().starting();
 
 describe("the decor tables", () => {
   it("are valid, and every default fits its slot", () => {
@@ -48,7 +50,7 @@ describe("the decor tables", () => {
   });
 
   it("have the first-cut slots for the main room, and the kitchen's pantry (issue 072)", () => {
-    expect(DECOR_SLOTS.map((s) => s.id)).toEqual(["art-table", "art-desk", "art-bed", "plant-shelf", "lamp-sofa", "rug-floor", "rug-bed", "pantry", "trinket-desk", "worn", "coffee-table", "coffee-stove"]);
+    expect(DECOR_SLOTS.map((s) => s.id)).toEqual(["art-table", "art-desk", "art-bed", "pot-vase", "pot-bowl", "plant-shelf", "lamp-sofa", "rug-floor", "rug-bed", "pantry", "trinket-desk", "worn", "coffee-table", "coffee-stove"]);
     expect(DECOR_SLOTS.filter((s) => s.room !== "main").map((s) => s.id)).toEqual(["pantry", "coffee-stove"]);
     // Not drawn on the map (issue 152): only the worn outfit.
     expect(DECOR_SLOTS.filter((s) => s.offMap).map((s) => s.id)).toEqual(["worn"]);
@@ -110,7 +112,7 @@ describe("the store", () => {
     expect(d.itemIn("art-bed").id).toBe("art-silkscreen");
     expect(d.itemIn("plant-shelf").id).toBe("plant-snake");
     expect(d.itemIn("lamp-sofa").id).toBe("lamp-table");
-    expect(d.toJSON()).toEqual({ owned: DEFAULTS, placed: {} });
+    expect(d.toJSON()).toEqual({ owned: STARTING, placed: {} });
     expect(() => d.itemIn("nowhere")).toThrow(/Unknown decor slot/);
     expect(d.choices("nowhere")).toEqual([]);
   });
@@ -151,7 +153,8 @@ describe("the store", () => {
     expect(d.choices("art-bed").map((i) => i.id)).toEqual(["art-silkscreen"]);
     expect(d.place("art-bed", "art-barn")).toBe(false);
     expect(d.place("art-table", "art-silkscreen")).toBe(false);
-    expect(d.inventory()).toEqual([]);
+    // Only the empty pots wait in the inventory (issue 182), and they are no reason to offer a change.
+    expect(d.inventory().map((i) => i.id)).toEqual(["plant-pot-empty", "plant-vase-empty"]);
     for (const s of DECOR_SLOTS) expect(d.canChange(s.id), s.id).toBe(false);
   });
 
@@ -162,7 +165,7 @@ describe("the store", () => {
     d.own("art-small");
     d.own("plant-fern");
     expect(d.choices("art-table").map((i) => i.id)).toEqual(["art-barn", "art-abstract", "art-spare"]);
-    expect(d.choices("plant-shelf").map((i) => i.id)).toEqual(["plant-snake", "plant-fern"]);
+    expect(d.choices("plant-shelf").map((i) => i.id)).toEqual(["plant-snake", "plant-pot-empty", "plant-fern"]);
     expect(d.choices("art-bed").map((i) => i.id)).toEqual(["art-silkscreen"]);
   });
 
@@ -233,7 +236,7 @@ describe("what a slot looks like (plant rules per family)", () => {
 });
 
 describe("reading a saved decor value", () => {
-  const start = DEFAULTS;
+  const start = STARTING;
   const today = { owned: start, placed: {} };
 
   it("a missing field is today's room", () => {
@@ -417,7 +420,7 @@ describe("saving with the progress", () => {
     const storage = new FakeStorage();
     storage.setItem(KEY, JSON.stringify({ version: 1, unlocked: [], stats: {}, world: null }));
     const { game } = gameWith(storage);
-    expect(game.decor.toJSON()).toEqual({ owned: DEFAULTS, placed: {} });
+    expect(game.decor.toJSON()).toEqual({ owned: STARTING, placed: {} });
   });
 
   it("the game saves its decor and the next visit has it back", () => {
@@ -427,7 +430,7 @@ describe("saving with the progress", () => {
     first.game.decor.place("art-table", "art-spare");
     expect(first.feature.save()).toBe(true);
     expect(JSON.parse(storage.data.get(KEY)!).decor).toEqual({
-      owned: [...DEFAULTS, "art-spare"],
+      owned: [...STARTING, "art-spare"],
       placed: { "art-table": "art-spare" },
     });
     const second = gameWith(storage);

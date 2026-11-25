@@ -2,11 +2,14 @@
 id: "182"
 title: "Plant pots, stage A: the three pots on the bookshelf"
 short: "Three pots (stage A)"
-status: todo
+status: done
 owner: marc + claude
 depends_on: ["179"]
 summary: "Make the bookshelf vase and bowl real slots next to the plant pot, with kinds, empty items and a save migration."
 kind: build
+unverified:
+  - "How the Change plants list and the vase, bowl and pothos feel on a real phone with real touch (the reviewer saw the narrow 224 x 208 list in desktop Chrome with ?touch=1 and an emulated viewport only)."
+  - "The bowl's two pixels and the pothos stage 5 vine across the bowl were judged by eye at 8x; whether Marc likes them is his call."
 changelog: "The bookshelf now has three pots, each for its own kind of plant: dried arrangements, low plants and houseplants."
 decisions:
   - id: d1
@@ -21,7 +24,6 @@ decisions:
     answer: "a slot-list menu like the outfit slots: one Change plants task at the bookshelf opens a list of the three pots (vase, bowl, plant pot) with the plant in each; left and right pick the plant for the selected pot, E confirms (the same look as the outfit slots)"
     by: marc
     on: 2026-11-24
-needs: [{who: marc, kind: try, why: "Look at the three bookshelf pots: cd ~/Dev/repos/mcordova47/sim-worktrees/182-plant-pots-a && npm run dev, open /?own=plant-pampas,plant-lavender,plant-dried,plant-pothos,plant-spider, stand at col 9 by the cube bookshelf facing east, Tab to Change plants, E; &touch=1 for the narrow layout; then say 'merge 182'", since: 2026-11-25}]
 ---
 
 ## Goal
@@ -37,3 +39,25 @@ Build stage A of `docs/plant-pots-design.md` (issue 179, merged), following Marc
 
 ## Progress log
 - 2026-11-24 (planner): filed on main from the merged plant pots design (issue 179) and Marc's answers; not started (Marc asked to file it without starting).
+- 2026-11-25 (claude): started. Plan: the three slots and the kinds in the data, a bare bookshelf sprite plus four sprites cut from the old art, the migration in parseDecor, the empties and `empty`, one Change plants list (d1: a slot-list like the clothes list), tests, docs.
+- 2026-11-25 (claude): built stage A, ready for review.
+  - **Data and rules** (`decor-data.ts`, `decor.ts`): slots `pot-vase` (160, 16), `pot-bowl` (160, 32), `plant-shelf` (id kept, 160, 52); `plantKind` on items and `plantKinds` on slots in `fits` (strict for plants only); validation at startup; `empty` items (`plant-vase-empty`, `plant-bowl-empty`, `plant-pot-empty`) owned from the start and not counted as spares in `canChange`; the vase arrangement `plant-vase-dried` is the vase's default. The four dried items moved to the vase; the migration in `parseDecor` moves an old plant-pot placement of a dried item to the vase (data-driven by `via`, tolerant of junk).
+  - **The list** (d1): the bookshelf's one task is now "Change plants" (`swap-plant-shelf`, activity `pot-slots`, `activities/pot-slots.ts`, a copy of the clothes list's pattern: title PLANTS, rows VASE, BOWL, PLANT POT, up and down pick, left and right choose the plant and show it in the room, E sets, Escape leaves, no explanatory text). The vase and the bowl have `via: "plant-shelf"` and no task of their own; `canChange` answers for the three together. The box sits at the bottom so the shelf stays in view (top only if the player would be under it).
+  - **Art** (`art/src`): `bookshelf.sprite` bare for the vase and bowl; `plant-vase-dried`, `plant-vase-empty`, `plant-bowl-empty` (2 px lower than the baked bowl), `plant-pot-empty`, cut from the old pixels (palette only, no text). Pixel check of old sprite versus bare shelf plus the two default items: 68 pixels differ, all in the bowl's rows (shift of 2).
+  - **Plant care untouched**: `plant.ts`, the tick, nap and sleep, the care tasks, particles and `state-vars.ts` still use the plant pot's three variables; the empty pot freezes them like any still item.
+  - **Sync**: no new save field, `placed` already travels whole with the newer side, `owned` is a union; a test merges both ways. `sync/merge.ts` needed no change.
+  - **Golden frames**: all 48 main-room frames and all 14 sleep frames changed (2 more draw calls each, the vase and the bowl, plus the bowl's pixels). Re-recorded with `UPDATE_GOLDEN=1`; `public/social.png` regenerated with `npm run brand` (it shows the bookshelf).
+  - **THINGS**: 4 more ALREADY HERE lines, not 3 (the vase arrangement is a real item too): 12 starting things, still one page at both views (224 x 208 holds exactly 12).
+  - **Tests**: new `src/game/plant-pots.test.ts` (kinds, validation, empties, pool, saves, migration, sync merge, task and list, drawing); older decor tests updated for the empties, `via` and the vase (the "still item in the plant slot" tests now use the vase and the empty pot).
+  - **Looked at in the running game** (dev server, headless Chrome, saves written for each state; 1x room, 8x shelf crops, list at 3x): default (same as before except the bowl 2 px lower), vase with pampas, empty vase, empty pot, lavender plus spider plant, pothos stage 4 and 5 (the vine crosses the bowl and books, accepted in the design), the list open with the vase, bowl and plant pot rows, left and right previews, and E applying them. Found and fixed: the empty vase kept two stem pixels from the sprays; the list box first covered the shelf.
+  - **Checks**: `npm test` (176 files, 4193 passed), `npx tsc --noEmit`, `npm run build`, `npm run check:dist`, `npm run sprites` (leaves only the intended files changed).
+  - Docs: `docs/decor.md` "What issue 182 built", `docs/text-review.md` "Plant pots (issue 182)".
+  - Not done, on purpose: low plants (stage B), cut flowers and the clock (C), the sill and the tree square, the future drying idea.
+- 2026-11-25 (claude, independent review): **approve**.
+  - Standard checks run myself: `npm test` 176 files, 4193 passed; `npx tsc --noEmit` clean; `npm run build`; `npm run check:dist`; `npm run issues:check -- --validate` (217 valid, 2 old length warnings, not this issue); `npm run sprites` leaves git clean.
+  - **Pixel check**: main extracted to a scratch dir and run beside the branch, same headless Chrome, fresh save: 320x192 canvases differ in exactly 68 pixels, all in a 10 x 8 box at the bowl (rows 66-73 on screen). Nothing else differs.
+  - **Looked at** (dev server on 5192, saves injected, 8x crops): default (the same shelf as main bar the bowl 2 px lower), pampas in the vase, empty vase, empty pot, lavender plus spider plant, pothos stage 4 and 5 (the vine crosses the bowl and the books, as accepted), empty vase plus empty pot, eucalyptus plus monstera 4. All clean, plant pot still on top. The Change plants list (Tab Tab E) at 1x: rows VASE, BOWL, PLANT POT, left and right preview in the room behind the box, `< >` only where there is a choice, the bowl row has none, E sets, Escape restores, the shelf stays visible above the box. Also the narrow view (`?touch=1`, 672 x 624 canvas): two rows per pot, fits, shelf visible.
+  - **Edge checks of my own** (vite-node scripts outside the repo): old save with a dried item in the plant pot moves to the vase; unowned, duplicate (same item in vase and pot), wrong-pot (snake in vase, vase arrangement in bowl, empty bowl in pot, empty pot in vase), junk placed values, arrays, null, junk owned all repair without throwing and parse is idempotent; empty vase placed in the pot by hand moves to the vase; fresh save is `placed: {}` and owns the empties; `canChange` false on a fresh game and the list ends itself; with only empties owned the list still cycles and sets; the pool leaves out empties and every starting item and only sells plants that fit a pot; sync merge both orders keeps owned as a union and placed from the newer side, an old-shape device reads through the migration.
+  - Criteria: art and slots pass; kinds, validation, migration, pool, THINGS pass; swap menu per d1 and plant care untouched pass; golden frames and tests pass (the author's claim that every main-room and sleep frame changes is plausible since two draw calls were added; not re-derived); docs and checks pass; looked at in the running game pass.
+  - Out of scope: none found. `public/social.png` regenerated by `npm run brand` (the author said so, it shows the shelf). PLAN.md untouched; it needs its table updated by the planner.
+  - Not verified: real phone and real touch feel; whether Marc likes the bowl's 2 px and the pothos stage 5 vine across the bowl.

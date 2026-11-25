@@ -93,7 +93,7 @@ describe("the production checkpoint list", () => {
       expect(d.choices("lamp-sofa").map((i) => i.id)).toContain(id);
     }
     d.own("plant-dried");
-    expect(d.choices("plant-shelf").map((i) => i.id)).toContain("plant-dried");
+    expect(d.choices("pot-vase").map((i) => i.id)).toContain("plant-dried"); // a dried arrangement goes in the vase (issue 182)
     expect(GIFT_ITEMS.length).toBe(57);
     expect(DECOR_DATA.items.some((i) => i.id === "lamp-test-stool-lamp")).toBe(true); // TEST items stay until stage 4
   });

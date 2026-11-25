@@ -28,7 +28,7 @@ decisions:
       - "keep the tool"
     recommendation: "yes, in a follow-up"
     status: open
-needs: []
+needs: [{who: marc, kind: decide, why: "Say 'merge 180' when ready (photos removed: 24 files, about 4,700 lines; reviewed; a quiet clean-up deletes stored pictures on the next load); answer d2 (the pixel-looks tool)", since: 2026-11-24}]
 ---
 
 ## Goal

@@ -241,7 +241,7 @@ A top-down, Pokemon-style game set in Marc's real studio apartment. There is no 
 | 172 | [Record stand](issues/172-record-stand.md) | marc + claude | todo | |
 | 173 | [Trinket display design](issues/173-trinket-display.md) | marc + claude | todo | 151 |
 | 174 | [Shorter swap prompts](issues/174-swap-prompt-wording.md) | marc + claude | done | 166, 168 |
-| 175 | [Outfit slots build](issues/175-outfit-slots-build.md) | marc + claude | todo | 164 |
+| 175 | [Outfit slots build](issues/175-outfit-slots-build.md) | marc + claude | done | 164 |
 <!-- issues:table:end -->
 
 ## Order of work

@@ -43,6 +43,7 @@ decisions:
       - "yes: offer Change clothes from the start"
     recommendation: "no: a fresh game shows no new prompt; it appears once you own an outfit that fits a slot you can change (as built)"
     status: open
+needs: [{who: marc, kind: try, why: "Look at the three towel looks: cd ~/Dev/repos/mcordova47/sim-worktrees/184-starting-towel && npm run tools -- options (group Starting towel), then take a shower in the bath (npm run dev); answer d3 (A, B or C) and d4; then say 'merge 184'", since: 2026-11-25}]
 ---
 
 ## Goal

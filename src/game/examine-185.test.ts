@@ -249,3 +249,24 @@ describe("the close-up art convention", () => {
     expect(closeUp((n) => !n.endsWith("-close"), "trinket-worry-doll")).toEqual({ name: "trinket-worry-doll", size: 16, scale: 8 });
   });
 });
+
+describe("Marc's own notes (after trying the card)", () => {
+  const NOTES: Record<string, string> = {
+    "trinket-finger-skateboard": "BEING AN ADULT MEANS NO ONE CAN TELL YOU WHAT TO SPEND YOUR MONEY ON.",
+    "trinket-worry-doll": "A LITTLE DOLL FOR BIG WORRIES.",
+    "trinket-raccoon-can": "THIS GUY ALWAYS WANTS SOMETHING FROM YOU.",
+    "instrument-harmonica": "YOU DON'T HAVE TO PLAY WELL TO SOUND GOOD.",
+    "trinket-alebrije-cat": "IT LOOKS LIKE IT'S UP TO SOME MISCHIEF.",
+  };
+  it("are the notes, each within 80 characters and drawable, and the longest fits the phone card", () => {
+    for (const [id, note] of Object.entries(NOTES)) {
+      const item = DECOR_DATA.items.find((i) => i.id === id)!;
+      expect(item.note).toBe(note);
+      expect(note.length).toBeLessThanOrEqual(80);
+      expect(unsupportedChars(note)).toEqual([]);
+      const l = examineLayout(NARROW_VIEW);
+      const lines = wrapText(note, l.note.width);
+      expect(l.note.y + (lines.length - 1) * l.note.pitch + 7).toBeLessThanOrEqual(l.card.y + l.card.h - 2);
+    }
+  });
+});

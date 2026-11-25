@@ -51,7 +51,10 @@ decisions:
       - "keep it as built: wear a slot now and also pick the outfit in each slot"
       - "the bookshelf only wears a slot now; picking outfits for slots is only on the pause screen"
     recommendation: "keep it as built: wear a slot now and also pick the outfit in each slot"
-    status: open
+    status: answered
+    answer: "as recommended"
+    by: marc
+    on: 2026-11-24
 ---
 
 ## Goal

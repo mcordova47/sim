@@ -20,7 +20,10 @@ decisions:
       - "yes: 'Change painting', 'Change plant', 'Change lamp', 'Change rug', 'Change coffee gear' (and so on)"
       - "only the new ones (rug, coffee gear, trinket)"
     recommendation: "yes: 'Change painting', 'Change plant', 'Change lamp', 'Change rug', 'Change coffee gear' (and so on)"
-    status: open
+    status: answered
+    answer: "yes: 'Change painting', 'Change plant', 'Change lamp', 'Change rug', 'Change coffee gear' (and so on)"
+    by: marc
+    on: 2026-11-24
   - id: d2
     who: marc
     q: "What should the trinket prompt be?"

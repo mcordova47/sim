@@ -63,7 +63,10 @@ decisions:
       - "yes, I will add photos to reference-photos/ before the art pass; the agent looks read-only and draws its own stylized sprites"
       - "no photos: draw from the kind of thing"
     recommendation: "yes, I will add photos to reference-photos/ before the art pass; the agent looks read-only and draws its own stylized sprites"
-    status: open
+    status: answered
+    answer: "yes, they're there"
+    by: marc
+    on: 2026-11-24
   - id: d6
     who: marc
     q: "Should a place's prompts (Examine, Display trinket) appear only where the item is, not from every tile of the piece?"

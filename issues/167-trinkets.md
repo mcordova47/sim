@@ -78,6 +78,17 @@ decisions:
     answer: "keep the front view"
     by: marc
     on: 2026-11-24
+  - id: d7
+    who: marc
+    q: "Which alebrije goes on the desk? See the options page: A the owl now in the game, B a plain cat, C a cat with wings, D a cat-fish, E a cat with antlers and a dragon tail."
+    options:
+      - "B, the plain cat (his real one is a cat)"
+      - "C, the cat with wings"
+      - "D, the cat-fish"
+      - "E, the cat with antlers and a dragon tail"
+      - "A, keep the owl"
+    recommendation: "B, the plain cat; hybrids can come later as more alebrijes"
+    status: open
 needs: [{who: marc, kind: try, why: "Look at the four tweaks (owl smaller, charcoal skateboard, egg on a metal stand, raccoon kept front view): cd ~/Dev/repos/mcordova47/sim-worktrees/167-trinkets && npm run dev, /?own=trinket-alebrije,trinket-finger-skateboard,trinket-goose-egg,trinket-raccoon-can, Tab to Display trinket at the standing desk; answer d6; then say 'merge 167'", since: 2026-11-24}]
 ---
 

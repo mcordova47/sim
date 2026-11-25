@@ -43,3 +43,4 @@ Build step K of `docs/decor-expansion-design.md` (section 2). Marc answered (d4 
 
 ## Progress log
 - 2026-11-24 (planner): filed on main with its open decisions (the issue file is born on main); Marc's request after merging the outfit work.
+- 2026-11-24 (planner): the plant pots design (issue 179, approved on its branch, d4 to d10 awaiting Marc) moves cut flowers from the `plant-shelf` slot to the new vase pot slot `pot-vase` with its own per-slot clock instead of `plantDry`, and the 2 px lower bowl means `golden frames unchanged` no longer holds after its stage A. Do not start 171 before Marc answers d4 to d7 of issue 179; then rewrite this issue's goal and criteria for the vase.

@@ -145,7 +145,10 @@ decisions:
       - "merge 167 now and replace the pictures later (the big art would be live meanwhile)"
       - "drop 167 and start the slot again"
     recommendation: "build stage A from it: keep its data and swap in the small pictures before it is merged"
-    status: open
+    status: answered
+    answer: "build stage A from it: keep its slot, swap task, items, notes and gifts, swap in the small pictures, and merge it only after that, so the big art never reaches main"
+    by: marc
+    on: 2026-11-24
 needs: [{who: marc, kind: decide, why: "Look at the trinket display mockups (~/Dev/repos/mcordova47/sim-worktrees/173-trinket-display/docs/trinket-display-mockups/) and answer d1 to d12; then say 'merge 173' (design only; reviewed)", since: 2026-11-24}]
 ---
 

@@ -2,7 +2,7 @@
 id: "172"
 title: "A new record stand"
 short: "Record stand"
-status: review
+status: done
 owner: marc + claude
 depends_on: []
 summary: "The first replacement furniture: a different record stand, as a delivery."

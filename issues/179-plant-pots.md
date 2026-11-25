@@ -40,7 +40,10 @@ decisions:
       - "only the houseplant pot is live; every other pot is still"
       - "everything live"
     recommendation: "only the houseplant pot is live; every other pot is still (a live second plant is the large piece of engine work in docs/decor-expansion-design.md section 9, so do it later)"
-    status: open
+    status: answered
+    answer: "houseplants live; dried arrangements still; the third pot's low plants live but very slow and easy (a mist now and then), never punished"
+    by: marc
+    on: 2026-11-24
 ---
 
 ## Goal

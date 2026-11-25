@@ -115,7 +115,10 @@ decisions:
       - "32x32 art shown at 4x (less detail, the same screen size)"
       - "64x64 art shown at 2x (more detail, the same screen size, more to draw)"
     recommendation: "48x48 art shown at 3x (144x144) on both views"
-    status: open
+    status: answered
+    answer: "48x48 art shown at 3x (144x144) on both views, the same pixel size as the zoomed art"
+    by: marc
+    on: 2026-11-24
   - id: d11
     who: marc
     q: "How are the real bookshelf's four cubbies arranged? The mockups assume a row of four."

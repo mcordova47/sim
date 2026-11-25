@@ -83,7 +83,10 @@ decisions:
       - "now, with the window redraw"
       - "drop the sill"
     recommendation: "later and optional: build the desk, nightstand, shelf and cubbies first, then decide the sill"
-    status: open
+    status: answered
+    answer: "later and optional: build the desk, nightstand, shelf and cubbies first, then decide the sill (needs 2 new window sprites)"
+    by: marc
+    on: 2026-11-24
   - id: d8
     who: marc
     q: "The lamp table has no free pixel (the lamp fills it). Drop it from the places?"

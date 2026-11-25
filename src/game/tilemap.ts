@@ -195,7 +195,11 @@ export function parseTileMap(
       ...(def.task ? [def.task] : []),
       ...(def.tasks ?? []).map((t) => (typeof t === "string" ? tasksById.get(t)! : t)),
     ];
-    for (const task of tasks) interactables.push({ ...task, zones });
+    for (const task of tasks) {
+      const own = task.zoneX === undefined ? zones : zones.filter((z) => task.zoneX! >= z.x && task.zoneX! < z.x + z.w);
+      if (own.length === 0) throw new Error(`${where}Task "${task.id}" is narrowed to x ${task.zoneX}, which is not on "${ch}"`);
+      interactables.push({ ...task, zones: own });
+    }
     if (def.slot) {
       if (def.variants) throw new Error(`${where}Legend "${ch}" has a decor slot, so it can't also have variants`);
       // An object for a slot with no default (it starts empty, issue 151) names no sprite: its variants are

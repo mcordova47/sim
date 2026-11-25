@@ -379,6 +379,16 @@ const SWAPS: Task[] = DECOR_SLOTS.filter((s) => s.object && !s.via).map((s) => {
   return { id: swapTaskId(s.id), name: prompt, prompt, duration: 0, points: 0, cooldown: 0, decorSlot: s.id, activity: { type: s.kinds[0] === "outfit" ? "outfit-slots" : DECOR_SLOTS.some((o) => o.via === s.id) ? "pot-slots" : "swap-decor" } };
 });
 
+// Looking closely at a displayed trinket (issue 185, stage B of docs/trinket-display-design.md): one task per trinket
+// slot, only offered while the slot holds something (`heldSlot`). It opens the close-up card (activities/examine.ts),
+// pays nothing, has no cooldown and always ends quietly. Its name and prompt follow the item ("Examine alebrije owl")
+// and it is only offered on the one tile of the piece that holds the slot (d6: the prompt only appears where the item is).
+export const examineTaskId = (slotId: string) => `examine-${slotId}`;
+const EXAMINES: Task[] = DECOR_SLOTS.filter((s) => s.object && !s.via && (s.kinds.includes("trinket") || s.kinds.includes("instrument"))).map((s) => ({
+  id: examineTaskId(s.id), name: "Examine trinket", prompt: "Examine trinket", itemWord: "trinket", duration: 0, points: 0, cooldown: 0,
+  heldSlot: s.id, zoneX: s.area.x + s.area.w / 2, activity: { type: "examine" },
+}));
+
 // Opening a delivered package (issue 062 stage 3a): no points, no cooldown, a quiet end.
 const COLLECT: Task = { id: "collect-delivery", name: "Open package", prompt: "Open package", duration: 0, points: 0, cooldown: 0, delivery: true, activity: { type: "collect-delivery" } };
 
@@ -413,6 +423,7 @@ const EXTRA: Task[] = [
     ],
   },
   ...MIRRORS,
+  ...EXAMINES,
   ...SWAPS,
   ...SIDE_PROJECTS.map(sideProjectTask),
   {

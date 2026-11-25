@@ -568,6 +568,15 @@ export class Decor {
       if (!task || zones.length !== tiles.size || !zones.every((z) => tiles.has(z))) {
         bad.push(`slot "${slot.id}" needs its swap task on the "${slot.object}"`);
       }
+      // A trinket slot's Examine (issue 185) is on the one tile that holds the slot's centre, a subset of the piece's tiles.
+      const look = level.interactables.find((i) => i.heldSlot === slot.id && i.zoneX !== undefined);
+      if (look) {
+        const x = slot.area.x + slot.area.w / 2;
+        const own = look.zones.map((z) => `${z.x},${z.y}`);
+        if (own.length === 0 || !own.every((z) => tiles.has(z)) || !look.zones.every((z) => x >= z.x && x < z.x + z.w)) {
+          bad.push(`slot "${slot.id}" needs its examine task on the one "${slot.object}" tile that holds it`);
+        }
+      }
     }
     return bad;
   }

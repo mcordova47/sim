@@ -438,15 +438,20 @@ New items for the desk's right corner (slot `trinket-desk`, swap task "Display t
 - Slot name: TRINKET ON THE DESK (where: ON THE DESK) -
 - Task: Display trinket -
 - ALEBRIJE OWL: A PAINTED WOODEN OWL WITH OPINIONS. IT KEEPS THEM TO ITSELF. -
-- ALEBRIJE CAT: IT SITS LIKE IT OWNS THE FLOWER. IT DOES. -
+- ALEBRIJE CAT: IT LOOKS LIKE IT'S UP TO SOME MISCHIEF. - keep (Marc wrote it)
 - LITTLE TELESCOPE: FOR SMALL STARS. IT IS ALSO GOOD AT THE CEILING. -
-- FINGER SKATEBOARD: TWO FINGERS, ONE KICKFLIP, NO WITNESSES. -
+- FINGER SKATEBOARD: BEING AN ADULT MEANS NO ONE CAN TELL YOU WHAT TO SPEND YOUR MONEY ON. - keep (Marc wrote it)
 - PAINTED GOOSE EGG: SOMEONE PATIENT PAINTED IT. NOTHING IS HATCHING. -
-- WORRY DOLL: IT TAKES THE WORRIES. YOU KEEP THE NAP. -
-- RACCOON IN A CAN: NOBODY EXPLAINED THE CAN. THE RACCOON SEEMS FINE. -
-- HARMONICA: FOR LOOKING AT. THE BLUES CAN WAIT. -
+- WORRY DOLL: A LITTLE DOLL FOR BIG WORRIES. - keep (Marc wrote it)
+- RACCOON IN A CAN: THIS GUY ALWAYS WANTS SOMETHING FROM YOU. - keep (Marc wrote it)
+- HARMONICA: YOU DON'T HAVE TO PLAY WELL TO SOUND GOOD. - keep (Marc wrote it)
 - KALIMBA: EVERY TINE IS A NICE NOTE. IT IS HARD TO PLAY WRONG. -
 - JAW HARP: A SPRING IN A FRAME. THE SOUND IS A SMALL BOING. -
+
+## Examine a trinket (issue 185)
+The prompt at a displayed trinket and the close-up card. The card shows the item's own name, its `FROM:` line and its note (all reviewed above), so the only new words are the prompt and the `FROM:` label. Wired in `src/game/tasks.ts` (`EXAMINES`), `src/game/decor-data.ts` (`taskName`) and `src/game/activities/examine.ts`. Marc to mark: keep / soften / rewrite.
+- Prompt and name (the word follows the item, no "the"): Examine trinket, shown as Examine alebrije owl / Examine alebrije cat / Examine little telescope / Examine finger skateboard / Examine painted goose egg / Examine worry doll / Examine raccoon in a can / Examine harmonica / Examine kalimba / Examine jaw harp -
+- Card: the item name, FROM: A PACKAGE, the item's note; no title, no counts, no key hint -
 
 ## Coffee gear (issue 168)
 New names and notes for the coffee apparatus, and the make-coffee wording that follows them ("Make french press coffee", "Make moka coffee"). No brand is named. Wired in `src/game/decor-data.ts` and `src/game/tasks.ts`. Marc to mark: keep / soften / rewrite.

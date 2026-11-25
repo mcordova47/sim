@@ -132,7 +132,7 @@ const MAIN: Record<string, ObjectDef> = {
       { sprite: "table", color: "tangerine" },
     ],
   },
-  D: { name: "standing desk", sprite: "desk", color: "butter", tasks: ["work", "side-project-game", "journal", "tidy-desk", "make-track", "study-spanish", "swap-art-desk", "swap-trinket-desk"] },
+  D: { name: "standing desk", sprite: "desk", color: "butter", tasks: ["work", "side-project-game", "journal", "tidy-desk", "make-track", "study-spanish", "swap-art-desk", "examine-trinket-desk", "swap-trinket-desk"] },
   C: { name: "desk chair", sprite: "desk-chair", color: "ink" },
   H: { name: "cube bookshelf", sprite: "bookshelf", color: "butter", tasks: ["water-plant-droop", "water-plant", "check-plant", "sort-records", "sort-records-year", "sort-records-fav", "sort-records-color", "swap-plant-shelf", "swap-worn"] },
   N: { name: "nightstand", sprite: "nightstand", color: "tangerine", tasks: ["charge-phone", "order-takeout", "swap-art-bed"] },

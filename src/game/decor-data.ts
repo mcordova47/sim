@@ -20,6 +20,8 @@ export interface GlowFlicker {
 export const NOTE_MAX = 80;
 export const FROM_MAX = 30;
 export const TASK_NAME_MAX = 20;
+// The 48x48 close-up the Examine card shows for an item (issue 185): the item's sprite name plus "-close".
+export const closeName = (sprite: string): string => `${sprite}-close`;
 
 // `trinket`, `coffee`, `outfit` and `furniture` are for the decor expansion (docs/decor-expansion-design.md, issue 151):
 // no item has one yet, so they only need their swap prompt (tasks.ts SWAP_PROMPT).
@@ -259,16 +261,16 @@ export const GIFT_ITEMS: DecorItem[] = [
   { id: "outfit-pajamas-striped", name: "STRIPED PAJAMAS", kind: "outfit", sprite: "player-pajamas-striped-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "NOTHING ABOUT THESE IS URGENT." },
   { id: "outfit-pajamas-robe", name: "BATHROBE", kind: "outfit", sprite: "player-pajamas-robe-idle-down", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "THE SHOWER WENT WELL. THE ROBE AGREES." },
   // Trinkets and display instruments for the desk's right corner (issue 167). Display only: nothing here is played or counted.
-  { id: "trinket-alebrije", name: "ALEBRIJE OWL", kind: "trinket", sprite: "trinket-alebrije", w: 16, h: 16, color: "tangerine", how: "gift", from: "A PACKAGE", note: "A PAINTED WOODEN OWL WITH OPINIONS. IT KEEPS THEM TO ITSELF." },
-  { id: "trinket-telescope", name: "LITTLE TELESCOPE", kind: "trinket", sprite: "trinket-telescope", w: 16, h: 16, color: "butter", how: "gift", from: "A PACKAGE", note: "FOR SMALL STARS. IT IS ALSO GOOD AT THE CEILING." },
-  { id: "trinket-finger-skateboard", name: "FINGER SKATEBOARD", kind: "trinket", sprite: "trinket-finger-skateboard", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "TWO FINGERS, ONE KICKFLIP, NO WITNESSES." },
-  { id: "trinket-goose-egg", name: "PAINTED GOOSE EGG", kind: "trinket", sprite: "trinket-goose-egg", w: 16, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "SOMEONE PATIENT PAINTED IT. NOTHING IS HATCHING." },
-  { id: "trinket-worry-doll", name: "WORRY DOLL", kind: "trinket", sprite: "trinket-worry-doll", w: 16, h: 16, color: "brick", how: "gift", from: "A PACKAGE", note: "IT TAKES THE WORRIES. YOU KEEP THE NAP." },
-  { id: "trinket-raccoon-can", name: "RACCOON IN A CAN", kind: "trinket", sprite: "trinket-raccoon-can", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "NOBODY EXPLAINED THE CAN. THE RACCOON SEEMS FINE." },
-  { id: "instrument-harmonica", name: "HARMONICA", kind: "instrument", sprite: "instrument-harmonica", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "FOR LOOKING AT. THE BLUES CAN WAIT." },
-  { id: "instrument-kalimba", name: "KALIMBA", kind: "instrument", sprite: "instrument-kalimba", w: 16, h: 16, color: "butter", how: "gift", from: "A PACKAGE", note: "EVERY TINE IS A NICE NOTE. IT IS HARD TO PLAY WRONG." },
-  { id: "instrument-jaw-harp", name: "JAW HARP", kind: "instrument", sprite: "instrument-jaw-harp", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "A SPRING IN A FRAME. THE SOUND IS A SMALL BOING." },
-  { id: "trinket-alebrije-cat", name: "ALEBRIJE CAT", kind: "trinket", sprite: "trinket-alebrije-cat", w: 16, h: 16, color: "tangerine", how: "gift", from: "A PACKAGE", note: "IT SITS LIKE IT OWNS THE FLOWER. IT DOES." },
+  { id: "trinket-alebrije", name: "ALEBRIJE OWL", kind: "trinket", sprite: "trinket-alebrije", taskName: "alebrije owl", w: 16, h: 16, color: "tangerine", how: "gift", from: "A PACKAGE", note: "A PAINTED WOODEN OWL WITH OPINIONS. IT KEEPS THEM TO ITSELF." },
+  { id: "trinket-telescope", name: "LITTLE TELESCOPE", kind: "trinket", sprite: "trinket-telescope", taskName: "little telescope", w: 16, h: 16, color: "butter", how: "gift", from: "A PACKAGE", note: "FOR SMALL STARS. IT IS ALSO GOOD AT THE CEILING." },
+  { id: "trinket-finger-skateboard", name: "FINGER SKATEBOARD", kind: "trinket", sprite: "trinket-finger-skateboard", taskName: "finger skateboard", w: 16, h: 16, color: "leaf", how: "gift", from: "A PACKAGE", note: "BEING AN ADULT MEANS NO ONE CAN TELL YOU WHAT TO SPEND YOUR MONEY ON." },
+  { id: "trinket-goose-egg", name: "PAINTED GOOSE EGG", kind: "trinket", sprite: "trinket-goose-egg", taskName: "painted goose egg", w: 16, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "SOMEONE PATIENT PAINTED IT. NOTHING IS HATCHING." },
+  { id: "trinket-worry-doll", name: "WORRY DOLL", kind: "trinket", sprite: "trinket-worry-doll", taskName: "worry doll", w: 16, h: 16, color: "brick", how: "gift", from: "A PACKAGE", note: "A LITTLE DOLL FOR BIG WORRIES." },
+  { id: "trinket-raccoon-can", name: "RACCOON IN A CAN", kind: "trinket", sprite: "trinket-raccoon-can", taskName: "raccoon in a can", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "THIS GUY ALWAYS WANTS SOMETHING FROM YOU." },
+  { id: "instrument-harmonica", name: "HARMONICA", kind: "instrument", sprite: "instrument-harmonica", taskName: "harmonica", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "YOU DON'T HAVE TO PLAY WELL TO SOUND GOOD." },
+  { id: "instrument-kalimba", name: "KALIMBA", kind: "instrument", sprite: "instrument-kalimba", taskName: "kalimba", w: 16, h: 16, color: "butter", how: "gift", from: "A PACKAGE", note: "EVERY TINE IS A NICE NOTE. IT IS HARD TO PLAY WRONG." },
+  { id: "instrument-jaw-harp", name: "JAW HARP", kind: "instrument", sprite: "instrument-jaw-harp", taskName: "jaw harp", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "A SPRING IN A FRAME. THE SOUND IS A SMALL BOING." },
+  { id: "trinket-alebrije-cat", name: "ALEBRIJE CAT", kind: "trinket", sprite: "trinket-alebrije-cat", taskName: "alebrije cat", w: 16, h: 16, color: "tangerine", how: "gift", from: "A PACKAGE", note: "IT LOOKS LIKE IT'S UP TO SOME MISCHIEF." },
   // Coffee gear (issue 168): equal pay, only the picture and the task's name follow the apparatus. The table takes the first three, the stove the rest.
   { id: "coffee-french-press", name: "FRENCH PRESS", kind: "coffee", sprite: "coffee-french-press", taskName: "french press", slots: ["coffee-table"], w: 16, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "YOU PRESS IT SLOWLY, LIKE SOMEONE WITH NOTHING SCHEDULED." },
   { id: "coffee-drip-machine", name: "DRIP MACHINE", kind: "coffee", sprite: "coffee-drip-machine", taskName: "drip", slots: ["coffee-table"], w: 16, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "IT DOES THE WAITING FOR YOU. YOU WAIT ANYWAY." },

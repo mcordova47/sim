@@ -270,7 +270,7 @@ describe("the real task list", () => {
     expect(game).toBeDefined();
     for (const room of Object.values(APARTMENT.rooms)) {
       for (const task of room.interactables) {
-        if (task.activity) expect(["wait", "dialog", "cutscene", "typing", "notes", "make-track", "swap-decor", "outfit-slots", "pot-slots", "collect-delivery", "flashcards", "record-player", "sleep"]).toContain(task.activity.type);
+        if (task.activity) expect(["wait", "dialog", "cutscene", "typing", "notes", "make-track", "swap-decor", "examine", "outfit-slots", "pot-slots", "collect-delivery", "flashcards", "record-player", "sleep"]).toContain(task.activity.type);
       }
     }
     expect(VIEW.width).toBeGreaterThan(0);

@@ -67,7 +67,7 @@ decisions:
     answer: "it's in trinkets (canned-raccoon.jpeg)"
     by: marc
     on: 2026-11-24
-needs: []
+needs: [{who: marc, kind: try, why: "Look at the nine small trinkets and instruments: cd ~/Dev/repos/mcordova47/sim-worktrees/167-trinkets && npm run dev, open /?own=trinket-alebrije,trinket-telescope,trinket-finger-skateboard,trinket-goose-egg,trinket-worry-doll,trinket-raccoon-can,instrument-harmonica,instrument-kalimba,instrument-jaw-harp, Tab to Display trinket at the standing desk; say which to redraw (the telescope can look like a small cannon, the goose egg and worry doll are weak); then say 'merge 167'", since: 2026-11-24}]
 ---
 
 ## Goal

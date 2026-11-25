@@ -2,7 +2,7 @@
 id: "172"
 title: "A new record stand"
 short: "Record stand"
-status: done
+status: in-progress
 owner: marc + claude
 depends_on: []
 summary: "The first replacement furniture: a different record stand, as a delivery."
@@ -33,21 +33,22 @@ decisions:
     on: 2026-11-24
   - id: d3
     who: marc
-    q: "Which record stand? Open the options page (group Record stand): A crate with a turntable, B wire rack, C low cabinet, D lid cabinet, E and E2 suitcase, F gramophone."
+    q: "Which record stand? Open the options page (group Record stand): A crate, B wire rack, C low cabinet, D lid cabinet."
     options:
-      - "A (a crate on legs with a turntable on top)"
+      - "A (a crate of records, no turntable drawn)"
       - "C (a low wooden cabinet with a turntable on top)"
-      - "E or E2 (a suitcase record player, pink or cream and teal)"
-      - "F (a gramophone with a short horn)"
       - "none of these: I will look up inspo"
     recommendation: "C (a low wooden cabinet with a turntable on top)"
-    status: open
+    status: answered
+    answer: "keep them all: ship every candidate (A, B, C, D, E, E2, F) as an item, so there are always more things to get"
+    by: marc
+    on: 2026-11-25
 unverified:
   - "How the candidates feel next to the rest of the room in a browser: judged from composited PNG crops of the room at 6x and 10x, not from the options page in a browser."
   - "The swap list in the running game with a replacement stand (only the test placeholder, in unit tests): no real stand exists yet."
   - "Review 2026-11-25: how the generated options page feels in a browser (I rendered the same composed PNGs with the repo's own room-compose and looked at them, not the page); the swap list and the record-play prompt next to the swap prompt in the running game with a real replacement."
   - "Review 3, 2026-11-25: E, E2 and F on the generated options page in a browser (looked at composed PNGs only)."
-needs: [{who: marc, kind: decide, why: "Pick a record stand from the options page (d3), or say you want something else", since: 2026-11-25}]
+needs: []
 ---
 
 ## Goal

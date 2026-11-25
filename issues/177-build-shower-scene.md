@@ -9,6 +9,18 @@ summary: "Build the in-room shower scene: the player in the tub under bubbles, s
 kind: build
 changelog: "Taking a shower is now a short comic scene with bubbles, steam and a hiss, ending in the bathrobe."
 needs: [{who: marc, kind: try, why: "Take a shower and tune the hiss by ear: cd ~/Dev/repos/mcordova47/sim-worktrees/177-shower-scene && npm run dev, walk through the kitchen to the bath at the east end, stand on the tile east of the tub (column 3, rows 1 to 4), face west, press E; ?set=clock:8 and your OS reduce-motion setting show the other cases; then say 'merge 177' or what is off", since: 2026-11-24}]
+decisions:
+  - id: d1
+    who: marc
+    q: "Shower scene (177): the bubble-covered player is drawn for the whole 6 seconds, so before the water starts (the first second) and after it stops (the last 1.4 seconds) it looks odd. What should hide or soften those moments?"
+    options:
+      - "a steam cloud over the tub that builds before the water starts and thins out after it stops (a dithered, drifting mist layer: particles and a pixel pattern, no new sprites), so the bubbles appear and disappear inside it"
+      - "a shower curtain drawn closed before and after (the player seen as a shape through it), pulled back while the water runs"
+      - "the foam grows in and shrinks: a small, a medium and a full bubble heap (three pictures), so you are covered gradually"
+      - "a blocky pixelated blur on the player picture before and after"
+      - "a combination of the steam cloud and the growing foam"
+    recommendation: "a steam cloud over the tub that builds before the water starts and thins out after it stops (a dithered, drifting mist layer: particles and a pixel pattern, no new sprites), so the bubbles appear and disappear inside it"
+    status: open
 ---
 
 ## Goal

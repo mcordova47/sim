@@ -16,7 +16,10 @@ decisions:
       - "the first three (alebrije, telescope, finger skateboard)"
       - "a different set"
     recommendation: "all six Marc listed: an alebrije, a little decorative telescope, a finger skateboard (tech deck), a painted goose egg, a worry doll, a raccoon in a can"
-    status: open
+    status: answered
+    answer: "all six Marc listed: an alebrije, a little decorative telescope, a finger skateboard (tech deck), a painted goose egg, a worry doll, a raccoon in a can"
+    by: marc
+    on: 2026-11-24
   - id: d2
     who: marc
     q: "Which display instruments go with them (display only, not playable)?"

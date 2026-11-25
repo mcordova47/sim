@@ -26,6 +26,15 @@ decisions:
       - "the bathrobe replaces the towel in the ROBE slot when it arrives (the towel stays owned)"
     recommendation: "yes: both are robe-style outfits you can equip into the ROBE slot; the slot starts with the towel and the first bathrobe does not replace it unless you equip it"
     status: open
+  - id: d3
+    who: marc
+    q: "Starting towel (184, d3): which towel look? (A: the wrap from the chest to above the knees; B: the wrap plus a towel over the top of the head, which reads more as a cap or headband; C: a towel draped over the shoulders like a cape, which reads as a vest and leaves a bare chest between the ends)"
+    options:
+      - "A, the wrap"
+      - "B, the wrap and a turban"
+      - "C, the cape"
+    recommendation: "A, the wrap"
+    status: open
 ---
 
 ## Goal

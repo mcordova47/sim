@@ -380,7 +380,7 @@ export const swapTaskId = (slotId: string) => `swap-${slotId}`;
 const SWAP_PROMPT_SLOT: Record<string, string> = { "rug-bed": "Change bed rug" };
 const SWAPS: Task[] = DECOR_SLOTS.filter((s) => s.object).map((s) => {
   const prompt = SWAP_PROMPT_SLOT[s.id] ?? SWAP_PROMPT[s.kinds[0]] ?? "Change it";
-  return { id: swapTaskId(s.id), name: prompt, prompt, duration: 0, points: 0, cooldown: 0, decorSlot: s.id, activity: { type: "swap-decor" } };
+  return { id: swapTaskId(s.id), name: prompt, prompt, duration: 0, points: 0, cooldown: 0, decorSlot: s.id, activity: { type: s.kinds[0] === "outfit" ? "outfit-slots" : "swap-decor" } };
 });
 
 // Opening a delivered package (issue 062 stage 3a): no points, no cooldown, a quiet end.

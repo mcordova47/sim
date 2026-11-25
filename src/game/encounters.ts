@@ -137,8 +137,8 @@ export class Encounters {
     return ad;
   }
 
-  // Picks an ad (encounter-draw.ts `drawAd`): a fixed ad or a product line's item, weighted toward what you do not
-  // own, preferring one that is not among the last `recent` shown. Null when there is nothing usable.
+  // Picks an ad (encounter-draw.ts `drawAd`): a special ad, or an item of the window (or a repeat) shown by a shop,
+  // preferring one that is not among the last `recent` shown. Null when there is nothing usable.
   pick(env: Pick<EncounterEnv, "random" | "usable" | "pool" | "drawable">): Ad | null {
     return drawAd({ ads: this.ads, lines: this.lines, pool: env.pool, recent: this.save.seen, random: env.random, usable: env.usable, drawable: env.drawable });
   }

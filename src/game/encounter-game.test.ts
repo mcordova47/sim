@@ -5,11 +5,12 @@ import { AchievementsFeature, type KeyEventLike, type Listenable } from "./achie
 import { APARTMENT } from "./apartment";
 import { ACHIEVEMENTS_UI as UI, DELIVERIES, ENCOUNTERS, SOUND } from "./config";
 import { DECOR_DATA } from "./decor-data";
-import { encounterFromSearch, encounterOnFirstKey } from "./decor-dev";
+import { encounterFromSearch, encounterOnFirstKey, failFromSearch } from "./decor-dev";
 import { ADS, CARD_WORDS, ENCOUNTER_WORDS, adById } from "./encounter-ads";
 import { Game } from "./game";
 import type { Interactable } from "./interactable";
 import type { Level } from "./level";
+import { unsupportedChars } from "../render/font";
 import { taskSpots } from "./plan-checks";
 import { FakeAudioContext } from "./sound/fake-audio";
 import { SoundFeature } from "./sound/feature";
@@ -115,7 +116,7 @@ function readAll(game: Game): string[] {
 
 // A game with a doomscroll standing by, a hit at the roll, and the first ad (the robin print).
 function toFirstEncounter(s = setup()) {
-  s.rnd.next(0.1, 0.01);
+  s.rnd.next(0.1, 0.01, 0);
   doTask(s.game, "doomscroll");
   expect(encounterUp(s.game)).toBe(true);
   return s;
@@ -214,7 +215,7 @@ describe("when an encounter starts", () => {
     const rnd = script();
     const game = new Game(level, { random: rnd.random });
     game.deliveries.advance(60);
-    rnd.next(0.1, 0.01);
+    rnd.next(0.1, 0.01, 0);
     game.update(dt, NO_INPUT);
     game.update(dt, press);
     frames(game, 90);
@@ -222,7 +223,7 @@ describe("when an encounter starts", () => {
     // And the same task under another id does not.
     const other = new Game({ ...level, interactables: level.interactables.map((i) => ({ ...i, id: "work-sofa" })) }, { random: rnd.random });
     other.deliveries.advance(60);
-    rnd.next(0.1, 0.01);
+    rnd.next(0.1, 0.01, 0);
     other.update(dt, NO_INPUT);
     other.update(dt, press);
     frames(other, 90);
@@ -376,8 +377,8 @@ describe("an ad for something you already have", () => {
     const s = setup();
     s.game.decor.own("art-robin");
     const m = mood(s.game);
-    // The draw is weighted toward what you lack (issue 163): 0 is the first ad, the robin print, however light its weight.
-    s.rnd.next(0.1, 0);
+    // The draw (issue 183): a roll that hits, not a special ad (0.5), a repeat (0), the first item you own (0): the robin print.
+    s.rnd.next(0.1, 0.5, 0, 0);
     doTask(s.game, "doomscroll");
     expect(encounterUp(s.game)).toBe(true);
     const afterScroll = mood(s.game);
@@ -408,7 +409,7 @@ describe("an ad for something you already have", () => {
   it("an item already ordered or waiting at the door says it is in the cart", () => {
     const s = setup();
     s.game.deliveries.deliver("art-robin", 20);
-    s.rnd.next(0.1, 0);
+    s.rnd.next(0.1, 0.5, 0, 0);
     doTask(s.game, "doomscroll");
     expect(readAll(s.game)).toEqual([ENCOUNTER_WORDS.alreadyInCart]);
     expect(s.game.interaction.busy).toBe(false);
@@ -451,6 +452,133 @@ describe("an ad for something you already have", () => {
     } finally {
       DELIVERIES.maxQueued = was;
     }
+  });
+});
+
+describe("a purchase that falls through (issue 183)", () => {
+  // The roll after choosing Add to cart is the next random number: below the tier's chance fails, at or above it works.
+  const buyWith = (itemAd: string, roll: number, line = 0) => {
+    const s = setup();
+    s.game.startEncounter(adById(itemAd)!);
+    entrance(s.game);
+    const m = mood(s.game);
+    const seenBefore = s.game.encounters.toJSON();
+    s.rnd.next(roll, line);
+    pick(s.game, "ADD TO CART");
+    const lines = readAll(s.game);
+    return { ...s, lines, m, seenBefore };
+  };
+
+  it("a normal item fails below 0.2: a deadpan line, nothing queued, no mood change, no points, the encounter ends quietly", () => {
+    const { game, lines, m } = buyWith("ad-robin", 0.19);
+    expect(ENCOUNTERS.failure.lines).toContain(lines[0]);
+    expect(lines).toHaveLength(1);
+    expect(game.deliveries.pendingItems).toHaveLength(0);
+    expect(game.deliveries.waitingItems).toHaveLength(0);
+    expect(game.decor.owns("art-robin")).toBe(false);
+    expect(mood(game)).toBeCloseTo(m, 5);
+    expect(game.interaction.busy).toBe(false);
+    expect(game.inputLocked).toBe(false);
+  });
+
+  it("at 0.2 or more the same purchase works", () => {
+    const { game, lines } = buyWith("ad-robin", 0.2);
+    expect(lines).toEqual(["ORDER CONFIRMED. ARRIVES TOMORROW."]);
+    expect(game.deliveries.pendingItems.map((p) => p.id)).toEqual(["art-robin"]);
+  });
+
+  it("an easy item fails below 0.1 only, a hard one below 0.4, and a hard one has its own lines", () => {
+    // Pothos is easy, the great wave is hard (the ladder): the robin ad's card with their item.
+    for (const [item, tier, fails, works] of [["plant-pothos", "easy", 0.09, 0.1], ["art-great-wave", "hard", 0.39, 0.4]] as const) {
+      for (const [roll, ok] of [[fails, false], [works, true]] as const) {
+        const s = setup();
+        s.game.startEncounter({ ...adById("ad-robin")!, item });
+        entrance(s.game);
+        s.rnd.next(roll, 0);
+        pick(s.game, "ADD TO CART");
+        const lines = readAll(s.game);
+        expect(s.game.deliveries.pendingItems.length, `${tier} at ${roll}`).toBe(ok ? 1 : 0);
+        if (!ok) expect(tier === "hard" ? ENCOUNTERS.failure.hardLines : ENCOUNTERS.failure.lines, `${tier} line`).toContain(lines[0]);
+      }
+    }
+  });
+
+  it("the item stays in the window after a failure, and it can be tried again at the next ad", () => {
+    const s = setup();
+    const before = s.game.itemPool().has("art-robin");
+    const { game } = buyWith("ad-robin", 0.1);
+    expect(before).toBe(false);
+    expect(game.itemPool().has("art-robin")).toBe(false);
+    expect(game.deliveries.pendingItems).toHaveLength(0);
+  });
+
+  it("an ad for something you own or have ordered is refused first, with no roll", () => {
+    const s = setup();
+    s.game.decor.own("art-robin");
+    s.game.startEncounter(adById("ad-robin")!);
+    entrance(s.game);
+    s.rnd.next(0);
+    expect(readAll(s.game)).toEqual([ENCOUNTER_WORDS.alreadyOwn]);
+  });
+
+  it("an impulse purchase (Ignore at a low mood) can fail too, and a failure is not a failed unsubscribe: the next ad is not sooner", () => {
+    const { game, rnd } = toFirstEncounter(setup({ mood: 10 }));
+    rnd.next(0, 0.05, 0);
+    pick(game, "IGNORE");
+    const lines = readAll(game);
+    expect(ENCOUNTERS.failure.lines).toContain(lines[0]);
+    expect(game.deliveries.pendingItems).toHaveLength(0);
+    expect(game.encounters.soon).toBe(false);
+    // It still counts for the cooldown and the day.
+    expect(game.encounters.toJSON().today).toBe(1);
+  });
+
+  it("over a seeded run, a normal item fails about one try in five, easy one in ten and hard two in five", () => {
+    const rate = (item: string) => {
+      let n = 0;
+      const N = 1500;
+      for (let i = 0; i < N; i++) {
+        let state = (i * 2654435761 + 12345) >>> 0;
+        const random = () => ((state = (Math.imul(state, 1664525) + 1013904223) >>> 0) / 4294967296);
+        const g = new Game(main, { rooms: { ...rooms, main }, random });
+        g.startEncounter({ ...adById("ad-robin")!, item });
+        entrance(g);
+        pick(g, "ADD TO CART");
+        readAll(g);
+        if (g.deliveries.pendingItems.length === 0) n++;
+      }
+      return n / N;
+    };
+    expect(rate("plant-pothos")).toBeGreaterThan(0.07);
+    expect(rate("plant-pothos")).toBeLessThan(0.13);
+    expect(rate("art-robin")).toBeGreaterThan(0.17);
+    expect(rate("art-robin")).toBeLessThan(0.23);
+    expect(rate("art-great-wave")).toBeGreaterThan(0.36);
+    expect(rate("art-great-wave")).toBeLessThan(0.44);
+  });
+
+  it("the dev shortcut ?fail=1 makes every purchase fail and ?fail=0 none", () => {
+    for (const [fail, failed] of [["1", true], ["0", false]] as const) {
+      const s = setup();
+      expect(failFromSearch(s.game, `?fail=${fail}`)).toBe(Number(fail));
+      s.game.startEncounter(adById("ad-robin")!);
+      entrance(s.game);
+      pick(s.game, "ADD TO CART");
+      readAll(s.game);
+      expect(s.game.deliveries.pendingItems.length === 0).toBe(failed);
+    }
+    expect(failFromSearch(setup().game, "?fail=2")).toBeNull();
+    expect(failFromSearch(setup().game, "?fail=")).toBeNull();
+    expect(failFromSearch(setup().game, "?encounter=random")).toBeNull();
+  });
+
+  it("the failure lines fit the dialog and use only characters the font has", () => {
+    for (const line of [...ENCOUNTERS.failure.lines, ...ENCOUNTERS.failure.hardLines]) {
+      expect(unsupportedChars(line), line).toEqual([]);
+      expect(line.length, line).toBeLessThanOrEqual(46);
+      expect(line, line).toBe(line.toUpperCase());
+    }
+    expect(new Set([...ENCOUNTERS.failure.lines, ...ENCOUNTERS.failure.hardLines]).size).toBe(ENCOUNTERS.failure.lines.length + ENCOUNTERS.failure.hardLines.length);
   });
 });
 
@@ -497,7 +625,7 @@ describe("Escape, at every moment", () => {
   it("the dismissal card", () => {
     const s = setup();
     s.game.decor.own("art-robin");
-    s.rnd.next(0.1, 0.01);
+    s.rnd.next(0.1, 0.01, 0);
     doTask(s.game, "doomscroll");
     expect(encounterUp(s.game)).toBe(true);
     const clock = s.game.state.get("clock");

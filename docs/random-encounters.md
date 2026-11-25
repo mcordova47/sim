@@ -69,7 +69,7 @@ Only two narrow wall slots (table, desk) exist today, and this list has seven na
 - **When it appears.** Right after the task's award, in the same place the player is standing. The clock is held while it is open, like the swap list and the track editor: no pressure while it is up.
 
 ### What appears
-1. One ad is picked: from the ad catalog (section 6), preferring not to repeat the last 3 ads shown. Since issue 163 the draw also includes the product lines and weights what you lack ten times higher than what you have (section 15); before it the pick was uniform.
+1. One ad is picked: from the ad catalog (section 6), preferring not to repeat the last 3 ads shown. Since issue 163 the draw also includes the product lines (section 15); since issue 183 it takes an item from a window of the next five items you lack, or a repeat (section 16); before 163 the pick was uniform.
 2. **Already-own dismissal.** If the ad's item is owned, or already queued or waiting at the door, there is no choice: the card shows for about 2 seconds, one line says `YOU ALREADY HAVE ONE.` (or `IT IS ALREADY IN YOUR CART.` if it is queued), and it goes away. No delivery, no mood change. It still counts for the cooldown and the daily cap, so the rate stays steady, and as you own more things, fewer encounters offer anything.
 3. Otherwise: the card (a full-screen picture with the ad's text), one narrator line in the dialog box, then the menu.
 
@@ -483,6 +483,78 @@ Marc (2026-11-24): the new plants and outfits all arrived as checkpoint gifts an
 - **The card.** The product picture is still the item's own sprite, magnified by whole numbers up to 3x. A sprite too big for the picture box even at 1x (a 128x64 or 112x48 rug in the 100x52 email box) is **cropped to the middle of the picture box at 1x** (`productFit` in `src/render/encounter-card.ts`), never scaled by a fraction, so it stays crisp and cannot spill onto the text. The 16x16 and 32x16 items are unchanged.
 - **Dev shortcut.** `?encounter=line-plants` (or any line id: `line-frames`, `line-gallery`, `line-plants`, `line-lamps`, `line-clothing`, `line-coffee`, `line-rugs`, `line-trinkets`, `line-music`) shows that shop's ad with an item drawn from the pool; `?encounter=random` now draws as a roll would, fixed ads and lines together. A line with nothing to sell falls back to a random draw.
 - **Not built:** a per-line weight (a shop is as likely as any other ad or shop); a rule for how many lines there should be per kind; mood or time of day changing the shop.
+
+## 16. What issue 183 built: the window, the repeats, and purchases that can fail
+Marc (2026-11-25), after playing the pool of issue 163: (1) only a handful of items should be in play at a time, like the creatures you can meet in a place in a classic monster-collecting game: an ordering of items and a chance only at the next few you do not own; (2) repeats (an ad for something you own) should be fairly common again, so a new thing is a nice surprise; (3) buying from an ad can fail, and some items are harder to get. His answers (d1 to d6) were all as recommended. This replaces the 10:1 weighting of section 15 (`ENCOUNTERS.pool.unowned` and `owned` are gone); everything else in 15 stands. Nothing about delivery changed: an owned, queued or waiting item is never delivered twice, the already-own card stays, milestone gifts are untouched.
+
+- **The ladder** (`src/game/encounter-ladder.ts`, `LADDER`): every real item an ad can sell, in order, as a data list; each line is `[id]` or `[id, "easy" | "hard"]` (normal is the default). **To change the order, move a line; to change a difficulty, add or remove the second word.** It starts from the gift-day order of the checkpoints, with the items that are not gifts (the three famous paintings and the eight other rugs) woven in among their kind's neighbours. An item missing from the list is placed at the very end of the ladder (it still works), and a test (`encounter-ladder.test.ts`) fails with the item's id until someone places it. Test items, starting items and empty pots, vases and bowls (the `empty` flag of issue 182) are never in it. The full list is below.
+- **The window** (`windowOf`, `ENCOUNTERS.window.size`, 5): the next 5 items along the ladder that you do not have (owned, queued or waiting at the door). It slides as an item becomes yours by any route (a milestone gift, an ad). An item with no card art is in neither side. A shop is only drawn when the window or the items you own hold something of its kind, so a shop whose kind is not in the window stays away until it is.
+- **Repeats** (`drawItem`, `repeatChance`, `ENCOUNTERS.window.repeatShare`, one in three): each ad is a repeat (an item you own, any of them equally, shown by a shop of its kind, so the already-own card) with the chance 1 in 3 while the window is full; otherwise a window item, each equally likely. As the window runs short (you own nearly everything) the missing places count as repeats too (the chance is 1 - 2/3 x window/5), so with 2 left it is about 73 percent, with 1 left about 87, with none 100; with nothing owned yet it is 0. Seeded tests check the share at several ownership levels (2, 10, 20 and 34 of 40, 3 of 12).
+- **The seven special ads** (`ADS`, fixed items) stay outside the window and are not weighted: with `ENCOUNTERS.window.specialShare` (0.15, my default, see decision d7 in the issue) an ad is one of the special ads whose item you do not have and that was not among the last 3 shown; once you own their items they are gone and only repeats of those items come through the shops. The last 3 ads (a special ad, or a shop) are still skipped while another can be shown.
+- **Failure** (`EncounterActivity.buy`, `ENCOUNTERS.failure`): after you choose Add to cart (or an Ignore at a low mood turns into a purchase), and after the refusals that need no roll (already own it, already in the cart), one more roll with the chosen item's tier: easy 0.1, normal 0.2, hard 0.4 (`ENCOUNTERS.failure.chance`). A failure shows one deadpan line, orders nothing, queues nothing, changes no mood, and ends the card like any refusal (the sound treats it as `refused`: no jingle, the plain exit echo). The item stays where it was in the window, the encounter still counts for the cooldown and the day, and it is not a failed unsubscribe (the next ad is not sooner). The line comes from `ENCOUNTERS.failure.lines`, or from `hardLines` for a hard item. A full cart is still reported as the full-cart line (the roll comes first, so a full cart can also look like a failure).
+- **Dev shortcuts** (dev server only): `?fail=1` makes every purchase fail, `?fail=0` none, `?fail=0.5` is a chance (in place of the tier's); `?own=art-robin&encounter=ad-robin` is a sure repeat (the already-own card); `?days=60&encounter=random` draws as a roll would with the gifts of 60 days owned, so about a third are repeats; `?encounter=line-plants` and friends still pick a shop.
+- **Not built:** per-shop weights; the ladder moving by game day instead of by what you own; failure costing mood or the next ad (Marc's d5: it costs only the moment).
+
+### The ladder, in order (edit `LADDER` to change it)
+| # | Item | Kind | Difficulty | Gift |
+|---|------|------|------------|------|
+| 1 | ROBIN PRINT | art | normal | day 1 |
+| 2 | CONCERT POSTER | art | easy | day 3 |
+| 3 | WARM LAMP | lamp | easy | day 5 |
+| 4 | DRIED FLOWERS | plant | easy | achievement |
+| 5 | SNOW WAGON | art | normal | day 8 |
+| 6 | STOOL LAMP | lamp | normal | day 10 |
+| 7 | SERENITY NOW | art | normal | achievement |
+| 8 | CANOES | art | normal | day 13 |
+| 9 | CANDLE | lamp | easy | achievement |
+| 10 | GREAT WAVE | art | hard | day 16 |
+| 11 | POTHOS | plant | easy | day 21 |
+| 12 | STARRY NIGHT | art | hard | not a gift |
+| 13 | PAMPAS PLUMES | plant | normal | day 24 |
+| 14 | MONSTERA | plant | normal | day 27 |
+| 15 | WATER LILIES | art | normal | not a gift |
+| 16 | LAVENDER BUNDLE | plant | normal | day 30 |
+| 17 | SPIDER PLANT | plant | easy | day 33 |
+| 18 | SUNFLOWERS | art | normal | not a gift |
+| 19 | EUCALYPTUS JAR | plant | normal | day 36 |
+| 20 | CASUAL CLOTHES | outfit | easy | day 39 |
+| 21 | GOING OUT CLOTHES | outfit | normal | day 42 |
+| 22 | PAJAMAS | outfit | easy | day 45 |
+| 23 | CARDIGAN AND TEE | outfit | normal | day 48 |
+| 24 | GREY HOODIE | outfit | easy | day 51 |
+| 25 | DENIM JACKET AND TEE | outfit | normal | day 54 |
+| 26 | JACKET AND SCARF | outfit | normal | day 57 |
+| 27 | BUTTON-UP SHIRT | outfit | normal | day 60 |
+| 28 | BLAZER AND TEE | outfit | normal | day 63 |
+| 29 | PEACOAT | outfit | hard | day 66 |
+| 30 | STRIPED PAJAMAS | outfit | normal | day 69 |
+| 31 | BATHROBE | outfit | normal | day 72 |
+| 32 | STRIPED RUG | rug | normal | day 75 |
+| 33 | GREEN BED RUG | rug | normal | day 78 |
+| 34 | ALEBRIJE OWL | trinket | hard | day 81 |
+| 35 | SHAG RUG | rug | normal | not a gift |
+| 36 | LITTLE TELESCOPE | trinket | normal | day 84 |
+| 37 | FRENCH PRESS | coffee | easy | day 85 |
+| 38 | BRAIDED BED RUG | rug | normal | not a gift |
+| 39 | FINGER SKATEBOARD | trinket | easy | day 87 |
+| 40 | DRIP MACHINE | coffee | normal | day 88 |
+| 41 | KILIM RUG | rug | hard | not a gift |
+| 42 | PAINTED GOOSE EGG | trinket | normal | day 90 |
+| 43 | POD MACHINE | coffee | normal | day 91 |
+| 44 | DIAMOND BED RUG | rug | normal | not a gift |
+| 45 | WORRY DOLL | trinket | normal | day 93 |
+| 46 | PERCOLATOR | coffee | normal | day 94 |
+| 47 | JUTE RUG | rug | normal | not a gift |
+| 48 | RACCOON IN A CAN | trinket | normal | day 96 |
+| 49 | MOKA POT | coffee | normal | day 97 |
+| 50 | COTTON BED RUG | rug | normal | not a gift |
+| 51 | HARMONICA | instrument | easy | day 99 |
+| 52 | BRIKI | coffee | normal | day 100 |
+| 53 | MEDALLION RUG | rug | hard | not a gift |
+| 54 | KALIMBA | instrument | hard | day 102 |
+| 55 | JAW HARP | instrument | normal | day 105 |
+| 56 | VINTAGE BED RUG | rug | hard | not a gift |
+| 57 | ALEBRIJE CAT | trinket | hard | day 108 |
 
 ## 14. Encounter ideas backlog (Marc)
 Not planned; each would be a card template plus copy in the deadpan voice (real platforms, fake brands for ad copy).

@@ -2,7 +2,7 @@ import { DESKTOP_VIEW, NARROW, NARROW_VIEW, SYNC, VIEW, setView } from "./game/c
 import { keyFromText } from "./game/sync/client";
 import { APARTMENT } from "./game/apartment";
 import { attachFeatures } from "./game/features";
-import { deliverFromSearch, encounterOnFirstKey, ownFromSearch, skipDaysFromSearch } from "./game/decor-dev";
+import { deliverFromSearch, encounterOnFirstKey, failFromSearch, ownFromSearch, skipDaysFromSearch } from "./game/decor-dev";
 import { Game } from "./game/game";
 import { removeOldPhotos } from "./game/photos-cleanup";
 import { startLoop } from "./game/loop";
@@ -78,6 +78,8 @@ try {
   if (import.meta.env.DEV) deliverFromSearch(game.deliveries, location.search);
   // `?days=3` skips three game days (the real gifts fire; each arrives 2 game hours later).
   if (import.meta.env.DEV) skipDaysFromSearch(game.deliveries, location.search);
+  // `?fail=1` makes a purchase from an ad fall through (`0` never; a number is the chance), to see the failure line (issue 183).
+  if (import.meta.env.DEV) failFromSearch(game, location.search);
   // `?encounter=ad-candle` shows that ad's encounter on the first key press, so audio is unlocked (`random` picks one; `&again=1` replays after each one).
   if (import.meta.env.DEV) encounterOnFirstKey(game, location.search, window, () => keyboard.endFrame());
   // `&labmusic=1` plays the music lab's track (/music-lab.html) under that encounter (issue 122).

@@ -57,6 +57,18 @@ export function encounterFromSearch(game: Game, search: string): Ad | null {
   return game.startEncounter(ad) ? ad : null;
 }
 
+// Dev shortcut (issue 183): `?fail=1` makes every purchase from an ad fall through (a deadpan failure line, nothing
+// ordered), `?fail=0` none, and a number in between is the chance, in place of the item's tier. Pair it with
+// `?encounter=...`. Dev server only (main.ts). Returns the chance set, or null (nothing asked or not a number from 0 to 1).
+export function failFromSearch(game: Game, search: string): number | null {
+  const asked = new URLSearchParams(search).get("fail");
+  if (asked === null || asked.trim() === "") return null;
+  const n = Number(asked);
+  if (!Number.isFinite(n) || n < 0 || n > 1) return null;
+  game.devFailChance = n;
+  return n;
+}
+
 // Dev shortcut, the way to hear the entrance (issue 080): `?encounter=ad-candle` starts at once, before
 // any key press, so the browser has not let audio start and the stinger is silent. With this the
 // encounter waits for the first key press (the sound feature's own key listener unlocks audio first,

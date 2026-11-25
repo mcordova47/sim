@@ -268,6 +268,21 @@ Shops that sell a kind of thing and show whichever item of that kind the draw gi
 **Trinkets** (social; trinket; 0; 12): FEED / SPONSORED; @ODDSANDENDSSHOP; "{name}. You did not need this."; "Small, strange and good on a shelf."; "Each one is a little different."; SHOP NOW; look closer: "{name}", "About 3 IN tall. Gift wrap on request."
 **Instruments** (text message; instrument; 1; 24): MESSAGES / REEDBED; "Reedbed: {name} just came in."; "Come try it. Nobody is watching."; "Msg & data rates may apply. STOP to opt out."; SEE IT; look closer: "{name}", "Tuned and ready. Layaway available."
 
+## Purchases that fall through (issue 183)
+
+After you choose to buy and the roll goes against you, one line is shown instead of the order (nothing is ordered, no mood change). Rules: invented and generic, no brand; capitals; at most 46 letters; deadpan. The harder items (the ladder's `hard` tier) have their own list. They live in `ENCOUNTERS.failure` in `src/game/config.ts`. Mark each line `keep`, `soften` or `rewrite` after a dash.
+
+- Any item: SOLD OUT. IT WAS THERE A SECOND AGO.
+- Any item: THE PAGE WILL NOT LOAD.
+- Any item: THE CART FORGOT EVERYTHING.
+- Any item: PAYMENT FAILED. NO REASON GIVEN.
+- Any item: THE SITE IS DOWN FOR MAINTENANCE.
+- Any item: SOMETHING WENT WRONG. TRY AGAIN LATER.
+- Hard item: SOLD OUT. THEY ARE NOT MAKING MORE.
+- Hard item: SOMEONE ELSE GOT THE LAST ONE.
+- Hard item: WAITLIST ONLY. THE WAITLIST IS FULL.
+- Hard item: IT SOLD OUT WHILE YOU WERE TYPING.
+
 ## Flashcards progress page (issue 082)
 Shown at the desk when no cards are left to review. The pixel font is capitals only, so these draw in capitals.
 - Title: Study Spanish - keep

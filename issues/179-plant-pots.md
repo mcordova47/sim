@@ -68,6 +68,14 @@ decisions:
       - "no: the fresh room stays pixel for pixel the same and low plants are 2 rows tall"
     recommendation: "yes: a fresh game differs from today by those 2 pixels"
     status: open
+  - id: d7
+    who: marc
+    q: "When cut flowers dry, do they become a separate keepsake item (DRIED TULIPS) or does the same item change its look?"
+    options:
+      - "the same item changes its look to dried, in place, as d1 says (issue 171 as written); a new bunch replaces it"
+      - "a separate keepsake: the fresh bunch is replaced by a dried item you keep, and a new bunch can arrive again"
+    recommendation: "the same item changes its look to dried, in place, as d1 says (issue 171 as written); a new bunch replaces it"
+    status: open
 ---
 
 ## Goal

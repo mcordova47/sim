@@ -2,7 +2,7 @@
 id: "172"
 title: "A new record stand"
 short: "Record stand"
-status: done
+status: review
 owner: marc + claude
 depends_on: []
 summary: "The first replacement furniture: a different record stand, as a delivery."
@@ -33,9 +33,9 @@ decisions:
     on: 2026-11-24
   - id: d3
     who: marc
-    q: "Which record stand? Open the options page (group Record stand): A crate, B wire rack, C low cabinet, D lid cabinet."
+    q: "Which record stand? Open the options page (group Record stand): A crate with a turntable, B wire rack, C low cabinet, D lid cabinet."
     options:
-      - "A (a crate of records, no turntable drawn)"
+      - "A (a crate on legs with a turntable on top)"
       - "C (a low wooden cabinet with a turntable on top)"
       - "none of these: I will look up inspo"
     recommendation: "C (a low wooden cabinet with a turntable on top)"
@@ -69,3 +69,4 @@ Build the first piece of replacement furniture from `docs/decor-expansion-design
   - Standing checks (pass): new strings are in `docs/text-review.md` ("Record stand (issue 172)"); `docs/decor.md` has "What issue 172 built"; diff touches only the issue's own files (no `PLAN.md`, no other issues); no `reference-photos/` content or personal details.
   - Minor, not blocking: the issue log tells Marc to run `npm run tools -- options` but gives no absolute path. To see it: `cd ~/Dev/repos/mcordova47/sim-worktrees/172-record-stand && npm run tools -- options`, then open `~/Dev/repos/mcordova47/sim-worktrees/172-record-stand/dist-options/index.html` and look at the "Record stand" group.
   - Open for Marc, not a defect: d3 (pick a letter); the `decide` need stays. The picked design becomes a follow-up (item, delivery, text), so the planner may want to keep 172 open until then; the review only covers stage 1 and stage 2 as built.
+- 2026-11-25 (claude): Marc's note after looking: A with no turntable is odd for the thing that plays the music. Redrew A (`art/options/record-stand/stand-a-crate.sprite`): still a crate on legs, now with an open turntable deck on its tan top (round platter with a brick label, a tonearm) and records standing in the open front, slats and legs below; the options label, d3's option and `docs/decor.md` say so. What I saw at 10x and in the room (1x and 6x crops): NOW a black deck over record spines; A a tan crate with a dark platter and tonearm on top and a row of coloured spines in front, distinct from C (a light cream cabinet with doors) by its darker wood and the spines; B a grey-blue shelf unit with a platter on top and records below; C a cream cabinet with platter, tonearm, two knobbed doors; D a dark cabinet with a pale closed lid over the platter (the platter is hidden by the lid, which is the idea). Every candidate shows a turntable or a lidded one. Tests unchanged and passing.

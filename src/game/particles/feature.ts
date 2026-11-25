@@ -14,6 +14,8 @@ import type { Game, Layer } from "../game";
 import type { Interactable } from "../interactable";
 import { POSES } from "../poses";
 import { boundsOf } from "../world";
+import { mistLevel, mistPixel } from "./mist";
+import { paletteColor } from "../../render/colors";
 import { burst, burstPlan, countIn, floorOf, popupIconSpot, puff, stepDust } from "./effects";
 import { ParticlePool } from "./pool";
 
@@ -43,6 +45,10 @@ export class ParticlesFeature implements Layer {
   private readonly random: () => number;
   // Seconds until each active emitter makes its next puff.
   private readonly timers = new Map<EmitterDef, number>();
+  // The shower's mist: its density now (it jumps to the task's while it runs and clears by itself afterwards)
+  // and the time its drift has run.
+  private mist = 0;
+  private mistTime = 0;
 
   constructor(
     private readonly game: Game,
@@ -117,6 +123,7 @@ export class ParticlesFeature implements Layer {
     events.on("room", () => {
       this.pool.clear();
       this.timers.clear();
+      this.mist = 0;
     });
 
     game.addLayer(this);
@@ -135,10 +142,48 @@ export class ParticlesFeature implements Layer {
     if (this.paused) return;
     this.emitAll(dt);
     this.pool.update(dt);
+    this.updateMist(dt);
+  }
+
+  // The mist's density: the task's own while the shower runs (so its first frame is covered), then it clears.
+  private updateMist(dt: number): void {
+    const m = PARTICLES.mist;
+    const active = this.game.interaction.active;
+    this.mistTime += dt;
+    if (active?.item.id === m.task) this.mist = mistLevel(this.game.interaction.progress);
+    else this.mist = Math.max(0, this.mist - dt / m.clearSeconds);
+  }
+
+  // For tests: the mist's density now.
+  get mistDensity(): number {
+    return this.mist;
   }
 
   drawWorld(ctx: CanvasRenderingContext2D): void {
     this.pool.draw(ctx);
+    this.drawMist(ctx);
+  }
+
+  // The dithered mist over the tub, after the particles. With reduced motion the pattern holds still.
+  private drawMist(ctx: CanvasRenderingContext2D): void {
+    if (this.mist <= 0) return;
+    const m = PARTICLES.mist;
+    const origin = this.anchor({ from: "piece", sprite: m.piece, dx: 0, dy: 0 }, null);
+    if (!origin) return;
+    const still = this.game.reducedMotionAsked;
+    const driftX = still ? 0 : Math.floor(this.mistTime * m.drift.x);
+    const driftY = still ? 0 : Math.floor(this.mistTime * m.drift.y);
+    const before = ctx.globalAlpha;
+    ctx.globalAlpha = 1;
+    for (const which of ["light", "dark"] as const) {
+      ctx.fillStyle = paletteColor(m.colors[which]);
+      for (let y = Math.floor(m.cy - m.ry); y <= Math.ceil(m.cy + m.ry); y++) {
+        for (let x = Math.floor(m.cx - m.rx); x <= Math.ceil(m.cx + m.rx); x++) {
+          if (mistPixel(x, y, this.mist, driftX, driftY) === which) ctx.fillRect(origin.x + x, origin.y + y, 1, 1);
+        }
+      }
+    }
+    ctx.globalAlpha = before;
   }
 
   // The effects that carry on, while they apply: the running task's, then the ambient ones.

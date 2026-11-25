@@ -1664,6 +1664,31 @@ export const PARTICLES = {
       { kind: "showerFogStill", every: [10, 10], count: [3, 3], phases: ["water"], motion: "still", at: { from: "piece", sprite: "tub", dx: 20, dy: 24, spread: { x: 14, y: 12 } } },
     ],
   } as Record<string, EmitterDef[]>,
+  // A dithered mist over the tub that hides the bubble-covered player before the water starts and after it stops
+  // (issue 177, Marc's d1 answer): dense at the first frame, thinning as the water starts, building again as it
+  // stops and clearing once the task is over. A pixel pattern (4 x 4 ordered dither in paper and mist) drawn over
+  // an ellipse, not particles, so it never uses the pool's budget. `levels` is density 0 to 1 by the task's
+  // progress (straight lines between the points). Reduced motion: the same density, no drift.
+  mist: {
+    task: "shower",
+    // The ellipse, from the tub's top-left: centre, then half width and half height, in pixels. It covers the pose
+    // (x 6 to 21, y 16 to 36) with a ragged edge.
+    piece: "tub",
+    cx: 14,
+    cy: 26,
+    rx: 14,
+    ry: 16,
+    // The density at the edge falls off over this fraction of the radius (smaller is harder edged).
+    edge: 0.3,
+    levels: [[0, 1], [1 / 6, 0.12], [4.6 / 6, 0.12], [1, 1]] as [number, number][],
+    // Seconds for what is left to clear after the task ends (a finish or Escape).
+    clearSeconds: 0.8,
+    // Drift of the pattern in pixels a second (not with reduced motion).
+    drift: { x: 3, y: -2 },
+    // Share of the covered pixels in the darker colour.
+    mistShare: 0.35,
+    colors: { light: "paper", dark: "mist" },
+  },
   // A burst when a task completes, by task id, besides the confetti (issue 177): the shower's bubbles pop as the
   // player appears beside the tub. Not made with reduced motion (d4) and not for Escape (not a completion).
   finish: {

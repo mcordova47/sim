@@ -8,6 +8,7 @@ import { Decor } from "./decor";
 import { adById } from "./encounter-ads";
 import { Game } from "./game";
 import { OUTFITS, outfitItemId } from "./outfits";
+import { mistLevel, mistPixel } from "./particles/mist";
 import { attachParticles, type ParticlesFeature } from "./particles/feature";
 import { seeded } from "./particles/seeded";
 import { POSES } from "./poses";
@@ -516,5 +517,100 @@ describe("the sound (stage 3)", () => {
     expect(synth.voices).toBe(0);
     handle.stop(2);
     expect(audio.sources[0].stoppedAt).toBe(2);
+  });
+});
+
+describe("the mist over the tub (Marc's d1 answer)", () => {
+  const covered = (level: number, x0: number, x1: number, y0: number, y1: number) => {
+    let n = 0;
+    for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) if (mistPixel(x, y, level)) n++;
+    return n / ((x1 - x0) * (y1 - y0));
+  };
+  // The tub-local rectangle of the pose: x 6 to 22, y 16 to 36.
+  it("is dense at the start, thin while the water runs, builds again as it stops, and is solid at the end", () => {
+    expect(mistLevel(0)).toBe(1);
+    expect(mistLevel(1 / 6)).toBeCloseTo(0.12, 6);
+    expect(mistLevel(0.5)).toBeCloseTo(0.12, 6);
+    expect(mistLevel(4.6 / 6)).toBeCloseTo(0.12, 6);
+    expect(mistLevel(0.9)).toBeGreaterThan(0.5);
+    expect(mistLevel(1)).toBe(1);
+  });
+  it("hides almost all of the pose at full density, little at the water level, and nothing outside its ellipse", () => {
+    expect(covered(1, 7, 21, 18, 34)).toBeGreaterThan(0.85);
+    expect(covered(0.12, 6, 22, 16, 36)).toBeLessThan(0.2);
+    expect(covered(0, 0, 32, 0, 64)).toBe(0);
+    expect(mistPixel(0, 0, 1)).toBeNull();
+    expect(mistPixel(31, 63, 1)).toBeNull();
+  });
+  it("uses only the two palette colours and a drift moves the pattern", () => {
+    const seen = new Set<string | null>();
+    for (let y = 0; y < 64; y++) for (let x = 0; x < 32; x++) seen.add(mistPixel(x, y, 0.6));
+    expect([...seen].sort()).toEqual(["dark", "light", null]);
+    let diff = 0;
+    for (let y = 10; y < 40; y++) for (let x = 0; x < 28; x++) if (mistPixel(x, y, 0.6) !== mistPixel(x, y, 0.6, 1, 0)) diff++;
+    expect(diff).toBeGreaterThan(20);
+  });
+  const rects = () => {
+    const calls: string[] = [];
+    const rec = new Proxy({}, { get: (_t, k) => (k === "fillRect" ? (x: number, y: number) => calls.push(`${x},${y}`) : () => {}), set: () => true }) as unknown as CanvasRenderingContext2D;
+    return { calls, rec };
+  };
+  it("covers the very first frame of the pose (density 1 on the frame the task starts), and clears after the end", () => {
+    const { game, feature } = begin();
+    expect(feature.mistDensity).toBe(1);
+    run(game, 1.5);
+    expect(feature.mistDensity).toBeCloseTo(0.12, 2);
+    run(game, 4.0);
+    expect(feature.mistDensity).toBeGreaterThan(0.5);
+    finish(game);
+    expect(feature.mistDensity).toBeGreaterThan(0.8);
+    run(game, 0.5);
+    expect(feature.mistDensity).toBeGreaterThan(0);
+    expect(feature.mistDensity).toBeLessThan(0.7);
+    run(game, 0.5);
+    expect(feature.mistDensity).toBe(0);
+  });
+  it("clears by itself after Escape, and is gone when you leave the room's task, with no cost to the pool", () => {
+    const { game, feature } = begin();
+    run(game, 2);
+    game.update(dt, esc);
+    run(game, 1);
+    expect(feature.mistDensity).toBe(0);
+    expect(feature.pool.count).toBeLessThan(200);
+  });
+  it("drifts in normal motion and holds still with reduced motion, at the same density", () => {
+    const frames = (on: boolean) => {
+      const { game, feature } = begin({ reduced: { on } });
+      const a = rects();
+      feature.drawWorld(a.rec);
+      run(game, 0.7);
+      const b = rects();
+      feature.drawWorld(b.rec);
+      return { a: a.calls, b: b.calls, density: feature.mistDensity };
+    };
+    const moving = frames(false);
+    const still = frames(true);
+    expect(moving.a.length).toBeGreaterThan(50);
+    expect(still.a.length).toBeGreaterThan(50);
+    expect(moving.a.join("|")).not.toBe(moving.b.join("|"));
+    // Still: the pattern does not drift, only the density thins (a subset of what was there).
+    const first = new Set(still.a);
+    expect(still.b.every((c) => first.has(c))).toBe(true);
+    expect(still.density).toBeCloseTo(moving.density, 2);
+  });
+  it("keeps the whole shower, with the mist, well inside the particle budget (peak is measured)", () => {
+    const { game, feature } = begin();
+    let peak = 0;
+    for (let i = 0; i < 60 * 8; i++) {
+      game.update(dt, NO_INPUT);
+      peak = Math.max(peak, feature.pool.count);
+    }
+    expect(peak).toBeLessThan(80);
+    console.log("shower peak live particles:", peak);
+  });
+  it("does nothing in other tasks or rooms", () => {
+    const { game, feature } = bath();
+    run(game, 1);
+    expect(feature.mistDensity).toBe(0);
   });
 });

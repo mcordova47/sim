@@ -268,7 +268,7 @@ export const ENCOUNTERS = {
   // the usual one when everything is owned. The kinds are the ones an ad can sell (not props, plug-ins, the pantry
   // or furniture); a kind with no items yet simply gives its shop nothing to sell.
   pool: {
-    kinds: ["art", "plant", "lamp", "rug", "outfit", "coffee", "trinket", "instrument"] as readonly string[],
+    kinds: ["art", "plant", "lamp", "rug", "outfit", "coffee", "trinket", "instrument", "furniture"] as readonly string[],
     unowned: 10,
     owned: 1,
   },

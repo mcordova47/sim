@@ -245,6 +245,18 @@ export const GIFT_ITEMS: DecorItem[] = [
   { id: "coffee-briki", name: "BRIKI", kind: "coffee", sprite: "coffee-briki", taskName: "briki", slots: ["coffee-stove"], w: 16, h: 16, color: "tangerine", how: "gift", from: "A PACKAGE", note: "A TINY POT WITH A LONG HANDLE. THE FOAM IS NOT OPTIONAL." },
 ];
 
+// Replacement furniture (issue 172), kept apart from the checkpoint gifts: none has a checkpoint, they come through the random-encounter pool.
+export const FURNITURE_ITEMS: DecorItem[] = [
+  // Record stands (issue 172, Marc's pick: keep them all). Replacement furniture for the `furniture-record-stand` slot; no checkpoint, they come through the random-encounter pool (issue 163, `line-furniture`). The old stand stays the owned default.
+  { id: "furniture-record-stand-crate", name: "RECORD CRATE", kind: "furniture", sprite: "record-stand-crate", w: 16, h: 16, color: "paper", how: "gift", from: "A PACKAGE", note: "RECORDS LIVE IN IT. THE CRATE HAS NEVER ASKED WHY.", slots: ["furniture-record-stand"] },
+  { id: "furniture-record-stand-wire", name: "WIRE RECORD RACK", kind: "furniture", sprite: "record-stand-wire", w: 16, h: 16, color: "mist", how: "gift", from: "A PACKAGE", note: "YOU CAN SEE RIGHT THROUGH IT. THE RECORDS HAVE NOTHING TO HIDE.", slots: ["furniture-record-stand"] },
+  { id: "furniture-record-stand-cabinet", name: "RECORD CABINET", kind: "furniture", sprite: "record-stand-cabinet", w: 16, h: 16, color: "butter", how: "gift", from: "A PACKAGE", note: "A PROPER HOME FOR THE RECORDS. THE KNOBS ARE JUST FOR LOOKS.", slots: ["furniture-record-stand"] },
+  { id: "furniture-record-stand-lidded", name: "LIDDED RECORD CABINET", kind: "furniture", sprite: "record-stand-lidded", w: 16, h: 16, color: "dusk", how: "gift", from: "A PACKAGE", note: "THE LID KEEPS THE DUST OUT. THE DUST HAS NOTICED.", slots: ["furniture-record-stand"] },
+  { id: "furniture-record-stand-suitcase-pink", name: "PINK SUITCASE PLAYER", kind: "furniture", sprite: "record-stand-suitcase-pink", w: 16, h: 16, color: "brick", how: "gift", from: "A PACKAGE", note: "PORTABLE, IN THEORY. THE ROOM IS ITS WHOLE TRIP.", slots: ["furniture-record-stand"] },
+  { id: "furniture-record-stand-suitcase-teal", name: "TEAL SUITCASE PLAYER", kind: "furniture", sprite: "record-stand-suitcase-teal", w: 16, h: 16, color: "mist", how: "gift", from: "A PACKAGE", note: "IT KEEPS A RECORD HANDY FOR A PARTY. THERE IS NO PARTY.", slots: ["furniture-record-stand"] },
+  { id: "furniture-record-stand-gramophone", name: "GRAMOPHONE", kind: "furniture", sprite: "record-stand-gramophone", w: 16, h: 16, color: "tangerine", how: "gift", from: "A PACKAGE", note: "THE HORN IS FOR THE SOUND. YOU WAVE AT IT ANYWAY.", slots: ["furniture-record-stand"] },
+];
+
 // TEST items (issue 062 stage 2): borrowed sprites, so the swap can be tried and
 // reviewed before gifts and finds (stage 3) or new art (stage 4) exist. They are
 // not owned by anyone; `?own=test` in the dev server gives them all. Every id
@@ -270,7 +282,7 @@ export interface DecorData {
   families: Readonly<Record<string, FamilyRules>>;
 }
 
-export const DECOR_DATA: DecorData = { slots: DECOR_SLOTS, items: [...DECOR_ITEMS, ...GIFT_ITEMS, ...TEST_ITEMS], families: FAMILIES };
+export const DECOR_DATA: DecorData = { slots: DECOR_SLOTS, items: [...DECOR_ITEMS, ...GIFT_ITEMS, ...FURNITURE_ITEMS, ...TEST_ITEMS], families: FAMILIES };
 
 // Every sprite name an item can ask for, so they are loaded before the first frame.
 export function itemSprites(item: DecorItem, families: DecorData["families"] = FAMILIES): string[] {

@@ -463,8 +463,17 @@ The page that fills the outfit slots, in the game's capitals ([outfit-equip-scre
 - Touch button at the top right: BACK - 
 
 ## Record stand (issue 172)
-The first furniture slot. The only new player-visible strings are the stand's own entry (the stand you start with) and the swap wording; no replacement stand has a name or note yet (Marc picks the design first). The test placeholder (TEST RECORD STAND) is never owned in play. Wired in `src/game/decor-data.ts` and `src/game/tasks.ts`. Marc to mark: keep / soften / rewrite.
+The first furniture slot. The strings are the stand's own entry (the stand you start with), the swap wording, the seven replacement stands Marc picked (all of them) and the furniture shop's ad. The test placeholder (TEST RECORD STAND) is never owned in play. Wired in `src/game/decor-data.ts` and `src/game/tasks.ts`. Marc to mark: keep / soften / rewrite.
 - RECORD STAND: IT HOLDS THE RECORDS. THE RECORDS HOLD YOU. - 
 - Source: FROM: ALREADY HERE (the usual starting-thing line) - 
 - Slot name and where (swap list): RECORD STAND, NEXT TO THE SOFA - 
 - Prompt at the stand: Change record stand - 
+- RECORD CRATE: RECORDS LIVE IN IT. THE CRATE HAS NEVER ASKED WHY. - 
+- WIRE RECORD RACK: YOU CAN SEE RIGHT THROUGH IT. THE RECORDS HAVE NOTHING TO HIDE. - 
+- RECORD CABINET: A PROPER HOME FOR THE RECORDS. THE KNOBS ARE JUST FOR LOOKS. - 
+- LIDDED RECORD CABINET: THE LID KEEPS THE DUST OUT. THE DUST HAS NOTICED. - 
+- PINK SUITCASE PLAYER: PORTABLE, IN THEORY. THE ROOM IS ITS WHOLE TRIP. - 
+- TEAL SUITCASE PLAYER: IT KEEPS A RECORD HANDY FOR A PARTY. THERE IS NO PARTY. - 
+- GRAMOPHONE: THE HORN IS FOR THE SOUND. YOU WAVE AT IT ANYWAY. - 
+- Source on all seven: FROM: A PACKAGE - 
+- Furniture shop ad (invented, no real brand; `line-furniture` in `src/game/encounter-lines.ts`): Corner Post Furniture / CORNER POST FURNITURE; headline "Now in stock: {name}"; body "Solid, steady and built for the long haul." / "Some assembly. Some opinions." / "Free delivery to your door."; button SHOP FURNITURE; closer "{name}" / "Ships in a big box, in 5 days." - 

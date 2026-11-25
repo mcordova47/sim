@@ -3,7 +3,12 @@ import { unsupportedChars } from "../render/font";
 import { APARTMENT } from "./apartment";
 import { PARTICLES } from "./config";
 import { Decor, fits, validateDecorData } from "./decor";
-import { DECOR_DATA, DECOR_ITEMS, DECOR_SLOTS, NOTE_MAX } from "./decor-data";
+import { DECOR_DATA, DECOR_ITEMS, DECOR_SLOTS, FURNITURE_ITEMS, GIFT_ITEMS, NOTE_MAX } from "./decor-data";
+import { itemPool, drawLineAd } from "./encounter-draw";
+import { LINES } from "./encounter-lines";
+import { CHECKPOINTS } from "./delivery-checkpoints";
+const sources = import.meta.glob("/art/src/*.sprite", { query: "?raw", import: "default", eager: true }) as Record<string, string>;
+const spriteFiles = import.meta.glob("/public/sprites/*.png", { query: "?url" });
 import { taskSpots } from "./plan-checks";
 import { TASKS } from "./tasks";
 
@@ -63,5 +68,52 @@ describe("the record stand slot", () => {
     expect(t.name).toMatch(/^TEST /);
     expect(new Decor().owns(t.id)).toBe(false);
     expect(t.slots).toEqual(["furniture-record-stand"]);
+  });
+});
+
+const IDS = ["crate", "wire", "cabinet", "lidded", "suitcase-pink", "suitcase-teal", "gramophone"].map((k) => `furniture-record-stand-${k}`);
+
+describe("the seven record stands (Marc picked all of them)", () => {
+  it("are real furniture items for the slot, each with a 16x16 sprite, a plain name, a note and a source, and no checkpoint", () => {
+    expect(FURNITURE_ITEMS.map((i) => i.id)).toEqual(IDS);
+    for (const i of FURNITURE_ITEMS) {
+      expect(i).toMatchObject({ kind: "furniture", w: 16, h: 16, from: "A PACKAGE", slots: ["furniture-record-stand"] });
+      expect(fits(slot, i), i.id).toBe(true);
+      expect(i.note!.length, i.id).toBeLessThanOrEqual(NOTE_MAX);
+      expect(unsupportedChars(i.name + i.note!), i.id).toEqual([]);
+      expect(i.tags).toBeUndefined();
+      const src = sources[`/art/src/${i.sprite}.sprite`];
+      expect(`/public/sprites/${i.sprite}.png` in spriteFiles, i.sprite).toBe(true);
+      expect(/^size: 16x16$/m.test(src), i.sprite).toBe(true);
+      expect(GIFT_ITEMS.includes(i)).toBe(false);
+      expect(JSON.stringify(CHECKPOINTS).includes(i.id), i.id).toBe(false);
+    }
+    expect(new Set(FURNITURE_ITEMS.map((i) => i.name)).size).toBe(7);
+    expect(new Set(FURNITURE_ITEMS.map((i) => i.sprite)).size).toBe(7);
+  });
+
+  it("are not owned in a fresh game, each swaps in through the slot, and the old stand goes to the inventory and comes back", () => {
+    expect(IDS.some((id) => new Decor().owns(id))).toBe(false);
+    for (const id of IDS) {
+      const d = new Decor();
+      d.own(id);
+      expect(d.canChange("furniture-record-stand"), id).toBe(true);
+      d.place("furniture-record-stand", id);
+      expect(d.heldIn("furniture-record-stand")?.id).toBe(id);
+      expect(d.inventory().map((i) => i.id)).toContain("furniture-record-stand-old");
+      const again = new Decor();
+      again.load(JSON.parse(JSON.stringify(d.toJSON())));
+      expect(again.heldIn("furniture-record-stand")?.id, id).toBe(id);
+    }
+  });
+
+  it("join the random-encounter pool through a furniture shop, which can show every one of them", () => {
+    const pool = itemPool(DECOR_DATA.items);
+    expect(pool.filter((i) => i.kind === "furniture").map((i) => i.id)).toEqual(IDS);
+    const line = LINES.find((l) => l.kinds.includes("furniture"))!;
+    expect(line.id).toBe("line-furniture");
+    const ad = drawLineAd(line, { items: pool, has: () => false }, () => 0)!;
+    expect(IDS).toContain(ad.item);
+    expect(ad.headline).toContain("RECORD");
   });
 });

@@ -492,6 +492,21 @@
           "letter": "F",
           "file": "record-stand/stand-f-gramophone",
           "label": "An old gramophone: a short brass horn at the back (a compromise: a real horn does not fit 16x16, so it is a short wide flare that reads more as a brass bell), an oak box top with a round platter and a hand crank on the right, short feet."
+        },
+        {
+          "letter": "F1",
+          "file": "record-stand/stand-f1-side-horn",
+          "label": "Gramophone, horn in side view: a tall brass cone rising to the upper right from the back of a low oak box, platter on top, crank at the right. The horn's silhouette is the one people recognise; this is the one that ships as the gramophone."
+        },
+        {
+          "letter": "F2",
+          "file": "record-stand/stand-f2-wide-horn",
+          "label": "Gramophone, big bright horn facing you from the back with a dark inner ring and throat. Reads as a brass bowl or pan on a box."
+        },
+        {
+          "letter": "F3",
+          "file": "record-stand/stand-f3-wind-up",
+          "label": "A small table-top wind-up player: a small horn on the left, a cream box with a platter and a crank. The horn is too small to read."
         }
       ]
     }

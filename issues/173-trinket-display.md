@@ -28,7 +28,10 @@ decisions:
       - "only the desk corner and a bookshelf cubby"
       - "only the bookshelf"
     recommendation: "several small places, each examinable: the desk's right corner, the nightstand, the lamp table next to the lamp, the window sill by the bed, and a bookshelf cubby"
-    status: open
+    status: answered
+    answer: "several small places, each examinable: the desk's right corner, the nightstand, the lamp table next to the lamp, the window sill by the bed, and a bookshelf cubby"
+    by: marc
+    on: 2026-11-24
   - id: d3
     who: marc
     q: "How does the bookshelf examine work?"

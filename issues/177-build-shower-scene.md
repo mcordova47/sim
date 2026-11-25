@@ -8,6 +8,7 @@ depends_on: ["175"]
 summary: "Build the in-room shower scene: the player in the tub under bubbles, steam and a hiss, then out in the robe."
 kind: build
 changelog: "Taking a shower is now a short comic scene with bubbles, steam and a hiss, ending in the bathrobe."
+needs: [{who: marc, kind: try, why: "Take a shower and tune the hiss by ear: cd ~/Dev/repos/mcordova47/sim-worktrees/177-shower-scene && npm run dev, walk through the kitchen to the bath at the east end, stand on the tile east of the tub (column 3, rows 1 to 4), face west, press E; ?set=clock:8 and your OS reduce-motion setting show the other cases; then say 'merge 177' or what is off", since: 2026-11-24}]
 ---
 
 ## Goal

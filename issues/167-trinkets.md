@@ -89,7 +89,7 @@ decisions:
       - "A, keep the owl"
     recommendation: "B, the plain cat; hybrids can come later as more alebrijes"
     status: open
-needs: []
+needs: [{who: marc, kind: try, why: "Browse the alebrije options (cd ~/Dev/repos/mcordova47/sim-worktrees/167-trinkets && npm run tools -- options, section Alebrije); answer d7 (which one; B plain cat recommended); then say 'merge 167'", since: 2026-11-24}]
 ---
 
 ## Goal

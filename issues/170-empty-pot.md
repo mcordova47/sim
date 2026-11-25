@@ -16,7 +16,10 @@ decisions:
       - "a Plant a seed task turns the empty pot into a live plant at its smallest stage"
       - "a plant gift arrives potted into the empty pot if the pot is the one on the shelf"
     recommendation: "the empty pot is a still item in the plant slot; swapping a plant in fills it (simplest)"
-    status: open
+    status: answered
+    answer: "this sounds fine, but i'll check how it feels"
+    by: marc
+    on: 2026-11-24
   - id: d2
     who: marc
     q: "There is already an empty pot on top of the bookshelf; is it the same pot?"

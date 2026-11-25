@@ -1,10 +1,8 @@
-# Record stand (issue 172): a novelty portable record player in a pink suitcase, open: the lid stands up behind (its lining with a speaker grille), the cream deck has a round platter and a tonearm, butter latches on the front, small feet. 16x16.
+# Record stand (issue 172, front faces north): a novelty portable record player in a pink suitcase. The front faces north: a thin north strip of the case with butter latches; the cream deck with its platter and tonearm faces the player; the lid is hinged at the back (south, the wall side) and stands open toward the wall, its lining with a speaker grille facing north. 16x16.
 size: 16x16
-................
 .11111111111111.
 1kkkkkkkkkkkkkk1
-1k656565656565k1
-1k565656565656k1
+1bbbdbbbbbbdbbb1
 1bbbbbbbbbbbbbb1
 1kaaaaaaaaaaaak1
 1ka111111aaaaak1
@@ -13,6 +11,8 @@ size: 16x16
 1k132bb2315aaak1
 1k13322331aaaak1
 1ka111111aaaaak1
-1bbbdbbbbbbdbbb1
+1k656565656565k1
+1k565656565656k1
+1bbbbbbbbbbbbbb1
 .11111111111111.
 .1b..........b1.

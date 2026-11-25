@@ -71,9 +71,9 @@ describe("the record stand slot", () => {
   });
 });
 
-const IDS = ["crate", "wire", "cabinet", "lidded", "suitcase-pink", "suitcase-teal", "gramophone"].map((k) => `furniture-record-stand-${k}`);
+const IDS = ["crate", "wire", "cabinet", "lidded", "suitcase-pink", "suitcase-teal"].map((k) => `furniture-record-stand-${k}`);
 
-describe("the seven record stands (Marc picked all of them)", () => {
+describe("the six record stands (Marc picked all of them)", () => {
   it("are real furniture items for the slot, each with a 16x16 sprite, a plain name, a note and a source, and no checkpoint", () => {
     expect(FURNITURE_ITEMS.map((i) => i.id)).toEqual(IDS);
     for (const i of FURNITURE_ITEMS) {
@@ -88,8 +88,8 @@ describe("the seven record stands (Marc picked all of them)", () => {
       expect(GIFT_ITEMS.includes(i)).toBe(false);
       expect(JSON.stringify(CHECKPOINTS).includes(i.id), i.id).toBe(false);
     }
-    expect(new Set(FURNITURE_ITEMS.map((i) => i.name)).size).toBe(7);
-    expect(new Set(FURNITURE_ITEMS.map((i) => i.sprite)).size).toBe(7);
+    expect(new Set(FURNITURE_ITEMS.map((i) => i.name)).size).toBe(6);
+    expect(new Set(FURNITURE_ITEMS.map((i) => i.sprite)).size).toBe(6);
   });
 
   it("are not owned in a fresh game, each swaps in through the slot, and the old stand goes to the inventory and comes back", () => {

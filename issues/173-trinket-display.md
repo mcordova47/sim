@@ -127,7 +127,10 @@ decisions:
       - "two by two"
       - "a column of four"
     recommendation: "a row of four"
-    status: open
+    status: answered
+    answer: "it's like an ikea thing technically four rows of three, but one of the columns has drawers in it for clothes, the closeup could be a 2x2 square of four cubbies maybe"
+    by: marc
+    on: 2026-11-24
   - id: d12
     who: marc
     q: "What happens to the unmerged issue 167 branch, whose ten pictures are too big?"
